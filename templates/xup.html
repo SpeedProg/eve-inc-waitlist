@@ -1,0 +1,44 @@
+{% extends "base.html" %} {% block title %}Index{% endblock %}
+{% block head %} {{ super() }}
+{% endblock %}
+{% block menu %}
+<a class="navbar-brand" href="#">WarpToMe WL</a>
+<ul class="nav navbar-nav">
+	<li class="nav-item"><a class="nav-link" href="/">Home
+			<span class="sr-only">(current)</span>
+	</a></li>
+	<li class="nav-item"><a class="nav-link active">X-UP</a></li>
+</ul>
+{% endblock %} {% block data %}
+<div class="col-sm-8" id="x-up">
+<form action="/xup" method="post">
+<fieldset class="form-group">
+<label for="fittings">Fittings</label>
+<textarea class="form-control" id="fittings" name="fits" rows="10" cols="50" placeholder="Post your fittings here" required></textarea>
+</fieldset>
+<fieldset class="form-group">
+	<label for="cbs">Caldari Battleship Level</label>
+	<select class="form-control" id="cbs" name="cbs">
+		<option value="0">No Caldari BS</option>
+		<option value="1">1</option>
+		<option value="2">2</option>
+		<option value="3">3</option>
+		<option value="4">4</option>
+		<option value="5">5</option>
+	</select>
+</fieldset>
+<fieldset class="form-group">
+	<label for="logi">Logistic Cruiser Level</label>
+	<select class="form-control" id="logi" name="logi">
+		<option value="0">No Logi</option>
+		<option value="1">1</option>
+		<option value="2">2</option>
+		<option value="3">3</option>
+		<option value="4">4</option>
+		<option value="5">5</option>
+	</select>
+</fieldset>
+<button type="submit" class="btn btn-primary">Enter On Waitlist</button>
+</form>
+</div>
+{% endblock %}
