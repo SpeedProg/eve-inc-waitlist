@@ -5,7 +5,7 @@ import flask
 from flask.app import Flask
 from pprint import pprint
 import logging
-from waitlist.storage.database import Character, session, ShipFit
+from waitlist.storage.database import Character, session, ShipFit, WaitlistEntry
 import cgi
 from flask_principal import Principal, Identity, identity_changed, \
     identity_loaded, UserNeed, RoleNeed, Permission
@@ -13,6 +13,10 @@ from waitlist.permissions import WTMRoles
 from flask.templating import render_template
 import re
 from waitlist import utils
+from waitlist.storage.modules import resist_ships, logi_ships, sniper_ships,\
+    dps_snips, sniper_weapons, dps_weapons
+from waitlist.utils import create_mod_map
+from waitlist.setup_wtm import WaitlistNames
 FORMAT = '%(asctime)-15s %(levelname)s %(filename)s %(funcName)s %(lineno)d %(message)s'
 logging.basicConfig(format=FORMAT)
 
@@ -93,12 +97,113 @@ def xup_submit():
     
     # TODO handle dna fits
     
-    # TODO detect, caldari resist ships + basi + scimi and add lvl comment
+    # detect, caldari resist ships + basi + scimi and add lvl comment
+    # -- done --
     
     # find out if the user is already in a waitlist, if he is add him to more waitlists according to his fits
     # or add more fits to his entries
     # else create new entries for him in all appropriate waitlists
     
+    
+    
+    
+    
+    for fit in fits:
+        if fit.ship_type in resist_ships:
+            fit.comment += " <b>Caldari Battleship: " + str(caldari_bs_lvl)+"</b>"
+        else:
+            if fit.ship_type in logi_ships:
+                fit.comment += " <b>Logistics Cruiser: " + str(logilvl)+"</b>"
+    # get current users id
+    
+    eve_id = current_user.get_eve_id()
+    
+    # get the waitlist entries of this user
+    waitlists = session.query(WaitlistEntry).filter(WaitlistEntry.user == eve_id).all()
+    
+    dps = []
+    sniper = []
+    logi = []
+
+    #query to check if sth is a weapon module
+    '''
+    SELECT count(1) FROM invtypes
+    JOIN invmarketgroups AS weapongroup ON invtypes.marketGroupID = weapongroup.marketGroupID
+    JOIN invmarketgroups AS wcat ON weapongroup.parentGroupID = wcat.marketGroupID
+    JOIN invmarketgroups AS mcat ON wcat.parentGroupID = mcat.marketGroupID
+    WHERE invtypes.typeName = ? AND mcat.parentGroupID = 10;/*10 == Turrets & Bays*/
+    '''
+    
+    # split his fits into types for the different waitlists
+    for fit in fits:
+        mod_map = create_mod_map(fit.modules)
+        # check that ship is an allowed ship
+        
+        # it is a logi put on logi wl
+        if fit.ship_type in logi_ships:
+            logi.append(fit)
+            continue;
+        
+        is_allowed = False
+        if fit.ship_type in sniper_ships or fit.ship_type in dps_snips:
+            is_allowed = True
+        
+        if not is_allowed: # not an allowed ship, push it on dps list :P
+            dps.append(fit)
+            continue
+        
+        
+        
+        # filter out mods that don't exist at least 4 times
+        # this way we avoid checking everything or choosing the wrong weapon on ships that have 7turrents + 1launcher
+        possible_weapons = []
+        for mod in mod_map:
+            if mod_map[mod][1] >= 4:
+                possible_weapons.append(mod)
+        
+        weapon_type = "None"
+        for weapon in possible_weapons:
+            if weapon in sniper_weapons:
+                weapon_type = "sniper"
+                break
+            if weapon in dps_weapons:
+                weapon_type = "dps"
+                break
+        
+        # ships with no valid weapons put on dps wl
+        if weapon_type == "None" or weapon_type == "dps":
+            dps.append(fit)
+            continue
+        
+        # ships with sniper weapons put on sniper wl
+        if weapon_type == "sniper":
+            sniper.append(fit)
+            continue
+    
+    logi_entry = None
+    sniper_entry = None
+    dps_entry = None
+    if len(waitlists) > 0: # there are actually existing entries
+        # if there are existing wl entries assign them to appropriate variables
+        for wl in waitlists:
+            if wl.waitlist.name == WaitlistNames.logi:
+                logi_entry = wl
+                continue
+            if wl.waitlist.name == WaitlistNames.dps:
+                dps_entry = wl
+                continue
+            if wl.waitlist.name == WaitlistNames.sniper:
+                sniper_entry = wl
+                
+    
+    
+    # we have a logi fit but no logi wl entry, so create one
+    if len(logi) and logi_entry == None:
+        logi_entry = WaitlistEntry()
+        logi_entry.
+    # iterate over sorted fits
+    for logifit in logi:
+        
     
     
     return parsed_fit
