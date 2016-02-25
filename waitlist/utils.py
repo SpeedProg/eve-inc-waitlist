@@ -84,6 +84,21 @@ def create_dna_string(mod_map):
     
     return dna
 
+# map looks like this mod_map = {mod_id:[mod_id,mod_count],...}
+def create_mod_map(dna_string):
+    mod_map = {}
+    mods = dna_string.split(':')
+    for mod in mods:
+        parts = mod.split(";")
+        mod_id = int(parts[0])
+        if len(parts) > 1:
+            mod_count = int(parts[1])
+        else:
+            mod_count = 0
+        mod_map[mod_id] = [mod_id, mod_count]
+    
+    return mod_map
+
 def get_fit_format(line):
     # [Vindicator, VeniVindiVG]
     if re.match("\[.*,.*\]", line):
