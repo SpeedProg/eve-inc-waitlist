@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, String, SmallInteger,\
-    DECIMAL, BIGINT
+    DECIMAL, BIGINT, Boolean, UniqueConstraint, DateTime
 from sqlalchemy.engine import create_engine
 from sqlalchemy.ext.declarative.api import declarative_base
 from sqlalchemy.orm import relationship, backref
@@ -71,6 +71,7 @@ class Account(Base):
     __tablename__ = 'accounts'
 
     id = Column(Integer, primary_key=True)
+    set_character = Column(Integer, ForeignKey("characters.id"))
     username = Column(String(100), unique=True)# login name
     password = Column(String(100))
     email = Column(String(100), unique=True)
@@ -80,6 +81,9 @@ class Account(Base):
     characters = relationship('Character', secondary=linked_chars,
                               backref=backref('linked_chars'))
     
+    def get_eve_id(self):
+        return self.set_character
+
     @property
     def type(self):
         return "account"
@@ -118,6 +122,10 @@ class Character(Base):
     
     id = Column(Integer, primary_key=True)
     eve_name = Column(String(100), unique=True)
+    newbro = Column(Boolean)
+
+    def get_eve_id(self):
+        return self.id
 
     @property
     def type(self):
@@ -157,6 +165,7 @@ class WaitList(Base):
     
     id = Column(Integer, primary_key=True)
     name = Column(String(20), unique=True)
+    entries = relationship("WaitlstiEntry", back_populates="waitlist")
     
     def __repr__(self):
         return "<WaitList %r>" % (self.name)
@@ -193,9 +202,12 @@ class WaitlistEntry(Base):
     """
     __tablename__ = "waitlist_entries"
     id = Column(Integer, primary_key=True)
+    creation = Column(DateTime)
     user = Column(Integer, ForeignKey('characters.id'))
     fittings = relationship("ShipFit")
-    
+    waitlist = relationship("WaitList", back_populates="entries")
+
+
     def __repr__(self):
         return "<WaitlistEntry %r>" % (self.id)
     
