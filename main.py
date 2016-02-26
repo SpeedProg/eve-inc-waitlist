@@ -17,15 +17,13 @@ from waitlist.storage.modules import resist_ships, logi_ships, sniper_ships,\
     dps_snips, sniper_weapons, dps_weapons
 from waitlist.utils import create_mod_map
 from waitlist.setup_wtm import WaitlistNames
-FORMAT = '%(asctime)-15s %(levelname)s %(filename)s %(funcName)s %(lineno)d %(message)s'
-logging.basicConfig(format=FORMAT)
 
-logger = logging.getLogger(__name__)
-logger.setLevel(0)
 
 app = Flask(__name__)
 app.secret_key = 'mcf4q37h0n59qc4307w98jd5fc723'
 app.config['SESSION_TYPE'] = 'filesystem'
+
+logger = app.logger
 
 login_manager = LoginManager()
 login_manager.init_app(app)
