@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, String, SmallInteger,\
-    DECIMAL, BIGINT, Boolean, UniqueConstraint, DateTime
+    DECIMAL, BIGINT, Boolean, DateTime
 from sqlalchemy.engine import create_engine
 from sqlalchemy.ext.declarative.api import declarative_base
 from sqlalchemy.orm import relationship, backref
@@ -42,7 +42,7 @@ roles = Table('account_roles',
 linked_chars = Table('linked_chars',
                      Base.metadata,
                      Column('id', Integer, ForeignKey('accounts.id')),
-                     Column('role_id', Integer, ForeignKey('characters.id'))
+                     Column('char_id', Integer, ForeignKey('characters.id'))
                      )
 
 class InvType(Base):
@@ -157,7 +157,7 @@ class Role(Base):
     def __repr__(self):
         return "<Role %r>" % (self.name)
 
-class WaitList(Base):
+class Waitlist(Base):
     """
     Represents a waitlist
     """
@@ -165,10 +165,10 @@ class WaitList(Base):
     
     id = Column(Integer, primary_key=True)
     name = Column(String(20), unique=True)
-    entries = relationship("WaitlstiEntry", back_populates="waitlist")
+    entries = relationship("WaitlistEntry", back_populates="waitlists")
     
     def __repr__(self):
-        return "<WaitList %r>" % (self.name)
+        return "<Waitlist %r>" % (self.name)
 
 fitted_modules = Table('fitted_modules',
                        Base.metadata,
@@ -176,7 +176,7 @@ fitted_modules = Table('fitted_modules',
                        Column('module', Integer, ForeignKey('invtypes.typeID'))
                        )
 
-class ShipFit(Base):
+class Shipfit(Base):
     """
     Represents a single fit
     """
@@ -192,7 +192,7 @@ class ShipFit(Base):
         return "{0}:{1}".format(self.ship_type, self.modules)
     
     def __repr__(self):
-        return "<ShipFit id={0} ship_type={1} modules={2} comment={3} waitlist={4}>".format(self.id, self.ship_type, self.modules, self.comment, self.waitlist)
+        return "<Shipfit id={0} ship_type={1} modules={2} comment={3} waitlist={4}>".format(self.id, self.ship_type, self.modules, self.comment, self.waitlist)
 
 
 class WaitlistEntry(Base):
@@ -204,8 +204,9 @@ class WaitlistEntry(Base):
     id = Column(Integer, primary_key=True)
     creation = Column(DateTime)
     user = Column(Integer, ForeignKey('characters.id'))
-    fittings = relationship("ShipFit")
-    waitlist = relationship("WaitList", back_populates="entries")
+    fittings = relationship("Shipfit")
+    waitlist = Column(Integer, ForeignKey("waitlists.id"))
+    waitlists = relationship("Waitlist", back_populates="entries")
 
 
     def __repr__(self):

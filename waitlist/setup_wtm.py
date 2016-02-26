@@ -1,4 +1,4 @@
-from waitlist.storage.database import session, Role, WaitList
+from waitlist.storage.database import session, Role, Waitlist
 
 class WaitlistNames():
     logi = "logi"
@@ -18,12 +18,11 @@ if __name__ == '__main__':
         session.add(role)
     
     session.commit()
-    
-    
+
     # setup waitlists
     wl_names = [WaitlistNames.logi, WaitlistNames.dps, WaitlistNames.sniper]
     for wl_name in wl_names:
-        wl = WaitList()
+        wl = Waitlist()
         wl.name = wl_name
         session.add(wl)
     

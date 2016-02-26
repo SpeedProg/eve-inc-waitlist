@@ -2,7 +2,7 @@ import string,random
 import logging
 import re
 from waitlist.storage import database
-from waitlist.storage.database import ShipFit
+from waitlist.storage.database import Shipfit
 
 logger = logging.getLogger(__name__)
 
@@ -16,7 +16,7 @@ def get_random_token(length):
     return unicode(''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(length)))
 
 def parseEft(eftString):
-        fit = ShipFit()
+        fit = Shipfit()
         lines = re.split('[\n\r]+', eftString)
         # take [Vindicator, VeniVindiVG] remove the [] and split at ,
         info = lines[0][1:-1].split(",", 1)
