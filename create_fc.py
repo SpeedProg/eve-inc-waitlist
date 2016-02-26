@@ -2,6 +2,7 @@ from waitlist.storage.database import Account, Character, session, Role
 from waitlist.utils import get_random_token
 from waitlist.permissions import WTMRoles
 import evelink
+import string
 if __name__ == '__main__':
     name = raw_input("Login Name:")
     pw = raw_input("Password:")
@@ -19,6 +20,7 @@ if __name__ == '__main__':
     print acc.login_token
     
     char_name = "--"
+    list_eveids = []
     eve = evelink.eve.EVE()
     while char_name:
         char_name = raw_input("Enter Character to associate with this account:")
@@ -31,7 +33,19 @@ if __name__ == '__main__':
         character = Character()
         character.eve_name = char_name
         character.id = char_id
+        print("Added "+character.__repr__())
+        list_eveids.append(char_id)
         acc.characters.append(character)
+    
+    is_valid = False
+    while not is_valid:
+        char_id = int(raw_input("Enter charid to set as active char out of "+string.join(list_eveids)+":"))
+    
+        for posid in list_eveids:
+            if posid == char_id:
+                is_valid = True
+                break
+    acc.set_character = char_id
     
     session.commit()
     
