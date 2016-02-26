@@ -5,7 +5,8 @@ import flask
 from flask.app import Flask
 from pprint import pprint
 import logging
-from waitlist.storage.database import Character, session, ShipFit, WaitlistEntry
+from waitlist.storage.database import Character, session, WaitlistEntry,\
+    Waitlist
 import cgi
 from flask_principal import Principal, Identity, identity_changed, \
     identity_loaded, UserNeed, RoleNeed, Permission
@@ -14,9 +15,12 @@ from flask.templating import render_template
 import re
 from waitlist import utils
 from waitlist.storage.modules import resist_ships, logi_ships, sniper_ships,\
-    dps_snips, sniper_weapons, dps_weapons
+    dps_snips, sniper_weapons, dps_weapons, t3c_ships
 from waitlist.utils import create_mod_map
 from waitlist.setup_wtm import WaitlistNames
+from datetime import datetime
+from flask.helpers import url_for
+from werkzeug.utils import redirect
 
 
 app = Flask(__name__)
@@ -98,14 +102,12 @@ def xup_submit():
     # detect, caldari resist ships + basi + scimi and add lvl comment
     # -- done --
     
-    # find out if the user is already in a waitlist, if he is add him to more waitlists according to his fits
+    # find out if the user is already in a waitlist, if he is add him to more waitlist_entries according to his fits
     # or add more fits to his entries
-    # else create new entries for him in all appropriate waitlists
+    # else create new entries for him in all appropriate waitlist_entries
+    # -- done --
     
-    
-    
-    
-    
+
     for fit in fits:
         if fit.ship_type in resist_ships:
             fit.comment += " <b>Caldari Battleship: " + str(caldari_bs_lvl)+"</b>"
@@ -117,7 +119,7 @@ def xup_submit():
     eve_id = current_user.get_eve_id()
     
     # get the waitlist entries of this user
-    waitlists = session.query(WaitlistEntry).filter(WaitlistEntry.user == eve_id).all()
+    waitlist_entries = session.query(WaitlistEntry).filter(WaitlistEntry.user == eve_id).all()
     
     dps = []
     sniper = []
@@ -132,7 +134,7 @@ def xup_submit():
     WHERE invtypes.typeName = ? AND mcat.parentGroupID = 10;/*10 == Turrets & Bays*/
     '''
     
-    # split his fits into types for the different waitlists
+    # split his fits into types for the different waitlist_entries
     for fit in fits:
         mod_map = create_mod_map(fit.modules)
         # check that ship is an allowed ship
@@ -143,7 +145,7 @@ def xup_submit():
             continue;
         
         is_allowed = False
-        if fit.ship_type in sniper_ships or fit.ship_type in dps_snips:
+        if fit.ship_type in sniper_ships or fit.ship_type in dps_snips or fit.ship_type in t3c_ships:
             is_allowed = True
         
         if not is_allowed: # not an allowed ship, push it on dps list :P
@@ -181,9 +183,9 @@ def xup_submit():
     logi_entry = None
     sniper_entry = None
     dps_entry = None
-    if len(waitlists) > 0: # there are actually existing entries
+    if len(waitlist_entries) > 0: # there are actually existing entries
         # if there are existing wl entries assign them to appropriate variables
-        for wl in waitlists:
+        for wl in waitlist_entries:
             if wl.waitlist.name == WaitlistNames.logi:
                 logi_entry = wl
                 continue
@@ -194,19 +196,55 @@ def xup_submit():
                 sniper_entry = wl
                 
     
+    creationdt = datetime.now()
+    
+    add_entries_map = {}
     
     # we have a logi fit but no logi wl entry, so create one
     if len(logi) and logi_entry == None:
         logi_entry = WaitlistEntry()
-        logi_entry.
-    # iterate over sorted fits
+        logi_entry.user = get_char_id()
+        logi_entry.creation = creationdt
+        add_entries_map[WaitlistNames.logi] = logi_entry
+    
+    # same for dps
+    if len(dps) and dps_entry == None:
+        dps_entry = WaitlistEntry()
+        dps_entry.user = get_char_id()
+        dps_entry.creation = creationdt
+        add_entries_map[WaitlistNames.dps] = dps_entry
+
+    # and sniper
+    if len(sniper) and sniper_entry == None:
+        sniper_entry = WaitlistEntry()
+        sniper_entry.user = get_char_id()
+        sniper_entry.creation = creationdt
+        add_entries_map[WaitlistNames.sniper] = sniper_entry
+
+    # iterate over sorted fits and add them to their entry
     for logifit in logi:
+        logi_entry.fittings.append(logifit)
+    
+    for dpsfit in dps:
+        dps_entry.fittings.append(dpsfit)
         
-    
-    
-    return parsed_fit
+    for sniperfit in  sniper:
+        sniper_entry.fittings.append(sniperfit)
         
+    # now add the entries to the waitlist_entries
     
+    waitlists = session.query(Waitlist).all()
+    
+    # add the new wl entries to the waitlists
+    for wl in waitlists:
+        if wl.name in add_entries_map:
+            add_entries_map[wl.name].waitlist = wl
+    
+    return redirect(url_for('idx_site'))
+        
+@login_required
+def get_char_id():
+    current_user.get_eve_id()
 
 @app.route("/xup", methods=['GET'])
 @login_required
