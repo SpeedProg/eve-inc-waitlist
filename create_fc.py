@@ -2,7 +2,6 @@ from waitlist.storage.database import Account, Character, session, Role
 from waitlist.utils import get_random_token
 from waitlist.permissions import WTMRoles
 import evelink
-import string
 if __name__ == '__main__':
     name = raw_input("Login Name:")
     pw = raw_input("Password:")
