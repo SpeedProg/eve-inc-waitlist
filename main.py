@@ -99,6 +99,7 @@ def xup_submit():
             parsed_fit = utils.parseEft(eft_fit)
             fits.append(parsed_fit)
     
+    logger.info("Parsed %d fits", len(fits))
     # TODO handle dna fits
     
     # detect, caldari resist ships + basi + scimi and add lvl comment
