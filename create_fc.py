@@ -47,5 +47,5 @@ if __name__ == '__main__':
     acc.set_character = char_id
     
     session.commit()
-    
+    print("FC Account created!")
             
