@@ -39,7 +39,7 @@ if __name__ == '__main__':
     
     is_valid = False
     while not is_valid:
-        char_id = int(raw_input("Enter charid to set as active char out of "+string.join(list_eveids)+":"))
+        char_id = int(raw_input("Enter charid to set as active char out of "+", ".join([str(i) for i in list_eveids])+":"))
     
         for posid in list_eveids:
             if posid == char_id:
