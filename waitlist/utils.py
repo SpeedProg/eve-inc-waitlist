@@ -31,10 +31,6 @@ def parseEft(eftString):
             
             if not line:  # it is an empty line
                 continue
-            
-            
-                
-
 
         mod_map = {}
         for i in range(1, len(lines)):
