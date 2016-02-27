@@ -258,14 +258,14 @@ def xup_index():
     return render_template("xup.html")
     
 
-admin_perm = Permission(RoleNeed(WTMRoles.admin.name))
+admin_perm = Permission(RoleNeed(WTMRoles.admin))
 @app.route('/need_admin')
 @login_required
 @admin_perm.require(http_exception=401)
 def need_admin():
     return "Admin Needed here"
 
-fc_perm = Permission(RoleNeed(WTMRoles.fc.name))
+fc_perm = Permission(RoleNeed(WTMRoles.fc))
 @app.route('/need_fc')
 @login_required
 @fc_perm.require(http_exception=401)
