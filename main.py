@@ -17,7 +17,7 @@ from waitlist import utils
 from waitlist.storage.modules import resist_ships, logi_ships, sniper_ships,\
     dps_snips, sniper_weapons, dps_weapons, t3c_ships
 from waitlist.utils import create_mod_map
-from waitlist.setup_wtm import WaitlistNames
+from setup_wtm import WaitlistNames
 from datetime import datetime
 from flask.helpers import url_for
 from werkzeug.utils import redirect
