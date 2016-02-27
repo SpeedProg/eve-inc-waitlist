@@ -91,10 +91,12 @@ def xup_submit():
     
     if format_type == "eft":
         # split multiple fits
-        fits = re.split("\[.*,.*\]\n", fittings)
-        for fit in fits:
-            fit = fit.strip()
-            parsed_fit = utils.parseEft(fit)
+        eft_fits = re.split("\[.*,.*\]\n", fittings)
+        for eft_fit in eft_fits:
+            logger.info("Parsing fit")
+            # just remove possible whitespace
+            eft_fit = eft_fit.strip()
+            parsed_fit = utils.parseEft(eft_fit)
             fits.append(parsed_fit)
     
     # TODO handle dna fits
