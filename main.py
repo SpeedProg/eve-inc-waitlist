@@ -243,8 +243,9 @@ def xup_submit():
     # add the new wl entries to the waitlists
     for wl in waitlists:
         if wl.name in add_entries_map:
-            add_entries_map[wl.name].waitlist = wl
-    
+            wl.entries.append(add_entries_map[wl.name])
+
+    session.commit()
     return redirect(url_for('idx_site'))
         
 @login_required
