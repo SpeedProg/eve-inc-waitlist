@@ -85,6 +85,8 @@ def create_mod_map(dna_string):
     mod_map = {}
     mods = dna_string.split(':')
     for mod in mods:
+        if not mod:
+            continue
         parts = mod.split(";")
         mod_id = int(parts[0])
         if len(parts) > 1:
