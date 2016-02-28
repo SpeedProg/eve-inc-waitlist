@@ -215,13 +215,13 @@ def xup_submit():
     if len(waitlist_entries) > 0:  # there are actually existing entries
         # if there are existing wl entries assign them to appropriate variables
         for wl in waitlist_entries:
-            if wl.waitlist.name == WaitlistNames.logi:
+            if wl.waitlists.name == WaitlistNames.logi:
                 logi_entry = wl
                 continue
-            if wl.waitlist.name == WaitlistNames.dps:
+            if wl.waitlists.name == WaitlistNames.dps:
                 dps_entry = wl
                 continue
-            if wl.waitlist.name == WaitlistNames.sniper:
+            if wl.waitlists.name == WaitlistNames.sniper:
                 sniper_entry = wl
                 
     
