@@ -207,7 +207,7 @@ class WaitlistEntry(Base):
     fittings = relationship("Shipfit")
     waitlist = Column(Integer, ForeignKey("waitlists.id"))
     waitlists = relationship("Waitlist", back_populates="entries")
-
+    user_data = relationship("Character")
 
     def __repr__(self):
         return "<WaitlistEntry %r>" % (self.id)
