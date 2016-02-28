@@ -22,7 +22,17 @@ function showFitting(dna) {
 	}
 }
 </script>
+<<style>
+<!--
 
+-->
+.btn-group-mini > .btn, .btn-mini {
+    padding: .1rem .4rem;
+    font-size: .6rem;
+    line-height: 1.0;
+    border-radius: .1rem;
+}
+</style>
 {% endblock %}
 {% block menu %}
 <a class="navbar-brand" href="#">WarpToMe WL</a>
@@ -35,10 +45,11 @@ function showFitting(dna) {
 	</li>
 </ul>
 {% endblock %} {% block data %}
-<div class="col-sm-4" id="wl-logi">
+{% for wlist in lists %}
+<div class="col-sm-4" id="wl-{{ wlist.name }}">
 	<ol class="list-group">
-		<li class="list-group-item">Logi WL</li>
-		{% for entry in logi_wl.entries %}
+		<li class="list-group-item text-capitalize">{{ wlist.name|e }} WL</li>
+		{% for entry in wlist.entries %}
 		<li class="list-group-item">
 			<div class="card">
 				<div class="container">
@@ -47,7 +58,13 @@ function showFitting(dna) {
 							<img src="https://image.eveonline.com/Character/{{ entry.user }}_32.jpg" alt="{{ entry.user_data.eve_name|e }}">
 						</div>
 						<div class="col-sm-8">
-						{{ entry.user_data.eve_name|e }}
+						<a href="javascript:CCPEVE.showInfo(1377, {{ entry.user }})">{{ entry.user_data.eve_name|e }}</a>
+						</div>
+					</div>
+					<div class="row">
+						<div class="btn-group btn-group-mini" role="group" aria-label="Action Buttons">
+							<button type="button" class="btn btn-primary" onclick="javascript:CCPEVE.showInfo(1377, {{ entry.user }})">Char</button>
+							<button type="button" class="btn btn btn-secondary" onclick="javascript:CCPEVE.startConversation({{ entry.user }})">Conversation</button>
 						</div>
 					</div>
 				</div>
@@ -77,56 +94,7 @@ function showFitting(dna) {
 		{% endfor %}
 	</ol>
 </div>
-<div class="col-sm-4" id="wl-dps">
-	<ol class="list-group">
-		<li class="list-group-item">DPS WL</li>
-		{% for entry in dps_wl.entries %}
-		<li class="list-group-item">
-			<div class="card">
-  				<img class="card-img-top" src="https://image.eveonline.com/Character/{{ entry.user.id }}_128.jpg" alt="{{ entry.user_data.eve_name|e }}">
-  				<div class="card-block">
-    			<p class="card-text">{{ entry.user_data.eve_name|e }}</p>
-  				</div>
-  				<ul class="list-group list-group-flush">
-				{% for fit in entry.fittings %}
-    				<li class="list-group-item">
-    				<div class="card">
-    					<img class="card-img-top" src="https://image.eveonline.com/Render/{{ fit.ship_type }}_64.png" alt="{{ entry.user.eve_name|e }}">
-    					<h4 class="card-title"><a href="javascript:CCPEVE.showFitting('{{ fit.ship_type }}:{{ fit.modules }}');">{{ fit.ship.typeName|e }}</a></h4>
-    				</div>
-    				</li>
-				{% endfor %}
-  				</ul>
-			</div>
-		</li>
-		{% endfor %}
-	</ol>
-</div>
-<div class="col-sm-4" id="wl-sniper">
-	<ol class="list-group">
-		<li class="list-group-item">Sniper WL</li>
-		{% for entry in sniper_wl.entries %}
-		<li class="list-group-item">
-			<div class="card">
-  				<img class="card-img-top" src="https://image.eveonline.com/Character/{{ entry.user.id }}_128.jpg" alt="{{ entry.user_data.eve_name|e }}">
-  				<div class="card-block">
-    			<p class="card-text">{{ entry.user.eve_name|e }}</p>
-  				</div>
-  				<ul class="list-group list-group-flush">
-				{% for fit in entry.fittings %}
-    				<li class="list-group-item">
-    				<div class="card">
-    					<img class="card-img-top" src="https://image.eveonline.com/Render/{{ fit.ship_type }}_16.png" alt="{{ entry.user_data.eve_name|e }}">
-    					<h4 class="card-title"><a href="javascript:CCPEVE.showFitting('{{ fit.ship_type }}:{{ fit.modules }}');">{{ fit.ship.typeName|e }}</a></h4>
-    				</div>
-    				</li>
-				{% endfor %}
-  				</ul>
-			</div>
-		</li>
-		{% endfor %}
-	</ol>
-</div>
+{% endfor %}
 <script type="text/javascript">
 setupDNA();
 </script>

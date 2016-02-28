@@ -296,8 +296,9 @@ fc_perm = Permission(RoleNeed(WTMRoles.fc))
 @app.route('/management')
 @login_required
 @fc_perm.require(http_exception=401)
-def need_fc():
+def management():
     all_waitlists = session.query(Waitlist).all();
+    wlists = []
     logi_wl = None
     dps_wl = None
     sniper_wl = None
@@ -311,9 +312,13 @@ def need_fc():
             continue
         if wl.name == WaitlistNames.sniper:
             sniper_wl = wl
-            continue    
-            
-    return render_template("waitlist_management.html", logi_wl=logi_wl, dps_wl=dps_wl, sniper_wl=sniper_wl)
+            continue
+    wlists.append(logi_wl)
+    wlists.append(dps_wl)
+    wlists.append(sniper_wl)
+    
+    
+    return render_template("waitlist_management.html", lists=wlists)
 
 # callable like /tokenauth?token=359th8342rt0f3uwf0234r
 @app.route('/tokenauth')
