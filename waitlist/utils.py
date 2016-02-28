@@ -73,12 +73,9 @@ def create_dna_string(mod_map):
     dna = ""
     for mod_id in mod_map:
         mod = mod_map[mod_id]
-        if mod[1] == 1:
-            dna += str(mod[0]) + ":"
-        else:
-            dna += str(mod[0]) + ";" + str(mod[1]) + ":"
+        dna += str(mod[0]) + ";" + str(mod[1]) + ":"
     
-    return dna
+    return dna+":" # dna always needs to end with 2 colons
 
 # map looks like this mod_map = {mod_id:[mod_id,mod_count],...}
 def create_mod_map(dna_string):
