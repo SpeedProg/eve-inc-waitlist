@@ -1,5 +1,6 @@
 {% extends "base.html" %} {% block title %}Index{% endblock %}
-{% block head %} {{ super() }}
+{% block head %}
+{{ super() }}
 {% endblock %}
 {% block menu %}
 <a class="navbar-brand" href="#">WarpToMe WL</a>
@@ -14,17 +15,68 @@
 {% endblock %} {% block data %}
 <div class="col-sm-4" id="wl-logi">
 	<ol class="list-group">
-		<li class="list-group-item"></li>
+		<li class="list-group-item">Logi WL</li>
+		{% for entry in logi_wl.entries %}
+		<li class="list-group-item">
+			<div class="card">
+				<div class="container">
+					<span class="label label-default label-pill pull-xs-right">{{ entry.fittings|length }}</span>
+					<div class="row">
+						<div class="col-sm-2">
+							<img src="https://image.eveonline.com/Character/{{ entry.user }}_32.jpg" alt="{{ entry.user_data.eve_name|e }}">
+						</div>
+						<div class="col-sm-8">
+						{{ entry.user_data.eve_name|e }}
+						</div>
+					</div>
+				</div>
+			</div>
+		</li>
+		{% endfor %}
 	</ol>
 </div>
 <div class="col-sm-4" id="wl-dps">
 	<ol class="list-group">
-		<li class="list-group-item"></li>
+		<li class="list-group-item">DPS WL</li>
+		{% for entry in dps_wl.entries %}
+		<li class="list-group-item">
+			<div class="card">
+				<div class="container">
+					<span class="label label-default label-pill pull-xs-right">{{ entry.fittings|length }}</span>
+					<div class="row">
+						<div class="col-sm-2">
+							<img src="https://image.eveonline.com/Character/{{ entry.user }}_32.jpg" alt="{{ entry.user_data.eve_name|e }}">
+						</div>
+						<div class="col-sm-8">
+						{{ entry.user_data.eve_name|e }}
+						</div>
+					</div>
+				</div>
+			</div>
+		</li>
+		{% endfor %}
 	</ol>
 </div>
 <div class="col-sm-4" id="wl-sniper">
 	<ol class="list-group">
-		<li class="list-group-item"></li>
+		<li class="list-group-item">Sniper WL</li>
+		{% for entry in sniper_wl.entries %}
+		<li class="list-group-item">
+			<div class="card">
+				<div class="container">
+					<span class="label label-default label-pill pull-xs-right">{{ entry.fittings|length }}</span>
+					<div class="row">
+						<div class="col-sm-2">
+							<img src="https://image.eveonline.com/Character/{{ entry.user }}_32.jpg" alt="{{ entry.user_data.eve_name|e }}">
+						</div>
+						<div class="col-sm-8">
+						{{ entry.user_data.eve_name|e }}
+						</div>
+					</div>
+				</div>
+			</div>
+		</li>
+		{% endfor %}
 	</ol>
 </div>
 {% endblock %}
