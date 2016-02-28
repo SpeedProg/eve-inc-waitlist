@@ -1,9 +1,6 @@
 from waitlist.storage.database import session, Role, Waitlist
+from waitlist.data.names import WaitlistNames
 
-class WaitlistNames():
-    logi = "logi"
-    dps = "dps"
-    sniper = "sniper"
 
 def get_role(name, restrictive=True):
     r = Role()
