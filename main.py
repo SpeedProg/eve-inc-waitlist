@@ -293,11 +293,27 @@ def need_admin():
     return "Admin Needed here"
 
 fc_perm = Permission(RoleNeed(WTMRoles.fc))
-@app.route('/need_fc')
+@app.route('/management')
 @login_required
 @fc_perm.require(http_exception=401)
 def need_fc():
-    return "FC needed"
+    all_waitlists = session.query(Waitlist).all();
+    logi_wl = None
+    dps_wl = None
+    sniper_wl = None
+
+    for wl in all_waitlists:
+        if wl.name == WaitlistNames.logi:
+            logi_wl = wl
+            continue
+        if wl.name == WaitlistNames.dps:
+            dps_wl = wl
+            continue
+        if wl.name == WaitlistNames.sniper:
+            sniper_wl = wl
+            continue    
+            
+    return render_template("waitlist_management.html", logi_wl=logi_wl, dps_wl=dps_wl, sniper_wl=sniper_wl)
 
 # callable like /tokenauth?token=359th8342rt0f3uwf0234r
 @app.route('/tokenauth')
