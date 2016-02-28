@@ -129,10 +129,20 @@ def xup_submit():
 
     for fit in fits:
         if fit.ship_type in resist_ships:
-            fit.comment += " <b>Caldari Battleship: " + str(caldari_bs_lvl)+"</b>"
+            if logilvl == 0:
+                pass  # TODO ask for caldari bs lvl
+            if fit.comment is None:
+                fit.comment = "<b>Caldari Battleship: " + str(caldari_bs_lvl) + "</b>"
+            else:
+                fit.comment += " <b>Caldari Battleship: " + str(caldari_bs_lvl) + "</b>"
         else:
             if fit.ship_type in logi_ships:
-                fit.comment += " <b>Logistics Cruiser: " + str(logilvl)+"</b>"
+                if logilvl == 0:
+                    pass  # TODO ask for logi
+                if fit.comment is None:
+                    fit.comment = "<b>Logistics Cruiser: " + str(logilvl) + "</b>"
+                else:
+                    fit.comment += " <b>Logistics Cruiser: " + str(logilvl) + "</b>"
     # get current users id
     
     eve_id = current_user.get_eve_id()
