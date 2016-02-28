@@ -1,0 +1,133 @@
+{% extends "base.html" %} {% block title %}WL Management{% endblock %}
+{% block head %}
+{{ super() }}
+<script type="text/javascript">
+function showFitting(dna) {
+	if (typeof CCPEVE == 'undefined') {
+		console.log("dna="+dna);
+	} else {
+	CCPEVE.showFitting(dna);
+	}
+}
+/*
+ * Set up click handlers on fittings
+ */
+ function setupDNA() {
+	fits = document.getElementsByClassName("fit-link");
+	for (var i = 0; i < fits.length; i++) {
+		fits[i].addEventListener("click", function(event){
+			 dna = this.getAttribute('data-dna');
+			 showFitting(dna);
+		 })
+	}
+}
+</script>
+
+{% endblock %}
+{% block menu %}
+<a class="navbar-brand" href="#">WarpToMe WL</a>
+<ul class="nav navbar-nav">
+	<li class="nav-item active"><a class="nav-link" href="#">Home
+			<span class="sr-only">(current)</span>
+	</a></li>
+	<li class="nav-item">
+	<a class="nav-link" href="/xup">X-UP</a>
+	</li>
+</ul>
+{% endblock %} {% block data %}
+<div class="col-sm-4" id="wl-logi">
+	<ol class="list-group">
+		<li class="list-group-item">Logi WL</li>
+		{% for entry in logi_wl.entries %}
+		<li class="list-group-item">
+			<div class="card">
+				<div class="container">
+					<div class="row">
+						<div class="col-sm-2">
+							<img src="https://image.eveonline.com/Character/{{ entry.user }}_32.jpg" alt="{{ entry.user_data.eve_name|e }}">
+						</div>
+						<div class="col-sm-8">
+						{{ entry.user_data.eve_name|e }}
+						</div>
+					</div>
+				</div>
+  				<ul class="list-group list-group-flush">
+				{% for fit in entry.fittings %}
+    				<li class="list-group-item">
+    					<div class="container fit-link" data-dna="{{ fit.ship_type }}:{{ fit.modules }}" onclick="">
+    					<div class="row">
+    						<div class="col-sm-4">
+    						<img src="https://image.eveonline.com/Render/{{ fit.ship_type }}_32.png" alt="{{ entry.user_data.eve_name|e }}">
+    						</div>
+    						<div class="col-sm-8">
+    						<div class="row">
+    						{{ fit.ship.typeName|e }}
+    						</div>
+    						<div class="row">
+    						{{ fit.comment|safe }}
+    						</div>
+    						</div>
+    					</div>
+    					</div>
+    				</li>
+				{% endfor %}
+  				</ul>
+			</div>
+		</li>
+		{% endfor %}
+	</ol>
+</div>
+<div class="col-sm-4" id="wl-dps">
+	<ol class="list-group">
+		<li class="list-group-item">DPS WL</li>
+		{% for entry in dps_wl.entries %}
+		<li class="list-group-item">
+			<div class="card">
+  				<img class="card-img-top" src="https://image.eveonline.com/Character/{{ entry.user.id }}_128.jpg" alt="{{ entry.user_data.eve_name|e }}">
+  				<div class="card-block">
+    			<p class="card-text">{{ entry.user_data.eve_name|e }}</p>
+  				</div>
+  				<ul class="list-group list-group-flush">
+				{% for fit in entry.fittings %}
+    				<li class="list-group-item">
+    				<div class="card">
+    					<img class="card-img-top" src="https://image.eveonline.com/Render/{{ fit.ship_type }}_64.png" alt="{{ entry.user.eve_name|e }}">
+    					<h4 class="card-title"><a href="javascript:CCPEVE.showFitting('{{ fit.ship_type }}:{{ fit.modules }}');">{{ fit.ship.typeName|e }}</a></h4>
+    				</div>
+    				</li>
+				{% endfor %}
+  				</ul>
+			</div>
+		</li>
+		{% endfor %}
+	</ol>
+</div>
+<div class="col-sm-4" id="wl-sniper">
+	<ol class="list-group">
+		<li class="list-group-item">Sniper WL</li>
+		{% for entry in sniper_wl.entries %}
+		<li class="list-group-item">
+			<div class="card">
+  				<img class="card-img-top" src="https://image.eveonline.com/Character/{{ entry.user.id }}_128.jpg" alt="{{ entry.user_data.eve_name|e }}">
+  				<div class="card-block">
+    			<p class="card-text">{{ entry.user.eve_name|e }}</p>
+  				</div>
+  				<ul class="list-group list-group-flush">
+				{% for fit in entry.fittings %}
+    				<li class="list-group-item">
+    				<div class="card">
+    					<img class="card-img-top" src="https://image.eveonline.com/Render/{{ fit.ship_type }}_16.png" alt="{{ entry.user_data.eve_name|e }}">
+    					<h4 class="card-title"><a href="javascript:CCPEVE.showFitting('{{ fit.ship_type }}:{{ fit.modules }}');">{{ fit.ship.typeName|e }}</a></h4>
+    				</div>
+    				</li>
+				{% endfor %}
+  				</ul>
+			</div>
+		</li>
+		{% endfor %}
+	</ol>
+</div>
+<script type="text/javascript">
+setupDNA();
+</script>
+{% endblock %}
