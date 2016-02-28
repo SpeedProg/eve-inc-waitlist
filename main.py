@@ -5,7 +5,7 @@ import flask
 from flask.app import Flask
 from pprint import pprint
 import logging
-from waitlist.storage.database import Character, session, WaitlistEntry,\
+from waitlist.storage.database import Character, session, WaitlistEntry, \
     Waitlist
 import cgi
 from flask_principal import Principal, Identity, identity_changed, \
@@ -14,7 +14,7 @@ from waitlist.permissions import WTMRoles
 from flask.templating import render_template
 import re
 from waitlist import utils
-from waitlist.storage.modules import resist_ships, logi_ships, sniper_ships,\
+from waitlist.storage.modules import resist_ships, logi_ships, sniper_ships, \
     dps_snips, sniper_weapons, dps_weapons, t3c_ships
 from waitlist.utils import create_mod_map
 from setup_wtm import WaitlistNames
@@ -154,7 +154,7 @@ def xup_submit():
     sniper = []
     logi = []
 
-    #query to check if sth is a weapon module
+    # query to check if sth is a weapon module
     '''
     SELECT count(1) FROM invtypes
     JOIN invmarketgroups AS weapongroup ON invtypes.marketGroupID = weapongroup.marketGroupID
@@ -177,7 +177,7 @@ def xup_submit():
         if fit.ship_type in sniper_ships or fit.ship_type in dps_snips or fit.ship_type in t3c_ships:
             is_allowed = True
         
-        if not is_allowed: # not an allowed ship, push it on dps list :P
+        if not is_allowed:  # not an allowed ship, push it on dps list :P
             dps.append(fit)
             continue
         
@@ -212,7 +212,7 @@ def xup_submit():
     logi_entry = None
     sniper_entry = None
     dps_entry = None
-    if len(waitlist_entries) > 0: # there are actually existing entries
+    if len(waitlist_entries) > 0:  # there are actually existing entries
         # if there are existing wl entries assign them to appropriate variables
         for wl in waitlist_entries:
             if wl.waitlist.name == WaitlistNames.logi:
@@ -233,24 +233,24 @@ def xup_submit():
     if len(logi) and logi_entry == None:
         logi_entry = WaitlistEntry()
         logi_entry.user = get_char_id()
-        logi_entry.creation = creationdt # for sorting entries
-        logi_entry.user = current_user.get_eve_id() # associate a user with the entry
+        logi_entry.creation = creationdt  # for sorting entries
+        logi_entry.user = current_user.get_eve_id()  # associate a user with the entry
         add_entries_map[WaitlistNames.logi] = logi_entry
     
     # same for dps
     if len(dps) and dps_entry == None:
         dps_entry = WaitlistEntry()
         dps_entry.user = get_char_id()
-        dps_entry.creation = creationdt # for sorting entries
-        dps_entry.user = current_user.get_eve_id() # associate a user with the entry
+        dps_entry.creation = creationdt  # for sorting entries
+        dps_entry.user = current_user.get_eve_id()  # associate a user with the entry
         add_entries_map[WaitlistNames.dps] = dps_entry
 
     # and sniper
     if len(sniper) and sniper_entry == None:
         sniper_entry = WaitlistEntry()
         sniper_entry.user = get_char_id()
-        sniper_entry.creation = creationdt # for sorting entries
-        sniper_entry.user = current_user.get_eve_id() # associate a user with the entry
+        sniper_entry.creation = creationdt  # for sorting entries
+        sniper_entry.user = current_user.get_eve_id()  # associate a user with the entry
         add_entries_map[WaitlistNames.sniper] = sniper_entry
 
     # iterate over sorted fits and add them to their entry
