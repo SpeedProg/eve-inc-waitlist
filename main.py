@@ -65,7 +65,23 @@ def on_identity_loaded(sender, identity):
 @app.route('/', methods=['GET'])
 @login_required
 def idx_site():
-    return render_template("index.html")
+    all_waitlists = session.query(Waitlist).all();
+    logi_wl = None
+    dps_wl = None
+    sniper_wl = None
+
+    for wl in all_waitlists:
+        if wl.name == WaitlistNames.logi:
+            logi_wl = wl
+            continue
+        if wl.name == WaitlistNames.dps:
+            dps_wl = wl
+            continue
+        if wl.name == WaitlistNames.sniper:
+            sniper_wl = wl
+            continue    
+            
+    return render_template("index.html", logi_wl=logi_wl, dps_wl=dps_wl, sniper_wl=sniper_wl)
 
 @app.route("/xup", methods=['POST'])
 def xup_submit():
