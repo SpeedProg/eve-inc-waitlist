@@ -184,6 +184,7 @@ class Shipfit(Base):
     
     id = Column(Integer, primary_key=True)
     ship_type = Column(Integer, ForeignKey("invtypes.typeID"))
+    ship = relationship("InvType")
     waitlist = Column(Integer, ForeignKey('waitlist_entries.id'))
     modules = Column(String(200))
     comment = Column(String(200))
