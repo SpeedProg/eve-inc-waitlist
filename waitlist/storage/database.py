@@ -71,7 +71,7 @@ class Account(Base):
     __tablename__ = 'accounts'
 
     id = Column(Integer, primary_key=True)
-    set_character = Column(Integer, ForeignKey("characters.id"))
+    current_char = Column(Integer, ForeignKey("characters.id"))
     username = Column(String(100), unique=True)# login name
     password = Column(String(100))
     email = Column(String(100), unique=True)
@@ -81,8 +81,11 @@ class Account(Base):
     characters = relationship('Character', secondary=linked_chars,
                               backref=backref('linked_chars'))
     
+    def get_char_id(self):
+        return self.current_char
+    
     def get_eve_id(self):
-        return self.set_character
+        return self.current_char
 
     @property
     def type(self):
@@ -123,6 +126,9 @@ class Character(Base):
     id = Column(Integer, primary_key=True)
     eve_name = Column(String(100), unique=True)
     newbro = Column(Boolean)
+
+    def get_char_id(self):
+        return self.id
 
     def get_eve_id(self):
         return self.id
@@ -165,16 +171,10 @@ class Waitlist(Base):
     
     id = Column(Integer, primary_key=True)
     name = Column(String(20), unique=True)
-    entries = relationship("WaitlistEntry", back_populates="waitlists")
+    entries = relationship("WaitlistEntry", back_populates="waitlist")
     
     def __repr__(self):
         return "<Waitlist %r>" % (self.name)
-
-fitted_modules = Table('fitted_modules',
-                       Base.metadata,
-                       Column('fit', Integer, ForeignKey('fittings.id')),
-                       Column('module', Integer, ForeignKey('invtypes.typeID'))
-                       )
 
 class Shipfit(Base):
     """
@@ -185,29 +185,29 @@ class Shipfit(Base):
     id = Column(Integer, primary_key=True)
     ship_type = Column(Integer, ForeignKey("invtypes.typeID"))
     ship = relationship("InvType")
-    waitlist = Column(Integer, ForeignKey('waitlist_entries.id'))
-    modules = Column(String(200))
-    comment = Column(String(200))
+    waitlist_id = Column(Integer, ForeignKey('waitlist_entries.id', onupdate="CASCADE", ondelete="CASCADE"))
+    modules = Column(String(10000))
+    comment = Column(String(10000))
     
     def get_dna(self):
         return "{0}:{1}".format(self.ship_type, self.modules)
     
     def __repr__(self):
-        return "<Shipfit id={0} ship_type={1} modules={2} comment={3} waitlist={4}>".format(self.id, self.ship_type, self.modules, self.comment, self.waitlist)
+        return "<Shipfit id={0} ship_type={1} modules={2} comment={3} waitlist_id={4}>".format(self.id, self.ship_type, self.modules, self.comment, self.waitlist_id)
 
 
 class WaitlistEntry(Base):
     """
-    Represents a person in a waitlist
-    A person in a waitlist always needs to have a user(his character) and and one or more fits
+    Represents a person in a waitlist_id
+    A person in a waitlist_id always needs to have a user(his character) and and one or more fits
     """
     __tablename__ = "waitlist_entries"
     id = Column(Integer, primary_key=True)
     creation = Column(DateTime)
     user = Column(Integer, ForeignKey('characters.id'))
-    fittings = relationship("Shipfit")
-    waitlist = Column(Integer, ForeignKey("waitlists.id"))
-    waitlists = relationship("Waitlist", back_populates="entries")
+    fittings = relationship("Shipfit", cascade="save-update,merge,delete")
+    waitlist_id = Column(Integer, ForeignKey("waitlists.id", onupdate="CASCADE", ondelete="CASCADE"))
+    waitlist = relationship("Waitlist", back_populates="entries")
     user_data = relationship("Character")
 
     def __repr__(self):
@@ -217,6 +217,3 @@ Base.metadata.create_all(engine)
 Session = sessionmaker()
 Session.configure(bind=engine)
 session = Session()
-
-def get_item_id(name):
-    return session.query(InvType).filter(InvType.typeName == name).first().typeID

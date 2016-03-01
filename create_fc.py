@@ -44,7 +44,7 @@ if __name__ == '__main__':
             if posid == char_id:
                 is_valid = True
                 break
-    acc.set_character = char_id
+    acc.current_char = char_id
     
     session.commit()
     print("FC Account created!")

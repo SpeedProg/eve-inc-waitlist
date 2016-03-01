@@ -1,8 +1,7 @@
 import string,random
 import logging
 import re
-from waitlist.storage import database
-from waitlist.storage.database import Shipfit
+from waitlist.storage.database import Shipfit, InvType, session
 
 logger = logging.getLogger(__name__)
 
@@ -23,7 +22,7 @@ def parseEft(eftString):
 
         ship_type = info[0]  # I only care about what ship it is
 
-        ship_id = database.get_item_id(ship_type)
+        ship_id = get_item_id(ship_type)
         fit.ship_type = ship_id
         
         for i in range(1, len(lines)):  # start with 2nd line since 1st is shiptype
@@ -49,15 +48,18 @@ def parseEft(eftString):
             is_cargo = re.match(".*x\d+$", line) is not None
             logger.debug("% is_cargo = %b", line, is_cargo)
 
+            # TODO do we want to enable parsing of EFT/Pyfa fits ?
+            # if so we need to filter lines that separate charges by ", "
             if not is_cargo:
-                mod_name = line
+                name_parts = line.split(", ")
+                mod_name = name_parts[0]
                 mod_amount = 1
             else:
                 mod_info = line.rsplit(" x", 2)
                 mod_name = mod_info[0]
                 mod_amount = int(mod_info[1])
             
-            mod_id = database.get_item_id(mod_name)
+            mod_id = get_item_id(mod_name)
             
             if mod_id in mod_map:
                 mod_entry = mod_map[mod_id]
@@ -100,3 +102,7 @@ def get_fit_format(line):
         return "eft"
     else:  # just consider everyhting else dna
         return "dna"
+
+def get_item_id(name):
+    logger.info("Getting id for item %s", name)
+    return session.query(InvType).filter(InvType.typeName == name).first().typeID
