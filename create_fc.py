@@ -36,6 +36,8 @@ if __name__ == '__main__':
         list_eveids.append(char_id)
         acc.characters.append(character)
     
+    session.commit()
+    
     is_valid = False
     while not is_valid:
         char_id = int(raw_input("Enter charid to set as active char out of "+", ".join([str(i) for i in list_eveids])+":"))
