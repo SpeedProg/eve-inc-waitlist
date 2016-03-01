@@ -6,7 +6,7 @@ from flask.app import Flask
 from pprint import pprint
 import logging
 from waitlist.storage.database import Character, session, WaitlistEntry, \
-    Waitlist
+    Waitlist, Shipfit
 import cgi
 from flask_principal import Principal, Identity, identity_changed, \
     identity_loaded, UserNeed, RoleNeed, Permission
@@ -27,11 +27,15 @@ app = Flask(__name__)
 app.secret_key = 'mcf4q37h0n59qc4307w98jd5fc723'
 app.config['SESSION_TYPE'] = 'filesystem'
 
-logger = app.logger
+logger = logging.getLogger(__name__)
 
 login_manager = LoginManager()
 login_manager.init_app(app)
 principals = Principal(app)
+
+perm_management = Permission(RoleNeed(WTMRoles.fc), RoleNeed(WTMRoles.tbag),
+                             RoleNeed(WTMRoles.admin), RoleNeed(WTMRoles.lm),
+                             RoleNeed(WTMRoles.resident))
 
 basichtml = """<!DOCTYPE html>
 <html lang="en">
@@ -62,10 +66,12 @@ def on_identity_loaded(sender, identity):
                 identity.provides.add(RoleNeed(role.name))
 
 
+
 @app.route('/', methods=['GET'])
 @login_required
 def idx_site():
     all_waitlists = session.query(Waitlist).all();
+    wlists = []
     logi_wl = None
     dps_wl = None
     sniper_wl = None
@@ -79,11 +85,60 @@ def idx_site():
             continue
         if wl.name == WaitlistNames.sniper:
             sniper_wl = wl
-            continue    
-            
-    return render_template("index.html", logi_wl=logi_wl, dps_wl=dps_wl, sniper_wl=sniper_wl)
+            continue
+    wlists.append(logi_wl)
+    wlists.append(dps_wl)
+    wlists.append(sniper_wl)
+    
+    return render_template("index.html", lists=wlists, user=current_user, perm_man=perm_management)
+
+remove_player_perm = Permission(RoleNeed(WTMRoles.fc))
+@app.route("/api/wl/remove/", methods=['POST'])
+@login_required
+@remove_player_perm.require(http_exception=401)
+def wls_remove_player():
+    playerId = request.form['playerId']
+    if playerId == None:
+        logger.error("Tried to remove player with None id from waitlists.")
+    
+    session.query(WaitlistEntry).filter(WaitlistEntry.user == int(playerId)).delete(synchronize_session=False)
+    session.commit()
+    return "success"
+
+# remove one of your fittings by id
+@app.route("/api/self/fittings/remove/<int:fitid>")
+@login_required
+def remove_self_fit(fitid):
+    fit = session.query(Shipfit).filter(Shipfit.id == fitid).first()
+    session.delete(fit)
+    wlentry = session.query(WaitlistEntry).filter(WaitlistEntry.id == fit.waitlist_id).first()
+    if len(wlentry.fittings) <= 0:
+        session.delete(wlentry)
+    
+    session.commit()
+    return "success"
+
+# remove your self from a wl by wl entry id
+@app.route("/api/self/wlentry/remove/<int:entry_id>")
+@login_required
+def self_remove_wl_entry(entry_id):
+    session.query(WaitlistEntry).filter(WaitlistEntry.id == entry_id).delete()
+    return "success"
+
+
+# remove your self from all wls
+@app.route("/api/self/wl/remove")
+@login_required
+def self_remove_all():
+    entries = session.query(WaitlistEntry).filter(WaitlistEntry.user == current_user.get_char_id());
+    for entry in entries:
+        logger.info("Remove entry id=%d", entry.id)
+        session.delete(entry)
+    session.commit()
+    return "success";
 
 @app.route("/xup", methods=['POST'])
+@login_required
 def xup_submit():
     '''
     Parse the submited fitts
@@ -282,7 +337,7 @@ def get_char_id():
 @app.route("/xup", methods=['GET'])
 @login_required
 def xup_index():
-    return render_template("xup.html")
+    return render_template("xup.html", perm_man=perm_management)
     
 
 admin_perm = Permission(RoleNeed(WTMRoles.admin))

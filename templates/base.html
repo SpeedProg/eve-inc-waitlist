@@ -13,14 +13,22 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.2.0/js/tether.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.2/js/bootstrap.min.js" integrity="sha384-vZ2WRJMwsjRMW/8U7i6PWi6AlO1L79snBrmgiDpgIWJ82z8eA5lenwvxbMV1PAh7" crossorigin="anonymous"></script>
+<style>
+.btn-group-mini > .btn, .btn-mini {
+    padding: .1rem .4rem;
+    font-size: .6rem;
+    line-height: 1.0;
+    border-radius: .1rem;
+}
+</style>
 <title>{% block title %}{% endblock %}</title>
 {% endblock %}
 
 </head>
 <body>
 	<div id="content" class="container">
-		<div class="row" id="menu"><nav class="navbar bg-faded">{% block menu %}{% endblock%}</nav></div>
-		<div class="row" id="data">{% block data %}{% endblock%}</div>
+		<div class="row" id="menu"><nav class="navbar bg-faded">{% block menu %}{% endblock %}</nav></div>
+		<div class="row" id="data">{% block data %}{% endblock %}</div>
 	</div>
 	<div id="footer">
 		{% block footer %} &copy; Copyright 2016+ by <a

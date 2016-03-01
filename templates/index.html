@@ -1,82 +1,138 @@
-{% extends "base.html" %} {% block title %}Index{% endblock %}
-{% block head %}
-{{ super() }}
-{% endblock %}
-{% block menu %}
-<a class="navbar-brand" href="#">WarpToMe WL</a>
+{% extends "base.html" %} {% block title %}Index{% endblock %} {% block
+head %}
+<script type="text/javascript">
+function removeSelf() {
+	$.get("/api/self/wl/remove", {}, function(data, status, jqxhr){
+		var wl_names = [{% for wl in lists %}"{{wl.name|e}}",{% endfor %}];
+		for (idx in wl_names) {
+			var wl_name = wl_names[idx];
+			var entry_id = "entry-"+wl_name+"-"+{{ current_user.get_eve_id() }}
+			var entry = document.getElementById(entry_id);
+			if (entry != null) { // there is a entry for him on that wl
+				entry.parentNode.removeChild(entry); // remote it from the DOM
+			}
+		}
+	}, "text");
+}
+
+function removeOwnEntry(entryId) {
+	$.get("/api/self/wlentry/remove/"+entryId, {}, function(data, status, jqxhr){
+		var entry_id = "entry-"+entryId;
+		var entry = document.getElementById(entry_id);
+		if (entry != null) { // there is a entry for him on that wl
+			entry.parentNode.removeChild(entry); // remote it from the DOM
+		}
+	}, "text");
+}
+
+function removeOwnFit(fitId, entryId) {
+	$.get("/api/self/fittings/remove/"+fitId, {}, function(data, status, jqxhr){
+		var counterid = "entry-count-"+entryId;
+		var entry_id = "fit-"+fitId;
+		var entry = document.getElementById(entry_id);
+		if (entry != null) { // there is a entry for him on that wl
+			entry.parentNode.removeChild(entry); // remote it from the DOM
+		}
+		var counter = document.getElementById(counterid);
+		// we should access that in an other way
+		count = Number(counter.innerHTML);
+		if (count <= 1) {
+			// no fit left, remove entry
+			var entry_id = "entry-"+entryId;
+			var entry = document.getElementById(entry_id);
+			if (entry != null) { // there is a entry for him on that wl
+				entry.parentNode.removeChild(entry); // remote it from the DOM
+			}
+		} else {
+			count--;
+			counter.innerHTML = count;
+		}
+		
+	}, "text");
+}
+</script>
+{{ super() }} {% endblock %} {% block menu %}
+<a class="navbar-brand" href="/">WarpToMe WL</a>
 <ul class="nav navbar-nav">
-	<li class="nav-item active"><a class="nav-link" href="#">Home
-			<span class="sr-only">(current)</span>
-	</a></li>
+	<li class="nav-item active">
+	<a class="nav-link" href="/">Home<span class="sr-only">(current)</span></a>
+	</li>
 	<li class="nav-item">
 	<a class="nav-link" href="/xup">X-UP</a>
 	</li>
+	{% if perm_man.can() %}
+	<li class="nav-item">
+	<a class="nav-link" href="/management">Management</a>
+	</li>
+	{% endif %}
+	<li class="nav-item">
+		<button class="btn btn-warning btn-sm" onclick="javascript:removeSelf()">Remove from Waitlist</button>
+	</li>
 </ul>
-{% endblock %} {% block data %}
-<div class="col-sm-4" id="wl-logi">
+{% endblock %} {% block data %} {% for wlist in lists %}
+<div class="col-sm-4" id="wl-{{ wlist.name }}">
 	<ol class="list-group">
-		<li class="list-group-item">Logi WL</li>
-		{% for entry in logi_wl.entries %}
-		<li class="list-group-item">
+		<li class="list-group-item text-capitalize">{{ wlist.name|e }} WL</li>
+		{% for entry in wlist.entries %}
+		<li class="list-group-item"
+			id="entry-{{ entry.id }}">
 			<div class="card">
 				<div class="container">
-					<span class="label label-default label-pill pull-xs-right">{{ entry.fittings|length }}</span>
 					<div class="row">
 						<div class="col-sm-2">
-							<img src="https://image.eveonline.com/Character/{{ entry.user }}_32.jpg" alt="{{ entry.user_data.eve_name|e }}">
+							<span class="label label-default label-pill pull-xs-right"
+								id="entry-count-{{ entry.id }}">{{ entry.fittings|length
+								}}</span> <img
+								src="https://image.eveonline.com/Character/{{ entry.user }}_32.jpg"
+								alt="{{ entry.user_data.eve_name|e }}">
 						</div>
 						<div class="col-sm-8">
-						{{ entry.user_data.eve_name|e }}
+							<a href="javascript:CCPEVE.showInfo(1377, {{ entry.user }});">{{
+								entry.user_data.eve_name|e }}</a>
 						</div>
 					</div>
-				</div>
-			</div>
-		</li>
-		{% endfor %}
-	</ol>
-</div>
-<div class="col-sm-4" id="wl-dps">
-	<ol class="list-group">
-		<li class="list-group-item">DPS WL</li>
-		{% for entry in dps_wl.entries %}
-		<li class="list-group-item">
-			<div class="card">
-				<div class="container">
-					<span class="label label-default label-pill pull-xs-right">{{ entry.fittings|length }}</span>
+					{% if current_user.get_eve_id() == entry.user %}
 					<div class="row">
-						<div class="col-sm-2">
-							<img src="https://image.eveonline.com/Character/{{ entry.user }}_32.jpg" alt="{{ entry.user_data.eve_name|e }}">
-						</div>
-						<div class="col-sm-8">
-						{{ entry.user_data.eve_name|e }}
-						</div>
-					</div>
-				</div>
-			</div>
-		</li>
-		{% endfor %}
-	</ol>
-</div>
-<div class="col-sm-4" id="wl-sniper">
-	<ol class="list-group">
-		<li class="list-group-item">Sniper WL</li>
-		{% for entry in sniper_wl.entries %}
-		<li class="list-group-item">
-			<div class="card">
-				<div class="container">
-					<span class="label label-default label-pill pull-xs-right">{{ entry.fittings|length }}</span>
-					<div class="row">
-						<div class="col-sm-2">
-							<img src="https://image.eveonline.com/Character/{{ entry.user }}_32.jpg" alt="{{ entry.user_data.eve_name|e }}">
-						</div>
-						<div class="col-sm-8">
-						{{ entry.user_data.eve_name|e }}
+						<div class="btn-group btn-group-mini" role="group"
+							aria-label="Action Buttons">
+							<button type="button" class="btn btn-mini btn-warning"
+								onclick="javascript:removeOwnEntry({{ entry.id }});">Remove</button>
 						</div>
 					</div>
+					{% else %} {{ current_user.get_eve_id()}} != {{ entry.user }} {%
+					endif %}
 				</div>
+				{% if current_user.get_eve_id() == entry.user %}
+				<ul class="list-group list-group-flush">
+					{% for fit in entry.fittings %}
+					<li class="list-group-item" id="fit-{{ fit.id }}">
+						<div class="container fit-link"
+							data-dna="{{ fit.ship_type }}:{{ fit.modules }}" onclick="">
+							<div class="row">
+								<div class="col-sm-4">
+									<img
+										src="https://image.eveonline.com/Render/{{ fit.ship_type }}_32.png"
+										alt="{{ entry.user_data.eve_name|e }}">
+								</div>
+								<div class="col-sm-8">
+									<div class="row">{{ fit.ship.typeName|e }}</div>
+									<div class="row">{{ fit.comment|safe }}</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="btn-group btn-group-mini" role="group"
+									aria-label="Action Buttons">
+									<button type="button" class="btn btn-mini btn-warning"
+										onclick="javascript:removeOwnFit({{ fit.id }}, {{ entry.id }});">Remove
+										Fit</button>
+								</div>
+							</div>
+						</div>
+					</li> {% endfor %}
+				</ul>
+				{% endif %}
 			</div>
-		</li>
-		{% endfor %}
+		</li> {% endfor %}
 	</ol>
 </div>
-{% endblock %}
+{% endfor %} {% endblock %}
