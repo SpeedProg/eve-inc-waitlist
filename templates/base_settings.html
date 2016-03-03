@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}Settings{% endblock %}
+
+{% block head %}
+{{ super() }}
+{% endblock %}
+
+{% block data %}
+<div class="col-sm-3 col-md-2" id="sidebar">
+	<ul class="nav">
+	<li class="nav-item">
+		<a class="nav-link" href="{{url_for('settings.management')}}">Fleet Management</a>
+	</li>
+	{% if perm_admin.can() %}
+	<li class="nav-item">
+		<a class="nav-link" href="{{url_for('settings.accounts')}}">Accounts</a>
+	</li>
+	{% endif %}
+	</ul>
+</div>
+<div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2" id="main">
+{% block content %}<p> Please select sth on the left side </p>{% endblock %}
+</div>
+{% endblock %}

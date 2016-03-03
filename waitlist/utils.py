@@ -1,7 +1,9 @@
 import string,random
 import logging
 import re
-from waitlist.storage.database import Shipfit, InvType, session
+from waitlist.storage.database import Shipfit, InvType, session, Character
+from flask_login import login_required, current_user
+from waitlist.storage import database
 
 logger = logging.getLogger(__name__)
 
@@ -106,3 +108,20 @@ def get_fit_format(line):
 def get_item_id(name):
     logger.info("Getting id for item %s", name)
     return session.query(InvType).filter(InvType.typeName == name).first().typeID
+
+@login_required
+def get_char_id():
+    current_user.get_eve_id()
+    
+# load an account by its id
+def get_account_from_db(int_id):
+    return database.session.query(database.Account).filter(database.Account.id == int_id).first()
+
+# load a character by its id
+def get_char_from_db(int_id):
+    return database.session.query(database.Character).filter(database.Character.id == int_id).first()
+
+def create_new_character(eve_id, char_name):
+    char = Character(eve_id, char_name)
+    database.session.add(char)
+    return char

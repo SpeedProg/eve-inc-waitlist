@@ -51,25 +51,9 @@ function removeOwnFit(fitId, entryId) {
 	}, "text");
 }
 </script>
-{{ super() }} {% endblock %} {% block menu %}
-<a class="navbar-brand" href="/">WarpToMe WL</a>
-<ul class="nav navbar-nav">
-	<li class="nav-item active">
-	<a class="nav-link" href="/">Home<span class="sr-only">(current)</span></a>
-	</li>
-	<li class="nav-item">
-	<a class="nav-link" href="/xup">X-UP</a>
-	</li>
-	{% if perm_man.can() %}
-	<li class="nav-item">
-	<a class="nav-link" href="/management">Management</a>
-	</li>
-	{% endif %}
-	<li class="nav-item">
-		<button class="btn btn-warning btn-sm" onclick="javascript:removeSelf()">Remove from Waitlist</button>
-	</li>
-</ul>
-{% endblock %} {% block data %} {% for wlist in lists %}
+{{ super() }} {% endblock %}
+{% block data %}
+{% for wlist in lists %}
 <div class="col-sm-4" id="wl-{{ wlist.name }}">
 	<ol class="list-group">
 		<li class="list-group-item text-capitalize">{{ wlist.name|e }} WL</li>

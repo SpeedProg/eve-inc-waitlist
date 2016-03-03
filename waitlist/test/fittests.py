@@ -1,5 +1,4 @@
-import main
-from waitlist import utils
+from bp_waitlist import utils
 
 if __name__ == '__main__':
     fitting = """[Vindicator, VeniVindiVG]

@@ -26,8 +26,30 @@
 
 </head>
 <body>
+	<nav class="navbar bg-faded">
+	{% block menu %}
+<a class="navbar-brand" href="#">WarpToMe WL</a>
+<ul class="nav navbar-nav">
+	<li class="nav-item">
+	<a class="nav-link" href="{{url_for('index')}}">Home</a>
+	</li>
+	<li class="nav-item">
+	<a class="nav-link" href="{{url_for('fittings.xup_index')}}">X-UP</a>
+	</li>
+	{% if perm_man.can() %}
+	<li class="nav-item">
+	<a class="nav-link" href="{{url_for('fittings.management')}}">Management</a>
+	</li>
+	{% endif %}
+	{% if perm_settings.can() %}
+	<li  class="nav-item">
+	<a class="nav-link" href="{{url_for('settings.settings')}}">Settings</a>
+	</li>
+	{% endif %}
+</ul>
+	{% endblock %}
+	</nav>
 	<div id="content" class="container">
-		<div class="row" id="menu"><nav class="navbar bg-faded">{% block menu %}{% endblock %}</nav></div>
 		<div class="row" id="data">{% block data %}{% endblock %}</div>
 	</div>
 	<div id="footer">

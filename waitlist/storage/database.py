@@ -165,13 +165,13 @@ class Role(Base):
 
 class Waitlist(Base):
     """
-    Represents a waitlist
+    Represents a bp_waitlist
     """
     __tablename__ = 'waitlists'
     
     id = Column(Integer, primary_key=True)
     name = Column(String(20), unique=True)
-    entries = relationship("WaitlistEntry", back_populates="waitlist")
+    entries = relationship("WaitlistEntry", back_populates="bp_waitlist")
     
     def __repr__(self):
         return "<Waitlist %r>" % (self.name)
@@ -207,7 +207,7 @@ class WaitlistEntry(Base):
     user = Column(Integer, ForeignKey('characters.id'))
     fittings = relationship("Shipfit", cascade="save-update,merge,delete")
     waitlist_id = Column(Integer, ForeignKey("waitlists.id", onupdate="CASCADE", ondelete="CASCADE"))
-    waitlist = relationship("Waitlist", back_populates="entries")
+    bp_waitlist = relationship("Waitlist", back_populates="entries")
     user_data = relationship("Character")
 
     def __repr__(self):
