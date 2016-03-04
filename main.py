@@ -95,7 +95,7 @@ def login_token():
     identity_changed.send(current_app._get_current_object(),
                                   identity=Identity(user.id))
 
-    return url_for('index')
+    return redirect(url_for('index'), code=303)
 
 @app.route('/logout')
 @login_required
