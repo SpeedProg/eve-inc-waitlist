@@ -54,7 +54,18 @@ function editAccount(accountId) {
 	$('#acc-edit-id').val(accountId);
 	$('#modal-account-edit').modal('toggle');
 }
+function noclick() {
+	$('.noclick').click(function(e){
+		e.preventDefault();
+	});
+}
+$(document).ready(noclick);
 </script>
+<style>
+.inactiveLink {
+   pointer-events: none;
+}
+</style>
 {% endblock %}
 
 {% block content %}
@@ -79,9 +90,9 @@ function editAccount(accountId) {
 		<td id="acc-{{acc.id}}-name">{{ acc.username }}</td>
 		<td id="acc-{acc.id}}-email">{% if acc.email is not none %}{{ acc.email }}{% endif %}</td>
 		<td id="acc-{{acc.id}}-cchar">{{ acc.current_char_obj.eve_name }}</td>
-		<td>{% for character in acc.characters %}{{character.eve_name}}={{character.id}},{% endfor %}</td>
+		<td>{% for character in acc.characters %}{{character.eve_name}}={{character.id}}{% if not loop.last %},{% endif %}{% endfor %}</td>
 		<td id="acc-{{acc.id}}-roles">{% for role in acc.roles %}{{role.name}}{% if not loop.last %}, {% endif %}{% endfor %}</td>
-		<td><input class="form-control" type="text" value="{{ acc.login_token }}" readonly="readonly"></td>
+		<td><a class="noclick" href="/tokenauth?token={{acc.login_token|safe}}">Auth Link</a></td>
 		<td>
 		<button type="button" class="btn btn-xs btn-warning" onclick="javascript:deleteAccount({{acc.id}});">Delete</button>
 		<button type="button" class="btn btn-xs btn-secondary" onclick="javascript:editAccount({{acc.id}});">Edit</button>

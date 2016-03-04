@@ -50,7 +50,7 @@ function removePlayer(userId) {
 			<div class="card">
 				<div class="container">
 					<div class="row">
-						<div class="col-sm-2">
+						<div class="col-sm-2 hidden-sm-down">
 							<img src="https://image.eveonline.com/Character/{{ entry.user }}_32.jpg" alt="{{ entry.user_data.eve_name|e }}">
 						</div>
 						<div class="col-sm-8">
@@ -68,9 +68,9 @@ function removePlayer(userId) {
   				<ul class="list-group list-group-flush">
 				{% for fit in entry.fittings %}
     				<li class="list-group-item">
-    					<div class="container fit-link" data-dna="{{ fit.ship_type }}:{{ fit.modules }}" onclick="">
+    					<div class="container fit-link btn btn-primary" data-dna="{{ fit.ship_type }}:{{ fit.modules }}">
     					<div class="row">
-    						<div class="col-sm-4">
+    						<div class="col-sm-4 hidden-sm-down">
     						<img src="https://image.eveonline.com/Render/{{ fit.ship_type }}_32.png" alt="{{ entry.user_data.eve_name|e }}">
     						</div>
     						<div class="col-sm-8">
@@ -78,7 +78,7 @@ function removePlayer(userId) {
     						{{ fit.ship.typeName|e }}
     						</div>
     						<div class="row">
-    						{{ fit.comment|safe }}
+    						<small class="text-muted">{{ fit.comment|safe }}</small>
     						</div>
     						</div>
     					</div>
