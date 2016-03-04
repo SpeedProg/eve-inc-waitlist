@@ -103,7 +103,7 @@ def xup_submit():
     # detect, caldari resist ships + basi + scimi and add lvl comment
     # -- done --
     
-    # find out if the user is already in a bp_waitlist, if he is add him to more waitlist_entries according to his fits
+    # find out if the user is already in a waitlist, if he is add him to more waitlist_entries according to his fits
     # or add more fits to his entries
     # else create new entries for him in all appropriate waitlist_entries
     # -- done --
@@ -129,7 +129,7 @@ def xup_submit():
     
     eve_id = current_user.get_eve_id()
     
-    # get the bp_waitlist entries of this user
+    # get the waitlist entries of this user
     waitlist_entries = session.query(WaitlistEntry).filter(WaitlistEntry.user == eve_id).all()
     
     dps = []
@@ -197,13 +197,13 @@ def xup_submit():
     if len(waitlist_entries) > 0:  # there are actually existing entries
         # if there are existing wl entries assign them to appropriate variables
         for wl in waitlist_entries:
-            if wl.waitlists.name == WaitlistNames.logi:
+            if wl.waitlist.name == WaitlistNames.logi:
                 logi_entry = wl
                 continue
-            if wl.waitlists.name == WaitlistNames.dps:
+            if wl.waitlist.name == WaitlistNames.dps:
                 dps_entry = wl
                 continue
-            if wl.waitlists.name == WaitlistNames.sniper:
+            if wl.waitlist.name == WaitlistNames.sniper:
                 sniper_entry = wl
                 
     
