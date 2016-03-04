@@ -78,53 +78,63 @@ def xup_submit():
     logilvl = int(request.form['logi'])
     caldari_bs_lvl = int(request.form['cbs'])
     
+    logger.info(fittings)
+    
     # lets normalize linebreaks
-    fittings = fittings.replace('[\n\r]+', "\n")
+    fittings = fittings.replace("[\n\r]+", "\n")
+    fittings = fittings.strip()
     
     # lets first find out what kind of fitting is used
-    firstLine = re.split("\n+", fittings.strip(), maxsplit=1)[0]
+    lines = re.split("[\n\r]+", fittings)
+    lines = [line for line in lines if line != "\n"] # filter lines that only have a \n
+    firstLine = lines[0]
     format_type = utils.get_fit_format(firstLine)
     
     fits = []
     
     if format_type == "eft":
-        # split multiple fits
-        eft_fits = re.split("\[.*,.*\]\n", fittings)
+        eft_fits = []
+        line_nr = 0
+        max_lines = len(lines)
+        c_fit = []
+        while line_nr < max_lines:
+            line = lines[line_nr]
+            if re.match("\[.*,.*\]$", line) is not None:
+                logger.info("Found new fit starting with %s", line)
+                if len(c_fit) > 0:
+                    eft_fits.append(c_fit)
+                c_fit = []
+                c_fit.append(line)
+            else:
+                logger.info("Adding Module %s to current fit", line)
+                c_fit.append(line)
+            line_nr = line_nr + 1
+        if len(c_fit) > 0:
+            eft_fits.append(c_fit)
+        
         for eft_fit in eft_fits:
-            logger.info("Parsing fit")
-            # just remove possible whitespace
-            eft_fit = eft_fit.strip()
             parsed_fit = utils.parseEft(eft_fit)
             fits.append(parsed_fit)
     
     logger.info("Parsed %d fits", len(fits))
-    # TODO handle dna fits
-    
-    # detect, caldari resist ships + basi + scimi and add lvl comment
-    # -- done --
-    
-    # find out if the user is already in a waitlist, if he is add him to more waitlist_entries according to his fits
-    # or add more fits to his entries
-    # else create new entries for him in all appropriate waitlist_entries
-    # -- done --
-    
+    # TODO handle dna fit
 
     for fit in fits:
         if fit.ship_type in resist_ships:
             if logilvl == 0:
                 pass  # TODO ask for caldari bs lvl
             if fit.comment is None:
-                fit.comment = "<b>Caldari Battleship: " + str(caldari_bs_lvl) + "</b>"
+                fit.comment = "<b>Cal BS: " + str(caldari_bs_lvl) + "</b>"
             else:
-                fit.comment += " <b>Caldari Battleship: " + str(caldari_bs_lvl) + "</b>"
+                fit.comment += " <b>Cal BS: " + str(caldari_bs_lvl) + "</b>"
         else:
             if fit.ship_type in logi_ships:
                 if logilvl == 0:
                     pass  # TODO ask for logi
                 if fit.comment is None:
-                    fit.comment = "<b>Logistics Cruiser: " + str(logilvl) + "</b>"
+                    fit.comment = "<b>Logi: " + str(logilvl) + "</b>"
                 else:
-                    fit.comment += " <b>Logistics Cruiser: " + str(logilvl) + "</b>"
+                    fit.comment += " <b>Logi: " + str(logilvl) + "</b>"
     # get current users id
     
     eve_id = current_user.get_eve_id()
