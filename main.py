@@ -206,7 +206,7 @@ def unauthorized_ogb():
     Handle unauthorized users that visit with an out of game browser
     -> Redirect them to SSO
     """
-    return "no available yet"    
+    return "Login Without Token not yet available"    
 
 
 
