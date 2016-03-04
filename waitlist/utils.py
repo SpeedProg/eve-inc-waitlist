@@ -54,6 +54,8 @@ def parseEft(eftString):
             # TODO do we want to enable parsing of EFT/Pyfa fits ?
             # if so we need to filter lines that separate charges by ", "
             if not is_cargo:
+                if line.endswith("/OFFLINE"):
+                    line = line[:-8]
                 name_parts = line.split(", ")
                 mod_name = name_parts[0]
                 mod_amount = 1
