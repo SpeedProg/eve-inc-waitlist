@@ -15,13 +15,14 @@ resist_ships = {17918:"Rattlesnake", 32309:"Scorpion Navy Issue", 24688:"Rokh"}
 logi_ships = {11985:"Basilisk", 11978:"Scimitar"}
              
 sniper_ships = {17736:"Nightmare", 17738:"Machariel", 24694:"Maelstrom",
-                    24688:"Rokh", 17738:"Machariel",
+                    24688:"Rokh", 28665:"Vargur"
                     }
 dps_snips = {17740:"Vindicator", 24688:"Rokh", 24690:"Hyperion",
                   17726:"Apocalypse Navy Issue", 32305:"Armageddon Navy Issue",
                   28659:"Paladin", 28710:"Golem", 17636:"Raven Navy Issue",
                   32309:"Scorpion Navy Issue", 28661: "Kronos", 32307:"Dominix Navy Issue",
                   645:"Dominix", 17728:"Megathron Navy Issue", 33820:"Barghest",
-                  17918:"Rattlesnake", 17738:"Machariel", 17920: "Bhaalgorn"
+                  17918:"Rattlesnake", 17738:"Machariel", 17920: "Bhaalgorn",
+                  24694:"Maelstrom", 32311:"Typhoon Fleet Issue", 17732: "Tempest Fleet Issue", 
     }
 t3c_ships = {29990:"Loki"}
