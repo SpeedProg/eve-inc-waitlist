@@ -14,14 +14,14 @@ from waitlist.data.eve_xml_api import get_character_id_from_name
 from werkzeug.utils import redirect
 from flask.helpers import url_for
 
-bp_settings = Blueprint('settings', __name__, template_folder='templates')
+bp_settings = Blueprint('settings', __name__)
 logger = logging.getLogger(__name__)
 
 @bp_settings.route("/")
 @login_required
 @perm_settings.require(http_exception=401)
-def settings():
-    return render_template('settings.html', perm_admin=perm_admin, perm_settings=perm_settings, perm_man=perm_management)
+def overview():
+    return render_template('settings/overview.html', perm_admin=perm_admin, perm_settings=perm_settings, perm_man=perm_management)
 
 @bp_settings.route("/accounts", methods=["GET", "POST"])
 @login_required
@@ -76,13 +76,13 @@ def accounts():
     roles = session.query(Role).order_by(Role.name).all();
     accounts = session.query(Account).order_by(Account.username).all()
     
-    return render_template("accounts.html", perm_admin=perm_admin, perm_settings=perm_settings, perm_man=perm_management, roles=roles, accounts=accounts)
+    return render_template("settings/accounts.html", perm_admin=perm_admin, perm_settings=perm_settings, perm_man=perm_management, roles=roles, accounts=accounts)
 
 @bp_settings.route('/fmangement')
 @login_required
 @perm_settings.require(http_exception=401)
 def fleet():
-    return render_template("settings_fleet.html", perm_admin=perm_admin, perm_settings=perm_settings, perm_man=perm_management)
+    return render_template("settings/fleet.html", perm_admin=perm_admin, perm_settings=perm_settings, perm_man=perm_management)
 
 
 @bp_settings.route("/account_edit", methods=["POST"])
@@ -221,7 +221,7 @@ def account_self_edit():
 @perm_settings.require(http_exception=401)
 def account_self():
     acc = session.query(Account).filter(Account.id == current_user.id).first()
-    return render_template("account_self.html", perm_admin=perm_admin, perm_settings=perm_settings, perm_man=perm_management, account=acc)
+    return render_template("settings/self.html", perm_admin=perm_admin, perm_settings=perm_settings, perm_man=perm_management, account=acc)
 
 @bp_settings.route("/api/account/<int:acc_id>", methods=["DELETE"])
 @login_required
@@ -239,10 +239,10 @@ def api_account_create():
 '''
 
 
+'''
 @bp_settings.route("/create_account", methods=['GET'])
 @perm_admin.require(http_exception=401)
 def create_account_form():
     roles = WTMRoles.get_role_list()
     return render_template("create_account_form.html", roles=roles, perm_admin=perm_admin, perm_settings=perm_settings, perm_man=perm_management)
-
-    
+'''

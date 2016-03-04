@@ -4,14 +4,26 @@
 
 {% block head %}
 {{ super() }}
+<style>
+.sidebar {
+    position: fixed;
+    top: auto;
+    bottom: auto;
+    left: 0;
+    z-index: 1000;
+    display: block;
+    padding: 20px;
+    overflow-x: hidden;
+    overflow-y: auto;
+</style>
 {% endblock %}
 
 {% block data %}
-<div class="col-sm-3 col-md-2" id="sidebar">
+<div class="col-sm-3 col-md-2 sidebar" id="sidebar">
 	<ul class="nav nav-pills nav-stacked">
-	<ul class="nav-item">
-		<a class="nav-link {% block m_overview %}{% endblock %}" href="{{url_for('settings.settings')}}">Overview</a>
-	</ul>
+	<li class="nav-item">
+		<a class="nav-link {% block m_overview %}{% endblock %}" href="{{url_for('settings.overview')}}">Overview</a>
+	</li>
 	<li class="nav-item">
 		<a class="nav-link {% block m_fleet %}{% endblock %}" href="{{url_for('settings.fleet')}}">Fleet Settings</a>
 	</li>
@@ -26,6 +38,13 @@
 	</ul>
 </div>
 <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2" id="main">
+<div class="row">
 {% block content %}<p> Please select something on the left side </p>{% endblock %}
 </div>
+<div class="row" id="footer">
+&copy; Copyright 2016+ by <a href="javascript:CCPEVE.showInfo(1377, 91495852)">Bruce Warhead</a>.
+</div>
+</div>
 {% endblock %}
+
+{% block footer %}{% endblock %}
