@@ -18,6 +18,29 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.2.0/js/tether.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.2/js/bootstrap.min.js" integrity="sha384-vZ2WRJMwsjRMW/8U7i6PWi6AlO1L79snBrmgiDpgIWJ82z8eA5lenwvxbMV1PAh7" crossorigin="anonymous"></script>
+{% if is_igb %}
+<script type="text/javascript">
+function showFitting(dna) {
+	if (typeof CCPEVE == 'undefined') {
+		console.log("dna="+dna);
+	} else {
+	CCPEVE.showFitting(dna);
+	}
+}
+/*
+ * Set up click handlers on fittings
+ */
+ function setupDNA() {
+	var fits = document.getElementsByClassName("fit-link");
+	for (var i = 0; i < fits.length; i++) {
+		fits[i].addEventListener("click", function(event){
+			 var dna = this.getAttribute('data-dna');
+			 showFitting(dna);
+		 })
+	}
+}
+</script>
+{% endif %}
 <style>
 .btn-group-mini > .btn, .btn-mini {
     padding: .1rem .4rem;
@@ -33,7 +56,11 @@
 <body>
 	<nav class="navbar bg-faded">
 	{% block menu %}
-<a class="navbar-brand" href="#">WarpToMe WL</a>
+<a class="navbar-brand" href="/#">WarpToMe WL</a>
+  <button class="navbar-toggler hidden-sm-up" type="button" data-toggle="collapse" data-target="#exCollapsingNavbar2">
+    &#9776;
+  </button>
+  <div class="collapse navbar-toggleable-xs" id="exCollapsingNavbar2">
 <ul class="nav navbar-nav">
 	<li class="nav-item">
 	<a class="nav-link" href="{{url_for('index')}}">Home</a>
@@ -52,6 +79,7 @@
 	</li>
 	{% endif %}
 </ul>
+</div>
 	{% endblock %}
 	</nav>
 	<div id="content" class="container-fluid">
@@ -61,6 +89,9 @@
 	<div id="footer">
 		&copy; Copyright 2016+ by <a href="javascript:CCPEVE.showInfo(1377, 91495852)">Bruce Warhead</a>.
 	</div>
-	{% endblock %}
+	{% endblock %}#
+<script type="text/javascript">
+setupDNA();
+</script>
 </body>
 </html>

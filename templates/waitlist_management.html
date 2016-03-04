@@ -5,26 +5,6 @@
 {% block head %}
 {{ super() }}
 <script type="text/javascript">
-function showFitting(dna) {
-	if (typeof CCPEVE == 'undefined') {
-		console.log("dna="+dna);
-	} else {
-	CCPEVE.showFitting(dna);
-	}
-}
-/*
- * Set up click handlers on fittings
- */
- function setupDNA() {
-	var fits = document.getElementsByClassName("fit-link");
-	for (var i = 0; i < fits.length; i++) {
-		fits[i].addEventListener("click", function(event){
-			 var dna = this.getAttribute('data-dna');
-			 showFitting(dna);
-		 })
-	}
-}
-
 function removePlayer(userId) {
 	var wl_names = [{% for wl in lists %}"{{wl.name|e}}",{% endfor %}];
 	for (idx in wl_names) {
@@ -74,12 +54,14 @@ function removePlayer(userId) {
     						<img src="https://image.eveonline.com/Render/{{ fit.ship_type }}_32.png" alt="{{ entry.user_data.eve_name|e }}">
     						</div>
     						<div class="col-sm-8">
-    						<div class="row">
-    						{{ fit.ship.typeName|e }}
-    						</div>
-    						<div class="row">
-    						<small class="text-muted">{{ fit.comment|safe }}</small>
-    						</div>
+    							<div class="row">
+    							{{ fit.ship.typeName|e }}
+    							</div>
+    							{% if fit.comment is not none %}
+    							<div class="row">
+    							<small>{{ fit.comment|safe }}</small>
+    							</div>
+    							{% endif %}
     						</div>
     					</div>
     					</div>
@@ -92,7 +74,4 @@ function removePlayer(userId) {
 	</ol>
 </div>
 {% endfor %}
-<script type="text/javascript">
-setupDNA();
-</script>
 {% endblock %}
