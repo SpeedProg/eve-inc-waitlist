@@ -121,19 +121,14 @@ def account_edit():
         for r in acc_roles:
             roles_new[r] = True
         
-        print roles_new
-        
         #db_roles = session.query(Role).filter(or_(Role.name == name for name in acc_roles)).all()
         roles_to_remove = []
         for role in acc.roles:
-            print "Checking Role", role
             if role.name in roles_new:
-                print "del", role.name
                 del roles_new[role.name] # remove because it is already in the db
                 print roles_new
             else:
                 # remove the roles because it not submitted anymore
-                print "removing", role
                 roles_to_remove.append(role) # mark for removal
         
         for role in roles_to_remove:
@@ -145,11 +140,9 @@ def account_edit():
         if len(roles_new) >0 :
             new_roles = session.query(Role).filter(or_(Role.name == name for name in roles_new))
             for role in new_roles:
-                print "adding", role
                 acc.roles.append(role)
     else:
         # make sure all roles are removed#
-        print "remove all roles"
         session.query(roles).filter(roles.c.account_id == acc_id).delete()
         session.flush()
 
