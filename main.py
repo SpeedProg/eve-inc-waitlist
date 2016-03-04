@@ -9,7 +9,6 @@ from flask_principal import Principal, \
     identity_loaded, UserNeed
 from waitlist.data.perm import perm_management, perm_settings
 from flask.templating import render_template
-from setup_wtm import WaitlistNames
 from waitlist.blueprints.settings import bp_settings
 from waitlist.blueprints.fittings import bp_waitlist
 from waitlist.utils import get_account_from_db, get_char_from_db,\
@@ -18,6 +17,7 @@ from flask.globals import request, current_app
 import flask
 from werkzeug.utils import redirect
 from flask.helpers import url_for
+from waitlist.data.names import WaitlistNames
 
 
 app = Flask(__name__)

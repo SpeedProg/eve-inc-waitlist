@@ -1,37 +1,183 @@
-{% extends "base.html" %}
+{% extends "base_settings.html" %}
 
 {% block title %}Settings - Accounts{% endblock %}
 
 {% block head %}
 {{ super() }}
+<script type="text/javascript">
+function deleteAccount(accountId){
+	var settings = {
+			async: true,
+			dataType: "text",
+			error: function() {
+				// TODO: flash an error message
+				console.log("Error");
+			},
+			method: "DELETE",
+			success: function() {
+				var id = "#account-"+accountId;
+				$(id).remove();
+			}
+	};
+	$.ajax("{{url_for('settings.api_account_delete', acc_id='-1')}}".replace("-1", accountId), settings)
+}
+
+function editAccount(accountId) {
+	var name = $('#acc-'+accountId+"-name").text();
+	var roles = $('#acc-'+accountId+'-roles').text();
+	var email = $('#acc-'+accountId+'-email').text();
+	var default_char_name = $('#acc-'+accountId+'-cchar').text();
+	$('#acc-edit-name').val(name);
+	// this is more complicated
+	//$('#acc-edit-roles')
+	roles = roles.split(", ")
+	// map the roles he has to a dict so we can fast and easy check for them later
+	var has_roles = {};
+	for (role in roles) {
+		has_roles[roles[role]] = true;
+	}
+
+	var edit_roles_select = document.getElementById('acc-edit-roles');
+	for (var i=0; i < edit_roles_select.options.length; i++) {
+		var option = edit_roles_select.options[i];
+		var val = option.value;
+		if (val in has_roles) {
+			option.selected = true;
+		} else {
+			option.selected = false;
+		}
+	}
+	$('#acc-edit-email').val(email);
+	$('#acc-edit-cchar').val(default_char_name);
+	$('#acc-edit-id').val(accountId);
+	$('#modal-account-edit').modal('toggle');
+}
+</script>
 {% endblock %}
 
 {% block content %}
 <div class="btn-group" role="group" aria-label="Account Actions">
-	<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal-add-account">Add Account</button>
+	<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal-account-create">New Account</button>
 </div>
 <table class="table">
 <thead>
 	<tr>
 		<th>#</th>
 		<th>Account Name</th>
+		<th>Email</th>
 		<th>Current Char</th>
 		<th>Associated Characters</th>
 		<th>Roles</th>
+		<th>Login Token</th>
 		<th>Actions</th>
 	</tr>
 	{% for acc in accounts %}
 	<tr id="account-{{acc.id}}">
-		<td>{{ acc.id }}</td>
-		<td>{{ acc.username }}</td>
-		<td>{{ acc.current_char }}</td>
+		<td id="acc-{{acc.id}}-id">{{ acc.id }}</td>
+		<td id="acc-{{acc.id}}-name">{{ acc.username }}</td>
+		<td id="acc-{acc.id}}-email">{% if acc.email is not none %}{{ acc.email }}{% endif %}</td>
+		<td id="acc-{{acc.id}}-cchar">{{ acc.current_char_obj.eve_name }}</td>
 		<td>{% for character in acc.characters %}{{character.eve_name}}={{character.id}},{% endfor %}</td>
+		<td id="acc-{{acc.id}}-roles">{% for role in acc.roles %}{{role.name}}{% if not loop.last %}, {% endif %}{% endfor %}</td>
+		<td><input class="form-control" type="text" value="{{ acc.login_token }}" readonly="readonly"></td>
 		<td>
-		<button type="button" class="btn btn-xs btn-warning" onclick="javascript:deleteAccount({{acc.id}})">Delete</button>
-		<button type="button" class="btn btn-xs btn-secondary" onclick="javascript:editAccount({{acc.id}})">Edit</button>
+		<button type="button" class="btn btn-xs btn-warning" onclick="javascript:deleteAccount({{acc.id}});">Delete</button>
+		<button type="button" class="btn btn-xs btn-secondary" onclick="javascript:editAccount({{acc.id}});">Edit</button>
 		</td>
 	</tr>
 	{% endfor %}
 </thead>
 </table>
+<div class="modal fade" id="modal-account-create" tabindex="-1" role="dialog" aria-labelledby="label-account-create" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title" id="label-account-create">Create New Account</h4>
+      </div>
+      <div class="modal-body">
+      <form id="form-account-create" method="POST">
+      	<fieldset class="form-group">
+      		<label for="acc-name">Account Name</label>
+      		<input type="text" class="form-control" id="acc-name" name="account_name">
+      	</fieldset>
+      	<fieldset class="form-group">
+      		<label for="acc-pw">Password</label>
+      		<input type="password" class="form-control" id="acc-pw" name="account_pw">
+      	</fieldset>
+      	<fieldset>
+      		<label for="account-roles">Roles</label>
+      		<select multiple="multiple" class="form-control" id="account-roles" name="account_roles">
+      			{% for role in roles %}
+      			<option value="{{role.name}}">{{role.name}}</option>
+      			{% endfor %}
+      		</select>
+      	</fieldset>
+      	<fieldset class="form-group">
+      		<label for="acc-email">Email</label>
+      		<input type="email" class="form-control" id="acc-email" name="account_email">
+      	</fieldset>
+      	<fieldset class="form-group">
+      		<label for="acc-defchar">Default Character Name</label>
+      		<input type="text" class="form-control" id="acc-defchar" name="default_char_name">
+      	</fieldset>
+      	<button id="account-create-submit" type="submit" class="btn btn-primary hidden"></button>
+      </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <label for="account-create-submit" class="btn btn-primary">Create</label>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="modal-account-edit" tabindex="-1" role="dialog" aria-labelledby="label-account-edit" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title" id="label-account-edit">Edit Account</h4>
+      </div>
+      <div class="modal-body">
+      <form id="form-account-edit" action="{{url_for('settings.account_edit')}}" method="POST">
+      	<input id="acc-edit-id" type="hidden" value="" name="account_id">
+      	<fieldset class="form-group">
+      		<label for="acc-edit-name">Account Name</label>
+      		<input type="text" class="form-control" id="acc-edit-name" name="account_name">
+      	</fieldset>
+      	<fieldset class="form-group">
+      		<label for="acc-edit-pw">Password</label>
+      		<input type="password" class="form-control" id="acc-edit-pw" name="account_pw">
+      	</fieldset>
+      	<fieldset>
+      		<label for="acc-edit-roles">Roles</label>
+      		<select multiple="multiple" class="form-control" id="acc-edit-roles" name="account_roles">
+      			{% for role in roles %}
+      			<option value="{{role.name}}">{{role.name}}</option>
+      			{% endfor %}
+      		</select>
+      	</fieldset>
+      	<fieldset class="form-group">
+      		<label for="acc-edit-email">Email</label>
+      		<input type="email" class="form-control" id="acc-edit-email" name="account_email">
+      	</fieldset>
+      	<fieldset class="form-group">
+      		<label for="acc-edit-cchar">Default Character</label>
+      		<input type="text" class="form-control" id="acc-edit-cchar" name="default_char_name">
+      	</fieldset>
+      	<button id="acc-edit-submit" type="submit" class="btn btn-primary hidden"></button>
+      </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <label for="acc-edit-submit" class="btn btn-primary">Change</label>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}

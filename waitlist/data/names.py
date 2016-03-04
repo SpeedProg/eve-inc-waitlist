@@ -9,7 +9,7 @@ class WTMRoles():
     officer = "officer"
     fc = "fc"
     lm = "lm"
-    tbag = "tbag"
+    tbag = "tbadge"
     resident = "resident"
     
     @staticmethod

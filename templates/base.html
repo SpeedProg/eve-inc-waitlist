@@ -34,11 +34,11 @@
 	<a class="nav-link" href="{{url_for('index')}}">Home</a>
 	</li>
 	<li class="nav-item">
-	<a class="nav-link" href="{{url_for('fittings.xup_index')}}">X-UP</a>
+	<a class="nav-link" href="{{url_for('bp_waitlist.xup_index')}}">X-UP</a>
 	</li>
 	{% if perm_man.can() %}
 	<li class="nav-item">
-	<a class="nav-link" href="{{url_for('fittings.management')}}">Management</a>
+	<a class="nav-link" href="{{url_for('bp_waitlist.management')}}">Management</a>
 	</li>
 	{% endif %}
 	{% if perm_settings.can() %}
@@ -49,7 +49,7 @@
 </ul>
 	{% endblock %}
 	</nav>
-	<div id="content" class="container">
+	<div id="content" class="container-fluid">
 		<div class="row" id="data">{% block data %}{% endblock %}</div>
 	</div>
 	<div id="footer">

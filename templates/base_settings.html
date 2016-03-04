@@ -12,6 +12,9 @@
 	<li class="nav-item">
 		<a class="nav-link" href="{{url_for('settings.management')}}">Fleet Management</a>
 	</li>
+	<li class="nav-item">
+		<a class="nav-link" href="{{url_for('settings.account_self')}}">Own Settings</a>
+	</li>
 	{% if perm_admin.can() %}
 	<li class="nav-item">
 		<a class="nav-link" href="{{url_for('settings.accounts')}}">Accounts</a>

@@ -1,0 +1,87 @@
+{% extends "base_settings.html" %}
+{% block title %}Settings - Account{% endblock %}
+{% block head %}
+{{ super() }}
+<script type="text/javascript">
+	function deleteAccount(accountId) {
+		var settings = {
+			async : true,
+			dataType : "text",
+			error : function() {
+				// TODO: flash an error message
+				console.log("Error");
+			},
+			method : "DELETE",
+			success : function() {
+				var id = "#account-" + accountId;
+				$(id).remove();
+			}
+		};
+		$.ajax("{{url_for('settings.api_account_delete', acc_id='-1')}}"
+				.replace("-1", accountId), settings)
+	}
+
+	function editAccount(accountId) {
+		var name = $('#acc-' + accountId + "-name").text();
+		var roles = $('#acc-' + accountId + '-roles').text();
+		var email = $('#acc-' + accountId + '-email').text();
+		var default_char_name = $('#acc-' + accountId + '-cchar').text();
+		$('#acc-edit-name').val(name);
+		// this is more complicated
+		//$('#acc-edit-roles')
+		roles = roles.split(", ")
+		// map the roles he has to a dict so we can fast and easy check for them later
+		var has_roles = {};
+		for (role in roles) {
+			has_roles[roles[role]] = true;
+		}
+
+		var edit_roles_select = document.getElementById('acc-edit-roles');
+		for (var i = 0; i < edit_roles_select.options.length; i++) {
+			var option = edit_roles_select.options[i];
+			var val = option.value;
+			if (val in has_roles) {
+				option.selected = true;
+			} else {
+				option.selected = false;
+			}
+		}
+		$('#acc-edit-email').val(email);
+		$('#acc-edit-cchar').val(default_char_name);
+		$('#acc-edit-id').val(accountId);
+		$('#modal-account-edit').modal('toggle');
+	}
+</script>
+{% endblock %}
+
+{% block content %}
+<form id="form-account-edit"
+	action="{{url_for('settings.account_self_edit')}}" method="POST">
+	<fieldset class="form-group">
+		<label for="acc-edit-name">Account Name</label>
+		<input type="text" class="form-control" id="acc-edit-name" name="account_name" value="{{account.username}}" disabled>
+	</fieldset>
+	<fieldset>
+		<label for="acc-edit-roles">Roles</label>
+		<select class="form-control" id="acc-edit-roles" name="account_roles" multiple disabled>
+			{% for role in account.roles %}
+			<option value="{{role.name}}">{{role.name}}</option>
+			{% endfor %}
+		</select>
+	</fieldset>
+	<fieldset class="form-group">
+		<label for="acc-edit-pw">Password</label> <input type="password"
+			class="form-control" id="acc-edit-pw" name="account_pw">
+	</fieldset>
+	<fieldset class="form-group">
+		<label for="acc-edit-email">Email</label>
+		<input type="email"	class="form-control" id="acc-edit-email" name="account_email" value="{% if account.email is not none %}{{account.email}}{% endif %}">
+	</fieldset>
+	<fieldset class="form-group">
+		<label for="acc-edit-cchar">Default Character</label>
+		<input type="text" class="form-control" id="acc-edit-cchar"	name="default_char_name" value="{{account.current_char_obj.eve_name}}">
+	</fieldset>
+	<button id="acc-edit-submit" type="submit"
+		class="btn btn-primary hidden"></button>
+</form>
+{% endblock %}

@@ -35,14 +35,14 @@ typeName = name of module
 
 roles = Table('account_roles',
               Base.metadata,
-              Column('account_id', Integer, ForeignKey('accounts.id')),
-              Column('role_id', Integer, ForeignKey('roles.id'))
+              Column('account_id', Integer, ForeignKey('accounts.id', onupdate="CASCADE", ondelete="CASCADE")),
+              Column('role_id', Integer, ForeignKey('roles.id', onupdate="CASCADE", ondelete="CASCADE"))
               )
 
 linked_chars = Table('linked_chars',
                      Base.metadata,
-                     Column('id', Integer, ForeignKey('accounts.id')),
-                     Column('char_id', Integer, ForeignKey('characters.id'))
+                     Column('id', Integer, ForeignKey('accounts.id', onupdate="CASCADE", ondelete="CASCADE")),
+                     Column('char_id', Integer, ForeignKey('characters.id', onupdate="CASCADE", ondelete="CASCADE"))
                      )
 
 class InvType(Base):
@@ -77,9 +77,10 @@ class Account(Base):
     email = Column(String(100), unique=True)
     login_token = Column(String(64), unique=True)
     roles = relationship('Role', secondary=roles,
-                         backref=backref('roles'))
+                         backref=backref('account_roles'))
     characters = relationship('Character', secondary=linked_chars,
                               backref=backref('linked_chars'))
+    current_char_obj = relationship('Character')
     
     def get_char_id(self):
         return self.current_char
@@ -213,6 +214,15 @@ class WaitlistEntry(Base):
     def __repr__(self):
         return "<WaitlistEntry %r>" % (self.id)
     
+class APICacheCharacterID(Base):
+    """
+    Maps Character Names and IDs
+    """
+    __tablename__ = "apicache_characterid"
+    id = Column(Integer, primary_key=True)
+    name = Column(String(100), unique=True)
+
+
 Base.metadata.create_all(engine)
 Session = sessionmaker()
 Session.configure(bind=engine)

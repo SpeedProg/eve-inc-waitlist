@@ -1,6 +1,7 @@
 from flask.blueprints import Blueprint
 import logging
-from waitlist.data.perm import perm_remove_player, perm_management
+from waitlist.data.perm import perm_remove_player, perm_management, perm_admin,\
+    perm_settings
 from flask_login import login_required, current_user
 from flask.globals import request
 from waitlist.storage.database import session, WaitlistEntry, Shipfit, Waitlist
@@ -261,7 +262,7 @@ def xup_submit():
 @bp_waitlist.route("/xup", methods=['GET'])
 @login_required
 def xup_index():
-    return render_template("xup.html", perm_man=perm_management)
+    return render_template("xup.html", perm_admin=perm_admin, perm_settings=perm_settings, perm_man=perm_management)
 
 
 @bp_waitlist.route('/management')
@@ -289,4 +290,4 @@ def management():
     wlists.append(sniper_wl)
     
     
-    return render_template("waitlist_management.html", lists=wlists)
+    return render_template("waitlist_management.html", lists=wlists, perm_admin=perm_admin, perm_settings=perm_settings, perm_man=perm_management)
