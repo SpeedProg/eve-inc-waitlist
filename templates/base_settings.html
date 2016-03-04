@@ -8,16 +8,16 @@
 
 {% block data %}
 <div class="col-sm-3 col-md-2" id="sidebar">
-	<ul class="nav">
+	<ul class="nav nav-pills nav-stacked">
 	<li class="nav-item">
-		<a class="nav-link" href="{{url_for('settings.management')}}">Fleet Management</a>
+		<a class="nav-link {% block m_fleet %}{% endblock %}" href="{{url_for('settings.management')}}">Fleet Management</a>
 	</li>
 	<li class="nav-item">
-		<a class="nav-link" href="{{url_for('settings.account_self')}}">Own Settings</a>
+		<a class="nav-link {% block m_own %}{% endblock %}" href="{{url_for('settings.account_self')}}">Own Settings</a>
 	</li>
 	{% if perm_admin.can() %}
 	<li class="nav-item">
-		<a class="nav-link" href="{{url_for('settings.accounts')}}">Accounts</a>
+		<a class="nav-link {% block m_account %}{% endblock %}" href="{{url_for('settings.accounts')}}">Accounts</a>
 	</li>
 	{% endif %}
 	</ul>
