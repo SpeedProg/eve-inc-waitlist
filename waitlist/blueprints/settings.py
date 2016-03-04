@@ -81,8 +81,8 @@ def accounts():
 @bp_settings.route('/fmangement')
 @login_required
 @perm_settings.require(http_exception=401)
-def management():
-    return render_template("fleet_management.html", perm_admin=perm_admin, perm_settings=perm_settings, perm_man=perm_management)
+def fleet():
+    return render_template("settings_fleet.html", perm_admin=perm_admin, perm_settings=perm_settings, perm_man=perm_management)
 
 
 @bp_settings.route("/account_edit", methods=["POST"])

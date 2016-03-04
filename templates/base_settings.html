@@ -9,8 +9,11 @@
 {% block data %}
 <div class="col-sm-3 col-md-2" id="sidebar">
 	<ul class="nav nav-pills nav-stacked">
+	<ul class="nav-item">
+		<a class="nav-link {% block m_overview %}{% endblock %}" href="{{url_for('settings.settings')}}">Overview</a>
+	</ul>
 	<li class="nav-item">
-		<a class="nav-link {% block m_fleet %}{% endblock %}" href="{{url_for('settings.management')}}">Fleet Management</a>
+		<a class="nav-link {% block m_fleet %}{% endblock %}" href="{{url_for('settings.fleet')}}">Fleet Settings</a>
 	</li>
 	<li class="nav-item">
 		<a class="nav-link {% block m_own %}{% endblock %}" href="{{url_for('settings.account_self')}}">Own Settings</a>
