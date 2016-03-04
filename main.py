@@ -12,7 +12,7 @@ from flask.templating import render_template
 from waitlist.blueprints.settings import bp_settings
 from waitlist.blueprints.fittings import bp_waitlist
 from waitlist.utils import get_account_from_db, get_char_from_db,\
-    create_new_character
+    create_new_character, is_igb
 from flask.globals import request, current_app
 import flask
 from werkzeug.utils import redirect
@@ -32,6 +32,11 @@ app.register_blueprint(bp_waitlist)
 app.register_blueprint(bp_settings, url_prefix='/settings')
 
 logger = logging.getLogger(__name__)
+
+# set if it is the igb
+@app.context_processor
+def inject_user():
+    return dict(is_igb=is_igb())
 
 @app.route('/', methods=['GET'])
 @login_required
@@ -142,16 +147,9 @@ def unauthorized():
        
     TODO: Implement 
     '''
-    
-    is_igb = False
-    
-    # check for IGB
-    user_agent = request.headers.get('User-Agent')
-    if "EVE-IGB" in user_agent:
-        is_igb = True
 
     # if we have a igb check if we are trusted!
-    if is_igb:
+    if is_igb():
         return unauthorized_igb()
     
     return unauthorized_ogb()
