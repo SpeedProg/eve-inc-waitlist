@@ -1,5 +1,10 @@
-{% extends "base.html" %} {% block title %}Index{% endblock %} {% block
-head %}
+{% extends "base.html" %}
+
+{% block title %}Overview{% endblock %}
+
+{% block head %}
+
+{{ super() }}
 <script type="text/javascript">
 function removeSelf() {
 	$.get("/api/self/wl/remove", {}, function(data, status, jqxhr){
@@ -51,7 +56,8 @@ function removeOwnFit(fitId, entryId) {
 	}, "text");
 }
 </script>
-{{ super() }} {% endblock %}
+{% endblock %}
+
 {% block data %}
 {% for wlist in lists %}
 <div class="col-sm-4" id="wl-{{ wlist.name }}">
