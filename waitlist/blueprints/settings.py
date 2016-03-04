@@ -1,7 +1,7 @@
 from flask.blueprints import Blueprint
 import logging
 from flask_login import login_required, current_user
-from waitlist.data.perm import WTMRoles, perm_admin, perm_settings,\
+from waitlist.data.perm import perm_admin, perm_settings,\
     perm_management
 from flask.templating import render_template
 from flask.globals import request
