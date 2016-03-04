@@ -4,6 +4,7 @@ import re
 from waitlist.storage.database import Shipfit, InvType, session, Character
 from flask_login import login_required, current_user
 from waitlist.storage import database
+from flask.globals import request
 
 logger = logging.getLogger(__name__)
 
@@ -125,3 +126,8 @@ def create_new_character(eve_id, char_name):
     char = Character(eve_id, char_name)
     database.session.add(char)
     return char
+
+def is_igb():
+    user_agent = request.headers.get('User-Agent')
+    if "EVE-IGB" in user_agent:
+        is_igb = True
