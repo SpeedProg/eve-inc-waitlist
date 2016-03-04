@@ -123,11 +123,12 @@ def get_char_from_db(int_id):
     return database.session.query(database.Character).filter(database.Character.id == int_id).first()
 
 def create_new_character(eve_id, char_name):
-    char = Character(eve_id, char_name)
+    char = Character()
+    char.id = eve_id
+    char.eve_name = char_name
     database.session.add(char)
     return char
 
 def is_igb():
     user_agent = request.headers.get('User-Agent')
-    if "EVE-IGB" in user_agent:
-        is_igb = True
+    return ("EVE-IGB" in user_agent)
