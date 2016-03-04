@@ -214,7 +214,7 @@ if __name__ == '__main__':
     ch = logging.StreamHandler()
     ch.setLevel(logging.INFO)
     logger.addHandler(ch)
-    waitlistlogger = logging.getLogger("fittings")
+    waitlistlogger = logging.getLogger("waitlist")
     waitlistlogger.addHandler(ch)
     waitlistlogger.setLevel(logging.INFO)
     app.run()
