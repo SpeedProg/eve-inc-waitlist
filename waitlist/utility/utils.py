@@ -109,7 +109,7 @@ def get_fit_format(line):
         return "dna"
 
 def get_item_id(name):
-    logger.info("Getting id for item %s", name)
+    logger.debug("Getting id for item %s", name)
     return session.query(InvType).filter(InvType.typeName == name).first().typeID
 
 @login_required
