@@ -104,7 +104,9 @@ function removeOwnFit(fitId, wlName, charId) {
 								</div>
 								<div class="col-sm-8">
 									<div class="row">{{ fit.ship.typeName|e }}</div>
-									<div class="row">{{ fit.comment|safe }}</div>
+									{% if fit.comment is not none %}
+									<div class="row"><small>{{ fit.comment|safe }}</small></div>
+									{% endif %}
 								</div>
 							</div>
 							<div class="row">
