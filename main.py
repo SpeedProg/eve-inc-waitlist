@@ -2,7 +2,7 @@ from flask_login import login_required, current_user, LoginManager, login_user,\
     logout_user
 from flask.app import Flask
 import logging
-from waitlist.storage.database import session, Waitlist, Account, Character
+from waitlist.storage.database import session, Waitlist, Account
 from flask_principal import Principal, \
     RoleNeed, identity_changed, Identity, AnonymousIdentity,\
     identity_loaded, UserNeed
