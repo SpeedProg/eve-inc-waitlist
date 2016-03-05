@@ -8,11 +8,12 @@
 <script type="text/javascript">
 function removeSelf() {
 	$.get("/api/self/wl/remove", {}, function(data, status, jqxhr){
-		var wl_names = [{% for wl in lists %}"{{wl.name|e}}",{% endfor %}];
-		for (idx in wl_names) {
-			var wl_name = wl_names[idx];
-			var entry_id = "entry-"+wl_name+"-"+{{ current_user.get_eve_id() }}
-			var entry = document.getElementById(entry_id);
+		var wlNames = [{% for wl in lists %}"{{wl.name|e}}"{% if not loop.last %},{% endif %}{% endfor %}];
+		for(var i=0, len=wlNames.length; i < len; i++) {
+			var wlName = wlNames[i];
+			console.log("Checking WL "+wlName);
+			var entryId = "entry-"+wlName+"-{{ current_user.get_eve_id() }}";
+			var entry = document.getElementById(entryId);
 			if (entry != null) { // there is a entry for him on that wl
 				entry.parentNode.removeChild(entry); // remote it from the DOM
 			}
@@ -20,37 +21,34 @@ function removeSelf() {
 	}, "text");
 }
 
-function removeOwnEntry(entryId) {
+function removeOwnEntry(wlName, charId, entryId) {
 	$.get("/api/self/wlentry/remove/"+entryId, {}, function(data, status, jqxhr){
-		var entry_id = "entry-"+entryId;
-		var entry = document.getElementById(entry_id);
+		var htmlId = "entry-"+wlName+"-"+charId;
+		var entry = document.getElementById(htmlId);
 		if (entry != null) { // there is a entry for him on that wl
 			entry.parentNode.removeChild(entry); // remote it from the DOM
 		}
 	}, "text");
 }
 
-function removeOwnFit(fitId, entryId) {
+function removeOwnFit(fitId, wlName, charId) {
 	$.get("/api/self/fittings/remove/"+fitId, {}, function(data, status, jqxhr){
-		var counterid = "entry-count-"+entryId;
-		var entry_id = "fit-"+fitId;
-		var entry = document.getElementById(entry_id);
-		if (entry != null) { // there is a entry for him on that wl
-			entry.parentNode.removeChild(entry); // remote it from the DOM
+		var entryHtmlId = "entry-"+wlName+"-"+charId;
+		var fitHtmlId = "fit-"+fitId;
+		var fit = document.getElementById(fitHtmlId);
+		var entry = document.getElementById(entryHtmlId);
+		if (fit != null) { // there is a entry for him on that wl
+			fit.parentNode.removeChild(fit); // remote it from the DOM
 		}
-		var counter = document.getElementById(counterid);
-		// we should access that in an other way
-		count = Number(counter.innerHTML);
+		var count = Number(entry.getAttribute("data-count"));
 		if (count <= 1) {
 			// no fit left, remove entry
-			var entry_id = "entry-"+entryId;
-			var entry = document.getElementById(entry_id);
 			if (entry != null) { // there is a entry for him on that wl
 				entry.parentNode.removeChild(entry); // remote it from the DOM
 			}
 		} else {
 			count--;
-			counter.innerHTML = count;
+			entry.setAttribute("data-count", count);
 		}
 		
 	}, "text");
@@ -60,13 +58,17 @@ function removeOwnFit(fitId, entryId) {
 {% endblock %}
 
 {% block data %}
+<div class="row">
+	<button type="button" class="center-block btn btn-danger btn-sm" onclick="removeSelf();">Remove Self from Waitlist</button>
+</div>
+<div class="row">
 {% for wlist in lists %}
 <div class="col-sm-4" id="wl-{{ wlist.name }}">
 	<ol class="list-group">
 		<li class="list-group-item text-capitalize">{{ wlist.name|e }} WL</li>
 		{% for entry in wlist.entries %}
 		<li class="list-group-item"
-			id="entry-{{ entry.id }}">
+			id="entry-{{wlist.name}}-{{ entry.user }}" {% if current_user.get_eve_id() == entry.user %}data-count="{{entry.fittings|length}}"{% endif %}>
 			<div class="card">
 				<div class="container">
 					<div class="row">
@@ -84,7 +86,7 @@ function removeOwnFit(fitId, entryId) {
 						<div class="btn-group btn-group-mini" role="group"
 							aria-label="Action Buttons">
 							<button type="button" class="btn btn-mini btn-warning"
-								onclick="javascript:removeOwnEntry({{ entry.id }});">Remove</button>
+								onclick="javascript:removeOwnEntry('{{wlist.name}}', {{entry.user}}, {{ entry.id }});">Remove</button>
 						</div>
 					</div>
 					{% endif %}
@@ -93,9 +95,8 @@ function removeOwnFit(fitId, entryId) {
 				<ul class="list-group list-group-flush">
 					{% for fit in entry.fittings %}
 					<li class="list-group-item" id="fit-{{ fit.id }}">
-						<div class="container fit-link"
-							data-dna="{{ fit.ship_type }}:{{ fit.modules }}">
-							<div class="row">
+						<div class="container">
+							<div class="row fit-link" data-dna="{{ fit.ship_type }}:{{ fit.modules }}">
 								<div class="col-sm-4">
 									<img
 										src="https://image.eveonline.com/Render/{{ fit.ship_type }}_32.png"
@@ -110,8 +111,7 @@ function removeOwnFit(fitId, entryId) {
 								<div class="btn-group btn-group-mini" role="group"
 									aria-label="Action Buttons">
 									<button type="button" class="btn btn-mini btn-warning"
-										onclick="javascript:removeOwnFit({{ fit.id }}, {{ entry.id }});">Remove
-										Fit</button>
+										onclick="javascript:removeOwnFit({{ fit.id }}, '{{ wlist.name }}', {{ entry.user }});">Remove Fit</button>
 								</div>
 							</div>
 						</div>
@@ -122,4 +122,6 @@ function removeOwnFit(fitId, entryId) {
 		</li> {% endfor %}
 	</ol>
 </div>
-{% endfor %} {% endblock %}
+{% endfor %}
+</div>
+{% endblock %}

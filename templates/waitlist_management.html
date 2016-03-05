@@ -30,26 +30,28 @@ function removePlayer(userId) {
 		<li class="list-group-item" id="entry-{{ wlist.name }}-{{ entry.user }}">
 			<div class="card">
 				<div class="container">
+					<a href="javascript:CCPEVE.showInfo(1377, {{ entry.user }})">
 					<div class="row">
 						<div class="col-sm-2 hidden-sm-down">
 							<img src="https://image.eveonline.com/Character/{{ entry.user }}_32.jpg" alt="{{ entry.user_data.eve_name|e }}">
 						</div>
 						<div class="col-sm-8">
-						<a href="javascript:CCPEVE.showInfo(1377, {{ entry.user }})">{{ entry.user_data.eve_name|e }}</a>
+						{{ entry.user_data.eve_name|e }}
 						</div>
 					</div>
+					</a>
 					<div class="row">
 						<div class="btn-group btn-group-mini" role="group" aria-label="Action Buttons">
-							<button type="button" class="btn btn-primary" onclick="javascript:CCPEVE.showInfo(1377, {{ entry.user }})">Char</button>
-							<button type="button" class="btn btn btn-secondary" onclick="javascript:CCPEVE.startConversation({{ entry.user }})">Conversation</button>
-							<button type="button" class="btn btn btn-warning" onclick="javascript:removePlayer({{ entry.user }})">Remove</button>
+							<!-- <button type="button" class="btn btn-primary" onclick="javascript:CCPEVE.showInfo(1377, {{ entry.user }})">Char</button> -->
+							<button type="button" class="btn btn btn-secondary" onclick="javascript:CCPEVE.startConversation({{ entry.user }})">Convo</button>
+							<button type="button" class="btn btn btn-danger" onclick="javascript:removePlayer({{ entry.user }})">Remove</button>
 						</div>
 					</div>
 				</div>
   				<ul class="list-group list-group-flush">
 				{% for fit in entry.fittings %}
     				<li class="list-group-item">
-    					<div class="container fit-link btn btn-primary" data-dna="{{ fit.ship_type }}:{{ fit.modules }}">
+    					<div class="container fit-link btn btn-info" data-dna="{{ fit.ship_type }}:{{ fit.modules }}">
     					<div class="row">
     						<div class="col-sm-4 hidden-sm-down">
     						<img src="https://image.eveonline.com/Render/{{ fit.ship_type }}_32.png" alt="{{ entry.user_data.eve_name|e }}">
