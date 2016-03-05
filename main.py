@@ -212,7 +212,7 @@ def unauth_igb_untrused():
     """
     Send message to enable trust
     """
-    return "<html><head><script>CCPEVE.requestTrust(\"http://127.0.0.1:5000/\");</script></head><body><p>Please enable trust</p></body></html>"
+    return render_template("enable_trust.html")
 
 def unauthorized_ogb():
     """
