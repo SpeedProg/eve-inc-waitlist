@@ -173,7 +173,7 @@ class Waitlist(Base):
     
     id = Column(Integer, primary_key=True)
     name = Column(String(20), unique=True)
-    entries = relationship("WaitlistEntry", back_populates="waitlist")
+    entries = relationship("WaitlistEntry", back_populates="waitlist", order_by="asc(WaitlistEntry.creation)")
     
     def __repr__(self):
         return "<Waitlist %r>" % (self.name)
