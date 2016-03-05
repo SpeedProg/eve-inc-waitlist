@@ -112,7 +112,6 @@ def xup_submit():
                     c_fit.append(line)
                 else: # there is a new fit starting later on in this line
                     sIdx = match.start()
-                    eIdx = match.end()
                     current_fit_line = line[:sIdx]
                     new_fit_start = line[sIdx:]
                     # add last line to fit and start the new one
