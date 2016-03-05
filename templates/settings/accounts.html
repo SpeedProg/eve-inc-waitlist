@@ -94,8 +94,8 @@ $(document).ready(noclick);
 		<td id="acc-{{acc.id}}-roles">{% for role in acc.roles %}{{role.name}}{% if not loop.last %}, {% endif %}{% endfor %}</td>
 		<td><a class="noclick" href="/tokenauth?token={{acc.login_token|safe}}">Auth Link</a></td>
 		<td>
-		<button type="button" class="btn btn-xs btn-warning" onclick="javascript:deleteAccount({{acc.id}});">Delete</button>
-		<button type="button" class="btn btn-xs btn-secondary" onclick="javascript:editAccount({{acc.id}});">Edit</button>
+		<button type="button" class="btn btn-sm btn-warning" onclick="javascript:deleteAccount({{acc.id}});">Delete</button>
+		<button type="button" class="btn btn-sm btn-secondary" onclick="javascript:editAccount({{acc.id}});">Edit</button>
 		</td>
 	</tr>
 	{% endfor %}

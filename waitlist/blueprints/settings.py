@@ -1,11 +1,9 @@
 from flask.blueprints import Blueprint
 import logging
 from flask_login import login_required, current_user
-from waitlist.data.perm import perm_admin, perm_settings,\
-    perm_management
+from waitlist.data.perm import perm_admin, perm_settings, perm_officer
 from flask.templating import render_template
 from flask.globals import request
-from waitlist.utils import get_random_token
 from sqlalchemy import or_
 from waitlist.storage.database import Account, Role, session, Character, roles,\
     linked_chars
@@ -13,6 +11,7 @@ import flask
 from waitlist.data.eve_xml_api import get_character_id_from_name
 from werkzeug.utils import redirect
 from flask.helpers import url_for
+from waitlist.utility.utils import get_random_token, get_character_by_name
 
 bp_settings = Blueprint('settings', __name__)
 logger = logging.getLogger(__name__)
@@ -21,7 +20,7 @@ logger = logging.getLogger(__name__)
 @login_required
 @perm_settings.require(http_exception=401)
 def overview():
-    return render_template('settings/overview.html', perm_admin=perm_admin, perm_settings=perm_settings, perm_man=perm_management)
+    return render_template('settings/overview.html')
 
 @bp_settings.route("/accounts", methods=["GET", "POST"])
 @login_required
@@ -76,13 +75,13 @@ def accounts():
     roles = session.query(Role).order_by(Role.name).all();
     accounts = session.query(Account).order_by(Account.username).all()
     
-    return render_template("settings/accounts.html", perm_admin=perm_admin, perm_settings=perm_settings, perm_man=perm_management, roles=roles, accounts=accounts)
+    return render_template("settings/accounts.html", roles=roles, accounts=accounts)
 
 @bp_settings.route('/fmangement')
 @login_required
 @perm_settings.require(http_exception=401)
 def fleet():
-    return render_template("settings/fleet.html", perm_admin=perm_admin, perm_settings=perm_settings, perm_man=perm_management)
+    return render_template("settings/fleet.html")
 
 
 @bp_settings.route("/account_edit", methods=["POST"])
@@ -221,7 +220,41 @@ def account_self_edit():
 @perm_settings.require(http_exception=401)
 def account_self():
     acc = session.query(Account).filter(Account.id == current_user.id).first()
-    return render_template("settings/self.html", perm_admin=perm_admin, perm_settings=perm_settings, perm_man=perm_management, account=acc)
+    return render_template("settings/self.html", account=acc)
+
+@bp_settings.route("/bans", methods=["GET"])
+@login_required
+@perm_officer.require(http_exception=401)
+def bans():
+    banned_chars = session.query(Character).filter(Character.banned == True).all()
+    return render_template("settings/bans.html", banned_chars=banned_chars)
+
+@bp_settings.route("/bans_change", methods=["POST"])
+@login_required
+@perm_officer.require(http_exception=401)
+def bans_change():
+    print "bans_change"
+    action = request.form['change']
+    print "action"
+    target = request.form['char_name']
+    print "target"
+    print 'action='+str(action)+" char_name="+str(target)
+    if action is None or target is None:
+        
+        return flask.abort(400)
+    
+    char = get_character_by_name(target)
+    
+    if action == "ban":
+        char.banned = True
+        # we need to log the user out
+
+    elif action == "unban":
+        char.banned = False
+    
+    session.commit()
+    
+    return redirect(url_for(".bans", code=303))
 
 @bp_settings.route("/api/account/<int:acc_id>", methods=["DELETE"])
 @login_required
@@ -244,5 +277,5 @@ def api_account_create():
 @perm_admin.require(http_exception=401)
 def create_account_form():
     roles = WTMRoles.get_role_list()
-    return render_template("create_account_form.html", roles=roles, perm_admin=perm_admin, perm_settings=perm_settings, perm_man=perm_management)
+    return render_template("create_account_form.html", roles=roles)
 '''

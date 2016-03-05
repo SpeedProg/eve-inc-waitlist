@@ -1,5 +1,5 @@
 from waitlist.storage.database import Account, Character, session, Role
-from waitlist.utils import get_random_token
+from waitlist.utility import get_random_token
 from waitlist.data.perm import WTMRoles
 import evelink
 if __name__ == '__main__':

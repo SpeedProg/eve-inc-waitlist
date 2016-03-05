@@ -13,3 +13,5 @@ perm_management = Permission(RoleNeed(WTMRoles.fc), RoleNeed(WTMRoles.tbadge),
 
 perm_remove_player = Permission(RoleNeed(WTMRoles.fc), RoleNeed(WTMRoles.tbadge),
                              RoleNeed(WTMRoles.admin), RoleNeed(WTMRoles.lm))
+
+perm_officer = Permission(RoleNeed(WTMRoles.admin), RoleNeed(WTMRoles.officer))

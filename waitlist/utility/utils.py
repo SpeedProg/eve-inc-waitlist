@@ -1,10 +1,11 @@
 import string,random
 import logging
 import re
-from waitlist.storage.database import Shipfit, InvType, session, Character
+from waitlist.storage.database import InvType, session, Character, Shipfit
 from flask_login import login_required, current_user
 from waitlist.storage import database
 from flask.globals import request
+from waitlist.data.eve_xml_api import get_character_id_from_name
 
 logger = logging.getLogger(__name__)
 
@@ -128,8 +129,24 @@ def create_new_character(eve_id, char_name):
     char.id = eve_id
     char.eve_name = char_name
     database.session.add(char)
+    database.session.commit()
+    return char
+
+def get_character_by_name(eve_name):
+    eve_id = get_character_id_from_name(eve_name)
+    return get_character_by_id_and_name(eve_id, eve_name)
+
+def  get_character_by_id_and_name(eve_id, eve_name):
+    char = get_char_from_db(eve_id);
+    if char == None:
+        # create a new char
+        char = create_new_character(eve_id, eve_name)
+
     return char
 
 def is_igb():
     user_agent = request.headers.get('User-Agent')
+    if user_agent == None:
+        return False
     return ("EVE-IGB" in user_agent)
+    

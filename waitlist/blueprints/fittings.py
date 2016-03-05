@@ -1,20 +1,19 @@
 from flask.blueprints import Blueprint
 import logging
-from waitlist.data.perm import perm_remove_player, perm_management, perm_admin,\
-    perm_settings
+from waitlist.data.perm import perm_remove_player, perm_management
 from flask_login import login_required, current_user
 from flask.globals import request
 from waitlist.storage.database import session, WaitlistEntry, Shipfit, Waitlist
 import re
-from waitlist import utils
 from waitlist.storage.modules import resist_ships, logi_ships, dps_snips,\
     sniper_ships, t3c_ships, sniper_weapons, dps_weapons
-from waitlist.utils import create_mod_map, get_char_id
 from waitlist.data.names import WaitlistNames
 from werkzeug.utils import redirect
 from flask.helpers import url_for
 from flask.templating import render_template
 from datetime import datetime
+from waitlist.utility.utils import get_fit_format, parseEft, create_mod_map,\
+    get_char_id
 
 bp_waitlist = Blueprint('bp_waitlist', __name__, template_folder='templates')
 logger = logging.getLogger(__name__)
@@ -88,7 +87,7 @@ def xup_submit():
     lines = re.split("[\n\r]+", fittings)
     lines = [line for line in lines if line != "\n"] # filter lines that only have a \n
     firstLine = lines[0]
-    format_type = utils.get_fit_format(firstLine)
+    format_type = get_fit_format(firstLine)
     
     fits = []
     
@@ -113,7 +112,7 @@ def xup_submit():
             eft_fits.append(c_fit)
         
         for eft_fit in eft_fits:
-            parsed_fit = utils.parseEft(eft_fit)
+            parsed_fit = parseEft(eft_fit)
             fits.append(parsed_fit)
     
     logger.info("Parsed %d fits", len(fits))
@@ -272,7 +271,7 @@ def xup_submit():
 @bp_waitlist.route("/xup", methods=['GET'])
 @login_required
 def xup_index():
-    return render_template("xup.html", perm_admin=perm_admin, perm_settings=perm_settings, perm_man=perm_management)
+    return render_template("xup.html")
 
 
 @bp_waitlist.route('/management')
@@ -300,4 +299,4 @@ def management():
     wlists.append(sniper_wl)
     
     
-    return render_template("waitlist_management.html", lists=wlists, perm_admin=perm_admin, perm_settings=perm_settings, perm_man=perm_management)
+    return render_template("waitlist_management.html", lists=wlists)

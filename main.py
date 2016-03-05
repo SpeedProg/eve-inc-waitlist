@@ -2,22 +2,22 @@ from flask_login import login_required, current_user, LoginManager, login_user,\
     logout_user
 from flask.app import Flask
 import logging
-from waitlist.storage.database import session, \
-    Waitlist, Account
+from waitlist.storage.database import session, Waitlist, Account, Character
 from flask_principal import Principal, \
     RoleNeed, identity_changed, Identity, AnonymousIdentity,\
     identity_loaded, UserNeed
-from waitlist.data.perm import perm_management, perm_settings
+from waitlist.data.perm import perm_management, perm_settings, perm_admin,\
+    perm_officer
 from flask.templating import render_template
 from waitlist.blueprints.settings import bp_settings
 from waitlist.blueprints.fittings import bp_waitlist
-from waitlist.utils import get_account_from_db, get_char_from_db,\
-    create_new_character, is_igb
 from flask.globals import request, current_app
 import flask
 from werkzeug.utils import redirect
 from flask.helpers import url_for
 from waitlist.data.names import WaitlistNames
+from waitlist.utility.utils import is_igb, get_account_from_db, get_char_from_db,\
+    get_character_by_id_and_name
 
 
 app = Flask(__name__)
@@ -35,8 +35,23 @@ logger = logging.getLogger(__name__)
 
 # set if it is the igb
 @app.context_processor
-def inject_user():
-    return dict(is_igb=is_igb())
+def inject_data():
+    return dict(is_igb=is_igb(), perm_admin=perm_admin, perm_settings=perm_settings, perm_man=perm_management, perm_officer=perm_officer)
+
+@app.before_request
+def check_ban():
+    if current_user.is_authenticated:
+        if current_user.type == "character":
+            if current_user.banned:
+                logout_user()
+                for key in ('identity.name', 'identity.auth_type'):
+                    flask.globals.session.pop(key, None)
+            
+                # Tell Flask-Principal the user is anonymous
+                identity_changed.send(current_app._get_current_object(),
+                                      identity=AnonymousIdentity())
+                    
+    
 
 @app.route('/', methods=['GET'])
 @login_required
@@ -61,13 +76,12 @@ def index():
     wlists.append(dps_wl)
     wlists.append(sniper_wl)
     
-    return render_template("index.html", lists=wlists, user=current_user, perm_man=perm_management, perm_settings=perm_settings)
-
+    return render_template("index.html", lists=wlists, user=current_user)
 
 
 @login_manager.user_loader
 def load_user(unicode_id):
-    # it ia an account
+    # it is an account
     if unicode_id.startswith("acc"):
         unicode_id = unicode_id.replace("acc", "", 1)
         return get_account_from_db(int(unicode_id))
@@ -89,7 +103,7 @@ def login_token():
         return flask.abort(401);
     logger.info("Got User {0}", user)
     login_user(user);
-    logger.info("Loged in User {0}", user)
+    logger.info("Logged in User {0}", user)
 
     # notify principal extension
     identity_changed.send(current_app._get_current_object(),
@@ -103,13 +117,13 @@ def logout():
     logout_user()
     
     for key in ('identity.name', 'identity.auth_type'):
-        session.pop(key, None)
+        flask.globals.session.pop(key, None)
 
     # Tell Flask-Principal the user is anonymous
     identity_changed.send(current_app._get_current_object(),
                           identity=AnonymousIdentity())
 
-    return redirect(url_for('index'))
+    return render_template("logout.html")
 
 @identity_loaded.connect_via(app)
 def on_identity_loaded(sender, identity):
@@ -164,7 +178,7 @@ def unauthorized_igb():
     
     is_trusted = False
     trused_header_value = request.headers.get(TRUSTED_HEADER)
-    # print(request.headers)
+
     if trused_header_value == TRUESTED_HEADER_YES:
         is_trusted = True
 
@@ -184,14 +198,15 @@ def unauth_igb_trusted():
         return flask.abort(400)
 
     char_id = int(char_id_str)
-    char = get_char_from_db(char_id);
-    if char == None:
-        # create a new char
-        char_name = request.headers.get('Eve-Charname')
-        char = create_new_character(char_id, char_name)
-    login_user(char)
+    char_name = request.headers.get('Eve-Charname')
+    char = get_character_by_id_and_name(char_id, char_name)
+        
+    if not char.is_active():
+        return flask.abort(401, 'You are banned!')
+
+    login_user(char, remember=True)
     logger.debug("Getting char id from headers succeeded.")
-    return char.__repr__()
+    return redirect(url_for("index"))
 
 def unauth_igb_untrused():
     """
@@ -217,4 +232,4 @@ if __name__ == '__main__':
     waitlistlogger = logging.getLogger("waitlist")
     waitlistlogger.addHandler(ch)
     waitlistlogger.setLevel(logging.INFO)
-    app.run()
+    app.run(host="0.0.0.0", port=81, debug=False)

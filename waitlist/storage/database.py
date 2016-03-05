@@ -126,7 +126,8 @@ class Character(Base):
     
     id = Column(Integer, primary_key=True)
     eve_name = Column(String(100), unique=True)
-    newbro = Column(Boolean)
+    newbro = Column(Boolean, default=False, nullable=False)
+    banned = Column(Boolean, default=False, nullable=False)
 
     def get_char_id(self):
         return self.id
@@ -142,7 +143,7 @@ class Character(Base):
         return True
     
     def is_active(self):
-        return True
+        return not self.banned
     
     def get_id(self):
         return unicode("char"+unicode(self.id))

@@ -40,6 +40,11 @@
 		<a class="nav-link {% block m_account %}{% endblock %}" href="{{url_for('settings.accounts')}}">Accounts</a>
 	</li>
 	{% endif %}
+	{% if perm_officer.can() %}
+	<li class="nav-item">
+		<a class="nav-link {% block m_ban %}{% endblock %}" href="{{url_for('settings.bans')}}">Bans</a>
+	</li>
+	{% endif %}
 	</ul>
 </div>
 <div class="col-sm-7 col-sm-offset-3 col-md-8 col-md-offset-2 content" id="main">

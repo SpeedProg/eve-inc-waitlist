@@ -18,8 +18,9 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.2.0/js/tether.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.2/js/bootstrap.min.js" integrity="sha384-vZ2WRJMwsjRMW/8U7i6PWi6AlO1L79snBrmgiDpgIWJ82z8eA5lenwvxbMV1PAh7" crossorigin="anonymous"></script>
-{% if is_igb %}
+
 <script type="text/javascript">
+{% if is_igb %}
 function showFitting(dna) {
 	if (typeof CCPEVE == 'undefined') {
 		console.log("dna="+dna);
@@ -27,6 +28,11 @@ function showFitting(dna) {
 	CCPEVE.showFitting(dna);
 	}
 }
+{% else %}
+function showFitting(dna) {
+	window.open("https://o.smium.org/loadout/dna/"+dna);
+}
+{% endif %}
 /*
  * Set up click handlers on fittings
  */
@@ -39,8 +45,11 @@ function showFitting(dna) {
 		 })
 	}
 }
+$(document).ready(function () {
+	setupDNA();
+});
 </script>
-{% endif %}
+
 <style>
 .btn-group-mini > .btn, .btn-mini {
     padding: .1rem .4rem;
@@ -89,9 +98,6 @@ function showFitting(dna) {
 	<div id="footer">
 		&copy; Copyright 2016+ by <a href="javascript:CCPEVE.showInfo(1377, 91495852)">Bruce Warhead</a>.
 	</div>
-	{% endblock %}#
-<script type="text/javascript">
-setupDNA();
-</script>
+	{% endblock %}
 </body>
 </html>

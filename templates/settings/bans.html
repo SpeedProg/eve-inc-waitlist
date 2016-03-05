@@ -1,0 +1,106 @@
+{% extends "settings/base.html" %}
+
+{% block title %}Settings - Bans{% endblock %}
+
+{% block m_ban %}active{% endblock %}
+
+{% block head %}
+{{ super() }}
+<script type="text/javascript">
+function deleteAccount(accountId){
+	var settings = {
+			async: true,
+			dataType: "text",
+			error: function() {
+				// TODO: flash an error message
+				console.log("Error");
+			},
+			method: "DELETE",
+			success: function() {
+				var id = "#account-"+accountId;
+				$(id).remove();
+			}
+	};
+	$.ajax("{{url_for('settings.api_account_delete', acc_id='-1')}}".replace("-1", accountId), settings)
+}
+
+function editAccount(accountId) {
+	var name = $('#acc-'+accountId+"-name").text();
+	var roles = $('#acc-'+accountId+'-roles').text();
+	var email = $('#acc-'+accountId+'-email').text();
+	var default_char_name = $('#acc-'+accountId+'-cchar').text();
+	$('#acc-edit-name').val(name);
+	// this is more complicated
+	//$('#acc-edit-roles')
+	roles = roles.split(", ")
+	// map the roles he has to a dict so we can fast and easy check for them later
+	var has_roles = {};
+	for (role in roles) {
+		has_roles[roles[role]] = true;
+	}
+
+	var edit_roles_select = document.getElementById('acc-edit-roles');
+	for (var i=0; i < edit_roles_select.options.length; i++) {
+		var option = edit_roles_select.options[i];
+		var val = option.value;
+		if (val in has_roles) {
+			option.selected = true;
+		} else {
+			option.selected = false;
+		}
+	}
+	$('#acc-edit-email').val(email);
+	$('#acc-edit-cchar').val(default_char_name);
+	$('#acc-edit-id').val(accountId);
+	$('#modal-account-edit').modal('toggle');
+}
+function noclick() {
+	$('.noclick').click(function(e){
+		e.preventDefault();
+	});
+}
+$(document).ready(noclick);
+</script>
+<style>
+.inactiveLink {
+   pointer-events: none;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="btn-group" role="group" aria-label="Add Ban Actionbar">
+	<form class="form-inline" name="banform" action="{{url_for('settings.bans_change')}}" method="post">
+		<input name="change" value="ban" hidden>
+		<div class="form-group">
+			<label for="eve_name">Char Name</label>
+    		<input type="text" class="form-control" name="char_name" id="eve_name">
+		</div>
+		<button type="submit" class="btn btn-warning">Ban Character</button>
+	</form>
+</div>
+<table class="table">
+<thead>
+	<tr>
+		<th>Char ID</th>
+		<th>Character Name</th>
+		<th>Banned</th>
+		<th>Actions</th>
+	</tr>
+	{% for char in banned_chars %}
+	<tr id="char-{{char.id}}">
+		<td id="char-{{char.id}}-id">{{ char.id }}</td>
+		<td id="char-{{char.id}}-name">{{ char.eve_name }}</td>
+		<td id="char-{char.id}}-banned">{{ char.banned }}</td>
+		<td>
+		<form name="unbanform" action="{{url_for('settings.bans_change')}}" method="post">
+		<input name="change" value="unban" hidden>
+		<input name="char_name" value="{{char.eve_name}}" hidden>
+		<button type="submit" class="btn btn-sm btn-warning">Unban</button>
+		</form>
+		</td>
+	</tr>
+	{% endfor %}
+</thead>
+</table>
+{% endblock %}
