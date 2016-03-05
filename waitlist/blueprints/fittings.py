@@ -77,7 +77,7 @@ def xup_submit():
     logilvl = int(request.form['logi'])
     caldari_bs_lvl = int(request.form['cbs'])
     
-    logger.info(fittings)
+    logger.debug("Fittings to parse: %s", fittings)
     
     # lets normalize linebreaks
     fittings = fittings.replace("[\n\r]+", "\n")
@@ -99,16 +99,32 @@ def xup_submit():
         while line_nr < max_lines:
             line = lines[line_nr]
             if re.match("\[.*,.*\]$", line) is not None:
-                logger.info("Found new fit starting with %s", line)
+                logger.debug("Found new fit starting with %s", line)
                 if len(c_fit) > 0:
                     eft_fits.append(c_fit)
                 c_fit = []
                 c_fit.append(line)
             else:
-                logger.info("Adding Module %s to current fit", line)
-                c_fit.append(line)
+                # check if the line contains a new fit line later on
+                match = re.search("\[.*,.*\]$", line);
+                if match is None: # all good no new fit starting in this line
+                    logger.debug("Adding Module %s to current fit", line)
+                    c_fit.append(line)
+                else: # there is a new fit starting later on in this line
+                    sIdx = match.start()
+                    eIdx = match.end()
+                    current_fit_line = line[:sIdx]
+                    new_fit_start = line[sIdx:]
+                    # add last line to fit and start the new one
+                    c_fit.append(current_fit_line+"\n")
+                    eft_fits.append(c_fit)
+                    # start new fit
+                    c_fit = []
+                    c_fit.append(new_fit_start)
+
             line_nr = line_nr + 1
         if len(c_fit) > 0:
+            logger.debug("Adding Module %s to current fit", line)
             eft_fits.append(c_fit)
         
         for eft_fit in eft_fits:
