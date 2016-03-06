@@ -43,7 +43,8 @@ def inject_data():
 def check_ban():
     if current_user.is_authenticated:
         if current_user.type == "character":
-            if is_char_banned(current_user):
+            is_banned, _ = is_char_banned(current_user)
+            if is_banned:
                 logout_user()
                 for key in ('identity.name', 'identity.auth_type'):
                     flask.globals.session.pop(key, None)
@@ -201,9 +202,9 @@ def unauth_igb_trusted():
     char_id = int(char_id_str)
     char_name = request.headers.get('Eve-Charname')
     char = get_character_by_id_and_name(char_id, char_name)
-        
-    if is_char_banned(char):
-        return flask.abort(401, 'You are banned!')
+    is_banned, reason = is_char_banned(char)
+    if is_banned:
+        return flask.abort(401, 'You are banned, because your '+reason+" is banned!")
 
     login_user(char, remember=True)
     logger.debug("Getting char id from headers succeeded.")

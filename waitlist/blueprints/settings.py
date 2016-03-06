@@ -6,7 +6,7 @@ from flask.templating import render_template
 from flask.globals import request
 from sqlalchemy import or_
 from waitlist.storage.database import Account, Role, Character, roles,\
-    linked_chars, CoporationBans, CorporationBans, AllianceBans
+    linked_chars, CorporationBans, AllianceBans
 import flask
 from waitlist.data.eve_xml_api import get_character_id_from_name
 from werkzeug.utils import redirect
@@ -239,10 +239,12 @@ def bans_change():
     action = request.form['change'] # ban, unban
     target_type = request.form['target_type'] # char,corp,alliance
     target = request.form['target'] # name of target
-    reason = request.form['reason'] # reason for ban
-    print 'action='+str(action)+" target="+str(target)
-    if action is None or target is None or type is None:
-        
+    if action == "ban":
+        reason = request.form['reason'] # reason for ban
+
+    print 'action='+str(action)+" target="+str(target)+" target_type="+str(target_type)
+
+    if action is None or target is None or target_type is None:
         return flask.abort(400)
     
     if target_type == "char":

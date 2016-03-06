@@ -3,8 +3,6 @@ from waitlist.storage.database import APICacheCharacterID, APICacheCharacterInfo
 from evelink import eve, api
 from waitlist import db
 from datetime import datetime
-import calendar
-import time
 
 def get_character_id_from_name(name):
     character = db.session.query(APICacheCharacterID).filter(APICacheCharacterID.name == name).first();
@@ -27,9 +25,9 @@ def get_char_info_for_character(char_id):
     if char_info is None:
         char_info = APICacheCharacterInfo()
         result = eve.EVE().character_info_from_id(char_id)
-        corpId = result.result.corp.id
-        corpName = result.result.corp.name
-        expire = datetime.fromtimestamp(int(result.expires))
+        corpId = result.result['corp']['id']
+        corpName = result.result['corp']['name']
+        expire = datetime.fromtimestamp(result.expires)
         char_info.id = char_id
         char_info.corporationID = corpId
         char_info.corporationName = corpName
@@ -41,9 +39,9 @@ def get_char_info_for_character(char_id):
         if char_info.expire < now:
             # expired, update it
             result = eve.EVE().character_info_from_id(char_id)
-            corpId = result.result.corp.id
-            corpName = result.result.corp.name
-            expire = datetime.fromtimestamp(int(result.expires))
+            corpId = result.result['corp']['id']
+            corpName = result.result['corp']['name']
+            expire = datetime.fromtimestamp(result.expires)
             char_info.corporationID = corpId
             char_info.corporationName = corpName
             char_info.expire = expire
@@ -61,7 +59,7 @@ def get_corp_info_for_corporation(corp_id):
         corp_info.corporationName = result['corporationName']
         corp_info.allianceID = result['allianceID']
         corp_info.allianceName = result['allianceName']
-        corp_info.expire = result['expire']
+        corp_info.expire = datetime.fromtimestamp(result['expire'])
         db.session.add(corp_info)
         db.session.commit()
     
@@ -73,10 +71,10 @@ def get_corp_info_for_corporation(corp_id):
             corp_info.corporationName = result['corporationName']
             corp_info.allianceID = result['allianceID']
             corp_info.allianceName = result['allianceName']
-            corp_info.expire = result['expire']
+            corp_info.expire = datetime.fromtimestamp(result['expire'])
             db.session.commit()
     
-    return corp_info.allianceID
+    return corp_info
 
 def get_alliance_info(corp_id):
     response = api.API().get('/corp/CorporationSheet', {'corporationID': corp_id})
@@ -87,9 +85,5 @@ def get_alliance_info(corp_id):
     if allianceNameNode is not None:
         allianceName = allianceNameNode.text
     
-    expire_str = response.result.find('cachedUntil').text
-    expire = calendar.timegm(time.strptime(expire_str, "%Y-%m-%d %H:%M:%S"))
-    if expire <= 0:
-        expire = None
-    return {'allianceID': response.result.find('allianceID').text, 'allianceName': allianceName, 'corporationName': corpName, 'expire': expire}
+    return {'allianceID': response.result.find('allianceID').text, 'allianceName': allianceName, 'corporationName': corpName, 'expire': response.expires}
     
