@@ -1,6 +1,7 @@
 # inject the lib folder before everything else
 import os
 import sys
+from waitlist.blueprints.feedback import feedback
 base_path = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(base_path, 'lib'))
 
@@ -26,6 +27,7 @@ from waitlist.utility.utils import is_igb, get_account_from_db, get_char_from_db
 
 app.register_blueprint(bp_waitlist)
 app.register_blueprint(bp_settings, url_prefix='/settings')
+app.register_blueprint(feedback, url_prefix="/feedback")
 
 logger = logging.getLogger(__name__)
 

@@ -1,0 +1,46 @@
+{% extends "settings/base.html" %}
+
+{% block title %}Settings - Accounts{% endblock %}
+
+{% block m_feedback %}active{% endblock %}
+
+{% block head %}
+{{ super() }}
+{% endblock %}
+
+{% block content %}
+<table class="table">
+<thead>
+	<tr>
+		<td>Yes Votes</td>
+		<td>No Votes</td>
+	</tr>
+</thead>
+<tbody>
+	<tr>
+		<td>{{yeses}}</td>
+		<td>{{nos}}</td>
+	</tr>
+</tbody>
+</table>
+<table class="table">
+<thead>
+	<tr>
+		<th>#</th>
+		<th>Character Name</th>
+		<th>Likes?</th>
+		<th>Comment</th>
+	</tr>
+</thead>
+<tbody>
+	{% for fb in feedbacks %}
+	<tr id="fb-{{fb.id}}">
+		<td id="fb-{{fb.id}}-id">{{ fb.id }}</td>
+		<td id="fb-{{fb.id}}-name">{{ fb.user_data.eve_name }}</td>
+		<td id="fb-{{fb.id}}-likes">{% if fb.likes %}Yes{% else %}No{% endif %}</td>
+		<td id="fb-{{fb.id}}-comment">{{fb.comment}}</td>
+	</tr>
+	{% endfor %}
+</tbody>
+</table>
+{% endblock %}

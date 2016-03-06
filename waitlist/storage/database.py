@@ -214,3 +214,15 @@ class APICacheCharacterID(Base):
     __tablename__ = "apicache_characterid"
     id = Column(Integer, primary_key=True)
     name = Column(String(100), unique=True)
+class Feedback(Base):
+    """
+    Contains the feedback people give about the waitlist
+    """
+    __tablename__ = "feedback"
+    id = Column(Integer, primary_key=True)
+    last_changed = Column(DateTime, index=True)
+    user = Column(Integer, ForeignKey('characters.id'), unique=True, index=True)
+    user_data = relationship("Character")
+    likes = Column(Boolean)
+    comment = Column(TEXT)
+
