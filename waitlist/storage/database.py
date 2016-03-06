@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, String, SmallInteger,\
-    DECIMAL, BIGINT, Boolean, DateTime
+    DECIMAL, BIGINT, Boolean, DateTime, Index
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.sql.schema import Table, ForeignKey
 from sqlalchemy.dialects.mysql.base import LONGTEXT, DOUBLE, TINYINT
@@ -53,6 +53,7 @@ class InvType(Base):
     marketGroupID = Column(BIGINT)
     iconID = Column(BIGINT)
     soundID = Column(BIGINT)
+    __table_args__ = (Index('invTypes_groupid', "groupID"),)
 
 class Account(Base):
     '''
