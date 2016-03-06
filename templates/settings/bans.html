@@ -93,7 +93,6 @@ $(document).ready(noclick);
 	<tr>
 		<th>Char ID</th>
 		<th>Character Name</th>
-		<th>Banned</th>
 		<th>Reason</th>
 		<th>Actions</th>
 	</tr>
@@ -103,7 +102,6 @@ $(document).ready(noclick);
 	<tr id="char-{{char.id}}">
 		<td id="char-{{char.id}}-id">{{ char.id }}</td>
 		<td id="char-{{char.id}}-name">{{ char.eve_name }}</td>
-		<td id="char-{{char.id}}-banned">{{ char.banned }}</td>
 		<td id="char-{{char.id}}-reason">{{ char.reason }}</td>
 		<td>
 		<form name="unbanform" action="{{url_for('settings.bans_change')}}" method="post">
