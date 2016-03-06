@@ -1,11 +1,15 @@
 import string,random
 import logging
 import re
-from waitlist.storage.database import InvType, Character, Shipfit, Account
+from waitlist.storage.database import InvType, Character, Shipfit, Account,\
+    APICacheCharacterInfo
 from flask_login import login_required, current_user
 from flask.globals import request
-from waitlist.data.eve_xml_api import get_character_id_from_name
+from waitlist.data.eve_xml_api import get_character_id_from_name,\
+    get_char_info_for_character, get_corp_info_for_corporation
 from waitlist import db
+from datetime import datetime
+from evelink.eve import EVE
 
 logger = logging.getLogger(__name__)
 
@@ -138,9 +142,31 @@ def  get_character_by_id_and_name(eve_id, eve_name):
 
     return char
 
+def is_corp_banned(corp_id):
+    pass
+
+def is_alliance_banned(alliance_id):
+    pass
+
+def is_char_banned(char):
+    is_banned = current_user.banned
+    if not is_banned:
+        char_info = get_char_info_for_character(current_user.get_eve_id())
+        corp_id = char_info.corporationID
+        if is_corp_banned(corp_id):
+            is_banned = True
+        
+        if not is_banned:
+            corp_info = get_corp_info_for_corporation(corp_id)
+            alliance_id = corp_info.allianceID
+            if is_alliance_banned(alliance_id):
+                is_banned = True
+    
+    return is_banned
+
 def is_igb():
     user_agent = request.headers.get('User-Agent')
     if user_agent == None:
         return False
     return ("EVE-IGB" in user_agent)
-    
+

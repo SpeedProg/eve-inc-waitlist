@@ -72,11 +72,20 @@ $(document).ready(noclick);
 <div class="btn-group" role="group" aria-label="Add Ban Actionbar">
 	<form class="form-inline" name="banform" action="{{url_for('settings.bans_change')}}" method="post">
 		<input name="change" value="ban" hidden>
+		<select name="target_type" class="c-select">
+  			<option value="char" selected>Character</option>
+  			<option value="corp">Corporation</option>
+  			<option value="alliance">Alliance</option>
+		</select>
 		<div class="form-group">
-			<label for="eve_name">Char Name</label>
-    		<input type="text" class="form-control" name="char_name" id="eve_name">
+			<label for="eve_name">Name</label>
+    		<input type="text" class="form-control" name="target" id="eve_name">
 		</div>
-		<button type="submit" class="btn btn-warning">Ban Character</button>
+		<div class="form-group">
+			<label for="reason">Reason</label>
+    		<input type="text" class="form-control" name="reason" id="reason">
+		</div>
+		<button type="submit" class="btn btn-danger">Ban</button>
 	</form>
 </div>
 <table class="table">
@@ -85,6 +94,7 @@ $(document).ready(noclick);
 		<th>Char ID</th>
 		<th>Character Name</th>
 		<th>Banned</th>
+		<th>Reaosn</th>
 		<th>Actions</th>
 	</tr>
 </thead>
@@ -93,11 +103,69 @@ $(document).ready(noclick);
 	<tr id="char-{{char.id}}">
 		<td id="char-{{char.id}}-id">{{ char.id }}</td>
 		<td id="char-{{char.id}}-name">{{ char.eve_name }}</td>
-		<td id="char-{char.id}}-banned">{{ char.banned }}</td>
+		<td id="char-{{char.id}}-banned">{{ char.banned }}</td>
+		<td id="char-{{char.id}}-reason">{{ char.reason }}</td>
 		<td>
 		<form name="unbanform" action="{{url_for('settings.bans_change')}}" method="post">
 		<input name="change" value="unban" hidden>
-		<input name="char_name" value="{{char.eve_name}}" hidden>
+		<input name="target_type" value="char" hidden>
+		<input name="target" value="{{char.eve_name}}" hidden>
+		<button type="submit" class="btn btn-sm btn-warning">Unban</button>
+		</form>
+		</td>
+	</tr>
+	{% endfor %}
+</tbody>
+</table>
+
+<table class="table">
+<thead>
+	<tr>
+		<th>Corp ID</th>
+		<th>Corp Name</th>
+		<th>Reason</th>
+		<th>Actions</th>
+	</tr>
+</thead>
+<tbody>
+	{% for corp in corps %}
+	<tr id="corp-{{corp.id}}">
+		<td id="corp-{{corp.id}}-id">{{ corp.id }}</td>
+		<td id="corp-{{corp.id}}-name">{{ corp.name }}</td>
+		<td id="corp-{corp.id}}-reason">{{ corp.reason }}</td>
+		<td>
+		<form name="unbanform" action="{{url_for('settings.bans_change')}}" method="post">
+		<input name="target_type" value="corp" hidden>
+		<input name="change" value="unban" hidden>
+		<input name="target" value="{{corp.name}}" hidden>
+		<button type="submit" class="btn btn-sm btn-warning">Unban</button>
+		</form>
+		</td>
+	</tr>
+	{% endfor %}
+</tbody>
+</table>
+
+<table class="table">
+<thead>
+	<tr>
+		<th>Alliance ID</th>
+		<th>Alliance Name</th>
+		<th>Reason</th>
+		<th>Actions</th>
+	</tr>
+</thead>
+<tbody>
+	{% for alli in allis %}
+	<tr id="alli-{{alli.id}}">
+		<td id="alli-{{alli.id}}-id">{{ alli.id }}</td>
+		<td id="alli-{{alli.id}}-name">{{ alli.name }}</td>
+		<td id="alli-{alli.id}}-reason">{{ alli.reason }}</td>
+		<td>
+		<form name="unbanform" action="{{url_for('settings.bans_change')}}" method="post">
+		<input name="target_type" value="alliance" hidden>
+		<input name="change" value="unban" hidden>
+		<input name="target" value="{{alli.name}}" hidden>
 		<button type="submit" class="btn btn-sm btn-warning">Unban</button>
 		</form>
 		</td>

@@ -2,7 +2,7 @@ from sqlalchemy import Column, Integer, String, SmallInteger,\
     DECIMAL, BIGINT, Boolean, DateTime, Index
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.sql.schema import Table, ForeignKey
-from sqlalchemy.dialects.mysql.base import LONGTEXT, DOUBLE, TINYINT
+from sqlalchemy.dialects.mysql.base import LONGTEXT, DOUBLE, TINYINT, TEXT
 import bcrypt
 import logging
 from waitlist import db
@@ -120,6 +120,7 @@ class Character(Base):
     eve_name = Column(String(100), unique=True)
     newbro = Column(Boolean, default=False, nullable=False)
     banned = Column(Boolean, default=False, nullable=False)
+    reason = Column(TEXT)
 
     def get_char_id(self):
         return self.id
@@ -206,7 +207,7 @@ class WaitlistEntry(Base):
 
     def __repr__(self):
         return "<WaitlistEntry %r>" % (self.id)
-    
+
 class APICacheCharacterID(Base):
     """
     Maps Character Names and IDs
@@ -214,6 +215,32 @@ class APICacheCharacterID(Base):
     __tablename__ = "apicache_characterid"
     id = Column(Integer, primary_key=True)
     name = Column(String(100), unique=True)
+    
+class APICacheCharacterInfo(Base):
+    __tablename__ = "apichache_characterinfo"
+    id = Column(Integer, primary_key=True)
+    corporationID = Column(Integer, index=True)
+    corporationName = Column(String(100))
+    expire = Column(DateTime)
+
+class APICacheCorporationInfo(Base):
+    __tablename__ = "apicache_corporationinfo"
+    id = Column(Integer, primary_key=True)
+    name = Column(String(100), index=True, unique=True)
+    allianceID = Column(Integer, index=True)
+    allianceName = Column(String(100), index=True)
+    expire = Column(DateTime)
+
+class AllianceBans(Base):
+    id = Column(Integer, primary_key=True)
+    name = Column(String(100), index=True, unique=True)
+    reason = Column(TEXT)
+
+class CorporationBans(Base):
+    id = Column(Integer, primary_key=True)
+    name = Column(String(100), index=True, unique=True)
+    reason = Column(TEXT)
+
 class Feedback(Base):
     """
     Contains the feedback people give about the waitlist

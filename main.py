@@ -2,6 +2,8 @@
 import os
 import sys
 from waitlist.blueprints.feedback import feedback
+from waitlist.data.eve_xml_api import get_char_info_for_character,\
+    get_corp_info_for_corporation
 base_path = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(base_path, 'lib'))
 
@@ -23,7 +25,8 @@ from werkzeug.utils import redirect
 from flask.helpers import url_for
 from waitlist.data.names import WaitlistNames
 from waitlist.utility.utils import is_igb, get_account_from_db, get_char_from_db,\
-    get_character_by_id_and_name
+    get_character_by_id_and_name, is_corp_banned, is_alliance_banned,\
+    is_char_banned
 
 app.register_blueprint(bp_waitlist)
 app.register_blueprint(bp_settings, url_prefix='/settings')
@@ -40,7 +43,7 @@ def inject_data():
 def check_ban():
     if current_user.is_authenticated:
         if current_user.type == "character":
-            if current_user.banned:
+            if is_char_banned(current_user):
                 logout_user()
                 for key in ('identity.name', 'identity.auth_type'):
                     flask.globals.session.pop(key, None)
@@ -199,7 +202,7 @@ def unauth_igb_trusted():
     char_name = request.headers.get('Eve-Charname')
     char = get_character_by_id_and_name(char_id, char_name)
         
-    if not char.is_active():
+    if is_char_banned(char):
         return flask.abort(401, 'You are banned!')
 
     login_user(char, remember=True)
