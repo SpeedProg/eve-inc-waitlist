@@ -8,7 +8,7 @@ from flask_script import Manager
 
 basedir = path.abspath(path.dirname(__file__))
 
-app = Flask(__name__)
+app = Flask(import_name=__name__, template_folder=path.join("..", "templates"))
 app.secret_key = 'mcf4q37h0n59qc4307w98jd5fc723'
 app.config['SESSION_TYPE'] = 'filesystem'
 user = "wtm"
