@@ -97,9 +97,9 @@ def login_token():
     # token was not found
     if user == None:
         return flask.abort(401);
-    logger.info("Got User {0}", user)
+    logger.info("Got User %s", user)
     login_user(user);
-    logger.info("Logged in User {0}", user)
+    logger.info("Logged in User %s", user)
 
     # notify principal extension
     identity_changed.send(current_app._get_current_object(),
