@@ -28,7 +28,7 @@ def wls_remove_player():
     if playerId == None:
         logger.error("Tried to remove player with None id from waitlists.")
     
-    db.session.query.filter(WaitlistEntry.user == int(playerId)).delete(synchronize_session=False)
+    db.session.query(WaitlistEntry).filter(WaitlistEntry.user == int(playerId)).delete()
     db.session.commit()
     return "success"
 
