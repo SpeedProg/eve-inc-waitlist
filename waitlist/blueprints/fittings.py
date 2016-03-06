@@ -16,7 +16,7 @@ from waitlist.utility.utils import get_fit_format, parseEft, create_mod_map,\
     get_char_id
 from waitlist import db
 
-bp_waitlist = Blueprint('bp_waitlist', __name__, template_folder='templates')
+bp_waitlist = Blueprint('bp_waitlist', __name__)
 logger = logging.getLogger(__name__)
 
 
