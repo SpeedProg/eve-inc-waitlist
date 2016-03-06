@@ -87,6 +87,8 @@ $(document).ready(noclick);
 		<th>Banned</th>
 		<th>Actions</th>
 	</tr>
+</thead>
+<tbody>
 	{% for char in banned_chars %}
 	<tr id="char-{{char.id}}">
 		<td id="char-{{char.id}}-id">{{ char.id }}</td>
@@ -101,6 +103,6 @@ $(document).ready(noclick);
 		</td>
 	</tr>
 	{% endfor %}
-</thead>
+</tbody>
 </table>
 {% endblock %}

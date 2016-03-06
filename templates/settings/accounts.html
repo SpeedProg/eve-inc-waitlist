@@ -84,6 +84,8 @@ $(document).ready(noclick);
 		<th>Login Token</th>
 		<th>Actions</th>
 	</tr>
+</thead>
+<tbody>
 	{% for acc in accounts %}
 	<tr id="account-{{acc.id}}">
 		<td id="acc-{{acc.id}}-id">{{ acc.id }}</td>
@@ -99,7 +101,7 @@ $(document).ready(noclick);
 		</td>
 	</tr>
 	{% endfor %}
-</thead>
+</tbody>
 </table>
 <div class="modal fade" id="modal-account-create" tabindex="-1" role="dialog" aria-labelledby="label-account-create" aria-hidden="true">
   <div class="modal-dialog" role="document">
