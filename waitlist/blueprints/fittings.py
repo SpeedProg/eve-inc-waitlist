@@ -85,50 +85,30 @@ def xup_submit():
     fittings = fittings.strip()
     
     # lets first find out what kind of fitting is used
-    lines = re.split("[\n\r]+", fittings)
-    lines = [line for line in lines if line != "\n"] # filter lines that only have a \n
-    firstLine = lines[0]
+    endLineIdx = fittings.find('\n')+1
+    firstLine = fittings[:endLineIdx]
     format_type = get_fit_format(firstLine)
     
     fits = []
     
-    if format_type == "eft":
-        eft_fits = []
-        line_nr = 0
-        max_lines = len(lines)
-        c_fit = []
-        while line_nr < max_lines:
-            line = lines[line_nr]
-            if re.match("\[.*,.*\]$", line) is not None:
-                logger.debug("Found new fit starting with %s", line)
-                if len(c_fit) > 0:
-                    eft_fits.append(c_fit)
-                c_fit = []
-                c_fit.append(line)
-            else:
-                # check if the line contains a new fit line later on
-                match = re.search("\[.*,.*\]$", line);
-                if match is None: # all good no new fit starting in this line
-                    logger.debug("Adding Module %s to current fit", line)
-                    c_fit.append(line)
-                else: # there is a new fit starting later on in this line
-                    sIdx = match.start()
-                    current_fit_line = line[:sIdx]
-                    new_fit_start = line[sIdx:]
-                    # add last line to fit and start the new one
-                    c_fit.append(current_fit_line+"\n")
-                    eft_fits.append(c_fit)
-                    # start new fit
-                    c_fit = []
-                    c_fit.append(new_fit_start)
+    # split fittings up in its fittings
+    string_fits = []
+    fitIter = re.finditer("\[.*,.*\]", fittings)
+    sIdx = 0
+    eIdx = 0
+    firstIter = True
+    for fitMatch in fitIter:
+        if not firstIter:
+            eIdx = fitMatch.start()-1
+            string_fits.append(fittings[sIdx:eIdx].split('\n'))
+        sIdx = fitMatch.start()
 
-            line_nr = line_nr + 1
-        if len(c_fit) > 0:
-            logger.debug("Adding Module %s to current fit", line)
-            eft_fits.append(c_fit)
+    string_fits.append(fittings[sIdx:].split('\n'))
+
         
-        for eft_fit in eft_fits:
-            parsed_fit = parseEft(eft_fit)
+    if format_type == "eft":        
+        for fit in string_fits:
+            parsed_fit = parseEft(fit)
             fits.append(parsed_fit)
     
     logger.info("Parsed %d fits", len(fits))

@@ -27,12 +27,6 @@ def parseEft(lines):
 
         ship_id = get_item_id(ship_type)
         fit.ship_type = ship_id
-        
-        for i in range(1, len(lines)):  # start with 2nd line since 1st is shiptype
-            line = lines[i].strip()
-            
-            if not line:  # it is an empty line
-                continue
 
         mod_map = {}
         for i in range(1, len(lines)):
