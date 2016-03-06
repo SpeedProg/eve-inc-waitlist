@@ -3,7 +3,7 @@ import logging
 from waitlist.data.perm import perm_remove_player, perm_management
 from flask_login import login_required, current_user
 from flask.globals import request
-from waitlist.storage.database import session, WaitlistEntry, Shipfit, Waitlist
+from waitlist.storage.database import WaitlistEntry, Shipfit, Waitlist
 import re
 from waitlist.storage.modules import resist_ships, logi_ships, dps_snips,\
     sniper_ships, t3c_ships, sniper_weapons, dps_weapons
@@ -14,6 +14,7 @@ from flask.templating import render_template
 from datetime import datetime
 from waitlist.utility.utils import get_fit_format, parseEft, create_mod_map,\
     get_char_id
+from waitlist import db
 
 bp_waitlist = Blueprint('bp_waitlist', __name__, template_folder='templates')
 logger = logging.getLogger(__name__)
@@ -27,28 +28,28 @@ def wls_remove_player():
     if playerId == None:
         logger.error("Tried to remove player with None id from waitlists.")
     
-    session.query(WaitlistEntry).filter(WaitlistEntry.user == int(playerId)).delete(synchronize_session=False)
-    session.commit()
+    db.session.query.filter(WaitlistEntry.user == int(playerId)).delete(synchronize_session=False)
+    db.session.commit()
     return "success"
 
 # remove one of your fittings by id
 @bp_waitlist.route("/api/self/fittings/remove/<int:fitid>")
 @login_required
 def remove_self_fit(fitid):
-    fit = session.query(Shipfit).filter(Shipfit.id == fitid).first()
-    session.delete(fit)
-    wlentry = session.query(WaitlistEntry).filter(WaitlistEntry.id == fit.waitlist_id).first()
+    fit = db.session.query(Shipfit).filter(Shipfit.id == fitid).first()
+    db.session.delete(fit)
+    wlentry = db.session.query(WaitlistEntry).filter(WaitlistEntry.id == fit.waitlist_id).first()
     if len(wlentry.fittings) <= 0:
-        session.delete(wlentry)
+        db.session.delete(wlentry)
     
-    session.commit()
+    db.session.commit()
     return "success"
 
 # remove your self from a wl by wl entry id
 @bp_waitlist.route("/api/self/wlentry/remove/<int:entry_id>")
 @login_required
 def self_remove_wl_entry(entry_id):
-    session.query(WaitlistEntry).filter(WaitlistEntry.id == entry_id).delete()
+    db.session.query(WaitlistEntry).filter(WaitlistEntry.id == entry_id).delete()
     return "success"
 
 
@@ -56,11 +57,11 @@ def self_remove_wl_entry(entry_id):
 @bp_waitlist.route("/api/self/wl/remove")
 @login_required
 def self_remove_all():
-    entries = session.query(WaitlistEntry).filter(WaitlistEntry.user == current_user.get_char_id());
+    entries = db.session.query(WaitlistEntry).filter(WaitlistEntry.user == current_user.get_char_id());
     for entry in entries:
         logger.info("Remove entry id=%d", entry.id)
-        session.delete(entry)
-    session.commit()
+        db.session.delete(entry)
+    db.session.commit()
     return "success";
 
 @bp_waitlist.route("/xup", methods=['POST'])
@@ -154,7 +155,7 @@ def xup_submit():
     eve_id = current_user.get_eve_id()
     
     # get the waitlist entries of this user
-    waitlist_entries = session.query(WaitlistEntry).filter(WaitlistEntry.user == eve_id).all()
+    waitlist_entries = db.session.query(WaitlistEntry).filter(WaitlistEntry.user == eve_id).all()
     
     dps = []
     sniper = []
@@ -271,14 +272,14 @@ def xup_submit():
         
     # now add the entries to the waitlist_entries
     
-    waitlists = session.query(Waitlist).all()
+    waitlists = db.session.query(Waitlist).all()
     
     # add the new wl entries to the waitlists
     for wl in waitlists:
         if wl.name in add_entries_map:
             wl.entries.append(add_entries_map[wl.name])
 
-    session.commit()
+    db.session.commit()
     return redirect(url_for('index'))
         
 
@@ -293,7 +294,7 @@ def xup_index():
 @login_required
 @perm_management.require(http_exception=401)
 def management():
-    all_waitlists = session.query(Waitlist).all();
+    all_waitlists = db.session.query(Waitlist).all();
     wlists = []
     logi_wl = None
     dps_wl = None

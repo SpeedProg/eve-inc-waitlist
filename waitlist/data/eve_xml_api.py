@@ -1,8 +1,9 @@
-from waitlist.storage.database import APICacheCharacterID, session
+from waitlist.storage.database import APICacheCharacterID
 from evelink import eve
+from waitlist import db
 
 def get_character_id_from_name(name):
-    character = session.query(APICacheCharacterID).filter(APICacheCharacterID.name == name).first();
+    character = db.session.query(APICacheCharacterID).filter(APICacheCharacterID.name == name).first();
     if character is None:
         eve_api = eve.EVE()    
         response = eve_api.character_id_from_name(name)
@@ -10,8 +11,8 @@ def get_character_id_from_name(name):
         character = APICacheCharacterID()
         character.id = char_id
         character.name = name
-        session.add(character)
-        session.commit()
+        db.session.add(character)
+        db.session.commit()
     
     return character.id
         

@@ -5,13 +5,14 @@ from waitlist.data.perm import perm_admin, perm_settings, perm_officer
 from flask.templating import render_template
 from flask.globals import request
 from sqlalchemy import or_
-from waitlist.storage.database import Account, Role, session, Character, roles,\
+from waitlist.storage.database import Account, Role, Character, roles,\
     linked_chars
 import flask
 from waitlist.data.eve_xml_api import get_character_id_from_name
 from werkzeug.utils import redirect
 from flask.helpers import url_for
 from waitlist.utility.utils import get_random_token, get_character_by_name
+from waitlist import db
 
 bp_settings = Blueprint('settings', __name__)
 logger = logging.getLogger(__name__)
@@ -47,16 +48,16 @@ def accounts():
         acc.login_token = get_random_token(64)
         acc.email = acc_email
         if len(acc_roles) > 0:
-            db_roles = session.query(Role).filter(or_(Role.name == name for name in acc_roles)).all()
+            db_roles = db.session.query(Role).filter(or_(Role.name == name for name in acc_roles)).all()
             for role in db_roles:
                 acc.roles.append(role)
     
-        session.add(acc)
+        db.session.add(acc)
 
         char_id = get_character_id_from_name(char_name)
     
         # find out if there is a character like that in the database
-        character = session.query(Character).filter(Character.id == char_id).first()
+        character = db.session.query(Character).filter(Character.id == char_id).first()
         
         if character is None:
             character = Character()
@@ -65,15 +66,15 @@ def accounts():
 
         acc.characters.append(character)
         
-        session.flush()
+        db.session.flush()
     
         acc.current_char = char_id
         
-        session.commit()
+        db.session.commit()
     
 
-    roles = session.query(Role).order_by(Role.name).all();
-    accounts = session.query(Account).order_by(Account.username).all()
+    roles = db.session.query(Role).order_by(Role.name).all();
+    accounts = db.session.query(Account).order_by(Account.username).all()
     
     return render_template("settings/accounts.html", roles=roles, accounts=accounts)
 
@@ -104,7 +105,7 @@ def account_edit():
     if char_name == "":
         char_name = None
 
-    acc = session.query(Account).filter(Account.id == acc_id).first();
+    acc = db.session.query(Account).filter(Account.id == acc_id).first();
     if acc == None:
         return flask.abort(400)
     
@@ -137,18 +138,18 @@ def account_edit():
         
         # add remaining roles
         if len(roles_new) >0 :
-            new_roles = session.query(Role).filter(or_(Role.name == name for name in roles_new))
+            new_roles = db.session.query(Role).filter(or_(Role.name == name for name in roles_new))
             for role in new_roles:
                 acc.roles.append(role)
     else:
         # make sure all roles are removed#
-        session.query(roles).filter(roles.c.account_id == acc_id).delete()
-        session.flush()
+        db.session.query(roles).filter(roles.c.account_id == acc_id).delete()
+        db.session.flush()
 
     if char_name is not None:
         char_id = get_character_id_from_name(char_name)
         # find out if there is a character like that in the database
-        character = session.query(Character).filter(Character.id == char_id).first()
+        character = db.session.query(Character).filter(Character.id == char_id).first()
     
         if character is None:
             character = Character()
@@ -156,14 +157,14 @@ def account_edit():
             character.id = char_id
 
         # check if character is linked to this account
-        link = session.query(linked_chars).filter((linked_chars.c.id == acc_id) & (linked_chars.c.char_id == char_id)).first();
+        link = db.session.query(linked_chars).filter((linked_chars.c.id == acc_id) & (linked_chars.c.char_id == char_id)).first();
         if link is None:
             acc.characters.append(character)
         
-        session.flush()
+        db.session.flush()
         acc.current_char = char_id
     
-    session.commit()
+    db.session.commit()
     return redirect(url_for('.accounts'), code=303)
 
 @bp_settings.route("/account_self_edit", methods=["POST"])
@@ -184,7 +185,7 @@ def account_self_edit():
     if char_name == "":
         char_name = None
 
-    acc = session.query(Account).filter(Account.id == acc_id).first();
+    acc = db.session.query(Account).filter(Account.id == acc_id).first();
     if acc == None:
         return flask.abort(400)
 
@@ -197,7 +198,7 @@ def account_self_edit():
     if char_name is not None:
         char_id = get_character_id_from_name(char_name)
         # find out if there is a character like that in the database
-        character = session.query(Character).filter(Character.id == char_id).first()
+        character = db.session.query(Character).filter(Character.id == char_id).first()
     
         if character is None:
             character = Character()
@@ -205,28 +206,28 @@ def account_self_edit():
             character.id = char_id
     
         # check if character is linked to this account
-        link = session.query(linked_chars).filter((linked_chars.c.id == acc_id) & (linked_chars.c.char_id == char_id)).first();
+        link = db.session.query(linked_chars).filter((linked_chars.c.id == acc_id) & (linked_chars.c.char_id == char_id)).first();
         if link is None:
             acc.characters.append(character)
         
-        session.flush()
+        db.session.flush()
         acc.current_char = char_id
     
-    session.commit()
+    db.session.commit()
     return redirect(url_for('.account_self'), code=303)
 
 @bp_settings.route("/account_self", methods=["GET"])
 @login_required
 @perm_settings.require(http_exception=401)
 def account_self():
-    acc = session.query(Account).filter(Account.id == current_user.id).first()
+    acc = db.session.query(Account).filter(Account.id == current_user.id).first()
     return render_template("settings/self.html", account=acc)
 
 @bp_settings.route("/bans", methods=["GET"])
 @login_required
 @perm_officer.require(http_exception=401)
 def bans():
-    banned_chars = session.query(Character).filter(Character.banned == True).all()
+    banned_chars = db.session.query(Character).filter(Character.banned == True).all()
     return render_template("settings/bans.html", banned_chars=banned_chars)
 
 @bp_settings.route("/bans_change", methods=["POST"])
@@ -252,7 +253,7 @@ def bans_change():
     elif action == "unban":
         char.banned = False
     
-    session.commit()
+    db.session.commit()
     
     return redirect(url_for(".bans", code=303))
 
@@ -260,8 +261,8 @@ def bans_change():
 @login_required
 @perm_admin.require(http_exception=401)
 def api_account_delete(acc_id):
-    session.query(Account).filter(Account.id == acc_id).delete();
-    session.commit();
+    db.session.query(Account).filter(Account.id == acc_id).delete();
+    db.session.commit();
     return flask.jsonify(status="OK")
 
 '''

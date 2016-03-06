@@ -1,11 +1,11 @@
 import string,random
 import logging
 import re
-from waitlist.storage.database import InvType, session, Character, Shipfit
+from waitlist.storage.database import InvType, Character, Shipfit, Account
 from flask_login import login_required, current_user
-from waitlist.storage import database
 from flask.globals import request
 from waitlist.data.eve_xml_api import get_character_id_from_name
+from waitlist import db
 
 logger = logging.getLogger(__name__)
 
@@ -110,7 +110,7 @@ def get_fit_format(line):
 
 def get_item_id(name):
     logger.debug("Getting id for item %s", name)
-    return session.query(InvType).filter(InvType.typeName == name).first().typeID
+    return db.session.query(InvType).filter(InvType.typeName == name).first().typeID
 
 @login_required
 def get_char_id():
@@ -118,18 +118,18 @@ def get_char_id():
     
 # load an account by its id
 def get_account_from_db(int_id):
-    return database.session.query(database.Account).filter(database.Account.id == int_id).first()
+    return db.session.query(Account).filter(Account.id == int_id).first()
 
 # load a character by its id
 def get_char_from_db(int_id):
-    return database.session.query(database.Character).filter(database.Character.id == int_id).first()
+    return db.session.query(Character).filter(Character.id == int_id).first()
 
 def create_new_character(eve_id, char_name):
     char = Character()
     char.id = eve_id
     char.eve_name = char_name
-    database.session.add(char)
-    database.session.commit()
+    db.session.add(char)
+    db.session.commit()
     return char
 
 def get_character_by_name(eve_name):

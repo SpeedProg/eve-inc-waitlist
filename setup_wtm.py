@@ -1,5 +1,6 @@
-from waitlist.storage.database import session, Role, Waitlist
+from waitlist.storage.database import Role, Waitlist
 from waitlist.data.names import WaitlistNames
+from waitlist import db
 
 
 def get_role(name, restrictive=True):
@@ -9,18 +10,19 @@ def get_role(name, restrictive=True):
     return r
 
 if __name__ == '__main__':
+    db.session.create_all()
     # add permissions
     roles = [get_role("admin"), get_role("fc"), get_role("lm"), get_role("resident"), get_role("tbag"), get_role("officer")]
     for role in roles:
-        session.add(role)
+        db.session.add(role)
     
-    session.commit()
+    db.session.commit()
 
     # setup waitlists
     wl_names = [WaitlistNames.logi, WaitlistNames.dps, WaitlistNames.sniper]
     for wl_name in wl_names:
         wl = Waitlist()
         wl.name = wl_name
-        session.add(wl)
+        db.session.add(wl)
     
-    session.commit()
+    db.session.commit()

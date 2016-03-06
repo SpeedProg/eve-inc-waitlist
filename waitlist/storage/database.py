@@ -1,22 +1,13 @@
 from sqlalchemy import Column, Integer, String, SmallInteger,\
     DECIMAL, BIGINT, Boolean, DateTime
-from sqlalchemy.engine import create_engine
-from sqlalchemy.ext.declarative.api import declarative_base
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.sql.schema import Table, ForeignKey
-from sqlalchemy.orm.session import sessionmaker
 from sqlalchemy.dialects.mysql.base import LONGTEXT, DOUBLE, TINYINT
 import bcrypt
+import logging
+from waitlist import db
 
-dbpath = "tmp//test.db"
-user = "wtm"
-password = "wtm"
-host = "localhost"
-port = 3306
-dbname = "wtm"
-dbstring = "mysql+mysqldb://{0}:{1}@{2}:{3}/{4}".format(user, password, host, port, dbname)
-engine = create_engine(dbstring, echo=False)
-conn = engine.connect()
+logger = logging.getLogger(__name__)
 
 #existing_metadata = MetaData()
 #existing_metadata.reflect(engine, only=["invtypes"])
@@ -24,7 +15,7 @@ conn = engine.connect()
 #AutoBase = automap_base(metadata=existing_metadata)
 #AutoBase.prepare()
 
-Base = declarative_base() #declarative_base(metadata=existing_metadata)
+Base = db.Model
 
 
 """
@@ -222,9 +213,3 @@ class APICacheCharacterID(Base):
     __tablename__ = "apicache_characterid"
     id = Column(Integer, primary_key=True)
     name = Column(String(100), unique=True)
-
-
-Base.metadata.create_all(engine)
-Session = sessionmaker()
-Session.configure(bind=engine)
-session = Session()

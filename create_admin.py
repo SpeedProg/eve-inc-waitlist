@@ -1,7 +1,8 @@
-from waitlist.storage.database import Account, Character, session, Role
-from waitlist.utility import get_random_token
+from waitlist.storage.database import Account, Character, Role
+from waitlist.utility.utils import get_random_token
 from waitlist.data.perm import WTMRoles
 import evelink
+from waitlist import db
 if __name__ == '__main__':
     name = raw_input("Login Name:")
     pw = raw_input("Password:")
@@ -13,9 +14,9 @@ if __name__ == '__main__':
     acc.login_token = get_random_token(64)
     acc.email = email
     print "Account created"
-    fc_role = session.query(Role).filter(Role.name == WTMRoles.admin).first()
+    fc_role = db.session.query(Role).filter(Role.name == WTMRoles.admin).first()
     acc.roles.append(fc_role)
-    session.add(acc)
+    db.session.add(acc)
     print acc.login_token
     
     char_name = "--"
@@ -36,7 +37,7 @@ if __name__ == '__main__':
         list_eveids.append(char_id)
         acc.characters.append(character)
     
-    session.commit()
+    db.session.commit()
     
     is_valid = False
     while not is_valid:
@@ -48,6 +49,6 @@ if __name__ == '__main__':
                 break
     acc.current_char = char_id
     
-    session.commit()
+    db.session.commit()
     print("FC Account created!")
             

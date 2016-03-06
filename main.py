@@ -1,10 +1,15 @@
-from flask_login import login_required, current_user, LoginManager, login_user,\
+# inject the lib folder before everything else
+import os
+import sys
+base_path = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(os.path.join(base_path, 'lib'))
+
+from waitlist import app, login_manager, db
+from flask_login import login_required, current_user, login_user,\
     logout_user
-from flask.app import Flask
 import logging
-from waitlist.storage.database import session, Waitlist, Account
-from flask_principal import Principal, \
-    RoleNeed, identity_changed, Identity, AnonymousIdentity,\
+from waitlist.storage.database import Waitlist, Account
+from flask_principal import RoleNeed, identity_changed, Identity, AnonymousIdentity,\
     identity_loaded, UserNeed
 from waitlist.data.perm import perm_management, perm_settings, perm_admin,\
     perm_officer
@@ -18,15 +23,6 @@ from flask.helpers import url_for
 from waitlist.data.names import WaitlistNames
 from waitlist.utility.utils import is_igb, get_account_from_db, get_char_from_db,\
     get_character_by_id_and_name
-
-
-app = Flask(__name__)
-app.secret_key = 'mcf4q37h0n59qc4307w98jd5fc723'
-app.config['SESSION_TYPE'] = 'filesystem'
-login_manager = LoginManager()
-login_manager.init_app(app)
-
-principals = Principal(app)
 
 app.register_blueprint(bp_waitlist)
 app.register_blueprint(bp_settings, url_prefix='/settings')
@@ -56,7 +52,7 @@ def check_ban():
 @app.route('/', methods=['GET'])
 @login_required
 def index():
-    all_waitlists = session.query(Waitlist).all();
+    all_waitlists = db.session.query(Waitlist).all();
     wlists = []
     logi_wl = None
     dps_wl = None
@@ -96,7 +92,7 @@ def load_user(unicode_id):
 @app.route('/tokenauth')
 def login_token():
     login_token = request.args.get('token');
-    user = session.query(Account).filter(Account.login_token == login_token).first()
+    user = db.session.query(Account).filter(Account.login_token == login_token).first()
 
     # token was not found
     if user == None:
@@ -137,7 +133,7 @@ def on_identity_loaded(sender, identity):
 
     if hasattr(current_user, "type"):  # it is a custom user class
         if current_user.type == "account":  # it is an account, so it can have roles
-            account = session.query(Account).filter(Account.id == current_user.id).first()
+            account = db.session.query(Account).filter(Account.id == current_user.id).first()
             for role in account.roles:
                 logger.info("Add role %s", role.name)
                 identity.provides.add(RoleNeed(role.name))
