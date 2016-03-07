@@ -11,7 +11,7 @@ from flask_seasurf import SeaSurf
 basedir = path.abspath(path.dirname(__file__))
 
 app = Flask(import_name=__name__, template_folder=path.join("..", "templates"))
-app.secret_key = os.urandom(24)
+app.secret_key = '\x2A\xF6\x82\xE6\x64\x00\x47\x12\xBC\xEF\x60\x14\x8A\xB7\x57\xF5\x9A\x0E\xA3\x6D\x8E\xCA\x6C\x73'
 app.config['SESSION_TYPE'] = 'filesystem'
 user = "wtm"
 password = "wtm"
