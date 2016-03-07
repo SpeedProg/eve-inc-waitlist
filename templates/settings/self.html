@@ -19,6 +19,9 @@
 			success : function() {
 				var id = "#account-" + accountId;
 				$(id).remove();
+			},
+			headers: {
+				'X-CSRFToken': '{{csrf_token()}}'
 			}
 		};
 		$.ajax("{{url_for('settings.api_account_delete', acc_id='-1')}}"
@@ -61,6 +64,7 @@
 {% block content %}
 <form id="form-account-edit"
 	action="{{url_for('settings.account_self_edit')}}" method="POST">
+	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 	<fieldset class="form-group">
 		<label for="acc-edit-name">Account Name</label>
 		<input type="text" class="form-control" id="acc-edit-name" name="account_name" value="{{account.username}}" disabled>

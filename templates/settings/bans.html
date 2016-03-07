@@ -11,6 +11,7 @@
 {% block content %}
 <div class="btn-group" role="group" aria-label="Add Ban Actionbar">
 	<form class="form-inline" name="banform" action="{{url_for('settings.bans_change')}}" method="post">
+		<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 		<input name="change" value="ban" hidden>
 		<div class="form-group">
 			<label for="eve_name">Names</label>
@@ -40,6 +41,7 @@
 		<td id="ban-{{ban.id}}-reason">{{ ban.reason }}</td>
 		<td>
 		<form name="unbanform" action="{{url_for('settings.bans_change')}}" method="post">
+		<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 		<input name="change" value="unban" hidden>
 		<input name="target" value="{{ban.name}}" hidden>
 		<button type="submit" class="btn btn-sm btn-warning">Unban</button>

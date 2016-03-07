@@ -7,55 +7,81 @@
 {{ super() }}
 <script type="text/javascript">
 function removeSelf() {
-	$.get("/api/self/wl/remove", {}, function(data, status, jqxhr){
-		var wlNames = [{% for wl in lists %}"{{wl.name|e}}"{% if not loop.last %},{% endif %}{% endfor %}];
-		for(var i=0, len=wlNames.length; i < len; i++) {
-			var wlName = wlNames[i];
-			console.log("Checking WL "+wlName);
-			var entryId = "entry-"+wlName+"-{{ current_user.get_eve_id() }}";
-			var entry = document.getElementById(entryId);
-			if (entry != null) { // there is a entry for him on that wl
-				entry.parentNode.removeChild(entry); // remote it from the DOM
-			}
-		}
-	}, "text");
+	var settings = {
+			dataType: "text",
+			headers: {
+				'X-CSRFToken': '{{csrf_token()}}'
+			},
+			method: 'DELETE',
+			success: function(data, status, jqxhr){
+				var wlNames = [{% for wl in lists %}"{{wl.name|e}}"{% if not loop.last %},{% endif %}{% endfor %}];
+				for(var i=0, len=wlNames.length; i < len; i++) {
+					var wlName = wlNames[i];
+					console.log("Checking WL "+wlName);
+					var entryId = "entry-"+wlName+"-{{ current_user.get_eve_id() }}";
+					var entry = document.getElementById(entryId);
+					if (entry != null) { // there is a entry for him on that wl
+						entry.parentNode.removeChild(entry); // remote it from the DOM
+					}
+				}
+			},
+			url: "{{url_for('fittings.self_remove_all')}}"
+	};
+	$.ajax(settings);
 }
 
 function removeOwnEntry(wlName, charId, entryId) {
-	$.get("/api/self/wlentry/remove/"+entryId, {}, function(data, status, jqxhr){
-		var htmlId = "entry-"+wlName+"-"+charId;
-		var entry = document.getElementById(htmlId);
-		if (entry != null) { // there is a entry for him on that wl
-			entry.parentNode.removeChild(entry); // remote it from the DOM
-		}
-	}, "text");
+	var settings = {
+			dataType: "text",
+			headers: {
+				'X-CSRFToken': '{{csrf_token()}}'
+			},
+			method: 'DELETE',
+			success: function(data, status, jqxhr){
+				var htmlId = "entry-"+wlName+"-"+charId;
+				var entry = document.getElementById(htmlId);
+				if (entry != null) { // there is a entry for him on that wl
+					entry.parentNode.removeChild(entry); // remote it from the DOM
+				}
+			},
+			url: "/api/self/wlentry/remove/"+entryId
+	};
+	$.ajax(settings);
 }
 
 function removeOwnFit(fitId, wlName, charId) {
-	$.get("/api/self/fittings/remove/"+fitId, {}, function(data, status, jqxhr){
-		var entryHtmlId = "entry-"+wlName+"-"+charId;
-		var fitHtmlId = "fit-"+fitId;
-		var fit = document.getElementById(fitHtmlId);
-		var entry = document.getElementById(entryHtmlId);
-		if (fit != null) { // there is a entry for him on that wl
-			fit.parentNode.removeChild(fit); // remote it from the DOM
-		}
-		var count = Number(entry.getAttribute("data-count"));
-		if (count <= 1) {
-			// no fit left, remove entry
-			if (entry != null) { // there is a entry for him on that wl
-				entry.parentNode.removeChild(entry); // remote it from the DOM
-			}
-		} else {
-			count--;
-			entry.setAttribute("data-count", count);
-		}
-		
-	}, "text");
+	var settings = {
+			dataType: "text",
+			headers: {
+				'X-CSRFToken': '{{csrf_token()}}'
+			},
+			method: 'DELETE',
+			success: function(data, status, jqxhr){
+				var entryHtmlId = "entry-"+wlName+"-"+charId;
+				var fitHtmlId = "fit-"+fitId;
+				var fit = document.getElementById(fitHtmlId);
+				var entry = document.getElementById(entryHtmlId);
+				if (fit != null) { // there is a entry for him on that wl
+					fit.parentNode.removeChild(fit); // remote it from the DOM
+				}
+				var count = Number(entry.getAttribute("data-count"));
+				if (count <= 1) {
+					// no fit left, remove entry
+					if (entry != null) { // there is a entry for him on that wl
+						entry.parentNode.removeChild(entry); // remote it from the DOM
+					}
+				} else {
+					count--;
+					entry.setAttribute("data-count", count);
+				}
+			},
+			url: "/api/self/fittings/remove/"+fitId
+	};
+	$.ajax(settings);
 }
 
 function removePlayer(userId) {
-	$.post("{{url_for('fittings.api_wls_remove_player')}}", {'playerId': userId}, function(){
+	$.post("{{url_for('fittings.api_wls_remove_player')}}", {'playerId': userId, '_csrf_token': '{{ csrf_token() }}'}, function(){
 		var wl_names = [{% for wl in lists %}"{{wl.name|e}}",{% endfor %}];
 		for (idx in wl_names) {
 			var wl_name = wl_names[idx]

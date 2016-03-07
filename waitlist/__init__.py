@@ -5,11 +5,13 @@ from flask_principal import Principal
 from os import path
 from flask_migrate import Migrate, MigrateCommand
 from flask_script import Manager
+import os
+from flask_seasurf import SeaSurf
 
 basedir = path.abspath(path.dirname(__file__))
 
 app = Flask(import_name=__name__, template_folder=path.join("..", "templates"))
-app.secret_key = 'mcf4q37h0n59qc4307w98jd5fc723'
+app.secret_key = os.urandom(24)
 app.config['SESSION_TYPE'] = 'filesystem'
 user = "wtm"
 password = "wtm"
@@ -26,3 +28,4 @@ db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 manager = Manager(app)
 manager.add_command("db", MigrateCommand)
+seasurf = SeaSurf(app)

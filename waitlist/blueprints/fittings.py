@@ -46,7 +46,7 @@ def api_wl_remove_entry():
     return "OK"
 
 # remove one of your fittings by id
-@bp_waitlist.route("/api/self/fittings/remove/<int:fitid>")
+@bp_waitlist.route("/api/self/fittings/remove/<int:fitid>", methods=["DELETE"])
 @login_required
 def remove_self_fit(fitid):
     fit = db.session.query(Shipfit).filter(Shipfit.id == fitid).first()
@@ -59,15 +59,16 @@ def remove_self_fit(fitid):
     return "success"
 
 # remove your self from a wl by wl entry id
-@bp_waitlist.route("/api/self/wlentry/remove/<int:entry_id>")
+@bp_waitlist.route("/api/self/wlentry/remove/<int:entry_id>", methods=["DELETE"])
 @login_required
 def self_remove_wl_entry(entry_id):
     db.session.query(WaitlistEntry).filter(WaitlistEntry.id == entry_id).delete()
+    db.session.commit()
     return "success"
 
 
 # remove your self from all wls
-@bp_waitlist.route("/api/self/wl/remove")
+@bp_waitlist.route("/api/self/wl/remove", methods=["DELETE"])
 @login_required
 def self_remove_all():
     queue = db.session.query(Waitlist).filter(Waitlist.name == WaitlistNames.xup_queue).first()

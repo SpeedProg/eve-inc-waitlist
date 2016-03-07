@@ -9,6 +9,7 @@
 {% block data %}
 <div class="col-sm-8" id="x-up">
 <form action="{{url_for('feedback.submit')}}" method="post">
+<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 <fieldset class="form-group">
 <div class="btn-group" data-toggle="buttons">
 	<label class="radio">Do you prefer the Waitlist over x-ups in chat?</label>

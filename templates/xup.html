@@ -9,6 +9,7 @@
 {% block data %}
 <div class="col-sm-8" id="x-up">
 <form action="/xup" method="post">
+<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 <fieldset class="form-group">
 <label for="fittings">Fittings</label>
 <textarea class="form-control" id="fittings" name="fits" rows="10" cols="50" placeholder="Post your fittings here" required></textarea>

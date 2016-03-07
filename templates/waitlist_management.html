@@ -6,7 +6,7 @@
 {{ super() }}
 <script type="text/javascript">
 function removeEntry(entryId, userId) {
-	$.post("{{url_for('fittings.api_wl_remove_entry')}}", {'entryId': entryId}, function(){
+	$.post("{{url_for('fittings.api_wl_remove_entry')}}", {'entryId': entryId, '_csrf_token': '{{ csrf_token() }}'}, function(){
 		var entry_id = "entry-{{queue.name}}-"+userId
 		var entry = document.getElementById(entry_id);
 		if (entry != null) { // there is a entry for him on that wl
@@ -16,7 +16,7 @@ function removeEntry(entryId, userId) {
 }
 
 function moveEntryToWaitlists(entryId, userId) {
-	$.post("{{url_for('fittings.move_to_waitlists')}}", {'entryId': entryId}, function(){
+	$.post("{{url_for('fittings.move_to_waitlists')}}", {'entryId': entryId, '_csrf_token': '{{ csrf_token() }}'}, function(){
 		var entry_id = "entry-{{queue.name}}-"+userId
 		var entry = document.getElementById(entry_id);
 		if (entry != null) { // there is a entry for him on that wl
