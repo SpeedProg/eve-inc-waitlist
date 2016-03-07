@@ -9,28 +9,41 @@ from waitlist.storage.modules import resist_ships, logi_ships, dps_snips,\
     sniper_ships, t3c_ships, sniper_weapons, dps_weapons
 from waitlist.data.names import WaitlistNames
 from werkzeug.utils import redirect
-from flask.helpers import url_for
+from flask.helpers import url_for, flash
 from flask.templating import render_template
 from datetime import datetime
 from waitlist.utility.utils import get_fit_format, parseEft, create_mod_map,\
     get_char_id
 from waitlist import db
 
-bp_waitlist = Blueprint('bp_waitlist', __name__)
+bp_waitlist = Blueprint('fittings', __name__)
 logger = logging.getLogger(__name__)
 
 
 @bp_waitlist.route("/api/wl/remove/", methods=['POST'])
 @login_required
 @perm_remove_player.require(http_exception=401)
-def wls_remove_player():
-    playerId = request.form['playerId']
+def api_wls_remove_player():
+    playerId = int(request.form['playerId'])
     if playerId == None:
         logger.error("Tried to remove player with None id from waitlists.")
     
-    db.session.query(WaitlistEntry).filter(WaitlistEntry.user == int(playerId)).delete()
+    # don't remove from queue
+    queue = db.session.query(Waitlist).filter(Waitlist.name == WaitlistNames.xup_queue).first()
+    
+    db.session.query(WaitlistEntry).filter((WaitlistEntry.user == playerId) & (WaitlistEntry.waitlist_id != queue.id)).delete()
     db.session.commit()
-    return "success"
+    return "OK"
+
+@bp_waitlist.route("/api/wl/entries/remove/", methods=['POST'])
+@login_required
+@perm_remove_player.require(http_exception=401)
+def api_wl_remove_entry():
+    entryId = request.form['entryId']
+    
+    db.session.query(WaitlistEntry).filter(WaitlistEntry.id == int(entryId)).delete()
+    db.session.commit()
+    return "OK"
 
 # remove one of your fittings by id
 @bp_waitlist.route("/api/self/fittings/remove/<int:fitid>")
@@ -57,7 +70,9 @@ def self_remove_wl_entry(entry_id):
 @bp_waitlist.route("/api/self/wl/remove")
 @login_required
 def self_remove_all():
-    entries = db.session.query(WaitlistEntry).filter(WaitlistEntry.user == current_user.get_char_id());
+    queue = db.session.query(Waitlist).filter(Waitlist.name == WaitlistNames.xup_queue).first()
+    # remove from all lists except queue
+    entries = db.session.query(WaitlistEntry).filter((WaitlistEntry.user == current_user.get_char_id()) & (WaitlistEntry.waitlist_id != queue.id));
     for entry in entries:
         logger.info("Remove entry id=%d", entry.id)
         db.session.delete(entry)
@@ -101,17 +116,23 @@ def xup_submit():
         if not firstIter:
             eIdx = fitMatch.start()-1
             string_fits.append(fittings[sIdx:eIdx].split('\n'))
+        else:
+            firstIter = False
+           
         sIdx = fitMatch.start()
 
     string_fits.append(fittings[sIdx:].split('\n'))
 
+    logger.info("Split fittings into %d fits", len(string_fits))
         
     if format_type == "eft":        
         for fit in string_fits:
             parsed_fit = parseEft(fit)
             fits.append(parsed_fit)
     
-    logger.info("Parsed %d fits", len(fits))
+    fit_count = len(fits)
+    
+    logger.info("Parsed %d fits", fit_count)
     # TODO handle dna fit
 
     for fit in fits:
@@ -133,13 +154,6 @@ def xup_submit():
     # get current users id
     
     eve_id = current_user.get_eve_id()
-    
-    # get the waitlist entries of this user
-    waitlist_entries = db.session.query(WaitlistEntry).filter(WaitlistEntry.user == eve_id).all()
-    
-    dps = []
-    sniper = []
-    logi = []
 
     # query to check if sth is a weapon module
     '''
@@ -150,6 +164,8 @@ def xup_submit():
     WHERE invtypes.typeName = ? AND mcat.parentGroupID = 10;/*10 == Turrets & Bays*/
     '''
     
+    fits_ready = []
+    
     # split his fits into types for the different waitlist_entries
     for fit in fits:
         mod_map = create_mod_map(fit.modules)
@@ -157,7 +173,8 @@ def xup_submit():
         
         # it is a logi put on logi wl
         if fit.ship_type in logi_ships:
-            logi.append(fit)
+            fit.wl_type = WaitlistNames.logi
+            fits_ready.append(fit)
             continue;
         
         is_allowed = False
@@ -165,7 +182,8 @@ def xup_submit():
             is_allowed = True
         
         if not is_allowed:  # not an allowed ship, push it on dps list :P
-            dps.append(fit)
+            fit.wl_type = WaitlistNames.dps
+            fits_ready.append(fit)
             continue
         
         
@@ -180,22 +198,55 @@ def xup_submit():
         weapon_type = "None"
         for weapon in possible_weapons:
             if weapon in sniper_weapons:
-                weapon_type = "sniper"
+                weapon_type = WaitlistNames.sniper
                 break
             if weapon in dps_weapons:
-                weapon_type = "dps"
+                weapon_type = WaitlistNames.dps
                 break
         
         # ships with no valid weapons put on dps wl
-        if weapon_type == "None" or weapon_type == "dps":
-            dps.append(fit)
+        if weapon_type == "None" or weapon_type == WaitlistNames.dps:
+            fit.wl_type = WaitlistNames.dps
+            fits_ready.append(fit)
             continue
         
         # ships with sniper weapons put on sniper wl
-        if weapon_type == "sniper":
-            sniper.append(fit)
+        if weapon_type == WaitlistNames.sniper:
+            fit.wl_type = WaitlistNames.sniper
+            fits_ready.append(fit)
             continue
+
+    """
+    #this stuff is needed somewhere else now
+    # get the waitlist entries of this user
+
+    """
+    queue = db.session.query(Waitlist).filter(Waitlist.name == WaitlistNames.xup_queue).first();
+    wl_entry = db.session.query(WaitlistEntry).filter((WaitlistEntry.waitlist_id == queue.id) & (WaitlistEntry.user == eve_id)).first()
+    if wl_entry is None:
+        wl_entry = WaitlistEntry()
+        wl_entry.creation = datetime.now()
+        wl_entry.user = eve_id
+        queue.entries.append(wl_entry)
     
+    for fit in fits_ready:
+        wl_entry.fittings.append(fit)
+    
+    
+    db.session.commit()
+    
+    flash("You submitted {0} fits to be check by a fleet comp before getting on the waitlist.".format(fit_count), "success")
+    
+    return redirect(url_for('index'))
+        
+
+@bp_waitlist.route("/move_to_waitlist", methods=["POST"])
+@login_required
+@perm_management.require(http_exception=401)
+def move_to_waitlists():
+    entry_id = int(request.form['entryId'])
+    entry = db.session.query(WaitlistEntry).filter(WaitlistEntry.id == entry_id).first()
+    waitlist_entries = db.session.query(WaitlistEntry).filter(WaitlistEntry.user == entry.user).all()
     logi_entry = None
     sniper_entry = None
     dps_entry = None
@@ -213,6 +264,28 @@ def xup_submit():
                 
     
     creationdt = datetime.now()
+    
+    # sort fittings by ship type
+    logi = []
+    dps = []
+    sniper = []
+    
+    for fit in entry.fittings:
+        logger.info("Sorting fit %s by type into %s", fit, fit.wl_type)
+        if fit.wl_type == WaitlistNames.logi:
+            fit.waitlist_id = None
+            logi.append(fit)
+            continue
+        if fit.wl_type == WaitlistNames.dps:
+            fit.waitlist_id = None
+            dps.append(fit)
+            continue
+        if fit.wl_type == WaitlistNames.sniper:
+            fit.waitlist_id = None
+            sniper.append(fit)
+        else:
+            logger.error("Failed to add %s do a waitlist.", fit)
+    
     
     add_entries_map = {}
     
@@ -258,11 +331,13 @@ def xup_submit():
     for wl in waitlists:
         if wl.name in add_entries_map:
             wl.entries.append(add_entries_map[wl.name])
-
+    
     db.session.commit()
-    return redirect(url_for('index'))
-        
-
+    db.session.delete(entry)
+    db.session.commit()
+    
+    return "OK"
+    
 
 @bp_waitlist.route("/xup", methods=['GET'])
 @login_required
@@ -274,25 +349,5 @@ def xup_index():
 @login_required
 @perm_management.require(http_exception=401)
 def management():
-    all_waitlists = db.session.query(Waitlist).all();
-    wlists = []
-    logi_wl = None
-    dps_wl = None
-    sniper_wl = None
-
-    for wl in all_waitlists:
-        if wl.name == WaitlistNames.logi:
-            logi_wl = wl
-            continue
-        if wl.name == WaitlistNames.dps:
-            dps_wl = wl
-            continue
-        if wl.name == WaitlistNames.sniper:
-            sniper_wl = wl
-            continue
-    wlists.append(logi_wl)
-    wlists.append(dps_wl)
-    wlists.append(sniper_wl)
-    
-    
-    return render_template("waitlist_management.html", lists=wlists)
+    queue = db.session.query(Waitlist).filter(Waitlist.name == WaitlistNames.xup_queue).first()
+    return render_template("waitlist_management.html", queue=queue)

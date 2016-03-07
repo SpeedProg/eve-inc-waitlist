@@ -3,6 +3,7 @@ class WaitlistNames():
     logi = "logi"
     dps = "dps"
     sniper = "sniper"
+    xup_queue = "queue"
     
 class WTMRoles():
     admin = "admin"

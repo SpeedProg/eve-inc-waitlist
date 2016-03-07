@@ -53,11 +53,83 @@ function removeOwnFit(fitId, wlName, charId) {
 		
 	}, "text");
 }
+
+function removePlayer(userId) {
+	$.post("{{url_for('fittings.api_wls_remove_player')}}", {'playerId': userId}, function(){
+		var wl_names = [{% for wl in lists %}"{{wl.name|e}}",{% endfor %}];
+		for (idx in wl_names) {
+			var wl_name = wl_names[idx]
+			var entry_id = "entry-"+wl_name+"-"+userId
+			var entry = document.getElementById(entry_id);
+			if (entry != null) { // there is a entry for him on that wl
+				entry.parentNode.removeChild(entry); // remote it from the DOM
+			}
+		}
+	}, "text");
+}
 </script>
 <script src="https://quiescens.duckdns.org/wl/wtm.js"></script>
 {% endblock %}
 
 {% block data %}
+<div class="row">
+<div class="col-sm-12" id="wl-{{ queue.name }}">
+	<ol class="list-group">
+		<li class="list-group-item text-capitalize">{{ queue.name|e }} WL</li>
+		{% for entry in queue.entries %}
+		<li class="list-group-item" id="entry-{{ queue.name }}-{{ entry.user }}">
+			<div class="card">
+				<div class="container">
+					<div class="row">
+						<div class="col-sm-2 hidden-sm-down">
+							<img src="https://image.eveonline.com/Character/{{ entry.user }}_32.jpg" alt="{{ entry.user_data.eve_name|e }}">
+						</div>
+						<div class="col-sm-8">
+						{{ entry.user_data.eve_name|e }}
+						</div>
+					</div>
+					{% if current_user.get_eve_id() == entry.user %}
+					<div class="row">
+						<div class="btn-group btn-group-mini" role="group" aria-label="Action Buttons">
+							
+							<button type="button" class="btn btn-mini btn-warning"
+								onclick="javascript:removeOwnEntry('{{queue.name}}', {{entry.user}}, {{ entry.id }});">Remove Self</button>
+							
+						</div>
+					</div>
+					{% endif %}
+				</div>
+				{% if current_user.get_eve_id() == entry.user %}
+  				<ul class="list-group list-group-flush">
+				{% for fit in entry.fittings %}
+    				<li class="list-group-item">
+    					<div class="container fit-link btn btn-info" data-dna="{{ fit.ship_type }}:{{ fit.modules }}">
+    					<div class="row">
+    						<div class="col-sm-4 hidden-sm-down">
+    						<img src="https://image.eveonline.com/Render/{{ fit.ship_type }}_32.png" alt="{{ entry.user_data.eve_name|e }}">
+    						</div>
+    						<div class="col-sm-8">
+    							<div class="row">
+    							{{ fit.ship.typeName|e }}
+    							</div>
+    							{% if fit.comment is not none %}
+    							<div class="row">
+    							<small>{{ fit.comment|safe }}</small>
+    							</div>
+    							{% endif %}
+    						</div>
+    					</div>
+    					</div>
+    				</li>
+				{% endfor %}
+  				</ul>
+  				{% endif %}
+			</div>
+		</li>
+		{% endfor %}
+	</ol>
+</div>
+</div>
 <div class="row">
 	<button type="button" class="center-block btn btn-danger btn-sm" onclick="removeSelf();">Remove Self from Waitlist</button>
 </div>
@@ -71,6 +143,9 @@ function removeOwnFit(fitId, wlName, charId) {
 			id="entry-{{wlist.name}}-{{ entry.user }}" {% if current_user.get_eve_id() == entry.user %}data-count="{{entry.fittings|length}}"{% endif %}>
 			<div class="card">
 				<div class="container">
+					{% if current_user.get_eve_id() == entry.user or perm_man.can() %}
+					<a href="javascript:CCPEVE.showInfo(1377, {{ entry.user }});">
+					{% endif %}
 					<div class="row">
 						<div class="col-sm-2 col-xs-4">
 								<img
@@ -78,20 +153,30 @@ function removeOwnFit(fitId, wlName, charId) {
 								alt="{{ entry.user_data.eve_name|e }}">
 						</div>
 						<div class="col-sm-10 ol-xs-8">
-							<a href="javascript:CCPEVE.showInfo(1377, {{ entry.user }});">{{ entry.user_data.eve_name|e }}</a>
+							{{ entry.user_data.eve_name|e }}
 						</div>
 					</div>
-					{% if current_user.get_eve_id() == entry.user %}
+					{% if current_user.get_eve_id() == entry.user or perm_man.can() %}
+					</a>
+					{% endif %}
+					{% if current_user.get_eve_id() == entry.user or perm_man.can() %}
 					<div class="row">
 						<div class="btn-group btn-group-mini" role="group"
 							aria-label="Action Buttons">
+							{% if current_user.get_eve_id() == entry.user %}
 							<button type="button" class="btn btn-mini btn-warning"
-								onclick="javascript:removeOwnEntry('{{wlist.name}}', {{entry.user}}, {{ entry.id }});">Remove</button>
+								onclick="javascript:removeOwnEntry('{{wlist.name}}', {{entry.user}}, {{ entry.id }});">Remove Self</button>
+							{% endif %}
+							{% if perm_man.can() %}
+							<!-- <button type="button" class="btn btn-primary" onclick="javascript:CCPEVE.showInfo(1377, {{ entry.user }})">Char</button> -->
+							<button type="button" class="btn btn btn-secondary" onclick="javascript:CCPEVE.startConversation({{ entry.user }})">Convo</button>
+							<button type="button" class="btn btn btn-danger" onclick="javascript:removePlayer({{ entry.user }})">Remove Player</button>
+							{% endif %}
 						</div>
 					</div>
 					{% endif %}
 				</div>
-				{% if current_user.get_eve_id() == entry.user %}
+				{% if current_user.get_eve_id() == entry.user or perm_man.can() %}
 				<ul class="list-group list-group-flush">
 					{% for fit in entry.fittings %}
 					<li class="list-group-item" id="fit-{{ fit.id }}">
@@ -109,6 +194,7 @@ function removeOwnFit(fitId, wlName, charId) {
 									{% endif %}
 								</div>
 							</div>
+							{% if current_user.get_eve_id() == entry.user %}
 							<div class="row">
 								<div class="btn-group btn-group-mini" role="group"
 									aria-label="Action Buttons">
@@ -116,8 +202,10 @@ function removeOwnFit(fitId, wlName, charId) {
 										onclick="javascript:removeOwnFit({{ fit.id }}, '{{ wlist.name }}', {{ entry.user }});">Remove Fit</button>
 								</div>
 							</div>
+							{% endif %}
 						</div>
-					</li> {% endfor %}
+					</li>
+					{% endfor %}
 				</ul>
 				{% endif %}
 			</div>

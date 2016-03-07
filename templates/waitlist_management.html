@@ -5,29 +5,35 @@
 {% block head %}
 {{ super() }}
 <script type="text/javascript">
-function removePlayer(userId) {
-	var wl_names = [{% for wl in lists %}"{{wl.name|e}}",{% endfor %}];
-	for (idx in wl_names) {
-		var wl_name = wl_names[idx]
-		var entry_id = "entry-"+wl_name+"-"+userId
+function removeEntry(entryId, userId) {
+	$.post("{{url_for('fittings.api_wl_remove_entry')}}", {'entryId': entryId}, function(){
+		var entry_id = "entry-{{queue.name}}-"+userId
 		var entry = document.getElementById(entry_id);
 		if (entry != null) { // there is a entry for him on that wl
 			entry.parentNode.removeChild(entry); // remote it from the DOM
 		}
-	}
-	$.post("/api/wl/remove/", {playerId: userId}, function(){}, "text");
+	}, "text");
+}
+
+function moveEntryToWaitlists(entryId, userId) {
+	$.post("{{url_for('fittings.move_to_waitlists')}}", {'entryId': entryId}, function(){
+		var entry_id = "entry-{{queue.name}}-"+userId
+		var entry = document.getElementById(entry_id);
+		if (entry != null) { // there is a entry for him on that wl
+			entry.parentNode.removeChild(entry); // remote it from the DOM
+		}
+	}, "text")
 }
 </script>
 <script src="https://quiescens.duckdns.org/wl/wtm.js"></script>
 {% endblock %}
 
 {% block data %}
-{% for wlist in lists %}
-<div class="col-sm-4" id="wl-{{ wlist.name }}">
+<div class="col-sm-4" id="wl-{{ queue.name }}">
 	<ol class="list-group">
-		<li class="list-group-item text-capitalize">{{ wlist.name|e }} WL</li>
-		{% for entry in wlist.entries %}
-		<li class="list-group-item" id="entry-{{ wlist.name }}-{{ entry.user }}">
+		<li class="list-group-item text-capitalize">{{ queue.name|e }} WL</li>
+		{% for entry in queue.entries %}
+		<li class="list-group-item" id="entry-{{ queue.name }}-{{ entry.user }}">
 			<div class="card">
 				<div class="container">
 					<a href="javascript:CCPEVE.showInfo(1377, {{ entry.user }})">
@@ -44,7 +50,8 @@ function removePlayer(userId) {
 						<div class="btn-group btn-group-mini" role="group" aria-label="Action Buttons">
 							<!-- <button type="button" class="btn btn-primary" onclick="javascript:CCPEVE.showInfo(1377, {{ entry.user }})">Char</button> -->
 							<button type="button" class="btn btn btn-secondary" onclick="javascript:CCPEVE.startConversation({{ entry.user }})">Convo</button>
-							<button type="button" class="btn btn btn-danger" onclick="javascript:removePlayer({{ entry.user }})">Remove</button>
+							<button type="button" class="btn btn btn-danger" onclick="javascript:removeEntry({{ entry.id }}, {{ entry.user }})">Remove</button>
+							<button type="button" class="btn btn btn-danger" onclick="javascript:moveEntryToWaitlists({{ entry.id }}, {{ entry.user }})">Approve</button>
 						</div>
 					</div>
 				</div>
@@ -76,5 +83,4 @@ function removePlayer(userId) {
 		{% endfor %}
 	</ol>
 </div>
-{% endfor %}
 {% endblock %}

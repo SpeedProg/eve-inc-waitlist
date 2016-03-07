@@ -63,6 +63,7 @@ def index():
     logi_wl = None
     dps_wl = None
     sniper_wl = None
+    queue = None
 
     for wl in all_waitlists:
         if wl.name == WaitlistNames.logi:
@@ -74,11 +75,15 @@ def index():
         if wl.name == WaitlistNames.sniper:
             sniper_wl = wl
             continue
+        if wl.name == WaitlistNames.xup_queue:
+            queue = wl
+            continue
+
     wlists.append(logi_wl)
     wlists.append(dps_wl)
     wlists.append(sniper_wl)
     
-    return render_template("index.html", lists=wlists, user=current_user)
+    return render_template("index.html", lists=wlists, user=current_user, queue=queue)
 
 
 @login_manager.user_loader
@@ -234,4 +239,4 @@ if __name__ == '__main__':
     waitlistlogger = logging.getLogger("waitlist")
     waitlistlogger.addHandler(ch)
     waitlistlogger.setLevel(logging.INFO)
-    app.run(host="0.0.0.0", port=81, debug=False)
+    app.run(host="0.0.0.0", port=81, debug=True)
