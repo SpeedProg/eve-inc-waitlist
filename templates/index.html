@@ -103,6 +103,7 @@ function removePlayer(userId) {
 	<ol class="list-group">
 		<li class="list-group-item text-capitalize">{{ queue.name|e }} WL</li>
 		{% for entry in queue.entries %}
+		{% if current_user.get_eve_id() == entry.user %}
 		<li class="list-group-item" id="entry-{{ queue.name }}-{{ entry.user }}">
 			<div class="card">
 				<div class="container">
@@ -114,7 +115,7 @@ function removePlayer(userId) {
 						{{ entry.user_data.eve_name|e }}
 						</div>
 					</div>
-					{% if current_user.get_eve_id() == entry.user %}
+					
 					<div class="row">
 						<div class="btn-group btn-group-mini" role="group" aria-label="Action Buttons">
 							
@@ -123,7 +124,7 @@ function removePlayer(userId) {
 							
 						</div>
 					</div>
-					{% endif %}
+					
 				</div>
 				{% if current_user.get_eve_id() == entry.user %}
   				<ul class="list-group list-group-flush">
@@ -152,6 +153,7 @@ function removePlayer(userId) {
   				{% endif %}
 			</div>
 		</li>
+		{% endif %}
 		{% endfor %}
 	</ol>
 </div>
