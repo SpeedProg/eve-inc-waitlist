@@ -29,13 +29,15 @@
 	<li class="nav-item">
 		<a class="nav-link {% block m_overview %}{% endblock %}" href="{{url_for('settings.overview')}}">Overview</a>
 	</li>
+	{% if perm_man.can() %}
 	<li class="nav-item">
 		<a class="nav-link {% block m_fleet %}{% endblock %}" href="{{url_for('settings.fleet')}}">Fleet Settings</a>
 	</li>
+	{% endif %}
 	<li class="nav-item">
 		<a class="nav-link {% block m_own %}{% endblock %}" href="{{url_for('settings.account_self')}}">Own Settings</a>
 	</li>
-	{% if perm_admin.can() %}
+	{% if perm_accounts.can() %}
 	<li class="nav-item">
 		<a class="nav-link {% block m_account %}{% endblock %}" href="{{url_for('settings.accounts')}}">Accounts</a>
 	</li>
@@ -44,6 +46,8 @@
 	<li class="nav-item">
 		<a class="nav-link {% block m_ban %}{% endblock %}" href="{{url_for('settings.bans')}}">Bans</a>
 	</li>
+	{% endif %}
+	{% if perm_feedback.can() %}
 	<li class="navitem">
 		<a class="nav-link {% block m_feedback %}{% endblock %}" href="{{url_for('feedback.settings')}}">Feedback</a>
 	</li>

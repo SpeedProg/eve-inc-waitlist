@@ -13,7 +13,7 @@ from waitlist.storage.database import Waitlist, Account
 from flask_principal import RoleNeed, identity_changed, Identity, AnonymousIdentity,\
     identity_loaded, UserNeed
 from waitlist.data.perm import perm_management, perm_settings, perm_admin,\
-    perm_officer
+    perm_officer, perm_accounts, perm_feedback
 from flask.templating import render_template
 from waitlist.blueprints.settings import bp_settings
 from waitlist.blueprints.fittings import bp_waitlist
@@ -34,7 +34,10 @@ logger = logging.getLogger(__name__)
 # set if it is the igb
 @app.context_processor
 def inject_data():
-    return dict(is_igb=is_igb(), perm_admin=perm_admin, perm_settings=perm_settings, perm_man=perm_management, perm_officer=perm_officer)
+    return dict(is_igb=is_igb(), perm_admin=perm_admin,
+                perm_settings=perm_settings, perm_man=perm_management,
+                perm_officer=perm_officer, perm_accounts=perm_accounts,
+                perm_feedback=perm_feedback)
 
 @app.before_request
 def check_ban():

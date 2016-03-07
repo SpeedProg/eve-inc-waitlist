@@ -12,8 +12,7 @@ from werkzeug.utils import redirect
 from flask.helpers import url_for, flash
 from flask.templating import render_template
 from datetime import datetime
-from waitlist.utility.utils import get_fit_format, parseEft, create_mod_map,\
-    get_char_id
+from waitlist.utility.utils import get_fit_format, parseEft, create_mod_map
 from waitlist import db
 
 bp_waitlist = Blueprint('fittings', __name__)

@@ -1,8 +1,11 @@
-from evelink import eve, api
+from waitlist.data.names import WTMRoles
+from waitlist.storage.database import Role
+from waitlist import db
 if __name__ == '__main__':
-    #eve_api = api.API()
-    #response = eve_api.get('/corp/CorporationSheet', {'corporationID': '98143274'})
-    #print response.result.find('allianceID').text
-    eve_obj = eve.EVE()
-    response = eve_obj.affiliations_for_character(90610935)
-    print response
+    r = Role()
+    r.name = WTMRoles.dev
+    r.is_restrictive = True
+    
+    db.session.add(r)
+    db.session.commit()
+    

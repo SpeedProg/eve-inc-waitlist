@@ -1,7 +1,8 @@
 from flask.blueprints import Blueprint
 import logging
 from flask_login import login_required, current_user
-from waitlist.data.perm import perm_admin, perm_settings, perm_officer
+from waitlist.data.perm import perm_admin, perm_settings, perm_officer,\
+    perm_management, perm_accounts
 from flask.templating import render_template
 from flask.globals import request
 from sqlalchemy import or_
@@ -25,7 +26,7 @@ def overview():
 
 @bp_settings.route("/accounts", methods=["GET", "POST"])
 @login_required
-@perm_admin.require(http_exception=401)
+@perm_accounts.require(http_exception=401)
 def accounts():
     if request.method == "POST":
         acc_name = request.form['account_name']
@@ -80,14 +81,14 @@ def accounts():
 
 @bp_settings.route('/fmangement')
 @login_required
-@perm_settings.require(http_exception=401)
+@perm_management.require(http_exception=401)
 def fleet():
     return render_template("settings/fleet.html")
 
 
 @bp_settings.route("/account_edit", methods=["POST"])
 @login_required
-@perm_admin.require(http_exception=401)
+@perm_accounts.require(http_exception=401)
 def account_edit():
     acc_id = int(request.form['account_id'])
     acc_name = request.form['account_name']

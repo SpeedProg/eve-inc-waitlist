@@ -36,7 +36,7 @@ def get_char_info_for_character(char_id):
         db.session.commit()
     else:
         now = datetime.now()
-        if char_info.expire < now:
+        if char_info.expire is None or char_info.expire < now:
             # expired, update it
             result = eve.EVE().character_info_from_id(char_id)
             corpId = result.result['corp']['id']
@@ -67,7 +67,7 @@ def get_affiliation(char_id):
         db.session.commit()
     else:
         now = datetime.now()
-        if aff.expire < now:
+        if aff.expire is None or aff.expire < now:
             aff_info = get_affiliation_info(char_id)
             aff.name = aff_info['name']
             aff.corporationID = aff_info['corporationID']
@@ -92,7 +92,7 @@ def get_affiliation_info(char_id):
     else:
         alliance_id = 0
         alliance_name = ""
-    return {'id':char_id, 'name': char_name, 'allianceID': alliance_id, 'allianceName': alliance_name, 'corporationID': corp_id, 'corporationName': corp_name, 'expire': response.expire}
+    return {'id':char_id, 'name': char_name, 'allianceID': alliance_id, 'allianceName': alliance_name, 'corporationID': corp_id, 'corporationName': corp_name, 'expire': response.expires}
 
 def get_corp_info_for_corporation(corp_id):
     corp_info = db.session.query(APICacheCorporationInfo).filter(APICacheCorporationInfo.id == corp_id).first();
@@ -110,7 +110,7 @@ def get_corp_info_for_corporation(corp_id):
     
     else:
         now = datetime.now()
-        if corp_info.expire < now:
+        if corp_info.expire is None or corp_info.expire < now:
             result = get_alliance_info(corp_id)
             corp_info.id = corp_id
             corp_info.corporationName = result['corporationName']

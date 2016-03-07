@@ -12,7 +12,8 @@ class WTMRoles():
     lm = "lm"
     tbadge = "tbadge"
     resident = "resident"
+    dev = "developer"
     
     @staticmethod
     def get_role_list():
-        return [WTMRoles.admin, WTMRoles.officer, WTMRoles.fc, WTMRoles.lm, WTMRoles.tbadge, WTMRoles.resident]
+        return [WTMRoles.admin, WTMRoles.officer, WTMRoles.fc, WTMRoles.lm, WTMRoles.tbadge, WTMRoles.resident, WTMRoles.dev]

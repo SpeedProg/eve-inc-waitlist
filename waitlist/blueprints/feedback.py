@@ -7,7 +7,7 @@ from flask.helpers import flash
 from waitlist.storage.database import Feedback
 from waitlist import db
 import flask
-from waitlist.data.perm import perm_officer
+from waitlist.data.perm import perm_officer, perm_feedback
 
 logger = logging.getLogger(__name__)
 
@@ -60,7 +60,7 @@ def submit():
     return render_template("feedback/index.html", feedback=feedback)
     
 @feedback.route("/settings")
-@perm_officer.require(http_exception=401)
+@perm_feedback.require(http_exception=401)
 def settings():
     feedbacks = db.session.query(Feedback).order_by(Feedback.last_changed).all()
     yeses = db.session.query(Feedback).filter(Feedback.likes == True).count()
