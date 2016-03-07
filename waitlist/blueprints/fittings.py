@@ -148,10 +148,17 @@ def xup_submit():
             if fit.ship_type in logi_ships:
                 if logilvl == 0:
                     pass  # TODO ask for logi
-                if fit.comment is None:
-                    fit.comment = "<b>Logi: " + str(logilvl) + "</b>"
+                comment_string = ""
+                
+                if logilvl <= 3:
+                    comment_string = "<b class=\"bg-danger\">Logi: {0}</b>"
                 else:
-                    fit.comment += " <b>Logi: " + str(logilvl) + "</b>"
+                    comment_string = "<b>Logi: {0}</b>"
+
+                if fit.comment is None:
+                    fit.comment = comment_string.format(logilvl)
+                else:
+                    fit.comment += " " + comment_string.format(logilvl)
     # get current users id
     
     eve_id = current_user.get_eve_id()
