@@ -71,7 +71,8 @@ def parseEft(lines):
                 mod_map[mod_id] = mod_entry
             
             mod_entry[1] += mod_amount
-            fit.modules = create_dna_string(mod_map)
+        
+        fit.modules = create_dna_string(mod_map)
         return fit
 
 def create_dna_string(mod_map):
