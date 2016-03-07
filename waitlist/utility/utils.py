@@ -60,10 +60,13 @@ def parseEft(lines):
                 mod_amount = int(mod_info[1])
             
             mod_id = get_item_id(mod_name)
+            if mod_id == -1: # items was not in database
+                    continue
             
             if mod_id in mod_map:
                 mod_entry = mod_map[mod_id]
             else: # if the module is not in the map create it
+                
                 mod_entry = [mod_id, 0]
                 mod_map[mod_id] = mod_entry
             
@@ -105,7 +108,10 @@ def get_fit_format(line):
 
 def get_item_id(name):
     logger.debug("Getting id for item %s", name)
-    return db.session.query(InvType).filter(InvType.typeName == name).first().typeID
+    item = db.session.query(InvType).filter(InvType.typeName == name).first()
+    if item == None:
+        return -1
+    return item.typeID
 
 @login_required
 def get_char_id():
