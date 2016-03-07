@@ -1,15 +1,12 @@
 import string,random
 import logging
 import re
-from waitlist.storage.database import InvType, Character, Shipfit, Account,\
-    APICacheCharacterInfo, CorporationBans, AllianceBans
+from waitlist.storage.database import InvType, Character, Shipfit, Account, Ban
 from flask_login import login_required, current_user
 from flask.globals import request
 from waitlist.data.eve_xml_api import get_character_id_from_name,\
-    get_char_info_for_character, get_corp_info_for_corporation
+    get_affiliation
 from waitlist import db
-from datetime import datetime
-from evelink.eve import EVE
 
 logger = logging.getLogger(__name__)
 
@@ -142,29 +139,23 @@ def get_character_by_id_and_name(eve_id, eve_name):
 
     return char
 
-def is_corp_banned(corp_id):
-    return db.session.query(CorporationBans).filter(CorporationBans.id == corp_id).count() == 1
-
-def is_alliance_banned(alliance_id):
-    return db.session.query(AllianceBans).filter(AllianceBans.id == alliance_id).count() == 1
+def is_charid_banned(eve_id):
+    if eve_id == 0: # this stands for no id in the eve api (for example no alliance)
+        return False
+    return db.session.query(Ban).filter(Ban.id == eve_id).count() == 1
 
 def is_char_banned(char):
     reason = "Character"
     is_banned = char.banned
     if not is_banned:
-        char_info = get_char_info_for_character(char.get_eve_id())
-        corp_id = char_info.corporationID
-        if is_corp_banned(corp_id):
+        corp_id, alli_id = get_affiliation(char.get_eve_id())
+        if (is_charid_banned(corp_id)):
             reason = "Corporation"
             is_banned = True
-        
-        if not is_banned:
-            corp_info = get_corp_info_for_corporation(corp_id)
-            alliance_id = corp_info.allianceID
-            if is_alliance_banned(alliance_id):
-                reason = "Alliance"
-                is_banned = True
-    
+        elif is_charid_banned(alli_id):
+            reason = "Alliance"
+            is_banned = True
+
     return is_banned, reason
 
 def is_igb():

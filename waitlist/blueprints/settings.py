@@ -6,12 +6,12 @@ from flask.templating import render_template
 from flask.globals import request
 from sqlalchemy import or_
 from waitlist.storage.database import Account, Role, Character, roles,\
-    linked_chars, CorporationBans, AllianceBans
+    linked_chars, Ban
 import flask
 from waitlist.data.eve_xml_api import get_character_id_from_name
 from werkzeug.utils import redirect
 from flask.helpers import url_for
-from waitlist.utility.utils import get_random_token, get_character_by_name
+from waitlist.utility.utils import get_random_token
 from waitlist import db
 
 bp_settings = Blueprint('settings', __name__)
@@ -227,66 +227,45 @@ def account_self():
 @login_required
 @perm_officer.require(http_exception=401)
 def bans():
-    banned_chars = db.session.query(Character).filter(Character.banned == True).all()
-    banned_corps = db.session.query(CorporationBans).all()
-    banned_alliances = db.session.query(AllianceBans).all()
-    return render_template("settings/bans.html", banned_chars=banned_chars, corps=banned_corps, allis=banned_alliances)
+    bans = db.session.query(Ban).all()
+    return render_template("settings/bans.html", bans=bans)
 
 @bp_settings.route("/bans_change", methods=["POST"])
 @login_required
 @perm_officer.require(http_exception=401)
 def bans_change():
     action = request.form['change'] # ban, unban
-    target_type = request.form['target_type'] # char,corp,alliance
     target = request.form['target'] # name of target
     if action == "ban":
         reason = request.form['reason'] # reason for ban
-
-    print 'action='+str(action)+" target="+str(target)+" target_type="+str(target_type)
-
-    if action is None or target is None or target_type is None:
-        return flask.abort(400)
     
-    if target_type == "char":
-        char = get_character_by_name(target)
-        
-        if action == "ban":
-            char.banned = True
-            char.reason = reason
-            # we need to log the user out
+    targets = target.split("\n")
     
-        elif action == "unban":
-            char.banned = False
-            char.reason = ""
-        
-        db.session.commit()
-    if target_type == "corp":
-        if action == "unban":
-            db.session.query(CorporationBans).filter(CorporationBans.name == target).delete()
-        if action == "ban":
-            # check if ban already there
-            if db.session.query(CorporationBans).filter(CorporationBans.name == target).count() <= 0:
-                target_id = get_character_id_from_name(target)
-                ban = CorporationBans()
-                ban.id = target_id
-                ban.name = target
-                ban.reason = reason
-                db.session.add(ban)
-        db.session.commit()
-        
-    if target_type == "alliance":
-        if action == "unban":
-            db.session.query(AllianceBans).filter(AllianceBans.name == target).delete()
-        if action == "ban":
-            # check if ban already there
-            if db.session.query(AllianceBans).filter(AllianceBans.name == target).count() <= 0:
-                target_id = get_character_id_from_name(target)
-                ban = AllianceBans()
-                ban.id = target_id
-                ban.name = target
-                ban.reason = reason
-                db.session.add(ban)
-        db.session.commit()
+    
+    
+    if action == "ban":
+        for target in targets:
+            target = target.strip()
+            logger.info("Banning >%s<", target)
+            eve_id = get_character_id_from_name(target)
+            #check if ban already there
+            if db.session.query(Ban).filter(Ban.id == eve_id).count() == 0:
+                # ban him
+                new_ban = Ban()
+                new_ban.id = eve_id
+                new_ban.name = target
+                new_ban.reason = reason
+                db.session.add(new_ban)
+                db.session.commit()
+    elif action == "unban":
+        for target in targets:
+            target = target.strip()
+            logger.info("Unbanning >%s<", target)
+            eve_id = get_character_id_from_name(target)
+            # check that there is a ban
+            if db.session.query(Ban).filter(Ban.id == eve_id).count() > 0:
+                db.session.query(Ban).filter(Ban.id == eve_id).delete()
+                db.session.commit()
     
     return redirect(url_for(".bans", code=303))
 

@@ -3,8 +3,7 @@ import logging
 from flask_login import login_required, current_user
 from flask.templating import render_template
 from flask.globals import request
-from flask.helpers import url_for, flash
-from werkzeug.utils import redirect
+from flask.helpers import flash
 from waitlist.storage.database import Feedback
 from waitlist import db
 import flask

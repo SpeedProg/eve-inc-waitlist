@@ -1,5 +1,5 @@
 from waitlist.storage.database import APICacheCharacterID, APICacheCharacterInfo,\
-    APICacheCorporationInfo
+    APICacheCorporationInfo, APICacheCharacterAffiliation
 from evelink import eve, api
 from waitlist import db
 from datetime import datetime
@@ -48,6 +48,51 @@ def get_char_info_for_character(char_id):
             db.session.commit()
     
     return char_info
+
+"""
+@return corp_id, alliance_id
+"""
+def get_affiliation(char_id):
+    aff = db.session.query(APICacheCharacterAffiliation).filter(APICacheCharacterAffiliation.id == char_id).first()
+    if aff is None:
+        aff = APICacheCharacterAffiliation()
+        aff_info = get_affiliation_info(char_id)
+        aff.id = aff_info['id']
+        aff.name = aff_info['name']
+        aff.corporationID = aff_info['corporationID']
+        aff.corporationName = aff_info['corporationName']
+        aff.allianceID = aff_info['allianceID']
+        aff.allianceName = aff_info['allianceName']
+        db.session.add(aff)
+        db.session.commit()
+    else:
+        now = datetime.now()
+        if aff.expire < now:
+            aff_info = get_affiliation_info(char_id)
+            aff.name = aff_info['name']
+            aff.corporationID = aff_info['corporationID']
+            aff.corporationName = aff_info['corporationName']
+            aff.allianceID = aff_info['allianceID']
+            aff.allianceName = aff_info['allianceName']
+            db.session.commit()
+    
+    return aff.corporationID, aff.allianceID
+
+# object = {'id':char_id, 'name': char_name, 'allianceID': alliance_id, 'allianceName': alliance_name, 'corporationID': corp_id, 'corporationName': corp_name, 'expire': expire}
+def get_affiliation_info(char_id):
+    eve_obj = eve.EVE()
+    response = eve_obj.affiliations_for_character(char_id)
+    char_id = response.result['id']
+    char_name = response.result['name']
+    corp_id = response.result['corp']['id']
+    corp_name = response.result['corp']['name']
+    if "alliance" in response.result:
+        alliance_id = response.result['alliance']['id']
+        alliance_name = response.result['alliance']['name']
+    else:
+        alliance_id = 0
+        alliance_name = ""
+    return {'id':char_id, 'name': char_name, 'allianceID': alliance_id, 'allianceName': alliance_name, 'corporationID': corp_id, 'corporationName': corp_name, 'expire': response.expire}
 
 def get_corp_info_for_corporation(corp_id):
     corp_info = db.session.query(APICacheCorporationInfo).filter(APICacheCorporationInfo.id == corp_id).first();

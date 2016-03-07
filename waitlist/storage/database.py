@@ -119,14 +119,16 @@ class Character(Base):
     id = Column(Integer, primary_key=True)
     eve_name = Column(String(100), unique=True)
     newbro = Column(Boolean, default=False, nullable=False)
-    banned = Column(Boolean, default=False, nullable=False)
-    reason = Column(TEXT)
 
     def get_char_id(self):
         return self.id
 
     def get_eve_id(self):
         return self.id
+
+    @property
+    def banned(self):
+        return (db.session.query(Ban).filter(Ban.id == self.id).count() == 1)
 
     @property
     def type(self):
@@ -232,12 +234,17 @@ class APICacheCorporationInfo(Base):
     allianceName = Column(String(100), index=True)
     expire = Column(DateTime)
 
-class AllianceBans(Base):
+class APICacheCharacterAffiliation(Base):
+    __tablename__ = "apicache_characteraffiliation"
     id = Column(Integer, primary_key=True)
     name = Column(String(100), index=True, unique=True)
-    reason = Column(TEXT)
+    corporationID = Column(Integer, index=True)
+    corporationName = Column(String(100), index=True)
+    allianceID = Column(Integer, index=True)
+    allianceName = Column(String(100), index=True)
+    expire = Column(DateTime)
 
-class CorporationBans(Base):
+class Ban(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String(100), index=True, unique=True)
     reason = Column(TEXT)
