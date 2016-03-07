@@ -106,31 +106,46 @@ def xup_submit():
     format_type = get_fit_format(firstLine)
     
     fits = []
+    if format_type == "eft":
+        # split fittings up in its fittings
+        string_fits = []
+        fitIter = re.finditer("\[.*,.*\]", fittings)
+        sIdx = 0
+        eIdx = 0
+        firstIter = True
+        for fitMatch in fitIter:
+            if not firstIter:
+                eIdx = fitMatch.start()-1
+                string_fits.append(fittings[sIdx:eIdx].split('\n'))
+            else:
+                firstIter = False
+               
+            sIdx = fitMatch.start()
     
-    # split fittings up in its fittings
-    string_fits = []
-    fitIter = re.finditer("\[.*,.*\]", fittings)
-    sIdx = 0
-    eIdx = 0
-    firstIter = True
-    for fitMatch in fitIter:
-        if not firstIter:
-            eIdx = fitMatch.start()-1
-            string_fits.append(fittings[sIdx:eIdx].split('\n'))
-        else:
-            firstIter = False
-           
-        sIdx = fitMatch.start()
-
-    string_fits.append(fittings[sIdx:].split('\n'))
-
-    logger.info("Split fittings into %d fits", len(string_fits))
+        string_fits.append(fittings[sIdx:].split('\n'))
+    
+        logger.info("Split fittings into %d fits", len(string_fits))
         
-    if format_type == "eft":        
+    
         for fit in string_fits:
             parsed_fit = parseEft(fit)
             fits.append(parsed_fit)
     
+    else:
+        # parse chat links
+        # [17:41:27] Anami Sensi > x  <url=fitting:11978:14240;3:31366;1:31952;1:17528;3:31378;1:3608;4:12058;1:4348;1:33706;5:23711;4:29001;3:29011;1:28668;426::>Guardian4Life</url>
+        # [18:02:07] Bruce Warhead > x  <url=fitting:17740:2048;1:26076;1:17559;1:3186;8:33844;2:19317;1:15895;4:26394;1:14268;1:4349;2:2446;5:29001;1:12787;4888:12791;7368::>VeniVindiVG</url> sdf3>yx <url=fitting:11978:14240;3:1987;1:1447;1:31378;2:14134;2:3608;4:12058;1:4349;1:33706;4:23711;5:29001;3:28668;97::>&gt;.&gt;</url>
+        lines = fittings.split('\n')
+        for line in lines:
+            fitIter = re.finditer("<url=fitting:(\d+):([\d;:]+)>", line)
+            for fitMatch in fitIter:
+                ship_type = int(fitMatch.group(1))
+                dna_fit = fitMatch.group(2)
+                fit = Shipfit()
+                fit.ship_type = ship_type
+                fit.modules = dna_fit
+                fits.append(fit)            
+        
     fit_count = len(fits)
     
     logger.info("Parsed %d fits", fit_count)
@@ -300,7 +315,7 @@ def move_to_waitlists():
     # we have a logi fit but no logi wl entry, so create one
     if len(logi) and logi_entry == None:
         logi_entry = WaitlistEntry()
-        logi_entry.user = get_char_id()
+        logi_entry.user = entry.user
         logi_entry.creation = creationdt  # for sorting entries
         logi_entry.user = current_user.get_eve_id()  # associate a user with the entry
         add_entries_map[WaitlistNames.logi] = logi_entry
@@ -308,7 +323,7 @@ def move_to_waitlists():
     # same for dps
     if len(dps) and dps_entry == None:
         dps_entry = WaitlistEntry()
-        dps_entry.user = get_char_id()
+        dps_entry.user = entry.user
         dps_entry.creation = creationdt  # for sorting entries
         dps_entry.user = current_user.get_eve_id()  # associate a user with the entry
         add_entries_map[WaitlistNames.dps] = dps_entry
@@ -316,7 +331,7 @@ def move_to_waitlists():
     # and sniper
     if len(sniper) and sniper_entry == None:
         sniper_entry = WaitlistEntry()
-        sniper_entry.user = get_char_id()
+        sniper_entry.user = entry.user
         sniper_entry.creation = creationdt  # for sorting entries
         sniper_entry.user = current_user.get_eve_id()  # associate a user with the entry
         add_entries_map[WaitlistNames.sniper] = sniper_entry
