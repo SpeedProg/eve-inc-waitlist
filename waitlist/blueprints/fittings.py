@@ -315,25 +315,22 @@ def move_to_waitlists():
     # we have a logi fit but no logi wl entry, so create one
     if len(logi) and logi_entry == None:
         logi_entry = WaitlistEntry()
-        logi_entry.user = entry.user
         logi_entry.creation = creationdt  # for sorting entries
-        logi_entry.user = current_user.get_eve_id()  # associate a user with the entry
+        logi_entry.user = entry.user  # associate a user with the entry
         add_entries_map[WaitlistNames.logi] = logi_entry
     
     # same for dps
     if len(dps) and dps_entry == None:
         dps_entry = WaitlistEntry()
-        dps_entry.user = entry.user
         dps_entry.creation = creationdt  # for sorting entries
-        dps_entry.user = current_user.get_eve_id()  # associate a user with the entry
+        dps_entry.user = entry.user  # associate a user with the entry
         add_entries_map[WaitlistNames.dps] = dps_entry
 
     # and sniper
     if len(sniper) and sniper_entry == None:
         sniper_entry = WaitlistEntry()
-        sniper_entry.user = entry.user
         sniper_entry.creation = creationdt  # for sorting entries
-        sniper_entry.user = current_user.get_eve_id()  # associate a user with the entry
+        sniper_entry.user = entry.user  # associate a user with the entry
         add_entries_map[WaitlistNames.sniper] = sniper_entry
 
     # iterate over sorted fits and add them to their entry
