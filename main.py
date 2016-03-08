@@ -35,10 +35,14 @@ logger = logging.getLogger(__name__)
 # set if it is the igb
 @app.context_processor
 def inject_data():
+    is_account = False
+    if hasattr(current_user, 'type'):
+        is_account=(current_user.type == "account")
+
     return dict(is_igb=is_igb(), perm_admin=perm_admin,
                 perm_settings=perm_settings, perm_man=perm_management,
                 perm_officer=perm_officer, perm_accounts=perm_accounts,
-                perm_feedback=perm_feedback, is_account=(current_user.type == "account"))
+                perm_feedback=perm_feedback, is_account=is_account)
 
 @app.before_request
 def check_ban():

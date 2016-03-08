@@ -1,8 +1,8 @@
 {% extends "base.html" %}
-
+{% block title %}Logout{% endblock %}
 {% block head %}
-<title>Logout</title>
+{{super()}}
 {% endblock %}
 {% block data %}
-<p>Done</p>
+<p>You are now logged out!</p>
 {% endblock %}
