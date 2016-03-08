@@ -38,7 +38,7 @@ def inject_data():
     return dict(is_igb=is_igb(), perm_admin=perm_admin,
                 perm_settings=perm_settings, perm_man=perm_management,
                 perm_officer=perm_officer, perm_accounts=perm_accounts,
-                perm_feedback=perm_feedback)
+                perm_feedback=perm_feedback, is_account=(current_user.type == "account"))
 
 @app.before_request
 def check_ban():
