@@ -118,7 +118,7 @@ class Character(Base):
     
     id = Column(Integer, primary_key=True)
     eve_name = Column(String(100), unique=True)
-    newbro = Column(Boolean, default=False, nullable=False)
+    newbro = Column(Boolean, default=True, nullable=False)
 
     def get_char_id(self):
         return self.id
