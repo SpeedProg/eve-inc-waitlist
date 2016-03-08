@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block title %}Settings{% endblock %}
+
+{% block head %}
+{{ super() }}
+{% endblock %}
+
+{% block data %}
+<ul class="list-group">
+	<li class="list-group-item">
+	<div class="card">
+	<div class="card-block">
+    	<h4 class="card-title" data-toggle="collapse" data-target="#help-enter-waitlist">How do I enter the Waitlist?</h4>
+    	<div class="collapse" id="help-enter-waitlist">
+    	<p class="card-text">
+    	In the eve client, go to the Ship Fitting Window.<br/>
+    	On the bottom right site is a Save button, click it.<br/>
+    	A Fitting Management window will open, that has a Copy to Clipboard button at the bottom, click it.<br/>
+    	Now you are ready to switch to the Waitlist Website.<br/>
+    	At the top there is a link X-UP, open the link.
+    	In the big text field, below Fittings, press Ctrl+V or right click and select Paste.<br/>
+    	Now at the bottom, if you are flying one of these ships: Rokh, Rattlesnake, Scorpion Navy Issue, please select your Caldari Battleship Level.<br/>
+    	If you are flying a Logistics Ship, namely Basilisk or Scimitar, please select your Logistics Cruiser Level too.<br/>
+    	Now you can press Enter on Waitlist.<br/>
+    	Your Fittings will now be queued up for review by a Waitlist Manager before you are put on the Waitlist.<br/>
+    	You will be send back to the index page, where you can see who is on the Waitlist, and/or in the queue, to be review by a Waitlist Manager.
+    	</p>
+    	</div>
+  	</div>
+  	</div>
+	</li>
+</ul>
+{% endblock %}

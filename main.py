@@ -86,6 +86,9 @@ def index():
     
     return render_template("index.html", lists=wlists, user=current_user, queue=queue)
 
+@app.route("/help", methods=["GET"])
+def site_help():
+    return render_template("help.html")
 
 @login_manager.user_loader
 def load_user(unicode_id):
