@@ -148,6 +148,9 @@ function moveEntryToWaitlists(entryId, userId) {
 		<li class="list-group-item" id="entry-{{ queue.name }}-{{ entry.user }}">
 			<div class="card">
 				<div class="container">
+					{% if current_user.get_eve_id() == entry.user or perm_man.can() %}
+					<a href="javascript:CCPEVE.showInfo(1377, {{ entry.user }});">
+					{% endif %}
 					<div class="row">
 						<div class="col-sm-2 hidden-sm-down">
 							<img src="https://image.eveonline.com/Character/{{ entry.user }}_32.jpg" alt="{{ entry.user_data.eve_name|e }}">
@@ -156,7 +159,9 @@ function moveEntryToWaitlists(entryId, userId) {
 						{{ entry.user_data.eve_name|e }}{% if entry.user_data.is_new() %} <span class="label label-info">New</span>{% endif %}
 						</div>
 					</div>
-					
+					{% if current_user.get_eve_id() == entry.user or perm_man.can() %}
+					</a>
+					{% endif %}
 					<div class="row">
 						<div class="btn-group btn-group-mini" role="group" aria-label="Action Buttons">
 							{% if perm_man.can() %}
@@ -219,7 +224,7 @@ function moveEntryToWaitlists(entryId, userId) {
 					<a href="javascript:CCPEVE.showInfo(1377, {{ entry.user }});">
 					{% endif %}
 					<div class="row">
-
+					
 						<div class="col-sm-2 col-xs-4">
 								<img
 								src="https://image.eveonline.com/Character/{{ entry.user }}_32.jpg"
