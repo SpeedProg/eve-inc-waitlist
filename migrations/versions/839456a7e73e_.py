@@ -41,7 +41,7 @@ def upgrade():
     sa.Column('expire', sa.DateTime(), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_index(op.f('ix_apichache_characterinfo_corporationID'), 'apichache_characterinfo', ['corporationID'], unique=False)
+    op.create_index(op.f('ix_apicache_characterinfo_corporationID'), 'apicache_characterinfo', ['corporationID'], unique=False)
     op.create_table('corporation_bans',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('name', sa.String(length=100), nullable=True),
@@ -58,8 +58,8 @@ def downgrade():
     op.drop_column(u'characters', 'reason')
     op.drop_index(op.f('ix_corporation_bans_name'), table_name='corporation_bans')
     op.drop_table('corporation_bans')
-    op.drop_index(op.f('ix_apichache_characterinfo_corporationID'), table_name='apichache_characterinfo')
-    op.drop_table('apichache_characterinfo')
+    op.drop_index(op.f('ix_apicache_characterinfo_corporationID'), table_name='apicache_characterinfo')
+    op.drop_table('apicache_characterinfo')
     op.drop_index(op.f('ix_apicache_corporationinfo_name'), table_name='apicache_corporationinfo')
     op.drop_index(op.f('ix_apicache_corporationinfo_allianceName'), table_name='apicache_corporationinfo')
     op.drop_index(op.f('ix_apicache_corporationinfo_allianceID'), table_name='apicache_corporationinfo')

@@ -220,7 +220,7 @@ class APICacheCharacterID(Base):
     name = Column(String(100), unique=True)
     
 class APICacheCharacterInfo(Base):
-    __tablename__ = "apichache_characterinfo"
+    __tablename__ = "apicache_characterinfo"
     id = Column(Integer, primary_key=True)
     corporationID = Column(Integer, index=True)
     corporationName = Column(String(100))
