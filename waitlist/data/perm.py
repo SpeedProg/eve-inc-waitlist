@@ -12,9 +12,8 @@ perm_accounts = Permission(RoleNeed(WTMRoles.admin), RoleNeed(WTMRoles.officer))
 perm_management = Permission(RoleNeed(WTMRoles.fc), RoleNeed(WTMRoles.tbadge),
                              RoleNeed(WTMRoles.admin), RoleNeed(WTMRoles.lm), RoleNeed(WTMRoles.officer))
 
-perm_remove_player = Permission(RoleNeed(WTMRoles.fc), RoleNeed(WTMRoles.tbadge),
-                             RoleNeed(WTMRoles.admin), RoleNeed(WTMRoles.lm), RoleNeed(WTMRoles.officer))
-
 perm_officer = Permission(RoleNeed(WTMRoles.admin), RoleNeed(WTMRoles.officer))
 
 perm_feedback = Permission(RoleNeed(WTMRoles.admin), RoleNeed(WTMRoles.officer), RoleNeed(WTMRoles.dev))
+
+perm_dev = Permission(RoleNeed(WTMRoles.admin), RoleNeed(WTMRoles.dev))

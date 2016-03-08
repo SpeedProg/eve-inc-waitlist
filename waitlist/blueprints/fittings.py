@@ -1,6 +1,6 @@
 from flask.blueprints import Blueprint
 import logging
-from waitlist.data.perm import perm_remove_player, perm_management
+from waitlist.data.perm import perm_management, perm_dev
 from flask_login import login_required, current_user
 from flask.globals import request
 from waitlist.storage.database import WaitlistEntry, Shipfit, Waitlist
@@ -14,6 +14,10 @@ from flask.templating import render_template
 from datetime import datetime
 from waitlist.utility.utils import get_fit_format, parseEft, create_mod_map
 from waitlist import db
+from waitlist.blueprints import send_invite_notice, subscriptions
+from waitlist.data.sse import ServerSentEvent, InviteEvent
+from flask import Response
+from gevent.queue import Queue
 
 bp_waitlist = Blueprint('fittings', __name__)
 logger = logging.getLogger(__name__)
@@ -21,7 +25,7 @@ logger = logging.getLogger(__name__)
 
 @bp_waitlist.route("/api/wl/remove/", methods=['POST'])
 @login_required
-@perm_remove_player.require(http_exception=401)
+@perm_management.require(http_exception=401)
 def api_wls_remove_player():
     playerId = int(request.form['playerId'])
     if playerId == None:
@@ -34,9 +38,27 @@ def api_wls_remove_player():
     db.session.commit()
     return "OK"
 
+@bp_waitlist.route("/api/wl/invite", methods=["POST"])
+@login_required
+@perm_management.require(http_exception=401)
+def api_invite_player():
+    playerId = int(request.form['playerId'])
+    if playerId == None:
+        logger.error("Tried to remove player with None id from waitlists.")
+    
+    # don't remove from queue
+    queue = db.session.query(Waitlist).filter(Waitlist.name == WaitlistNames.xup_queue).first()
+    
+    db.session.query(WaitlistEntry).filter((WaitlistEntry.user == playerId) & (WaitlistEntry.waitlist_id != queue.id)).delete()
+    db.session.commit()
+    event = InviteEvent(playerId)
+    send_invite_notice(event)
+    #publish(event)
+    return "OK"
+
 @bp_waitlist.route("/api/wl/entries/remove/", methods=['POST'])
 @login_required
-@perm_remove_player.require(http_exception=401)
+@perm_management.require(http_exception=401)
 def api_wl_remove_entry():
     entryId = request.form['entryId']
     
@@ -370,3 +392,28 @@ def xup_index():
 def management():
     queue = db.session.query(Waitlist).filter(Waitlist.name == WaitlistNames.xup_queue).first()
     return render_template("waitlist_management.html", queue=queue)
+
+@bp_waitlist.route("/notification/<int:user_id>", methods=["GET"])
+def notification(user_id):
+    return render_template("notification.html", user=user_id)
+
+@bp_waitlist.route("/debug")
+@perm_dev.require(http_exception=401)
+def debug():
+    return "Currently %d subscriptions" % len(subscriptions)
+
+@bp_waitlist.route("/subscribe/<int:user_id>")
+def subscribe(user_id):
+    def gen(user_id):
+        q = Queue()
+        subscriptions.append(q)
+        try:
+            while True:
+                result = q.get()
+                if int(result.data) == user_id:
+                    ev = ServerSentEvent(result.data)
+                    yield ev.encode()
+        except GeneratorExit: 
+            subscriptions.remove(q)
+
+    return Response(gen(user_id), mimetype="text/event-stream")

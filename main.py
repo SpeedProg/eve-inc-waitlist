@@ -2,6 +2,7 @@
 import os
 import sys
 from waitlist.blueprints.feedback import feedback
+from gevent.pywsgi import WSGIServer
 base_path = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(base_path, 'lib'))
 
@@ -239,4 +240,6 @@ if __name__ == '__main__':
     waitlistlogger = logging.getLogger("waitlist")
     waitlistlogger.addHandler(ch)
     waitlistlogger.setLevel(logging.INFO)
-    app.run(host="0.0.0.0", port=81, debug=True)
+    #app.run(host="0.0.0.0", port=81, debug=True)
+    server = WSGIServer(("0.0.0.0", 81), app)
+    server.serve_forever()

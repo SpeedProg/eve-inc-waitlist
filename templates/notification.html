@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}Notification{% endblock %}
+
+{% block head %}
+{{ super() }}
+<script type="text/javascript">
+$(document).ready(
+        function() {
+            sse = new EventSource("{{url_for('fittings.subscribe', user_id=user)}}");
+            sse.onmessage = function(message) {
+                var sound = document.getElementById('sound');
+                sound.volume = 0.5;
+                sound.play();
+                sse.close()
+            }
+        });
+</script>
+{% endblock %}
+
+{% block data %}
+<audio id="sound" src="{{url_for('static', filename='gong-sound.mp3')}}" preload="auto" controls loop></audio>
+{% endblock %}
