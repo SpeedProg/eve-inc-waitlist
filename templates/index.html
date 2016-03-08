@@ -138,7 +138,7 @@ function moveEntryToWaitlists(entryId, userId) {
 
 {% block data %}
 <div class="row">
-	<button type="button" class="center-block btn btn-danger btn-sm" onclick="removeSelf();">Remove Self from Waitlist</button>
+	<button type="button" class="center-block btn btn-danger btn-sm" onclick="removeSelf();">Leave Waitlists</button>
 </div>
 <div class="row">
 <div class="col-sm-3" id="wl-{{ queue.name }}">
@@ -235,20 +235,19 @@ function moveEntryToWaitlists(entryId, userId) {
 					{% endif %}
 					{% if current_user.get_eve_id() == entry.user or perm_man.can() %}
 					<div class="row">
-						<div class="btn-group btn-group-mini" role="group"
-							aria-label="Action Buttons">
+						<div class="btn-group btn-group-mini" role="group" aria-label="Action Buttons">
 							{% if current_user.get_eve_id() == entry.user %}
-							<button type="button" class="btn btn-mini btn-warning"
-								onclick="javascript:removeOwnEntry('{{wlist.name}}', {{entry.user}}, {{ entry.id }});">Remove Self</button>
+							<!--  <button type="button" class="btn btn-mini btn-warning"
+								onclick="javascript:removeOwnEntry('{{wlist.name}}', {{entry.user}}, {{ entry.id }});">Remove Self</button> -->
+							{% endif %}
+							{% if current_user.get_eve_id() == entry.user or perm_man.can() %}
+							<button type="button" data-toggle="collapse" data-target="#fittings-{{entry.id}}" class="btn btn-mini btn-primary">Show/Hide Fits</button>
 							{% endif %}
 							{% if perm_man.can() %}
 							<!-- <button type="button" class="btn btn-primary" onclick="javascript:CCPEVE.showInfo(1377, {{ entry.user }})">Char</button> -->
 							<button type="button" class="btn btn-mini btn-secondary" onclick="javascript:CCPEVE.startConversation({{ entry.user }})">Convo</button>
 							<button type="button" class="btn btn-mini btn-danger" onclick="javascript:removePlayer({{ entry.user }})">Remove Player</button>
-							<button type="button" class="btn btn-mini btn-success" onclick="javascript:invitePlayer({{ entry.user }})">Send Notice and Remove</button>
-							{% endif %}
-							{% if current_user.get_eve_id() == entry.user or perm_man.can() %}
-							<button type="button" data-toggle="collapse" data-target="#fittings-{{entry.id}}" class="btn btn-mini btn-primary">Show/Hide Fits</button>
+							<button type="button" class="btn btn-mini btn-success" onclick="javascript:invitePlayer({{ entry.user }})">Was Invited</button>
 							{% endif %}
 						</div>
 					</div>
