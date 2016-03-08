@@ -130,6 +130,7 @@ def create_new_character(eve_id, char_name):
     char = Character()
     char.id = eve_id
     char.eve_name = char_name
+    char.newbro = True
     db.session.add(char)
     db.session.commit()
     return char
@@ -171,3 +172,9 @@ def is_igb():
         return False
     return ("EVE-IGB" in user_agent)
 
+
+def get_character(user):
+    if user.type == "account":
+        return user.current_char_obj
+    else:
+        return user

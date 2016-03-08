@@ -153,7 +153,7 @@ function moveEntryToWaitlists(entryId, userId) {
 							<img src="https://image.eveonline.com/Character/{{ entry.user }}_32.jpg" alt="{{ entry.user_data.eve_name|e }}">
 						</div>
 						<div class="col-sm-8">
-						{{ entry.user_data.eve_name|e }}
+						{{ entry.user_data.eve_name|e }}{% if entry.user_data.is_new() %} <span class="label label-info">New</span>{% endif %}
 						</div>
 					</div>
 					
@@ -226,7 +226,7 @@ function moveEntryToWaitlists(entryId, userId) {
 								alt="{{ entry.user_data.eve_name|e }}">
 						</div>
 						<div class="col-sm-10 ol-xs-8">
-							{{ entry.user_data.eve_name|e }}
+							{{ entry.user_data.eve_name|e }}{% if entry.user_data.is_new() %} <span class="label label-info">New</span>{% endif %}
 						</div>
 
 					</div>

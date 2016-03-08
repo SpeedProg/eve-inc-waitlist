@@ -12,7 +12,8 @@ from werkzeug.utils import redirect
 from flask.helpers import url_for, flash
 from flask.templating import render_template
 from datetime import datetime
-from waitlist.utility.utils import get_fit_format, parseEft, create_mod_map
+from waitlist.utility.utils import get_fit_format, parseEft, create_mod_map,\
+    get_character
 from waitlist import db
 from waitlist.blueprints import send_invite_notice, subscriptions
 from waitlist.data.sse import ServerSentEvent, InviteEvent
@@ -114,6 +115,10 @@ def xup_submit():
     fittings = request.form['fits']
     logilvl = int(request.form['logi'])
     caldari_bs_lvl = int(request.form['cbs'])
+    newbro = request.form.get('newbro', "off")
+    newbro = (newbro is not "off")
+    logger.error("NewBro %s", newbro)
+    get_character(current_user).newbro = newbro
     
     logger.debug("Fittings to parse: %s", fittings)
     
@@ -383,7 +388,19 @@ def move_to_waitlists():
 @bp_waitlist.route("/xup", methods=['GET'])
 @login_required
 def xup_index():
-    return render_template("xup.html")
+    new_bro = True
+    if current_user.type == "character":
+        if current_user.newbro == None:
+            new_bro = True
+        else:
+            new_bro = current_user.newbro
+    elif current_user.type == "account":
+        if current_user.current_char_obj.newbro == None:
+            new_bro = True
+        else:
+            new_bro = current_user.current_char_obj.newbro
+    
+    return render_template("xup.html", newbro=new_bro)
 
 
 @bp_waitlist.route('/management')

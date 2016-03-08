@@ -80,6 +80,9 @@ class Account(Base):
     def get_eve_id(self):
         return self.current_char
 
+    def is_new(self):
+        return self.current_char_obj.is_new()
+
     @property
     def type(self):
         return "account"
@@ -125,6 +128,9 @@ class Character(Base):
 
     def get_eve_id(self):
         return self.id
+    
+    def is_new(self):
+        return self.newbro
 
     @property
     def banned(self):

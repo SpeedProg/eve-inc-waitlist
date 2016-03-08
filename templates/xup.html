@@ -4,12 +4,48 @@
 
 {% block head %}
 {{ super() }}
+<script>
+$(document).ready(function() {
+	var calbsgrp = document.getElementById('grp-cbslvl');
+	var logilvlgrp = document.getElementById('grp-logilvl');
+	var resist_regex = /Rattlesnake\]|fitting:17918|Scorpion Navy Issue\]|fitting:3230|Rokh\]|fitting:24688/;
+	var logi_regex = /fitting:11985|Basilisk\]|fitting:11978|Scimitar\]/;
+	var checkExtra = function(e) {
+		var textarea = $(e.target);
+		var currentText = textarea.val();
+		if (resist_regex.test(currentText)) {
+			if (calbsgrp.hidden)
+				calbsgrp.hidden=false;
+		}else {
+			if (!calbsgrp.hidden)
+				calbsgrp.hidden=true;
+		}
+		if (logi_regex.test(currentText)) {
+			if (logilvlgrp.hidden)
+				logilvlgrp.hidden=false;
+		}else {
+			if (!logilvlgrp.hidden)
+				logilvlgrp.hidden=true;
+		}
+		
+	}
+	var fakeEv = {target: document.getElementById('fittings')};
+	fakeEv.target.addEventListener('input', checkExtra, false);
+	checkExtra(fakeEv);
+});
+
+</script>
 {% endblock %}
 
 {% block data %}
 <div class="col-sm-8" id="x-up">
 <form action="/xup" method="post">
 <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+<fieldset class="form-group">
+<label {% if not newbro %}hidden{%endif%}>
+<input type="checkbox" name="newbro" {% if newbro %}checked{% endif %}>
+I am new to WarpToMe or Incursions</label>
+</fieldset>
 <fieldset class="form-group">
 <label for="fittings">Fittings</label>
 <textarea class="form-control" id="fittings" name="fits" rows="10" cols="50" placeholder="Post your fittings here" required></textarea>
