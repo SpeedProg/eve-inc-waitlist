@@ -34,7 +34,7 @@ def upgrade():
     op.create_index(op.f('ix_apicache_corporationinfo_allianceID'), 'apicache_corporationinfo', ['allianceID'], unique=False)
     op.create_index(op.f('ix_apicache_corporationinfo_allianceName'), 'apicache_corporationinfo', ['allianceName'], unique=False)
     op.create_index(op.f('ix_apicache_corporationinfo_name'), 'apicache_corporationinfo', ['name'], unique=True)
-    op.create_table('apichache_characterinfo',
+    op.create_table('apicache_characterinfo',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('corporationID', sa.Integer(), nullable=True),
     sa.Column('corporationName', sa.String(length=100), nullable=True),

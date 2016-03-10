@@ -9,5 +9,35 @@
 {% endblock %}
 
 {% block content %}
+<div class="card">
+  <img class="card-img-top" data-src="..." alt="Card image cap">
+  <div class="card-block">
+    <h4 class="card-title" id="fleet-status">{{fleet.status}}</h4>
+    <table class="table">
+    <tbody>
+    <tr>
+    	<th scope="row">FC</th>
+    	<td><a href="javascript:CCPEVE.showInfo(1377, {{fc.fc[1]}})">{{fleet.fc[0]}}</a></td>
+    </tr>
+    <tr>
+    	<th scope="row">Fleet Manager</th>
+    	<td><a href="javascript:CCPEVE.showInfo(1377, {{fc.manager[1]}})">{{fleet.manager[0]}}</a></td>
+    </tr>
+    <tr>
+    	<th scope="row">Constellation</th>
+    	<td><a href=""></a></td>
+    </tr>
+    <tr>
+    	<th scope="row">Dockup</th>
+    	<td><a href="">{{fleet.dock[0]}}</a></td>
+    </tr>
+    <tr>
+    	<th scope="row">HQ System</th>
+    	<td><a href="">{{fleet.systemhq[0]}}</a></td>
+    </tr>
+    </tbody>
+    </table>
+  </div>
+</div>
 <p>This should (in the future) contain controlls to set fleet status, dockups, FC character, Fleet Comp Character ...</p>
 {% endblock %}

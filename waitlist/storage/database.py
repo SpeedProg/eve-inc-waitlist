@@ -43,16 +43,16 @@ class InvType(Base):
     groupID = Column(Integer)
     typeName = Column(String(100))
     description = Column(LONGTEXT)
-    mass = Column(DOUBLE)
-    volume = Column(DOUBLE)
-    capacity = Column(DOUBLE)
-    portionSize = Column(Integer)
-    raceID = Column(SmallInteger)
-    basePrice = Column(DECIMAL(19,4))
-    published = Column(TINYINT)
+#    mass = Column(DOUBLE)
+#    volume = Column(DOUBLE)
+#    capacity = Column(DOUBLE)
+#    portionSize = Column(Integer)
+#    raceID = Column(SmallInteger)
+#    basePrice = Column(DECIMAL(19,4))
+#    published = Column(TINYINT)
     marketGroupID = Column(BIGINT)
-    iconID = Column(BIGINT)
-    soundID = Column(BIGINT)
+#    iconID = Column(BIGINT)
+#    soundID = Column(BIGINT)
     __table_args__ = (Index('invTypes_groupid', "groupID"),)
 
 class Account(Base):
@@ -267,3 +267,17 @@ class Feedback(Base):
     likes = Column(Boolean)
     comment = Column(TEXT)
 
+class Station(Base):
+    __tablename__ = "station"
+    stationID = Column(Integer, primary_key=True)
+    stationName = Column(String(100), index=True, unique=True)
+
+class SolarSystem(Base):
+    __tablename__ = "solarsystem"
+    solarSystemID = Column(Integer, primary_key=True)
+    solarSystemName = Column(String(100), index=True, unique=True)
+
+class Constellation(Base):
+    __tablename__ = "constellation"
+    constellationID = Column(Integer, primary_key=True)
+    constellationName = Column(String(100), index=True, unique=True)

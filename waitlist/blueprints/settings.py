@@ -11,9 +11,11 @@ from waitlist.storage.database import Account, Role, Character, roles,\
 import flask
 from waitlist.data.eve_xml_api import get_character_id_from_name
 from werkzeug.utils import redirect
-from flask.helpers import url_for
+from flask.helpers import url_for, flash
 from waitlist.utility.utils import get_random_token
 from waitlist import db
+from waitlist.blueprints import fleet_status
+from waitlist.utility.eve_id_utils import get_constellation_id, get_system_id
 
 bp_settings = Blueprint('settings', __name__)
 logger = logging.getLogger(__name__)
@@ -83,7 +85,7 @@ def accounts():
 @login_required
 @perm_management.require(http_exception=401)
 def fleet():
-    return render_template("settings/fleet.html")
+    return render_template("settings/fleet.html", fleet=fleet_status)
 
 
 @bp_settings.route("/account_edit", methods=["POST"])
@@ -277,6 +279,59 @@ def api_account_delete(acc_id):
     db.session.query(Account).filter(Account.id == acc_id).delete();
     db.session.commit();
     return flask.jsonify(status="OK")
+
+@bp_settings.route("/fleet/status/set", methods=["POST"])
+@login_required
+@perm_management.require(http_exception=401)
+def fleet_status_set():
+    action = request.form['action']
+    if action == "status":
+        text = request.form['status']
+        fleet_status.status = text
+        flash("Status was set to "+text, "success")
+    elif action == "fc":
+        name = request.form['name']
+        eve_id = get_character_id_from_name(name)
+        fleet_status.fc = [name, eve_id]
+        flash("FC was set to "+name, "success")
+    elif action == "manager":
+        name = request.form['name']
+        eve_id = get_character_id_from_name(name)
+        fleet_status.manager = [name, eve_id]
+        flash("Manager was set to "+name, "success")
+    elif action == "constellation":
+        name = request.form['name']
+        const_id = get_constellation_id(name)
+        fleet_status.constellation = [name, const_id]
+        flash("Constellation was set to "+name, "success")
+    elif action == "systemhq":
+        name = request.form['name']
+        system_id = get_system_id(name)
+        fleet_status.systemhq = [name, system_id]
+        flash("HQ System was set to "+name, "success")
+    
+    return redirect(url_for(".fleet"), code=303)
+
+class FleetStatus:
+    """
+    self.status = Text with status
+    self.fc = [name, id]
+    self.manager = [name, id]
+    self.constellation = [name, id]
+    self.dock = [name, id]
+    self.systemhq = [name, id]
+    self.systemsas = [[name, id], ...]
+    self.systemsvg = [[name, id], ...]
+    """
+    def __init__(self):
+        self.status = "Down"
+        self.fc = None
+        self.manager = None
+        self.constellation = None
+        self.dock  = None
+        self.systemhq = None
+        self.systemsas = None
+        self.systemsvg = None
 
 '''
 @bp_settings.route("/api/account/", methods=["POST"])
