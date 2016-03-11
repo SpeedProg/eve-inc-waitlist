@@ -1,33 +1,30 @@
-import yaml
-from os import path
-from waitlist import db
-from yaml.events import MappingStartEvent, ScalarEvent, MappingEndEvent
-import time
 from bz2 import BZ2File
-import csv
-from waitlist.storage.database import Station, InvType, Constellation,\
+from yaml.events import MappingStartEvent, ScalarEvent, MappingEndEvent
+import yaml
+from waitlist.storage.database import InvType, Station, Constellation,\
     SolarSystem
+from waitlist import db
+from os import path
+import csv
 import sqlite3
-
-def update_invtypes():
+def update_invtypes(filepath):
     # this might be better off writing a specific parser for performance, yaml is really slow
     inv_type = None
     att_name = None
     subatt_name = None
     mapping_count = 0
-    is_normal = True
-    filename = path.join(".", "sde", "typeIDs.yaml")
+    filename = filepath
+
     if not path.isfile(filename):
-        is_normal = False
-    else:
-        filename = path.join(".", "sde", "typeIDs.yaml.bz2")
-        if not path.isfile(filename):
-            return
-    
-    if is_normal:
+        return
+
+    if filename.rsplit('.', 1)[1] == "yaml" :
         f = open(filename, 'r')
-    else:
+    elif filename.rsplit('.', 1)[1] == "bz2":
         f = BZ2File(filename)
+    else:
+        return
+        
 
     for ev in yaml.parse(f):
         if isinstance(ev, MappingStartEvent):
@@ -68,38 +65,39 @@ def update_invtypes():
             elif mapping_count == 2:
                 #print ">end attr mapping"
                 att_name = None
-                add_invtype_to_db(inv_type)
+                db.session.merge(inv_type)
             #elif mapping_count == 1:
                 #print "end inv mapping"
             mapping_count -= 1
     
-    if (is_normal):
-        f.close()
+    f.close()
     db.session.commit()
     db.session.close()
 
-def add_invtype_to_db(inv_type):
-    db.session.merge(inv_type)
-
-def update_stations():
-    filename = path.join(".", "sde", "staStations.csv.bz2")
+def update_stations(filename):
     if not path.isfile(filename):
         return
-    with BZ2File(filename) as stationfile:
-        reader = csv.DictReader(stationfile, delimiter=',', quotechar='\\')
-        for row in reader:
-            station = Station()
-            station.stationID = row['stationID']
-            station.stationName = row['stationName']
-            update_or_add_station(station)
+
+    if filename.rsplit('.', 1)[1] == "csv" :
+        f = open(filename, 'r')
+    elif filename.rsplit('.', 1)[1] == "bz2":
+        f = BZ2File(filename)
+    else:
+        return
+        
+
+    reader = csv.DictReader(f, delimiter=',', quotechar='\\')
+    for row in reader:
+        station = Station()
+        station.stationID = row['stationID']
+        station.stationName = row['stationName']
+        db.session.merge(station)
     
+    f.close()
+
     db.session.commit()
 
-def update_or_add_station(station):
-    db.session.merge(station)
-
-def update_constellations():
-    filename = path.join(".", "sde", "universeDataDx.db")
+def update_constellations(filename):
     if not path.isfile(filename):
         return
     con = sqlite3.connect(filename)
@@ -111,18 +109,14 @@ def update_constellations():
             const = Constellation()
             const.constellationID = row[0]
             const.constellationName = row[1]
-            update_or_add_constellation(const)
+            db.session.merge(const)
         rows = cur.fetchmany()
     
     con.close()
     
     db.session.commit()
-
-def update_or_add_constellation(const):
-    db.session.merge(const)
-   
-def update_systems():
-    filename = path.join(".", "sde", "universeDataDx.db")
+    
+def update_systems(filename):
     if not path.isfile(filename):
         return
     con = sqlite3.connect(filename)
@@ -134,31 +128,9 @@ def update_systems():
             system = SolarSystem()
             system.solarSystemID = row[0]
             system.solarSystemName = row[1]
-            update_or_add_system(system)
+            db.session.merge(system)
         rows = cur.fetchmany()
     
     con.close()
     
     db.session.commit()
-
-def update_or_add_system(system):
-    db.session.merge(system)
-
-if __name__ == '__main__':
-    start = time.time()
-    update_counter = 0
-    update_invtypes()
-    start_station = time.time()
-    print("Invtypes: " + str(start_station-start))
-    update_stations()
-    start_const = time.time()
-    print("Stations: " + str(start_const - start_station))
-    update_constellations()
-    start_system = time.time()
-    print("Constellations: " + str(start_system - start_const))
-    update_systems()
-    end = time.time()
-    print("Systems: "+ str(end - start_system))
-    print("Sum: "+ str((end-start)/60) + "min")
-    
-    

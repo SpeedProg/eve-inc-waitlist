@@ -2,7 +2,7 @@ from flask.blueprints import Blueprint
 import logging
 from flask_login import login_required, current_user
 from waitlist.data.perm import perm_admin, perm_settings, perm_officer,\
-    perm_management, perm_accounts
+    perm_management, perm_accounts, perm_dev
 from flask.templating import render_template
 from flask.globals import request
 from sqlalchemy import or_
@@ -10,12 +10,17 @@ from waitlist.storage.database import Account, Role, Character, roles,\
     linked_chars, Ban
 import flask
 from waitlist.data.eve_xml_api import get_character_id_from_name
-from werkzeug.utils import redirect
+from werkzeug.utils import redirect, secure_filename
 from flask.helpers import url_for, flash
 from waitlist.utility.utils import get_random_token
-from waitlist import db
-from waitlist.blueprints import fleet_status
-from waitlist.utility.eve_id_utils import get_constellation_id, get_system_id
+from waitlist import db, app
+from waitlist.utility.eve_id_utils import get_constellation, get_system,\
+    get_station
+from os import path
+import os
+from bz2 import BZ2File
+from waitlist.blueprints.fleetstatus import fleet_status
+from waitlist.utility import sde
 
 bp_settings = Blueprint('settings', __name__)
 logger = logging.getLogger(__name__)
@@ -301,37 +306,88 @@ def fleet_status_set():
         flash("Manager was set to "+name, "success")
     elif action == "constellation":
         name = request.form['name']
-        const_id = get_constellation_id(name)
+        const_id = get_constellation(name).constellationID
         fleet_status.constellation = [name, const_id]
         flash("Constellation was set to "+name, "success")
     elif action == "systemhq":
         name = request.form['name']
-        system_id = get_system_id(name)
+        system_id = get_system(name).solarSystemID
         fleet_status.systemhq = [name, system_id]
         flash("HQ System was set to "+name, "success")
+    elif action == "dock":
+        name = request.form['name']
+        station_id = get_station(name).stationID
+        fleet_status.dock = [name, station_id]
+        flash("Dock was set to "+name, "success")
     
     return redirect(url_for(".fleet"), code=303)
 
-class FleetStatus:
-    """
-    self.status = Text with status
-    self.fc = [name, id]
-    self.manager = [name, id]
-    self.constellation = [name, id]
-    self.dock = [name, id]
-    self.systemhq = [name, id]
-    self.systemsas = [[name, id], ...]
-    self.systemsvg = [[name, id], ...]
-    """
-    def __init__(self):
-        self.status = "Down"
-        self.fc = None
-        self.manager = None
-        self.constellation = None
-        self.dock  = None
-        self.systemhq = None
-        self.systemsas = None
-        self.systemsvg = None
+@bp_settings.route("/sde/update/typeids", methods=["POST"])
+@login_required
+@perm_dev.require(http_exception=401)
+def update_type_ids():
+    f = request.files['file']
+    if f and (f.filename.rsplit('.', 1)[1] == "bz2" or f.filename.rsplit('.', 1)[1] == "yaml"):
+        filename = secure_filename(f.filename)
+        dest_name = path.join(app.config['UPLOAD_FOLDER'], filename)
+        if (path.isfile(dest_name)):
+            os.remove(dest_name)
+        f.save(dest_name)
+        # start the update
+        sde.update_invtypes(dest_name)
+        flash("Type IDs where updated!", "success")
+    
+    return redirect(url_for('.sde_settings'))
+
+@bp_settings.route("/sde/update/map", methods=["POST"])
+@login_required
+@perm_dev.require(http_exception=401)
+def update_map():
+    f = request.files['file']
+    file_ext = f.filename.rsplit('.', 1)[1]
+    if f and (file_ext == "bz2" or file_ext == "db"):
+        filename = secure_filename(f.filename)
+        dest_name = path.join(app.config['UPLOAD_FOLDER'], filename)
+        if (path.isfile(dest_name)):
+            os.remove(dest_name)
+        f.save(dest_name)
+        
+        # if it is bz2 extract it
+        if (file_ext == "bz2"):
+            raw_file = dest_name.rsplit(".", 1)[0]
+            with open(raw_file, 'wb') as new_file, BZ2File(dest_name, 'rb') as f:
+                for data in iter(lambda : f.read(100 * 1024), b''):
+                    new_file.write(data)
+            
+        # start the update
+        sde.update_constellations(raw_file)
+        sde.update_systems(raw_file)
+        flash("Constellations and Systems where updated!", "success")
+    
+    return redirect(url_for('.sde_settings'))
+
+@bp_settings.route("/sde/update/stations", methods=["POST"])
+@login_required
+@perm_dev.require(http_exception=401)
+def update_stations():
+    f = request.files['file']
+    if f and (f.filename.rsplit('.', 1)[1] == "bz2" or f.filename.rsplit('.', 1)[1] == "csv"):
+        filename = secure_filename(f.filename)
+        dest_name = path.join(app.config['UPLOAD_FOLDER'], filename)
+        if (path.isfile(dest_name)):
+            os.remove(dest_name)
+        f.save(dest_name)
+        # start the update
+        sde.update_stations(dest_name)
+        flash("Stations where updated!", "success")
+    
+    return redirect(url_for('.sde_settings'))
+
+@bp_settings.route("/sde")
+@login_required
+@perm_dev.require(http_exception=401)
+def sde_settings():
+    return render_template("settings/sde.html")
 
 '''
 @bp_settings.route("/api/account/", methods=["POST"])

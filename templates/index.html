@@ -138,6 +138,37 @@ function moveEntryToWaitlists(entryId, userId) {
 
 {% block data %}
 <div class="row">
+<div class="card">
+  <div class="card-block">
+    <h4 class="card-title" id="fleet-status">Status: {{fleet.status}}</h4>
+    <table class="table table-sm">
+    <tbody>
+    <tr>
+    	<th scope="row">FC</th>
+    	<td>{% if fleet.fc is not none %}<a href="javascript:CCPEVE.showInfo(1377, {{fleet.fc[1]}});">{{fleet.fc[0]}}</a>{% else %}Not Set{% endif %}</td>
+    </tr>
+    <tr>
+    	<th scope="row">Fleet Manager</th>
+    	<td>{% if fleet.manager is not none %}<a href="javascript:CCPEVE.showInfo(1377, {{fleet.manager[1]}});">{{fleet.manager[0]}}</a>{% else %}Not Set{% endif %}</td>
+    </tr>
+    <tr>
+    	<th scope="row">Constellation</th>
+    	<td>{% if fleet.constellation is not none %}<a href="javascript:CCPEVE.showInfo(4, {{fleet.constellation[1]}});">{{fleet.constellation[0]}}</a>{% else %}Not Set{% endif %}</td>
+    </tr>
+    <tr>
+    	<th scope="row">Dockup</th>
+    	<td>{% if fleet.dock is not none %}<a href="javascript:CCPEVE.setDestination({{fleet.dock[1]}});">{{fleet.dock[0]}}</a>{% else %}Not Set{% endif %}</td>
+    </tr>
+    <tr>
+    	<th scope="row">HQ System</th>
+    	<td>{% if fleet.systemhq is not none %}<a href="javascript:CCPEVE.showInfo(5, {{fleet.systemhq[1]}});">{{fleet.systemhq[0]}}</a>{% else %}Not Set{% endif %}</td>
+    </tr>
+    </tbody>
+    </table>
+  </div>
+</div>
+</div>
+<div class="row">
 	<button type="button" class="center-block btn btn-danger btn-sm" onclick="removeSelf();">Leave Waitlists</button>
 </div>
 <div class="row">

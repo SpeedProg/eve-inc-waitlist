@@ -10,34 +10,78 @@
 
 {% block content %}
 <div class="card">
-  <img class="card-img-top" data-src="..." alt="Card image cap">
   <div class="card-block">
-    <h4 class="card-title" id="fleet-status">{{fleet.status}}</h4>
+    <h4 class="card-title" id="fleet-status">Status: {{fleet.status}}</h4>
+    <form action="{{url_for('settings.fleet_status_set')}}" method="post" class="form-inline">
+    	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+    	<input type="hidden" name="action" value="status">
+    	<input type="text" name="status">
+    	<button type="submit" class="btn btn-primary">Set</button>
+    	</form>
     <table class="table">
     <tbody>
     <tr>
     	<th scope="row">FC</th>
-    	<td><a href="javascript:CCPEVE.showInfo(1377, {{fc.fc[1]}})">{{fleet.fc[0]}}</a></td>
+    	<td>{% if fleet.fc is not none %}<a href="javascript:CCPEVE.showInfo(1377, {{fleet.fc[1]}});">{{fleet.fc[0]}}</a>{% else %}Not Set{% endif %}</td>
+    	<td>
+    	<form action="{{url_for('settings.fleet_status_set')}}" method="post" class="form-inline">
+    	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+    	<input type="hidden" name="action" value="fc">
+    	<input type="text" name="name">
+    	<button type="submit" class="btn btn-primary">Set</button>
+    	</form>
+    	</td>
     </tr>
     <tr>
     	<th scope="row">Fleet Manager</th>
-    	<td><a href="javascript:CCPEVE.showInfo(1377, {{fc.manager[1]}})">{{fleet.manager[0]}}</a></td>
+    	<td>{% if fleet.manager is not none %}<a href="javascript:CCPEVE.showInfo(1377, {{fleet.manager[1]}});">{{fleet.manager[0]}}</a>{% else %}Not Set{% endif %}</td>
+    	<td>
+    	<form action="{{url_for('settings.fleet_status_set')}}" method="post" class="form-inline">
+    	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+    	<input type="hidden" name="action" value="manager">
+    	<input type="text" name="name">
+    	<button type="submit" class="btn btn-primary">Set</button>
+    	</form>
+    	</td>
     </tr>
     <tr>
     	<th scope="row">Constellation</th>
-    	<td><a href=""></a></td>
+    	<td>{% if fleet.constellation is not none %}<a href="javascript:CCPEVE.showInfo(4, {{fleet.constellation[1]}});">{{fleet.constellation[0]}}</a>{% else %}Not Set{% endif %}</td>
+    	<td>
+    	<form action="{{url_for('settings.fleet_status_set')}}" method="post" class="form-inline">
+    	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+    	<input type="hidden" name="action" value="constellation">
+    	<input type="text" name="name">
+    	<button type="submit" class="btn btn-primary">Set</button>
+    	</form>
+    	</td>
     </tr>
     <tr>
     	<th scope="row">Dockup</th>
-    	<td><a href="">{{fleet.dock[0]}}</a></td>
+    	<td>{% if fleet.dock is not none %}<a href="javascript:CCPEVE.setDestination({{fleet.dock[1]}});">{{fleet.dock[0]}}</a>{% else %}Not Set{% endif %}</td>
+    	<td>
+    	<form action="{{url_for('settings.fleet_status_set')}}" method="post" class="form-inline">
+    	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+    	<input type="hidden" name="action" value="dock">
+    	<input type="text" name="name">
+    	<button type="submit" class="btn btn-primary">Set</button>
+    	</form>
+    	</td>
     </tr>
     <tr>
     	<th scope="row">HQ System</th>
-    	<td><a href="">{{fleet.systemhq[0]}}</a></td>
+    	<td>{% if fleet.systemhq is not none %}<a href="javascript:CCPEVE.showInfo(5, {{fleet.systemhq[1]}});">{{fleet.systemhq[0]}}</a>{% else %}Not Set{% endif %}</td>
+    	<td>
+    	<form action="{{url_for('settings.fleet_status_set')}}" method="post" class="form-inline">
+    	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+    	<input type="hidden" name="action" value="systemhq">
+    	<input type="text" name="name">
+    	<button type="submit" class="btn btn-primary">Set</button>
+    	</form>
+    	</td>
     </tr>
     </tbody>
     </table>
   </div>
 </div>
-<p>This should (in the future) contain controlls to set fleet status, dockups, FC character, Fleet Comp Character ...</p>
 {% endblock %}

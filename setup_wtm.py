@@ -10,19 +10,23 @@ def get_role(name, restrictive=True):
     return r
 
 def createRoles():
-    roles = [get_role(WTMRoles.admin), get_role(WTMRoles.officer), get_role(WTMRoles.lm), get_role(WTMRoles.resident), get_role(WTMRoles.fc), get_role(WTMRoles.tbadge)]
+    role_list = WTMRoles.get_role_list()
+    roles = []
+    for role in role_list:
+        roles.append(get_role(role))
+
     for role in roles:
-        db.session.add(role)
+        db.session.merge(role)
 
 def createWaitlists():
-    wl_names = [WaitlistNames.logi, WaitlistNames.dps, WaitlistNames.sniper, Waitlist.xup_queue]
+    wl_names = [WaitlistNames.logi, WaitlistNames.dps, WaitlistNames.sniper, WaitlistNames.xup_queue]
     for wl_name in wl_names:
         wl = Waitlist()
         wl.name = wl_name
         db.session.add(wl)
 
 if __name__ == '__main__':
-    #createRoles()
-    #createWaitlists()    
-    #db.session.commit()
+    createRoles()
+    createWaitlists()    
+    db.session.commit()
     pass

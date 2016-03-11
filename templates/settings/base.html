@@ -52,6 +52,11 @@
 		<a class="nav-link {% block m_feedback %}{% endblock %}" href="{{url_for('feedback.settings')}}">Feedback</a>
 	</li>
 	{% endif %}
+	{% if perm_dev.can() %}
+	<li class="navitem">
+		<a class="nav-link {% block m_sde %}{% endblock %}" href="{{url_for('settings.sde_settings')}}">Static Data Import</a>
+	</li>
+	{% endif %}
 	</ul>
 </div>
 <div class="col-sm-7 col-sm-offset-3 col-md-8 col-md-offset-2 content" id="main">

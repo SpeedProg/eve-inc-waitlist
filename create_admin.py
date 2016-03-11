@@ -14,8 +14,8 @@ if __name__ == '__main__':
     acc.login_token = get_random_token(64)
     acc.email = email
     print "Account created"
-    fc_role = db.session.query(Role).filter(Role.name == WTMRoles.admin).first()
-    acc.roles.append(fc_role)
+    admin_role = db.session.query(Role).filter(Role.name == WTMRoles.admin).first()
+    acc.roles.append(admin_role)
     db.session.add(acc)
     print acc.login_token
     
@@ -50,5 +50,5 @@ if __name__ == '__main__':
     acc.current_char = char_id
     
     db.session.commit()
-    print("FC Account created!")
+    print("Admin Account created!")
             

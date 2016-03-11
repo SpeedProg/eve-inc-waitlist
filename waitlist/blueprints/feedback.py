@@ -7,7 +7,7 @@ from flask.helpers import flash
 from waitlist.storage.database import Feedback
 from waitlist import db
 import flask
-from waitlist.data.perm import perm_officer, perm_feedback
+from waitlist.data.perm import perm_feedback
 
 logger = logging.getLogger(__name__)
 
