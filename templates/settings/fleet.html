@@ -30,6 +30,48 @@ $(document).ready(function(){
 		display: 'conName',
 		source: constellationSource
 	});
+	
+	var stationSource = new Bloodhound({
+		datumTokenizer: Bloodhound.tokenizers.obj.whitespace('statName'),
+		queryTokenizer: Bloodhound.tokenizers.whitespace,
+		remote: {
+			url: "{{url_for('settings.fleet_query_stations')}}?term=%QUERY",
+			wildcard: '%QUERY',
+			filter: function(response) {
+	            return response.result;
+	        }
+		}
+	});
+	$('#dock-typeahead').typeahead({
+		  hint: true,
+		  highlight: true,
+		  minLength: 1
+		}, {
+		name: 'stations',
+		display: 'statName',
+		source: stationSource
+	});
+
+	var systemSource = new Bloodhound({
+		datumTokenizer: Bloodhound.tokenizers.obj.whitespace('sysName'),
+		queryTokenizer: Bloodhound.tokenizers.whitespace,
+		remote: {
+			url: "{{url_for('settings.fleet_query_systems')}}?term=%QUERY",
+			wildcard: '%QUERY',
+			filter: function(response) {
+	            return response.result;
+	        }
+		}
+	});
+	$('#hq-typeahead').typeahead({
+		  hint: true,
+		  highlight: true,
+		  minLength: 1
+		}, {
+		name: 'SolarSystems',
+		display: 'sysName',
+		source: systemSource
+	});
 });
 </script>
 {% endblock %}
@@ -89,7 +131,7 @@ $(document).ready(function(){
     	<form action="{{url_for('settings.fleet_status_set')}}" method="post" class="form-inline">
     	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
     	<input type="hidden" name="action" value="dock">
-    	<input type="text" name="name">
+    	<input id="dock-typeahead" class="typeahead" type="text" name="name">
     	<button type="submit" class="btn btn-primary">Set</button>
     	</form>
     	</td>
@@ -101,7 +143,7 @@ $(document).ready(function(){
     	<form action="{{url_for('settings.fleet_status_set')}}" method="post" class="form-inline">
     	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
     	<input type="hidden" name="action" value="systemhq">
-    	<input type="text" name="name">
+    	<input id="hq-typeahead" class="typeahead" type="text" name="name">
     	<button type="submit" class="btn btn-primary">Set</button>
     	</form>
     	</td>

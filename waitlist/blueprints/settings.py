@@ -7,7 +7,7 @@ from flask.templating import render_template
 from flask.globals import request
 from sqlalchemy import or_
 from waitlist.storage.database import Account, Role, Character, roles,\
-    linked_chars, Ban, Constellation, IncursionLayout
+    linked_chars, Ban, Constellation, IncursionLayout, SolarSystem, Station
 import flask
 from waitlist.data.eve_xml_api import get_character_id_from_name
 from werkzeug.utils import redirect, secure_filename
@@ -424,6 +424,27 @@ def fleet_query_constellations():
         const_list.append({'conID': const.constellationID, 'conName': const.constellationName})
     return jsonify(result=const_list)
 
+@bp_settings.route("/fleet/query/systems", methods=["GET"])
+@login_required
+@perm_management.require(http_exception=401)
+def fleet_query_systems():
+    term = request.args['term']
+    systems = db.session.query(SolarSystem).filter(SolarSystem.solarSystemName.like(term+"%")).all()
+    system_list = []
+    for item in systems:
+        system_list.append({'sysID': item.solarSystemID, 'sysName': item.solarSystemName})
+    return jsonify(result=system_list)
+
+@bp_settings.route("/fleet/query/stations", methods=["GET"])
+@login_required
+@perm_management.require(http_exception=401)
+def fleet_query_stations():
+    term = request.args['term']
+    stations = db.session.query(Station).filter(Station.stationName.like(term+"%")).all()
+    station_list = []
+    for item in stations:
+        station_list.append({'statID': item.stationID, 'statName': item.stationName})
+    return jsonify(result=station_list)
 
 '''
 @bp_settings.route("/api/account/", methods=["POST"])
