@@ -7,7 +7,7 @@ from flask.templating import render_template
 from flask.globals import request
 from sqlalchemy import or_
 from waitlist.storage.database import Account, Role, Character, roles,\
-    linked_chars, Ban
+    linked_chars, Ban, Constellation, IncursionLayout
 import flask
 from waitlist.data.eve_xml_api import get_character_id_from_name
 from werkzeug.utils import redirect, secure_filename
@@ -21,6 +21,7 @@ import os
 from bz2 import BZ2File
 from waitlist.blueprints.fleetstatus import fleet_status
 from waitlist.utility import sde
+from flask import jsonify
 
 bp_settings = Blueprint('settings', __name__)
 logger = logging.getLogger(__name__)
@@ -308,6 +309,12 @@ def fleet_status_set():
         name = request.form['name']
         const_id = get_constellation(name).constellationID
         fleet_status.constellation = [name, const_id]
+        # if we set the constellation look up if we already know dock and hq system
+        inc_layout = db.session.query(IncursionLayout).filter(IncursionLayout.constellation == const_id).first()
+        # if we know it, set the other information
+        if inc_layout is not None:
+            fleet_status.systemhq = [inc_layout.obj_headquarter.solarSystemName, inc_layout.obj_headquarter.solarSystemID]
+            fleet_status.dock = [inc_layout.obj_dockup.stationName, inc_layout.obj_dockup.stationID]            
         flash("Constellation was set to "+name, "success")
     elif action == "systemhq":
         name = request.form['name']
@@ -383,11 +390,40 @@ def update_stations():
     
     return redirect(url_for('.sde_settings'))
 
+@bp_settings.route("/sde/update/layouts", methods=["POST"])
+@login_required
+@perm_dev.require(http_exception=401)
+def update_layouts():
+    f = request.files['file']
+    if f and (f.filename.rsplit('.', 1)[1] == "bz2" or f.filename.rsplit('.', 1)[1] == "csv"):
+        filename = secure_filename(f.filename)
+        dest_name = path.join(app.config['UPLOAD_FOLDER'], filename)
+        if (path.isfile(dest_name)):
+            os.remove(dest_name)
+        f.save(dest_name)
+        # start the update
+        sde.update_layouts(dest_name)
+        flash("Layouts where updated!", "success")
+    
+    return redirect(url_for('.sde_settings'))
+
 @bp_settings.route("/sde")
 @login_required
 @perm_dev.require(http_exception=401)
 def sde_settings():
     return render_template("settings/sde.html")
+
+@bp_settings.route("/fleet/query/constellations", methods=["GET"])
+@login_required
+@perm_management.require(http_exception=401)
+def fleet_query_constellations():
+    term = request.args['term']
+    constellations = db.session.query(Constellation).filter(Constellation.constellationName.like("%"+term+"%")).all()
+    const_list = []
+    for const in constellations:
+        const_list.append({'conID': const.constellationID, 'conName': const.constellationName})
+    return jsonify(result=const_list)
+
 
 '''
 @bp_settings.route("/api/account/", methods=["POST"])

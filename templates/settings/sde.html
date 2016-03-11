@@ -33,4 +33,15 @@
 	</fieldset>
 	<button type="submit" class="btn btn-primary">Update Stations</button>
 </form>
+<form action="{{url_for('settings.update_layouts')}}" method="post" enctype="multipart/form-data">
+	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+	<fieldset class="form-group">
+		<label for="typeid-file">layout.csv (can be bz2 compress if you upload it as layout.csv.bz2)</label>
+		<input type="file" name="file" id="typeid-file" class="form-control">
+	</fieldset>
+	<p>This cvs file, needs to be data separated by tabs. and the first line need to contain the following separated by tabs instead of a space and comma:
+	Constellation, Staging System, Headquarter System, Dockup
+	</p>
+	<button type="submit" class="btn btn-primary">Update Layouts</button>
+</form>
 {% endblock %}

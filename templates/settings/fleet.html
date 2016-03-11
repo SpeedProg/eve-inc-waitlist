@@ -6,6 +6,32 @@
 
 {% block head %}
 {{ super() }}
+<script src="{{url_for('static', filename='js/typeahead.bundle.min.js')}}" type="text/javascript"></script>
+<link rel="stylesheet" href="{{url_for('static', filename='css/typeaheadjs.css')}}">
+<script type="text/javascript">
+$(document).ready(function(){
+	var constellationSource = new Bloodhound({
+		datumTokenizer: Bloodhound.tokenizers.obj.whitespace('conName'),
+		queryTokenizer: Bloodhound.tokenizers.whitespace,
+		remote: {
+			url: "{{url_for('settings.fleet_query_constellations')}}?term=%QUERY",
+			wildcard: '%QUERY',
+			filter: function(response) {
+	            return response.result;
+	        }
+		}
+	});
+	$('#con-typeahead').typeahead({
+		  hint: true,
+		  highlight: true,
+		  minLength: 1
+		}, {
+		name: 'constellations',
+		display: 'conName',
+		source: constellationSource
+	});
+});
+</script>
 {% endblock %}
 
 {% block content %}
@@ -51,7 +77,7 @@
     	<form action="{{url_for('settings.fleet_status_set')}}" method="post" class="form-inline">
     	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
     	<input type="hidden" name="action" value="constellation">
-    	<input type="text" name="name">
+    	<input id="con-typeahead" class="typeahead" type="text" name="name">
     	<button type="submit" class="btn btn-primary">Set</button>
     	</form>
     	</td>

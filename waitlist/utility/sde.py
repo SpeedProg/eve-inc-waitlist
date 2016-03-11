@@ -2,7 +2,7 @@ from bz2 import BZ2File
 from yaml.events import MappingStartEvent, ScalarEvent, MappingEndEvent
 import yaml
 from waitlist.storage.database import InvType, Station, Constellation,\
-    SolarSystem
+    SolarSystem, IncursionLayout
 from waitlist import db
 from os import path
 import csv
@@ -133,4 +133,40 @@ def update_systems(filename):
     
     con.close()
     
+    db.session.commit()
+
+def update_layouts(filename):
+    key_const = "Constellation"
+    key_staging = "Staging System"
+    key_hq = "Headquarter System"
+    key_dock = "Dockup"
+    if not path.isfile(filename):
+        return
+
+    if filename.rsplit('.', 1)[1] == "csv" :
+        f = open(filename, 'r')
+    elif filename.rsplit('.', 1)[1] == "bz2":
+        f = BZ2File(filename)
+    else:
+        return
+
+    reader = csv.DictReader(f, delimiter="\t", quotechar='\\')
+    for row in reader:
+        constellation = db.session.query(Constellation).filter(Constellation.constellationName == row[key_const]).first()
+        if constellation == None:
+            continue
+        staging = db.session.query(SolarSystem).filter(SolarSystem.solarSystemName == row[key_staging]).first()
+        hq = db.session.query(SolarSystem).filter(SolarSystem.solarSystemName == row[key_hq]).first()
+        dock = db.session.query(Station).filter(Station.stationName == row[key_dock]).first()
+        if staging == None or hq == None or dock == None:
+            continue
+        
+        inc_const = IncursionLayout()
+        inc_const.constellation = constellation.constellationID
+        inc_const.staging = staging.solarSystemID
+        inc_const.headquarter = staging.solarSystemID
+        inc_const.dockup = dock.stationID
+        db.session.merge(inc_const)
+
+    f.close()
     db.session.commit()

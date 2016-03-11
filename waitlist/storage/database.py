@@ -281,3 +281,16 @@ class Constellation(Base):
     __tablename__ = "constellation"
     constellationID = Column(Integer, primary_key=True)
     constellationName = Column(String(100), index=True, unique=True)
+
+class IncursionLayout(Base):
+    __tablename__ = "incursion_layout"
+    constellation = Column(Integer, ForeignKey("constellation.constellationID"), primary_key=True)
+    staging = Column(Integer, ForeignKey("solarsystem.solarSystemID"))
+    headquarter = Column(Integer, ForeignKey("solarsystem.solarSystemID"))
+    dockup = Column(Integer, ForeignKey("station.stationID"))
+    
+    obj_constellation = relationship("Constellation", foreign_keys="IncursionLayout.constellation")
+    obj_staging= relationship("SolarSystem", foreign_keys="IncursionLayout.staging")
+    obj_headquarter = relationship("SolarSystem", foreign_keys="IncursionLayout.headquarter")
+    obj_dockup = relationship("Station", foreign_keys="IncursionLayout.dockup")
+    
