@@ -113,10 +113,6 @@ def get_item_id(name):
     if item == None:
         return -1
     return item.typeID
-
-@login_required
-def get_char_id():
-    current_user.get_eve_id()
     
 # load an account by its id
 def get_account_from_db(int_id):
