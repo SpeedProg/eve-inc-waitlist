@@ -74,6 +74,9 @@ class Account(Base):
                               backref=backref('linked_chars'))
     current_char_obj = relationship('Character')
     
+    def get_eve_name(self):
+        return self.current_char_obj.eve_name
+    
     def get_eve_id(self):
         return self.current_char
 
@@ -119,6 +122,9 @@ class Character(Base):
     id = Column(Integer, primary_key=True)
     eve_name = Column(String(100), unique=True)
     newbro = Column(Boolean, default=True, nullable=False)
+
+    def get_eve_name(self):
+        return self.eve_name
 
     def get_eve_id(self):
         return self.id

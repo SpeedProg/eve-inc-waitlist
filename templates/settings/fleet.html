@@ -41,7 +41,7 @@ $(document).ready(function(){
     <form action="{{url_for('settings.fleet_status_set')}}" method="post" class="form-inline">
     	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
     	<input type="hidden" name="action" value="status">
-    	<input type="text" name="status">
+    	<input type="text" name="status" value="{{fleet.status}}">
     	<button type="submit" class="btn btn-primary">Set</button>
     	</form>
     <table class="table">
@@ -53,7 +53,7 @@ $(document).ready(function(){
     	<form action="{{url_for('settings.fleet_status_set')}}" method="post" class="form-inline">
     	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
     	<input type="hidden" name="action" value="fc">
-    	<input type="text" name="name">
+    	<input type="text" name="name" value="{{user.get_eve_name()}}">
     	<button type="submit" class="btn btn-primary">Set</button>
     	</form>
     	</td>
@@ -65,7 +65,7 @@ $(document).ready(function(){
     	<form action="{{url_for('settings.fleet_status_set')}}" method="post" class="form-inline">
     	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
     	<input type="hidden" name="action" value="manager">
-    	<input type="text" name="name">
+    	<input type="text" name="name" value="{{user.get_eve_name()}}">
     	<button type="submit" class="btn btn-primary">Set</button>
     	</form>
     	</td>
