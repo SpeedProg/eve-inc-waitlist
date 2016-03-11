@@ -418,7 +418,7 @@ def sde_settings():
 @perm_management.require(http_exception=401)
 def fleet_query_constellations():
     term = request.args['term']
-    constellations = db.session.query(Constellation).filter(Constellation.constellationName.like("%"+term+"%")).all()
+    constellations = db.session.query(Constellation).filter(Constellation.constellationName.like(term+"%")).all()
     const_list = []
     for const in constellations:
         const_list.append({'conID': const.constellationID, 'conName': const.constellationName})
