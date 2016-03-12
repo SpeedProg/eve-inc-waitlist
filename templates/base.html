@@ -90,11 +90,6 @@ $(document).ready(function () {
 	<li class="nav-item">
 	<a class="nav-link" href="{{url_for('fittings.xup_index')}}">X-UP</a>
 	</li>
-	{% if perm_man.can() %}
-	<li class="nav-item">
-	<a class="nav-link" href="{{url_for('fittings.management')}}">Management</a>
-	</li>
-	{% endif %}
 	{% if perm_settings.can() %}
 	<li  class="nav-item">
 	<a class="nav-link" href="{{url_for('settings.overview')}}">Settings</a>
