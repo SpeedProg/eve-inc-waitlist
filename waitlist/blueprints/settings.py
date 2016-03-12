@@ -54,7 +54,7 @@ def accounts():
         acc.username = acc_name
         if acc_pw is not None:
             acc.set_password(acc_pw.encode('utf-8'))
-        acc.login_token = get_random_token(64)
+        acc.login_token = get_random_token(16)
         acc.email = acc_email
         if len(acc_roles) > 0:
             db_roles = db.session.query(Role).filter(or_(Role.name == name for name in acc_roles)).all()

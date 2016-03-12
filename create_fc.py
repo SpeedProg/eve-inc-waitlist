@@ -11,7 +11,7 @@ if __name__ == '__main__':
     acc = Account()
     acc.username = name
     acc.set_password(pw)
-    acc.login_token = get_random_token(64)
+    acc.login_token = get_random_token(16)
     acc.email = email
     print "Account created"
     fc_role = db.session.query(Role).filter(Role.name == WTMRoles.fc).first()
