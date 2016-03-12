@@ -141,37 +141,58 @@ function moveEntryToWaitlists(entryId, userId) {
 <script src="https://quiescens.duckdns.org/wl/wtm.js"></script>
 {% endblock %}
 
-{% block data %}
+{% block container_data %}
 <div class="row">
-<div class="card">
-  <div class="card-block">
-    <h4 class="card-title" id="fleet-status">Status: {{fleet.status}}</h4>
-    <table class="table table-sm">
-    <tbody>
-    <tr>
-    	<th scope="row">FC</th>
-    	<td>{% if fleet.fc is not none %}<a href="javascript:CCPEVE.showInfo(1377, {{fleet.fc[1]}});">{{fleet.fc[0]}}</a>{% else %}Not Set{% endif %}</td>
-    </tr>
-    <tr>
-    	<th scope="row">Fleet Manager</th>
-    	<td>{% if fleet.manager is not none %}<a href="javascript:CCPEVE.showInfo(1377, {{fleet.manager[1]}});">{{fleet.manager[0]}}</a>{% else %}Not Set{% endif %}</td>
-    </tr>
-    <tr>
-    	<th scope="row">Constellation</th>
-    	<td>{% if fleet.constellation is not none %}<a href="javascript:CCPEVE.showInfo(4, {{fleet.constellation[1]}});">{{fleet.constellation[0]}}</a>{% else %}Not Set{% endif %}</td>
-    </tr>
-    <tr>
-    	<th scope="row">Dockup</th>
-    	<td>{% if fleet.dock is not none %}<a href="javascript:CCPEVE.setDestination({{fleet.dock[1]}});">{{fleet.dock[0]}}</a>{% else %}Not Set{% endif %}</td>
-    </tr>
-    <tr>
-    	<th scope="row">HQ System</th>
-    	<td>{% if fleet.systemhq is not none %}<a href="javascript:CCPEVE.showInfo(5, {{fleet.systemhq[1]}});">{{fleet.systemhq[0]}}</a>{% else %}Not Set{% endif %}</td>
-    </tr>
-    </tbody>
-    </table>
-  </div>
-</div>
+	<div class="col-sm-6">
+	<div class="card">
+		<a data-toggle="collapse" href="#status-body">
+		<div class="card-header" id="status-heading">
+	      <h4 class="card-title">
+	          Status: {{fleet.status}}
+	      </h4>
+	    </div>
+	    </a>
+	    <div class="">
+	    <table class="table-sm">
+	    <tbody>
+	    <tr>
+	    	<th scope="row">Fleet Manager</th>
+	    	<td>{% if fleet.manager is not none %}<a href="javascript:CCPEVE.showInfo(1377, {{fleet.manager[1]}});">{{fleet.manager[0]}}</a>{% else %}Not Set{% endif %}</td>
+	    </tr>
+	    </tbody>
+	    </table>
+	    </div>
+	    <div id="status-body" class="collapse">
+		    <table class="table-sm">
+		    <tbody>
+		    <!--
+		    <tr>
+		    	<th scope="row">FC</th>
+		    	<td>{% if fleet.fc is not none %}<a href="javascript:CCPEVE.showInfo(1377, {{fleet.fc[1]}});">{{fleet.fc[0]}}</a>{% else %}Not Set{% endif %}</td>
+		    </tr>
+			
+		    <tr>
+		    	<th scope="row">Fleet Manager</th>
+		    	<td>{% if fleet.manager is not none %}<a href="javascript:CCPEVE.showInfo(1377, {{fleet.manager[1]}});">{{fleet.manager[0]}}</a>{% else %}Not Set{% endif %}</td>
+		    </tr>
+		    -->
+		    <tr>
+		    	<th scope="row">Constellation</th>
+		    	<td>{% if fleet.constellation is not none %}<a href="javascript:CCPEVE.showInfo(4, {{fleet.constellation[1]}});">{{fleet.constellation[0]}}</a>{% else %}Not Set{% endif %}</td>
+		    </tr>
+		    <tr>
+		    	<th scope="row">Dockup</th>
+		    	<td>{% if fleet.dock is not none %}<a href="javascript:CCPEVE.setDestination({{fleet.dock[1]}});">{{fleet.dock[0]}}</a>{% else %}Not Set{% endif %}</td>
+		    </tr>
+		    <tr>
+		    	<th scope="row">HQ System</th>
+		    	<td>{% if fleet.systemhq is not none %}<a href="javascript:CCPEVE.showInfo(5, {{fleet.systemhq[1]}});">{{fleet.systemhq[0]}}</a>{% else %}Not Set{% endif %}</td>
+		    </tr>
+		    </tbody>
+		    </table>
+    	</div>
+    </div>
+	</div>
 </div>
 <div class="row" id="row-waitlists">
 <div id="waitlists">
