@@ -84,7 +84,7 @@ function removeOwnFit(fitId, wlName, charId) {
 
 function invitePlayer(userId) {
 	$.post("{{url_for('fittings.api_invite_player')}}", {'playerId': userId, '_csrf_token': '{{ csrf_token() }}'}, function(){
-		var wl_names = [{% for wl in lists %}"{{wl.name|e}}",{% endfor %}];
+		/*var wl_names = [{% for wl in lists %}"{{wl.name|e}}",{% endfor %}];
 		for (idx in wl_names) {
 			var wl_name = wl_names[idx]
 			var entry_id = "entry-"+wl_name+"-"+userId
@@ -92,13 +92,14 @@ function invitePlayer(userId) {
 			if (entry != null) { // there is a entry for him on that wl
 				entry.parentNode.removeChild(entry); // remote it from the DOM
 			}
-		}
+		}*/
+		$('#row-waitlists').load("{{url_for('index')}} #waitlists");
 	}, "text");
 }
 
 function removePlayer(userId) {
 	$.post("{{url_for('fittings.api_wls_remove_player')}}", {'playerId': userId, '_csrf_token': '{{ csrf_token() }}'}, function(){
-		var wl_names = [{% for wl in lists %}"{{wl.name|e}}",{% endfor %}];
+		/*var wl_names = [{% for wl in lists %}"{{wl.name|e}}",{% endfor %}];
 		for (idx in wl_names) {
 			var wl_name = wl_names[idx]
 			var entry_id = "entry-"+wl_name+"-"+userId
@@ -107,16 +108,20 @@ function removePlayer(userId) {
 				entry.parentNode.removeChild(entry); // remote it from the DOM
 			}
 		}
+		*/
+		$('#row-waitlists').load("{{url_for('index')}} #waitlists");
 	}, "text");
 }
 
 function removeEntry(entryId, userId) {
 	$.post("{{url_for('fittings.api_wl_remove_entry')}}", {'entryId': entryId, '_csrf_token': '{{ csrf_token() }}'}, function(){
-		var entry_id = "entry-{{queue.name}}-"+userId
+		/*var entry_id = "entry-{{queue.name}}-"+userId
 		var entry = document.getElementById(entry_id);
 		if (entry != null) { // there is a entry for him on that wl
 			entry.parentNode.removeChild(entry); // remote it from the DOM
 		}
+		*/
+		$('#row-waitlists').load("{{url_for('index')}} #waitlists");
 	}, "text");
 }
 
@@ -128,7 +133,7 @@ function moveEntryToWaitlists(entryId, userId) {
 			entry.parentNode.removeChild(entry); // remote it from the DOM
 		}
 		**/
-		document.location.reload(true);
+		$('#row-waitlists').load("{{url_for('index')}} #waitlists");
 	}, "text")
 }
 {% endif %}
@@ -171,7 +176,8 @@ function moveEntryToWaitlists(entryId, userId) {
 <div class="row">
 	<button type="button" class="center-block btn btn-danger btn-sm" onclick="removeSelf();">Leave Waitlists</button>
 </div>
-<div class="row">
+<div class="row" id="row-waitlists">
+<div id="waitlists">
 <div class="col-sm-3" id="wl-{{ queue.name }}">
 	<ol class="list-group">
 		<li class="list-group-item text-capitalize">X-Ups</li>
@@ -326,5 +332,6 @@ function moveEntryToWaitlists(entryId, userId) {
 	</ol>
 </div>
 {% endfor %}
+</div>
 </div>
 {% endblock %}
