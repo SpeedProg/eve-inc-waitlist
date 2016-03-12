@@ -2,7 +2,6 @@ import string,random
 import logging
 import re
 from waitlist.storage.database import InvType, Character, Shipfit, Account, Ban
-from flask_login import login_required, current_user
 from flask.globals import request
 from waitlist.data.eve_xml_api import get_character_id_from_name,\
     get_affiliation
