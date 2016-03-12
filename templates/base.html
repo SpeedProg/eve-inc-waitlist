@@ -108,6 +108,15 @@ $(document).ready(function () {
 	<a class="nav-link" href="{{url_for('logout')}}">Logout</a>
 	</li>
 	{% endif %}
+	{% if is_index %}
+	<li class="nav-item pull-xs-right">
+		<button type="button" class="nav-link btn btn-danger btn-sm" onclick="removeSelf();">Leave Waitlists</button>
+	</li>
+	<li class="nav-item pull-xs-right">
+		<a class="nav-link" href="{{url_for('fittings.notification', user_id=current_user.get_eve_id())}}" target="_blank">Notification Link</a>
+	</li>
+	{% endif %}
+	
 </ul>
 </div>
 	{% endblock %}
