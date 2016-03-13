@@ -109,7 +109,8 @@ function removePlayer(userId) {
 			}
 		}
 		*/
-		$('#row-waitlists').load("{{url_for('index')}} #waitlists");
+		//$('#row-waitlists').load("{{url_for('index')}} #waitlists");
+		window.location.reload(true);
 	}, "text");
 }
 
@@ -121,7 +122,8 @@ function removeEntry(entryId, userId) {
 			entry.parentNode.removeChild(entry); // remote it from the DOM
 		}
 		*/
-		$('#row-waitlists').load("{{url_for('index')}} #waitlists");
+		//$('#row-waitlists').load("{{url_for('index')}} #waitlists");
+		window.location.reload(true);
 	}, "text");
 }
 
@@ -133,7 +135,8 @@ function moveEntryToWaitlists(entryId, userId) {
 			entry.parentNode.removeChild(entry); // remote it from the DOM
 		}
 		**/
-		$('#row-waitlists').load("{{url_for('index')}} #waitlists");
+		//$('#row-waitlists').load("{{url_for('index')}} #waitlists");
+		window.location.reload(true);
 	}, "text")
 }
 {% endif %}
