@@ -79,9 +79,9 @@ function removeOwnFit(fitId, wlName, charId) {
 	};
 	$.ajax(settings);
 }
-
+</script>
 {% if perm_man.can() %}
-
+<script type="text/javascript">
 function invitePlayer(userId) {
 	$.post("{{url_for('fittings.api_invite_player')}}", {'playerId': userId, '_csrf_token': '{{ csrf_token() }}'}, function(){
 		/*var wl_names = [{% for wl in lists %}"{{wl.name|e}}",{% endfor %}];
@@ -139,9 +139,9 @@ function moveEntryToWaitlists(entryId, userId) {
 		window.location.reload(true);
 	}, "text")
 }
-{% endif %}
 </script>
 <script src="https://quiescens.duckdns.org/wl/wtm.js"></script>
+{% endif %}
 {% endblock %}
 
 {% block container_data %}
