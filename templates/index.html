@@ -6,6 +6,15 @@
 
 {{ super() }}
 <script type="text/javascript">
+$(document).ready(function(){    
+    $('#status-body').on('shown.bs.collapse', function () {
+       $("#status-icon").removeClass("fa-chevron-down").addClass("fa-chevron-up");
+    });
+
+    $('#status-body').on('hidden.bs.collapse', function () {
+       $("#status-icon").removeClass("fa-chevron-up").addClass("fa-chevron-down");
+    });
+});
 function removeSelf() {
 	var settings = {
 			dataType: "text",
@@ -148,13 +157,11 @@ function moveEntryToWaitlists(entryId, userId) {
 <div class="row">
 	<div class="col-sm-6">
 	<div class="card">
-		<a data-toggle="collapse" href="#status-body">
-		<div class="card-header" id="status-heading">
+		<div style="cursor: pointer;" class="card-header" id="status-heading" data-toggle="collapse" data-target="#status-body" id="status-toggle">
 	      <h4 class="card-title">
-	          Status: {{fleet.status}}
+	          Status: {{fleet.status}}<i class="fa fa-chevron-down pull-xs-right" id="status-icon"></i>
 	      </h4>
 	    </div>
-	    </a>
 	    <div class="">
 	    <table class="table-sm">
 	    <tbody>
