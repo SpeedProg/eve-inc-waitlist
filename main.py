@@ -52,15 +52,24 @@ def check_ban():
         if current_user.type == "character":
             is_banned, _ = is_char_banned(current_user)
             if is_banned:
-                logout_user()
-                for key in ('identity.name', 'identity.auth_type'):
-                    flask.globals.session.pop(key, None)
-            
-                # Tell Flask-Principal the user is anonymous
-                identity_changed.send(current_app._get_current_object(),
-                                      identity=AnonymousIdentity())
-                    
-    
+                force_logout()
+            else:
+                # check if character has right charid in header, since clients seem to share ids
+                # this could be used to detect multiboxers actually
+                if is_igb(): # should allways be if he is char authenticated, but well lets check again
+                    char_id_str = request.headers.get('Eve-Charid')
+                    char_id = int(char_id_str)
+                    if current_user.get_eve_id() != char_id:
+                        force_logout()
+
+def force_logout():
+    logout_user()
+    for key in ('identity.name', 'identity.auth_type'):
+        flask.globals.session.pop(key, None)
+
+    # Tell Flask-Principal the user is anonymous
+    identity_changed.send(current_app._get_current_object(),
+                          identity=AnonymousIdentity())
 
 @app.route('/', methods=['GET'])
 @login_required
