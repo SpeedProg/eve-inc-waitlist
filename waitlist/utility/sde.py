@@ -137,7 +137,7 @@ def update_systems(filename):
 
 def update_layouts(filename):
     key_const = "Constellation"
-    key_staging = "Staging System"
+    #key_staging = "Staging System"
     key_hq = "Headquarter System"
     key_dock = "Dockup"
     if not path.isfile(filename):
@@ -155,16 +155,16 @@ def update_layouts(filename):
         constellation = db.session.query(Constellation).filter(Constellation.constellationName == row[key_const]).first()
         if constellation == None:
             continue
-        staging = db.session.query(SolarSystem).filter(SolarSystem.solarSystemName == row[key_staging]).first()
+        #staging = db.session.query(SolarSystem).filter(SolarSystem.solarSystemName == row[key_staging]).first()
         hq = db.session.query(SolarSystem).filter(SolarSystem.solarSystemName == row[key_hq]).first()
         dock = db.session.query(Station).filter(Station.stationName == row[key_dock]).first()
-        if staging == None or hq == None or dock == None:
+        if hq == None or dock == None:
             continue
         
         inc_const = IncursionLayout()
         inc_const.constellation = constellation.constellationID
-        inc_const.staging = staging.solarSystemID
-        inc_const.headquarter = staging.solarSystemID
+        #inc_const.staging = staging.solarSystemID
+        inc_const.headquarter = hq.solarSystemID
         inc_const.dockup = dock.stationID
         db.session.merge(inc_const)
 
