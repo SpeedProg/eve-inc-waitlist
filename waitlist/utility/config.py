@@ -1,8 +1,9 @@
 import os
 import ConfigParser
 import base64
+from os import makedirs
 
-if  not os.path.isfile("config.cfg"):
+if  not os.path.isfile(os.path.join(".", "config", "config.cfg")):
     # create a preset file
     config = ConfigParser.SafeConfigParser()
     config.add_section("database")
@@ -19,11 +20,12 @@ if  not os.path.isfile("config.cfg"):
     config.set("logging", "info_file", "/var/log/pywaitlist/info.log")
     config.set("logging", "access_file", "/var/log/pywaitlist/access.log")
     
-    with open("config.cfg", "wb") as configfile:
+    makedirs(os.path.join(".", "config"))
+    with open(os.path.join(".", "config", "config.cfg"), "wb") as configfile:
         config.write(configfile)
 
 config = ConfigParser.SafeConfigParser()
-config.read("config.cfg")
+config.read(os.path.join("config", "config.cfg"))
 
 connection_uri = config.get("database", "connection_uri")
 sqlalchemy_pool_recycle = config.getint("database", "sqlalchemy_pool_recycle")
