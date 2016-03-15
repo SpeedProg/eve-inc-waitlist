@@ -1,12 +1,11 @@
 # inject the lib folder before everything else
 import os
 import sys
+base_path = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(os.path.join(base_path, 'lib'))
 from waitlist.blueprints.feedback import feedback
 from gevent.pywsgi import WSGIServer
 from waitlist.blueprints.fleetstatus import fleet_status
-base_path = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(os.path.join(base_path, 'lib'))
-
 from waitlist import app, login_manager, db
 from flask_login import login_required, current_user, login_user,\
     logout_user
