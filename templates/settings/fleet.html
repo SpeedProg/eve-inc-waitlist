@@ -77,17 +77,26 @@ $(document).ready(function(){
 {% endblock %}
 
 {% block content %}
+<form action="{{url_for('settings.clear_waitlist')}}" method="post" class="form-inline">
+<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+<button type="Submit" class="btn btn-danger">Clear Waitlists!</button>
+</form>
 <div class="card">
-  <div class="card-block">
-    <h4 class="card-title" id="fleet-status">Status: {{fleet.status}}</h4>
-    <form action="{{url_for('settings.fleet_status_set')}}" method="post" class="form-inline">
-    	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
-    	<input type="hidden" name="action" value="status">
-    	<input type="text" name="status" value="{{fleet.status}}">
-    	<button type="submit" class="btn btn-primary">Set</button>
-    	</form>
+  <div class="card-block"> 
     <table class="table">
     <tbody>
+    <tr>
+    	<th scope="row">Status</th>
+    	<td colspan="2">
+    	<form action="{{url_for('settings.fleet_status_set')}}" method="post" class="form-inline">
+    		<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+    		<input type="hidden" name="action" value="status">
+    		<input type="text" name="status" value="{{fleet.status}}">
+    		<label><input name="xup" type="checkbox" {% if fleet.xup_enabled %}checked{% endif %}> X-UP Open</label>
+    		<button type="submit" class="btn btn-primary">Set</button>
+    	</form>
+    	</td>
+    </tr>
     <tr>
     	<th scope="row">FC</th>
     	<td>{% if fleet.fc is not none %}<a href="javascript:CCPEVE.showInfo(1377, {{fleet.fc[1]}});">{{fleet.fc[0]}}</a>{% else %}Not Set{% endif %}</td>

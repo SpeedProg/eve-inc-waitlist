@@ -38,6 +38,7 @@ $(document).ready(function() {
 {% endblock %}
 
 {% block data %}
+{% if fleet.xup_enabled %}
 <div class="col-sm-8" id="x-up">
 <form action="/xup" method="post">
 <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
@@ -75,4 +76,7 @@ I am new to WarpToMe or Incursions</label>
 <button type="submit" class="btn btn-primary">Enter On Waitlist</button>
 </form>
 </div>
+{% else %}
+<p>X-UP is currently closed!</p>
+{% endif %}
 {% endblock %}

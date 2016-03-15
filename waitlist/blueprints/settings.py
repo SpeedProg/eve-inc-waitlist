@@ -7,7 +7,8 @@ from flask.templating import render_template
 from flask.globals import request
 from sqlalchemy import or_
 from waitlist.storage.database import Account, Role, Character, roles,\
-    linked_chars, Ban, Constellation, IncursionLayout, SolarSystem, Station
+    linked_chars, Ban, Constellation, IncursionLayout, SolarSystem, Station,\
+    WaitlistEntry
 import flask
 from waitlist.data.eve_xml_api import get_character_id_from_name
 from werkzeug.utils import redirect, secure_filename
@@ -293,8 +294,16 @@ def fleet_status_set():
     action = request.form['action']
     if action == "status":
         text = request.form['status']
+        xup = request.form.get('xup', 'off')
+        xup_text = "closed"
+        if xup == 'off':
+            xup = False
+        else:
+            xup = True
+            xup_text = "open"
+        fleet_status.xup_enabled = xup
         fleet_status.status = text
-        flash("Status was set to "+text, "success")
+        flash("Status was set to "+text+", xup is "+xup_text, "success")
     elif action == "fc":
         name = request.form['name']
         eve_id = get_character_id_from_name(name)
@@ -445,6 +454,15 @@ def fleet_query_stations():
     for item in stations:
         station_list.append({'statID': item.stationID, 'statName': item.stationName})
     return jsonify(result=station_list)
+
+@bp_settings.route("/fleet/clear/", methods=["POST"])
+@login_required
+@perm_management.require(http_exception=401)
+def clear_waitlist():
+    db.session.query(WaitlistEntry).delete()
+    db.session.commit()
+    flash("Waitlists where cleared!", "danger")
+    return redirect(url_for('.fleet'))
 
 '''
 @bp_settings.route("/api/account/", methods=["POST"])

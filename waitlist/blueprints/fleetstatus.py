@@ -11,6 +11,7 @@ class FleetStatus:
     """
     def __init__(self):
         self.status = "Down"
+        self.xup_enabled = False
         self.fc = None
         self.manager = None
         self.constellation = None

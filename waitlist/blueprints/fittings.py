@@ -20,6 +20,7 @@ from waitlist.blueprints import send_invite_notice, subscriptions
 from waitlist.data.sse import ServerSentEvent, InviteEvent
 from flask import Response
 from gevent.queue import Queue
+from waitlist.blueprints.fleetstatus import fleet_status
 
 bp_waitlist = Blueprint('fittings', __name__)
 logger = logging.getLogger(__name__)
@@ -114,6 +115,10 @@ def self_remove_all():
 @bp_waitlist.route("/xup", methods=['POST'])
 @login_required
 def xup_submit():
+    if not fleet_status.xup_enabled:
+        # xups are disabled atm
+        flash("X-UP is disabled!!!")
+        return redirect(url_for("index"))
     '''
     Parse the submited fitts
     Check which fits need additional Info
@@ -406,7 +411,7 @@ def xup_index():
         else:
             new_bro = current_user.current_char_obj.newbro
     
-    return render_template("xup.html", newbro=new_bro)
+    return render_template("xup.html", newbro=new_bro, fleet=fleet_status)
 
 
 @bp_waitlist.route('/management')

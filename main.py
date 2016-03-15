@@ -24,7 +24,7 @@ from waitlist.blueprints.fittings import bp_waitlist
 from flask.globals import request, current_app
 import flask
 from werkzeug.utils import redirect
-from flask.helpers import url_for
+from flask.helpers import url_for, flash
 from waitlist.data.names import WaitlistNames
 from waitlist.utility.utils import is_igb, get_account_from_db, get_char_from_db,\
     get_character_by_id_and_name, is_char_banned
@@ -100,6 +100,9 @@ def index():
     wlists.append(logi_wl)
     wlists.append(dps_wl)
     wlists.append(sniper_wl)
+    
+    if fleet_status.xup_enabled == False:
+        flash("X-UP is currently closed!", "warning")
     
     return render_template("index.html", lists=wlists, user=current_user, queue=queue, fleet=fleet_status, is_index=True)
 
