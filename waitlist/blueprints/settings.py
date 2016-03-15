@@ -136,7 +136,6 @@ def account_edit():
         for role in acc.roles:
             if role.name in roles_new:
                 del roles_new[role.name] # remove because it is already in the db
-                print roles_new
             else:
                 # remove the roles because it not submitted anymore
                 roles_to_remove.append(role) # mark for removal
