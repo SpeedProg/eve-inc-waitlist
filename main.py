@@ -1,3 +1,4 @@
+from gevent import monkey; monkey.patch_all()
 # inject the lib folder before everything else
 import os
 import sys
