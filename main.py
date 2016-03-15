@@ -4,6 +4,8 @@ import os
 import sys
 base_path = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(base_path, 'lib'))
+from waitlist.utility import config
+from logging.handlers import TimedRotatingFileHandler
 from waitlist.blueprints.feedback import feedback
 from gevent.pywsgi import WSGIServer
 from waitlist.blueprints.fleetstatus import fleet_status
@@ -245,19 +247,34 @@ def unauthorized_ogb():
     Handle unauthorized users that visit with an out of game browser
     -> Redirect them to SSO
     """
-    return "Login Without Token not yet available"    
-
-
+    return "Login Without Token not yet available"
 
 
 if __name__ == '__main__':
-    logger = app.logger
-    ch = logging.StreamHandler()
-    ch.setLevel(logging.INFO)
-    logger.addHandler(ch)
+    err_fh = TimedRotatingFileHandler(filename=config.error_log, when="midnight", interval=1, utc=True)
+    info_fh = TimedRotatingFileHandler(filename=config.info_log, when="midnight", interval=1, utc=True)
+    access_fh = TimedRotatingFileHandler(filename=config.access_log, when="midnight", interval=1, utc=True)
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    err_fh.setFormatter(formatter)
+    info_fh.setFormatter(formatter)
+    access_fh.setFormatter(formatter)
+
+    info_fh.setLevel(logging.INFO)
+    err_fh.setLevel(logging.ERROR)
+
     waitlistlogger = logging.getLogger("waitlist")
-    waitlistlogger.addHandler(ch)
+    waitlistlogger.addHandler(err_fh)
+    waitlistlogger.addHandler(info_fh)
     waitlistlogger.setLevel(logging.INFO)
+
+    app.logger.addHandler(err_fh)
+    app.logger.addHandler(info_fh)
+    app.logger.setLevel(logging.INFO)
+    
+    wsgi_logger = logging.getLogger("gevent.pywsgi.WSGIServer")
+    wsgi_logger.addHandler(err_fh)
+    wsgi_logger.addHandler(access_fh)
+    wsgi_logger.setLevel(logging.INFO)
     #app.run(host="0.0.0.0", port=81, debug=True)
-    server = WSGIServer(("0.0.0.0", 81), app)
+    server = WSGIServer((config.server_bind, config.server_port), app, log=wsgi_logger, error_log=wsgi_logger)
     server.serve_forever()

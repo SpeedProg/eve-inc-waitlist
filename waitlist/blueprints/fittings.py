@@ -3,7 +3,8 @@ import logging
 from waitlist.data.perm import perm_management, perm_dev
 from flask_login import login_required, current_user
 from flask.globals import request
-from waitlist.storage.database import WaitlistEntry, Shipfit, Waitlist
+from waitlist.storage.database import WaitlistEntry, Shipfit, Waitlist,\
+    Character
 import re
 from waitlist.storage.modules import resist_ships, logi_ships, dps_snips,\
     sniper_ships, t3c_ships, sniper_weapons, dps_weapons
@@ -37,6 +38,8 @@ def api_wls_remove_player():
     
     db.session.query(WaitlistEntry).filter((WaitlistEntry.user == playerId) & (WaitlistEntry.waitlist_id != queue.id)).delete()
     db.session.commit()
+    character = db.session.query(Character).filter(Character.id == playerId).first()
+    logger.info("%s removed %s from waitlist.", current_user.username, character.eve_name)
     return "OK"
 
 @bp_waitlist.route("/api/wl/invite", methods=["POST"])
@@ -55,6 +58,8 @@ def api_invite_player():
     event = InviteEvent(playerId)
     send_invite_notice(event)
     #publish(event)
+    character = db.session.query(Character).filter(Character.id == playerId).first()
+    logger.info("%s invited %s to fleet.", current_user.username, character.eve_name)
     return "OK"
 
 @bp_waitlist.route("/api/wl/entries/remove/", methods=['POST'])
@@ -62,7 +67,8 @@ def api_invite_player():
 @perm_management.require(http_exception=401)
 def api_wl_remove_entry():
     entryId = request.form['entryId']
-    
+    entry = db.session.query(WaitlistEntry).filter(WaitlistEntry.id == int(entryId)).first()
+    logger.info("%s removed %s from waitlist %s", current_user.username, entry.user_data.get_eve_name(), entry.waitlist.name)
     db.session.query(WaitlistEntry).filter(WaitlistEntry.id == int(entryId)).delete()
     db.session.commit()
     return "OK"
@@ -71,6 +77,7 @@ def api_wl_remove_entry():
 @bp_waitlist.route("/api/self/fittings/remove/<int:fitid>", methods=["DELETE"])
 @login_required
 def remove_self_fit(fitid):
+    logger.info("%s removed their fit with id %d", current_user.get_eve_name(), fitid)
     fit = db.session.query(Shipfit).filter(Shipfit.id == fitid).first()
     db.session.delete(fit)
     wlentry = db.session.query(WaitlistEntry).filter(WaitlistEntry.id == fit.waitlist_id).first()
@@ -84,6 +91,7 @@ def remove_self_fit(fitid):
 @bp_waitlist.route("/api/self/wlentry/remove/<int:entry_id>", methods=["DELETE"])
 @login_required
 def self_remove_wl_entry(entry_id):
+    logger.info("%s removed their own entry with id %d", current_user.get_eve_name(), entry_id)
     db.session.query(WaitlistEntry).filter(WaitlistEntry.id == entry_id).delete()
     db.session.commit()
     return "success"
@@ -93,6 +101,7 @@ def self_remove_wl_entry(entry_id):
 @bp_waitlist.route("/api/self/wl/remove", methods=["DELETE"])
 @login_required
 def self_remove_all():
+    logger.info("%s removed them selfs from waitlists", current_user.get_eve_name())
     queue = db.session.query(Waitlist).filter(Waitlist.name == WaitlistNames.xup_queue).first()
     # remove from all lists except queue
     entries = db.session.query(WaitlistEntry).filter((WaitlistEntry.user == current_user.get_eve_id()) & (WaitlistEntry.waitlist_id != queue.id));
@@ -117,7 +126,6 @@ def xup_submit():
     caldari_bs_lvl = int(request.form['cbs'])
     newbro = request.form.get('newbro', "off")
     newbro = (newbro is not "off")
-    logger.error("NewBro %s", newbro)
     get_character(current_user).newbro = newbro
     
     logger.debug("Fittings to parse: %s", fittings)
@@ -150,7 +158,7 @@ def xup_submit():
     
         string_fits.append(fittings[sIdx:].split('\n'))
     
-        logger.info("Split fittings into %d fits", len(string_fits))
+        logger.debug("Split fittings into %d fits", len(string_fits))
         
     
         for fit in string_fits:
@@ -174,7 +182,7 @@ def xup_submit():
         
     fit_count = len(fits)
     
-    logger.info("Parsed %d fits", fit_count)
+    logger.debug("Parsed %d fits", fit_count)
     # TODO handle dna fit
 
     for fit in fits:
@@ -295,6 +303,7 @@ def xup_submit():
 def move_to_waitlists():
     entry_id = int(request.form['entryId'])
     entry = db.session.query(WaitlistEntry).filter(WaitlistEntry.id == entry_id).first()
+    logger.info("%s approved %s", current_user.username, entry.user_data.get_eve_name())
     waitlist_entries = db.session.query(WaitlistEntry).filter(WaitlistEntry.user == entry.user).all()
     logi_entry = None
     sniper_entry = None
