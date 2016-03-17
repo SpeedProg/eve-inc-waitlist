@@ -54,37 +54,39 @@ def accounts():
 
         char_name = request.form['default_char_name']
         char_name = char_name.strip()
-    
-        acc = Account()
-        acc.username = acc_name
-        if acc_pw is not None:
-            acc.set_password(acc_pw.encode('utf-8'))
-        acc.login_token = get_random_token(16)
-        acc.email = acc_email
-        if len(acc_roles) > 0:
-            db_roles = db.session.query(Role).filter(or_(Role.name == name for name in acc_roles)).all()
-            for role in db_roles:
-                acc.roles.append(role)
-    
-        db.session.add(acc)
-
+        
         char_id = get_character_id_from_name(char_name)
+        if char_id == 0:
+            flash("This Character does not exist!")
+        else:
+            acc = Account()
+            acc.username = acc_name
+            if acc_pw is not None:
+                acc.set_password(acc_pw.encode('utf-8'))
+            acc.login_token = get_random_token(16)
+            acc.email = acc_email
+            if len(acc_roles) > 0:
+                db_roles = db.session.query(Role).filter(or_(Role.name == name for name in acc_roles)).all()
+                for role in db_roles:
+                    acc.roles.append(role)
+        
+            db.session.add(acc)
+        
+            # find out if there is a character like that in the database
+            character = db.session.query(Character).filter(Character.id == char_id).first()
+            
+            if character is None:
+                character = Character()
+                character.eve_name = char_name
+                character.id = char_id
     
-        # find out if there is a character like that in the database
-        character = db.session.query(Character).filter(Character.id == char_id).first()
+            acc.characters.append(character)
+            
+            db.session.flush()
         
-        if character is None:
-            character = Character()
-            character.eve_name = char_name
-            character.id = char_id
-
-        acc.characters.append(character)
-        
-        db.session.flush()
-    
-        acc.current_char = char_id
-        
-        db.session.commit()
+            acc.current_char = char_id
+            
+            db.session.commit()
     
 
     roles = db.session.query(Role).order_by(Role.name).all();
@@ -161,21 +163,24 @@ def account_edit():
 
     if char_name is not None:
         char_id = get_character_id_from_name(char_name)
-        # find out if there is a character like that in the database
-        character = db.session.query(Character).filter(Character.id == char_id).first()
-    
-        if character is None:
-            character = Character()
-            character.eve_name = char_name
-            character.id = char_id
-
-        # check if character is linked to this account
-        link = db.session.query(linked_chars).filter((linked_chars.c.id == acc_id) & (linked_chars.c.char_id == char_id)).first();
-        if link is None:
-            acc.characters.append(character)
+        if char_id == 0:
+            flash("Character "+char_name+" does not exist!")
+        else:
+            # find out if there is a character like that in the database
+            character = db.session.query(Character).filter(Character.id == char_id).first()
         
-        db.session.flush()
-        acc.current_char = char_id
+            if character is None:
+                character = Character()
+                character.eve_name = char_name
+                character.id = char_id
+    
+            # check if character is linked to this account
+            link = db.session.query(linked_chars).filter((linked_chars.c.id == acc_id) & (linked_chars.c.char_id == char_id)).first();
+            if link is None:
+                acc.characters.append(character)
+            
+            db.session.flush()
+            acc.current_char = char_id
     
     db.session.commit()
     return redirect(url_for('.accounts'), code=303)
@@ -210,21 +215,26 @@ def account_self_edit():
 
     if char_name is not None:
         char_id = get_character_id_from_name(char_name)
-        # find out if there is a character like that in the database
-        character = db.session.query(Character).filter(Character.id == char_id).first()
-    
-        if character is None:
-            character = Character()
-            character.eve_name = char_name
-            character.id = char_id
-    
-        # check if character is linked to this account
-        link = db.session.query(linked_chars).filter((linked_chars.c.id == acc_id) & (linked_chars.c.char_id == char_id)).first();
-        if link is None:
-            acc.characters.append(character)
         
-        db.session.flush()
-        acc.current_char = char_id
+        if char_id == 0:
+            flash("Character " + char_name + " does not exist!")
+        else:
+            
+            # find out if there is a character like that in the database
+            character = db.session.query(Character).filter(Character.id == char_id).first()
+        
+            if character is None:
+                character = Character()
+                character.eve_name = char_name
+                character.id = char_id
+        
+            # check if character is linked to this account
+            link = db.session.query(linked_chars).filter((linked_chars.c.id == acc_id) & (linked_chars.c.char_id == char_id)).first();
+            if link is None:
+                acc.characters.append(character)
+            
+            db.session.flush()
+            acc.current_char = char_id
     
     db.session.commit()
     return redirect(url_for('.account_self'), code=303)
@@ -278,11 +288,19 @@ def bans_change():
                 ban_admin = current_user.get_eve_name()
             
             logger.info("Banning %s for %s by %s.", ban_name, ban_reason, ban_admin)
-            eve_id = get_character_by_name(ban_name).get_eve_id()
-            admin_id = get_character_by_name(ban_admin).get_eve_id()
+            ban_char = get_character_by_name(ban_name)
+            admin_char = get_character_by_name(ban_admin)
+            if ban_char is None:
+                logger.error("Did not find ban target %s", ban_name)
+                flash("Could not find Character " + ban_name, "danger")
+                continue
+
+            eve_id = ban_char.get_eve_id()
+            admin_id = admin_char.get_eve_id()
             
             if eve_id is None or admin_id is None:
                 logger.error("Failed to correctly parse: %", target)
+                flash("Failed to correctly parse " + target, "danger")
                 continue
 
             #check if ban already there
@@ -298,12 +316,15 @@ def bans_change():
     elif action == "unban":
         for target in targets:
             target = target.strip()
-            logger.info("Unbanning >%s<", target)
+            logger.info("%s is unbanning %s", current_user.username, target)
             eve_id = get_character_id_from_name(target)
-            # check that there is a ban
-            if db.session.query(Ban).filter(Ban.id == eve_id).count() > 0:
-                db.session.query(Ban).filter(Ban.id == eve_id).delete()
-                db.session.commit()
+            if eve_id == 0:
+                flash("Character " + target + " does not exist!")
+            else:
+                # check that there is a ban
+                if db.session.query(Ban).filter(Ban.id == eve_id).count() > 0:
+                    db.session.query(Ban).filter(Ban.id == eve_id).delete()
+                    db.session.commit()
     
     return redirect(url_for(".bans", code=303))
 
@@ -335,13 +356,19 @@ def fleet_status_set():
     elif action == "fc":
         name = request.form['name']
         eve_id = get_character_id_from_name(name)
-        fleet_status.fc = [name, eve_id]
-        flash("FC was set to "+name, "success")
+        if eve_id == 0:
+            flash("Character " + name + " does not exist!")
+        else:
+            fleet_status.fc = [name, eve_id]
+            flash("FC was set to "+name, "success")
     elif action == "manager":
         name = request.form['name']
         eve_id = get_character_id_from_name(name)
-        fleet_status.manager = [name, eve_id]
-        flash("Manager was set to "+name, "success")
+        if eve_id == 0:
+            flash("Character " + name + " does not exist!")
+        else:
+            fleet_status.manager = [name, eve_id]
+            flash("Manager was set to "+name, "success")
     elif action == "constellation":
         name = request.form['name']
         const_id = get_constellation(name).constellationID
@@ -570,6 +597,11 @@ def update_accounts_by_file(filename):
         acc_email = None
         main = main_dict[main_name]
         acc_roles = main['roles']
+        
+        main_char = get_character_by_name(main['main'])
+        if main_char is None:
+            flash("Failed to get Character for Name "+ main['main'], "danger")
+            continue
 
         acc = Account()
         acc.username = main_name
@@ -584,16 +616,17 @@ def update_accounts_by_file(filename):
 
         db.session.add(acc)
 
-        main_char = get_character_by_name(main['main'])
         acc.characters.append(main_char)
         
         for alt in main['alts']:
         # find out if there is a character like that in the database
             character = get_character_by_name(alt)
-
-            acc.characters.append(character)
+            if character is None:
+                flash("Failed to get character for alt with name " + alt, "danger")
+            else:
+                acc.characters.append(character)
     
-            db.session.flush()
+                db.session.flush()
 
         acc.current_char = main_char.get_eve_id()
         

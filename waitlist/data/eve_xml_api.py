@@ -12,6 +12,8 @@ def get_character_id_from_name(name):
         if response.result is None:
             return None
         char_id = int(response.result)
+        if char_id == 0:
+            return 0
         character = APICacheCharacterID()
         character.id = char_id
         character.name = name
@@ -149,6 +151,8 @@ def eve_api_cache_char_ids(characters):
         rows = response.result.find('rowset').findall('row')
         for row in rows:
             c_id = int(row.get('characterID'))
+            if c_id == 0:
+                continue
             c_name = row.get('name')
             character = db.session.query(APICacheCharacterID).filter(APICacheCharacterID.id == c_id).first();
             if character is None:

@@ -132,6 +132,8 @@ def create_new_character(eve_id, char_name):
 
 def get_character_by_name(eve_name):
     eve_id = get_character_id_from_name(eve_name)
+    if eve_id == 0:
+        return None
     return get_character_by_id_and_name(eve_id, eve_name)
 
 def get_character_by_id_and_name(eve_id, eve_name):
