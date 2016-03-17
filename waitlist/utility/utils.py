@@ -173,3 +173,16 @@ def get_character(user):
         return user.current_char_obj
     else:
         return user
+
+def get_info_from_ban(ban_line):
+    pos_name_end = ban_line.find(" - Reason:\"")
+    if pos_name_end != -1:
+        reason_end = ban_line.find("\" Admin:\"")
+        char_name = ban_line[:pos_name_end]
+        reason = ban_line[pos_name_end+11:reason_end]
+        admin = ban_line[reason_end+9:-1]
+    else:
+        char_name = ban_line
+        reason = None
+        admin = None
+    return char_name, reason, admin

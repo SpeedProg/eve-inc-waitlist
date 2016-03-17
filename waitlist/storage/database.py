@@ -254,6 +254,7 @@ class Ban(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String(100), index=True, unique=True)
     reason = Column(TEXT)
+    admin = Column(Integer, ForeignKey("characters.id"))
 
 class Feedback(Base):
     """

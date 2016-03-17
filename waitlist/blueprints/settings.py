@@ -10,10 +10,12 @@ from waitlist.storage.database import Account, Role, Character, roles,\
     linked_chars, Ban, Constellation, IncursionLayout, SolarSystem, Station,\
     WaitlistEntry
 import flask
-from waitlist.data.eve_xml_api import get_character_id_from_name
+from waitlist.data.eve_xml_api import get_character_id_from_name,\
+    eve_api_cache_char_ids
 from werkzeug.utils import redirect, secure_filename
 from flask.helpers import url_for, flash
-from waitlist.utility.utils import get_random_token
+from waitlist.utility.utils import get_random_token, get_info_from_ban,\
+    get_character_by_name
 from waitlist import db, app
 from waitlist.utility.eve_id_utils import get_constellation, get_system,\
     get_station
@@ -249,21 +251,46 @@ def bans_change():
         reason = request.form['reason'] # reason for ban
     
     targets = target.split("\n")
+
+    # pre-cache names for a faster api to not hit request limit
+    names_to_cache = []
+    for line in targets:
+        line = line.strip()
+        ban_name, _, ban_admin = get_info_from_ban(line)
+        names_to_cache.append(ban_name)
+        if ban_admin is not None:
+            names_to_cache.append(ban_admin)
     
-    
+    eve_api_cache_char_ids(names_to_cache)
     
     if action == "ban":
         for target in targets:
             target = target.strip()
-            logger.info("Banning >%s<", target)
-            eve_id = get_character_id_from_name(target)
+            
+            ban_name, ban_reason, ban_admin = get_info_from_ban(target)
+            
+            if ban_reason == None:
+                ban_reason = reason
+            
+            if ban_admin is None:
+                ban_admin = current_user.get_eve_name()
+            
+            logger.info("Banning %s for %s by %s.", ban_name, ban_reason, ban_admin)
+            eve_id = get_character_by_name(ban_name).get_eve_id()
+            admin_id = get_character_by_name(ban_admin).get_eve_id()
+            
+            if eve_id is None or admin_id is None:
+                logger.error("Failed to correctly parse: %", target)
+                continue
+
             #check if ban already there
             if db.session.query(Ban).filter(Ban.id == eve_id).count() == 0:
                 # ban him
                 new_ban = Ban()
                 new_ban.id = eve_id
-                new_ban.name = target
-                new_ban.reason = reason
+                new_ban.name = ban_name
+                new_ban.reason = ban_reason
+                new_ban.admin = admin_id
                 db.session.add(new_ban)
                 db.session.commit()
     elif action == "unban":

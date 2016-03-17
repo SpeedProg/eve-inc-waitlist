@@ -9,6 +9,8 @@ def get_character_id_from_name(name):
     if character is None:
         eve_api = eve.EVE()    
         response = eve_api.character_id_from_name(name)
+        if response.result is None:
+            return None
         char_id = int(response.result)
         character = APICacheCharacterID()
         character.id = char_id
@@ -131,4 +133,33 @@ def get_alliance_info(corp_id):
         allianceName = allianceNameNode.text
     
     return {'allianceID': response.result.find('allianceID').text, 'allianceName': allianceName, 'corporationName': corpName, 'expire': response.expires}
+
+def eve_api_cache_char_ids(characters):
+    # filter out characters that we know
+    characters = [char for char in characters if not is_char_cached(char)]
     
+    if len(characters) == 0:
+        return
+    
+    f = lambda A, n=100: [A[i:i+n] for i in range(0, len(A), n)]
+    char_lists = f(characters)
+    print char_lists
+    eve = api.API()
+    for char_list in char_lists:
+        response = eve.get('eve/CharacterID', {'names': ",".join(char_list)})
+        rows = response.result.find('rowset').findall('row')
+        for row in rows:
+            c_id = int(row.get('characterID'))
+            c_name = row.get('name')
+            character = db.session.query(APICacheCharacterID).filter(APICacheCharacterID.id == c_id).first();
+            if character is None:
+                character = APICacheCharacterID()
+                character.id = c_id
+                character.name = c_name
+                db.session.add(character)
+        db.session.commit()
+
+def is_char_cached(char_name):
+    character = db.session.query(APICacheCharacterID).filter(APICacheCharacterID.name == char_name).first();#
+    return (character is not None)
+            

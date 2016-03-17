@@ -1,11 +1,6 @@
 from waitlist.data.names import WTMRoles
 from waitlist.storage.database import Role
 from waitlist import db
+from waitlist.utility.utils import get_info_from_ban
 if __name__ == '__main__':
-    r = Role()
-    r.name = WTMRoles.dev
-    r.is_restrictive = True
-    
-    db.session.add(r)
-    db.session.commit()
-    
+    pass
