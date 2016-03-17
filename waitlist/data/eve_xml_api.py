@@ -10,7 +10,7 @@ def get_character_id_from_name(name):
         eve_api = eve.EVE()    
         response = eve_api.character_id_from_name(name)
         if response.result is None:
-            return None
+            return 0
         char_id = int(response.result)
         if char_id == 0:
             return 0

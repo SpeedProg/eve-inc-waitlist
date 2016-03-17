@@ -139,6 +139,7 @@ def get_character_by_name(eve_name):
 def get_character_by_id_and_name(eve_id, eve_name):
     char = get_char_from_db(eve_id);
     if char == None:
+        logger.info("No character found for id %d", eve_id)
         # create a new char
         char = create_new_character(eve_id, eve_name)
 
