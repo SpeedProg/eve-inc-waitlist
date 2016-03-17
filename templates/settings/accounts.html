@@ -67,6 +67,14 @@ $(document).ready(noclick);
 {% endblock %}
 
 {% block content %}
+<form action="{{url_for('settings.accounts_import_accounts')}}" method="POST" enctype=multipart/form-data class="form-inline">
+	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+	<div class="form-group">
+		<label for="acc-file">File:</label>
+		<input type="file" class="form-control" id="acc-file" name="file">
+	</div>
+	<button type="submit" class="btn btn-primary">Add Accounts</button>
+</form>
 <div class="btn-group" role="group" aria-label="Account Actions">
 	<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal-account-create">New Account</button>
 </div>
