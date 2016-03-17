@@ -143,7 +143,6 @@ def eve_api_cache_char_ids(characters):
     
     f = lambda A, n=100: [A[i:i+n] for i in range(0, len(A), n)]
     char_lists = f(characters)
-    print char_lists
     eve = api.API()
     for char_list in char_lists:
         response = eve.get('eve/CharacterID', {'names': ",".join(char_list)})
