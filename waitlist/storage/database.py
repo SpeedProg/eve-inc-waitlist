@@ -256,6 +256,7 @@ class Ban(Base):
     name = Column(String(100), index=True, unique=True)
     reason = Column(TEXT)
     admin = Column(Integer, ForeignKey("characters.id"))
+    admin_obj = relationship("Character", foreign_keys="Ban.admin")
 
 class Feedback(Base):
     """
