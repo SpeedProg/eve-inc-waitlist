@@ -203,6 +203,16 @@ function moveEntryToWaitlists(entryId, userId) {
     	</div>
     </div>
 	</div>
+	<div class="col-sm-6">
+		<div class="alert alert-info" role="alert">
+  			<p class="text-xs-center"><strong>Help us!</strong> We would like your <a href="{{url_for('feedback.index')}}">feedback</a>!</p>
+		</div>
+		{% if not xup_open %}
+		<div class="alert alert-warning" role="alert">
+  			<p class="text-xs-center">X-up is currently closed!</p>
+		</div>
+		{% endif %}
+	</div>
 </div>
 <div class="row" id="row-waitlists">
 <div id="waitlists">

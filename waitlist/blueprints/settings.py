@@ -428,7 +428,7 @@ def fleet_status_set():
 
         if xup != fleet_status.xup_enabled:
             fleet_status.xup_enabled = xup
-            logger.info("XUP was set to %b by %s", xup, current_user.username)
+            logger.info("XUP was set to %s by %s", xup, current_user.username)
 
         if perm_leadership.can() and perm_officer.can():
             fleet_status.status = text

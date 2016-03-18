@@ -128,9 +128,6 @@ $(document).ready(function () {
   		{% endfor %}
   		{% endif %}
 	{% endwith %}
-	<div class="alert alert-info" role="alert">
-  		<p class="text-xs-center"><strong>Help us!</strong> We would like your <a href="{{url_for('feedback.index')}}">feedback</a>!</p>
-	</div>
 	<div id="content" class="container-fluid">
 		{% block container_data %}
 		<div class="row" id="data">{% block data %}{% endblock %}</div>

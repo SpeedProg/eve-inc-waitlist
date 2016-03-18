@@ -101,10 +101,7 @@ def index():
     wlists.append(dps_wl)
     wlists.append(sniper_wl)
     
-    if fleet_status.xup_enabled == False:
-        flash("X-UP is currently closed!", "warning")
-    
-    return render_template("index.html", lists=wlists, user=current_user, queue=queue, fleet=fleet_status, is_index=True)
+    return render_template("index.html", lists=wlists, user=current_user, queue=queue, fleet=fleet_status, is_index=True, xup_open=fleet_status.xup_enabled)
 
 @app.route("/help", methods=["GET"])
 def site_help():
