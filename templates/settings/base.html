@@ -42,7 +42,7 @@
 		<a class="nav-link {% block m_account %}{% endblock %}" href="{{url_for('settings.accounts')}}">Accounts</a>
 	</li>
 	{% endif %}
-	{% if perm_officer.can() %}
+	{% if perm_bans.can() %}
 	<li class="nav-item">
 		<a class="nav-link {% block m_ban %}{% endblock %}" href="{{url_for('settings.bans')}}">Bans</a>
 	</li>

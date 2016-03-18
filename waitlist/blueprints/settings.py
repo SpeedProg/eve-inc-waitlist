@@ -3,7 +3,7 @@ import logging
 from flask_login import login_required, current_user
 from waitlist.data.perm import perm_admin, perm_settings, perm_officer,\
     perm_management, perm_accounts, perm_dev, perm_leadership,\
-    perm_fleetlocation
+    perm_fleetlocation, perm_bans
 from flask.templating import render_template
 from flask.globals import request
 from sqlalchemy import or_
@@ -249,7 +249,7 @@ def account_self():
 
 @bp_settings.route("/bans", methods=["GET"])
 @login_required
-@perm_officer.require(http_exception=401)
+@perm_bans.require(http_exception=401)
 def bans():
     bans = db.session.query(Ban).all()
     return render_template("settings/bans.html", bans=bans)
@@ -331,7 +331,7 @@ def bans_change():
 
 @bp_settings.route("/bans_change_single", methods=["POST"])
 @login_required
-@perm_officer.require(http_exception=401)
+@perm_bans.require(http_exception=401)
 def bans_change_single():
     action = request.form['change'] # ban, unban
     target = request.form['target'] # name of target
@@ -386,7 +386,7 @@ def bans_change_single():
 
 @bp_settings.route("/bans_unban", methods=["POST"])
 @login_required
-@perm_officer.require(http_exception=401)
+@perm_bans.require(http_exception=401)
 def bans_unban_single():
     target = request.form['target'] # name of target
     target = target.strip()
