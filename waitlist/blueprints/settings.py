@@ -6,7 +6,7 @@ from waitlist.data.perm import perm_admin, perm_settings, perm_officer,\
     perm_fleetlocation, perm_bans
 from flask.templating import render_template
 from flask.globals import request
-from sqlalchemy import or_, desc
+from sqlalchemy import or_, asc
 from waitlist.storage.database import Account, Role, Character, roles,\
     linked_chars, Ban, Constellation, IncursionLayout, SolarSystem, Station,\
     WaitlistEntry
@@ -251,7 +251,7 @@ def account_self():
 @login_required
 @perm_bans.require(http_exception=401)
 def bans():
-    bans = db.session.query(Ban).order_by(desc(Ban.name)).all()
+    bans = db.session.query(Ban).order_by(asc(Ban.name)).all()
     return render_template("settings/bans.html", bans=bans)
 
 @bp_settings.route("/bans_change", methods=["POST"])
