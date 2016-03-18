@@ -4,6 +4,7 @@
 
 {% block head %}
 {{ super() }}
+{% if fleet.xup_enabled %}
 <script>
 $(document).ready(function() {
 	var calbsgrp = document.getElementById('grp-cbslvl');
@@ -16,26 +17,18 @@ $(document).ready(function() {
 		var textarea = $(e.target);
 		var currentText = textarea.val();
 		if (resist_regex.test(currentText)) {
-			if (calbsgrp.hidden) {
-				calbsgrp.hidden=false;
-				logi_select.required=true;
-			}
+			$(calbsgrp).show();
+			logi_select.required=true;
 		} else {
-			if (!calbsgrp.hidden) {
-				calbsgrp.hidden=true;
-				logi_select.required=false;
-			}
+			$(calbsgrp).hide();
+			logi_select.required=false;
 		}
 		if (logi_regex.test(currentText)) {
-			if (logilvlgrp.hidden) {
-				logilvlgrp.hidden=false;
-				logi_select.required=true;
-			}
+			$(logilvlgrp).show();
+			logi_select.required=true;
 		} else {
-			if (!logilvlgrp.hidden) {
-				logilvlgrp.hidden=true;
-				logi_select.required=false;
-			}
+			$(logilvlgrp).hide();
+			logi_select.required=false;
 		}
 		
 	}
@@ -45,6 +38,7 @@ $(document).ready(function() {
 });
 
 </script>
+{% endif %}
 {% endblock %}
 
 {% block data %}
@@ -61,7 +55,7 @@ I am new to WarpToMe or Incursions</label>
 <label for="fittings">Fittings</label>
 <textarea class="form-control" id="fittings" name="fits" rows="10" cols="50" placeholder="Post your fittings here" required></textarea>
 </fieldset>
-<fieldset class="form-group" id="grp-cbslvl" hidden>
+<fieldset class="form-group" id="grp-cbslvl">
 	<label for="cbs">Caldari Battleship Level</label>
 	<select class="form-control" id="cbs" name="cbs">
 		<option value="">No Caldari BS</option>
@@ -72,7 +66,7 @@ I am new to WarpToMe or Incursions</label>
 		<option value="5">5</option>
 	</select>
 </fieldset>
-<fieldset class="form-group" id="grp-logilvl" hidden>
+<fieldset class="form-group" id="grp-logilvl">
 	<label for="logi">Logistic Cruiser Level</label>
 	<select class="form-control" id="logi" name="logi">
 		<option value="">No Logi</option>
