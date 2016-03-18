@@ -127,8 +127,14 @@ def xup_submit():
     -> put info into comment of the fit
     '''
     fittings = request.form['fits']
-    logilvl = int(request.form['logi'])
-    caldari_bs_lvl = int(request.form['cbs'])
+    logilvl = request.form['logi']
+    if logilvl == "":
+        logilvl = "0"
+    caldari_bs_lvl = request.form['cbs']
+    if caldari_bs_lvl == "":
+        caldari_bs_lvl = "0"
+    logilvl = int(logilvl)
+    caldari_bs_lvl = int(caldari_bs_lvl)
     newbro = request.form.get('newbro', "off")
     newbro = (newbro is not "off")
     get_character(current_user).newbro = newbro
