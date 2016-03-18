@@ -251,6 +251,7 @@ class APICacheCharacterAffiliation(Base):
     expire = Column(DateTime)
 
 class Ban(Base):
+    __tablename__ = "ban"
     id = Column(Integer, primary_key=True)
     name = Column(String(100), index=True, unique=True)
     reason = Column(TEXT)
