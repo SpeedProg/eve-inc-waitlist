@@ -47,6 +47,7 @@
 		<th>Char ID</th>
 		<th>Character Name</th>
 		<th>Reason</th>
+		<th>By</th>
 		<th>Actions</th>
 	</tr>
 </thead>
@@ -56,6 +57,7 @@
 		<td id="ban-{{ban.id}}-id">{{ ban.id }}</td>
 		<td id="ban-{{ban.id}}-name">{{ ban.name }}</td>
 		<td id="ban-{{ban.id}}-reason">{{ ban.reason }}</td>
+		<td id="ban-{{ban.id}}-by">{{ ban.admin_obj.eve_name }}</td>
 		<td>
 		<form name="unbanform" action="{{url_for('settings.bans_unban_single')}}" method="post">
 		<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
