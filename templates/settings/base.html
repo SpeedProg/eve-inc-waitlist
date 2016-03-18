@@ -4,23 +4,6 @@
 
 {% block head %}
 {{ super() }}
-<style>
-.sidebar {
-    position: fixed;
-    top: 50px;
-    bottom: 0;
-    left: 0;
-    z-index: 1000;
-    display: block;
-    padding: 20px;
-    overflow-x: hidden;
-    overflow-y: auto;
-    background-color: #F3F3F3;
-    }
-.content {
-	padding-left: 30px;
-}
-</style>
 {% endblock %}
 
 {% block data %}
@@ -59,7 +42,7 @@
 	{% endif %}
 	</ul>
 </div>
-<div class="col-sm-7 col-sm-offset-3 col-md-8 col-md-offset-2 content" id="main">
+<div class="col-sm-9 col-md-10 content" id="main">
 <div class="row">
 {% block content %}<p> Please select something on the left side </p>{% endblock %}
 </div>
