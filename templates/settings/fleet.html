@@ -91,7 +91,16 @@ $(document).ready(function(){
     	<form action="{{url_for('settings.fleet_status_set')}}" method="post" class="form-inline">
     		<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
     		<input type="hidden" name="action" value="status">
+    		{% if perm_officer.can() or perm_leadership.can() %}
     		<input type="text" name="status" value="{{fleet.status}}">
+    		{% else %}
+    		<select class="form-control" id="status" name="status" required>
+				<option value="">Please Select</option>
+				<option value="Down"{% if fleet.status == "Down" %} selected{% endif %}>Down</option>
+				<option value="Forming"{% if fleet.status == "Forming" %} selected{% endif %}>Forming</option>
+				<option value="Running"{% if fleet.status == "Running" %} selected{% endif %}>Running</option>
+			</select>
+    		{% endif %}
     		<label><input name="xup" type="checkbox" {% if fleet.xup_enabled %}checked{% endif %}> X-UP Open</label>
     		<button type="submit" class="btn btn-primary">Set</button>
     	</form>
@@ -121,11 +130,12 @@ $(document).ready(function(){
     	</form>
     	</td>
     </tr>
+    {% if perm_officer.can() or perm_leadership.can() %}
     <tr>
     	<th scope="row">Constellation</th>
     	<td>{% if fleet.constellation is not none %}<a href="javascript:CCPEVE.showInfo(4, {{fleet.constellation[1]}});">{{fleet.constellation[0]}}</a>{% else %}Not Set{% endif %}</td>
     	<td>
-    	<form action="{{url_for('settings.fleet_status_set')}}" method="post" class="form-inline">
+    	<form action="{{url_for('settings.fleet_location_set')}}" method="post" class="form-inline">
     	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
     	<input type="hidden" name="action" value="constellation">
     	<input id="con-typeahead" class="typeahead" type="text" name="name">
@@ -137,7 +147,7 @@ $(document).ready(function(){
     	<th scope="row">Dockup</th>
     	<td>{% if fleet.dock is not none %}<a href="javascript:CCPEVE.setDestination({{fleet.dock[1]}});">{{fleet.dock[0]}}</a>{% else %}Not Set{% endif %}</td>
     	<td>
-    	<form action="{{url_for('settings.fleet_status_set')}}" method="post" class="form-inline">
+    	<form action="{{url_for('settings.fleet_location_set')}}" method="post" class="form-inline">
     	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
     	<input type="hidden" name="action" value="dock">
     	<input id="dock-typeahead" class="typeahead" type="text" name="name">
@@ -149,7 +159,7 @@ $(document).ready(function(){
     	<th scope="row">HQ System</th>
     	<td>{% if fleet.systemhq is not none %}<a href="javascript:CCPEVE.showInfo(5, {{fleet.systemhq[1]}});">{{fleet.systemhq[0]}}</a>{% else %}Not Set{% endif %}</td>
     	<td>
-    	<form action="{{url_for('settings.fleet_status_set')}}" method="post" class="form-inline">
+    	<form action="{{url_for('settings.fleet_location_set')}}" method="post" class="form-inline">
     	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
     	<input type="hidden" name="action" value="systemhq">
     	<input id="hq-typeahead" class="typeahead" type="text" name="name">
@@ -157,6 +167,7 @@ $(document).ready(function(){
     	</form>
     	</td>
     </tr>
+    {% endif %}
     </tbody>
     </table>
   </div>

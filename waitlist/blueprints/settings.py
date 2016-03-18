@@ -2,7 +2,8 @@ from flask.blueprints import Blueprint
 import logging
 from flask_login import login_required, current_user
 from waitlist.data.perm import perm_admin, perm_settings, perm_officer,\
-    perm_management, perm_accounts, perm_dev
+    perm_management, perm_accounts, perm_dev, perm_leadership,\
+    perm_fleetlocation
 from flask.templating import render_template
 from flask.globals import request
 from sqlalchemy import or_
@@ -255,7 +256,7 @@ def bans():
 
 @bp_settings.route("/bans_change", methods=["POST"])
 @login_required
-@perm_officer.require(http_exception=401)
+@perm_leadership.require(http_exception=401)
 def bans_change():
     action = request.form['change'] # ban, unban
     target = request.form['target'] # name of target
@@ -287,7 +288,7 @@ def bans_change():
             if ban_admin is None:
                 ban_admin = current_user.get_eve_name()
             
-            logger.info("Banning %s for %s by %s.", ban_name, ban_reason, ban_admin)
+            logger.info("Banning %s for %s by %s as %s.", ban_name, ban_reason, ban_admin, current_user.username)
             ban_char = get_character_by_name(ban_name)
             admin_char = get_character_by_name(ban_admin)
             if ban_char is None:
@@ -328,6 +329,79 @@ def bans_change():
     
     return redirect(url_for(".bans", code=303))
 
+@bp_settings.route("/bans_change_single", methods=["POST"])
+@login_required
+@perm_officer.require(http_exception=401)
+def bans_change_single():
+    action = request.form['change'] # ban, unban
+    target = request.form['target'] # name of target
+
+    target = target.strip()
+    
+    ban_admin = current_user.get_eve_name()
+    ban_name = target
+
+    
+    
+    if action == "ban":
+        reason = request.form['reason'] # reason for ban
+        ban_char = get_character_by_name(ban_name)
+        admin_char = get_character_by_name(ban_admin)
+        logger.info("Banning %s for %s as %s.", ban_name, reason, current_user.username)
+        if ban_char is None:
+            logger.error("Did not find ban target %s", ban_name)
+            flash("Could not find Character " + ban_name, "danger")
+            return
+
+        eve_id = ban_char.get_eve_id()
+        admin_id = admin_char.get_eve_id()
+        
+        if eve_id is None or admin_id is None:
+            logger.error("Failed to correctly parse: %", target)
+            flash("Failed to correctly parse " + target, "danger")
+            return
+
+        #check if ban already there
+        if db.session.query(Ban).filter(Ban.id == eve_id).count() == 0:
+            # ban him
+            new_ban = Ban()
+            new_ban.id = eve_id
+            new_ban.name = ban_name
+            new_ban.reason = reason
+            new_ban.admin = admin_id
+            db.session.add(new_ban)
+            db.session.commit()
+    elif action == "unban":
+        logger.info("%s is unbanning %s", current_user.username, target)
+        eve_id = get_character_id_from_name(target)
+        if eve_id == 0:
+            flash("Character " + target + " does not exist!")
+        else:
+            # check that there is a ban
+            if db.session.query(Ban).filter(Ban.id == eve_id).count() > 0:
+                db.session.query(Ban).filter(Ban.id == eve_id).delete()
+                db.session.commit()
+
+    return redirect(url_for(".bans", code=303))
+
+@bp_settings.route("/bans_unban", methods=["POST"])
+@login_required
+@perm_officer.require(http_exception=401)
+def bans_unban_single():
+    target = request.form['target'] # name of target
+    target = target.strip()
+    logger.info("%s is unbanning %s", current_user.username, target)
+    eve_id = get_character_id_from_name(target)
+    if eve_id == 0:
+        flash("Character " + target + " does not exist!")
+    else:
+        # check that there is a ban
+        if db.session.query(Ban).filter(Ban.id == eve_id).count() > 0:
+            db.session.query(Ban).filter(Ban.id == eve_id).delete()
+            db.session.commit()
+    
+    return redirect(url_for(".bans", code=303))
+
 @bp_settings.route("/api/account/<int:acc_id>", methods=["DELETE"])
 @login_required
 @perm_admin.require(http_exception=401)
@@ -341,6 +415,7 @@ def api_account_delete(acc_id):
 @perm_management.require(http_exception=401)
 def fleet_status_set():
     action = request.form['action']
+
     if action == "status":
         text = request.form['status']
         xup = request.form.get('xup', 'off')
@@ -350,9 +425,25 @@ def fleet_status_set():
         else:
             xup = True
             xup_text = "open"
-        fleet_status.xup_enabled = xup
-        fleet_status.status = text
-        flash("Status was set to "+text+", xup is "+xup_text, "success")
+
+        if xup != fleet_status.xup_enabled:
+            fleet_status.xup_enabled = xup
+            logger.info("XUP was set to %b by %s", xup, current_user.username)
+
+        if perm_leadership.can() and perm_officer.can():
+            fleet_status.status = text
+            logger.info("Status was set to %s by %s", fleet_status.status, current_user.username)
+            flash("Status was set to "+text+", xup is "+xup_text, "success")
+            
+        else:
+            if text == "Running" or text == "Down" or text == "Forming":
+                fleet_status.status = text
+                logger.info("Status was set to %s by %s", fleet_status.status, current_user.username)
+                flash("Status was set to "+text+", xup is "+xup_text, "success")
+            else:
+                logger.info("%s tried to set the status to %s and did not have the rights", current_user.username, fleet_status.status)
+                flash("You do not have the rights to change the status to "+text, "danger")
+                flash("XUP is now "+xup_text, "success")
     elif action == "fc":
         name = request.form['name']
         eve_id = get_character_id_from_name(name)
@@ -369,28 +460,42 @@ def fleet_status_set():
         else:
             fleet_status.manager = [name, eve_id]
             flash("Manager was set to "+name, "success")
-    elif action == "constellation":
+    
+    return redirect(url_for(".fleet"), code=303)
+
+@bp_settings.route("/fleet/location/set", methods=["POST"])
+@login_required
+@perm_fleetlocation.require(http_exception=401)
+def fleet_location_set():
+    action = request.form['action']
+    if action == "constellation":
         name = request.form['name']
         const_id = get_constellation(name).constellationID
         fleet_status.constellation = [name, const_id]
+        logger.info("Constellation was set to %s by %s", name, current_user.username)
         # if we set the constellation look up if we already know dock and hq system
         inc_layout = db.session.query(IncursionLayout).filter(IncursionLayout.constellation == const_id).first()
         # if we know it, set the other information
         if inc_layout is not None:
             fleet_status.systemhq = [inc_layout.obj_headquarter.solarSystemName, inc_layout.obj_headquarter.solarSystemID]
-            fleet_status.dock = [inc_layout.obj_dockup.stationName, inc_layout.obj_dockup.stationID]            
-        flash("Constellation was set to "+name, "success")
+            logger.info("HQ System was autoset to %s by %s", fleet_status.systemhq[0], current_user.username)
+            fleet_status.dock = [inc_layout.obj_dockup.stationName, inc_layout.obj_dockup.stationID]   
+            logger.info("Dock was autoset to %s by %s", fleet_status.dock[0], current_user.username)
+                 
+        flash("Constellation was set to " + name, "success")
     elif action == "systemhq":
         name = request.form['name']
         system_id = get_system(name).solarSystemID
         fleet_status.systemhq = [name, system_id]
+        logger.info("HQ System was set to %s by %s", name, current_user.username)
         flash("HQ System was set to "+name, "success")
     elif action == "dock":
         name = request.form['name']
         station_id = get_station(name).stationID
         fleet_status.dock = [name, station_id]
-        flash("Dock was set to "+name, "success")
-    
+        logger.info("Dock was set to %s by %s", name, current_user.username)
+        flash("Dock was set to " + name, "success")
+
     return redirect(url_for(".fleet"), code=303)
 
 @bp_settings.route("/sde/update/typeids", methods=["POST"])

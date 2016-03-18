@@ -10,6 +10,7 @@
 
 {% block content %}
 <div class="btn-group" role="group" aria-label="Add Ban Actionbar">
+	{% if perm_leadership.can() %}
 	<form class="form-inline" name="banform" action="{{url_for('settings.bans_change')}}" method="post">
 		<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 		<input name="change" value="ban" hidden>
@@ -23,6 +24,22 @@
 		</div>
 		<button type="submit" class="btn btn-danger">Ban</button>
 	</form>
+	{% endif %}
+	{% if perm_officer.can() and not perm_leadership.can() %}
+	<form class="form-inline" name="banform" action="{{url_for('settings.bans_change_single')}}" method="post">
+		<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+		<input type="hidden" name="change" value="ban">
+		<div class="form-group">
+			<label for="eve_name">Name</label>
+    		<input type="text" class="form-control" name="target" id="eve_name">
+		</div>
+		<div class="form-group">
+			<label for="reason">Reason</label>
+    		<input type="text" class="form-control" name="reason" id="reason">
+		</div>
+		<button type="submit" class="btn btn-danger">Ban</button>
+	</form>
+	{% endif %}
 </div>
 <table class="table">
 <thead>
@@ -40,9 +57,8 @@
 		<td id="ban-{{ban.id}}-name">{{ ban.name }}</td>
 		<td id="ban-{{ban.id}}-reason">{{ ban.reason }}</td>
 		<td>
-		<form name="unbanform" action="{{url_for('settings.bans_change')}}" method="post">
+		<form name="unbanform" action="{{url_for('settings.bans_unban_single')}}" method="post">
 		<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
-		<input name="change" value="unban" hidden>
 		<input name="target" value="{{ban.name}}" hidden>
 		<button type="submit" class="btn btn-sm btn-warning">Unban</button>
 		</form>
