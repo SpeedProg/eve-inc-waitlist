@@ -28,7 +28,7 @@ def createWaitlists():
     for wl_name in wl_names:
         wl = Waitlist()
         wl.name = wl_name
-        db.session.add(wl)
+        db.session.merge(wl)
 
 if __name__ == '__main__':
     createRoles()
