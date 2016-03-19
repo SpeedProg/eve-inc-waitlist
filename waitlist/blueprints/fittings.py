@@ -21,6 +21,7 @@ from waitlist.data.sse import ServerSentEvent, InviteEvent
 from flask import Response
 from gevent.queue import Queue
 from waitlist.blueprints.fleetstatus import fleet_status
+import flask
 
 bp_waitlist = Blueprint('fittings', __name__)
 logger = logging.getLogger(__name__)
@@ -80,12 +81,17 @@ def api_wl_remove_entry():
 def remove_self_fit(fitid):
     logger.info("%s removed their fit with id %d", current_user.get_eve_name(), fitid)
     fit = db.session.query(Shipfit).filter(Shipfit.id == fitid).first()
-    db.session.delete(fit)
     wlentry = db.session.query(WaitlistEntry).filter(WaitlistEntry.id == fit.waitlist_id).first()
-    if len(wlentry.fittings) <= 0:
-        db.session.delete(wlentry)
     
-    db.session.commit()
+    if (wlentry.user == current_user.get_eve_id()):
+        db.session.delete(fit)
+        if len(wlentry.fittings) <= 0:
+            db.session.delete(wlentry)
+
+        db.session.commit()
+    else:
+        flask.abort(403)
+
     return "success"
 
 # remove your self from a wl by wl entry id
