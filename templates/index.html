@@ -399,6 +399,7 @@ $(document).ready(function() {
 {% endfor %}
 </div>
 </div>
+{% if perm_man.can() %}
 <div class="modal fade bd-example-modal-sm" id="remove-diag" tabindex="-1" role="dialog" aria-labelledby="remove-diag-label" aria-hidden="true">
   <div class="modal-dialog modal-sm">
     <div class="modal-content">
@@ -417,4 +418,5 @@ $(document).ready(function() {
     </div>
   </div>
 </div>
+{% endif %}
 {% endblock %}
