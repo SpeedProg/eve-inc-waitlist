@@ -22,7 +22,7 @@ $(document).ready(
 {% if is_igb %}
 <p>
 This page can only be used from an up-to-date out of game browser, that supports Server Send Events. (No IE, Edge)
-<a href="http://caniuse.com/#feat=eventsource">End of site contains supported browser list.</a>
+<a href="https://developer.mozilla.org/en-US/docs/Web/API/EventSource">End of this site contains supported browser list.</a>
 </p>
 {% endif %}
 <audio id="sound" src="{{url_for('static', filename='gong-sound.mp3')}}" preload="auto" controls loop></audio>
