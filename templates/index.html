@@ -7,12 +7,14 @@
 {{ super() }}
 <script type="text/javascript">
 $(document).ready(function(){    
-    $('#status-body').on('shown.bs.collapse', function () {
-       $("#status-icon").removeClass("fa-chevron-down").addClass("fa-chevron-up");
+    $('.collapse').on('shown.bs.collapse', function (e) {
+    	var togglerSelector = $(e.target).data("tog-icon");
+       	$(togglerSelector).removeClass("fa-chevron-down").addClass("fa-chevron-up");
     });
 
-    $('#status-body').on('hidden.bs.collapse', function () {
-       $("#status-icon").removeClass("fa-chevron-up").addClass("fa-chevron-down");
+    $('.collapse').on('hidden.bs.collapse', function (e) {
+    	var togglerSelector = $(e.target).data("tog-icon");
+		$(togglerSelector).removeClass("fa-chevron-up").addClass("fa-chevron-down");
     });
 });
 function removeSelf() {
@@ -188,7 +190,7 @@ $(document).ready(function() {
 	<div class="card">
 		<div style="cursor: pointer;" class="card-header" id="status-heading" data-toggle="collapse" data-target="#status-body" id="status-toggle">
 	      <h4 class="card-title">
-	          Status: {{fleet.status}}<i class="fa fa-chevron-down pull-xs-right" id="status-icon"></i>
+	          Status: {{fleet.status}}<i id="status-tog-icon" class="fa fa-chevron-down pull-xs-right" id="status-icon"></i>
 	      </h4>
 	    </div>
 	    <div class="">
@@ -201,7 +203,7 @@ $(document).ready(function() {
 	    </tbody>
 	    </table>
 	    </div>
-	    <div id="status-body" class="collapse">
+	    <div id="status-body" class="collapse" data-tog-icon="#status-tog-icon">
 		    <table class="table-sm">
 		    <tbody>
 		    <!--
@@ -246,157 +248,173 @@ $(document).ready(function() {
 <div class="row" id="row-waitlists">
 <div id="waitlists">
 <div class="col-sm-3" id="wl-{{ queue.name }}">
-	<ol class="list-group">
-		<li class="list-group-item text-capitalize">X-Ups</li>
-		{% for entry in queue.entries %}
-		<li class="list-group-item" id="entry-{{ queue.name }}-{{ entry.user }}">
-			<div class="card">
-				<div class="container">
-					{% if user.get_eve_id() == entry.user or perm_man.can() %}
-					<a href="javascript:CCPEVE.showInfo(1377, {{ entry.user }});">
-					{% endif %}
-					<div class="row">
-						<div class="col-sm-2 hidden-sm-down">
-							<img src="https://image.eveonline.com/Character/{{ entry.user }}_32.jpg" alt="{{ entry.user_data.eve_name|e }}">
+	<div class="panel panel-default">
+		<div class="panel-heading" role="tab" id="wl-{{ queue.id }}-heading" data-toggle="collapse" data-parent="#wl-{{ queue.id }}-tog" data-target="#wl-{{ queue.id }}-fits" aria-expanded="true" aria-controls="wl-{{ queue.id }}-fits">
+      		<h4 class="panel-title">
+        	<a class="list-group-item text-capitalize">
+				X-Ups<i class="fa fa-chevron-up pull-xs-right" id="wl-{{ queue.id }}-tog-icon"></i>
+        	</a>
+      		</h4>
+    	</div>
+		<ol data-tog-icon="#wl-{{ queue.id }}-tog-icon" class="list-group collapse in" id="wl-{{ queue.id }}-fits" role="tabpanel" aria-labelledby="wl-{{ queue.id }}-heading">
+			{% for entry in queue.entries %}
+			<li class="list-group-item" id="entry-{{ queue.name }}-{{ entry.user }}">
+				<div class="card">
+					<div class="container">
+						{% if user.get_eve_id() == entry.user or perm_man.can() %}
+						<a href="javascript:CCPEVE.showInfo(1377, {{ entry.user }});">
+						{% endif %}
+						<div class="row">
+							<div class="col-sm-2 hidden-sm-down">
+								<img src="https://image.eveonline.com/Character/{{ entry.user }}_32.jpg" alt="{{ entry.user_data.eve_name|e }}">
+							</div>
+							<div class="col-sm-8">
+							{{ entry.user_data.eve_name|e }}{% if (user.get_eve_id() == entry.user or perm_man.can()) and entry.user_data.is_new() %} <span class="label label-info">New</span>{% endif %}
+							</div>
 						</div>
-						<div class="col-sm-8">
-						{{ entry.user_data.eve_name|e }}{% if (user.get_eve_id() == entry.user or perm_man.can()) and entry.user_data.is_new() %} <span class="label label-info">New</span>{% endif %}
+						{% if user.get_eve_id() == entry.user or perm_man.can() %}
+						</a>
+						{% endif %}
+						<div class="row">
+							<div class="btn-group btn-group-mini" role="group" aria-label="Action Buttons">
+								{% if perm_man.can() %}
+								<!-- <button type="button" class="btn btn-primary" onclick="javascript:CCPEVE.showInfo(1377, {{ entry.user }})">Char</button> -->
+								<button type="button" class="btn btn-danger"  data-toggle="modal" data-target="#remove-diag" data-type="removeEntry" data-entry="{{entry.id}}" data-user="{{entry.user}}">Remove</button>
+								<button type="button" class="btn btn-secondary" onclick="javascript:CCPEVE.startConversation({{ entry.user }})">Convo</button>
+								<button type="button" class="btn btn-success" onclick="javascript:moveEntryToWaitlists({{ entry.id }}, {{ entry.user }})">Approve</button>
+								{% endif %}
+								{% if user.get_eve_id() == entry.user %}
+								<button type="button" class="btn btn-warning"
+									onclick="javascript:removeOwnEntry('{{queue.name}}', {{entry.user}}, {{ entry.id }});">Remove Self</button>
+								{% endif %}
+								{% if user.get_eve_id() == entry.user or perm_viewfits.can() %}
+								<button type="button" data-toggle="collapse" data-target="#fittings-{{entry.id}}" class="btn btn-primary">Show/Hide Fits</button>
+								{% endif %}
+							</div>
 						</div>
+						
 					</div>
-					{% if user.get_eve_id() == entry.user or perm_man.can() %}
-					</a>
-					{% endif %}
-					<div class="row">
-						<div class="btn-group btn-group-mini" role="group" aria-label="Action Buttons">
-							{% if perm_man.can() %}
-							<!-- <button type="button" class="btn btn-primary" onclick="javascript:CCPEVE.showInfo(1377, {{ entry.user }})">Char</button> -->
-							<button type="button" class="btn btn-danger"  data-toggle="modal" data-target="#remove-diag" data-type="removeEntry" data-entry="{{entry.id}}" data-user="{{entry.user}}">Remove</button>
-							<button type="button" class="btn btn-secondary" onclick="javascript:CCPEVE.startConversation({{ entry.user }})">Convo</button>
-							<button type="button" class="btn btn-success" onclick="javascript:moveEntryToWaitlists({{ entry.id }}, {{ entry.user }})">Approve</button>
-							{% endif %}
-							{% if user.get_eve_id() == entry.user %}
-							<button type="button" class="btn btn-warning"
-								onclick="javascript:removeOwnEntry('{{queue.name}}', {{entry.user}}, {{ entry.id }});">Remove Self</button>
-							{% endif %}
-							{% if user.get_eve_id() == entry.user or perm_viewfits.can() %}
-							<button type="button" data-toggle="collapse" data-target="#fittings-{{entry.id}}" class="btn btn-primary">Show/Hide Fits</button>
-							{% endif %}
-						</div>
-					</div>
-					
+					{% if user.get_eve_id() == entry.user or perm_viewfits.can() %}
+	  				<ul class="list-group list-group-flush collapse" id="fittings-{{entry.id}}">
+					{% for fit in entry.fittings %}
+	    				<li class="list-group-item fitting">
+	    					<div class="container fit-link" data-dna="{{ fit.ship_type }}:{{ fit.modules }}">
+	    					<div class="row">
+	    						<div class="col-sm-4 hidden-sm-down">
+	    						<img src="https://image.eveonline.com/Render/{{ fit.ship_type }}_32.png" alt="{{ entry.user_data.eve_name|e }}">
+	    						</div>
+	    						<div class="col-sm-8">
+	    							<div class="row">
+	    							{{ fit.ship.typeName|e }}
+	    							</div>
+	    							{% if fit.comment is not none %}
+	    							<div class="row">
+	    							<small>{{ fit.comment|safe }}</small>
+	    							</div>
+	    							{% endif %}
+	    						</div>
+	    					</div>
+	    					</div>
+	    				</li>
+					{% endfor %}
+	  				</ul>
+	  				{% endif %}
 				</div>
-				{% if user.get_eve_id() == entry.user or perm_viewfits.can() %}
-  				<ul class="list-group list-group-flush collapse" id="fittings-{{entry.id}}">
-				{% for fit in entry.fittings %}
-    				<li class="list-group-item fitting">
-    					<div class="container fit-link" data-dna="{{ fit.ship_type }}:{{ fit.modules }}">
-    					<div class="row">
-    						<div class="col-sm-4 hidden-sm-down">
-    						<img src="https://image.eveonline.com/Render/{{ fit.ship_type }}_32.png" alt="{{ entry.user_data.eve_name|e }}">
-    						</div>
-    						<div class="col-sm-8">
-    							<div class="row">
-    							{{ fit.ship.typeName|e }}
-    							</div>
-    							{% if fit.comment is not none %}
-    							<div class="row">
-    							<small>{{ fit.comment|safe }}</small>
-    							</div>
-    							{% endif %}
-    						</div>
-    					</div>
-    					</div>
-    				</li>
-				{% endfor %}
-  				</ul>
-  				{% endif %}
-			</div>
-		</li>
-		{% endfor %}
-	</ol>
+			</li>
+			{% endfor %}
+		</ol>
+	</div>
 </div>
 {% for wlist in lists %}
 <div class="col-sm-3" id="wl-{{ wlist.name }}">
-	<ol class="list-group">
-		<li class="list-group-item text-capitalize">{{ wlist.name|e }} WL</li>
-		{% for entry in wlist.entries %}
-		<li class="list-group-item"
-			id="entry-{{wlist.name}}-{{ entry.user }}" {% if user.get_eve_id() == entry.user %}data-count="{{entry.fittings|length}}"{% endif %}>
-			<div class="card">
-				<div class="container">
-					{% if user.get_eve_id() == entry.user or perm_man.can() %}
-					<a href="javascript:CCPEVE.showInfo(1377, {{ entry.user }});">
-					{% endif %}
-					<div class="row">
-					
-						<div class="col-sm-2 col-xs-4">
-								<img
-								src="https://image.eveonline.com/Character/{{ entry.user }}_32.jpg"
-								alt="{{ entry.user_data.eve_name|e }}">
+	<div class="panel panel-default">
+		<div class="panel-heading" role="tab" id="wl-{{ wlist.id }}-heading">
+      		<h4 class="panel-title">
+        	<a  class="list-group-item text-capitalize" data-toggle="collapse" data-parent="#wl-{{ wlist.id }}-tog" data-target="#wl-{{ wlist.id }}-fits" aria-expanded="true" aria-controls="wl-{{ wlist.id }}-fits">
+				{{ wlist.name|e }} WL<i class="fa fa-chevron-up pull-xs-right" id="wl-{{ wlist.id }}-tog-icon"></i>
+        	</a>
+      		</h4>
+    	</div>
+		<ol data-tog-icon="#wl-{{ wlist.id }}-tog-icon" class="list-group collapse in" id="wl-{{ wlist.id }}-fits" role="tabpanel" aria-labelledby="wl-{{ wlist.id }}-heading">
+			{% for entry in wlist.entries %}
+			<li class="list-group-item"
+				id="entry-{{wlist.name}}-{{ entry.user }}" {% if user.get_eve_id() == entry.user %}data-count="{{entry.fittings|length}}"{% endif %}>
+				<div class="card">
+					<div class="container">
+						{% if user.get_eve_id() == entry.user or perm_man.can() %}
+						<a href="javascript:CCPEVE.showInfo(1377, {{ entry.user }});">
+						{% endif %}
+						<div class="row">
+						
+							<div class="col-sm-2 col-xs-4">
+									<img
+									src="https://image.eveonline.com/Character/{{ entry.user }}_32.jpg"
+									alt="{{ entry.user_data.eve_name|e }}">
+							</div>
+							<div class="col-sm-10 ol-xs-8">
+								{{ entry.user_data.eve_name|e }}{% if entry.user_data.is_new() %} <span class="label label-info">New</span>{% endif %}
+							</div>
+	
 						</div>
-						<div class="col-sm-10 ol-xs-8">
-							{{ entry.user_data.eve_name|e }}{% if entry.user_data.is_new() %} <span class="label label-info">New</span>{% endif %}
+						{% if current_user.get_eve_id() == entry.user or perm_man.can() %}
+						</a>
+						{% endif %}
+						{% if user.get_eve_id() == entry.user or perm_viewfits.can() %}
+						<div class="row">
+							<div class="btn-group btn-group-mini" role="group" aria-label="Action Buttons">
+								{% if current_user.get_eve_id() == entry.user %}
+								<!--  <button type="button" class="btn btn-mini btn-warning"
+									onclick="javascript:removeOwnEntry('{{wlist.name}}', {{entry.user}}, {{ entry.id }});">Remove Self</button> -->
+								{% endif %}
+								{% if user.get_eve_id() == entry.user or perm_viewfits.can() %}
+								<button type="button" data-toggle="collapse" data-target="#fittings-{{entry.id}}" class="btn btn-mini btn-primary">Show/Hide Fits</button>
+								{% endif %}
+								{% if perm_man.can() %}
+								<!-- <button type="button" class="btn btn-primary" onclick="javascript:CCPEVE.showInfo(1377, {{ entry.user }})">Char</button> -->
+								<button type="button" class="btn btn-secondary" onclick="javascript:CCPEVE.startConversation({{ entry.user }})">Convo</button>
+								<button type="button" class="btn btn-danger" data-toggle="modal" data-target="#remove-diag" data-type="removePlayer" data-user="{{entry.user}}">Remove Player</button>
+								<button type="button" class="btn btn-success" onclick="javascript:invitePlayer({{ entry.user }})">Was Invited</button>
+								{% endif %}
+							</div>
 						</div>
-
+						{% endif %}
 					</div>
-					{% if current_user.get_eve_id() == entry.user or perm_man.can() %}
-					</a>
-					{% endif %}
 					{% if user.get_eve_id() == entry.user or perm_viewfits.can() %}
-					<div class="row">
-						<div class="btn-group btn-group-mini" role="group" aria-label="Action Buttons">
-							{% if current_user.get_eve_id() == entry.user %}
-							<!--  <button type="button" class="btn btn-mini btn-warning"
-								onclick="javascript:removeOwnEntry('{{wlist.name}}', {{entry.user}}, {{ entry.id }});">Remove Self</button> -->
-							{% endif %}
-							{% if user.get_eve_id() == entry.user or perm_viewfits.can() %}
-							<button type="button" data-toggle="collapse" data-target="#fittings-{{entry.id}}" class="btn btn-mini btn-primary">Show/Hide Fits</button>
-							{% endif %}
-							{% if perm_man.can() %}
-							<!-- <button type="button" class="btn btn-primary" onclick="javascript:CCPEVE.showInfo(1377, {{ entry.user }})">Char</button> -->
-							<button type="button" class="btn btn-secondary" onclick="javascript:CCPEVE.startConversation({{ entry.user }})">Convo</button>
-							<button type="button" class="btn btn-danger" data-toggle="modal" data-target="#remove-diag" data-type="removePlayer" data-user="{{entry.user}}">Remove Player</button>
-							<button type="button" class="btn btn-success" onclick="javascript:invitePlayer({{ entry.user }})">Was Invited</button>
-							{% endif %}
-						</div>
-					</div>
+					<ul class="list-group list-group-flush collapse" id="fittings-{{entry.id}}">
+						{% for fit in entry.fittings %}
+						<li class="list-group-item fitting" id="fit-{{ fit.id }}">
+							<div class="container">
+								<div class="row fit-link" data-dna="{{ fit.ship_type }}:{{ fit.modules }}">
+									<div class="col-sm-4">
+										<img
+											src="https://image.eveonline.com/Render/{{ fit.ship_type }}_32.png"
+											alt="{{ entry.user_data.eve_name|e }}">
+									</div>
+									<div class="col-sm-8">
+										<div class="row">{{ fit.ship.typeName|e }}</div>
+										{% if fit.comment is not none %}
+										<div class="row"><small>{{ fit.comment|safe }}</small></div>
+										{% endif %}
+									</div>
+								</div>
+								{% if user.get_eve_id() == entry.user %}
+								<div class="row">
+									<div class="btn-group btn-group-mini" role="group"
+										aria-label="Action Buttons">
+										<button type="button" class="btn btn-mini btn-warning"
+											onclick="javascript:removeOwnFit({{ fit.id }}, '{{ wlist.name }}', {{ entry.user }});">Remove Fit</button>
+									</div>
+								</div>
+								{% endif %}
+							</div>
+						</li>
+						{% endfor %}
+					</ul>
 					{% endif %}
 				</div>
-				{% if user.get_eve_id() == entry.user or perm_viewfits.can() %}
-				<ul class="list-group list-group-flush collapse" id="fittings-{{entry.id}}">
-					{% for fit in entry.fittings %}
-					<li class="list-group-item fitting" id="fit-{{ fit.id }}">
-						<div class="container">
-							<div class="row fit-link" data-dna="{{ fit.ship_type }}:{{ fit.modules }}">
-								<div class="col-sm-4">
-									<img
-										src="https://image.eveonline.com/Render/{{ fit.ship_type }}_32.png"
-										alt="{{ entry.user_data.eve_name|e }}">
-								</div>
-								<div class="col-sm-8">
-									<div class="row">{{ fit.ship.typeName|e }}</div>
-									{% if fit.comment is not none %}
-									<div class="row"><small>{{ fit.comment|safe }}</small></div>
-									{% endif %}
-								</div>
-							</div>
-							{% if user.get_eve_id() == entry.user %}
-							<div class="row">
-								<div class="btn-group btn-group-mini" role="group"
-									aria-label="Action Buttons">
-									<button type="button" class="btn btn-mini btn-warning"
-										onclick="javascript:removeOwnFit({{ fit.id }}, '{{ wlist.name }}', {{ entry.user }});">Remove Fit</button>
-								</div>
-							</div>
-							{% endif %}
-						</div>
-					</li>
-					{% endfor %}
-				</ul>
-				{% endif %}
-			</div>
-		</li> {% endfor %}
-	</ol>
+			</li> {% endfor %}
+		</ol>
+	</div>
 </div>
 {% endfor %}
 </div>
