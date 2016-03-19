@@ -148,6 +148,33 @@ function moveEntryToWaitlists(entryId, userId) {
 		window.location.reload(true);
 	}, "text")
 }
+
+$(document).ready(function() {
+	$("#remove-diag").on('show.bs.modal', function(e){
+		var source = $(e.relatedTarget);
+		var fname = source.data("type")
+		if (fname == "removePlayer") {
+			var userid = Number(source.data("user"));
+			$("#remove-diag-accept").off();
+			$("#remove-diag-accept").on("click", function() {
+				window[fname](userid);
+			});
+			
+			$("#remove-diag-body").text("Do you really want to remove this player from the Waitlist?");
+			$("#remove-diag-label").text("Remove Player");
+			
+		} else if (fname == "removeEntry") {
+			var userid = Number(source.data("user"));
+			var entry = Number(source.data("entry"));
+			$("#remove-diag-accept").off();
+			$("#remove-diag-accept").on("click", function() {
+				window[fname](entry, userid);
+			});
+			$("#remove-diag-body").text("Do you really want to remove this player from the X-UPs?");
+			$("#remove-diag-label").text("Remove Player");
+		}
+	});
+});
 </script>
 <script src="https://quiescens.duckdns.org/wl/wtm.js"></script>
 {% endif %}
@@ -241,16 +268,16 @@ function moveEntryToWaitlists(entryId, userId) {
 						<div class="btn-group btn-group-mini" role="group" aria-label="Action Buttons">
 							{% if perm_man.can() %}
 							<!-- <button type="button" class="btn btn-primary" onclick="javascript:CCPEVE.showInfo(1377, {{ entry.user }})">Char</button> -->
-							<button type="button" class="btn btn btn-danger" onclick="javascript:removeEntry({{ entry.id }}, {{ entry.user }})">Remove</button>
-							<button type="button" class="btn btn btn-secondary" onclick="javascript:CCPEVE.startConversation({{ entry.user }})">Convo</button>
-							<button type="button" class="btn btn btn-success" onclick="javascript:moveEntryToWaitlists({{ entry.id }}, {{ entry.user }})">Approve</button>
+							<button type="button" class="btn btn-danger"  data-toggle="modal" data-target="#remove-diag" data-type="removeEntry" data-entry="{{entry.id}}" data-user="{{entry.user}}">Remove</button>
+							<button type="button" class="btn btn-secondary" onclick="javascript:CCPEVE.startConversation({{ entry.user }})">Convo</button>
+							<button type="button" class="btn btn-success" onclick="javascript:moveEntryToWaitlists({{ entry.id }}, {{ entry.user }})">Approve</button>
 							{% endif %}
 							{% if user.get_eve_id() == entry.user %}
-							<button type="button" class="btn btn-mini btn-warning"
+							<button type="button" class="btn btn-warning"
 								onclick="javascript:removeOwnEntry('{{queue.name}}', {{entry.user}}, {{ entry.id }});">Remove Self</button>
 							{% endif %}
 							{% if user.get_eve_id() == entry.user or perm_man.can() %}
-							<button type="button" data-toggle="collapse" data-target="#fittings-{{entry.id}}" class="btn btn-mini btn-primary">Show/Hide Fits</button>
+							<button type="button" data-toggle="collapse" data-target="#fittings-{{entry.id}}" class="btn btn-primary">Show/Hide Fits</button>
 							{% endif %}
 						</div>
 					</div>
@@ -325,9 +352,9 @@ function moveEntryToWaitlists(entryId, userId) {
 							{% endif %}
 							{% if perm_man.can() %}
 							<!-- <button type="button" class="btn btn-primary" onclick="javascript:CCPEVE.showInfo(1377, {{ entry.user }})">Char</button> -->
-							<button type="button" class="btn btn-mini btn-secondary" onclick="javascript:CCPEVE.startConversation({{ entry.user }})">Convo</button>
-							<button type="button" class="btn btn-mini btn-danger" onclick="javascript:removePlayer({{ entry.user }})">Remove Player</button>
-							<button type="button" class="btn btn-mini btn-success" onclick="javascript:invitePlayer({{ entry.user }})">Was Invited</button>
+							<button type="button" class="btn btn-secondary" onclick="javascript:CCPEVE.startConversation({{ entry.user }})">Convo</button>
+							<button type="button" class="btn btn-danger" data-toggle="modal" data-target="#remove-diag" data-type="removePlayer" data-user="{{entry.user}}">Remove Player</button>
+							<button type="button" class="btn btn-success" onclick="javascript:invitePlayer({{ entry.user }})">Was Invited</button>
 							{% endif %}
 						</div>
 					</div>
@@ -371,5 +398,23 @@ function moveEntryToWaitlists(entryId, userId) {
 </div>
 {% endfor %}
 </div>
+</div>
+<div class="modal fade bd-example-modal-sm" id="remove-diag" tabindex="-1" role="dialog" aria-labelledby="remove-diag-label" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-header">
+      	<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+      		<span aria-hidden="true">&times;</span>
+		</button>
+        <h4 class="modal-title" id="remove-diag-label"></h4>
+      </div>
+      <div class="modal-body" id="remove-diag-body">
+      </div>
+      <div class="modal-footer">
+          <button type="button" class="btn btn-success" data-dismiss="modal">No</button>
+          <button type="button" class="btn btn-danger" id="remove-diag-accept">Yes</button>
+      </div>
+    </div>
+  </div>
 </div>
 {% endblock %}
