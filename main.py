@@ -62,6 +62,9 @@ def check_ban():
                 # this could be used to detect multiboxers actually
                 if is_igb(): # should allways be if he is char authenticated, but well lets check again
                     char_id_str = request.headers.get('Eve-Charid')
+                    if char_id_str is None: # he was logged in with other account and no trust on this
+                        force_logout()
+                        return
                     char_id = int(char_id_str)
                     if current_user.get_eve_id() != char_id:
                         force_logout()
