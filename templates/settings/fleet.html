@@ -73,14 +73,34 @@ $(document).ready(function(){
 		source: systemSource
 	});
 });
+
+function clearWaitlist() {
+	$('#clearwaitlistform').submit();
+}
+
+$(document).ready(function() {
+	$("#remove-diag").on('show.bs.modal', function(e){
+		var source = $(e.relatedTarget);
+		var fname = source.data("type")
+		if (fname == "clearWaitlist") {
+			$("#remove-diag-accept").off();
+			$("#remove-diag-accept").on("click", function() {
+				window[fname]();
+			});
+			
+			$("#remove-diag-body").text("Do your really want to clear the Waitlist and all Xups?");
+			$("#remove-diag-label").text("Clear Waitlist???");
+		}
+	});
+});
 </script>
 {% endblock %}
 
 {% block content %}
-<form action="{{url_for('settings.clear_waitlist')}}" method="post" class="form-inline">
+<form id="clearwaitlistform" class="hidden" action="{{url_for('settings.clear_waitlist')}}" method="post" class="form-inline">
 <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
-<button type="Submit" class="btn btn-danger">Clear Waitlists!</button>
 </form>
+<button data-toggle="modal" data-target="#remove-diag" data-type="clearWaitlist" class="btn btn-danger">Clear Waitlists!</button>
 <div class="card">
   <div class="card-block"> 
     <table class="table">
@@ -170,6 +190,24 @@ $(document).ready(function(){
     {% endif %}
     </tbody>
     </table>
+  </div>
+</div>
+<div class="modal fade bd-example-modal-sm" id="remove-diag" tabindex="-1" role="dialog" aria-labelledby="remove-diag-label" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-header">
+      	<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+      		<span aria-hidden="true">&times;</span>
+		</button>
+        <h4 class="modal-title" id="remove-diag-label"></h4>
+      </div>
+      <div class="modal-body" id="remove-diag-body">
+      </div>
+      <div class="modal-footer">
+          <button type="button" class="btn btn-success" data-dismiss="modal">No</button>
+          <button type="button" class="btn btn-danger" id="remove-diag-accept">Yes</button>
+      </div>
+    </div>
   </div>
 </div>
 {% endblock %}
