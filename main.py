@@ -2,6 +2,7 @@ from gevent import monkey; monkey.patch_all()
 # inject the lib folder before everything else
 import os
 import sys
+from sqlalchemy.exc import StatementError
 base_path = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(base_path, 'lib'))
 from waitlist.utility import config
@@ -115,6 +116,14 @@ def site_help():
 @login_manager.user_loader
 def load_user(unicode_id):
     # it is an account
+    try:
+        return get_user_from_db(unicode_id)
+    except StatementError:
+        db.session.rollback()
+        logger.exception("Failed to get user from db")
+        return get_user_from_db(unicode_id)
+
+def get_user_from_db(unicode_id):
     if unicode_id.startswith("acc"):
         unicode_id = unicode_id.replace("acc", "", 1)
         return get_account_from_db(int(unicode_id))
