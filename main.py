@@ -18,7 +18,7 @@ from flask_principal import RoleNeed, identity_changed, Identity, AnonymousIdent
     identity_loaded, UserNeed
 from waitlist.data.perm import perm_management, perm_settings, perm_admin,\
     perm_officer, perm_accounts, perm_feedback, perm_dev, perm_leadership,\
-    perm_bans
+    perm_bans, perm_viewfits
 from flask.templating import render_template
 from waitlist.blueprints.settings import bp_settings
 from waitlist.blueprints.fittings import bp_waitlist
@@ -47,7 +47,8 @@ def inject_data():
                 perm_settings=perm_settings, perm_man=perm_management,
                 perm_officer=perm_officer, perm_accounts=perm_accounts,
                 perm_feedback=perm_feedback, is_account=is_account,
-                perm_dev=perm_dev, perm_leadership=perm_leadership, perm_bans=perm_bans)
+                perm_dev=perm_dev, perm_leadership=perm_leadership, perm_bans=perm_bans,
+                perm_viewfits=perm_viewfits)
 
 @app.before_request
 def check_ban():

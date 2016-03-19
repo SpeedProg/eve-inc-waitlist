@@ -23,3 +23,6 @@ perm_leadership = Permission(RoleNeed(WTMRoles.admin), RoleNeed(WTMRoles.leaders
 perm_fleetlocation = Permission(RoleNeed(WTMRoles.admin), RoleNeed(WTMRoles.officer), RoleNeed(WTMRoles.leadership))
 
 perm_bans = Permission(RoleNeed(WTMRoles.admin), RoleNeed(WTMRoles.leadership), RoleNeed(WTMRoles.officer))
+
+perm_viewfits = Permission(RoleNeed(WTMRoles.admin), RoleNeed(WTMRoles.leadership), RoleNeed(WTMRoles.officer),
+                            RoleNeed(WTMRoles.fc), RoleNeed(WTMRoles.lm), RoleNeed(WTMRoles.tbadge), RoleNeed(WTMRoles.resident))

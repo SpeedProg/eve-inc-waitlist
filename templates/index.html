@@ -176,6 +176,8 @@ $(document).ready(function() {
 	});
 });
 </script>
+{% endif %}
+{% if perm_viewfits.can() %}
 <script src="https://quiescens.duckdns.org/wl/wtm.js"></script>
 {% endif %}
 {% endblock %}
@@ -276,14 +278,14 @@ $(document).ready(function() {
 							<button type="button" class="btn btn-warning"
 								onclick="javascript:removeOwnEntry('{{queue.name}}', {{entry.user}}, {{ entry.id }});">Remove Self</button>
 							{% endif %}
-							{% if user.get_eve_id() == entry.user or perm_man.can() %}
+							{% if user.get_eve_id() == entry.user or perm_viewfits.can() %}
 							<button type="button" data-toggle="collapse" data-target="#fittings-{{entry.id}}" class="btn btn-primary">Show/Hide Fits</button>
 							{% endif %}
 						</div>
 					</div>
 					
 				</div>
-				{% if user.get_eve_id() == entry.user or perm_man.can() %}
+				{% if user.get_eve_id() == entry.user or perm_viewfits.can() %}
   				<ul class="list-group list-group-flush collapse" id="fittings-{{entry.id}}">
 				{% for fit in entry.fittings %}
     				<li class="list-group-item fitting">
@@ -340,14 +342,14 @@ $(document).ready(function() {
 					{% if current_user.get_eve_id() == entry.user or perm_man.can() %}
 					</a>
 					{% endif %}
-					{% if user.get_eve_id() == entry.user or perm_man.can() %}
+					{% if user.get_eve_id() == entry.user or perm_viewfits.can() %}
 					<div class="row">
 						<div class="btn-group btn-group-mini" role="group" aria-label="Action Buttons">
 							{% if current_user.get_eve_id() == entry.user %}
 							<!--  <button type="button" class="btn btn-mini btn-warning"
 								onclick="javascript:removeOwnEntry('{{wlist.name}}', {{entry.user}}, {{ entry.id }});">Remove Self</button> -->
 							{% endif %}
-							{% if user.get_eve_id() == entry.user or perm_man.can() %}
+							{% if user.get_eve_id() == entry.user or perm_viewfits.can() %}
 							<button type="button" data-toggle="collapse" data-target="#fittings-{{entry.id}}" class="btn btn-mini btn-primary">Show/Hide Fits</button>
 							{% endif %}
 							{% if perm_man.can() %}
@@ -360,7 +362,7 @@ $(document).ready(function() {
 					</div>
 					{% endif %}
 				</div>
-				{% if user.get_eve_id() == entry.user or perm_man.can() %}
+				{% if user.get_eve_id() == entry.user or perm_viewfits.can() %}
 				<ul class="list-group list-group-flush collapse" id="fittings-{{entry.id}}">
 					{% for fit in entry.fittings %}
 					<li class="list-group-item fitting" id="fit-{{ fit.id }}">
