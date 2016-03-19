@@ -109,11 +109,11 @@ def self_remove_wl_entry(entry_id):
 @login_required
 def self_remove_all():
     logger.info("%s removed them selfs from waitlists", current_user.get_eve_name())
-    queue = db.session.query(Waitlist).filter(Waitlist.name == WaitlistNames.xup_queue).first()
+    #queue = db.session.query(Waitlist).filter(Waitlist.name == WaitlistNames.xup_queue).first()
     # remove from all lists except queue
-    entries = db.session.query(WaitlistEntry).filter((WaitlistEntry.user == current_user.get_eve_id()) & (WaitlistEntry.waitlist_id != queue.id));
+    entries = db.session.query(WaitlistEntry).filter(WaitlistEntry.user == current_user.get_eve_id());
     for entry in entries:
-        logger.info("Remove entry id=%d", entry.id)
+        logger.info("%s removed own entry with id=%s", current_user.get_eve_name(), entry.id)
         db.session.delete(entry)
     db.session.commit()
     return "success";
