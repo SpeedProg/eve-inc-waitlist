@@ -99,7 +99,7 @@ def remove_self_fit(fitid):
 @login_required
 def self_remove_wl_entry(entry_id):
     logger.info("%s removed their own entry with id %d", current_user.get_eve_name(), entry_id)
-    db.session.query(WaitlistEntry).filter(WaitlistEntry.id == entry_id & WaitlistEntry.user == current_user.get_eve_id()).delete()
+    db.session.query(WaitlistEntry).filter((WaitlistEntry.id == entry_id) & (WaitlistEntry.user == current_user.get_eve_id())).delete()
     db.session.commit()
     return "success"
 
