@@ -62,6 +62,12 @@ function noclick() {
 		e.preventDefault();
 	});
 }
+
+function sendAuthMail(charId, token, sig) {
+	var link_prefix = window.location.protocol + '//' + window.location.host
+	CCPEVE.sendMail(charId, 'Waitlist Login Link', 'You can use <a href="'+link_prefix+'/tokenauth?token='+token+'">this link</a> to authenticate yourself on the waitlist.\nJust save it as a bookmark!\nsincerely '+sig);
+}
+
 $(document).ready(noclick);
 </script>
 {% endblock %}
@@ -104,6 +110,9 @@ $(document).ready(noclick);
 		<td>
 		<button type="button" class="btn btn-sm btn-warning" onclick="javascript:deleteAccount({{acc.id}});">Delete</button>
 		<button type="button" class="btn btn-sm btn-secondary" onclick="javascript:editAccount({{acc.id}});">Edit</button>
+		{% if is_igb %}
+		<button type="button" class="btn btn-sm btn-info" onclick="sendAuthMail({{acc.current_char_obj.id}}, '{{acc.login_token|safe}}', '{{current_user.username}}');">Auth Mail</button>
+		{% endif %}
 		</td>
 	</tr>
 	{% endfor %}
