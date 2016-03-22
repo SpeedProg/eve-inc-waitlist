@@ -55,6 +55,15 @@ class InvType(Base):
 #    soundID = Column(BIGINT)
     __table_args__ = (Index('invTypes_groupid', "groupID"),)
 
+class MarketGroup(Base):
+    __tablename__ = 'invmarketgroups'
+    marketGroupID = Column(Integer, primary_key=True, nullable=False)
+    parentGroupID = Column(Integer, ForeignKey('invmarketgroups.marketGroupID'))
+    marketGroupName = Column(String(100))
+    description = Column(String(3000))
+    iconID = Column(Integer)
+    hasTypes = Column(Boolean)
+
 class Account(Base):
     '''
     Represents a user

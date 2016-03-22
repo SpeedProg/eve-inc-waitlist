@@ -4,10 +4,11 @@ from waitlist.data.perm import perm_management, perm_dev
 from flask_login import login_required, current_user
 from flask.globals import request
 from waitlist.storage.database import WaitlistEntry, Shipfit, Waitlist,\
-    Character
+    Character, InvType, MarketGroup
 import re
-from waitlist.storage.modules import resist_ships, logi_ships, dps_snips,\
-    sniper_ships, t3c_ships, sniper_weapons, dps_weapons
+from waitlist.storage.modules import resist_ships, logi_ships,\
+    sniper_ships, t3c_ships, sniper_weapons, dps_weapons, dps_ships,\
+    weapongroups
 from waitlist.data.names import WaitlistNames
 from werkzeug.utils import redirect
 from flask.helpers import url_for, flash
@@ -200,7 +201,10 @@ def xup_submit():
     fit_count = len(fits)
     
     logger.debug("Parsed %d fits", fit_count)
-    # TODO handle dna fit
+    
+    if fit_count <= 0:
+        flash("You submitted {0} fits to be check by a fleet comp before getting on the waitlist.".format(fit_count), "danger")
+        return redirect(url_for('index'))
 
     for fit in fits:
         if fit.ship_type in resist_ships:
@@ -252,7 +256,7 @@ def xup_submit():
             continue;
         
         is_allowed = False
-        if fit.ship_type in sniper_ships or fit.ship_type in dps_snips or fit.ship_type in t3c_ships:
+        if fit.ship_type in sniper_ships or fit.ship_type in dps_ships or fit.ship_type in t3c_ships:
             is_allowed = True
         
         if not is_allowed:  # not an allowed ship, push it on dps list :P
@@ -277,6 +281,29 @@ def xup_submit():
             if weapon in dps_weapons:
                 weapon_type = WaitlistNames.dps
                 break
+        
+        if weapon_type == "None":
+            # try to decide by market group
+            for weapon in possible_weapons:
+                print weapon
+                weapon_db = db.session.query(InvType).filter(InvType.typeID == weapon).first()
+                if weapon_db is None:
+                    continue
+                market_group = db.session.query(MarketGroup).filter(MarketGroup.marketGroupID == weapon_db.marketGroupID).first()
+                if market_group is None:
+                    continue
+                parent_group = db.session.query(MarketGroup).filter(MarketGroup.marketGroupID == market_group.parentGroupID).first()
+                if parent_group is None:
+                    continue
+                
+                # we have a parent market group
+                print parent_group.marketGroupName
+                if parent_group.marketGroupName in weapongroups['dps']:
+                    weapon_type = WaitlistNames.dps
+                    break
+                if parent_group.marketGroupName in weapongroups['sniper']:
+                    weapon_type = WaitlistNames.sniper
+                    break    
         
         # ships with no valid weapons put on dps wl
         if weapon_type == "None" or weapon_type == WaitlistNames.dps:
