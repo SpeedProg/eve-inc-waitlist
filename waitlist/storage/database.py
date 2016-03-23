@@ -129,7 +129,7 @@ class Character(Base):
     __tablename__ = "characters"
     
     id = Column(Integer, primary_key=True)
-    eve_name = Column(String(100), unique=True)
+    eve_name = Column(String(100))
     newbro = Column(Boolean, default=True, nullable=False)
 
     def get_eve_name(self):
@@ -232,7 +232,7 @@ class APICacheCharacterID(Base):
     """
     __tablename__ = "apicache_characterid"
     id = Column(Integer, primary_key=True)
-    name = Column(String(100), unique=True)
+    name = Column(String(100))
     
 class APICacheCharacterInfo(Base):
     __tablename__ = "apicache_characterinfo"
@@ -244,7 +244,7 @@ class APICacheCharacterInfo(Base):
 class APICacheCorporationInfo(Base):
     __tablename__ = "apicache_corporationinfo"
     id = Column(Integer, primary_key=True)
-    name = Column(String(100), index=True, unique=True)
+    name = Column(String(100), index=True)
     allianceID = Column(Integer, index=True)
     allianceName = Column(String(100), index=True)
     expire = Column(DateTime)
@@ -252,7 +252,7 @@ class APICacheCorporationInfo(Base):
 class APICacheCharacterAffiliation(Base):
     __tablename__ = "apicache_characteraffiliation"
     id = Column(Integer, primary_key=True)
-    name = Column(String(100), index=True, unique=True)
+    name = Column(String(100), index=True)
     corporationID = Column(Integer, index=True)
     corporationName = Column(String(100), index=True)
     allianceID = Column(Integer, index=True)
@@ -262,7 +262,7 @@ class APICacheCharacterAffiliation(Base):
 class Ban(Base):
     __tablename__ = "ban"
     id = Column(Integer, primary_key=True)
-    name = Column(String(100), index=True, unique=True)
+    name = Column(String(100), index=True)
     reason = Column(TEXT)
     admin = Column(Integer, ForeignKey("characters.id"))
     admin_obj = relationship("Character", foreign_keys="Ban.admin")
