@@ -198,8 +198,8 @@ class Shipfit(Base):
     ship_type = Column(Integer, ForeignKey("invtypes.typeID"))
     ship = relationship("InvType")
     waitlist_id = Column(Integer, ForeignKey('waitlist_entries.id', onupdate="CASCADE", ondelete="CASCADE"))
-    modules = Column(String(10000))
-    comment = Column(String(10000))
+    modules = Column(String(5000))
+    comment = Column(String(5000))
     wl_type = Column(String(10))
     
     def get_dna(self):

@@ -93,8 +93,8 @@ def upgrade():
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('ship_type', sa.Integer(), nullable=True),
     sa.Column('waitlist_id', sa.Integer(), nullable=True),
-    sa.Column('modules', sa.String(length=10000), nullable=True),
-    sa.Column('comment', sa.String(length=10000), nullable=True),
+    sa.Column('modules', sa.String(length=5000), nullable=True),
+    sa.Column('comment', sa.String(length=5000), nullable=True),
     sa.ForeignKeyConstraint(['ship_type'], ['invtypes.typeID'], ),
     sa.ForeignKeyConstraint(['waitlist_id'], ['waitlist_entries.id'], onupdate='CASCADE', ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
