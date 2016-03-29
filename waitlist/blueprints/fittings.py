@@ -54,10 +54,10 @@ def api_invite_player():
         logger.error("Tried to remove player with None id from waitlists.")
     
     # don't remove from queue
-    queue = db.session.query(Waitlist).filter(Waitlist.name == WaitlistNames.xup_queue).first()
+    #queue = db.session.query(Waitlist).filter(Waitlist.name == WaitlistNames.xup_queue).first()
     
-    db.session.query(WaitlistEntry).filter((WaitlistEntry.user == playerId) & (WaitlistEntry.waitlist_id != queue.id)).delete()
-    db.session.commit()
+    #db.session.query(WaitlistEntry).filter((WaitlistEntry.user == playerId) & (WaitlistEntry.waitlist_id != queue.id)).delete()
+    #db.session.commit()
     event = InviteEvent(playerId)
     send_invite_notice(event)
     #publish(event)
