@@ -46,7 +46,7 @@ $(document).ready(function() {
 <div class="col-sm-8" id="x-up">
 <form action="/xup" method="post">
 <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
-<fieldset class="form-group">
+<fieldset class="form-group bg-danger">
 <label {% if not newbro %}hidden{%endif%}>
 <input type="checkbox" name="newbro" {% if newbro %}checked{% endif %}>
 I am new to WarpToMe or Incursions</label>
