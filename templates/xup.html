@@ -44,6 +44,7 @@ $(document).ready(function() {
 {% block data %}
 {% if fleet.xup_enabled %}
 <div class="col-sm-8" id="x-up">
+<a href="{{url_for('site_help')}}">FC, WHAT DO?</a>
 <form action="/xup" method="post">
 <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 <fieldset class="form-group bg-danger">
