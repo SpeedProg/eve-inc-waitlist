@@ -146,6 +146,9 @@ def xup_submit():
     newbro = (newbro is not "off")
     get_character(current_user).newbro = newbro
     
+    current_user.cbs_level = caldari_bs_lvl
+    current_user.lc_level = logilvl
+    
     logger.debug("Fittings to parse: %s", fittings)
     
     # lets normalize linebreaks

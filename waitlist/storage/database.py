@@ -83,6 +83,22 @@ class Account(Base):
                               backref=backref('linked_chars'))
     current_char_obj = relationship('Character')
     
+    @property
+    def lc_level(self):
+        return self.current_char_obj.lc_level
+    
+    @lc_level.setter
+    def lc_level(self, val):
+        self.current_char_obj.lc_level = val
+    
+    @property
+    def cbs_level(self):
+        return self.current_char_obj.cbs_level
+    
+    @cbs_level.setter
+    def cbs_level(self, val):
+        self.current_char_obj.cbs_level = val
+    
     def get_eve_name(self):
         return self.current_char_obj.eve_name
     
@@ -131,6 +147,8 @@ class Character(Base):
     id = Column(Integer, primary_key=True)
     eve_name = Column(String(100))
     newbro = Column(Boolean, default=True, nullable=False)
+    lc_level = Column(SmallInteger, default=0, nullable=False)
+    cbs_level = Column(SmallInteger, default=0, nullable=False)
 
     def get_eve_name(self):
         return self.eve_name

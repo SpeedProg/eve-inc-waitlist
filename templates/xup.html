@@ -59,23 +59,23 @@ I am new to WarpToMe or Incursions</label>
 <fieldset class="form-group" id="grp-cbslvl">
 	<label for="cbs">Caldari Battleship Level</label>
 	<select class="form-control" id="cbs" name="cbs">
-		<option value="">No Caldari BS</option>
-		<option value="1">1</option>
-		<option value="2">2</option>
-		<option value="3">3</option>
-		<option value="4">4</option>
-		<option value="5">5</option>
+		<option value=""{% if current_user.cbs_level == 0 %} selected{% endif %}>No Caldari BS</option>
+		<option value="1"{% if current_user.cbs_level == 1 %} selected{% endif %}>1</option>
+		<option value="2"{% if current_user.cbs_level == 2 %} selected{% endif %}>2</option>
+		<option value="3"{% if current_user.cbs_level == 3 %} selected{% endif %}>3</option>
+		<option value="4"{% if current_user.cbs_level == 4 %} selected{% endif %}>4</option>
+		<option value="5"{% if current_user.cbs_level == 5 %} selected{% endif %}>5</option>
 	</select>
 </fieldset>
 <fieldset class="form-group" id="grp-logilvl">
 	<label for="logi">Logistic Cruiser Level</label>
 	<select class="form-control" id="logi" name="logi">
-		<option value="">No Logi</option>
-		<option value="5">5</option>
-		<option value="4">4</option>
-		<option value="3">3</option>
-		<option value="2">2</option>
-		<option value="1">1</option>
+		<option value=""{% if current_user.lc_level == 0 %} selected{% endif %}>No Logi</option>
+		<option value="5"{% if current_user.lc_level == 5 %} selected{% endif %}>5</option>
+		<option value="4"{% if current_user.lc_level == 4 %} selected{% endif %}>4</option>
+		<option value="3"{% if current_user.lc_level == 3 %} selected{% endif %}>3</option>
+		<option value="2"{% if current_user.lc_level == 2 %} selected{% endif %}>2</option>
+		<option value="1"{% if current_user.lc_level == 1 %} selected{% endif %}>1</option>
 	</select>
 </fieldset>
 <button type="submit" class="btn btn-primary">Enter On Waitlist</button>
