@@ -133,6 +133,8 @@ def account_edit():
     #acc.login_token = get_random_token(64)
     if acc_email is not None:
         acc.email = acc_email
+        
+    # if there are roles, add new ones, remove the ones that aren't there
     if len(acc_roles) > 0:
         roles_new = {}
         for r in acc_roles:
@@ -158,8 +160,13 @@ def account_edit():
             for role in new_roles:
                 acc.roles.append(role)
     else:
-        # make sure all roles are removed#
-        db.session.query(roles).filter(roles.c.account_id == acc_id).delete()
+        # make sure all roles are removed
+        roles_to_remove = []
+        for role in acc.roles:
+            roles_to_remove.append(role)
+        
+        for role in roles_to_remove:
+            acc.roles.remove(role)
         db.session.flush()
 
     if char_name is not None:
