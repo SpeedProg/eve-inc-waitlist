@@ -483,7 +483,7 @@ def subscribe(user_id):
                 if int(result.data) == user_id:
                     ev = ServerSentEvent(result.data)
                     yield ev.encode()
-        except GeneratorExit: 
+        finally:
             subscriptions.remove(q)
 
     return Response(gen(user_id), mimetype="text/event-stream")
