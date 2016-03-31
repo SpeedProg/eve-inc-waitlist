@@ -288,6 +288,15 @@ function removePlayer(userId) {
 		refreshWl();
 		lastRefreshInterval = setInterval(refreshWl, 10000);
 	}, "text");
+	var wl_names = [{% for wl in lists %}"{{wl.name|e}}",{% endfor %}];
+	for (idx in wl_names) {
+		var wl_name = wl_names[idx]
+		var entry_id = "entry-"+wl_name+"-"+userId
+		var entry = document.getElementById(entry_id);
+		if (entry != null) { // there is a entry for him on that wl
+			entry.parentNode.removeChild(entry); // remote it from the DOM
+		}
+	 }
 }
 
 function removeEntry(entryId, userId) {
@@ -296,6 +305,11 @@ function removeEntry(entryId, userId) {
 		refreshWl();
 		lastRefreshInterval = setInterval(refreshWl, 10000);
 	}, "text");
+	var entry_id = "entry-queue-"+userId
+	var entry = document.getElementById(entry_id);
+	if (entry != null) { // there is a entry for him on that wl
+		entry.parentNode.removeChild(entry); // remote it from the DOM
+	}
 }
 
 function moveEntryToWaitlists(entryId, userId) {
@@ -304,7 +318,14 @@ function moveEntryToWaitlists(entryId, userId) {
 		refreshWl();
 		lastRefreshInterval = setInterval(refreshWl, 10000);
 	}, "text")
+	}, "text");
+	var entry_id = "entry-{{queue.name}}-"+userId
+	var entry = document.getElementById(entry_id);
+	if (entry != null) { // there is a entry for him on that wl
+		entry.parentNode.removeChild(entry); // remote it from the DOM
+	}
 }
+
 $(document).ready(function(){
 	var wlists = $('ol[id|="wl-fits"]');
 	for (var i=0; i < wlists.size(); i++) {
