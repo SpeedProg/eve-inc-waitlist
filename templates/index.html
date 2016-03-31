@@ -318,7 +318,7 @@ function moveEntryToWaitlists(entryId, userId) {
 		refreshWl();
 		lastRefreshInterval = setInterval(refreshWl, 10000);
 	}, "text");
-	var entry_id = "entry-{{queue.name}}-"+userId
+	var entry_id = "entry-queue-"+userId
 	var entry = document.getElementById(entry_id);
 	if (entry != null) { // there is a entry for him on that wl
 		entry.parentNode.removeChild(entry); // remote it from the DOM
