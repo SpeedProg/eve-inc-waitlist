@@ -100,7 +100,7 @@ function removeOwnFit(fitId, wlName, charId) {
 function addNewEntry(wlname, wlid, entry) {
 	console.log(wlname, entry);
 	var entryDOM = createEntryDOM(wlname, entry);
-	var wlEntryContainer = $('#wl-'+wlid+'-fits');
+	var wlEntryContainer = $('#wl-fits-'+wlid);
 	wlEntryContainer.append(entryDOM);
 }
 
@@ -219,7 +219,7 @@ function createFitDOM(fit, character) {
 }
 
 function cleanWL(wldata) {
-	var wlbody = $('#wl-'+wldata.id+'-fits');
+	var wlbody = $('#wl-fits-'+wldata.id);
 	wlbody.empty();
 }
 
