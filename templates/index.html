@@ -342,6 +342,7 @@ $(document).ready(function(){
 			wl.collapse('show');
 		}
 	}
+	refreshWl();
 	lastRefreshInterval = setInterval(refreshWl, 10000);
 });
 </script>
@@ -425,6 +426,7 @@ $(document).ready(function(){
       		</h4>
     	</div>
 		<ol data-tog-icon="#wl-{{ wlist.id }}-tog-icon" class="list-group collapse in" id="wl-fits-{{ wlist.id }}" role="tabpanel" aria-labelledby="wl-heading-{{ wlist.id }}">
+			{% if not perm_man.can() %}
 			{% for entry in wlist.entries %}
 			<li class="list-group-item"
 				id="entry-{{wlist.name}}-{{ entry.user }}" {% if user.get_eve_id() == entry.user %}data-count="{{entry.fittings|length}}"{% endif %}>
@@ -510,6 +512,7 @@ $(document).ready(function(){
 					{% endif %}
 				</div>
 			</li> {% endfor %}
+			{% endif %}
 		</ol>
 	</div>
 </div>
