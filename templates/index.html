@@ -292,8 +292,8 @@ function removePlayer(userId) {
 
 function removeEntry(entryId, userId) {
 	$.post("{{url_for('fittings.api_wl_remove_entry')}}", {'entryId': entryId, '_csrf_token': '{{ csrf_token() }}'}, function(){
-		refreshWl();
 		clearInterval(lastRefreshInterval);
+		refreshWl();
 		lastRefreshInterval = setInterval(refreshWl, 10000);
 	}, "text");
 }
