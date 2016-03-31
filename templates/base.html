@@ -38,13 +38,10 @@ function showFitting(dna) {
  * Set up click handlers on fittings
  */
  function setupDNA() {
-	var fits = document.getElementsByClassName("fit-link");
-	for (var i = 0; i < fits.length; i++) {
-		fits[i].addEventListener("click", function(event){
-			 var dna = this.getAttribute('data-dna');
-			 showFitting(dna);
-		 })
-	}
+	$(document).on("click", ".fit-link", function(event){
+		 var dna = this.getAttribute('data-dna');
+		 showFitting(dna);
+	 });
 }
 $(document).ready(function () {
 	setupDNA();
