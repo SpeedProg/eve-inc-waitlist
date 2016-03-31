@@ -350,9 +350,16 @@ $(document).ready(function(){
 {% if perm_viewfits.can() %}
 <script src="https://quiescens.duckdns.org/wl/wtm.js"></script>
 {% endif %}
+{% if (not is_on_wl) and (not (perm_man.can() or perm_viewfits.can())) and fleet.xup_enabled %}
+	{% include "xup-form.js" %}
+{% endif %}
 {% endblock %}
 
 {% block container_data %}
+{# show there form only if he is not on waitlist, not fleetcomp or has permission to view fits and xups are enabled #}
+{% if (not is_on_wl) and (not (perm_man.can() or perm_viewfits.can())) and fleet.xup_enabled %}
+	{% include "xup-form.html" with context %}
+{% endif %}
 <div class="row">
 	<div class="col-sm-6">
 	<div class="card">

@@ -15,7 +15,7 @@ from waitlist import app, login_manager, db
 from flask_login import login_required, current_user, login_user,\
     logout_user
 import logging
-from waitlist.storage.database import Waitlist, Account
+from waitlist.storage.database import Waitlist, Account, WaitlistEntry
 from flask_principal import RoleNeed, identity_changed, Identity, AnonymousIdentity,\
     identity_loaded, UserNeed
 from waitlist.data.perm import perm_management, perm_settings, perm_admin,\
@@ -110,7 +110,23 @@ def index():
     wlists.append(dps_wl)
     wlists.append(sniper_wl)
     
-    return render_template("index.html", lists=wlists, user=current_user, fleet=fleet_status, is_index=True, xup_open=fleet_status.xup_enabled)
+    new_bro = True
+    if current_user.type == "character":
+        if current_user.newbro == None:
+            new_bro = True
+        else:
+            new_bro = current_user.newbro
+    elif current_user.type == "account":
+        if current_user.current_char_obj.newbro == None:
+            new_bro = True
+        else:
+            new_bro = current_user.current_char_obj.newbro
+    return render_template("index.html", lists=wlists, user=current_user, fleet=fleet_status, is_index=True, xup_open=fleet_status.xup_enabled, is_on_wl=is_on_wl(), newbro=new_bro)
+
+def is_on_wl():
+    eveId = current_user.get_eve_id();
+    entry = db.session.query(WaitlistEntry).filter(WaitlistEntry.user == eveId).first();
+    return (entry is not None)
 
 @app.route("/help", methods=["GET"])
 def site_help():

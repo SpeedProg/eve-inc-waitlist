@@ -1,0 +1,38 @@
+<div class="col-sm-12" id="x-up">
+<a href="{{url_for('site_help')}}">FC, WHAT DO?</a>
+<form action="/xup" method="post">
+<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+<fieldset class="form-group bg-danger">
+<label {% if not newbro %}hidden{%endif%}>
+<input type="checkbox" name="newbro" {% if newbro %}checked{% endif %}>
+I am new to WarpToMe or Incursions</label>
+</fieldset>
+<fieldset class="form-group">
+<label for="fittings">Fittings</label>
+<textarea class="form-control" id="fittings" name="fits" rows="10" cols="50" placeholder="Post your fittings here" required></textarea>
+</fieldset>
+<fieldset class="form-group" id="grp-cbslvl">
+	<label for="cbs">Caldari Battleship Level</label>
+	<select class="form-control" id="cbs" name="cbs">
+		<option value=""{% if current_user.cbs_level == 0 %} selected{% endif %}>No Caldari BS</option>
+		<option value="1"{% if current_user.cbs_level == 1 %} selected{% endif %}>1</option>
+		<option value="2"{% if current_user.cbs_level == 2 %} selected{% endif %}>2</option>
+		<option value="3"{% if current_user.cbs_level == 3 %} selected{% endif %}>3</option>
+		<option value="4"{% if current_user.cbs_level == 4 %} selected{% endif %}>4</option>
+		<option value="5"{% if current_user.cbs_level == 5 %} selected{% endif %}>5</option>
+	</select>
+</fieldset>
+<fieldset class="form-group" id="grp-logilvl">
+	<label for="logi">Logistic Cruiser Level</label>
+	<select class="form-control" id="logi" name="logi">
+		<option value=""{% if current_user.lc_level == 0 %} selected{% endif %}>No Logi</option>
+		<option value="5"{% if current_user.lc_level == 5 %} selected{% endif %}>5</option>
+		<option value="4"{% if current_user.lc_level == 4 %} selected{% endif %}>4</option>
+		<option value="3"{% if current_user.lc_level == 3 %} selected{% endif %}>3</option>
+		<option value="2"{% if current_user.lc_level == 2 %} selected{% endif %}>2</option>
+		<option value="1"{% if current_user.lc_level == 1 %} selected{% endif %}>1</option>
+	</select>
+</fieldset>
+<button type="submit" class="btn btn-primary">Enter On Waitlist</button>
+</form>
+</div>
