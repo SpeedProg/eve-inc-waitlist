@@ -317,7 +317,6 @@ function moveEntryToWaitlists(entryId, userId) {
 		clearInterval(lastRefreshInterval);
 		refreshWl();
 		lastRefreshInterval = setInterval(refreshWl, 10000);
-	}, "text")
 	}, "text");
 	var entry_id = "entry-{{queue.name}}-"+userId
 	var entry = document.getElementById(entry_id);
