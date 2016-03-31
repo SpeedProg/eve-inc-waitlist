@@ -3,6 +3,7 @@ from gevent import monkey; monkey.patch_all()
 import os
 import sys
 from sqlalchemy.exc import StatementError
+from waitlist.blueprints.waitlist_api import wl_api
 base_path = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(base_path, 'lib'))
 from waitlist.utility import config
@@ -34,6 +35,7 @@ from waitlist.utility.utils import is_igb, get_account_from_db, get_char_from_db
 app.register_blueprint(bp_waitlist)
 app.register_blueprint(bp_settings, url_prefix='/settings')
 app.register_blueprint(feedback, url_prefix="/feedback")
+app.register_blueprint(wl_api, url_prefix="/wl_api")
 
 logger = logging.getLogger(__name__)
 
@@ -103,11 +105,12 @@ def index():
             queue = wl
             continue
 
+    wlists.append(queue)
     wlists.append(logi_wl)
     wlists.append(dps_wl)
     wlists.append(sniper_wl)
     
-    return render_template("index.html", lists=wlists, user=current_user, queue=queue, fleet=fleet_status, is_index=True, xup_open=fleet_status.xup_enabled)
+    return render_template("index.html", lists=wlists, user=current_user, fleet=fleet_status, is_index=True, xup_open=fleet_status.xup_enabled)
 
 @app.route("/help", methods=["GET"])
 def site_help():

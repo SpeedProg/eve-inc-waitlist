@@ -5,16 +5,21 @@
 {% block head %}
 
 {{ super() }}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
 <script type="text/javascript">
 $(document).ready(function(){    
-    $('.collapse').on('shown.bs.collapse', function (e) {
+    $('.collapse').on('show.bs.collapse', function (e) {
+    	var id = $(e.target).attr("id");
+    	$.cookie(id, "open");
     	var togglerSelector = $(e.target).data("tog-icon");
-       	$(togglerSelector).removeClass("fa-chevron-down").addClass("fa-chevron-up");
+       	$(togglerSelector).removeClass("fa-plus-square").addClass("fa-minus-square");
     });
 
-    $('.collapse').on('hidden.bs.collapse', function (e) {
+    $('.collapse').on('hide.bs.collapse', function (e) {
+    	var id = $(e.target).attr("id");
+    	$.cookie(id, "closed");
     	var togglerSelector = $(e.target).data("tog-icon");
-		$(togglerSelector).removeClass("fa-chevron-up").addClass("fa-chevron-down");
+		$(togglerSelector).removeClass("fa-minus-square").addClass("fa-plus-square");
     });
 });
 function removeSelf() {
@@ -28,7 +33,6 @@ function removeSelf() {
 				var wlNames = [{% for wl in lists %}"{{wl.name|e}}"{% if not loop.last %},{% endif %}{% endfor %}];
 				for(var i=0, len=wlNames.length; i < len; i++) {
 					var wlName = wlNames[i];
-					console.log("Checking WL "+wlName);
 					var entryId = "entry-"+wlName+"-{{ current_user.get_eve_id() }}";
 					var entry = document.getElementById(entryId);
 					if (entry != null) { // there is a entry for him on that wl
@@ -93,89 +97,209 @@ function removeOwnFit(fitId, wlName, charId) {
 </script>
 {% if perm_man.can() %}
 <script type="text/javascript">
+function addNewEntry(wlname, wlid, entry) {
+	console.log(wlname, entry);
+	var entryDOM = createEntryDOM(wlname, entry);
+	var wlEntryContainer = $('#wl-'+wlid+'-fits');
+	wlEntryContainer.append(entryDOM);
+}
+
+function createHeaderDOM(wlname, entry) {
+	var header = $('<div class="container"></div>');
+	var charRow = $('<a href="javascript:CCPEVE.showInfo(1377, '+entry.character.id+');">'+
+						'<div class="row">'+
+							'<div class="col-sm-2 col-xs-4">'+
+									'<img src="https://image.eveonline.com/Character/'+entry.character.id+'_32.jpg" alt="'+entry.character.name+'">'+
+							'</div>'+
+							'<div class="col-sm-10 ol-xs-8">'+entry.character.name+
+							'</div>'+
+						'</div>'+
+						'</a>');
+	var buttonRow = null;
+	if (wlname == "queue") {
+		buttonRow = $('<div class="row">'+
+				'<div class="btn-group btn-group-mini" role="group" aria-label="Action Buttons">'+
+					// only if it is your own entry
+					//'<button type="button" class="btn btn-mini btn-warning" onclick="javascript:removeOwnEntry(\'queue\', '+entry.character.id+', '+entry.id+');">Remove Self</button>'+
+					'<button aria-expanded="true" type="button" data-toggle="collapse" data-target="#fittings-'+entry.id+'" class="btn btn-primary">Show/Hide Fits</button>'+
+					'<button type="button" class="btn btn-secondary" onclick="javascript:CCPEVE.startConversation('+entry.character.id+')">Convo</button>'+
+					'<button type="button" class="btn btn-danger" onclick="javascript:removeEntry('+entry.id+', '+entry.character.id+');">Remove</button>'+
+					'<button type="button" class="btn btn-success" onclick="javascript:moveEntryToWaitlists('+entry.id+', '+entry.character.id+')">Approve</button>'+
+				'</div>'+
+			'</div>');
+	} else {
+		buttonRow = $('<div class="row">'+
+					'<div class="btn-group btn-group-mini" role="group" aria-label="Action Buttons">'+
+						'<button aria-expanded="true" type="button" data-toggle="collapse" data-target="#fittings-'+entry.id+'" class="btn btn-primary">Show/Hide Fits</button>'+
+						'<button type="button" class="btn btn-secondary" onclick="javascript:CCPEVE.startConversation('+entry.character.id+')">Convo</button>'+
+						'<button type="button" class="btn btn-danger" onclick="javascript:removePlayer('+entry.character.id+');">Remove Player</button>'+
+						'<button type="button" class="btn btn-success" onclick="javascript:invitePlayer('+entry.character.id+')">Send Notification</button>'+
+					'</div>'+
+				'</div>');
+	}
+
+	header.append(charRow);
+	header.append(buttonRow);
+	return header;
+}
+
+function createEntryDOM(wlname, entry) {
+	var entryDOM = $('<li class="list-group-item" id="entry-'+wlname+'-'+entry.character.id+'" data-count="'+entry.fittings.length+'"></li>');
+	var cardDOM = $('<div class="card"></div>');
+	cardDOM.append(createHeaderDOM(wlname, entry));
+	entryDOM.append(cardDOM);
+	var fittlistDOM = $('<ul style="" aria-expanded="true" class="list-group list-group-flush collapse" id="fittings-'+entry.id+'"></ul>')
+	entryDOM.append(fittlistDOM);
+	for (var i=0; i<entry.fittings.length; i++) {
+		fittlistDOM.append(createFitDOM(entry.fittings[i]));
+	}
+	return entryDOM;
+}
+
+function updateWlEntry(wlname, wlid,entry) {
+	var jEntries = $('#entry-'+wlname+'-'+entry.character.id);
+	if (jEntries.size() <= 0) {
+		addNewEntry(wlname, wlid, entry);
+	} else {
+		// update fits and such
+		var jFittings = $($('#fittings-'+entry.id)[0]);
+		var existingFits = jFittings.children();
+		// we remove fits that are not in the received data,
+		// and filter out those that where already on the page
+		existingFits.each(function(){
+			// check if fit still exists
+			var currentElement = $(this);
+			var currentId = currentElement.attr("id");
+			currentId = Number(currentId.slice(4));
+			var is_existing = false
+			for (var i=0; i < entry.fittings.length; i++ ) {
+				var fit = entry.fittings[i];
+				if (fit.id == currentId) {
+					is_existing = true;
+					entry.fittings.splice(i, 1); // this fit is already there we don't need it
+					i=i-1;
+					break;
+				}
+			}
+			if (! is_existing) {
+				// we need to remove the fit
+				currentElement.remove();
+			}
+			
+		});
+		
+		// now we add the new fits
+		for (var i=0; i < entry.fittings.length; i++) {
+			jFittings.append(createFitDOM(entry.fittings[i], entry.character));
+		}
+	}
+}
+
+function createFitDOM(fit, character) {
+	var fitdom = $($.parseHTML('<li class="list-group-item fitting" id="fit-'+fit.id+'"></li>'))
+	.append($.parseHTML('<div class="container"></div>'));
+	var commentHTML = "";
+	if (fit.comment != null) {
+		commentHTML = '<div class="row"><small>'+fit.comment+'</small></div>';
+	}
+	fitdom.append(
+			$($.parseHTML('<div class="row fit-link" data-dna="'+fit.dna+'"></div>'))
+				.append($.parseHTML('<div class="col-sm-4"><img src="https://image.eveonline.com/Render/'+fit.shipType+'_32.png" alt="'+fit.shipName+'"></div>'))
+				.append($.parseHTML('<div class="col-sm-8"><div class="row">'+fit.shipName+'</div>'+commentHTML+'</div>'))
+			);
+	return fitdom
+	// add own fit removal button if its your own entry :/
+	
+}
+
+function cleanWL(wldata) {
+	var wlbody = $('#wl-'+wldata.id+'-fits');
+	wlbody.empty();
+}
+
+function updateWaitlist(wldata) {
+	var waitlist = $('#wl-'+wldata.name)[0];
+	// if there are no entrys in the wl make sure that there ain't any on our page
+	if (wldata.entries.length == 0) {
+		cleanWL(wldata);
+	} else {
+		for (var i = 0; i < wldata.entries.length; i++) {
+			updateWlEntry(wldata.name, wldata.id, wldata.entries[i]);
+		}
+		// now that all are updated delete entrys that are not in existance
+		var entries = $('li[id|="entry-'+wldata.name+'"]');
+		var preLen = ("entry-"+wldata.name+"-").length;
+		for (var i=0; i < entries.size(); i++) {
+			var id = $(entries[i]).attr("id");
+			id = Number(id.slice(preLen))
+			var is_existing = false;
+			for (var n=0; n < wldata.entries.length; n++) {
+				if (wldata.entries[n].character.id == id) {
+					is_existing = true;
+					break;
+				}
+			}
+			if (! is_existing) {
+				$(entries[i]).remove();
+			}
+		}
+	}
+}
+
+function refreshWl() {
+	$.getJSON("{{url_for('waitlist_api.waitlist')}}", function(data){
+		for (wl in data.waitlists) {
+			updateWaitlist(data.waitlists[wl]);
+		}
+	});
+}
+
 function invitePlayer(userId) {
 	$.post("{{url_for('fittings.api_invite_player')}}", {'playerId': userId, '_csrf_token': '{{ csrf_token() }}'}, function(){
-		/*var wl_names = [{% for wl in lists %}"{{wl.name|e}}",{% endfor %}];
-		for (idx in wl_names) {
-			var wl_name = wl_names[idx]
-			var entry_id = "entry-"+wl_name+"-"+userId
-			var entry = document.getElementById(entry_id);
-			if (entry != null) { // there is a entry for him on that wl
-				entry.parentNode.removeChild(entry); // remote it from the DOM
-			}
-		}*/
-		$('#row-waitlists').load("{{url_for('index')}} #waitlists");
 	}, "text");
 }
 
 function removePlayer(userId) {
 	$.post("{{url_for('fittings.api_wls_remove_player')}}", {'playerId': userId, '_csrf_token': '{{ csrf_token() }}'}, function(){
-		/*var wl_names = [{% for wl in lists %}"{{wl.name|e}}",{% endfor %}];
-		for (idx in wl_names) {
-			var wl_name = wl_names[idx]
-			var entry_id = "entry-"+wl_name+"-"+userId
-			var entry = document.getElementById(entry_id);
-			if (entry != null) { // there is a entry for him on that wl
-				entry.parentNode.removeChild(entry); // remote it from the DOM
-			}
-		}
-		*/
-		//$('#row-waitlists').load("{{url_for('index')}} #waitlists");
-		window.location.reload(true);
+		clearInterval(lastRefreshInterval);
+		refreshWl();
+		lastRefreshInterval = setInterval(refreshWl, 10000);
 	}, "text");
 }
 
 function removeEntry(entryId, userId) {
 	$.post("{{url_for('fittings.api_wl_remove_entry')}}", {'entryId': entryId, '_csrf_token': '{{ csrf_token() }}'}, function(){
-		/*var entry_id = "entry-{{queue.name}}-"+userId
-		var entry = document.getElementById(entry_id);
-		if (entry != null) { // there is a entry for him on that wl
-			entry.parentNode.removeChild(entry); // remote it from the DOM
-		}
-		*/
-		//$('#row-waitlists').load("{{url_for('index')}} #waitlists");
-		window.location.reload(true);
+		refreshWl();
+		clearInterval(lastRefreshInterval);
+		lastRefreshInterval = setInterval(refreshWl, 10000);
 	}, "text");
 }
 
 function moveEntryToWaitlists(entryId, userId) {
 	$.post("{{url_for('fittings.move_to_waitlists')}}", {'entryId': entryId, '_csrf_token': '{{ csrf_token() }}'}, function(){
-		/**var entry_id = "entry-{{queue.name}}-"+userId
-		var entry = document.getElementById(entry_id);
-		if (entry != null) { // there is a entry for him on that wl
-			entry.parentNode.removeChild(entry); // remote it from the DOM
-		}
-		**/
-		//$('#row-waitlists').load("{{url_for('index')}} #waitlists");
-		window.location.reload(true);
+		clearInterval(lastRefreshInterval);
+		refreshWl();
+		lastRefreshInterval = setInterval(refreshWl, 10000);
 	}, "text")
 }
-
-$(document).ready(function() {
-	$("#remove-diag").on('show.bs.modal', function(e){
-		var source = $(e.relatedTarget);
-		var fname = source.data("type")
-		if (fname == "removePlayer") {
-			var userid = Number(source.data("user"));
-			$("#remove-diag-accept").off();
-			$("#remove-diag-accept").on("click", function() {
-				window[fname](userid);
-			});
-			
-			$("#remove-diag-body").text("Do you really want to remove this player from the Waitlist?");
-			$("#remove-diag-label").text("Remove Player");
-			
-		} else if (fname == "removeEntry") {
-			var userid = Number(source.data("user"));
-			var entry = Number(source.data("entry"));
-			$("#remove-diag-accept").off();
-			$("#remove-diag-accept").on("click", function() {
-				window[fname](entry, userid);
-			});
-			$("#remove-diag-body").text("Do you really want to remove this player from the X-UPs?");
-			$("#remove-diag-label").text("Remove Player");
+$(document).ready(function(){
+	var wlists = $('ol[id|="wl-fits"]');
+	for (var i=0; i < wlists.size(); i++) {
+		var wl = $(wlists[i]);
+		var wlId = wl.attr("id");
+		var cookie = $.cookie(wlId);
+		if (cookie == null) {
+			$.cookie(wlID, "closed");
+			cookie = "closed";
 		}
-	});
+
+		if (cookie == "closed") {
+			wl.collapse('hide');
+		} else if (cookie == "open") {
+			wl.collapse('show');
+		}
+	}
+	lastRefreshInterval = setInterval(refreshWl, 10000);
 });
 </script>
 {% endif %}
@@ -190,7 +314,7 @@ $(document).ready(function() {
 	<div class="card">
 		<div style="cursor: pointer;" class="card-header" id="status-heading" data-toggle="collapse" data-target="#status-body" id="status-toggle">
 	      <h4 class="card-title">
-	          Status: {{fleet.status}}<i id="status-tog-icon" class="fa fa-chevron-down pull-xs-right" id="status-icon"></i>
+	          Status: {{fleet.status}}<i id="status-tog-icon" class="fa fa-plus-square pull-xs-right" id="status-icon"></i>
 	      </h4>
 	    </div>
 	    <div class="">
@@ -247,95 +371,17 @@ $(document).ready(function() {
 </div>
 <div class="row" id="row-waitlists">
 <div id="waitlists">
-<div class="col-sm-3" id="wl-{{ queue.name }}">
-	<div class="panel panel-default">
-		<div class="panel-heading" role="tab" id="wl-{{ queue.id }}-heading" data-toggle="collapse" data-parent="#wl-{{ queue.id }}-tog" data-target="#wl-{{ queue.id }}-fits" aria-expanded="true" aria-controls="wl-{{ queue.id }}-fits">
-      		<h4 class="panel-title">
-        	<a class="list-group-item text-capitalize">
-				X-Ups<i class="fa fa-chevron-up pull-xs-right" id="wl-{{ queue.id }}-tog-icon"></i>
-        	</a>
-      		</h4>
-    	</div>
-		<ol data-tog-icon="#wl-{{ queue.id }}-tog-icon" class="list-group collapse in" id="wl-{{ queue.id }}-fits" role="tabpanel" aria-labelledby="wl-{{ queue.id }}-heading">
-			{% for entry in queue.entries %}
-			<li class="list-group-item" id="entry-{{ queue.name }}-{{ entry.user }}">
-				<div class="card">
-					<div class="container">
-						{% if user.get_eve_id() == entry.user or perm_man.can() %}
-						<a href="javascript:CCPEVE.showInfo(1377, {{ entry.user }});">
-						{% endif %}
-						<div class="row">
-							<div class="col-sm-2 hidden-sm-down">
-								<img src="https://image.eveonline.com/Character/{{ entry.user }}_32.jpg" alt="{{ entry.user_data.eve_name|e }}">
-							</div>
-							<div class="col-sm-8">
-							{{ entry.user_data.eve_name|e }}{% if (user.get_eve_id() == entry.user or perm_man.can()) and entry.user_data.is_new() %} <span class="label label-info">New</span>{% endif %}
-							</div>
-						</div>
-						{% if user.get_eve_id() == entry.user or perm_man.can() %}
-						</a>
-						{% endif %}
-						<div class="row">
-							<div class="btn-group btn-group-mini" role="group" aria-label="Action Buttons">
-								{% if perm_man.can() %}
-								<!-- <button type="button" class="btn btn-primary" onclick="javascript:CCPEVE.showInfo(1377, {{ entry.user }})">Char</button> -->
-								<button type="button" class="btn btn-danger"  data-toggle="modal" data-target="#remove-diag" data-type="removeEntry" data-entry="{{entry.id}}" data-user="{{entry.user}}">Remove</button>
-								<button type="button" class="btn btn-secondary" onclick="javascript:CCPEVE.startConversation({{ entry.user }})">Convo</button>
-								<button type="button" class="btn btn-success" onclick="javascript:moveEntryToWaitlists({{ entry.id }}, {{ entry.user }})">Approve</button>
-								{% endif %}
-								{% if user.get_eve_id() == entry.user %}
-								<button type="button" class="btn btn-warning"
-									onclick="javascript:removeOwnEntry('{{queue.name}}', {{entry.user}}, {{ entry.id }});">Remove Self</button>
-								{% endif %}
-								{% if user.get_eve_id() == entry.user or perm_viewfits.can() %}
-								<button type="button" data-toggle="collapse" data-target="#fittings-{{entry.id}}" class="btn btn-primary">Show/Hide Fits</button>
-								{% endif %}
-							</div>
-						</div>
-						
-					</div>
-					{% if user.get_eve_id() == entry.user or perm_viewfits.can() %}
-	  				<ul class="list-group list-group-flush collapse" id="fittings-{{entry.id}}">
-					{% for fit in entry.fittings %}
-	    				<li class="list-group-item fitting">
-	    					<div class="container fit-link" data-dna="{{ fit.ship_type }}:{{ fit.modules }}">
-	    					<div class="row">
-	    						<div class="col-sm-4 hidden-sm-down">
-	    						<img src="https://image.eveonline.com/Render/{{ fit.ship_type }}_32.png" alt="{{ entry.user_data.eve_name|e }}">
-	    						</div>
-	    						<div class="col-sm-8">
-	    							<div class="row">
-	    							{{ fit.ship.typeName|e }}
-	    							</div>
-	    							{% if fit.comment is not none %}
-	    							<div class="row">
-	    							<small>{{ fit.comment|safe }}</small>
-	    							</div>
-	    							{% endif %}
-	    						</div>
-	    					</div>
-	    					</div>
-	    				</li>
-					{% endfor %}
-	  				</ul>
-	  				{% endif %}
-				</div>
-			</li>
-			{% endfor %}
-		</ol>
-	</div>
-</div>
 {% for wlist in lists %}
 <div class="col-sm-3" id="wl-{{ wlist.name }}">
 	<div class="panel panel-default">
 		<div class="panel-heading" role="tab" id="wl-{{ wlist.id }}-heading">
       		<h4 class="panel-title">
-        	<a  class="list-group-item text-capitalize" data-toggle="collapse" data-parent="#wl-{{ wlist.id }}-tog" data-target="#wl-{{ wlist.id }}-fits" aria-expanded="true" aria-controls="wl-{{ wlist.id }}-fits">
-				{{ wlist.name|e }} WL<i class="fa fa-chevron-up pull-xs-right" id="wl-{{ wlist.id }}-tog-icon"></i>
+        	<a  class="list-group-item text-capitalize" data-toggle="collapse" data-parent="#wl-{{ wlist.id }}-tog" data-target="#wl-fits-{{ wlist.id }}" aria-expanded="true" aria-controls="wl-fits-{{ wlist.id }}">
+				{% if wlist.name == "queue" %}X-UP{% else %}{{ wlist.name|e }} WL{% endif %}<i class="fa fa-plus-square pull-xs-right" id="wl-{{ wlist.id }}-tog-icon"></i>
         	</a>
       		</h4>
     	</div>
-		<ol data-tog-icon="#wl-{{ wlist.id }}-tog-icon" class="list-group collapse in" id="wl-{{ wlist.id }}-fits" role="tabpanel" aria-labelledby="wl-{{ wlist.id }}-heading">
+		<ol data-tog-icon="#wl-{{ wlist.id }}-tog-icon" class="list-group collapse" id="wl-fits-{{ wlist.id }}" role="tabpanel" aria-labelledby="wl-heading-{{ wlist.id }}">
 			{% for entry in wlist.entries %}
 			<li class="list-group-item"
 				id="entry-{{wlist.name}}-{{ entry.user }}" {% if user.get_eve_id() == entry.user %}data-count="{{entry.fittings|length}}"{% endif %}>
@@ -362,18 +408,26 @@ $(document).ready(function() {
 						{% if user.get_eve_id() == entry.user or perm_viewfits.can() %}
 						<div class="row">
 							<div class="btn-group btn-group-mini" role="group" aria-label="Action Buttons">
-								{% if current_user.get_eve_id() == entry.user %}
-								<!--  <button type="button" class="btn btn-mini btn-warning"
-									onclick="javascript:removeOwnEntry('{{wlist.name}}', {{entry.user}}, {{ entry.id }});">Remove Self</button> -->
+								{% if user.get_eve_id() == entry.user %}
+								<button type="button" class="btn btn-mini btn-warning"
+									onclick="javascript:removeOwnEntry('{{wlist.name}}', {{entry.user}}, {{ entry.id }});">Remove Self</button>
 								{% endif %}
 								{% if user.get_eve_id() == entry.user or perm_viewfits.can() %}
-								<button type="button" data-toggle="collapse" data-target="#fittings-{{entry.id}}" class="btn btn-mini btn-primary">Show/Hide Fits</button>
+								<button type="button" data-toggle="collapse" data-target="#fittings-{{entry.id}}" class="btn btn-primary">Show/Hide Fits</button>
 								{% endif %}
+								
 								{% if perm_man.can() %}
-								<!-- <button type="button" class="btn btn-primary" onclick="javascript:CCPEVE.showInfo(1377, {{ entry.user }})">Char</button> -->
 								<button type="button" class="btn btn-secondary" onclick="javascript:CCPEVE.startConversation({{ entry.user }})">Convo</button>
-								<button type="button" class="btn btn-danger" data-toggle="modal" data-target="#remove-diag" data-type="removePlayer" data-user="{{entry.user}}">Remove Player</button>
+								{% if wlist.name == "queue" %}
+								{# Button for X-Up list and FleetComp #}
+								<button type="button" class="btn btn-danger"  onclick="javascript:removeEntry({{entry.id}}, {{entry.user}});">Remove</button>
+								<button type="button" class="btn btn-success" onclick="javascript:moveEntryToWaitlists({{ entry.id }}, {{ entry.user }})">Approve</button>
+								{% else %}
+								{# Buttons for Waitlist and FleetComp #}
+								<button type="button" class="btn btn-danger" onclick="javascript:removePlayer({{entry.user}});">Remove Player</button>
 								<button type="button" class="btn btn-success" onclick="javascript:invitePlayer({{ entry.user }})">Send Notification</button>
+								{% endif %}
+								
 								{% endif %}
 							</div>
 						</div>
@@ -388,7 +442,7 @@ $(document).ready(function() {
 									<div class="col-sm-4">
 										<img
 											src="https://image.eveonline.com/Render/{{ fit.ship_type }}_32.png"
-											alt="{{ entry.user_data.eve_name|e }}">
+											alt="{{ fit.ship.typeName }}">
 									</div>
 									<div class="col-sm-8">
 										<div class="row">{{ fit.ship.typeName|e }}</div>
@@ -419,24 +473,4 @@ $(document).ready(function() {
 {% endfor %}
 </div>
 </div>
-{% if perm_man.can() %}
-<div class="modal fade bd-example-modal-sm" id="remove-diag" tabindex="-1" role="dialog" aria-labelledby="remove-diag-label" aria-hidden="true">
-  <div class="modal-dialog modal-sm">
-    <div class="modal-content">
-      <div class="modal-header">
-      	<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-      		<span aria-hidden="true">&times;</span>
-		</button>
-        <h4 class="modal-title" id="remove-diag-label"></h4>
-      </div>
-      <div class="modal-body" id="remove-diag-body">
-      </div>
-      <div class="modal-footer">
-          <button type="button" class="btn btn-success" data-dismiss="modal">No</button>
-          <button type="button" class="btn btn-danger" id="remove-diag-accept">Yes</button>
-      </div>
-    </div>
-  </div>
-</div>
-{% endif %}
 {% endblock %}
