@@ -455,10 +455,10 @@ $(document).ready(function(){
 							<div class="btn-group btn-group-mini" role="group" aria-label="Action Buttons">
 								{% if user.get_eve_id() == entry.user %}
 								<button type="button" class="btn btn-mini btn-warning"
-									onclick="javascript:removeOwnEntry('{{wlist.name}}', {{entry.user}}, {{ entry.id }});">Remove Self</button>
+									onclick="javascript:removeOwnEntry('{{wlist.name}}', {{entry.user}}, {{ entry.id }});"><i class="fa fa-times"></i></button>
 								{% endif %}
 								{% if user.get_eve_id() == entry.user or perm_viewfits.can() %}
-								<button type="button" data-toggle="collapse" data-target="#fittings-{{entry.id}}" class="btn btn-primary">Show/Hide Fits</button>
+								<button type="button" data-toggle="collapse" data-target="#fittings-{{entry.id}}" class="btn btn-primary"><i class="fa fa-plus"></i> &#47; <i class="fa fa-minus"></i> Fits</button>
 								{% endif %}
 							</div>
 						</div>
@@ -487,7 +487,7 @@ $(document).ready(function(){
 									<div class="btn-group btn-group-mini" role="group"
 										aria-label="Action Buttons">
 										<button type="button" class="btn btn-mini btn-warning"
-											onclick="javascript:removeOwnFit({{ fit.id }}, '{{ wlist.name }}', {{ entry.user }});">Remove Fit</button>
+											onclick="javascript:removeOwnFit({{ fit.id }}, '{{ wlist.name }}', {{ entry.user }});"><i class="fa fa-times"></i> Fit</button>
 									</div>
 								</div>
 								{% endif %}
