@@ -432,7 +432,7 @@ $(document).ready(function(){
 				id="entry-{{wlist.name}}-{{ entry.user }}" {% if user.get_eve_id() == entry.user %}data-count="{{entry.fittings|length}}"{% endif %}>
 				<div class="card">
 					<div class="container">
-						{% if user.get_eve_id() == entry.user or perm_man.can() %}
+						{% if user.get_eve_id() == entry.user %}
 						<a href="javascript:CCPEVE.showInfo(1377, {{ entry.user }});">
 						{% endif %}
 						<div class="row">
@@ -447,7 +447,7 @@ $(document).ready(function(){
 							</div>
 	
 						</div>
-						{% if current_user.get_eve_id() == entry.user or perm_man.can() %}
+						{% if current_user.get_eve_id() == entry.user %}
 						</a>
 						{% endif %}
 						{% if user.get_eve_id() == entry.user or perm_viewfits.can() %}
@@ -459,20 +459,6 @@ $(document).ready(function(){
 								{% endif %}
 								{% if user.get_eve_id() == entry.user or perm_viewfits.can() %}
 								<button type="button" data-toggle="collapse" data-target="#fittings-{{entry.id}}" class="btn btn-primary">Show/Hide Fits</button>
-								{% endif %}
-								
-								{% if perm_man.can() %}
-								<button type="button" class="btn btn-secondary" onclick="javascript:CCPEVE.startConversation({{ entry.user }})">Convo</button>
-								{% if wlist.name == "queue" %}
-								{# Button for X-Up list and FleetComp #}
-								<button type="button" class="btn btn-danger"  onclick="javascript:removeEntry({{entry.id}}, {{entry.user}});">Remove</button>
-								<button type="button" class="btn btn-success" onclick="javascript:moveEntryToWaitlists({{ entry.id }}, {{ entry.user }})">Approve</button>
-								{% else %}
-								{# Buttons for Waitlist and FleetComp #}
-								<button type="button" class="btn btn-danger" onclick="javascript:removePlayer({{entry.user}});">Remove Player</button>
-								<button type="button" class="btn btn-success" onclick="javascript:invitePlayer({{ entry.user }})">Send Notification</button>
-								{% endif %}
-								
 								{% endif %}
 							</div>
 						</div>
