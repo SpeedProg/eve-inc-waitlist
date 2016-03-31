@@ -2,10 +2,10 @@ from gevent import monkey; monkey.patch_all()
 # inject the lib folder before everything else
 import os
 import sys
-from sqlalchemy.exc import StatementError
-from waitlist.blueprints.waitlist_api import wl_api
 base_path = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(base_path, 'lib'))
+from waitlist.blueprints.waitlist_api import wl_api
+from sqlalchemy.exc import StatementError
 from waitlist.utility import config
 from logging.handlers import TimedRotatingFileHandler
 from waitlist.blueprints.feedback import feedback
