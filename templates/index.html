@@ -416,12 +416,12 @@ $(document).ready(function(){
 <div class="row" id="row-waitlists">
 <div id="waitlists">
 {% for wlist in lists %}
-<div class="col-sm-3" id="wl-{{ wlist.name }}" data-count="{{wlist.entries|length}}">
+<div class="col-sm-3" id="wl-{{ wlist.name }}" data-count="{% if not perm_man.can() %}{{wlist.entries|length}}{% else %}0{% endif %}">
 	<div class="panel panel-default">
 		<div class="panel-heading" role="tab" id="wl-{{ wlist.id }}-heading">
       		<h4 class="panel-title">
         	<a  class="list-group-item text-capitalize" data-toggle="collapse" data-parent="#wl-{{ wlist.id }}-tog" data-target="#wl-fits-{{ wlist.id }}" aria-expanded="true" aria-controls="wl-fits-{{ wlist.id }}">
-				{% if wlist.name == "queue" %}X-UP{% else %}{{ wlist.name|e }} WL{% endif %}<span id="wl-count-{{ wlist.name }}" class="label label-pill label-default pull-xs-left">{{wlist.entries|length}}</span><i class="fa fa-minus-square pull-xs-right" id="wl-{{ wlist.id }}-tog-icon"></i>
+				{% if wlist.name == "queue" %}X-UP{% else %}{{ wlist.name|e }} WL{% endif %}<span id="wl-count-{{ wlist.name }}" class="label label-pill label-default pull-xs-left">{% if not perm_man.can() %}{{wlist.entries|length}}{% else %}0{% endif %}</span><i class="fa fa-minus-square pull-xs-right" id="wl-{{ wlist.id }}-tog-icon"></i>
         	</a>
       		</h4>
     	</div>
