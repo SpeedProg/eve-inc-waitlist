@@ -424,7 +424,7 @@ $(document).ready(function(){
         	</a>
       		</h4>
     	</div>
-		<ol data-tog-icon="#wl-{{ wlist.id }}-tog-icon" class="list-group collapse" id="wl-fits-{{ wlist.id }}" role="tabpanel" aria-labelledby="wl-heading-{{ wlist.id }}">
+		<ol data-tog-icon="#wl-{{ wlist.id }}-tog-icon" class="list-group collapse in" id="wl-fits-{{ wlist.id }}" role="tabpanel" aria-labelledby="wl-heading-{{ wlist.id }}">
 			{% for entry in wlist.entries %}
 			<li class="list-group-item"
 				id="entry-{{wlist.name}}-{{ entry.user }}" {% if user.get_eve_id() == entry.user %}data-count="{{entry.fittings|length}}"{% endif %}>
