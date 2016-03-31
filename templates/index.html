@@ -156,10 +156,15 @@ function createEntryDOM(wlname, entry) {
 	return entryDOM;
 }
 
+/*
+ * Returns how many new entries where created
+ */
 function updateWlEntry(wlname, wlid,entry) {
+	var new_entry_count = 0;
 	var jEntries = $('#entry-'+wlname+'-'+entry.character.id);
 	if (jEntries.size() <= 0) {
 		addNewEntry(wlname, wlid, entry);
+		new_entry_count = 1;
 	} else {
 		// update fits and such
 		var jFittings = $($('#fittings-'+entry.id)[0]);
@@ -193,6 +198,7 @@ function updateWlEntry(wlname, wlid,entry) {
 			jFittings.append(createFitDOM(entry.fittings[i], entry.character));
 		}
 	}
+	return new_entry_count;
 }
 
 function createFitDOM(fit, character) {
@@ -222,9 +228,11 @@ function updateWaitlist(wldata) {
 	// if there are no entrys in the wl make sure that there ain't any on our page
 	if (wldata.entries.length == 0) {
 		cleanWL(wldata);
+		setWlEntryCount(wldata.name, 0);
 	} else {
+		var new_entry_count = 0;
 		for (var i = 0; i < wldata.entries.length; i++) {
-			updateWlEntry(wldata.name, wldata.id, wldata.entries[i]);
+			new_entry_count += updateWlEntry(wldata.name, wldata.id, wldata.entries[i]);
 		}
 		// now that all are updated delete entrys that are not in existance
 		var entries = $('li[id|="entry-'+wldata.name+'"]');
@@ -241,9 +249,25 @@ function updateWaitlist(wldata) {
 			}
 			if (! is_existing) {
 				$(entries[i]).remove();
+				new_entry_count -= 1;
 			}
 		}
+		var oldCount = Number(getWlEntryCount(wldata.name));
+		var newCount = oldCount + new_entry_count;
+		setWlEntryCount(wldata.name, newCount);
 	}
+}
+
+function setWlEntryCount(wlname, count) {
+	var dataElement = $('#wl-'+wlname);
+	dataElement.data("count", count);
+	var textElement = $('#wl-count-'+wlname);
+	textElement.text(count);
+}
+
+function getWlEntryCount(wlname) {
+	var dataElement = $('#wl-'+wlname);
+	return dataElement.data("count");
 }
 
 function refreshWl() {
@@ -372,12 +396,12 @@ $(document).ready(function(){
 <div class="row" id="row-waitlists">
 <div id="waitlists">
 {% for wlist in lists %}
-<div class="col-sm-3" id="wl-{{ wlist.name }}">
+<div class="col-sm-3" id="wl-{{ wlist.name }}" data-count="{{wlist.entries|length}}">
 	<div class="panel panel-default">
 		<div class="panel-heading" role="tab" id="wl-{{ wlist.id }}-heading">
       		<h4 class="panel-title">
         	<a  class="list-group-item text-capitalize" data-toggle="collapse" data-parent="#wl-{{ wlist.id }}-tog" data-target="#wl-fits-{{ wlist.id }}" aria-expanded="true" aria-controls="wl-fits-{{ wlist.id }}">
-				{% if wlist.name == "queue" %}X-UP{% else %}{{ wlist.name|e }} WL{% endif %}<i class="fa fa-plus-square pull-xs-right" id="wl-{{ wlist.id }}-tog-icon"></i>
+				{% if wlist.name == "queue" %}X-UP{% else %}{{ wlist.name|e }} WL{% endif %}<span id="wl-count-{{ wlist.name }}" class="label label-pill label-default">{{wlist.entries|length}}</span><i class="fa fa-plus-square pull-xs-right" id="wl-{{ wlist.id }}-tog-icon"></i>
         	</a>
       		</h4>
     	</div>
