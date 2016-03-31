@@ -271,8 +271,8 @@ function getWlEntryCount(wlname) {
 
 function refreshWl() {
 	$.getJSON("{{url_for('waitlist_api.waitlist')}}", function(data){
-		for (wl in data.waitlists) {
-			updateWaitlist(data.waitlists[wl]);
+		for (var i=0; i < data.waitlists.length; i++) {
+			updateWaitlist(data.waitlists[i]);
 		}
 	});
 }
