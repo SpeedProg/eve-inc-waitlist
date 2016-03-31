@@ -98,7 +98,6 @@ function removeOwnFit(fitId, wlName, charId) {
 {% if perm_man.can() %}
 <script type="text/javascript">
 function addNewEntry(wlname, wlid, entry) {
-	console.log(wlname, entry);
 	var entryDOM = createEntryDOM(wlname, entry);
 	var wlEntryContainer = $('#wl-fits-'+wlid);
 	wlEntryContainer.append(entryDOM);
