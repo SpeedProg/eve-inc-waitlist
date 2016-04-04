@@ -350,6 +350,8 @@ def xup_submit():
 def move_to_waitlists():
     entry_id = int(request.form['entryId'])
     entry = db.session.query(WaitlistEntry).filter(WaitlistEntry.id == entry_id).first()
+    if entry == None:
+        return "OK";
     logger.info("%s approved %s", current_user.username, entry.user_data.get_eve_name())
     waitlist_entries = db.session.query(WaitlistEntry).filter(WaitlistEntry.user == entry.user).all()
     logi_entry = None
