@@ -5,9 +5,7 @@
 {% block head %}
 {{ super() }}
 {% if fleet.xup_enabled %}
-<script>
 {% include "xup-form.js" %}
-</script>
 {% endif %}
 {% endblock %}
 
