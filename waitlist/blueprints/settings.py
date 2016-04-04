@@ -498,6 +498,10 @@ def fleet_location_set():
         flash("HQ System was set to "+name, "success")
     elif action == "dock":
         name = request.form['name']
+        station = get_station(name);
+        if station == None:
+            flash("Invalid station name "+name, "danger")
+            return redirect(url_for(".fleet"), code=303)
         station_id = get_station(name).stationID
         fleet_status.dock = [name, station_id]
         logger.info("Dock was set to %s by %s", name, current_user.username)
