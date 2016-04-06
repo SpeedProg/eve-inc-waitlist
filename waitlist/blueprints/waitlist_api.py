@@ -36,7 +36,8 @@ def makeJsonFitting(dbfitting):
             'shipName': dbfitting.ship.typeName,
             'modules': dbfitting.modules,
             'comment': dbfitting.comment,
-            'dna': dbfitting.get_dna()
+            'dna': dbfitting.get_dna(),
+            'wl_type': dbfitting.wl_type
         }
 
 def makeJsonFittings(dbfittings):

@@ -3,6 +3,28 @@ var getMetaData = function (name) {
 }
 
 /**
+ * @param tag: B = Basi, S = Scimi, DPS = Short Range Damage, SNI = Sniper
+ */
+function createTypeTag(name) {
+	type = "default";
+	switch (name) {
+	case "B":
+	case "S":
+		type = "success";
+		break;
+	case "DPS":
+		type = "danger";
+		break;
+	case "SNI":
+		type = "warning";
+		break;
+	default:
+		type = "default";
+	}
+	return $.parseHTML('<span class="label label-'+type+'">'+name+'</span>');
+}
+
+/**
  * Add a new entry to the given list
  * @param wlname name of the waitlist the entry needs to be added to
  * @param wlid id of the waitlist
@@ -15,12 +37,54 @@ function addNewEntry(wlname, wlid, entry) {
 }
 
 /**
+ * Get which labels these fits create
+ * @param fits fits object as received from the API
+ * @returns {Array} list of tags
+ */
+function getTagsFromFits(fits) {
+	var tags = {};
+	var addTag = function(name) {
+		if (name in tags) {
+			return
+		}
+		tags[name] = true;
+	}
+	for (var i=0; i < fits.length; i++) {
+		switch (fits[i].wl_type) {
+		case "logi":
+			// since we want to have basi/scimi specificly need to check shipType here
+			if (fits[i].shipType == 11985) {
+				addTag("B");
+			} else if (fits[i].shipType == 11978) {
+				addTag("S");
+			}
+			break;
+		case "sniper":
+			addTag("SNI");
+			break;
+		case "dps":
+			addTag("DPS");
+			break;
+		default:
+			break;
+		}
+	}
+	// make a list out of the object properties
+	var tagList = [];
+	for (var tag in tags) {
+		tagList.push(tag);
+	}
+	return tagList;
+}
+
+/**
  * Create the html entity for the entry's header
  * @param wlname name of the waitlist the entry belongs to
  * @param entry the waitlist entry as received from the api
  * @returns
  */
 function createHeaderDOM(wlname, entry) {
+	var tags = getTagsFromFits(entry.fittings);
 	var header = $('<div></div>');
 	var charRow = $('<a href="javascript:CCPEVE.showInfo(1377, '+entry.character.id+');">'+
 						'<div class="wel-header-32">'+
@@ -29,10 +93,14 @@ function createHeaderDOM(wlname, entry) {
 							'</div>'+
 							'<div class="wel-container-32">'+
 								'<div class="wel-text-row-32-2">'+entry.character.name+'</div>'+
-								'<div class="wel-text-row-32-2"><span class="label label-default">B</span></div>'+
+								'<div class="wel-text-row-32-2 tag-row"></div>'+
 							'</div>'+
 						'</div>'+
 						'</a>');
+	var tagContainer = $('div.tag-row', charRow);
+	for (var i = 0; i < tags.length; i++) {
+		tagContainer.append(createTypeTag(tags[i]));
+	}
 	var buttonRow = null;
 	if (wlname == "queue") {
 		buttonRow = $('<div>'+
@@ -94,6 +162,9 @@ function updateWlEntry(wlname, wlid, entry) {
 		new_entry_count = 1;
 	} else {
 		// update fits and such
+		var modified = false;
+		// backup of original fits, we gonna need them later if sth was modified
+		var fittings = entry.fittings.slice();
 		var jFittings = $($('#fittings-'+entry.id)[0]);
 		var existingFits = jFittings.children();
 		// we remove fits that are not in the received data,
@@ -115,14 +186,28 @@ function updateWlEntry(wlname, wlid, entry) {
 			}
 			if (! is_existing) {
 				// we need to remove the fit
+				modified = true;
 				currentElement.remove();
 			}
 			
 		});
 		
 		// now we add the new fits
+		if (entry.fittings.length > 0) {
+			modified = true;
+		}
 		for (var i=0; i < entry.fittings.length; i++) {
 			jFittings.append(createFitDOM(entry.fittings[i], entry.character));
+		}
+		
+		// if we modified sth update the tags
+		if (modified) {
+			var tags = getTagsFromFits(fittings);
+			var tagContainer = $('div.tag-row', jEntries);
+			tagContainer.empty();
+			for (var i = 0; i < tags.length; i++) {
+				tagContainer.append(createTypeTag(tags[i]));
+			}
 		}
 	}
 	return new_entry_count;
