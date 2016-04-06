@@ -104,30 +104,32 @@ function addNewEntry(wlname, wlid, entry) {
 }
 
 function createHeaderDOM(wlname, entry) {
-	var header = $('<div class="container"></div>');
+	var header = $('<div></div>');
 	var charRow = $('<a href="javascript:CCPEVE.showInfo(1377, '+entry.character.id+');">'+
-						'<div class="row">'+
-							'<div class="col-sm-2 col-xs-4">'+
+						'<div class="wel-header-32">'+
+							'<div class="wel-img-32">'+
 									'<img src="https://image.eveonline.com/Character/'+entry.character.id+'_32.jpg" alt="'+entry.character.name+'">'+
 							'</div>'+
-							'<div class="col-sm-10 ol-xs-8">'+entry.character.name+
+							'<div class="wel-container-32">'+
+								'<div class="wel-text-row-32-2">'+entry.character.name+'</div>'+
+								'<div class="wel-text-row-32-2"><span class="label label-default">B</span></div>'+
 							'</div>'+
 						'</div>'+
 						'</a>');
 	var buttonRow = null;
 	if (wlname == "queue") {
-		buttonRow = $('<div class="row">'+
+		buttonRow = $('<div>'+
 				'<div class="btn-group btn-group-mini" role="group" aria-label="Action Buttons">'+
 					// only if it is your own entry
 					//'<button type="button" class="btn btn-mini btn-warning" onclick="javascript:removeOwnEntry(\'queue\', '+entry.character.id+', '+entry.id+');">Remove Self</button>'+
-										'<button type="button" class="btn btn-success" onclick="javascript:moveEntryToWaitlists('+entry.id+', '+entry.character.id+')"><i class="fa fa-thumbs-o-up"></i></button>'+
+					'<button type="button" class="btn btn-success" onclick="javascript:moveEntryToWaitlists('+entry.id+', '+entry.character.id+')"><i class="fa fa-thumbs-o-up"></i></button>'+
 					'<button aria-expanded="true" type="button" data-toggle="collapse" data-target="#fittings-'+entry.id+'" class="btn btn-primary"><i class="fa fa-plus"></i> &#47; <i class="fa fa-minus"></i> Fits</button>'+
 					'<button type="button" class="btn btn-secondary" onclick="javascript:CCPEVE.startConversation('+entry.character.id+')"><i class="fa fa-comment-o"></i></button>'+
 					'<button type="button" class="btn btn-danger" onclick="javascript:removeEntry('+entry.id+', '+entry.character.id+');"><i class="fa fa-times"></i></button>'+
 				'</div>'+
 			'</div>');
 	} else {
-		buttonRow = $('<div class="row">'+
+		buttonRow = $('<div>'+
 					'<div class="btn-group btn-group-mini" role="group" aria-label="Action Buttons">'+
 					'<button type="button" class="btn btn-success" onclick="javascript:invitePlayer('+entry.character.id+')"><i class="fa fa-bell-o"></i></button>'+
 						'<button aria-expanded="true" type="button" data-toggle="collapse" data-target="#fittings-'+entry.id+'" class="btn btn-primary"><i class="fa fa-plus"></i> &#47; <i class="fa fa-minus"></i> Fits</button>'+
@@ -147,7 +149,7 @@ function createEntryDOM(wlname, entry) {
 	var cardDOM = $('<div class="card"></div>');
 	cardDOM.append(createHeaderDOM(wlname, entry));
 	entryDOM.append(cardDOM);
-	var fittlistDOM = $('<ul style="" aria-expanded="true" class="list-group list-group-flush collapse" id="fittings-'+entry.id+'"></ul>')
+	var fittlistDOM = $('<ul aria-expanded="true" class="list-group list-group-flush collapse" id="fittings-'+entry.id+'"></ul>')
 	entryDOM.append(fittlistDOM);
 	for (var i=0; i<entry.fittings.length; i++) {
 		fittlistDOM.append(createFitDOM(entry.fittings[i]));
@@ -201,16 +203,17 @@ function updateWlEntry(wlname, wlid,entry) {
 }
 
 function createFitDOM(fit, character) {
-	var fitdom = $($.parseHTML('<li class="list-group-item fitting" id="fit-'+fit.id+'"></li>'))
-	.append($.parseHTML('<div class="container"></div>'));
+	var fitdom = $($.parseHTML('<li class="list-group-item fitting" id="fit-'+fit.id+'"></li>'));
 	var commentHTML = "";
 	if (fit.comment != null) {
-		commentHTML = '<div class="row"><small>'+fit.comment+'</small></div>';
+		commentHTML = '<div class="wel-text-row-32-2"><small>'+fit.comment+'</small></div>';
 	}
 	fitdom.append(
-			$($.parseHTML('<div class="row fit-link" data-dna="'+fit.dna+'"></div>'))
-				.append($.parseHTML('<div class="col-sm-4"><img src="https://image.eveonline.com/Render/'+fit.shipType+'_32.png" alt="'+fit.shipName+'"></div>'))
-				.append($.parseHTML('<div class="col-sm-8"><div class="row">'+fit.shipName+'</div>'+commentHTML+'</div>'))
+			$($.parseHTML('<div class="fit-link" data-dna="'+fit.dna+'"></div>'))
+				.append($($.parseHTML('<div class="wel-header-32"></div>'))
+						.append($.parseHTML('<div class="wel-img-32"><img src="https://image.eveonline.com/Render/'+fit.shipType+'_32.png" alt="'+fit.shipName+'"></div>'))
+						.append($.parseHTML('<div class="wel-container-32"><div class="wel-text-row-32-2">'+fit.shipName+'</div>'+commentHTML+'</div>'))
+						)
 			);
 	return fitdom
 	// add own fit removal button if its your own entry :/
@@ -356,6 +359,7 @@ $(document).ready(function(){
 {% if (not is_on_wl) and (not (perm_man.can() or perm_viewfits.can())) and fleet.xup_enabled %}
 	{% include "xup-form.js" %}
 {% endif %}
+<link rel="stylesheet" href="/static/css/waitlist.css">
 {% endblock %}
 
 {% block container_data %}
@@ -440,65 +444,60 @@ $(document).ready(function(){
 			{% for entry in wlist.entries %}
 			<li class="list-group-item"
 				id="entry-{{wlist.name}}-{{ entry.user }}" {% if user.get_eve_id() == entry.user %}data-count="{{entry.fittings|length}}"{% endif %}>
-				<div class="card">
-					<div class="container">
+				<div>
 						{% if user.get_eve_id() == entry.user %}
 						<a href="javascript:CCPEVE.showInfo(1377, {{ entry.user }});">
 						{% endif %}
-						<div class="row">
-						
-							<div class="col-sm-2 col-xs-4">
+						<div class="wel-header-32">
+							<div class="wel-img-32">
 									<img
 									src="https://image.eveonline.com/Character/{{ entry.user }}_32.jpg"
 									alt="{{ entry.user_data.eve_name|e }}">
 							</div>
-							<div class="col-sm-10 ol-xs-8">
+							<div class="wel-container-32">
 								{{ entry.user_data.eve_name|e }}{% if entry.user_data.is_new() %} <span class="label label-info">New</span>{% endif %}
 							</div>
-	
 						</div>
 						{% if current_user.get_eve_id() == entry.user %}
 						</a>
 						{% endif %}
 						{% if user.get_eve_id() == entry.user or perm_viewfits.can() %}
-						<div class="row">
-							<div class="btn-group btn-group-mini" role="group" aria-label="Action Buttons">
-								{% if user.get_eve_id() == entry.user %}
-								<button type="button" class="btn btn-mini btn-warning"
-									onclick="javascript:removeOwnEntry('{{wlist.name}}', {{entry.user}}, {{ entry.id }});"><i class="fa fa-times"></i></button>
-								{% endif %}
-								{% if user.get_eve_id() == entry.user or perm_viewfits.can() %}
-								<button type="button" data-toggle="collapse" data-target="#fittings-{{entry.id}}" class="btn btn-primary"><i class="fa fa-plus"></i> &#47; <i class="fa fa-minus"></i> Fits</button>
-								{% endif %}
-							</div>
+						<div class="btn-group btn-group-mini" role="group" aria-label="Action Buttons">
+							{% if user.get_eve_id() == entry.user %}
+							<button type="button" class="btn btn-mini btn-warning"
+								onclick="javascript:removeOwnEntry('{{wlist.name}}', {{entry.user}}, {{ entry.id }});"><i class="fa fa-times"></i></button>
+							{% endif %}
+							{% if user.get_eve_id() == entry.user or perm_viewfits.can() %}
+							<button type="button" data-toggle="collapse" data-target="#fittings-{{entry.id}}" class="btn btn-primary"><i class="fa fa-plus"></i> &#47; <i class="fa fa-minus"></i> Fits</button>
+							{% endif %}
 						</div>
 						{% endif %}
-					</div>
+
 					{% if user.get_eve_id() == entry.user or perm_viewfits.can() %}
 					<ul class="list-group list-group-flush collapse" id="fittings-{{entry.id}}">
 						{% for fit in entry.fittings %}
 						<li class="list-group-item fitting" id="fit-{{ fit.id }}">
-							<div class="container">
-								<div class="row fit-link" data-dna="{{ fit.ship_type }}:{{ fit.modules }}">
-									<div class="col-sm-4">
+							<div>
+								<div class="fit-link" data-dna="{{ fit.ship_type }}:{{ fit.modules }}">
+									<div class="wel-header-32">
+									<div class="wel-img-32">
 										<img
 											src="https://image.eveonline.com/Render/{{ fit.ship_type }}_32.png"
 											alt="{{ fit.ship.typeName }}">
 									</div>
-									<div class="col-sm-8">
-										<div class="row">{{ fit.ship.typeName|e }}</div>
+									<div class="wel-container-32">
+										<div class="wel-text-row-32-2">{{ fit.ship.typeName|e }}</div>
 										{% if fit.comment is not none %}
-										<div class="row"><small>{{ fit.comment|safe }}</small></div>
+										<div class="wel-text-row-32-2"><small>{{ fit.comment|safe }}</small></div>
 										{% endif %}
+									</div>
 									</div>
 								</div>
 								{% if user.get_eve_id() == entry.user %}
-								<div class="row">
-									<div class="btn-group btn-group-mini" role="group"
-										aria-label="Action Buttons">
-										<button type="button" class="btn btn-mini btn-warning"
-											onclick="javascript:removeOwnFit({{ fit.id }}, '{{ wlist.name }}', {{ entry.user }});"><i class="fa fa-times"></i> Fit</button>
-									</div>
+								<div class="btn-group btn-group-mini" role="group"
+									aria-label="Action Buttons">
+									<button type="button" class="btn btn-mini btn-warning"
+										onclick="javascript:removeOwnFit({{ fit.id }}, '{{ wlist.name }}', {{ entry.user }});"><i class="fa fa-times"></i> Fit</button>
 								</div>
 								{% endif %}
 							</div>
