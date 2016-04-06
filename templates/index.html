@@ -251,7 +251,7 @@ function updateWaitlist(wldata) {
 				new_entry_count -= 1;
 			}
 		}
-		var oldCount = Number(getWlEntryCount(wldata.name));
+		var oldCount = getWlEntryCount(wldata.name);
 		var newCount = oldCount + new_entry_count;
 		setWlEntryCount(wldata.name, newCount);
 	}
@@ -266,7 +266,7 @@ function setWlEntryCount(wlname, count) {
 
 function getWlEntryCount(wlname) {
 	var dataElement = $('#wl-'+wlname);
-	return dataElement.data("count");
+	return Number(dataElement.data("count"));
 }
 
 function refreshWl() {
@@ -295,6 +295,7 @@ function removePlayer(userId) {
 		var entry = document.getElementById(entry_id);
 		if (entry != null) { // there is a entry for him on that wl
 			entry.parentNode.removeChild(entry); // remote it from the DOM
+			setWlEntryCount(wl_name, getWlEntryCount(wl_name)-1)
 		}
 	 }
 }
@@ -309,6 +310,7 @@ function removeEntry(entryId, userId) {
 	var entry = document.getElementById(entry_id);
 	if (entry != null) { // there is a entry for him on that wl
 		entry.parentNode.removeChild(entry); // remote it from the DOM
+		setWlEntryCount("queue", getWlEntryCount("queue")-1)
 	}
 }
 
@@ -322,6 +324,7 @@ function moveEntryToWaitlists(entryId, userId) {
 	var entry = document.getElementById(entry_id);
 	if (entry != null) { // there is a entry for him on that wl
 		entry.parentNode.removeChild(entry); // remote it from the DOM
+		setWlEntryCount("queue", getWlEntryCount("queue")-1)
 	}
 }
 
