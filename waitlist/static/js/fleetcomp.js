@@ -142,7 +142,7 @@ function createEntryDOM(wlname, entry) {
 	var fittlistDOM = $('<ul aria-expanded="true" class="list-group list-group-flush collapse" id="fittings-'+entry.id+'"></ul>')
 	entryDOM.append(fittlistDOM);
 	for (var i=0; i<entry.fittings.length; i++) {
-		fittlistDOM.append(createFitDOM(entry.fittings[i]));
+		fittlistDOM.append(createFitDOM(entry.fittings[i], wlname == "queue" ? true : false));
 	}
 	return entryDOM;
 }
@@ -197,7 +197,7 @@ function updateWlEntry(wlname, wlid, entry) {
 			modified = true;
 		}
 		for (var i=0; i < entry.fittings.length; i++) {
-			jFittings.append(createFitDOM(entry.fittings[i], entry.character));
+			jFittings.append(createFitDOM(entry.fittings[i], wlname == "queue" ? true : false));
 		}
 		
 		// if we modified sth update the tags
@@ -216,20 +216,25 @@ function updateWlEntry(wlname, wlid, entry) {
 /**
  * Creat html entity of a fit
  * @param fit fit object as received from the api
- * @param character character the enty belongs too
+ * @param pass if it is the x-up list, so we can add approve button, defaults to false
  * @returns {HTMLElement} the fit's DOM
  */
-function createFitDOM(fit, character) {
+function createFitDOM(fit, queue) {
+	queue = typeof queue !== 'undefined' ? queue : false;
+	var approveButton = "";
+	if (queue) {
+		approveButton = ' <button type="button" class="btn btn-mini btn-success" onclick="javascript:var event = arguments[0]; event.stopPropagation(); approveFit('+fit.id+')"><i class="fa fa-thumbs-o-up"></i></button>';
+	}
 	var fitdom = $($.parseHTML('<li class="list-group-item fitting" id="fit-'+fit.id+'"></li>'));
 	var commentHTML = "";
 	if (fit.comment != null) {
-		commentHTML = '<div class="wel-text-row-32-2"><small>'+fit.comment+'</small></div>';
+		commentHTML = '<small>'+fit.comment+'</small>';
 	}
 	fitdom.append(
 			$($.parseHTML('<div class="fit-link" data-dna="'+fit.dna+'"></div>'))
 				.append($($.parseHTML('<div class="wel-header-32"></div>'))
 						.append($.parseHTML('<div class="wel-img-32"><img src="https://image.eveonline.com/Render/'+fit.shipType+'_32.png" alt="'+fit.shipName+'"></div>'))
-						.append($.parseHTML('<div class="wel-container-32"><div class="wel-text-row-32-2">'+fit.shipName+'</div>'+commentHTML+'</div>'))
+						.append($.parseHTML('<div class="wel-container-32"><div class="wel-text-row-32-2">'+fit.shipName+'</div><div class="wel-text-row-32-2">'+commentHTML+approveButton+'</div></div>'))
 						)
 			);
 	return fitdom
@@ -385,6 +390,29 @@ function moveEntryToWaitlists(entryId, userId) {
 		entry.parentNode.removeChild(entry); // remote it from the DOM
 		setWlEntryCount("queue", getWlEntryCount("queue")-1)
 	}
+}
+
+/**
+ * Mave a single fit to waitlist
+ */
+function approveFit(fitId) {
+	// remove this before sending, since the fit-id stays in existance and we could by accident remove it afterwards from the waitlist
+	var entry_id = "fit-"+fitId
+	var entry = document.getElementById(entry_id);
+	if (entry != null) { // there is a entry for him on that wl
+		parent = entry.parentNode;
+		parent.removeChild(entry); // remove it from the DOM
+		if (parent.childNodes.length == 0) { // if there is not fit anymore remove the entry from the dom too
+			entry = parent.parentNode;
+			entry.parentNode.removeChild(entry);
+			setWlEntryCount("queue", getWlEntryCount("queue")-1)
+		}
+	}
+	$.post(getMetaData('api-approve-fit'), {'fit_id': fitId, '_csrf_token': getMetaData('csrf-token')}, function(){
+		clearInterval(lastRefreshInterval);
+		refreshWl();
+		lastRefreshInterval = setInterval(refreshWl, 10000);
+	}, "text");
 }
 
 /**

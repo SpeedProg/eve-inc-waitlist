@@ -440,6 +440,42 @@ def move_to_waitlists():
     return "OK"
     
 
+@bp_waitlist.route("/move_fit_to_waitlist", methods=["POST"])
+@login_required
+@perm_management.require(http_exception=401)
+def api_move_fit_to_waitlist():
+    fit_id = int(request.form['fit_id'])
+    fit = db.session.query(Shipfit).filter(Shipfit.id == fit_id).first();
+    if fit == None: # fit doesn't exist, probably double trigger when moving some one
+        return "OK"
+    entry = db.session.query(WaitlistEntry).filter(WaitlistEntry.id == fit.waitlist_id).first();
+    
+    logger.info("%s approved fit %s from %s", current_user.username, fit, entry.user_data.get_eve_name())
+    
+    # get the entry for the wl we need
+    wl_entry = db.session.query(WaitlistEntry).join(Waitlist).filter((WaitlistEntry.user == entry.user) & (Waitlist.name == fit.wl_type)).first();
+    new_entry = False
+    # if it doesn't exist create it
+    if wl_entry == None:
+        wl_entry = WaitlistEntry()
+        wl_entry.creation = entry.creation
+        wl_entry.user = entry.user
+        new_entry = True
+    
+    #add the fit to the entry
+    wl_entry.fittings.append(fit)
+    
+    if new_entry:
+        waitlist = db.session.query(Waitlist).filter(Waitlist.name == fit.wl_type).first();
+        waitlist.entries.append(wl_entry)
+    
+    db.session.commit()
+    if (len(entry.fittings) == 0):
+        db.session.delete(entry)
+        db.session.commit()
+    
+    return "OK"
+
 @bp_waitlist.route("/xup", methods=['GET'])
 @login_required
 def xup_index():

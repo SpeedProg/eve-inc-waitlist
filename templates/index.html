@@ -13,6 +13,7 @@
 <meta name="api-wl-remove-entry" content="{{url_for('fittings.api_wl_remove_entry')}}">
 <meta name="api-move-entry-to-wls" content="{{url_for('fittings.move_to_waitlists')}}">
 <meta name="api-waitlists" content="{{url_for('waitlist_api.waitlist')}}">
+<meta name="api-approve-fit" content="{{url_for('fittings.api_move_fit_to_waitlist')}}">
 {% endif %}
 {{ super() }}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
