@@ -41,7 +41,7 @@ function showFitting(dna) {
  function setupDNA() {
 	$(document).on("click", ".fit-link", function(event){
 		{% if perm_man.can() and is_igb %}
-		if (event.target.parentNode.tagName == 'BUTTON' | event.target.parentNode.tagName == 'I') {
+		if (event.target.parentNode.tagName == 'BUTTON' || event.target.parentNode.tagName == 'I') {
 			// don't open dna since we actually targeted for a button on the fit dom
 			return;
 		}
