@@ -139,17 +139,13 @@ def xup_submit():
     if fittings.lower().startswith("scruffy"):
         # scruffy mode scruffy
         fittings = fittings.lower()
-        print "fittings: "+fittings
         _, _, ship_type = fittings.rpartition(" ")
-        print ship_type
         shipTypes = []
         # check for , to see if it is a multi value shiptype
         if "," in ship_type:
             for stype in ship_type.split(","):
-                print "checking "+stype
                 stype = stype.strip()
                 if stype == WaitlistNames.logi or stype == WaitlistNames.dps or stype == WaitlistNames.sniper:
-                    print "adding"+stype
                     shipTypes.append(stype)
         else:
             if ship_type == WaitlistNames.logi or ship_type == WaitlistNames.dps or ship_type == WaitlistNames.sniper:
@@ -335,7 +331,6 @@ def xup_submit():
         if weapon_type == "None":
             # try to decide by market group
             for weapon in possible_weapons:
-                print weapon
                 weapon_db = db.session.query(InvType).filter(InvType.typeID == weapon).first()
                 if weapon_db is None:
                     continue
@@ -347,7 +342,6 @@ def xup_submit():
                     continue
                 
                 # we have a parent market group
-                print parent_group.marketGroupName
                 if parent_group.marketGroupName in weapongroups['dps']:
                     weapon_type = WaitlistNames.dps
                     break
