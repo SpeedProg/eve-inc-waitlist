@@ -3,13 +3,14 @@ var getMetaData = function (name) {
 }
 
 /**
- * @param tag: B = Basi, S = Scimi, DPS = Short Range Damage, SNI = Sniper
+ * @param tag: B = Basi, S = Scimi, DPS = Short Range Damage, SNI = Sniper, LOGI == Scruffy Logi
  */
 function createTypeTag(name) {
 	type = "default";
 	switch (name) {
 	case "B":
 	case "S":
+	case "LOGI":
 		type = "success";
 		break;
 	case "DPS":
@@ -57,6 +58,9 @@ function getTagsFromFits(fits) {
 				addTag("B");
 			} else if (fits[i].shipType == 11978) {
 				addTag("S");
+			} else if (fits[i].shipType == 1) {
+				// it is scruffy
+				addTag("LOGI");
 			}
 			break;
 		case "sniper":
@@ -221,17 +225,21 @@ function updateWlEntry(wlname, wlid, entry) {
  */
 function createFitDOM(fit, queue) {
 	queue = typeof queue !== 'undefined' ? queue : false;
+	var isDummy = (fit.shipType == 1);
 	var approveButton = "";
 	if (queue) {
 		approveButton = ' <button type="button" class="btn btn-mini btn-success" onclick="javascript:var event = arguments[0]; event.stopPropagation(); approveFit('+fit.id+')"><i class="fa fa-thumbs-o-up"></i></button>';
 	}
-	var fitdom = $($.parseHTML('<li class="list-group-item fitting" id="fit-'+fit.id+'"></li>'));
+	var fitdom = isDummy ? $($.parseHTML('<li class="list-group-item" id="fit-'+fit.id+'"></li>')) : $($.parseHTML('<li class="list-group-item fitting" id="fit-'+fit.id+'"></li>'));
 	var commentHTML = "";
 	if (fit.comment != null) {
 		commentHTML = '<small>'+fit.comment+'</small>';
 	}
+	// lets check if it is the dummy fit
+	
+	var baseElement = isDummy ? $.parseHTML('<div></div>') : $.parseHTML('<div class="fit-link" data-dna="'+fit.dna+'"></div>');
 	fitdom.append(
-			$($.parseHTML('<div class="fit-link" data-dna="'+fit.dna+'"></div>'))
+			$(baseElement)
 				.append($($.parseHTML('<div class="wel-header-32"></div>'))
 						.append($.parseHTML('<div class="wel-img-32"><img src="https://image.eveonline.com/Render/'+fit.shipType+'_32.png" alt="'+fit.shipName+'"></div>'))
 						.append($.parseHTML('<div class="wel-container-32"><div class="wel-text-row-32-2">'+fit.shipName+'</div><div class="wel-text-row-32-2">'+commentHTML+approveButton+'</div></div>'))

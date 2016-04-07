@@ -134,6 +134,53 @@ def xup_submit():
     -> put info into comment of the fit
     '''
     fittings = request.form['fits']
+    eve_id = current_user.get_eve_id()
+    # check if it is scruffy
+    if fittings.lower().startswith("scruffy"):
+        # scruffy mode scruffy
+        fittings = fittings.lower()
+        print "fittings: "+fittings
+        _, _, ship_type = fittings.rpartition(" ")
+        print ship_type
+        shipTypes = []
+        # check for , to see if it is a multi value shiptype
+        if "," in ship_type:
+            for stype in ship_type.split(","):
+                print "checking "+stype
+                stype = stype.strip()
+                if stype == WaitlistNames.logi or stype == WaitlistNames.dps or stype == WaitlistNames.sniper:
+                    print "adding"+stype
+                    shipTypes.append(stype)
+        else:
+            if ship_type == WaitlistNames.logi or ship_type == WaitlistNames.dps or ship_type == WaitlistNames.sniper:
+                shipTypes.append(ship_type)
+        
+        # check if shiptype is valid
+        if len(shipTypes) <= 0:
+            flash("Valid entries are scruffy [dps|logi|sniper,..]")
+            return redirect(url_for('index'))
+
+        queue = db.session.query(Waitlist).filter(Waitlist.name == WaitlistNames.xup_queue).first();
+        wl_entry = db.session.query(WaitlistEntry).filter((WaitlistEntry.waitlist_id == queue.id) & (WaitlistEntry.user == eve_id)).first()
+        if wl_entry is None:
+            wl_entry = WaitlistEntry()
+            wl_entry.creation = datetime.now()
+            wl_entry.user = eve_id
+            queue.entries.append(wl_entry)
+        
+        for stype in shipTypes:
+            fit = Shipfit()
+            fit.ship_type = 1##System >.>
+            fit.wl_type = stype
+            
+            wl_entry.fittings.append(fit)
+        db.session.commit()
+        
+        flash("You where added as "+ship_type)
+        
+        return redirect(url_for('index'))
+        
+        
     logilvl = request.form['logi']
     if logilvl == "":
         logilvl = "0"
