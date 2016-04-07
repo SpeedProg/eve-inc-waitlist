@@ -146,7 +146,11 @@
 						{% for fit in entry.fittings %}
 						<li class="list-group-item fitting" id="fit-{{ fit.id }}">
 							<div>
+								{% if fit.ship_type == 1 %} {# it is scruffy #}
+								<a href="https://en.wikipedia.org/wiki/Booby" target="_blank">
+								{% else %}
 								<div class="fit-link" data-dna="{{ fit.ship_type }}:{{ fit.modules }}">
+								{% endif %}
 									<div class="wel-header-32">
 									<div class="wel-img-32">
 										<img
@@ -160,7 +164,11 @@
 										{% endif %}
 									</div>
 									</div>
+								{% if fit.ship_type == 1 %} {# it is scruffy #}
+								</a>
+								{% else %}
 								</div>
+								{% endif %}
 								{% if user.get_eve_id() == entry.user %}
 								<div class="btn-group btn-group-mini" role="group"
 									aria-label="Action Buttons">

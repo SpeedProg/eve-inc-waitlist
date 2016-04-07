@@ -230,14 +230,14 @@ function createFitDOM(fit, queue) {
 	if (queue) {
 		approveButton = ' <button type="button" class="btn btn-mini btn-success" onclick="javascript:var event = arguments[0]; event.stopPropagation(); approveFit('+fit.id+')"><i class="fa fa-thumbs-o-up"></i></button>';
 	}
-	var fitdom = isDummy ? $($.parseHTML('<li class="list-group-item" id="fit-'+fit.id+'"></li>')) : $($.parseHTML('<li class="list-group-item fitting" id="fit-'+fit.id+'"></li>'));
+	var fitdom = isDummy ? $($.parseHTML('<li class="list-group-item fitting" id="fit-'+fit.id+'"></li>')) : $($.parseHTML('<li class="list-group-item fitting" id="fit-'+fit.id+'"></li>'));
 	var commentHTML = "";
 	if (fit.comment != null) {
 		commentHTML = '<small>'+fit.comment+'</small>';
 	}
 	// lets check if it is the dummy fit
 	
-	var baseElement = isDummy ? $.parseHTML('<div></div>') : $.parseHTML('<div class="fit-link" data-dna="'+fit.dna+'"></div>');
+	var baseElement = isDummy ? $.parseHTML('<div class="booby-link"></div>') : $.parseHTML('<div class="fit-link" data-dna="'+fit.dna+'"></div>');
 	fitdom.append(
 			$(baseElement)
 				.append($($.parseHTML('<div class="wel-header-32"></div>'))
@@ -445,4 +445,14 @@ $(document).ready(function(){
 	}
 	refreshWl();
 	lastRefreshInterval = setInterval(refreshWl, 10000);
+});
+
+// setup scruffies links
+function setupBoobyLinks() {
+	$(document).on("click", ".booby-link", function(event){
+		 window.open("https://en.wikipedia.org/wiki/Booby", "_blank");
+	 });
+}
+$(document).ready(function () {
+	setupBoobyLinks();
 });
