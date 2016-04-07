@@ -228,7 +228,7 @@ function createFitDOM(fit, queue) {
 	var isDummy = (fit.shipType == 1);
 	var approveButton = "";
 	if (queue) {
-		approveButton = ' <button type="button" class="btn btn-mini btn-success" onclick="javascript:var event = arguments[0]; event.stopPropagation(); approveFit('+fit.id+')"><i class="fa fa-thumbs-o-up"></i></button>';
+		approveButton = ' <button type="button" class="btn btn-mini btn-success" data-type="fit-approve" data-id="'+fit.id+'"><i class="fa fa-thumbs-o-up"></i></button>';
 	}
 	var fitdom = isDummy ? $($.parseHTML('<li class="list-group-item fitting" id="fit-'+fit.id+'"></li>')) : $($.parseHTML('<li class="list-group-item fitting" id="fit-'+fit.id+'"></li>'));
 	var commentHTML = "";
@@ -443,6 +443,11 @@ $(document).ready(function(){
 			wl.collapse('show');
 		}
 	}
+	$(document).on("click", '[data-type="fit-approve"]', function(event) {
+		var fit_id = Number($(event.currentTarget).data('id'));
+		event.stopPropagation();
+		approveFit(fit_id);
+	});
 	refreshWl();
 	lastRefreshInterval = setInterval(refreshWl, 10000);
 });
