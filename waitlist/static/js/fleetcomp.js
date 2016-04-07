@@ -387,7 +387,7 @@ function removeEntry(entryId, userId) {
  * @param userId eve id the of the user the entry belongs to
  */
 function moveEntryToWaitlists(entryId, userId) {
-	$.post(getMetaData('api-move-try-to-wls'), {'entryId': entryId, '_csrf_token': getMetaData('csrf-token')}, function(){
+	$.post(getMetaData('api-move-entry-to-wls'), {'entryId': entryId, '_csrf_token': getMetaData('csrf-token')}, function(){
 		clearInterval(lastRefreshInterval);
 		refreshWl();
 		lastRefreshInterval = setInterval(refreshWl, 10000);

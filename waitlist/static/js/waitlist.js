@@ -47,7 +47,7 @@ function removeOwnEntry(wlName, charId, entryId) {
 	var settings = {
 			dataType: "text",
 			headers: {
-				'X-CSRFToken': getMetaData('csrf_token')
+				'X-CSRFToken': getMetaData('csrf-token')
 			},
 			method: 'DELETE',
 			success: function(data, status, jqxhr){
@@ -66,7 +66,7 @@ function removeOwnFit(fitId, wlName, charId) {
 	var settings = {
 			dataType: "text",
 			headers: {
-				'X-CSRFToken': getMetaData('csrf_token')
+				'X-CSRFToken': getMetaData('csrf-token')
 			},
 			method: 'DELETE',
 			success: function(data, status, jqxhr){
