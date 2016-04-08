@@ -227,7 +227,7 @@ class Shipfit(Base):
         return "{0}:{1}".format(self.ship_type, self.modules)
     
     def __repr__(self):
-        return "<Shipfit id={0} ship_type={1} modules={2} comment={3} waitlist_id={4}>".format(self.id, self.ship_type, self.modules, self.comment, self.waitlist_id)
+        return "<Shipfit id={0} ship_type={1} modules={2} comment={3} waitlist={4}>".format(self.id, self.ship_type, self.modules, self.comment, self.waitlist.id)
 
 class WaitlistEntryFit(Base):
     __tablename__ = "waitlist_entry_fits"
