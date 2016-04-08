@@ -14,7 +14,7 @@ from werkzeug.utils import redirect
 from flask.helpers import url_for, flash
 from flask.templating import render_template
 from datetime import datetime, timedelta
-from waitlist.utility.utils import get_fit_format, parseEft, create_mod_map,\
+from waitlist.utility.utils import get_fit_format, create_mod_map,\
     get_character
 from waitlist import db
 from waitlist.blueprints import send_invite_notice, subscriptions
@@ -24,6 +24,7 @@ from gevent.queue import Queue
 from waitlist.blueprints.fleetstatus import fleet_status
 import flask
 from sqlalchemy.sql.expression import desc
+from waitlist.utility.database_utils import parseEft
 
 
 def create_history_object(targetID, event_type, sourceID=None, fitlist=None):
@@ -644,7 +645,7 @@ def subscribe(user_id):
 def history_default():
     return redirect(url_for(".history", min=0, max=30))
 
-@bp_waitlist.route("/history/<int:min>/<int:max>")
+@bp_waitlist.route("/history/<int:min_mins>/<int:max_mins>")
 @login_required
 @perm_management.require(http_exception=401)
 def history(min_mins, max_mins):

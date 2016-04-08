@@ -2,6 +2,8 @@ from gevent import monkey; monkey.patch_all()
 # inject the lib folder before everything else
 import os
 import sys
+from waitlist.utility.eve_id_utils import get_account_from_db, get_char_from_db,\
+    is_char_banned, get_character_by_id_and_name, get_character_by_name
 base_path = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(base_path, 'lib'))
 from waitlist.blueprints.waitlist_api import wl_api
@@ -15,7 +17,8 @@ from waitlist import app, login_manager, db
 from flask_login import login_required, current_user, login_user,\
     logout_user
 import logging
-from waitlist.storage.database import Waitlist, Account, WaitlistEntry
+from waitlist.storage.database import Waitlist, Account, WaitlistEntry,\
+    Character
 from flask_principal import RoleNeed, identity_changed, Identity, AnonymousIdentity,\
     identity_loaded, UserNeed
 from waitlist.data.perm import perm_management, perm_settings, perm_admin,\
@@ -27,10 +30,9 @@ from waitlist.blueprints.fittings import bp_waitlist
 from flask.globals import request, current_app
 import flask
 from werkzeug.utils import redirect
-from flask.helpers import url_for, flash
+from flask.helpers import url_for
 from waitlist.data.names import WaitlistNames
-from waitlist.utility.utils import is_igb, get_account_from_db, get_char_from_db,\
-    get_character_by_id_and_name, is_char_banned
+from waitlist.utility.utils import is_igb
 
 app.register_blueprint(bp_waitlist)
 app.register_blueprint(bp_settings, url_prefix='/settings')

@@ -1,13 +1,12 @@
-from sqlalchemy import Column, Integer, String, SmallInteger,\
-    DECIMAL, BIGINT, Boolean, DateTime, Index
+from sqlalchemy import Column, Integer, String, SmallInteger, BIGINT, Boolean, DateTime, Index
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.sql.schema import Table, ForeignKey
-from sqlalchemy.dialects.mysql.base import LONGTEXT, DOUBLE, TINYINT, TEXT
+from sqlalchemy.dialects.mysql.base import LONGTEXT, TEXT
 import bcrypt
 import logging
 from waitlist import db
-from sqlalchemy.sql.functions import func
-from datetime import date, datetime
+from datetime import datetime
+from waitlist.utility.utils import get_random_token
 
 logger = logging.getLogger(__name__)
 
