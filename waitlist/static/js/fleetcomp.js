@@ -140,9 +140,7 @@ function createHeaderDOM(wlname, entry) {
  */
 function createEntryDOM(wlname, entry) {
 	var entryDOM = $('<li class="list-group-item" id="entry-'+wlname+'-'+entry.character.id+'" data-count="'+entry.fittings.length+'"></li>');
-	var cardDOM = $('<div class="card"></div>');
-	cardDOM.append(createHeaderDOM(wlname, entry));
-	entryDOM.append(cardDOM);
+	entryDOM.append(createHeaderDOM(wlname, entry));
 	var fittlistDOM = $('<ul aria-expanded="true" class="list-group list-group-flush collapse" id="fittings-'+entry.id+'"></ul>')
 	entryDOM.append(fittlistDOM);
 	for (var i=0; i<entry.fittings.length; i++) {
