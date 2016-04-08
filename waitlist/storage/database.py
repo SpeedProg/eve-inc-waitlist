@@ -77,7 +77,7 @@ class Account(Base):
     username = Column(String(100), unique=True)# login name
     password = Column(String(100))
     email = Column(String(100), unique=True)
-    login_token = Column(String(64), unique=True)
+    login_token = Column(String(16), unique=True)
     roles = relationship('Role', secondary=roles,
                          backref=backref('account_roles'))
     characters = relationship('Character', secondary=linked_chars,
@@ -150,7 +150,13 @@ class Character(Base):
     newbro = Column(Boolean, default=True, nullable=False)
     lc_level = Column(SmallInteger, default=0, nullable=False)
     cbs_level = Column(SmallInteger, default=0, nullable=False)
+    login_token = Column(String(16), nullable=True)
 
+    def get_login_token(self):
+        if self.login_token == None:
+            self.login_token = get_random_token(16)
+        return self.login_token
+    
     def get_eve_name(self):
         return self.eve_name
 
