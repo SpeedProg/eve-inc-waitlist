@@ -6,6 +6,8 @@ from sqlalchemy.dialects.mysql.base import LONGTEXT, DOUBLE, TINYINT, TEXT
 import bcrypt
 import logging
 from waitlist import db
+from sqlalchemy.sql.functions import func
+from datetime import date, datetime
 
 logger = logging.getLogger(__name__)
 
@@ -214,11 +216,12 @@ class Shipfit(Base):
     
     id = Column(Integer, primary_key=True)
     ship_type = Column(Integer, ForeignKey("invtypes.typeID"))
-    ship = relationship("InvType")
-    waitlist_id = Column(Integer, ForeignKey('waitlist_entries.id', onupdate="CASCADE", ondelete="CASCADE"))
     modules = Column(String(5000))
     comment = Column(String(5000))
     wl_type = Column(String(10))
+    
+    ship = relationship("InvType")
+    waitlist = relationship("WaitlistEntry", secondary="waitlist_entry_fits", uselist=False)
     
     def get_dna(self):
         return "{0}:{1}".format(self.ship_type, self.modules)
@@ -226,6 +229,10 @@ class Shipfit(Base):
     def __repr__(self):
         return "<Shipfit id={0} ship_type={1} modules={2} comment={3} waitlist_id={4}>".format(self.id, self.ship_type, self.modules, self.comment, self.waitlist_id)
 
+class WaitlistEntryFit(Base):
+    __tablename__ = "waitlist_entry_fits"
+    entryID = Column(Integer, ForeignKey("waitlist_entries.id", onupdate="CASCADE", ondelete="CASCADE"))
+    fitID = Column(Integer, ForeignKey("fittings.id", onupdate="CASCADE", ondelete="CASCADE"), primary_key=True)
 
 class WaitlistEntry(Base):
     """
@@ -236,7 +243,7 @@ class WaitlistEntry(Base):
     id = Column(Integer, primary_key=True)
     creation = Column(DateTime)
     user = Column(Integer, ForeignKey('characters.id'))
-    fittings = relationship("Shipfit", cascade="save-update,merge,delete")
+    fittings = relationship("Shipfit", secondary="waitlist_entry_fits")
     waitlist_id = Column(Integer, ForeignKey("waitlists.id", onupdate="CASCADE", ondelete="CASCADE"))
     waitlist = relationship("Waitlist", back_populates="entries")
     user_data = relationship("Character")
@@ -323,4 +330,30 @@ class IncursionLayout(Base):
     obj_staging= relationship("SolarSystem", foreign_keys="IncursionLayout.staging")
     obj_headquarter = relationship("SolarSystem", foreign_keys="IncursionLayout.headquarter")
     obj_dockup = relationship("Station", foreign_keys="IncursionLayout.dockup")
+
+class HistoryFits(Base):
+    __tablename__ = "comp_history_fits"
+    id = Column(Integer, primary_key=True)
+    historyID = Column(Integer, ForeignKey("comp_history.historyID"))
+    fitID = Column(Integer, ForeignKey("fittings.id"))
+
+class HistoryEntry(Base):
+    __tablename__ = "comp_history"
+    historyID = Column(Integer, primary_key=True)
+    sourceID = Column(Integer, ForeignKey("accounts.id"), nullable=True)
+    targetID = Column(Integer, ForeignKey("characters.id"), nullable=False)
+    action = Column(String(1000))
+    time = Column(DateTime, default=datetime.utcnow)
+    fittings = relationship("Shipfit", secondary="comp_history_fits")
+    source = relationship("Account")
+    target = relationship("Character")
     
+    EVENT_XUP = "xup"
+    EVENT_COMP_RM_PL = "comp_rm_pl"
+    EVENT_COMP_INV_PL = "comp_inv_pl"
+    EVENT_COM_RM_ETR = "comp_rm_etr"
+    EVENT_SELF_RM_FIT = "self_rm_fit"
+    EVENT_SELF_RM_ETR = "self_rm_etr"
+    EVENT_SELF_RM_WLS_ALL = "self_rm_wls_all"
+    EVENT_COMP_MV_XUP_ETR = "comp_mv_xup_etr"
+    EVENT_COMP_MV_XUP_FIT = "comp_mv_xup_fit"

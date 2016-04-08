@@ -4,7 +4,7 @@ from waitlist.data.perm import perm_management, perm_dev
 from flask_login import login_required, current_user
 from flask.globals import request
 from waitlist.storage.database import WaitlistEntry, Shipfit, Waitlist,\
-    Character, InvType, MarketGroup
+    Character, InvType, MarketGroup, HistoryEntry
 import re
 from waitlist.storage.modules import resist_ships, logi_ships,\
     sniper_ships, t3c_ships, sniper_weapons, dps_weapons, dps_ships,\
@@ -13,7 +13,7 @@ from waitlist.data.names import WaitlistNames
 from werkzeug.utils import redirect
 from flask.helpers import url_for, flash
 from flask.templating import render_template
-from datetime import datetime
+from datetime import datetime, timedelta
 from waitlist.utility.utils import get_fit_format, parseEft, create_mod_map,\
     get_character
 from waitlist import db
@@ -23,6 +23,18 @@ from flask import Response
 from gevent.queue import Queue
 from waitlist.blueprints.fleetstatus import fleet_status
 import flask
+from sqlalchemy.sql.expression import desc
+
+
+def create_history_object(targetID, event_type, sourceID=None, fitlist=None):
+    hEntry = HistoryEntry()
+    hEntry.sourceID = sourceID
+    hEntry.targetID = current_user.get_eve_id()
+    hEntry.action = event_type
+    if fitlist is not None:
+        for fit in fitlist:
+            hEntry.fittings.append(fit)
+    return hEntry
 
 bp_waitlist = Blueprint('fittings', __name__)
 logger = logging.getLogger(__name__)
@@ -38,11 +50,18 @@ def api_wls_remove_player():
     
     # don't remove from queue
     queue = db.session.query(Waitlist).filter(Waitlist.name == WaitlistNames.xup_queue).first()
+    waitlist_entries = db.session.query(WaitlistEntry).filter((WaitlistEntry.user == playerId) & (WaitlistEntry.waitlist_id != queue.id)).all()
+    fittings = []
+    for entry in waitlist_entries:
+        fittings.extend(entry.fittings)
     
     db.session.query(WaitlistEntry).filter((WaitlistEntry.user == playerId) & (WaitlistEntry.waitlist_id != queue.id)).delete()
+    hEntry = create_history_object(playerId, HistoryEntry.EVENT_COMP_RM_PL, current_user.id, fittings)
+    db.session.add(hEntry)
     db.session.commit()
     character = db.session.query(Character).filter(Character.id == playerId).first()
     logger.info("%s removed %s from waitlist.", current_user.username, character.eve_name)
+
     return "OK"
 
 @bp_waitlist.route("/api/wl/invite", methods=["POST"])
@@ -62,6 +81,9 @@ def api_invite_player():
     send_invite_notice(event)
     #publish(event)
     character = db.session.query(Character).filter(Character.id == playerId).first()
+    hEntry = create_history_object(character.get_eve_id(), HistoryEntry.EVENT_COMP_INV_PL, current_user.id)
+    db.session.add(hEntry)
+    db.session.commit()
     logger.info("%s invited %s to fleet.", current_user.username, character.eve_name)
     return "OK"
 
@@ -69,10 +91,12 @@ def api_invite_player():
 @login_required
 @perm_management.require(http_exception=401)
 def api_wl_remove_entry():
-    entryId = request.form['entryId']
-    entry = db.session.query(WaitlistEntry).filter(WaitlistEntry.id == int(entryId)).first()
+    entryId = int(request.form['entryId'])
+    entry = db.session.query(WaitlistEntry).filter(WaitlistEntry.id == entryId).first()
+    hEntry = create_history_object(entry.user_data.get_eve_id(), HistoryEntry.EVENT_COM_RM_ETR, current_user.id, entry.fittings)
+    db.session.add(hEntry)
     logger.info("%s removed %s from waitlist %s", current_user.username, entry.user_data.get_eve_name(), entry.waitlist.name)
-    db.session.query(WaitlistEntry).filter(WaitlistEntry.id == int(entryId)).delete()
+    db.session.query(WaitlistEntry).filter(WaitlistEntry.id == entryId).delete()
     db.session.commit()
     return "OK"
 
@@ -82,13 +106,16 @@ def api_wl_remove_entry():
 def remove_self_fit(fitid):
     logger.info("%s removed their fit with id %d", current_user.get_eve_name(), fitid)
     fit = db.session.query(Shipfit).filter(Shipfit.id == fitid).first()
-    wlentry = db.session.query(WaitlistEntry).filter(WaitlistEntry.id == fit.waitlist_id).first()
+    wlentry = db.session.query(WaitlistEntry).filter(WaitlistEntry.id == fit.waitlist.id).first()
     
     if (wlentry.user == current_user.get_eve_id()):
-        db.session.delete(fit)
+        wlentry.fittings.remove(fit)
+        # don't delete anymore we need them for history
+        #db.session.delete(fit)
         if len(wlentry.fittings) <= 0:
             db.session.delete(wlentry)
-
+        hEntry = create_history_object(current_user.get_eve_id(), HistoryEntry.EVENT_SELF_RM_FIT, None, [fit])
+        db.session.add(hEntry)
         db.session.commit()
     else:
         flask.abort(403)
@@ -100,7 +127,10 @@ def remove_self_fit(fitid):
 @login_required
 def self_remove_wl_entry(entry_id):
     logger.info("%s removed their own entry with id %d", current_user.get_eve_name(), entry_id)
-    db.session.query(WaitlistEntry).filter((WaitlistEntry.id == entry_id) & (WaitlistEntry.user == current_user.get_eve_id())).delete()
+    entry = db.session.query(WaitlistEntry).filter((WaitlistEntry.id == entry_id) & (WaitlistEntry.user == current_user.get_eve_id())).first()
+    hEntry = create_history_object(current_user.get_eve_id(), HistoryEntry.EVENT_SELF_RM_ETR, None, entry.fittings)
+    db.session.add(hEntry)
+    db.session.delete(entry)
     db.session.commit()
     return "success"
 
@@ -113,9 +143,17 @@ def self_remove_all():
     #queue = db.session.query(Waitlist).filter(Waitlist.name == WaitlistNames.xup_queue).first()
     # remove from all lists except queue
     entries = db.session.query(WaitlistEntry).filter(WaitlistEntry.user == current_user.get_eve_id());
+    fittings = []
+    for entry in entries:
+        fittings.extend(entry.fittings)
+    
+    hEntry = create_history_object(current_user.get_eve_id(), HistoryEntry.EVENT_SELF_RM_WLS_ALL, None, fittings)
+    db.session.add(hEntry)
+
     for entry in entries:
         logger.info("%s removed own entry with id=%s", current_user.get_eve_name(), entry.id)
         db.session.delete(entry)
+
     db.session.commit()
     return "success";
 
@@ -150,7 +188,7 @@ def xup_submit():
         else:
             if ship_type == WaitlistNames.logi or ship_type == WaitlistNames.dps or ship_type == WaitlistNames.sniper:
                 shipTypes.append(ship_type)
-        
+
         # check if shiptype is valid
         if len(shipTypes) <= 0:
             flash("Valid entries are scruffy [dps|logi|sniper,..]")
@@ -160,9 +198,11 @@ def xup_submit():
         wl_entry = db.session.query(WaitlistEntry).filter((WaitlistEntry.waitlist_id == queue.id) & (WaitlistEntry.user == eve_id)).first()
         if wl_entry is None:
             wl_entry = WaitlistEntry()
-            wl_entry.creation = datetime.now()
+            wl_entry.creation = datetime.utcnow()
             wl_entry.user = eve_id
             queue.entries.append(wl_entry)
+        
+        hEntry = create_history_object(current_user.get_eve_id(), "xup")
         
         for stype in shipTypes:
             fit = Shipfit()
@@ -170,6 +210,10 @@ def xup_submit():
             fit.wl_type = stype
             
             wl_entry.fittings.append(fit)
+            hEntry.fittings.append(fit)
+        
+        db.session.add(hEntry)
+        
         db.session.commit()
         
         flash("You where added as "+ship_type)
@@ -370,14 +414,18 @@ def xup_submit():
     wl_entry = db.session.query(WaitlistEntry).filter((WaitlistEntry.waitlist_id == queue.id) & (WaitlistEntry.user == eve_id)).first()
     if wl_entry is None:
         wl_entry = WaitlistEntry()
-        wl_entry.creation = datetime.now()
+        wl_entry.creation = datetime.utcnow()
         wl_entry.user = eve_id
         queue.entries.append(wl_entry)
+    
+    
     
     for fit in fits_ready:
         wl_entry.fittings.append(fit)
     
+    hEntry = create_history_object(current_user.get_eve_id(), HistoryEntry.EVENT_XUP, None, fits_ready)
     
+    db.session.add(hEntry)
     db.session.commit()
     
     flash("You submitted {0} fits to be check by a fleet comp before getting on the waitlist.".format(fit_count), "success")
@@ -415,22 +463,22 @@ def move_to_waitlists():
     dps = []
     sniper = []
     
+    hEntry = create_history_object(entry.user, HistoryEntry.EVENT_COMP_MV_XUP_ETR, current_user.id, entry.fittings)
+
     for fit in entry.fittings:
         logger.info("Sorting fit %s by type into %s", fit, fit.wl_type)
+        
         if fit.wl_type == WaitlistNames.logi:
-            fit.waitlist_id = None
             logi.append(fit)
             continue
         if fit.wl_type == WaitlistNames.dps:
-            fit.waitlist_id = None
             dps.append(fit)
             continue
         if fit.wl_type == WaitlistNames.sniper:
-            fit.waitlist_id = None
             sniper.append(fit)
         else:
             logger.error("Failed to add %s do a waitlist.", fit)
-    
+        entry.fittings.remove(fit)
     
     add_entries_map = {}
     
@@ -474,6 +522,9 @@ def move_to_waitlists():
         if wl.name in add_entries_map:
             wl.entries.append(add_entries_map[wl.name])
     
+    # add history entry to db
+    db.session.add(hEntry)
+
     db.session.commit()
     db.session.delete(entry)
     db.session.commit()
@@ -489,7 +540,7 @@ def api_move_fit_to_waitlist():
     fit = db.session.query(Shipfit).filter(Shipfit.id == fit_id).first();
     if fit == None: # fit doesn't exist, probably double trigger when moving some one
         return "OK"
-    entry = db.session.query(WaitlistEntry).filter(WaitlistEntry.id == fit.waitlist_id).first();
+    entry = db.session.query(WaitlistEntry).filter(WaitlistEntry.id == fit.waitlist.id).first();
     
     logger.info("%s approved fit %s from %s", current_user.username, fit, entry.user_data.get_eve_name())
     
@@ -503,8 +554,14 @@ def api_move_fit_to_waitlist():
         wl_entry.user = entry.user
         new_entry = True
     
+    #remove fit from old entry
+    entry.fittings.remove(fit)
     #add the fit to the entry
     wl_entry.fittings.append(fit)
+    
+    # add a history entry
+    hEntry = create_history_object(entry.user, HistoryEntry.EVENT_COMP_MV_XUP_FIT, current_user.id, [fit])
+    db.session.add(hEntry)
     
     if new_entry:
         waitlist = db.session.query(Waitlist).filter(Waitlist.name == fit.wl_type).first();
@@ -547,6 +604,7 @@ def notification(user_id):
     return render_template("notification.html", user=user_id)
 
 @bp_waitlist.route("/debug")
+@login_required
 @perm_dev.require(http_exception=401)
 def debug():
     return "Currently %d subscriptions" % len(subscriptions)
@@ -566,3 +624,18 @@ def subscribe(user_id):
             subscriptions.remove(q)
 
     return Response(gen(user_id), mimetype="text/event-stream")
+
+@bp_waitlist.route("/history/")
+def history_default():
+    return redirect(url_for(".history", min=0, max=30))
+
+@bp_waitlist.route("/history/<int:min>/<int:max>")
+@login_required
+@perm_management.require(http_exception=401)
+def history(min, max):
+    tnow = datetime.utcnow()
+    max_time = tnow-timedelta(minutes=max)
+    min_time = tnow-timedelta(minutes=min)
+    history_entries = db.session.query(HistoryEntry).filter((HistoryEntry.time <= min_time) & (HistoryEntry.time > max_time)).order_by(desc(HistoryEntry.time))
+    return render_template("waitlist/history.html", history=history_entries)
+    
