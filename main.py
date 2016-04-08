@@ -174,6 +174,24 @@ def login_token():
 
     return redirect(url_for('index'), code=303)
 
+@app.route("/charauth")
+def char_auth():
+    token = request.args.get('token')
+    logger.info("Token %s", token)
+    character = db.session.query(Character).filter(Character.login_token == token).first()
+    # token was not found
+    if character == None:
+        return flask.abort(401);
+    logger.info("Got User %s", character)
+    login_user(character);
+    logger.info("Logged in User %s", character)
+
+    # notify principal extension
+    identity_changed.send(current_app._get_current_object(),
+                                  identity=Identity(character.id))
+
+    return redirect(url_for('index'), code=303)
+
 @app.route('/logout')
 @login_required
 def logout():
@@ -284,6 +302,16 @@ def unauthorized_ogb():
     """
     return "Login Without Token not yet available"
 
+@app.route("/update_token")
+@login_required
+@perm_admin.require(http_exception=401)
+def create_char_logintoken():
+    username = request.args.get('char')
+    print username
+    eve_char = get_character_by_name(username)
+    token = eve_char.get_login_token()
+    db.session.commit()
+    return token
 
 if __name__ == '__main__':
     err_fh = TimedRotatingFileHandler(filename=config.error_log, when="midnight", interval=1, utc=True)
