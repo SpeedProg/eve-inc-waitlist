@@ -438,6 +438,8 @@ def xup_submit():
 @perm_management.require(http_exception=401)
 def move_to_waitlists():
     entry_id = int(request.form['entryId'])
+    fit_ids = request.form['fitIds']
+    fitIds = [int(x) for x in fit_ids.split(",")]
     entry = db.session.query(WaitlistEntry).filter(WaitlistEntry.id == entry_id).first()
     if entry == None:
         return "OK";
@@ -462,22 +464,32 @@ def move_to_waitlists():
     logi = []
     dps = []
     sniper = []
-    
-    hEntry = create_history_object(entry.user, HistoryEntry.EVENT_COMP_MV_XUP_ETR, current_user.id, entry.fittings)
-
+    hEntry = create_history_object(entry.user, HistoryEntry.EVENT_COMP_MV_XUP_ETR, current_user.id)
     for fit in entry.fittings:
-        logger.info("Sorting fit %s by type into %s", fit, fit.wl_type)
+        if not fit.id in fitIds:
+            continue
+        hEntry.fittings.append(fit)
+    
+    fits_to_remove = []
+    
+    for fit in entry.fittings:
+        if not fit.id in fitIds:
+            logger.info("Skipping %s because not in %s", fit, fit_ids)
+            continue
+        logger.info("Sorting fit %s by type into %s", str(fit), fit.wl_type)
         
         if fit.wl_type == WaitlistNames.logi:
             logi.append(fit)
-            continue
-        if fit.wl_type == WaitlistNames.dps:
+        elif fit.wl_type == WaitlistNames.dps:
             dps.append(fit)
-            continue
-        if fit.wl_type == WaitlistNames.sniper:
+        elif fit.wl_type == WaitlistNames.sniper:
             sniper.append(fit)
         else:
             logger.error("Failed to add %s do a waitlist.", fit)
+
+        fits_to_remove.append(fit)
+    
+    for fit in fits_to_remove:
         entry.fittings.remove(fit)
     
     add_entries_map = {}
@@ -526,7 +538,8 @@ def move_to_waitlists():
     db.session.add(hEntry)
 
     db.session.commit()
-    db.session.delete(entry)
+    if (len(entry.fittings) <= 0):
+        db.session.delete(entry)
     db.session.commit()
     
     return "OK"

@@ -387,7 +387,19 @@ function removeEntry(entryId, userId) {
  * @param userId eve id the of the user the entry belongs to
  */
 function moveEntryToWaitlists(entryId, userId) {
-	$.post(getMetaData('api-move-entry-to-wls'), {'entryId': entryId, '_csrf_token': getMetaData('csrf-token')}, function(){
+	var entryDOM = $("#entry-queue-"+userId);
+	var fitDOMs = $(".fitting", entryDOM);
+	var fit_id_str = "";
+	var fitCount = fitDOMs.size();
+	fitDOMs.each(function(idx, element){
+		var cIdStr = $(element).attr("id");
+		var cId = cIdStr.substring(4, cIdStr.length);
+		fit_id_str += cId;
+		if (idx < fitCount-1) {
+			fit_id_str += ","
+		}
+	});
+	$.post(getMetaData('api-move-entry-to-wls'), {'entryId': entryId, 'fitIds': fit_id_str, '_csrf_token': getMetaData('csrf-token')}, function(){
 		clearInterval(lastRefreshInterval);
 		refreshWl();
 		lastRefreshInterval = setInterval(refreshWl, 10000);
