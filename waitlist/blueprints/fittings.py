@@ -647,10 +647,10 @@ def history_default():
 @bp_waitlist.route("/history/<int:min>/<int:max>")
 @login_required
 @perm_management.require(http_exception=401)
-def history(min, max):
+def history(min_mins, max_mins):
     tnow = datetime.utcnow()
-    max_time = tnow-timedelta(minutes=max)
-    min_time = tnow-timedelta(minutes=min)
+    max_time = tnow-timedelta(minutes=max_mins)
+    min_time = tnow-timedelta(minutes=min_mins)
     history_entries = db.session.query(HistoryEntry).filter((HistoryEntry.time <= min_time) & (HistoryEntry.time > max_time)).order_by(desc(HistoryEntry.time))
     return render_template("waitlist/history.html", history=history_entries)
     
