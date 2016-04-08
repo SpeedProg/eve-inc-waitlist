@@ -49,6 +49,9 @@ function showFitting(dna) {
 		var dna = this.getAttribute('data-dna');
 		showFitting(dna);
 	 });
+	$(document).on("click", ".booby-link", function(event){
+		 window.open("https://en.wikipedia.org/wiki/Booby", "_blank");
+	 });
 }
 $(document).ready(function () {
 	setupDNA();

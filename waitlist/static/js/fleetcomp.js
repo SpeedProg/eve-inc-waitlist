@@ -451,13 +451,3 @@ $(document).ready(function(){
 	refreshWl();
 	lastRefreshInterval = setInterval(refreshWl, 10000);
 });
-
-// setup scruffies links
-function setupBoobyLinks() {
-	$(document).on("click", ".booby-link", function(event){
-		 window.open("https://en.wikipedia.org/wiki/Booby", "_blank");
-	 });
-}
-$(document).ready(function () {
-	setupBoobyLinks();
-});
