@@ -419,8 +419,10 @@ def xup_submit():
         queue.entries.append(wl_entry)
     
     
+    logger.info("%s submitted %s fits to be checked by a fleetcomp", current_user.get_eve_name(), len(fits_ready))
     
     for fit in fits_ready:
+        logger.info("%s submits %s", current_user.get_eve_name(), fit.get_dna())
         wl_entry.fittings.append(fit)
     
     hEntry = create_history_object(current_user.get_eve_id(), HistoryEntry.EVENT_XUP, None, fits_ready)
