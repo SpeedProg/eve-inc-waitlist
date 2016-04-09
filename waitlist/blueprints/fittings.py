@@ -173,6 +173,7 @@ def xup_submit():
     -> put info into comment of the fit
     '''
     fittings = request.form['fits']
+    logger.info("%s submitted %s", current_user.get_eve_name(), fittings)
     eve_id = current_user.get_eve_id()
     # check if it is scruffy
     if fittings.lower().startswith("scruffy"):
