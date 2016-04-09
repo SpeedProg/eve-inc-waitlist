@@ -644,7 +644,7 @@ def subscribe(user_id):
 
 @bp_waitlist.route("/history/")
 def history_default():
-    return redirect(url_for(".history", min=0, max=30))
+    return redirect(url_for(".history", min_mins=0, max_mins=30))
 
 @bp_waitlist.route("/history/<int:min_mins>/<int:max_mins>")
 @login_required
