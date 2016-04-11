@@ -4,6 +4,8 @@ import os
 import sys
 from waitlist.utility.eve_id_utils import get_account_from_db, get_char_from_db,\
     is_char_banned, get_character_by_id_and_name, get_character_by_name
+from datetime import date, datetime
+import math
 base_path = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(base_path, 'lib'))
 from waitlist.blueprints.waitlist_api import wl_api
@@ -312,6 +314,12 @@ def create_char_logintoken():
     token = eve_char.get_login_token()
     db.session.commit()
     return token
+
+@app.template_filter('waittime')
+def jinja2_waittime_filter(value):
+    currentUTC = datetime.utcnow()
+    waitedTime = currentUTC-value
+    return str(int(math.floor(waitedTime.total_seconds()/60)))
 
 if __name__ == '__main__':
     err_fh = TimedRotatingFileHandler(filename=config.error_log, when="midnight", interval=1, utc=True)

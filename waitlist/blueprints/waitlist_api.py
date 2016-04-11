@@ -12,7 +12,8 @@ def makeJsonWLEntry(entry):
     return {
             'id': entry.id,
             'character': makeJsonCharacter(entry.user_data),
-            'fittings': makeJsonFittings(entry.fittings)
+            'fittings': makeJsonFittings(entry.fittings),
+            'time': entry.creation
             }
 
 def makeJsonWL(dbwl):

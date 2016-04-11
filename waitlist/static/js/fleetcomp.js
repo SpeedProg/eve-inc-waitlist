@@ -93,6 +93,9 @@ function createHeaderDOM(wlname, entry) {
 	if (entry.character.newbro) {
 		newBroTag = ' <span class="label label-info">New</span>';
 	}
+	var cTime = new Date(Date.now());
+	var xupTime = new Date(Date.parse(entry.time));
+	var waitTimeMinutes = Math.floor((cTime - xupTime)/60000);
 	var header = $('<div></div>');
 	var charRow = $('<a href="javascript:CCPEVE.showInfo(1377, '+entry.character.id+');">'+
 						'<div class="wel-header-32">'+
@@ -100,7 +103,7 @@ function createHeaderDOM(wlname, entry) {
 									'<img src="https://image.eveonline.com/Character/'+entry.character.id+'_32.jpg" alt="'+entry.character.name+'">'+
 							'</div>'+
 							'<div class="wel-container-32">'+
-								'<div class="wel-text-row-32-2">'+entry.character.name+newBroTag+'</div>'+
+								'<div class="wel-text-row-32-2">'+entry.character.name+newBroTag+' <small class="wait-time">'+waitTimeMinutes+' min ago</small></div>'+
 								'<div class="wel-text-row-32-2 tag-row"></div>'+
 							'</div>'+
 						'</div>'+
@@ -167,6 +170,18 @@ function updateWlEntry(wlname, wlid, entry) {
 		addNewEntry(wlname, wlid, entry);
 		new_entry_count = 1;
 	} else {
+		// update the wait time
+		// ' <small class="wait-time">'+waitTimeMinutes+' min ago</small>
+		var wtElement = $('.wait-time', jEntries[0]);
+		var cTime = new Date(Date.now());
+		var xupTime = new Date(Date.parse(entry.time));
+		var waitTimeMinutes = Math.floor((cTime - xupTime)/60000);
+		var newTimeText = waitTimeMinutes+" min ago";
+		var oldTimeText = wtElement.text();
+		if (oldTimeText != newTimeText) {
+			wtElement.text(newTimeText);
+		}
+		
 		// update fits and such
 		var modified = false;
 		// backup of original fits, we gonna need them later if sth was modified
