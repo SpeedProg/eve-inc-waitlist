@@ -30,7 +30,7 @@ from waitlist.utility.database_utils import parseEft
 def create_history_object(targetID, event_type, sourceID=None, fitlist=None):
     hEntry = HistoryEntry()
     hEntry.sourceID = sourceID
-    hEntry.targetID = current_user.get_eve_id()
+    hEntry.targetID = targetID
     hEntry.action = event_type
     if fitlist is not None:
         for fit in fitlist:
