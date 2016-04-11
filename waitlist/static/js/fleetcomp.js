@@ -157,19 +157,15 @@ function createEntryDOM(wlname, entry) {
 }
 
 /**
- * Check and add a entry to the DOM if it doesn't exist
+ * Updates fits of entries
  * @param wlname name of the waitlist the entry belongs to
  * @param wlid id of the waitlist the entry belongs to
  * @param entry the entry object as received from the api
  * @returns {Number} number of new entry that where added (0 or 1)
  */
 function updateWlEntry(wlname, wlid, entry) {
-	var new_entry_count = 0;
 	var jEntries = $('#entry-'+wlname+'-'+entry.character.id);
-	if (jEntries.size() <= 0) {
-		addNewEntry(wlname, wlid, entry);
-		new_entry_count = 1;
-	} else {
+	if (jEntries.size() > 0) {
 		// update the wait time
 		// ' <small class="wait-time">'+waitTimeMinutes+' min ago</small>
 		var wtElement = $('.wait-time', jEntries[0]);
@@ -231,7 +227,6 @@ function updateWlEntry(wlname, wlid, entry) {
 			}
 		}
 	}
-	return new_entry_count;
 }
 
 /**
@@ -277,42 +272,92 @@ function cleanWL(wldata) {
 }
 
 /**
+ * Remove missing entries from DOM
+ * @param wldata waitlist data as received from api
+ * @returns {Number} number of entries that where removed
+ */
+function deleteMissingEntries(wldata) {
+	var removeCount = 0;
+	var entries = $('li[id|="entry-'+wldata.name+'"]');
+	var preLen = ("entry-"+wldata.name+"-").length;
+	for (var i=0; i < entries.size(); i++) {
+		var id = $(entries[i]).attr("id");
+		id = Number(id.slice(preLen))
+		var is_existing = false;
+		for (var n=0; n < wldata.entries.length; n++) {
+			if (wldata.entries[n].character.id == id) {
+				is_existing = true;
+				break;
+			}
+		}
+		if (! is_existing) {
+			$(entries[i]).remove();
+			removeCount += 1;
+		}
+	}
+	return removeCount;
+}
+
+// befor using this all none existing entries need to be removed from the DOM
+function addNewEntries(wldata) {
+	var preLen = ("entry-"+wldata.name+"-").length;
+	var entries = $('li[id|="entry-'+wldata.name+'"]');
+	var domEntryCount = entries.size();
+	var addedCounter = 0;
+
+	// we iterate over our entries, they are in the right order
+	// if we do not match with the entry at the same position in the dom
+	// there needs to be added the current entry there
+	// if we do match, we need to check the fits there
+	var inserAfterElement = null;
+	for (var n=0; n < wldata.entries.length; n++) {
+		var currentDOMIdx = n-addedCounter;
+		if (currentDOMIdx < domEntryCount) {
+			var currentDOM = $(entries[n-addedCounter]);
+			var domId = Number(currentDOM.attr('id').slice(preLen));
+			// if ids match == check for fits that need to be updated
+			if (domId == wldata.entries[n].character.id) {
+				inserAfterElement = currentDOM;
+				updateWlEntry(wldata.name, wldata.id, wldata.entries[n]);
+			} else {
+				// we need to add a new entry
+				var entryDOM = createEntryDOM(wldata.name, wldata.entries[n]);
+				if (inserAfterElement == null) {
+					var wlEntryContainer = $('#wl-fits-'+wldata.id);
+					wlEntryContainer.prepend(entryDOM);
+					inserAfterElement = entryDOM;
+				} else {
+					inserAfterElement.after(entryDOM);
+				}
+				inserAfterElement = entryDOM;
+				addedCounter += 1;
+			}
+		} else {
+			var entryDOM = createEntryDOM(wldata.name, wldata.entries[n]);
+			if (inserAfterElement == null) {
+				var wlEntryContainer = $('#wl-fits-'+wldata.id);
+				wlEntryContainer.prepend(entryDOM);
+				inserAfterElement = entryDOM;
+			} else {
+				inserAfterElement.after(entryDOM);
+			}
+			inserAfterElement = entryDOM;
+			addedCounter += 1;
+		}
+	}
+	return addedCounter;
+}
+
+/**
  * Update a waitlist
  * @param wldata waitlist object as received from the api
  */
 function updateWaitlist(wldata) {
-	var waitlist = $('#wl-'+wldata.name)[0];
-	// if there are no entrys in the wl make sure that there ain't any on our page
-	if (wldata.entries.length == 0) {
-		cleanWL(wldata);
-		setWlEntryCount(wldata.name, 0);
-	} else {
-		var new_entry_count = 0;
-		for (var i = 0; i < wldata.entries.length; i++) {
-			new_entry_count += updateWlEntry(wldata.name, wldata.id, wldata.entries[i]);
-		}
-		// now that all are updated delete entrys that are not in existance
-		var entries = $('li[id|="entry-'+wldata.name+'"]');
-		var preLen = ("entry-"+wldata.name+"-").length;
-		for (var i=0; i < entries.size(); i++) {
-			var id = $(entries[i]).attr("id");
-			id = Number(id.slice(preLen))
-			var is_existing = false;
-			for (var n=0; n < wldata.entries.length; n++) {
-				if (wldata.entries[n].character.id == id) {
-					is_existing = true;
-					break;
-				}
-			}
-			if (! is_existing) {
-				$(entries[i]).remove();
-				new_entry_count -= 1;
-			}
-		}
-		var oldCount = getWlEntryCount(wldata.name);
-		var newCount = oldCount + new_entry_count;
-		setWlEntryCount(wldata.name, newCount);
-	}
+	var removedEntryCount = deleteMissingEntries(wldata);
+	var addedEntryCount = addNewEntries(wldata);
+	var oldCount = getWlEntryCount(wldata.name);
+	var newCount = oldCount + addedEntryCount - removedEntryCount;
+	setWlEntryCount(wldata.name, newCount);
 }
 
 /**
