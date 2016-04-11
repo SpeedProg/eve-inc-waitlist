@@ -89,6 +89,10 @@ function getTagsFromFits(fits) {
  */
 function createHeaderDOM(wlname, entry) {
 	var tags = getTagsFromFits(entry.fittings);
+	var newBroTag = "";
+	if (entry.character.newbro) {
+		newBroTag = ' <span class="label label-info">New</span>';
+	}
 	var header = $('<div></div>');
 	var charRow = $('<a href="javascript:CCPEVE.showInfo(1377, '+entry.character.id+');">'+
 						'<div class="wel-header-32">'+
@@ -96,7 +100,7 @@ function createHeaderDOM(wlname, entry) {
 									'<img src="https://image.eveonline.com/Character/'+entry.character.id+'_32.jpg" alt="'+entry.character.name+'">'+
 							'</div>'+
 							'<div class="wel-container-32">'+
-								'<div class="wel-text-row-32-2">'+entry.character.name+'</div>'+
+								'<div class="wel-text-row-32-2">'+entry.character.name+newBroTag+'</div>'+
 								'<div class="wel-text-row-32-2 tag-row"></div>'+
 							'</div>'+
 						'</div>'+
