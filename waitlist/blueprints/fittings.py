@@ -464,6 +464,19 @@ def move_to_waitlists():
             if wl.waitlist.name == WaitlistNames.sniper:
                 sniper_entry = wl
     
+    # find out what timestamp a possibly new entry should have
+    # rules are: if no wl entry, take timestamp of x-up
+    #    if there is a wl entry take the waitlist entry timestamp (a random one since they should all have the same)
+    
+    new_entry_timedate = entry.creation
+    if logi_entry is not None:
+        new_entry_timedate = logi_entry.creation
+    elif sniper_entry is not None:
+        new_entry_timedate = sniper_entry.creation
+    elif dps_entry is not None:
+        new_entry_timedate = dps_entry.creation
+    
+    
     # sort fittings by ship type
     logi = []
     dps = []
@@ -501,21 +514,21 @@ def move_to_waitlists():
     # we have a logi fit but no logi wl entry, so create one
     if len(logi) and logi_entry == None:
         logi_entry = WaitlistEntry()
-        logi_entry.creation = entry.creation  # for sorting entries
+        logi_entry.creation = new_entry_timedate  # for sorting entries
         logi_entry.user = entry.user  # associate a user with the entry
         add_entries_map[WaitlistNames.logi] = logi_entry
     
     # same for dps
     if len(dps) and dps_entry == None:
         dps_entry = WaitlistEntry()
-        dps_entry.creation = entry.creation  # for sorting entries
+        dps_entry.creation = new_entry_timedate  # for sorting entries
         dps_entry.user = entry.user  # associate a user with the entry
         add_entries_map[WaitlistNames.dps] = dps_entry
 
     # and sniper
     if len(sniper) and sniper_entry == None:
         sniper_entry = WaitlistEntry()
-        sniper_entry.creation = entry.creation  # for sorting entries
+        sniper_entry.creation = new_entry_timedate  # for sorting entries
         sniper_entry.user = entry.user  # associate a user with the entry
         add_entries_map[WaitlistNames.sniper] = sniper_entry
 
