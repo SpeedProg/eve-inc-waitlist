@@ -11,6 +11,7 @@
 	href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.2/css/bootstrap.min.css"
 	integrity="sha384-y3tfxAZXuh4HwSYylfB+J125MxIs6mR5FOHamPBG064zB+AFeWH94NdvaCBm8qnd"
 	crossorigin="anonymous">
+<link rel="stylesheet" href="/static/css/base.css">
 {% if is_igb %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/es5-shim/4.5.7/es5-shim.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/es5-shim/4.5.7/es5-sham.min.js"></script>
@@ -47,28 +48,6 @@ $(document).ready(function () {
 	setupDNA();
 });
 </script>
-
-<style>
-.btn-group-mini > .btn, .btn-mini {
-    padding: .1rem .4rem;
-    font-size: .6rem;
-    line-height: 1.0;
-    border-radius: .1rem;
-}
-.list-group-item {
-	padding: .1rem .1rem;
-}
-.card {
-	margin-bottom: 0rem;
-}
-.fitting {
-	cursor: pointer;
-}
-
-.footer {
-	font-size: xx-small;
-}
-</style>
 <title>{% block title %}{% endblock %}</title>
 {% endblock %}
 

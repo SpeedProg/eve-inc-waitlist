@@ -13,3 +13,19 @@
 	height: 50%;
 	font-size: 12px;
 }
+
+.btn-group-mini > .btn, .btn-mini {
+    padding: .1rem .4rem;
+    font-size: .6rem;
+    line-height: 1.0;
+    border-radius: .1rem;
+}
+.list-group-item {
+	padding: .1rem .1rem;
+}
+.card {
+	margin-bottom: 0rem;
+}
+.fitting {
+	cursor: pointer;
+}
