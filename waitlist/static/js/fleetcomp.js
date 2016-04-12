@@ -143,7 +143,7 @@ function createHeaderDOM(wlname, wlid, entry) {
 						'<button aria-expanded="true" type="button" data-toggle="collapse" data-target="#fittings-'+entry.id+'" class="btn btn-primary"><i class="fa fa-plus"></i> &#47; <i class="fa fa-minus"></i> Fits</button>'+
 						'<button type="button" class="btn btn-secondary" onclick="javascript:IGBW.startConversation('+entry.character.id+')"><i class="fa fa-comment-o"></i></button>'+
 						'<button type="button" class="btn btn-danger" onclick="javascript:removePlayer('+entry.character.id+');"><i class="fa fa-times"></i></button>'+
-						'</div>'+
+					'</div>'+
 				'</div>');
 	}
 
