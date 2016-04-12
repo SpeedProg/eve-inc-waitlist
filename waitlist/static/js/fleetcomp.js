@@ -20,7 +20,7 @@ function inviteCharacter(charId, wlId) {
  * @param tag: B = Basi, S = Scimi, DPS = Short Range Damage, SNI = Sniper, LOGI == Scruffy Logi
  */
 function createTypeTag(name) {
-	type = "default";
+	var type = "default";
 	switch (name) {
 	case "B":
 	case "S":
