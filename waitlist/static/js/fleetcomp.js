@@ -1,8 +1,22 @@
+/**
+ * Get meta elements content from the website
+ */
 var getMetaData = function (name) {
 	return $('meta[name="'+name+'"]').attr('content');
 }
 
 /**
+ * Opens the profile of a character and sends the notice
+ * @param charId
+ * @param wlid
+ */
+function inviteCharacter(charId, wlId) {
+	CCPEVE.showInfo(1377, charId);
+	invitePlayer(charId, wlId);
+}
+
+/**
+ * Create a DOM for a ship type tag
  * @param tag: B = Basi, S = Scimi, DPS = Short Range Damage, SNI = Sniper, LOGI == Scruffy Logi
  */
 function createTypeTag(name) {
@@ -298,7 +312,12 @@ function deleteMissingEntries(wldata) {
 	return removeCount;
 }
 
-// befor using this all none existing entries need to be removed from the DOM
+// before using this all none existing entries need to be removed from the DOM
+/**
+ * Adds entries that do not exist in the DOM at their correct positions
+ * @param wldata waitlist data as received from the api
+ * @return {Number} number of added entries
+ */
 function addNewEntries(wldata) {
 	var preLen = ("entry-"+wldata.name+"-").length;
 	var entries = $('li[id|="entry-'+wldata.name+'"]');
