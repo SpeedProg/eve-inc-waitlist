@@ -4,7 +4,7 @@ from waitlist.data.perm import perm_management, perm_dev
 from flask_login import login_required, current_user
 from flask.globals import request
 from waitlist.storage.database import WaitlistEntry, Shipfit, Waitlist,\
-    Character, InvType, MarketGroup, HistoryEntry
+    Character, InvType, MarketGroup, HistoryEntry, HistoryExtInvite
 import re
 from waitlist.storage.modules import resist_ships, logi_ships,\
     sniper_ships, t3c_ships, sniper_weapons, dps_weapons, dps_ships,\
@@ -70,9 +70,15 @@ def api_wls_remove_player():
 @perm_management.require(http_exception=401)
 def api_invite_player():
     playerId = int(request.form['playerId'])
+    wlId = int(request.form['wlId'])
     if playerId == None:
         logger.error("Tried to remove player with None id from waitlists.")
     
+    # lets check that the given wl exists
+    waitlist = db.session.query(Waitlist).filter(Waitlist.id == wlId).first();
+    if waitlist is None:
+        logger.error("Given waitlist id %s is not valid.", str(wlId))
+        flask.abort(400)
     # don't remove from queue
     #queue = db.session.query(Waitlist).filter(Waitlist.name == WaitlistNames.xup_queue).first()
     
@@ -81,8 +87,22 @@ def api_invite_player():
     event = InviteEvent(playerId)
     send_invite_notice(event)
     #publish(event)
+    
     character = db.session.query(Character).filter(Character.id == playerId).first()
     hEntry = create_history_object(character.get_eve_id(), HistoryEntry.EVENT_COMP_INV_PL, current_user.id)
+    # create a invite history extension
+    # get wl entry for creation time
+    wlEntry = db.session.query(WaitlistEntry).filter((WaitlistEntry.waitlist_id == wlId) & (WaitlistEntry.user == playerId)).first()
+    
+    historyExt = HistoryExtInvite()
+    historyExt.waitlistID = wlId
+    historyExt.timeCreated = wlEntry.creation
+    historyExt.timeInvited = datetime.utcnow()
+    db.session.add(historyExt)
+    db.session.flush()
+    db.session.refresh(historyExt)
+    
+    hEntry.exref = historyExt.inviteExtID
     db.session.add(hEntry)
     db.session.commit()
     logger.info("%s invited %s to fleet.", current_user.username, character.eve_name)

@@ -349,6 +349,7 @@ class HistoryEntry(Base):
     targetID = Column(Integer, ForeignKey("characters.id"), nullable=False)
     action = Column(String(1000))
     time = Column(DateTime, default=datetime.utcnow)
+    exref = Column(Integer, nullable=True)
     fittings = relationship("Shipfit", secondary="comp_history_fits")
     source = relationship("Account")
     target = relationship("Character")
@@ -362,3 +363,10 @@ class HistoryEntry(Base):
     EVENT_SELF_RM_WLS_ALL = "self_rm_wls_all"
     EVENT_COMP_MV_XUP_ETR = "comp_mv_xup_etr"
     EVENT_COMP_MV_XUP_FIT = "comp_mv_xup_fit"
+
+class HistoryExtInvite(Base):
+    __tablename__ = "comp_history_ext_inv"
+    inviteExtID = Column(Integer, primary_key=True)
+    waitlistID = Column(Integer, ForeignKey(Waitlist.id))
+    timeCreated = Column(DateTime)
+    timeInvited = Column(DateTime)

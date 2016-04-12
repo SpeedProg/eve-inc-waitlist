@@ -46,7 +46,7 @@ function createTypeTag(name) {
  * @param entry the entry object as received from the api
  */
 function addNewEntry(wlname, wlid, entry) {
-	var entryDOM = createEntryDOM(wlname, entry);
+	var entryDOM = createEntryDOM(wlname, wlid, entry);
 	var wlEntryContainer = $('#wl-fits-'+wlid);
 	wlEntryContainer.append(entryDOM);
 }
@@ -98,10 +98,11 @@ function getTagsFromFits(fits) {
 /**
  * Create the html entity for the entry's header
  * @param wlname name of the waitlist the entry belongs to
+ * @parm wlid id of the waitlist
  * @param entry the waitlist entry as received from the api
- * @returns
+ * @returns {HTMLElement} DOM fo the entries header
  */
-function createHeaderDOM(wlname, entry) {
+function createHeaderDOM(wlname, wlid, entry) {
 	var tags = getTagsFromFits(entry.fittings);
 	var newBroTag = "";
 	if (entry.character.newbro) {
@@ -111,7 +112,7 @@ function createHeaderDOM(wlname, entry) {
 	var xupTime = new Date(Date.parse(entry.time));
 	var waitTimeMinutes = Math.floor((cTime - xupTime)/60000);
 	var header = $('<div></div>');
-	var charRow = $('<a href="javascript:CCPEVE.showInfo(1377, '+entry.character.id+');">'+
+	var charRow = $('<a href="javascript:inviteCharacter('+entry.character.id+', '+wlid+');">'+
 						'<div class="wel-header-32">'+
 							'<div class="wel-img-32">'+
 									'<img src="https://image.eveonline.com/Character/'+entry.character.id+'_32.jpg" alt="'+entry.character.name+'">'+
@@ -157,11 +158,13 @@ function createHeaderDOM(wlname, entry) {
 /**
  * Create the html entity of the entry
  * @param wlname name of the waitlist the entry belongs to
+ * @param wlid id of the waitlist
  * @param entry the entry object as received from the api
+ * @returns {HTMLElement} DOM of an entry
  */
-function createEntryDOM(wlname, entry) {
+function createEntryDOM(wlname, wlid, entry) {
 	var entryDOM = $('<li class="list-group-item" id="entry-'+wlname+'-'+entry.character.id+'" data-count="'+entry.fittings.length+'"></li>');
-	entryDOM.append(createHeaderDOM(wlname, entry));
+	entryDOM.append(createHeaderDOM(wlname, wlid, entry));
 	var fittlistDOM = $('<ul aria-expanded="true" class="list-group list-group-flush collapse" id="fittings-'+entry.id+'"></ul>')
 	entryDOM.append(fittlistDOM);
 	for (var i=0; i<entry.fittings.length; i++) {
@@ -352,7 +355,7 @@ function addNewEntries(wldata) {
 				addedCounter += 1;
 			}
 		} else {
-			var entryDOM = createEntryDOM(wldata.name, wldata.entries[n]);
+			var entryDOM = createEntryDOM(wldata.name, wldata.id, wldata.entries[n]);
 			if (inserAfterElement == null) {
 				var wlEntryContainer = $('#wl-fits-'+wldata.id);
 				wlEntryContainer.prepend(entryDOM);
@@ -413,11 +416,11 @@ function refreshWl() {
 }
 
 /**
- * Send the notification for a player
+ * Send the notification for a player,  and logs from which wl he was invited
  * @param userId eve id of the user, the notification should be send too
  */
-function invitePlayer(userId) {
-	$.post(getMetaData('api-invite-player'), {'playerId': userId, '_csrf_token': getMetaData('csrf-token')}, function(){
+function invitePlayer(userId, wlId) {
+	$.post(getMetaData('api-invite-player'), {'playerId': userId, 'wlId': wlId, '_csrf_token': getMetaData('csrf-token')}, function(){
 	}, "text");
 }
 
@@ -461,7 +464,7 @@ function removeEntry(entryId, userId) {
 		setWlEntryCount("queue", getWlEntryCount("queue")-1)
 	}
 }
-
+var lastRefreshInterval;
 /**
  * Move a X-UP entry to waitlists (approving)
  * @param entryId id of the entry that should be approved
