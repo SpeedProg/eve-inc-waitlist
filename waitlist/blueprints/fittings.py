@@ -94,16 +94,17 @@ def api_invite_player():
     # get wl entry for creation time
     wlEntry = db.session.query(WaitlistEntry).filter((WaitlistEntry.waitlist_id == wlId) & (WaitlistEntry.user == playerId)).first()
     
+    db.session.add(hEntry)
+    db.session.flush()
+    db.session.refresh(hEntry)
+    
     historyExt = HistoryExtInvite()
+    historyExt.historyID = hEntry.historyID
     historyExt.waitlistID = wlId
     historyExt.timeCreated = wlEntry.creation
     historyExt.timeInvited = datetime.utcnow()
-    db.session.add(historyExt)
-    db.session.flush()
-    db.session.refresh(historyExt)
-    
-    hEntry.exref = historyExt.inviteExtID
-    db.session.add(hEntry)
+    db.session.add(historyExt)    
+
     db.session.commit()
     logger.info("%s invited %s to fleet.", current_user.username, character.eve_name)
     return "OK"
