@@ -11,7 +11,7 @@ var getMetaData = function (name) {
  * @param wlid
  */
 function inviteCharacter(charId, wlId) {
-	CCPEVE.showInfo(1377, charId);
+	IGBW.showInfo(1377, charId);
 	invitePlayer(charId, wlId);
 }
 
@@ -134,7 +134,7 @@ function createHeaderDOM(wlname, entry) {
 					//'<button type="button" class="btn btn-mini btn-warning" onclick="javascript:removeOwnEntry(\'queue\', '+entry.character.id+', '+entry.id+');">Remove Self</button>'+
 					'<button type="button" class="btn btn-success" onclick="javascript:moveEntryToWaitlists('+entry.id+', '+entry.character.id+')"><i class="fa fa-thumbs-o-up"></i></button>'+
 					'<button aria-expanded="true" type="button" data-toggle="collapse" data-target="#fittings-'+entry.id+'" class="btn btn-primary"><i class="fa fa-plus"></i> &#47; <i class="fa fa-minus"></i> Fits</button>'+
-					'<button type="button" class="btn btn-secondary" onclick="javascript:CCPEVE.startConversation('+entry.character.id+')"><i class="fa fa-comment-o"></i></button>'+
+					'<button type="button" class="btn btn-secondary" onclick="javascript:IGBW.startConversation('+entry.character.id+')"><i class="fa fa-comment-o"></i></button>'+
 					'<button type="button" class="btn btn-danger" onclick="javascript:removeEntry('+entry.id+', '+entry.character.id+');"><i class="fa fa-times"></i></button>'+
 				'</div>'+
 			'</div>');
@@ -143,7 +143,7 @@ function createHeaderDOM(wlname, entry) {
 					'<div class="btn-group btn-group-mini" role="group" aria-label="Action Buttons">'+
 					'<button type="button" class="btn btn-success" onclick="javascript:invitePlayer('+entry.character.id+')"><i class="fa fa-bell-o"></i></button>'+
 						'<button aria-expanded="true" type="button" data-toggle="collapse" data-target="#fittings-'+entry.id+'" class="btn btn-primary"><i class="fa fa-plus"></i> &#47; <i class="fa fa-minus"></i> Fits</button>'+
-						'<button type="button" class="btn btn-secondary" onclick="javascript:CCPEVE.startConversation('+entry.character.id+')"><i class="fa fa-comment-o"></i></button>'+
+						'<button type="button" class="btn btn-secondary" onclick="javascript:IGBW.startConversation('+entry.character.id+')"><i class="fa fa-comment-o"></i></button>'+
 						'<button type="button" class="btn btn-danger" onclick="javascript:removePlayer('+entry.character.id+');"><i class="fa fa-times"></i></button>'+
 						'</div>'+
 				'</div>');

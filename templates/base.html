@@ -20,20 +20,10 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.2.0/js/tether.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.2/js/bootstrap.min.js" integrity="sha384-vZ2WRJMwsjRMW/8U7i6PWi6AlO1L79snBrmgiDpgIWJ82z8eA5lenwvxbMV1PAh7" crossorigin="anonymous"></script>
 <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-XdYbMnZ/QjLh6iI4ogqCTaIjrFk87ip+ekIjefZch0Y+PvJ8CDYtEs1ipDmPorQ+" crossorigin="anonymous">
+<script type="text/javascript" src="/static/js/eve-igb-wrapper.js"></script>
 <script type="text/javascript">
 {% if is_igb %}
 CCPEVE.requestTrust(location.protocol+'//'+location.hostname+(location.port ? ':'+location.port: ''));
-function showFitting(dna) {
-	if (typeof CCPEVE == 'undefined') {
-		console.log("dna="+dna);
-	} else {
-	CCPEVE.showFitting(dna);
-	}
-}
-{% else %}
-function showFitting(dna) {
-	window.open("https://o.smium.org/loadout/dna/"+dna);
-}
 {% endif %}
 /*
  * Set up click handlers on fittings
@@ -47,7 +37,7 @@ function showFitting(dna) {
 		}
 		{% endif %}
 		var dna = this.getAttribute('data-dna');
-		showFitting(dna);
+		IGBW.showFitting(dna);
 	 });
 	$(document).on("click", ".booby-link", function(event){
 		 window.open("https://en.wikipedia.org/wiki/Booby", "_blank");
