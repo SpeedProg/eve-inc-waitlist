@@ -3,8 +3,8 @@ import os
 import sys
 base_path = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(base_path, 'lib'))
-from waitlist.storage.database import Role, Waitlist
-from waitlist.data.names import WaitlistNames, WTMRoles
+from waitlist.storage.database import Role, Waitlist, WaitlistGroup
+from waitlist.data.names import WaitlistNames, WTMRoles, DEFAULT_PREFIX
 from waitlist import db
 
 
@@ -23,15 +23,31 @@ def createRoles():
     for role in roles:
         db.session.merge(role)
 
-def createWaitlists():
-    wl_names = [WaitlistNames.logi, WaitlistNames.dps, WaitlistNames.sniper, WaitlistNames.xup_queue]
-    for wl_name in wl_names:
-        wl = Waitlist()
-        wl.name = wl_name
-        db.session.merge(wl)
+def createDefaultWaitlistGroup():
+    xuplist = Waitlist(name=WaitlistNames.xup_queue, displayTitle="X-UP")
+    logilist = Waitlist(name=WaitlistNames.logi, displayTitle="Logi")
+    dpslist = Waitlist(name=WaitlistNames.dps, displayTitle="DPS")
+    sniperlist = Waitlist(name=WaitlistNames.sniper, displayTitle="SNIPER")
+    group = WaitlistGroup()
+    group.groupName = "default"
+    group.displayName = "Headquarters"
+    group.xuplist = xuplist
+    group.logilist = logilist
+    group.dpslist = dpslist
+    group.sniperlist = sniperlist
+    group.otherlist = None
+    db.session.add(group)
+    db.session.flush()
+    db.session.refresh(group)
+    
+    xuplist.group = group
+    logilist.group = group
+    dpslist.group = group
+    sniperlist.group = group
+    
 
 if __name__ == '__main__':
-    createRoles()
-    createWaitlists()    
+    #createRoles()
+    createDefaultWaitlistGroup()
     db.session.commit()
     pass

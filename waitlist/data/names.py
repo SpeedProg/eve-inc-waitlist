@@ -4,6 +4,7 @@ class WaitlistNames():
     dps = "dps"
     sniper = "sniper"
     xup_queue = "queue"
+    other = "other"
     
 class WTMRoles():
     admin = "admin"
@@ -18,3 +19,6 @@ class WTMRoles():
     @staticmethod
     def get_role_list():
         return [WTMRoles.admin, WTMRoles.officer, WTMRoles.fc, WTMRoles.lm, WTMRoles.tbadge, WTMRoles.resident, WTMRoles.dev, WTMRoles.leadership]
+    
+
+DEFAULT_PREFIX = "default"

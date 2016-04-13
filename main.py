@@ -20,7 +20,7 @@ from flask_login import login_required, current_user, login_user,\
     logout_user
 import logging
 from waitlist.storage.database import Waitlist, Account, WaitlistEntry,\
-    Character
+    Character, WaitlistGroup
 from flask_principal import RoleNeed, identity_changed, Identity, AnonymousIdentity,\
     identity_loaded, UserNeed
 from waitlist.data.perm import perm_management, perm_settings, perm_admin,\
@@ -88,31 +88,29 @@ def force_logout():
 @app.route('/', methods=['GET'])
 @login_required
 def index():
-    all_waitlists = db.session.query(Waitlist).all();
+    defaultgroup = db.session.query(WaitlistGroup).filter(WaitlistGroup.groupName == "default").one()
+    group = None
+    if 'groupId' in request.args:
+        group_id = int(request.args.get('groupId'))
+        group = db.session.query(WaitlistGroup).get(group_id)
+    else:
+        group = defaultgroup
+    
+    
+    
     wlists = []
-    logi_wl = None
-    dps_wl = None
-    sniper_wl = None
-    queue = None
-
-    for wl in all_waitlists:
-        if wl.name == WaitlistNames.logi:
-            logi_wl = wl
-            continue
-        if wl.name == WaitlistNames.dps:
-            dps_wl = wl
-            continue
-        if wl.name == WaitlistNames.sniper:
-            sniper_wl = wl
-            continue
-        if wl.name == WaitlistNames.xup_queue:
-            queue = wl
-            continue
+    logi_wl = group.logilist
+    dps_wl = group.dpslist
+    sniper_wl = group.sniperlist
+    queue = group.xuplist
+    other_wl = group.otherlist
 
     wlists.append(queue)
     wlists.append(logi_wl)
     wlists.append(dps_wl)
     wlists.append(sniper_wl)
+    if (other_wl is not None):
+        wlists.append(other_wl)
     
     new_bro = True
     if current_user.type == "character":
@@ -125,7 +123,7 @@ def index():
             new_bro = True
         else:
             new_bro = current_user.current_char_obj.newbro
-    return render_template("index.html", lists=wlists, user=current_user, fleet=fleet_status, is_index=True, xup_open=fleet_status.xup_enabled, is_on_wl=is_on_wl(), newbro=new_bro)
+    return render_template("index.html", lists=wlists, user=current_user, fleet=fleet_status, is_index=True, xup_open=fleet_status.xup_enabled, is_on_wl=is_on_wl(), newbro=new_bro, defgroup=defaultgroup, group=group)
 
 def is_on_wl():
     eveId = current_user.get_eve_id();

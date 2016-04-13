@@ -14,6 +14,7 @@
 <meta name="api-move-entry-to-wls" content="{{url_for('fittings.move_to_waitlists')}}">
 <meta name="api-waitlists" content="{{url_for('waitlist_api.waitlist')}}">
 <meta name="api-approve-fit" content="{{url_for('fittings.api_move_fit_to_waitlist')}}">
+<meta name="wl-group-id" content="{{group.groupID}}">
 {% endif %}
 {{ super() }}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
@@ -102,8 +103,8 @@
 	<div class="panel panel-default">
 		<div class="panel-heading" role="tab" id="wl-{{ wlist.id }}-heading">
       		<h4 class="panel-title">
-        	<a  class="list-group-item text-capitalize" data-toggle="collapse" data-parent="#wl-{{ wlist.id }}-tog" data-target="#wl-fits-{{ wlist.id }}" aria-expanded="true" aria-controls="wl-fits-{{ wlist.id }}">
-				{% if wlist.name == "queue" %}X-UP{% else %}{{ wlist.name|e }} WL{% endif %}{% if perm_man.can() %}<span id="wl-count-{{ wlist.name }}" class="label label-pill label-default pull-xs-left">0</span>{% endif %}<i class="fa fa-minus-square pull-xs-right" id="wl-{{ wlist.id }}-tog-icon"></i>
+        	<a class="list-group-item text-capitalize" data-toggle="collapse" data-parent="#wl-{{ wlist.id }}-tog" data-target="#wl-fits-{{ wlist.id }}" aria-expanded="true" aria-controls="wl-fits-{{ wlist.id }}">
+				{{ wlist.displayTitle|e }}{% if perm_man.can() %}<span id="wl-count-{{ wlist.name }}" class="label label-pill label-default pull-xs-left">0</span>{% endif %}<i class="fa fa-minus-square pull-xs-right" id="wl-{{ wlist.id }}-tog-icon"></i>
         	</a>
       		</h4>
     	</div>

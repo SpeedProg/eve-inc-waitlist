@@ -4,7 +4,8 @@ from waitlist.data.perm import perm_management, perm_dev
 from flask_login import login_required, current_user
 from flask.globals import request
 from waitlist.storage.database import WaitlistEntry, Shipfit, Waitlist,\
-    Character, InvType, MarketGroup, HistoryEntry, HistoryExtInvite
+    Character, InvType, MarketGroup, HistoryEntry, HistoryExtInvite,\
+    WaitlistGroup
 import re
 from waitlist.storage.modules import resist_ships, logi_ships,\
     sniper_ships, t3c_ships, sniper_weapons, dps_weapons, dps_ships,\
@@ -46,22 +47,43 @@ logger = logging.getLogger(__name__)
 @perm_management.require(http_exception=401)
 def api_wls_remove_player():
     playerId = int(request.form['playerId'])
+    groupId = int(request.form['groupId'])
+
     if playerId == None:
         logger.error("Tried to remove player with None id from waitlists.")
     
+    group = db.session.query(WaitlistGroup).get(groupId)
     # don't remove from queue
-    queue = db.session.query(Waitlist).filter(Waitlist.name == WaitlistNames.xup_queue).first()
-    waitlist_entries = db.session.query(WaitlistEntry).filter((WaitlistEntry.user == playerId) & (WaitlistEntry.waitlist_id != queue.id)).all()
+    waitlist_entries = db.session.query(WaitlistEntry).filter((WaitlistEntry.user == playerId) &
+                                                               ((WaitlistEntry.waitlist_id == group.logiwlID) |
+                                                                 (WaitlistEntry.waitlist_id == group.dpswlID) |
+                                                                 (WaitlistEntry.waitlist_id == group.sniperwlID))).all()
+    
     fittings = []
     for entry in waitlist_entries:
         fittings.extend(entry.fittings)
     
-    db.session.query(WaitlistEntry).filter((WaitlistEntry.user == playerId) & (WaitlistEntry.waitlist_id != queue.id)).delete()
+    # check if there is an other waitlist
+    if group.otherwlID is not None:
+        entry = db.session.query(WaitlistEntry).filter((WaitlistEntry.user == playerId) & (WaitlistEntry.waitlist_id == group.otherwlID)).on_or_none()
+        if entry is not None:
+            fittings.extend(entry.fittings)
+    
+    
+    waitlist_entries = db.session.query(WaitlistEntry).filter((WaitlistEntry.user == playerId) &
+                                                               ((WaitlistEntry.waitlist_id == group.logiwlID) |
+                                                                 (WaitlistEntry.waitlist_id == group.dpswlID) |
+                                                                 (WaitlistEntry.waitlist_id == group.sniperwlID))).delete()
+    # if other waitlist delete those entries too
+    if group.otherwlID is not None:
+        entry = db.session.query(WaitlistEntry).filter((WaitlistEntry.user == playerId) & (WaitlistEntry.waitlist_id == group.otherwlID)).delete()
+    
     hEntry = create_history_object(playerId, HistoryEntry.EVENT_COMP_RM_PL, current_user.id, fittings)
+    hEntry.exref = group.groupID
     db.session.add(hEntry)
     db.session.commit()
     character = db.session.query(Character).filter(Character.id == playerId).first()
-    logger.info("%s removed %s from waitlist.", current_user.username, character.eve_name)
+    logger.info("%s removed %s from %s waitlist.", current_user.username, character.eve_name, group.groupName)
 
     return "OK"
 
@@ -90,6 +112,8 @@ def api_invite_player():
     
     character = db.session.query(Character).filter(Character.id == playerId).first()
     hEntry = create_history_object(character.get_eve_id(), HistoryEntry.EVENT_COMP_INV_PL, current_user.id)
+    hEntry.exref = waitlist.group.groupID
+    
     # create a invite history extension
     # get wl entry for creation time
     wlEntry = db.session.query(WaitlistEntry).filter((WaitlistEntry.waitlist_id == wlId) & (WaitlistEntry.user == playerId)).first()
@@ -103,10 +127,10 @@ def api_invite_player():
     historyExt.waitlistID = wlId
     historyExt.timeCreated = wlEntry.creation
     historyExt.timeInvited = datetime.utcnow()
-    db.session.add(historyExt)    
+    db.session.add(historyExt)
 
     db.session.commit()
-    logger.info("%s invited %s to fleet.", current_user.username, character.eve_name)
+    logger.info("%s invited %s to fleet from %s.", current_user.username, character.eve_name, waitlist.group.groupName)
     return "OK"
 
 @bp_waitlist.route("/api/wl/entries/remove/", methods=['POST'])
@@ -116,8 +140,9 @@ def api_wl_remove_entry():
     entryId = int(request.form['entryId'])
     entry = db.session.query(WaitlistEntry).filter(WaitlistEntry.id == entryId).first()
     hEntry = create_history_object(entry.user_data.get_eve_id(), HistoryEntry.EVENT_COM_RM_ETR, current_user.id, entry.fittings)
+    hEntry.exref = entry.waitlist.group.groupID
     db.session.add(hEntry)
-    logger.info("%s removed %s from waitlist %s", current_user.username, entry.user_data.get_eve_name(), entry.waitlist.name)
+    logger.info("%s removed %s from waitlist %s of group %s", current_user.username, entry.user_data.get_eve_name(), entry.waitlist.name, entry.waitlist.group.groupName)
     db.session.query(WaitlistEntry).filter(WaitlistEntry.id == entryId).delete()
     db.session.commit()
     return "OK"
@@ -126,17 +151,19 @@ def api_wl_remove_entry():
 @bp_waitlist.route("/api/self/fittings/remove/<int:fitid>", methods=["DELETE"])
 @login_required
 def remove_self_fit(fitid):
-    logger.info("%s removed their fit with id %d", current_user.get_eve_name(), fitid)
+
     fit = db.session.query(Shipfit).filter(Shipfit.id == fitid).first()
     wlentry = db.session.query(WaitlistEntry).filter(WaitlistEntry.id == fit.waitlist.id).first()
-    
+
     if (wlentry.user == current_user.get_eve_id()):
+        logger.info("%s removed their fit with id %d from group %s", current_user.get_eve_name(), fitid, wlentry.waitlist.group.groupName)
         wlentry.fittings.remove(fit)
         # don't delete anymore we need them for history
         #db.session.delete(fit)
         if len(wlentry.fittings) <= 0:
             db.session.delete(wlentry)
         hEntry = create_history_object(current_user.get_eve_id(), HistoryEntry.EVENT_SELF_RM_FIT, None, [fit])
+        hEntry.exref = wlentry.waitlist.group.groupID
         db.session.add(hEntry)
         db.session.commit()
     else:
@@ -151,6 +178,7 @@ def self_remove_wl_entry(entry_id):
     logger.info("%s removed their own entry with id %d", current_user.get_eve_name(), entry_id)
     entry = db.session.query(WaitlistEntry).filter((WaitlistEntry.id == entry_id) & (WaitlistEntry.user == current_user.get_eve_id())).first()
     hEntry = create_history_object(current_user.get_eve_id(), HistoryEntry.EVENT_SELF_RM_ETR, None, entry.fittings)
+    hEntry.exref = entry.waitlist.group.groupID
     db.session.add(hEntry)
     db.session.delete(entry)
     db.session.commit()
@@ -195,7 +223,12 @@ def xup_submit():
     '''
     fittings = request.form['fits']
     logger.info("%s submitted %s", current_user.get_eve_name(), fittings)
+    groupID = request.form['groupID']
+    logger.info("%s submitted for group %s", current_user.get_eve_name(), groupID)
     eve_id = current_user.get_eve_id()
+    
+    group = db.session.query(WaitlistGroup).filter(WaitlistGroup.groupID == groupID).one()
+    
     # check if it is scruffy
     if fittings.lower().startswith("scruffy"):
         # scruffy mode scruffy
@@ -217,7 +250,7 @@ def xup_submit():
             flash("Valid entries are scruffy [dps|logi|sniper,..]")
             return redirect(url_for('index'))
 
-        queue = db.session.query(Waitlist).filter(Waitlist.name == WaitlistNames.xup_queue).first();
+        queue = group.xuplist
         wl_entry = db.session.query(WaitlistEntry).filter((WaitlistEntry.waitlist_id == queue.id) & (WaitlistEntry.user == eve_id)).first()
         if wl_entry is None:
             wl_entry = WaitlistEntry()
@@ -372,8 +405,8 @@ def xup_submit():
         if fit.ship_type in sniper_ships or fit.ship_type in dps_ships or fit.ship_type in t3c_ships:
             is_allowed = True
         
-        if not is_allowed:  # not an allowed ship, push it on dps list :P
-            fit.wl_type = WaitlistNames.dps
+        if not is_allowed:  # not an allowed ship, push it on other list :P
+            fit.wl_type = WaitlistNames.other
             fits_ready.append(fit)
             continue
         
@@ -416,9 +449,9 @@ def xup_submit():
                     weapon_type = WaitlistNames.sniper
                     break    
         
-        # ships with no valid weapons put on dps wl
+        # ships with no valid weapons put on other wl
         if weapon_type == "None" or weapon_type == WaitlistNames.dps:
-            fit.wl_type = WaitlistNames.dps
+            fit.wl_type = WaitlistNames.other
             fits_ready.append(fit)
             continue
         
@@ -433,7 +466,7 @@ def xup_submit():
     # get the waitlist entries of this user
 
     """
-    queue = db.session.query(Waitlist).filter(Waitlist.name == WaitlistNames.xup_queue).first();
+    queue = group.xuplist
     wl_entry = db.session.query(WaitlistEntry).filter((WaitlistEntry.waitlist_id == queue.id) & (WaitlistEntry.user == eve_id)).first()
     if wl_entry is None:
         wl_entry = WaitlistEntry()
@@ -466,13 +499,16 @@ def move_to_waitlists():
     fit_ids = request.form['fitIds']
     fitIds = [int(x) for x in fit_ids.split(",")]
     entry = db.session.query(WaitlistEntry).filter(WaitlistEntry.id == entry_id).first()
+    group = entry.waitlist.group
+
     if entry == None:
         return "OK";
     logger.info("%s approved %s", current_user.username, entry.user_data.get_eve_name())
-    waitlist_entries = db.session.query(WaitlistEntry).filter(WaitlistEntry.user == entry.user).all()
+    waitlist_entries = db.session.query(WaitlistEntry).join(Waitlist, WaitlistEntry.waitlist_id == Waitlist.id).join(WaitlistGroup, Waitlist.groupID == WaitlistGroup.groupID).filter((WaitlistEntry.user == entry.user) & (WaitlistGroup.groupID == group.groupID)).all()
     logi_entry = None
     sniper_entry = None
     dps_entry = None
+    other_entry = None
     if len(waitlist_entries) > 0:  # there are actually existing entries
         # if there are existing wl entries assign them to appropriate variables
         for wl in waitlist_entries:
@@ -484,6 +520,8 @@ def move_to_waitlists():
                 continue
             if wl.waitlist.name == WaitlistNames.sniper:
                 sniper_entry = wl
+            elif wl.waitlist.name == WaitlistNames.other:
+                other_entry = wl
     
     # find out what timestamp a possibly new entry should have
     # rules are: if no wl entry, take timestamp of x-up
@@ -502,6 +540,7 @@ def move_to_waitlists():
     logi = []
     dps = []
     sniper = []
+    other = []
     hEntry = create_history_object(entry.user, HistoryEntry.EVENT_COMP_MV_XUP_ETR, current_user.id)
     for fit in entry.fittings:
         if not fit.id in fitIds:
@@ -522,6 +561,8 @@ def move_to_waitlists():
             dps.append(fit)
         elif fit.wl_type == WaitlistNames.sniper:
             sniper.append(fit)
+        elif fit.wl_type == WaitlistNames.other:
+            other.append(fit)
         else:
             logger.error("Failed to add %s do a waitlist.", fit)
 
@@ -530,28 +571,33 @@ def move_to_waitlists():
     for fit in fits_to_remove:
         entry.fittings.remove(fit)
     
-    add_entries_map = {}
-    
     # we have a logi fit but no logi wl entry, so create one
     if len(logi) and logi_entry == None:
         logi_entry = WaitlistEntry()
         logi_entry.creation = new_entry_timedate  # for sorting entries
         logi_entry.user = entry.user  # associate a user with the entry
-        add_entries_map[WaitlistNames.logi] = logi_entry
+        group.logilist.entries.append(logi_entry)
     
     # same for dps
     if len(dps) and dps_entry == None:
         dps_entry = WaitlistEntry()
         dps_entry.creation = new_entry_timedate  # for sorting entries
         dps_entry.user = entry.user  # associate a user with the entry
-        add_entries_map[WaitlistNames.dps] = dps_entry
+        group.dpslist.entries.append(dps_entry)
 
     # and sniper
     if len(sniper) and sniper_entry == None:
         sniper_entry = WaitlistEntry()
         sniper_entry.creation = new_entry_timedate  # for sorting entries
         sniper_entry.user = entry.user  # associate a user with the entry
-        add_entries_map[WaitlistNames.sniper] = sniper_entry
+        group.sniperlist.entries.append(sniper_entry)
+    
+    # and other if other exists
+    if len(other) and other_entry == None and group.otherlist is not None:
+        other_entry = WaitlistEntry()
+        other_entry.creation = new_entry_timedate  # for sorting entries
+        other_entry.user = entry.user  # associate a user with the entry
+        group.otherlist.entries.append(other_entry)
 
     # iterate over sorted fits and add them to their entry
     for logifit in logi:
@@ -562,16 +608,16 @@ def move_to_waitlists():
         
     for sniperfit in  sniper:
         sniper_entry.fittings.append(sniperfit)
+    
+    # if there is no other list sort other fits in dps
+    if group.otherlist is not None:
+        for otherfit in other:
+            other_entry.fittings.append(otherfit)
+    else:
+        for otherfit in other:
+            dps_entry.fittings.append(otherfit)
         
-    # now add the entries to the waitlist_entries
-    
-    waitlists = db.session.query(Waitlist).all()
-    
-    # add the new wl entries to the waitlists
-    for wl in waitlists:
-        if wl.name in add_entries_map:
-            wl.entries.append(add_entries_map[wl.name])
-    
+        
     # add history entry to db
     db.session.add(hEntry)
 
@@ -593,10 +639,25 @@ def api_move_fit_to_waitlist():
         return "OK"
     entry = db.session.query(WaitlistEntry).filter(WaitlistEntry.id == fit.waitlist.id).first();
     
+    group = entry.waitlist.group
+    
     logger.info("%s approved fit %s from %s", current_user.username, fit, entry.user_data.get_eve_name())
     
     # get the entry for the wl we need
-    wl_entry = db.session.query(WaitlistEntry).join(Waitlist).filter((WaitlistEntry.user == entry.user) & (Waitlist.name == fit.wl_type)).first();
+    waitlist = None
+    if fit.wl_type == WaitlistNames.logi:
+        waitlist = group.logilist
+    elif fit.wl_type == WaitlistNames.dps:
+        waitlist = group.dpslist
+    elif fit.wl_type == WaitlistNames.sniper:
+        waitlist = group.sniperlist
+    elif fit.wl_type == WaitlistNames.other:
+        if group.otherlist is not None:
+            waitlist = group.otherlist
+        else:
+            waitlist = group.dpslist
+
+    wl_entry = db.session.query(WaitlistEntry).join(Waitlist).filter((WaitlistEntry.user == entry.user) & (Waitlist.id == waitlist.id)).first();
     new_entry = False
     # if it doesn't exist create it
     if wl_entry == None:
@@ -615,7 +676,6 @@ def api_move_fit_to_waitlist():
     db.session.add(hEntry)
     
     if new_entry:
-        waitlist = db.session.query(Waitlist).filter(Waitlist.name == fit.wl_type).first();
         waitlist.entries.append(wl_entry)
     
     db.session.commit()
@@ -640,7 +700,9 @@ def xup_index():
         else:
             new_bro = current_user.current_char_obj.newbro
     
-    return render_template("xup.html", newbro=new_bro, fleet=fleet_status)
+    defaultgroup = db.session.query(WaitlistGroup).filter(WaitlistGroup.groupName == "default").one()
+    
+    return render_template("xup.html", newbro=new_bro, fleet=fleet_status, defgroup=defaultgroup)
 
 
 @bp_waitlist.route('/management')

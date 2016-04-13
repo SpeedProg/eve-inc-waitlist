@@ -753,8 +753,6 @@ def convert_role_names(sheet_name):
     convert_obj = {'FC': WTMRoles.fc, 'RES': WTMRoles.resident,
                    'LM': WTMRoles.lm, 'TRA': WTMRoles.tbadge}
     return convert_obj[sheet_name]
-    
-
 '''
 @bp_settings.route("/api/account/", methods=["POST"])
 @login_required

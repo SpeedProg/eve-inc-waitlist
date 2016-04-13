@@ -45,8 +45,8 @@ function createTypeTag(name) {
  * @param wlid id of the waitlist
  * @param entry the entry object as received from the api
  */
-function addNewEntry(wlname, wlid, entry) {
-	var entryDOM = createEntryDOM(wlname, wlid, entry);
+function addNewEntry(wlname, wlid, entry, groupID) {
+	var entryDOM = createEntryDOM(wlname, wlid, entry, groupID);
 	var wlEntryContainer = $('#wl-fits-'+wlid);
 	wlEntryContainer.append(entryDOM);
 }
@@ -102,7 +102,7 @@ function getTagsFromFits(fits) {
  * @param entry the waitlist entry as received from the api
  * @returns {HTMLElement} DOM fo the entries header
  */
-function createHeaderDOM(wlname, wlid, entry) {
+function createHeaderDOM(wlname, wlid, entry, groupId) {
 	var tags = getTagsFromFits(entry.fittings);
 	var newBroTag = "";
 	if (entry.character.newbro) {
@@ -142,7 +142,7 @@ function createHeaderDOM(wlname, wlid, entry) {
 					'<div class="btn-group btn-group-mini" role="group" aria-label="Action Buttons">'+
 						'<button aria-expanded="true" type="button" data-toggle="collapse" data-target="#fittings-'+entry.id+'" class="btn btn-primary"><i class="fa fa-plus"></i> &#47; <i class="fa fa-minus"></i> Fits</button>'+
 						'<button type="button" class="btn btn-secondary" onclick="javascript:IGBW.startConversation('+entry.character.id+')"><i class="fa fa-comment-o"></i></button>'+
-						'<button type="button" class="btn btn-danger" onclick="javascript:removePlayer('+entry.character.id+');"><i class="fa fa-times"></i></button>'+
+						'<button type="button" class="btn btn-danger" onclick="javascript:removePlayer('+entry.character.id+', '+groupId+');"><i class="fa fa-times"></i></button>'+
 					'</div>'+
 				'</div>');
 	}
@@ -159,9 +159,9 @@ function createHeaderDOM(wlname, wlid, entry) {
  * @param entry the entry object as received from the api
  * @returns {HTMLElement} DOM of an entry
  */
-function createEntryDOM(wlname, wlid, entry) {
+function createEntryDOM(wlname, wlid, entry, groupID) {
 	var entryDOM = $('<li class="list-group-item" id="entry-'+wlname+'-'+entry.character.id+'" data-count="'+entry.fittings.length+'"></li>');
-	entryDOM.append(createHeaderDOM(wlname, wlid, entry));
+	entryDOM.append(createHeaderDOM(wlname, wlid, entry, groupID));
 	var fittlistDOM = $('<ul aria-expanded="true" class="list-group list-group-flush collapse" id="fittings-'+entry.id+'"></ul>')
 	entryDOM.append(fittlistDOM);
 	for (var i=0; i<entry.fittings.length; i++) {
@@ -318,7 +318,7 @@ function deleteMissingEntries(wldata) {
  * @param wldata waitlist data as received from the api
  * @return {Number} number of added entries
  */
-function addNewEntries(wldata) {
+function addNewEntries(wldata, groupID) {
 	var preLen = ("entry-"+wldata.name+"-").length;
 	var entries = $('li[id|="entry-'+wldata.name+'"]');
 	var domEntryCount = entries.size();
@@ -340,7 +340,7 @@ function addNewEntries(wldata) {
 				updateWlEntry(wldata.name, wldata.id, wldata.entries[n]);
 			} else {
 				// we need to add a new entry
-				var entryDOM = createEntryDOM(wldata.name, wldata.entries[n]);
+				var entryDOM = createEntryDOM(wldata.name, wldata.entries[n], groupID);
 				if (inserAfterElement == null) {
 					var wlEntryContainer = $('#wl-fits-'+wldata.id);
 					wlEntryContainer.prepend(entryDOM);
@@ -352,7 +352,7 @@ function addNewEntries(wldata) {
 				addedCounter += 1;
 			}
 		} else {
-			var entryDOM = createEntryDOM(wldata.name, wldata.id, wldata.entries[n]);
+			var entryDOM = createEntryDOM(wldata.name, wldata.id, wldata.entries[n], groupID);
 			if (inserAfterElement == null) {
 				var wlEntryContainer = $('#wl-fits-'+wldata.id);
 				wlEntryContainer.prepend(entryDOM);
@@ -371,9 +371,9 @@ function addNewEntries(wldata) {
  * Update a waitlist
  * @param wldata waitlist object as received from the api
  */
-function updateWaitlist(wldata) {
+function updateWaitlist(wldata, groupID) {
 	var removedEntryCount = deleteMissingEntries(wldata);
-	var addedEntryCount = addNewEntries(wldata);
+	var addedEntryCount = addNewEntries(wldata, groupID);
 	var oldCount = getWlEntryCount(wldata.name);
 	var newCount = oldCount + addedEntryCount - removedEntryCount;
 	setWlEntryCount(wldata.name, newCount);
@@ -405,9 +405,9 @@ function getWlEntryCount(wlname) {
  * Refresh entries of all waitlists with the data from the API
  */
 function refreshWl() {
-	$.getJSON(getMetaData('api-waitlists'), function(data){
+	$.getJSON(getMetaData('api-waitlists')+"?group="+getMetaData('wl-group-id'), function(data){
 		for (var i=0; i < data.waitlists.length; i++) {
-			updateWaitlist(data.waitlists[i]);
+			updateWaitlist(data.waitlists[i], data.groupID);
 		}
 	});
 }
@@ -425,8 +425,8 @@ function invitePlayer(userId, wlId) {
  * Remove a player from Waitlists and not X-UP
  * @param userId eve id of the user that should be removed
  */
-function removePlayer(userId) {
-	$.post(getMetaData('api-wls-remove-player'), {'playerId': userId, '_csrf_token': getMetaData('csrf-token')}, function(){
+function removePlayer(userId, groupId) {
+	$.post(getMetaData('api-wls-remove-player'), {'playerId': userId, 'groupId': groupId, '_csrf_token': getMetaData('csrf-token')}, function(){
 		clearInterval(lastRefreshInterval);
 		refreshWl();
 		lastRefreshInterval = setInterval(refreshWl, 10000);

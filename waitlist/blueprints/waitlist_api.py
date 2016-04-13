@@ -2,9 +2,10 @@ from flask.blueprints import Blueprint
 import logging
 from flask_login import login_required
 from waitlist import db
-from waitlist.storage.database import Waitlist
+from waitlist.storage.database import Waitlist, WaitlistGroup
 from flask import jsonify
 from waitlist.data.perm import perm_management
+from flask.globals import request
 wl_api = Blueprint('waitlist_api', __name__)
 logger = logging.getLogger(__name__)
 
@@ -58,9 +59,14 @@ def makeEntries(dbentries):
 @login_required
 @perm_management.require(http_exception=401)
 def waitlist():
+    group_id = int(request.args.get('group'))
     jsonwls = []
-    waitlists = db.session.query(Waitlist).all();
+    group = db.session.query(WaitlistGroup).get(group_id)
+    waitlists = [group.xuplist, group.logilist, group.dpslist, group.sniperlist]
+    if group.otherlist is not None:
+        waitlists.append(group.otherlist)
+
     for wl in waitlists:
         jsonwls.append(makeJsonWL(wl))
     
-    return jsonify(waitlists=jsonwls)
+    return jsonify(waitlists=jsonwls, groupName=group.groupName, groupID=group.groupID, displayName=group.displayName)

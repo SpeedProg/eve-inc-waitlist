@@ -208,10 +208,38 @@ class Waitlist(Base):
     
     id = Column(Integer, primary_key=True)
     name = Column(String(20), unique=True)
+    groupID = Column(Integer, ForeignKey("waitlist_groups.groupID"))
+    displayTitle = Column(String(100), nullable=False, default="")
     entries = relationship("WaitlistEntry", back_populates="waitlist", order_by="asc(WaitlistEntry.creation)")
-    
+    group = relationship("WaitlistGroup", uselist=False, foreign_keys=[groupID])
+
     def __repr__(self):
         return "<Waitlist %r>" % (self.name)
+
+class WaitlistGroup(Base):
+    """
+    Represents a waitlist Group,
+    A waitlist group always contains 1 x-up list
+    and 3 approved lists for dps, 1 for sniper and 1 for logi
+    and can contain an other one for out of line ships
+    """
+    
+    __tablename__ = "waitlist_groups"
+    
+    groupID = Column(Integer, primary_key=True)
+    groupName = Column(String(50), unique=True, nullable=False)
+    displayName = Column(String(50), unique=True, nullable=False)
+    xupwlID = Column(Integer, ForeignKey(Waitlist.id), nullable=False)
+    logiwlID = Column(Integer, ForeignKey(Waitlist.id), nullable=False)
+    dpswlID = Column(Integer, ForeignKey(Waitlist.id), nullable=False)
+    sniperwlID = Column(Integer, ForeignKey(Waitlist.id), nullable=False)
+    otherwlID = Column(Integer, ForeignKey(Waitlist.id), nullable=True)
+
+    xuplist = relationship("Waitlist", foreign_keys=[xupwlID])
+    logilist = relationship("Waitlist", foreign_keys=[logiwlID])
+    dpslist = relationship("Waitlist", foreign_keys=[dpswlID])
+    sniperlist = relationship("Waitlist", foreign_keys=[sniperwlID])
+    otherlist = relationship("Waitlist", foreign_keys=[otherwlID])
 
 class Shipfit(Base):
     """
