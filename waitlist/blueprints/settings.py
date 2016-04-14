@@ -436,7 +436,7 @@ def fleet_status_set():
             fleet_status.xup_enabled = xup
             logger.info("XUP was set to %s by %s", xup, current_user.username)
 
-        if perm_leadership.can() and perm_officer.can():
+        if perm_leadership.can() or perm_officer.can():
             fleet_status.status = text
             logger.info("Status was set to %s by %s", fleet_status.status, current_user.username)
             flash("Status was set to "+text+", xup is "+xup_text, "success")
