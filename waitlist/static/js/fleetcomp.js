@@ -5,6 +5,7 @@ var getMetaData = function (name) {
 	return $('meta[name="'+name+'"]').attr('content');
 }
 
+var notifyOnProfileOpen = false;
 /**
  * Opens the profile of a character and sends the notice
  * @param charId
@@ -12,7 +13,9 @@ var getMetaData = function (name) {
  */
 function inviteCharacter(charId, wlId) {
 	IGBW.showInfo(1377, charId);
-	invitePlayer(charId, wlId);
+	if (notifyOnProfileOpen) {
+		invitePlayer(charId, wlId);
+	}
 }
 
 /**
@@ -138,8 +141,13 @@ function createHeaderDOM(wlname, wlid, entry, groupId) {
 				'</div>'+
 			'</div>');
 	} else {
+		var notifyButton = ""
+		if (!notifyOnProfileOpen) {
+			 notifyButton = '<button type="button" class="btn btn-success" onclick="javascript:invitePlayer('+entry.character.id+', '+wlid+')"><i class="fa fa-bell-o"></i></button>';
+		}
 		buttonRow = $('<div>'+
 					'<div class="btn-group btn-group-mini" role="group" aria-label="Action Buttons">'+
+						notifyButton+
 						'<button aria-expanded="true" type="button" data-toggle="collapse" data-target="#fittings-'+entry.id+'" class="btn btn-primary"><i class="fa fa-plus"></i> &#47; <i class="fa fa-minus"></i> Fits</button>'+
 						'<button type="button" class="btn btn-secondary" onclick="javascript:IGBW.startConversation('+entry.character.id+')"><i class="fa fa-comment-o"></i></button>'+
 						'<button type="button" class="btn btn-danger" onclick="javascript:removePlayer('+entry.character.id+', '+groupId+');"><i class="fa fa-times"></i></button>'+
