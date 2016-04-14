@@ -252,6 +252,7 @@ class Shipfit(Base):
     modules = Column(String(5000))
     comment = Column(String(5000))
     wl_type = Column(String(10))
+    created = Column(DateTime, default=datetime.utcnow)
     
     ship = relationship("InvType")
     waitlist = relationship("WaitlistEntry", secondary="waitlist_entry_fits", uselist=False)
