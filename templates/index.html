@@ -41,7 +41,7 @@
 	<div class="card">
 		<div style="cursor: pointer;" class="card-header" id="status-heading" data-toggle="collapse" data-target="#status-body" id="status-toggle">
 	      <h4 class="card-title">
-	          Status: {{fleet.status}}<i id="status-tog-icon" class="fa fa-plus-square pull-xs-right" id="status-icon"></i>
+	          Status: {{group.status}}<i id="status-tog-icon" class="fa fa-plus-square pull-xs-right" id="status-icon"></i>
 	      </h4>
 	    </div>
 	    <div class="">
@@ -49,7 +49,7 @@
 	    <tbody>
 	    <tr>
 	    	<th scope="row">Fleet Manager</th>
-	    	<td>{% if fleet.manager is not none %}<a href="javascript:CCPEVE.showInfo(1377, {{fleet.manager[1]}});">{{fleet.manager[0]}}</a>{% else %}Not Set{% endif %}</td>
+	    	<td>{% if group.manager is not none %}<a href="javascript:CCPEVE.showInfo(1377, {{group.manager.current_char_obj.get_eve_id()}});">{{group.manager.current_char_obj.get_eve_name()}}</a>{% else %}Not Set{% endif %}</td>
 	    </tr>
 	    </tbody>
 	    </table>
@@ -57,28 +57,17 @@
 	    <div id="status-body" class="collapse" data-tog-icon="#status-tog-icon">
 		    <table class="table-sm">
 		    <tbody>
-		    <!--
-		    <tr>
-		    	<th scope="row">FC</th>
-		    	<td>{% if fleet.fc is not none %}<a href="javascript:CCPEVE.showInfo(1377, {{fleet.fc[1]}});">{{fleet.fc[0]}}</a>{% else %}Not Set{% endif %}</td>
-		    </tr>
-			
-		    <tr>
-		    	<th scope="row">Fleet Manager</th>
-		    	<td>{% if fleet.manager is not none %}<a href="javascript:CCPEVE.showInfo(1377, {{fleet.manager[1]}});">{{fleet.manager[0]}}</a>{% else %}Not Set{% endif %}</td>
-		    </tr>
-		    -->
 		    <tr>
 		    	<th scope="row">Constellation</th>
-		    	<td>{% if fleet.constellation is not none %}<a href="javascript:CCPEVE.showInfo(4, {{fleet.constellation[1]}});">{{fleet.constellation[0]}}</a>{% else %}Not Set{% endif %}</td>
+		    	<td>{% if group.constellation is not none %}<a href="javascript:CCPEVE.showInfo(4, {{group.constellation.constellationID}});">{{group.constellation.constellationName}}</a>{% else %}Not Set{% endif %}</td>
 		    </tr>
 		    <tr>
 		    	<th scope="row">Dockup</th>
-		    	<td>{% if fleet.dock is not none %}<a href="javascript:CCPEVE.setDestination({{fleet.dock[1]}});">{{fleet.dock[0]}}</a>{% else %}Not Set{% endif %}</td>
+		    	<td>{% if group.dockup is not none %}<a href="javascript:CCPEVE.setDestination({{group.dockup.stationID}});">{{group.dockup.stationName}}</a>{% else %}Not Set{% endif %}</td>
 		    </tr>
 		    <tr>
 		    	<th scope="row">HQ System</th>
-		    	<td>{% if fleet.systemhq is not none %}<a href="javascript:CCPEVE.showInfo(5, {{fleet.systemhq[1]}});">{{fleet.systemhq[0]}}</a>{% else %}Not Set{% endif %}</td>
+		    	<td>{% if group.system is not none %}<a href="javascript:CCPEVE.showInfo(5, {{group.system.solarSystemID}});">{{group.system.solarSystemName}}</a>{% else %}Not Set{% endif %}</td>
 		    </tr>
 		    </tbody>
 		    </table>
@@ -89,7 +78,7 @@
 		<div class="alert alert-info" role="alert">
   			<p class="text-xs-center"><strong>Help us!</strong> We would like your <a href="{{url_for('feedback.index')}}">feedback</a>!</p>
 		</div>
-		{% if not xup_open %}
+		{% if not group.enabled %}
 		<div class="alert alert-warning" role="alert">
   			<p class="text-xs-center">X-up is currently closed!</p>
 		</div>

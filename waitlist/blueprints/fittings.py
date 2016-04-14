@@ -22,7 +22,6 @@ from waitlist.blueprints import send_invite_notice, subscriptions
 from waitlist.data.sse import ServerSentEvent, InviteEvent
 from flask import Response
 from gevent.queue import Queue
-from waitlist.blueprints.fleetstatus import fleet_status
 import flask
 from sqlalchemy.sql.expression import desc
 from waitlist.utility.database_utils import parseEft
@@ -210,10 +209,6 @@ def self_remove_all():
 @bp_waitlist.route("/xup", methods=['POST'])
 @login_required
 def xup_submit():
-    if not fleet_status.xup_enabled:
-        # xups are disabled atm
-        flash("X-UP is disabled!!!")
-        return redirect(url_for("index"))
     '''
     Parse the submited fitts
     Check which fits need additional Info
@@ -223,11 +218,16 @@ def xup_submit():
     '''
     fittings = request.form['fits']
     logger.info("%s submitted %s", current_user.get_eve_name(), fittings)
-    groupID = request.form['groupID']
+    groupID = int(request.form['groupID'])
     logger.info("%s submitted for group %s", current_user.get_eve_name(), groupID)
     eve_id = current_user.get_eve_id()
     
     group = db.session.query(WaitlistGroup).filter(WaitlistGroup.groupID == groupID).one()
+    
+    if not group.enabled:
+        # xups are disabled atm
+        flash("X-UP is disabled!!!")
+        return redirect(url_for("index"))
     
     # check if it is scruffy
     if fittings.lower().startswith("scruffy"):
@@ -275,7 +275,7 @@ def xup_submit():
         flash("You where added as "+ship_type)
         
         return redirect(url_for('index'))
-        
+    #### END SCRUFFY CODE
         
     logilvl = request.form['logi']
     if logilvl == "":
@@ -488,7 +488,7 @@ def xup_submit():
     
     flash("You submitted {0} fits to be check by a fleet comp before getting on the waitlist.".format(fit_count), "success")
     
-    return redirect(url_for('index'))
+    return redirect(url_for('index')+"?groupId="+str(groupID))
         
 
 @bp_waitlist.route("/move_to_waitlist", methods=["POST"])
@@ -701,8 +701,8 @@ def xup_index():
             new_bro = current_user.current_char_obj.newbro
     
     defaultgroup = db.session.query(WaitlistGroup).filter(WaitlistGroup.groupName == "default").one()
-    
-    return render_template("xup.html", newbro=new_bro, fleet=fleet_status, defgroup=defaultgroup)
+    activegroups = db.session.query(WaitlistGroup).filter(WaitlistGroup.enabled == True).all()
+    return render_template("xup.html", newbro=new_bro, defgroup=defaultgroup, groups=activegroups)
 
 
 @bp_waitlist.route('/management')

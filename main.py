@@ -14,7 +14,6 @@ from waitlist.utility import config
 from logging.handlers import TimedRotatingFileHandler
 from waitlist.blueprints.feedback import feedback
 from gevent.pywsgi import WSGIServer
-from waitlist.blueprints.fleetstatus import fleet_status
 from waitlist import app, login_manager, db
 from flask_login import login_required, current_user, login_user,\
     logout_user
@@ -123,7 +122,10 @@ def index():
             new_bro = True
         else:
             new_bro = current_user.current_char_obj.newbro
-    return render_template("index.html", lists=wlists, user=current_user, fleet=fleet_status, is_index=True, xup_open=fleet_status.xup_enabled, is_on_wl=is_on_wl(), newbro=new_bro, defgroup=defaultgroup, group=group)
+    
+    activegroups = db.session.query(WaitlistGroup).filter(WaitlistGroup.enabled == True).all()
+    
+    return render_template("index.html", lists=wlists, user=current_user, is_index=True, is_on_wl=is_on_wl(), newbro=new_bro, defgroup=defaultgroup, group=group, groups=activegroups)
 
 def is_on_wl():
     eveId = current_user.get_eve_id();

@@ -4,13 +4,13 @@
 
 {% block head %}
 {{ super() }}
-{% if fleet.xup_enabled %}
+{% if groups|length > 0 %}
 {% include "xup-form.js" %}
 {% endif %}
 {% endblock %}
 
 {% block data %}
-{% if fleet.xup_enabled %}
+{% if groups|length > 0 %}
 	{% include "xup-form.html" with context %}
 {% else %}
 <p>X-UP is currently closed!</p>

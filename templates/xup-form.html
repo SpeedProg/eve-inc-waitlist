@@ -7,7 +7,20 @@
 <input type="checkbox" name="newbro" {% if newbro %}checked{% endif %}>
 I am new to WarpToMe or Incursions</label>
 </fieldset>
+{% if is_idx %}
 <input type="hidden" name="groupID" id="groupID" value="{{defgroup.groupID}}">
+{% endif %}
+<fieldset class="form-group">
+	<label for="group">Fleet to x-up for</label>
+	<select class="form-control" id="group" name="groupID">
+		<option value="{{defgroup.groupID}}">{{defgroup.displayName}}</option>
+		{% for group in groups %}
+		{% if group.groupID != defgroup.groupID %}
+		<option value="{{group.groupID}}">{{group.displayName}}</option>
+		{% endif %}
+		{% endfor %}
+	</select>
+</fieldset>
 <fieldset class="form-group">
 <label for="fittings">Fittings</label>
 <textarea class="form-control" id="fittings" name="fits" rows="10" cols="50" placeholder="Post your fittings here" required></textarea>

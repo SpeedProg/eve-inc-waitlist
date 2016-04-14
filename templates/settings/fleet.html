@@ -21,7 +21,7 @@ $(document).ready(function(){
 	        }
 		}
 	});
-	$('#con-typeahead').typeahead({
+	$('.con-typeahead').typeahead({
 		  hint: true,
 		  highlight: true,
 		  minLength: 1
@@ -42,7 +42,7 @@ $(document).ready(function(){
 	        }
 		}
 	});
-	$('#dock-typeahead').typeahead({
+	$('.dock-typeahead').typeahead({
 		  hint: true,
 		  highlight: true,
 		  minLength: 1
@@ -63,7 +63,7 @@ $(document).ready(function(){
 	        }
 		}
 	});
-	$('#hq-typeahead').typeahead({
+	$('.hq-typeahead').typeahead({
 		  hint: true,
 		  highlight: true,
 		  minLength: 1
@@ -74,18 +74,19 @@ $(document).ready(function(){
 	});
 });
 
-function clearWaitlist() {
-	$('#clearwaitlistform').submit();
+function clearWaitlist(gid) {
+	$('#clearwaitlistform-'+gid).submit();
 }
 
 $(document).ready(function() {
 	$("#remove-diag").on('show.bs.modal', function(e){
 		var source = $(e.relatedTarget);
 		var fname = source.data("type")
+		var gid = Number(source.data("id"))
 		if (fname == "clearWaitlist") {
 			$("#remove-diag-accept").off();
 			$("#remove-diag-accept").on("click", function() {
-				window[fname]();
+				window[fname](gid);
 			});
 			
 			$("#remove-diag-body").text("Do your really want to clear the Waitlist and all Xups?");
@@ -97,40 +98,45 @@ $(document).ready(function() {
 {% endblock %}
 
 {% block content %}
-<form id="clearwaitlistform" class="hidden" action="{{url_for('settings.clear_waitlist')}}" method="post" class="form-inline">
+{% for group in groups %}
+<form id="clearwaitlistform-{{group.groupID}}" class="hidden" action="{{url_for('settings.clear_waitlist', gid=group.groupID)}}" method="post" class="form-inline">
 <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 </form>
-<button data-toggle="modal" data-target="#remove-diag" data-type="clearWaitlist" class="btn btn-danger">Clear Waitlists!</button>
+<button data-toggle="modal" data-target="#remove-diag" data-type="clearWaitlist" class="btn btn-danger" data-id="{{group.groupID}}">Clear Waitlists!</button>
 <div class="card">
   <div class="card-block"> 
-    <table class="table">
+    <table class="table table-sm">
     <tbody>
+    <tr>
+    <th scope="row">Display Name</th>
+    <td colspan="2">{{group.displayName}}</td>
+    </tr>
     <tr>
     	<th scope="row">Status</th>
     	<td colspan="2">
-    	<form action="{{url_for('settings.fleet_status_set')}}" method="post" class="form-inline">
+    	<form action="{{url_for('settings.fleet_status_set', gid=group.groupID)}}" method="post" class="form-inline">
     		<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
     		<input type="hidden" name="action" value="status">
     		{% if perm_officer.can() or perm_leadership.can() %}
-    		<input type="text" name="status" value="{{fleet.status}}">
+    		<input type="text" name="status" value="{{group.status}}">
     		{% else %}
-    		<select class="form-control" id="status" name="status" required>
+    		<select class="form-control" id="status-{{group.groupID}}" name="status" required>
 				<option value="">Please Select</option>
 				<option value="Down"{% if fleet.status == "Down" %} selected{% endif %}>Down</option>
 				<option value="Forming"{% if fleet.status == "Forming" %} selected{% endif %}>Forming</option>
 				<option value="Running"{% if fleet.status == "Running" %} selected{% endif %}>Running</option>
 			</select>
     		{% endif %}
-    		<label><input name="xup" type="checkbox" {% if fleet.xup_enabled %}checked{% endif %}> X-UP Open</label>
+    		<label><input name="xup" type="checkbox" {% if group.enabled %}checked{% endif %}> X-UP Open</label>
     		<button type="submit" class="btn btn-primary">Set</button>
     	</form>
     	</td>
     </tr>
     <tr>
     	<th scope="row">FC</th>
-    	<td>{% if fleet.fc is not none %}<a href="javascript:CCPEVE.showInfo(1377, {{fleet.fc[1]}});">{{fleet.fc[0]}}</a>{% else %}Not Set{% endif %}</td>
+    	<td>{% if group.fc is not none %}<a href="javascript:CCPEVE.showInfo(1377, {{group.fc.get_eve_id()}});">{{group.fc.get_eve_name()}}</a>{% else %}Not Set{% endif %}</td>
     	<td>
-    	<form action="{{url_for('settings.fleet_status_set')}}" method="post" class="form-inline">
+    	<form action="{{url_for('settings.fleet_status_set', gid=group.groupID)}}" method="post" class="form-inline">
     	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
     	<input type="hidden" name="action" value="fc">
     	<input type="text" name="name" value="{{user.get_eve_name()}}">
@@ -140,49 +146,49 @@ $(document).ready(function() {
     </tr>
     <tr>
     	<th scope="row">Fleet Manager</th>
-    	<td>{% if fleet.manager is not none %}<a href="javascript:CCPEVE.showInfo(1377, {{fleet.manager[1]}});">{{fleet.manager[0]}}</a>{% else %}Not Set{% endif %}</td>
+    	<td>{% if group.manager is not none %}<a href="javascript:CCPEVE.showInfo(1377, {{group.manager.get_eve_id()}});">{{group.manager.get_eve_name()}}</a>{% else %}Not Set{% endif %}</td>
     	<td>
-    	<form action="{{url_for('settings.fleet_status_set')}}" method="post" class="form-inline">
+    	<form action="{{url_for('settings.fleet_status_set', gid=group.groupID)}}" method="post" class="form-inline">
     	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
     	<input type="hidden" name="action" value="manager">
-    	<input type="text" name="name" value="{{user.get_eve_name()}}">
-    	<button type="submit" class="btn btn-primary">Set</button>
+    	<!-- <input type="text" name="name" value="{{user.get_eve_name()}}"> -->
+    	<button type="submit" class="btn btn-primary">Set Self</button>
     	</form>
     	</td>
     </tr>
     {% if perm_officer.can() or perm_leadership.can() %}
     <tr>
     	<th scope="row">Constellation</th>
-    	<td>{% if fleet.constellation is not none %}<a href="javascript:CCPEVE.showInfo(4, {{fleet.constellation[1]}});">{{fleet.constellation[0]}}</a>{% else %}Not Set{% endif %}</td>
+    	<td>{% if group.constellation is not none %}<a href="javascript:CCPEVE.showInfo(4, {{group.constellation.constellationID}});">{{group.constellation.constellationName}}</a>{% else %}Not Set{% endif %}</td>
     	<td>
-    	<form action="{{url_for('settings.fleet_location_set')}}" method="post" class="form-inline">
+    	<form action="{{url_for('settings.fleet_location_set', gid=group.groupID)}}" method="post" class="form-inline">
     	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
     	<input type="hidden" name="action" value="constellation">
-    	<input id="con-typeahead" class="typeahead" type="text" name="name">
+    	<input id="con-typeahead-{{group.groupID}}" class="typeahead con-typeahead" type="text" name="name">
     	<button type="submit" class="btn btn-primary">Set</button>
     	</form>
     	</td>
     </tr>
     <tr>
     	<th scope="row">Dockup</th>
-    	<td>{% if fleet.dock is not none %}<a href="javascript:CCPEVE.setDestination({{fleet.dock[1]}});">{{fleet.dock[0]}}</a>{% else %}Not Set{% endif %}</td>
+    	<td>{% if group.dockup is not none %}<a href="javascript:CCPEVE.setDestination({{group.dockup.stationID}});">{{group.dockup.stationName}}</a>{% else %}Not Set{% endif %}</td>
     	<td>
-    	<form action="{{url_for('settings.fleet_location_set')}}" method="post" class="form-inline">
+    	<form action="{{url_for('settings.fleet_location_set', gid=group.groupID)}}" method="post" class="form-inline">
     	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
     	<input type="hidden" name="action" value="dock">
-    	<input id="dock-typeahead" class="typeahead" type="text" name="name">
+    	<input id="dock-typeahead-{{group.groupID}}" class="typeahead dock-typeahead" type="text" name="name">
     	<button type="submit" class="btn btn-primary">Set</button>
     	</form>
     	</td>
     </tr>
     <tr>
-    	<th scope="row">HQ System</th>
-    	<td>{% if fleet.systemhq is not none %}<a href="javascript:CCPEVE.showInfo(5, {{fleet.systemhq[1]}});">{{fleet.systemhq[0]}}</a>{% else %}Not Set{% endif %}</td>
+    	<th scope="row">System</th>
+    	<td>{% if group.system is not none %}<a href="javascript:CCPEVE.showInfo(5, {{group.system.solarSystemID}});">{{group.system.solarSystemName}}</a>{% else %}Not Set{% endif %}</td>
     	<td>
-    	<form action="{{url_for('settings.fleet_location_set')}}" method="post" class="form-inline">
+    	<form action="{{url_for('settings.fleet_location_set', gid=group.groupID)}}" method="post" class="form-inline">
     	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
-    	<input type="hidden" name="action" value="systemhq">
-    	<input id="hq-typeahead" class="typeahead" type="text" name="name">
+    	<input type="hidden" name="action" value="system">
+    	<input id="hq-typeahead-{{group.groupID}}" class="typeahead hq-typeahead" type="text" name="name">
     	<button type="submit" class="btn btn-primary">Set</button>
     	</form>
     	</td>
@@ -192,6 +198,7 @@ $(document).ready(function() {
     </table>
   </div>
 </div>
+{% endfor %}
 <div class="modal fade bd-example-modal-sm" id="remove-diag" tabindex="-1" role="dialog" aria-labelledby="remove-diag-label" aria-hidden="true">
   <div class="modal-dialog modal-sm">
     <div class="modal-content">

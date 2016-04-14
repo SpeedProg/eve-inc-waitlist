@@ -37,6 +37,21 @@ linked_chars = Table('linked_chars',
                      Column('char_id', Integer, ForeignKey('characters.id', onupdate="CASCADE", ondelete="CASCADE"))
                      )
 
+class Station(Base):
+    __tablename__ = "station"
+    stationID = Column(Integer, primary_key=True)
+    stationName = Column(String(100), index=True, unique=True)
+
+class SolarSystem(Base):
+    __tablename__ = "solarsystem"
+    solarSystemID = Column(Integer, primary_key=True)
+    solarSystemName = Column(String(100), index=True, unique=True)
+
+class Constellation(Base):
+    __tablename__ = "constellation"
+    constellationID = Column(Integer, primary_key=True)
+    constellationName = Column(String(100), index=True, unique=True)
+
 class InvType(Base):
     __tablename__ = 'invtypes'
     
@@ -207,7 +222,7 @@ class Waitlist(Base):
     __tablename__ = 'waitlists'
     
     id = Column(Integer, primary_key=True)
-    name = Column(String(20), unique=True)
+    name = Column(String(50))
     groupID = Column(Integer, ForeignKey("waitlist_groups.groupID"))
     displayTitle = Column(String(100), nullable=False, default="")
     entries = relationship("WaitlistEntry", back_populates="waitlist", order_by="asc(WaitlistEntry.creation)")
@@ -234,12 +249,25 @@ class WaitlistGroup(Base):
     dpswlID = Column(Integer, ForeignKey(Waitlist.id), nullable=False)
     sniperwlID = Column(Integer, ForeignKey(Waitlist.id), nullable=False)
     otherwlID = Column(Integer, ForeignKey(Waitlist.id), nullable=True)
-
+    enabled = Column(Boolean, nullable=False, default=False)
+    status = Column(String(1000), default="Down")
+    managerID = Column(Integer, ForeignKey(Account.id), nullable=True)
+    fcID = Column(Integer, ForeignKey(Character.id), nullable=True)
+    dockupID = Column(Integer, ForeignKey(Station.stationID), nullable=True)
+    systemID = Column(Integer, ForeignKey(SolarSystem.solarSystemID), nullable=True)
+    constellationID = Column(Integer, ForeignKey(Constellation.constellationID), nullable=True)
+    odering = Column(Integer, nullable=False, default=0)
+    
     xuplist = relationship("Waitlist", foreign_keys=[xupwlID])
     logilist = relationship("Waitlist", foreign_keys=[logiwlID])
     dpslist = relationship("Waitlist", foreign_keys=[dpswlID])
     sniperlist = relationship("Waitlist", foreign_keys=[sniperwlID])
     otherlist = relationship("Waitlist", foreign_keys=[otherwlID])
+    manager = relationship("Account", uselist=False)
+    fc = relationship("Character", uselist=False)
+    dockup = relationship("Station", uselist=False)
+    system = relationship("SolarSystem", uselist=False)
+    constellation = relationship("Constellation", uselist=False)
 
 class Shipfit(Base):
     """
@@ -337,21 +365,6 @@ class Feedback(Base):
     user_data = relationship("Character")
     likes = Column(Boolean)
     comment = Column(TEXT)
-
-class Station(Base):
-    __tablename__ = "station"
-    stationID = Column(Integer, primary_key=True)
-    stationName = Column(String(100), index=True, unique=True)
-
-class SolarSystem(Base):
-    __tablename__ = "solarsystem"
-    solarSystemID = Column(Integer, primary_key=True)
-    solarSystemName = Column(String(100), index=True, unique=True)
-
-class Constellation(Base):
-    __tablename__ = "constellation"
-    constellationID = Column(Integer, primary_key=True)
-    constellationName = Column(String(100), index=True, unique=True)
 
 class IncursionLayout(Base):
     __tablename__ = "incursion_layout"

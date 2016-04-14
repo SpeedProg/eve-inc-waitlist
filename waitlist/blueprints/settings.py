@@ -9,7 +9,7 @@ from flask.globals import request
 from sqlalchemy import or_, asc
 from waitlist.storage.database import Account, Role, Character, roles,\
     linked_chars, Ban, Constellation, IncursionLayout, SolarSystem, Station,\
-    WaitlistEntry
+    WaitlistEntry, WaitlistGroup
 import flask
 from waitlist.data.eve_xml_api import get_character_id_from_name,\
     eve_api_cache_char_ids
@@ -22,7 +22,6 @@ from waitlist.utility.eve_id_utils import get_constellation, get_system,\
 from os import path
 import os
 from bz2 import BZ2File
-from waitlist.blueprints.fleetstatus import fleet_status
 from waitlist.utility import sde
 from flask import jsonify
 import csv
@@ -98,7 +97,8 @@ def accounts():
 @login_required
 @perm_management.require(http_exception=401)
 def fleet():
-    return render_template("settings/fleet.html", fleet=fleet_status, user=current_user)
+    groups = db.session.query(WaitlistGroup).all()
+    return render_template("settings/fleet.html", user=current_user, groups=groups)
 
 
 @bp_settings.route("/account_edit", methods=["POST"])
@@ -416,12 +416,13 @@ def api_account_delete(acc_id):
     db.session.commit();
     return flask.jsonify(status="OK")
 
-@bp_settings.route("/fleet/status/set", methods=["POST"])
+@bp_settings.route("/fleet/status/set/<int:gid>", methods=["POST"])
 @login_required
 @perm_management.require(http_exception=401)
-def fleet_status_set():
+def fleet_status_set(gid):
+    # TODO: adjust to new fleetstatus
     action = request.form['action']
-
+    group = db.session.query(WaitlistGroup).get(gid)
     if action == "status":
         text = request.form['status']
         xup = request.form.get('xup', 'off')
@@ -431,23 +432,23 @@ def fleet_status_set():
         else:
             xup = True
             xup_text = "open"
-
-        if xup != fleet_status.xup_enabled:
-            fleet_status.xup_enabled = xup
+ 
+        if xup != group.enabled:
+            group.enabled = xup
             logger.info("XUP was set to %s by %s", xup, current_user.username)
-
+ 
         if perm_leadership.can() or perm_officer.can():
-            fleet_status.status = text
-            logger.info("Status was set to %s by %s", fleet_status.status, current_user.username)
+            group.status = text
+            logger.info("Status was set to %s by %s", group.status, current_user.username)
             flash("Status was set to "+text+", xup is "+xup_text, "success")
-            
+             
         else:
             if text == "Running" or text == "Down" or text == "Forming":
-                fleet_status.status = text
-                logger.info("Status was set to %s by %s", fleet_status.status, current_user.username)
+                group.status = text
+                logger.info("Status was set to %s by %s", group.status, current_user.username)
                 flash("Status was set to "+text+", xup is "+xup_text, "success")
             else:
-                logger.info("%s tried to set the status to %s and did not have the rights", current_user.username, fleet_status.status)
+                logger.info("%s tried to set the status to %s and did not have the rights", current_user.username, group.status)
                 flash("You do not have the rights to change the status to "+text, "danger")
                 flash("XUP is now "+xup_text, "success")
     elif action == "fc":
@@ -456,43 +457,44 @@ def fleet_status_set():
         if eve_id == 0:
             flash("Character " + name + " does not exist!")
         else:
-            fleet_status.fc = [name, eve_id]
+            character = get_character_by_name(name)
+            group.fc = character
             flash("FC was set to "+name, "success")
     elif action == "manager":
-        name = request.form['name']
-        eve_id = get_character_id_from_name(name)
-        if eve_id == 0:
-            flash("Character " + name + " does not exist!")
-        else:
-            fleet_status.manager = [name, eve_id]
-            flash("Manager was set to "+name, "success")
+            group.managerID = current_user.id
+            flash("Manager was set to "+current_user.get_eve_name(), "success")
+    
+    db.session.commit()
     
     return redirect(url_for(".fleet"), code=303)
 
-@bp_settings.route("/fleet/location/set", methods=["POST"])
+@bp_settings.route("/fleet/location/set/<int:gid>", methods=["POST"])
 @login_required
 @perm_fleetlocation.require(http_exception=401)
-def fleet_location_set():
+def fleet_location_set(gid):
+    group = db.session.query(WaitlistGroup).get(gid)
     action = request.form['action']
     if action == "constellation":
         name = request.form['name']
-        const_id = get_constellation(name).constellationID
-        fleet_status.constellation = [name, const_id]
+        group.constellation = get_constellation(name)
         logger.info("Constellation was set to %s by %s", name, current_user.username)
         # if we set the constellation look up if we already know dock and hq system
-        inc_layout = db.session.query(IncursionLayout).filter(IncursionLayout.constellation == const_id).first()
+        inc_layout = db.session.query(IncursionLayout).filter(IncursionLayout.constellation == group.constellation.constellationID).first()
         # if we know it, set the other information
         if inc_layout is not None:
-            fleet_status.systemhq = [inc_layout.obj_headquarter.solarSystemName, inc_layout.obj_headquarter.solarSystemID]
-            logger.info("HQ System was autoset to %s by %s", fleet_status.systemhq[0], current_user.username)
-            fleet_status.dock = [inc_layout.obj_dockup.stationName, inc_layout.obj_dockup.stationID]   
-            logger.info("Dock was autoset to %s by %s", fleet_status.dock[0], current_user.username)
-                 
+            group.system = inc_layout.obj_headquarter
+            logger.info("HQ System was autoset to %s by %s", group.system.solarSystemName, current_user.username)
+            group.dockup = inc_layout.obj_dockup
+            logger.info("Dock was autoset to %s by %s", group.dockup.stationName, current_user.username)
+                  
         flash("Constellation was set to " + name, "success")
-    elif action == "systemhq":
+    elif action == "system":
         name = request.form['name']
-        system_id = get_system(name).solarSystemID
-        fleet_status.systemhq = [name, system_id]
+        system = get_system(name)
+        if system == None:
+            flash("Invalid system name "+name, "danger")
+            return redirect(url_for(".fleet"), code=303)
+        group.system = system
         logger.info("HQ System was set to %s by %s", name, current_user.username)
         flash("HQ System was set to "+name, "success")
     elif action == "dock":
@@ -501,10 +503,11 @@ def fleet_location_set():
         if station == None:
             flash("Invalid station name "+name, "danger")
             return redirect(url_for(".fleet"), code=303)
-        station_id = get_station(name).stationID
-        fleet_status.dock = [name, station_id]
+        group.dockup = get_station(name)
         logger.info("Dock was set to %s by %s", name, current_user.username)
         flash("Dock was set to " + name, "success")
+    
+    db.session.commit()
 
     return redirect(url_for(".fleet"), code=303)
 
@@ -625,11 +628,28 @@ def fleet_query_stations():
         station_list.append({'statID': item.stationID, 'statName': item.stationName})
     return jsonify(result=station_list)
 
-@bp_settings.route("/fleet/clear/", methods=["POST"])
+@bp_settings.route("/fleet/clear/<int:gid>", methods=["POST"])
 @login_required
 @perm_management.require(http_exception=401)
-def clear_waitlist():
-    db.session.query(WaitlistEntry).delete()
+def clear_waitlist(gid):
+    group = db.session.query(WaitlistGroup).get(gid)
+    logger.info("%s cleared waitlist %s", current_user.username, group.displayName)
+    if group.otherlist is None:
+        db.session.query(WaitlistEntry).filter(
+                                           (WaitlistEntry.waitlist_id == group.xupwlID)
+                                           | (WaitlistEntry.waitlist_id == group.logiwlID)
+                                           | (WaitlistEntry.waitlist_id == group.dpswlID)
+                                           | (WaitlistEntry.waitlist_id == group.sniperwlID)
+                                            ).delete()
+    else:
+        db.session.query(WaitlistEntry).filter(
+                                           (WaitlistEntry.waitlist_id == group.xupwlID)
+                                           | (WaitlistEntry.waitlist_id == group.logiwlID)
+                                           | (WaitlistEntry.waitlist_id == group.dpswlID)
+                                           | (WaitlistEntry.waitlist_id == group.sniperwlID)
+                                           | (WaitlistEntry.waitlist_id == group.otherwlID)
+                                            ).delete()
+
     db.session.commit()
     flash("Waitlists where cleared!", "danger")
     return redirect(url_for('.fleet'))
