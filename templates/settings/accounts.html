@@ -76,8 +76,10 @@ $(document).ready(noclick);
 <form action="{{url_for('settings.accounts_import_accounts')}}" method="POST" enctype=multipart/form-data class="form-inline">
 	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 	<div class="form-group">
-		<label for="acc-file">File:</label>
-		<input type="file" class="form-control" id="acc-file" name="file">
+		<label for="acc-file" class="file form-control-sm">
+		<input type="file" id="acc-file" name="file">
+		<span class="file-custom"></span>
+		</label>
 	</div>
 	<button type="submit" class="btn btn-primary">Add Accounts</button>
 </form>

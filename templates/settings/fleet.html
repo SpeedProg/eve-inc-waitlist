@@ -8,6 +8,7 @@
 {{ super() }}
 <script src="{{url_for('static', filename='js/typeahead.bundle.min.js')}}" type="text/javascript"></script>
 <link rel="stylesheet" href="{{url_for('static', filename='css/typeaheadjs.css')}}">
+<link rel="stylesheet" href="/static/css/settings-fleet.css">
 <script type="text/javascript">
 $(document).ready(function(){
 	var constellationSource = new Bloodhound({
@@ -102,7 +103,7 @@ $(document).ready(function() {
 <form id="clearwaitlistform-{{group.groupID}}" class="hidden" action="{{url_for('settings.clear_waitlist', gid=group.groupID)}}" method="post" class="form-inline">
 <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 </form>
-<button data-toggle="modal" data-target="#remove-diag" data-type="clearWaitlist" class="btn btn-danger" data-id="{{group.groupID}}">Clear Waitlists!</button>
+<button data-toggle="modal" data-target="#remove-diag" data-type="clearWaitlist" class="btn btn-sm btn-danger" data-id="{{group.groupID}}">Clear Waitlists!</button>
 <div class="card">
   <div class="card-block"> 
     <table class="table table-sm">
@@ -118,17 +119,17 @@ $(document).ready(function() {
     		<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
     		<input type="hidden" name="action" value="status">
     		{% if perm_officer.can() or perm_leadership.can() %}
-    		<input type="text" name="status" value="{{group.status}}">
+    		<input type="text" name="status" value="{{group.status}}" class="form-control form-control-sm">
     		{% else %}
-    		<select class="form-control" id="status-{{group.groupID}}" name="status" required>
+    		<select class="form-control form-control-sm c-select" id="status-{{group.groupID}}" name="status" required>
 				<option value="">Please Select</option>
 				<option value="Down"{% if fleet.status == "Down" %} selected{% endif %}>Down</option>
 				<option value="Forming"{% if fleet.status == "Forming" %} selected{% endif %}>Forming</option>
 				<option value="Running"{% if fleet.status == "Running" %} selected{% endif %}>Running</option>
 			</select>
     		{% endif %}
-    		<label><input name="xup" type="checkbox" {% if group.enabled %}checked{% endif %}> X-UP Open</label>
-    		<button type="submit" class="btn btn-primary">Set</button>
+    		<label><input class="form-control form-control-sm" name="xup" type="checkbox" {% if group.enabled %}checked{% endif %}> X-UP Open</label>
+    		<button type="submit" class="btn btn-sm btn-primary">Set</button>
     	</form>
     	</td>
     </tr>
@@ -139,8 +140,8 @@ $(document).ready(function() {
     	<form action="{{url_for('settings.fleet_status_set', gid=group.groupID)}}" method="post" class="form-inline">
     	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
     	<input type="hidden" name="action" value="fc">
-    	<input type="text" name="name" value="{{user.get_eve_name()}}">
-    	<button type="submit" class="btn btn-primary">Set</button>
+    	<input type="text" name="name" value="{{user.get_eve_name()}}" class="form-control form-control-sm">
+    	<button type="submit" class="btn btn-sm btn-primary">Set</button>
     	</form>
     	</td>
     </tr>
@@ -152,7 +153,7 @@ $(document).ready(function() {
     	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
     	<input type="hidden" name="action" value="manager">
     	<!-- <input type="text" name="name" value="{{user.get_eve_name()}}"> -->
-    	<button type="submit" class="btn btn-primary">Set Self</button>
+    	<button type="submit" class="btn btn-sm btn-primary">Set Self</button>
     	</form>
     	</td>
     </tr>
@@ -164,8 +165,8 @@ $(document).ready(function() {
     	<form action="{{url_for('settings.fleet_location_set', gid=group.groupID)}}" method="post" class="form-inline">
     	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
     	<input type="hidden" name="action" value="constellation">
-    	<input id="con-typeahead-{{group.groupID}}" class="typeahead con-typeahead" type="text" name="name">
-    	<button type="submit" class="btn btn-primary">Set</button>
+    	<input id="con-typeahead-{{group.groupID}}" class="form-control form-control-sm typeahead con-typeahead" type="text" name="name">
+    	<button type="submit" class="btn btn-sm btn-primary">Set</button>
     	</form>
     	</td>
     </tr>
@@ -176,8 +177,8 @@ $(document).ready(function() {
     	<form action="{{url_for('settings.fleet_location_set', gid=group.groupID)}}" method="post" class="form-inline">
     	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
     	<input type="hidden" name="action" value="dock">
-    	<input id="dock-typeahead-{{group.groupID}}" class="typeahead dock-typeahead" type="text" name="name">
-    	<button type="submit" class="btn btn-primary">Set</button>
+    	<input id="dock-typeahead-{{group.groupID}}" class="form-control form-control-sm typeahead dock-typeahead" type="text" name="name">
+    	<button type="submit" class="btn btn-sm btn-primary">Set</button>
     	</form>
     	</td>
     </tr>
@@ -188,8 +189,8 @@ $(document).ready(function() {
     	<form action="{{url_for('settings.fleet_location_set', gid=group.groupID)}}" method="post" class="form-inline">
     	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
     	<input type="hidden" name="action" value="system">
-    	<input id="hq-typeahead-{{group.groupID}}" class="typeahead hq-typeahead" type="text" name="name">
-    	<button type="submit" class="btn btn-primary">Set</button>
+    	<input id="hq-typeahead-{{group.groupID}}" class="form-control form-control-sm typeahead hq-typeahead" type="text" name="name">
+    	<button type="submit" class="btn btn-sm btn-primary">Set</button>
     	</form>
     	</td>
     </tr>

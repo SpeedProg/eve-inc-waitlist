@@ -8,40 +8,63 @@
 {{ super() }}
 {% endblock %}
 
-{% block content %}
-<form action="{{url_for('settings.update_type_ids')}}" method="post" enctype="multipart/form-data">
+{% block raw_content %}
+<div class="row">
+	<p>All files can be bz2 compressed if uploaded with extension .bz2</p>
+</div>
+<div class="row">
+<form class="form" action="{{url_for('settings.update_type_ids')}}" method="post" enctype="multipart/form-data">
 	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 	<fieldset class="form-group">
-		<label for="typeid-file">typeIDs.yaml (can be bz2 compress if you upload it as typeIDs.yaml.bz2)</label>
-		<input type="file" name="file" id="typeid-file" class="form-control">
+		<label class="form-control-label" for="typeid-file">typeIDs.yaml</label>
+		<label class="file">
+			<input type="file" name="file" id="typeid-file">
+			<span class="file-custom"></span>
+		</label>
 	</fieldset>
 	<button type="submit" class="btn btn-primary">Update typeIDs</button>
 </form>
-<form action="{{url_for('settings.update_map')}}" method="post" enctype="multipart/form-data">
+</div>
+<div class="row">
+<form class="form" action="{{url_for('settings.update_map')}}" method="post" enctype="multipart/form-data">
 	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 	<fieldset class="form-group">
-		<label for="typeid-file">universeDataDx.db (can be bz2 compress if you upload it as universeDataDx.db.bz2)</label>
-		<input type="file" name="file" id="typeid-file" class="form-control">
+		<label class="form-control-label" for="universe-file">universeDataDx.db</label>
+		<label class="file">
+			<input type="file" name="file" id="universe-file">
+			<span class="file-custom"></span>
+		</label>
 	</fieldset>
 	<button type="submit" class="btn btn-primary">Update Systems and Constellations</button>
 </form>
-<form action="{{url_for('settings.update_stations')}}" method="post" enctype="multipart/form-data">
+</div>
+<div class="row">
+<form class="form" action="{{url_for('settings.update_stations')}}" method="post" enctype="multipart/form-data">
 	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 	<fieldset class="form-group">
-		<label for="typeid-file">staStations.csv (can be bz2 compress if you upload it as staStations.csv.bz2)</label>
-		<input type="file" name="file" id="typeid-file" class="form-control">
+		<label class="form-control-label" for="station-file">staStations.csv (can be bz2 compress if you upload it as staStations.csv.bz2)</label>
+		<label class="file">
+			<input type="file" name="file" id="station-file">
+			<span class="file-custom"></span>
+		</label>
 	</fieldset>
 	<button type="submit" class="btn btn-primary">Update Stations</button>
 </form>
-<form action="{{url_for('settings.update_layouts')}}" method="post" enctype="multipart/form-data">
+</div>
+<div class="row">
+<form class="form" action="{{url_for('settings.update_layouts')}}" method="post" enctype="multipart/form-data">
 	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 	<fieldset class="form-group">
-		<label for="typeid-file">layout.csv (can be bz2 compress if you upload it as layout.csv.bz2)</label>
-		<input type="file" name="file" id="typeid-file" class="form-control">
+		<label class="form-control-label" for="layout-file">layout.csv (can be bz2 compress if you upload it as layout.csv.bz2)</label>
+		<label class="file">
+			<input type="file" name="file" id="layout-file">
+			<span class="file-custom"></span>
+		</label>
 	</fieldset>
 	<p>This cvs file, needs to be data separated by tabs. and the first line need to contain the following separated by tabs instead of a space and comma:
 	Constellation, Headquarter System, Dockup
 	</p>
 	<button type="submit" class="btn btn-primary">Update Layouts</button>
 </form>
+</div>
 {% endblock %}
