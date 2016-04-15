@@ -37,6 +37,26 @@
 	{% include "xup-form.html" with context %}
 {% endif %}
 <div class="row">
+<div class="col-sm-6">
+	<form class="form-inline" method="GET" action="/">
+		<div class="form-group">
+			<label for="wl-group-select">Waitlist To Show</label>
+			<select class="form-control form-control-sm c-select" id="wl-group-select" name="groupId" onchange="this.form.submit()">
+			{% for grp in groups %}
+				<option value="{{grp.groupID}}"{% if grp.groupID == group.groupID %} selected{% endif %}>{{grp.displayName}}</option>
+			{% endfor %}
+			</select>
+		</div>
+		<noscript>
+		<button type="submit" class="btn btn-sm btn-primary">Change</button>
+		</noscript>
+	</form>
+</div>
+<div class="col-sm-6">
+	<h3>Current Waitlist: {{group.displayName}}</h1>
+</div>
+</div>
+<div class="row">
 	<div class="col-sm-6">
 	<div class="card">
 		<div style="cursor: pointer;" class="card-header" id="status-heading" data-toggle="collapse" data-target="#status-body" id="status-toggle">
