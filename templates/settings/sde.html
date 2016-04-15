@@ -10,7 +10,10 @@
 
 {% block raw_content %}
 <div class="row">
-	<p>All files can be bz2 compressed if uploaded with extension .bz2</p>
+	<div class="alert alert-info" role="alert">All files can be bz2 compressed if uploaded with extension .bz2</div>
+	{% if is_igb %}
+	<div class="alert alert-info" role="alert">File Uploads do not work in the IGB. Please use an out of game browser</div>
+	{% endif %}
 </div>
 <div class="row">
 <form class="form" action="{{url_for('settings.update_type_ids')}}" method="post" enctype="multipart/form-data">
