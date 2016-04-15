@@ -77,6 +77,12 @@
 	    <div id="status-body" class="collapse" data-tog-icon="#status-tog-icon">
 		    <table class="table-sm">
 		    <tbody>
+		    <!--
+		    <tr>
+		    	<th scope="row">FC</th>
+		    	<td>{% if group.fc is not none %}<a href="javascript:CCPEVE.showInfo(1377, {{group.fc.get_eve_id()}});">{{group.manager.get_eve_name()}}</a>{% else %}Not Set{% endif %}</td>
+		    </tr>
+		    -->
 		    <tr>
 		    	<th scope="row">Constellation</th>
 		    	<td>{% if group.constellation is not none %}<a href="javascript:CCPEVE.showInfo(4, {{group.constellation.constellationID}});">{{group.constellation.constellationName}}</a>{% else %}Not Set{% endif %}</td>
