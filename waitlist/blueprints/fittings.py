@@ -539,6 +539,8 @@ def move_to_waitlists():
         new_entry_timedate = sniper_entry.creation
     elif dps_entry is not None:
         new_entry_timedate = dps_entry.creation
+    elif other_entry is not None:
+        new_entry_timedate = other_entry.creation
     
     
     # sort fittings by ship type
