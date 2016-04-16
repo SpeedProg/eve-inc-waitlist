@@ -450,7 +450,7 @@ def xup_submit():
                     break    
         
         # ships with no valid weapons put on other wl
-        if weapon_type == "None" or weapon_type == WaitlistNames.dps:
+        if weapon_type == "None":
             fit.wl_type = WaitlistNames.other
             fits_ready.append(fit)
             continue
@@ -458,6 +458,11 @@ def xup_submit():
         # ships with sniper weapons put on sniper wl
         if weapon_type == WaitlistNames.sniper:
             fit.wl_type = WaitlistNames.sniper
+            fits_ready.append(fit)
+            continue
+        
+        if weapon_type == WaitlistNames.dps:
+            fit.wl_type = WaitlistNames.dps
             fits_ready.append(fit)
             continue
 
