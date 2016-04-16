@@ -2,12 +2,12 @@ from gevent import monkey; monkey.patch_all()
 # inject the lib folder before everything else
 import os
 import sys
+base_path = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(os.path.join(base_path, 'lib'))
 from waitlist.utility.eve_id_utils import get_account_from_db, get_char_from_db,\
     is_char_banned, get_character_by_id_and_name, get_character_by_name
 from datetime import date, datetime
 import math
-base_path = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(os.path.join(base_path, 'lib'))
 from waitlist.blueprints.waitlist_api import wl_api
 from sqlalchemy.exc import StatementError
 from waitlist.utility import config
