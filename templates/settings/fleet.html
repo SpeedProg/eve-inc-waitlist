@@ -123,9 +123,9 @@ $(document).ready(function() {
     		{% else %}
     		<select class="form-control form-control-sm c-select" id="status-{{group.groupID}}" name="status" required>
 				<option value="">Please Select</option>
-				<option value="Down"{% if fleet.status == "Down" %} selected{% endif %}>Down</option>
-				<option value="Forming"{% if fleet.status == "Forming" %} selected{% endif %}>Forming</option>
-				<option value="Running"{% if fleet.status == "Running" %} selected{% endif %}>Running</option>
+				<option value="Down"{% if group.status == "Down" %} selected{% endif %}>Down</option>
+				<option value="Forming"{% if group.status == "Forming" %} selected{% endif %}>Forming</option>
+				<option value="Running"{% if group.status == "Running" %} selected{% endif %}>Running</option>
 			</select>
     		{% endif %}
     		<label><input class="form-control form-control-sm" name="xup" type="checkbox" {% if group.enabled %}checked{% endif %}> X-UP Open</label>
