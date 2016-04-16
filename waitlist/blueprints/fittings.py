@@ -621,10 +621,15 @@ def move_to_waitlists():
         for otherfit in other:
             other_entry.fittings.append(otherfit)
     else:
+            # same for dps
+        if len(other) and dps_entry == None:
+            dps_entry = WaitlistEntry()
+            dps_entry.creation = new_entry_timedate  # for sorting entries
+            dps_entry.user = entry.user  # associate a user with the entry
+            group.dpslist.entries.append(dps_entry)
         for otherfit in other:
             dps_entry.fittings.append(otherfit)
-        
-        
+
     # add history entry to db
     db.session.add(hEntry)
 
