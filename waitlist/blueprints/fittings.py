@@ -621,7 +621,7 @@ def move_to_waitlists():
         for otherfit in other:
             other_entry.fittings.append(otherfit)
     else:
-            # same for dps
+        # it fits should go to dps wl make sure it is there
         if len(other) and dps_entry == None:
             dps_entry = WaitlistEntry()
             dps_entry.creation = new_entry_timedate  # for sorting entries
