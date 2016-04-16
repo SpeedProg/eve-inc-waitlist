@@ -613,7 +613,7 @@ def move_to_waitlists():
     for dpsfit in dps:
         dps_entry.fittings.append(dpsfit)
         
-    for sniperfit in  sniper:
+    for sniperfit in sniper:
         sniper_entry.fittings.append(sniperfit)
     
     # if there is no other list sort other fits in dps
