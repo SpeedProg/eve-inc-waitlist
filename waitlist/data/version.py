@@ -1,1 +1,1 @@
-version = "0.1.0-$Id$"
+version = "0.1.0-$Format:%h$"

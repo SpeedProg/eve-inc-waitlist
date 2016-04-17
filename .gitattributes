@@ -1,1 +1,1 @@
-waitlist/data/version.py ident
+waitlist/data/version.py export-subst
