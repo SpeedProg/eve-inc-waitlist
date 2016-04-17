@@ -7,7 +7,7 @@ from waitlist.data.perm import perm_admin, perm_settings, perm_officer,\
 from flask.templating import render_template
 from flask.globals import request
 from sqlalchemy import or_, asc
-from waitlist.storage.database import Account, Role, Character, roles,\
+from waitlist.storage.database import Account, Role, Character,\
     linked_chars, Ban, Constellation, IncursionLayout, SolarSystem, Station,\
     WaitlistEntry, WaitlistGroup
 import flask

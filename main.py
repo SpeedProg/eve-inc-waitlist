@@ -6,7 +6,7 @@ base_path = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(base_path, 'lib'))
 from waitlist.utility.eve_id_utils import get_account_from_db, get_char_from_db,\
     is_char_banned, get_character_by_id_and_name, get_character_by_name
-from datetime import date, datetime
+from datetime import datetime
 import math
 from waitlist.blueprints.waitlist_api import wl_api
 from sqlalchemy.exc import StatementError
@@ -18,7 +18,7 @@ from waitlist import app, login_manager, db
 from flask_login import login_required, current_user, login_user,\
     logout_user
 import logging
-from waitlist.storage.database import Waitlist, Account, WaitlistEntry,\
+from waitlist.storage.database import Account, WaitlistEntry,\
     Character, WaitlistGroup
 from flask_principal import RoleNeed, identity_changed, Identity, AnonymousIdentity,\
     identity_loaded, UserNeed
@@ -32,7 +32,6 @@ from flask.globals import request, current_app
 import flask
 from werkzeug.utils import redirect
 from flask.helpers import url_for
-from waitlist.data.names import WaitlistNames
 from waitlist.utility.utils import is_igb
 
 app.register_blueprint(bp_waitlist)

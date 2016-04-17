@@ -4,7 +4,7 @@ import sys
 base_path = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(base_path, 'lib'))
 from waitlist.storage.database import Role, Waitlist, WaitlistGroup
-from waitlist.data.names import WaitlistNames, WTMRoles, DEFAULT_PREFIX
+from waitlist.data.names import WaitlistNames, WTMRoles
 from waitlist import db
 
 

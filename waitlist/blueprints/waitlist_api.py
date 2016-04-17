@@ -2,7 +2,7 @@ from flask.blueprints import Blueprint
 import logging
 from flask_login import login_required
 from waitlist import db
-from waitlist.storage.database import Waitlist, WaitlistGroup
+from waitlist.storage.database import WaitlistGroup
 from flask import jsonify
 from waitlist.data.perm import perm_management
 from flask.globals import request
