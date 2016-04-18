@@ -1,0 +1,72 @@
+{% extends "settings/base.html" %}
+
+{% block title %}Settings - Bans{% endblock %}
+
+{% block m_whitelist %}active{% endblock %}
+
+{% block head %}
+{{ super() }}
+{% endblock %}
+
+{% block content %}
+<div class="btn-group" role="group" aria-label="Add Whitelist Actionbar">
+	{% if perm_leadership.can() %}
+	<form class="form-inline" name="banform" action="{{url_for('settings.whitelist_change')}}" method="post">
+		<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+		<input name="change" value="whitelist" hidden>
+		<div class="form-group">
+			<label for="eve_name">Names</label>
+    		<textarea rows="1" class="form-control" name="target" id="eve_name"></textarea>
+		</div>
+		<div class="form-group">
+			<label for="reason">Reason</label>
+    		<input type="text" class="form-control" name="reason" id="reason">
+		</div>
+		<button type="submit" class="btn btn-danger">Whitelist</button>
+	</form>
+	{% endif %}
+	{% if perm_officer.can() and not perm_leadership.can() %}
+	<form class="form-inline" name="banform" action="{{url_for('settings.whitelist_change_single')}}" method="post">
+		<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+		<input type="hidden" name="change" value="ban">
+		<div class="form-group">
+			<label for="eve_name">Name</label>
+    		<input type="text" class="form-control" name="target" id="eve_name">
+		</div>
+		<div class="form-group">
+			<label for="reason">Reason</label>
+    		<input type="text" class="form-control" name="reason" id="reason">
+		</div>
+		<button type="submit" class="btn btn-danger">Whitelist</button>
+	</form>
+	{% endif %}
+</div>
+<table class="table">
+<thead>
+	<tr>
+		<th>Char ID</th>
+		<th>Character Name</th>
+		<th>Reason</th>
+		<th>By</th>
+		<th>Actions</th>
+	</tr>
+</thead>
+<tbody>
+	{% for ban in wl %}
+	<tr id="ban-{{ban.id}}">
+		<td id="ban-{{ban.id}}-id">{{ ban.characterID }}</td>
+		<td id="ban-{{ban.id}}-name">{{ ban.character.eve_name }}</td>
+		<td id="ban-{{ban.id}}-reason">{{ ban.reason }}</td>
+		<td id="ban-{{ban.id}}-by">{{ ban.admin.eve_name }}</td>
+		<td>
+		<form name="unbanform" action="{{url_for('settings.whitelist_unlist')}}" method="post">
+		<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+		<input name="target" value="{{ban.character.eve_name}}" hidden>
+		<button type="submit" class="btn btn-sm btn-warning">Unwhitelist</button>
+		</form>
+		</td>
+	</tr>
+	{% endfor %}
+</tbody>
+</table>
+{% endblock %}
