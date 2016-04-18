@@ -348,7 +348,7 @@ function addNewEntries(wldata, groupID) {
 				updateWlEntry(wldata.name, wldata.id, wldata.entries[n]);
 			} else {
 				// we need to add a new entry
-				var entryDOM = createEntryDOM(wldata.name, wldata.entries[n], groupID);
+				var entryDOM = createEntryDOM(wldata.name, wldata.id, wldata.entries[n], groupID);
 				if (inserAfterElement == null) {
 					var wlEntryContainer = $('#wl-fits-'+wldata.id);
 					wlEntryContainer.prepend(entryDOM);
