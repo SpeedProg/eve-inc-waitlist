@@ -2,10 +2,12 @@ from flask.blueprints import Blueprint
 import logging
 from flask_login import login_required
 from waitlist import db
-from waitlist.storage.database import WaitlistGroup
+from waitlist.storage.database import WaitlistGroup, HistoryEntry
 from flask import jsonify
-from waitlist.data.perm import perm_management
+from waitlist.data.perm import perm_management, perm_officer, perm_leadership
 from flask.globals import request
+from datetime import datetime
+import time
 wl_api = Blueprint('waitlist_api', __name__)
 logger = logging.getLogger(__name__)
 
@@ -70,3 +72,41 @@ def waitlist():
         jsonwls.append(makeJsonWL(wl))
     
     return jsonify(waitlists=jsonwls, groupName=group.groupName, groupID=group.groupID, displayName=group.displayName)
+
+def makeHistoryJson(entries):
+    return {'history': [makeHistoryEntryJson(entry) for entry in entries]}
+
+def makeHistoryEntryJson(entry):
+    return {'historyID': entry.historyID,
+    'action': entry.action,
+    'time': entry.time,
+    'exref': entry.exref,
+    'fittings': [makeJsonFitting(fit) for fit in entry.fittings],
+    'source': None if entry.source is None else makeJsonAccount(entry.source),
+    'target': makeJsonCharacter(entry.target)
+    }
+
+def makeJsonAccount(acc):
+    return {'id': acc.id,
+            'character': makeJsonCharacter(acc.current_char_obj),
+            'username': acc.username,
+    }
+
+@wl_api.route("/history/since", methods=["GET"])
+@login_required
+@perm_management.require(http_exception=401)
+def history_since():
+    laststamp = int(request.args.get('last'))
+    logger.info("last=%s", str(laststamp))
+    since = datetime.utcfromtimestamp(laststamp / 1000.0)
+    logger.info("Looking for %s", str(since))
+    tnow = datetime.utcnow()
+    if not (perm_officer.can() or perm_leadership.can()):
+        maxTime = datetime.timedelta(minutes=240)
+        if tnow - since > datetime.timedelta(minutes=240) :
+            since = tnow - maxTime
+
+    newHistoryEntries = db.session.query(HistoryEntry).filter(HistoryEntry.time > since).all()
+    
+    return jsonify(makeHistoryJson(newHistoryEntries))
+    

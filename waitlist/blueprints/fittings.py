@@ -1,6 +1,7 @@
 from flask.blueprints import Blueprint
 import logging
-from waitlist.data.perm import perm_management, perm_dev
+from waitlist.data.perm import perm_management, perm_dev, perm_officer,\
+    perm_leadership
 from flask_login import login_required, current_user
 from flask.globals import request
 from waitlist.storage.database import WaitlistEntry, Shipfit, Waitlist,\
@@ -752,15 +753,21 @@ def subscribe(user_id):
 
 @bp_waitlist.route("/history/")
 def history_default():
-    return redirect(url_for(".history", min_mins=0, max_mins=30))
+    return render_template("waitlist/history.html")
 
 @bp_waitlist.route("/history/<int:min_mins>/<int:max_mins>")
 @login_required
 @perm_management.require(http_exception=401)
 def history(min_mins, max_mins):
+    if max_mins <= min_mins:
+        return render_template("waitlist/history_cut.html", history=[])
+    # only officer and leadership can go back more then 4h
+    if max_mins > 240 and not (perm_officer.can() or perm_leadership.can()):
+        redirect("/history/", min_mins=min_mins, max_mins=240)
+    
     tnow = datetime.utcnow()
     max_time = tnow-timedelta(minutes=max_mins)
     min_time = tnow-timedelta(minutes=min_mins)
     history_entries = db.session.query(HistoryEntry).filter((HistoryEntry.time <= min_time) & (HistoryEntry.time > max_time)).order_by(desc(HistoryEntry.time))
-    return render_template("waitlist/history.html", history=history_entries)
+    return render_template("waitlist/history_cut.html", history=history_entries)
     

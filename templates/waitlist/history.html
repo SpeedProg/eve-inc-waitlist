@@ -1,32 +1,11 @@
 {% extends "base.html" %}
-
-{% macro resolve_action(name) -%}
-	{% if name == "xup" %}
-	X-UP
-	{% elif name == "comp_rm_pl" %}
-	Removed a character from waitlists
-	{% elif name == "comp_inv_pl" %}
-	Send notification to character
-	{% elif name == "comp_rm_etr" %}
-	Removed Entry from X-UPs
-	{% elif name == "self_rm_fit" %}
-	Removed own fit
-	{% elif name == "self_rm_etr" %}
-	Removed own entry
-	{% elif name == "self_rm_wls_all" %}
-	Removed himself from all lists
-	{% elif name == "comp_mv_xup_etr" %}
-	Approved X-UP entry
-	{% elif name == "comp_mv_xup_fit" %}
-	Approved Single Fit
-	{% endif %}
-{%- endmacro %}
-
-{% block title %}Settings{% endblock %}
+{% block title %}History{% endblock %}
 
 {% block head %}
 {{ super() }}
 <script src="https://quiescens.duckdns.org/wl/wtm.js"></script>
+<script src="/static/js/history.js"></script>
+<meta name="api-history-changed" content="{{url_for('waitlist_api.history_since')}}">
 {% endblock %}
 
 {% block container_data %}
@@ -35,20 +14,8 @@
 <thead>
 <th>Time</th><th>Action</th><th>Account</th><th>Target</th><th>Associated Fits</th>
 </thead>
-{% for hEl in history %}
-	<tr>
-		<td>{{hEl.time}}</td>
-		{#{% if hEl.action == "xup" %}
-		<td>{{hEl.target.get_eve_name()}} x'ed up</td>
-		{% elseif hEl.action = "" %}
-		<td></td>
-		{% endif %}#}
-		<td>{{resolve_action(hEl.action)}}</td>
-		<td>{{hEl.source.username}}</td>
-		<td><a href="javascript:CCPEVE.showInfo(1377, {{ hEl.targetID }});">{{hEl.target.get_eve_name()}}</a></td>
-		<td>{% for fit in hEl.fittings %} {% if fit.ship_type == 1 %}<a class="booby-link">{{fit.ship.typeName}}</a>{% else %}<a class="fit-link" data-dna="{{fit.get_dna()}}">{{fit.ship.typeName}}</div>{% endif %}{% endfor %}</td>
-	</tr>
-{% endfor %}
+<tbody id="historybody">
+</tbody>
 </table>
 </div>
 {% endblock %}
