@@ -5,7 +5,7 @@
 {% block head %}
 <meta name="url-self-remove-all" content="{{url_for('fittings.self_remove_all')}}">
 <meta name="user-id" content="{{ current_user.get_eve_id() }}">
-<meta name="wl-names" content="{% for wl in lists %}{{wl.name|e}}{% if not loop.last %},{% endif %}{% endfor %}]">
+<meta name="wl-names" content="{% for wl in lists %}{{wl.name|e}}{% if not loop.last %},{% endif %}{% endfor %}">
 {% if perm_man.can() %}
 {# URLs for fleetcomp js #}
 <meta name="api-invite-player" content="{{url_for('fittings.api_invite_player')}}">
