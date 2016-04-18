@@ -2,6 +2,7 @@ from gevent import monkey; monkey.patch_all()
 # inject the lib folder before everything else
 import os
 import sys
+from waitlist.data.version import version
 base_path = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(base_path, 'lib'))
 from waitlist.utility.eve_id_utils import get_account_from_db, get_char_from_db,\
@@ -53,7 +54,7 @@ def inject_data():
                 perm_officer=perm_officer, perm_accounts=perm_accounts,
                 perm_feedback=perm_feedback, is_account=is_account,
                 perm_dev=perm_dev, perm_leadership=perm_leadership, perm_bans=perm_bans,
-                perm_viewfits=perm_viewfits)
+                perm_viewfits=perm_viewfits, version=version)
 
 @app.before_request
 def check_ban():
