@@ -1,5 +1,5 @@
 from waitlist.storage.database import Constellation, SolarSystem, Station,\
-    InvType, Account, Character, Ban
+    InvType, Account, Character, Ban, Whitelist
 from waitlist import db
 import logging
 from waitlist.data.eve_xml_api import get_character_id_from_name,\
@@ -56,6 +56,11 @@ def is_charid_banned(eve_id):
         return False
     return db.session.query(Ban).filter(Ban.id == eve_id).count() == 1
 
+def is_charid_whitelisted(eve_id):
+    if eve_id == 0:
+        return False
+    return (db.session.query(Whitelist).filter(Whitelist.characterID == eve_id).count() == 1)
+
 def get_character_by_name(eve_name):
     eve_id = get_character_id_from_name(eve_name)
     if eve_id == 0:
@@ -63,15 +68,29 @@ def get_character_by_name(eve_name):
     return get_character_by_id_and_name(eve_id, eve_name)
 
 def is_char_banned(char):
-    reason = "Character"
-    is_banned = char.banned
-    if not is_banned:
-        corp_id, alli_id = get_affiliation(char.get_eve_id())
-        if (is_charid_banned(corp_id)):
-            reason = "Corporation"
-            is_banned = True
-        elif is_charid_banned(alli_id):
-            reason = "Alliance"
-            is_banned = True
-
-    return is_banned, reason
+    corp_id, alli_id = get_affiliation(char.get_eve_id())
+    # if he is on whitelist let him pass
+    
+    char_banned = char.banned
+    corp_banned = is_charid_banned(corp_id)
+    alli_banned = is_charid_banned(alli_id)
+    
+    if is_charid_whitelisted(char.get_eve_id()):
+        return False, ""
+    
+    if char_banned:
+        return True, "Character"
+    
+    if is_charid_whitelisted(corp_id):
+            return False, ""
+    
+    if corp_banned:
+        return True, "Corporation"
+    
+    if is_charid_whitelisted(alli_id):
+            return False, ""
+    
+    if alli_banned:
+        return True, "Alliance"
+    
+    return False, ""

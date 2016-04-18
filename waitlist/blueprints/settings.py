@@ -9,7 +9,7 @@ from flask.globals import request
 from sqlalchemy import or_, asc
 from waitlist.storage.database import Account, Role, Character,\
     linked_chars, Ban, Constellation, IncursionLayout, SolarSystem, Station,\
-    WaitlistEntry, WaitlistGroup
+    WaitlistEntry, WaitlistGroup, Whitelist
 import flask
 from waitlist.data.eve_xml_api import get_character_id_from_name,\
     eve_api_cache_char_ids
@@ -773,6 +773,126 @@ def convert_role_names(sheet_name):
     convert_obj = {'FC': WTMRoles.fc, 'RES': WTMRoles.resident,
                    'LM': WTMRoles.lm, 'TRA': WTMRoles.tbadge}
     return convert_obj[sheet_name]
+
+@bp_settings.route("/whitelist", methods=["GET"])
+@login_required
+@perm_bans.require(http_exception=401)
+def whitelist():
+    whitelistings = db.session.query(Whitelist).join(Character, (Whitelist.characterID == Character.id)).order_by(asc(Character.eve_name)).all()
+    return render_template("settings/whitelist.html", wl=whitelistings)
+
+@bp_settings.route("/whitelist_change", methods=["POST"])
+@login_required
+@perm_leadership.require(http_exception=401)
+def whitelist_change():
+    action = request.form['change'] # whitelist, unwhitelist
+    target = request.form['target'] # name of target
+    if action == "whitelist":
+        reason = request.form['reason'] # reason for whitelist
+    
+    targets = target.split("\n")
+
+    # pre-cache names for a faster api to not hit request limit
+    names_to_cache = []
+    for line in targets:
+        line = line.strip()
+        wl_name, _, wl_admin = get_info_from_ban(line)
+        names_to_cache.append(wl_name)
+        if wl_admin is not None:
+            names_to_cache.append(wl_admin)
+    
+    eve_api_cache_char_ids(names_to_cache)
+    
+    if action == "whitelist":
+        for target in targets:
+            whitelist_by_name(target, True, reason)
+            
+    elif action == "unwhitelist":
+        for target in targets:
+            unwhitelist_by_name(target)
+    
+    return redirect(url_for(".whitelist"))
+
+'''
+@param ban_info: a eve character name, or copy from ingame chat window
+'''
+def whitelist_by_name(whitelist_info, leadership=False, reason=""):
+    target = whitelist_info.strip()
+    
+    wl_name, wl_reason, wl_admin = get_info_from_ban(target)
+    
+    if wl_reason == None or not leadership:
+        wl_reason = reason
+    
+    if wl_admin is None or not leadership:
+        wl_admin = current_user.get_eve_name()
+    
+    logger.info("Whitelisting %s for %s by %s as %s.", wl_name, wl_reason, wl_admin, current_user.username)
+    wl_char = get_character_by_name(wl_name)
+    admin_char = get_character_by_name(wl_admin)
+    if wl_char is None:
+        logger.error("Did not find whitelist target %s", wl_name)
+        flash("Could not find Character " + wl_name + " for whitelisting", "danger")
+        return
+
+    eve_id = wl_char.get_eve_id()
+    admin_id = admin_char.get_eve_id()
+    
+    if eve_id is None or admin_id is None:
+        logger.error("Failed to correctly parse: %", target)
+        flash("Failed to correctly parse " + target, "danger")
+        return
+
+    #check if ban already there
+    if db.session.query(Whitelist).filter(Whitelist.characterID == eve_id).count() == 0:
+        # ban him
+        new_whitelist = Whitelist()
+        new_whitelist.character = wl_char
+        new_whitelist.reason = wl_reason
+        new_whitelist.admin = admin_char
+        db.session.add(new_whitelist)
+        db.session.commit()
+
+def unwhitelist_by_name(char_name):
+    target = char_name.strip()
+    logger.info("%s is unwhitelisting %s", current_user.username, target)
+    eve_id = get_character_id_from_name(target)
+    if eve_id == 0:
+        flash("Character " + target + " does not exist!")
+    else:
+        # check that there is a ban
+        if db.session.query(Whitelist).filter(Whitelist.characterID == eve_id).count() > 0:
+            db.session.query(Whitelist).filter(Whitelist.characterID == eve_id).delete()
+            db.session.commit()
+
+@bp_settings.route("/whitelist_change_single", methods=["POST"])
+@login_required
+@perm_bans.require(http_exception=401)
+def whitelist_change_single():
+    action = request.form['change'] # whitelist, unwhitelist
+    target = request.form['target'] # name of target
+
+    target = target.strip()
+    
+    
+    if action == "whitelist":
+        reason = request.form['reason'] # reason for ban
+        whitelist_by_name(target, perm_leadership.can(), reason)
+    elif action == "unwhitelist":
+        unwhitelist_by_name(target)
+
+    return redirect(url_for(".withelist"))
+
+@bp_settings.route("/whitelist_unlist", methods=["POST"])
+@login_required
+@perm_bans.require(http_exception=401)
+def whitelist_unlist():
+    target = request.form['target'] # name of target
+    target = target.strip()
+    unwhitelist_by_name(target)
+    
+    return redirect(url_for(".whitelist"))
+
 '''
 @bp_settings.route("/api/account/", methods=["POST"])
 @login_required

@@ -354,6 +354,14 @@ class Ban(Base):
     admin = Column(Integer, ForeignKey("characters.id"))
     admin_obj = relationship("Character", foreign_keys="Ban.admin")
 
+class Whitelist(Base):
+    __tablename__ = "whitelist"
+    characterID = Column(Integer, ForeignKey(Character.id), primary_key=True)
+    reason = Column(TEXT)
+    adminID = Column(Integer, ForeignKey(Character.id))
+    character = relationship(Character, foreign_keys=[characterID])
+    admin = relationship(Character, foreign_keys=[adminID])
+
 class Feedback(Base):
     """
     Contains the feedback people give about the waitlist
