@@ -23,7 +23,7 @@ def upgrade():
     sa.ForeignKeyConstraint(['adminID'], [u'characters.id'], ),
     sa.ForeignKeyConstraint(['characterID'], [u'characters.id'], ),
     sa.PrimaryKeyConstraint('characterID')
-    
+    )
     ### end Alembic commands ###
 
 
