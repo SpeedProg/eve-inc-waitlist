@@ -333,7 +333,7 @@ def bans_change():
                     db.session.query(Ban).filter(Ban.id == eve_id).delete()
                     db.session.commit()
     
-    return redirect(url_for(".bans", code=303))
+    return redirect(url_for(".bans"))
 
 @bp_settings.route("/bans_change_single", methods=["POST"])
 @login_required
@@ -388,7 +388,7 @@ def bans_change_single():
                 db.session.query(Ban).filter(Ban.id == eve_id).delete()
                 db.session.commit()
 
-    return redirect(url_for(".bans", code=303))
+    return redirect(url_for(".bans"))
 
 @bp_settings.route("/bans_unban", methods=["POST"])
 @login_required
@@ -406,7 +406,7 @@ def bans_unban_single():
             db.session.query(Ban).filter(Ban.id == eve_id).delete()
             db.session.commit()
     
-    return redirect(url_for(".bans", code=303))
+    return redirect(url_for(".bans"))
 
 @bp_settings.route("/api/account/<int:acc_id>", methods=["DELETE"])
 @login_required
