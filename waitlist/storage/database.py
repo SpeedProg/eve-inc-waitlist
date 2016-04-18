@@ -257,6 +257,7 @@ class WaitlistGroup(Base):
     systemID = Column(Integer, ForeignKey(SolarSystem.solarSystemID), nullable=True)
     constellationID = Column(Integer, ForeignKey(Constellation.constellationID), nullable=True)
     odering = Column(Integer, nullable=False, default=0)
+    influence = Column(Boolean, nullable=False, server_default='0', default=False)
     
     xuplist = relationship("Waitlist", foreign_keys=[xupwlID])
     logilist = relationship("Waitlist", foreign_keys=[logiwlID])

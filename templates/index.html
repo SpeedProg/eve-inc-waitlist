@@ -59,9 +59,9 @@
 <div class="row">
 	<div class="col-sm-6">
 	<div class="card">
-		<div style="cursor: pointer;" class="card-header" id="status-heading" data-toggle="collapse" data-target="#status-body" id="status-toggle">
+		<div class="card-header" id="status-heading" data-influence="{% if group.influence %}true{% else %}false{% endif %}">
 	      <h4 class="card-title">
-	          Status: {{group.status}}<i id="status-tog-icon" class="fa fa-plus-square pull-xs-right" id="status-icon"></i>
+	          Status: {{group.status}}{% if group.influence %} <a href="https://forums.warptome.net/topic/6-influence-guide/" target="_blank">Fit for Influence</a>{% endif %}<i style="cursor: pointer;" id="status-tog-icon" data-toggle="collapse" data-target="#status-body"  class="fa fa-plus-square pull-xs-right" id="status-icon"></i>
 	      </h4>
 	    </div>
 	    <div class="">

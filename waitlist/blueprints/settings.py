@@ -426,6 +426,8 @@ def fleet_status_set(gid):
     if action == "status":
         text = request.form['status']
         xup = request.form.get('xup', 'off')
+        influence = request.form.get('influence')
+        influence = False if influence is None else True
         xup_text = "closed"
         if xup == 'off':
             xup = False
@@ -436,7 +438,11 @@ def fleet_status_set(gid):
         if xup != group.enabled:
             group.enabled = xup
             logger.info("XUP was set to %s by %s", xup, current_user.username)
- 
+        
+        if influence != group.influence:
+            group.influence = influence
+            logger.info("Influence setting of grp %s was changed to %s by %s", group.groupID, influence, current_user.username)
+        
         if perm_leadership.can() or perm_officer.can():
             group.status = text
             logger.info("Status was set to %s by %s", group.status, current_user.username)
