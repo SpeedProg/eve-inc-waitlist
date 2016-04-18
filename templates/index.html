@@ -61,7 +61,7 @@
 	<div class="card">
 		<div class="card-header" id="status-heading" data-influence="{% if group.influence %}true{% else %}false{% endif %}">
 	      <h4 class="card-title">
-	          Status: {{group.status}}{% if group.influence %} <a href="https://forums.warptome.net/topic/6-influence-guide/" target="_blank">Fit for Influence</a>{% endif %}<i style="cursor: pointer;" id="status-tog-icon" data-toggle="collapse" data-target="#status-body"  class="fa fa-plus-square pull-xs-right" id="status-icon"></i>
+	          Status: {{group.status}}{% if group.influence %} <a href="https://forums.warptome.net/topic/6-influence-guide/" target="_blank">Fit for Influence</a>{% endif %}<i style="cursor: pointer;" id="status-tog-icon" data-toggle="collapse" data-target="#status-body"  class="fa fa-plus-square pull-xs-right"></i>
 	      </h4>
 	    </div>
 	    <div class="">
@@ -116,14 +116,14 @@
 {% for wlist in lists %}
 <div class="col-sm-3" id="wl-{{ wlist.name }}"{% if perm_man.can() %} data-count="0"{% endif %}>
 	<div class="panel panel-default">
-		<div class="panel-heading" role="tab" id="wl-{{ wlist.id }}-heading">
+		<div class="panel-heading" id="wl-heading-{{ wlist.id }}">
       		<h4 class="panel-title">
         	<a class="list-group-item text-capitalize" data-toggle="collapse" data-parent="#wl-{{ wlist.id }}-tog" data-target="#wl-fits-{{ wlist.id }}" aria-expanded="true" aria-controls="wl-fits-{{ wlist.id }}">
 				{{ wlist.displayTitle|e }}{% if perm_man.can() %}<span id="wl-count-{{ wlist.name }}" class="label label-pill label-default pull-xs-left">0</span>{% endif %}<i class="fa fa-minus-square pull-xs-right" id="wl-{{ wlist.id }}-tog-icon"></i>
         	</a>
       		</h4>
     	</div>
-		<ol data-tog-icon="#wl-{{ wlist.id }}-tog-icon" class="list-group collapse in" id="wl-fits-{{ wlist.id }}" role="tabpanel" aria-labelledby="wl-heading-{{ wlist.id }}">
+		<ol data-tog-icon="#wl-{{ wlist.id }}-tog-icon" class="list-group collapse in" id="wl-fits-{{ wlist.id }}" aria-labelledby="wl-heading-{{ wlist.id }}">
 			{% if not perm_man.can() %}
 			{% for entry in wlist.entries %}
 			<li class="list-group-item"
