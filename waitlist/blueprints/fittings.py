@@ -1,7 +1,7 @@
 from flask.blueprints import Blueprint
 import logging
 from waitlist.data.perm import perm_management, perm_dev, perm_officer,\
-    perm_leadership
+    perm_leadership, perm_comphistory
 from flask_login import login_required, current_user
 from flask.globals import request
 from waitlist.storage.database import WaitlistEntry, Shipfit, Waitlist,\
@@ -752,12 +752,14 @@ def subscribe(user_id):
     return Response(gen(user_id), mimetype="text/event-stream")
 
 @bp_waitlist.route("/history/")
+@login_required
+@perm_comphistory.require(http_exception=401)
 def history_default():
     return render_template("waitlist/history.html")
 
 @bp_waitlist.route("/history/<int:min_mins>/<int:max_mins>")
 @login_required
-@perm_management.require(http_exception=401)
+@perm_comphistory.require(http_exception=401)
 def history(min_mins, max_mins):
     if max_mins <= min_mins:
         return render_template("waitlist/history_cut.html", history=[])

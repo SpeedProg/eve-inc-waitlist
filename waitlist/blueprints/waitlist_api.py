@@ -4,7 +4,8 @@ from flask_login import login_required
 from waitlist import db
 from waitlist.storage.database import WaitlistGroup, HistoryEntry
 from flask import jsonify
-from waitlist.data.perm import perm_management, perm_officer, perm_leadership
+from waitlist.data.perm import perm_management, perm_officer, perm_leadership,\
+    perm_comphistory
 from flask.globals import request
 from datetime import datetime
 import time
@@ -94,7 +95,7 @@ def makeJsonAccount(acc):
 
 @wl_api.route("/history/since", methods=["GET"])
 @login_required
-@perm_management.require(http_exception=401)
+@perm_comphistory.require(http_exception=401)
 def history_since():
     laststamp = int(request.args.get('last'))
     logger.info("last=%s", str(laststamp))
