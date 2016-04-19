@@ -27,6 +27,6 @@ dps_ships = {17740:"Vindicator", 24688:"Rokh", 24690:"Hyperion",
     }
 t3c_ships = {29990:"Loki"}
 
-weapongroups = {'dps': {"Pulse Lasers":None, "Blasers":None, "Missile Launchers":None, "Autocannons": None},
+weapongroups = {'dps': {"Pulse Lasers":None, "Blasters":None, "Missile Launchers":None, "Autocannons": None},
                 'sniper': {"Beam Lasers": None, "Railguns":None, "Artillery Cannons":None}
                 }
