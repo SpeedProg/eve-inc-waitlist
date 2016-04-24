@@ -26,17 +26,7 @@ from gevent.queue import Queue
 import flask
 from sqlalchemy.sql.expression import desc
 from waitlist.utility.database_utils import parseEft
-
-
-def create_history_object(targetID, event_type, sourceID=None, fitlist=None):
-    hEntry = HistoryEntry()
-    hEntry.sourceID = sourceID
-    hEntry.targetID = targetID
-    hEntry.action = event_type
-    if fitlist is not None:
-        for fit in fitlist:
-            hEntry.fittings.append(fit)
-    return hEntry
+from waitlist.utility.history_utils import create_history_object
 
 bp_waitlist = Blueprint('fittings', __name__)
 logger = logging.getLogger(__name__)

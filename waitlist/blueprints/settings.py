@@ -9,7 +9,7 @@ from flask.globals import request
 from sqlalchemy import or_, asc
 from waitlist.storage.database import Account, Role, Character,\
     linked_chars, Ban, Constellation, IncursionLayout, SolarSystem, Station,\
-    WaitlistEntry, WaitlistGroup, Whitelist
+    WaitlistEntry, WaitlistGroup, Whitelist, HistoryEntry
 import flask
 from waitlist.data.eve_xml_api import get_character_id_from_name,\
     eve_api_cache_char_ids
@@ -26,6 +26,7 @@ from waitlist.utility import sde
 from flask import jsonify
 import csv
 from waitlist.data.names import WTMRoles
+from waitlist.utility.history_utils import create_history_object
 
 bp_settings = Blueprint('settings', __name__)
 logger = logging.getLogger(__name__)
@@ -420,7 +421,6 @@ def api_account_delete(acc_id):
 @login_required
 @perm_management.require(http_exception=401)
 def fleet_status_set(gid):
-    # TODO: adjust to new fleetstatus
     action = request.form['action']
     group = db.session.query(WaitlistGroup).get(gid)
     if action == "status":
@@ -465,9 +465,13 @@ def fleet_status_set(gid):
         else:
             character = get_character_by_name(name)
             group.fc = character
+            hObj = create_history_object(character.id, HistoryEntry.EVENT_SET_FC, current_user.id)
+            db.session.add(hObj)
             flash("FC was set to "+name, "success")
     elif action == "manager":
             group.managerID = current_user.id
+            hObj = create_history_object(character.get_eve_id(), HistoryEntry.EVENT_SET_FLEETCOMP, current_user.id)
+            db.session.add(hObj)
             flash("Manager was set to "+current_user.get_eve_name(), "success")
     
     db.session.commit()

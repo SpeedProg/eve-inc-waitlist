@@ -398,8 +398,8 @@ class HistoryEntry(Base):
     historyID = Column(Integer, primary_key=True)
     sourceID = Column(Integer, ForeignKey("accounts.id"), nullable=True)
     targetID = Column(Integer, ForeignKey("characters.id"), nullable=False)
-    action = Column(String(1000))
-    time = Column(DateTime, default=datetime.utcnow)
+    action = Column(String(20))
+    time = Column(DateTime, default=datetime.utcnow, index=True)
     exref = Column(Integer, nullable=True, default=None)
     fittings = relationship("Shipfit", secondary="comp_history_fits")
     source = relationship("Account")
@@ -414,6 +414,8 @@ class HistoryEntry(Base):
     EVENT_SELF_RM_WLS_ALL = "self_rm_wls_all"
     EVENT_COMP_MV_XUP_ETR = "comp_mv_xup_etr"
     EVENT_COMP_MV_XUP_FIT = "comp_mv_xup_fit"
+    EVENT_SET_FC = "set_fc"
+    EVENT_SET_FLEETCOMP = "set_fcomp"
 
 class HistoryExtInvite(Base):
     __tablename__ = "comp_history_ext_inv"
