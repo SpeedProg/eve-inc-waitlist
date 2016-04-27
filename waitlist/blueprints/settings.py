@@ -254,6 +254,21 @@ def account_self():
     acc = db.session.query(Account).filter(Account.id == current_user.id).first()
     return render_template("settings/self.html", account=acc)
 
+@bp_settings.route("/api/account/disabled", methods=['POST'])
+@login_required
+@perm_accounts.require(http_exception=401)
+def account_disabled():
+    accid = int(request.form['id'])
+    status = request.form['disabled']
+    if status is 'false':
+        status = True
+    else:
+        status = False
+    acc = db.session.query(Account).filter(Account.id == accid).first()
+    acc.disabled = status
+    db.session.commit()
+    return "OK"
+
 @bp_settings.route("/bans", methods=["GET"])
 @login_required
 @perm_bans.require(http_exception=401)

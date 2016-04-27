@@ -27,6 +27,74 @@ function deleteAccount(accountId){
 	$.ajax("{{url_for('settings.api_account_delete', acc_id='-1')}}".replace("-1", accountId), settings)
 }
 
+function disableAccount(accountId, onsuccess){
+	var settings = {
+			async: true,
+			dataType: "text",
+			error: function() {
+				// TODO: flash an error message
+				console.log("Error");
+			},
+			method: "POST",
+			data: {
+				id: accountId,
+				disabled: true
+			},
+			success: onsuccess,
+			headers: {
+				'X-CSRFToken': '{{csrf_token()}}'
+			}
+	};
+	$.ajax("{{url_for('settings.account_disabled')}}", settings);
+}
+
+function enableAccount(accountId, onsuccess){
+	var settings = {
+			async: true,
+			dataType: "text",
+			error: function() {
+				// TODO: flash an error message
+				console.log("Error");
+			},
+			method: "POST",
+			data: {
+				id: accountId,
+				disabled: false
+			},
+			success: onsuccess,
+			headers: {
+				'X-CSRFToken': '{{csrf_token()}}'
+			}
+	};
+	$.ajax("{{url_for('settings.account_disabled')}}", settings);
+}
+
+function setUpEventhandlers() {
+	var doc = $(document);
+	doc.on("click", "[data-type='acc-enable']", function(event){
+		var source = $(event.target);
+		var id = Number(source.data('id'));
+		enableAccount(id, function() {
+			var row_id = "#account-"+id;
+			var row = $(row_id);
+			row.removeClass("table-warning");
+			source.attr("data-type", "acc-disable");
+			source.text("Disable");
+		});
+	});
+	doc.on("click", "[data-type='acc-disable']", function(event){
+		var source = $(event.target);
+		var id = Number(source.data('id'));
+		disableAccount(id, function() {
+			var row_id = "#account-"+id;
+			var row = $(row_id);
+			row.addClass("table-warning");
+			source.attr("data-type", "acc-enable");
+			source.text("Enable")
+		});
+	});
+}
+
 function editAccount(accountId) {
 	var name = $('#acc-'+accountId+"-name").text();
 	var roles = $('#acc-'+accountId+'-roles').text();
@@ -69,6 +137,7 @@ function sendAuthMail(charId, token, sig) {
 }
 
 $(document).ready(noclick);
+$(document).ready(setUpEventhandlers);
 </script>
 {% endblock %}
 
@@ -101,16 +170,16 @@ $(document).ready(noclick);
 </thead>
 <tbody>
 	{% for acc in accounts %}
-	<tr id="account-{{acc.id}}">
+	<tr id="account-{{acc.id}}"{% if acc.disabled %} class="table-warning"{% endif %}>
 		<td id="acc-{{acc.id}}-id">{{ acc.id }}</td>
 		<td id="acc-{{acc.id}}-name">{{ acc.username }}</td>
 		<td id="acc-{{acc.id}}-email">{% if acc.email is not none %}{{ acc.email }}{% endif %}</td>
 		<td id="acc-{{acc.id}}-cchar">{{ acc.current_char_obj.eve_name }}</td>
-		<td>{% for character in acc.characters %}{{character.eve_name}}={{character.id}}{% if not loop.last %},{% endif %}{% endfor %}</td>
+		<td>{% for character in acc.characters %}{{character.eve_name}}{% if not loop.last %},{% endif %}{% endfor %}</td>
 		<td id="acc-{{acc.id}}-roles">{% for role in acc.roles %}{{role.name}}{% if not loop.last %}, {% endif %}{% endfor %}</td>
 		<td><a class="noclick" href="/tokenauth?token={{acc.login_token|safe}}">Auth Link</a></td>
 		<td>
-		<button type="button" class="btn btn-sm btn-warning" onclick="javascript:deleteAccount({{acc.id}});">Delete</button>
+		<button type="button" class="btn btn-sm btn-warning" data-type="{%if acc.disabled%}acc-enable{%else%}acc-disable{%endif%}" data-id="{{acc.id}}">{%if acc.disabled%}Enable{%else%}Disable{%endif%}</button>
 		<button type="button" class="btn btn-sm btn-secondary" onclick="javascript:editAccount({{acc.id}});">Edit</button>
 		{% if is_igb %}
 		<button type="button" class="btn btn-sm btn-info" onclick="sendAuthMail({{acc.current_char_obj.id}}, '{{acc.login_token|safe}}', '{{current_user.username}}');">Auth Mail</button>

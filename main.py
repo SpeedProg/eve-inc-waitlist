@@ -75,6 +75,10 @@ def check_ban():
                     char_id = int(char_id_str)
                     if current_user.get_eve_id() != char_id:
                         force_logout()
+        elif current_user.type == "account":
+            if current_user.disabled:
+                force_logout()
+            
 
 def force_logout():
     logout_user()
@@ -167,6 +171,10 @@ def login_token():
     # token was not found
     if user == None:
         return flask.abort(401);
+    
+    if user.disabled:
+        return flask.abort(403)
+    
     logger.info("Got User %s", user)
     login_user(user);
     logger.info("Logged in User %s", user)

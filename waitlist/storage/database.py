@@ -1,4 +1,5 @@
-from sqlalchemy import Column, Integer, String, SmallInteger, BIGINT, Boolean, DateTime, Index
+from sqlalchemy import Column, Integer, String, SmallInteger, BIGINT, Boolean, DateTime, Index,\
+    sql
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.sql.schema import Table, ForeignKey
 from sqlalchemy.dialects.mysql.base import LONGTEXT, TEXT
@@ -93,6 +94,7 @@ class Account(Base):
     password = Column(String(100))
     email = Column(String(100), unique=True)
     login_token = Column(String(16), unique=True)
+    disabled = Column(Boolean, default=False, server_default=sql.expression.false())
     roles = relationship('Role', secondary=roles,
                          backref=backref('account_roles'))
     characters = relationship('Character', secondary=linked_chars,
