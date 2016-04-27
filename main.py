@@ -2,7 +2,6 @@ from gevent import monkey; monkey.patch_all()
 # inject the lib folder before everything else
 import os
 import sys
-from waitlist.data.names import WTMRoles
 base_path = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(base_path, 'lib'))
 from waitlist.data.version import version
@@ -23,7 +22,7 @@ import logging
 from waitlist.storage.database import Account, WaitlistEntry,\
     Character, WaitlistGroup
 from flask_principal import RoleNeed, identity_changed, Identity, AnonymousIdentity,\
-    identity_loaded, UserNeed, Permission
+    identity_loaded, UserNeed
 from waitlist.data.perm import perm_management, perm_settings, perm_admin,\
     perm_officer, perm_accounts, perm_feedback, perm_dev, perm_leadership,\
     perm_bans, perm_viewfits, perm_comphistory
