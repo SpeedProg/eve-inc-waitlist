@@ -259,12 +259,14 @@ def account_self():
 @perm_accounts.require(http_exception=401)
 def account_disabled():
     accid = int(request.form['id'])
-    status = request.form['disabled']
-    if status is 'false':
-        status = True
-    else:
-        status = False
     acc = db.session.query(Account).filter(Account.id == accid).first()
+    status = request.form['disabled']
+    logger.info("%s sets account %s to %s", current_user.username, acc.username, status)
+    if status == 'false':
+        status = False
+    else:
+        status = True
+    
     acc.disabled = status
     db.session.commit()
     return "OK"
