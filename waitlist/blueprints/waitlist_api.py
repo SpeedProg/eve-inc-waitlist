@@ -7,8 +7,7 @@ from flask import jsonify
 from waitlist.data.perm import perm_management, perm_officer, perm_leadership,\
     perm_comphistory
 from flask.globals import request
-from datetime import datetime
-import time
+from datetime import datetime, timedelta
 wl_api = Blueprint('waitlist_api', __name__)
 logger = logging.getLogger(__name__)
 
@@ -103,8 +102,8 @@ def history_since():
     logger.info("Looking for %s", str(since))
     tnow = datetime.utcnow()
     if not (perm_officer.can() or perm_leadership.can()):
-        maxTime = datetime.timedelta(minutes=240)
-        if tnow - since > datetime.timedelta(minutes=240) :
+        maxTime = timedelta(minutes=240)
+        if tnow - since > maxTime:
             since = tnow - maxTime
 
     newHistoryEntries = db.session.query(HistoryEntry).filter(HistoryEntry.time > since).all()

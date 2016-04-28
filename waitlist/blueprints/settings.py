@@ -6,7 +6,7 @@ from waitlist.data.perm import perm_admin, perm_settings, perm_officer,\
     perm_fleetlocation, perm_bans
 from flask.templating import render_template
 from flask.globals import request
-from sqlalchemy import or_, asc
+from sqlalchemy import or_, asc, desc
 from waitlist.storage.database import Account, Role, Character,\
     linked_chars, Ban, Constellation, IncursionLayout, SolarSystem, Station,\
     WaitlistEntry, WaitlistGroup, Whitelist, HistoryEntry
@@ -487,7 +487,7 @@ def fleet_status_set(gid):
             flash("FC was set to "+name, "success")
     elif action == "manager":
             group.managerID = current_user.id
-            hObj = create_history_object(character.get_eve_id(), HistoryEntry.EVENT_SET_FLEETCOMP, current_user.id)
+            hObj = create_history_object(current_user.get_eve_id(), HistoryEntry.EVENT_SET_FLEETCOMP, current_user.id)
             db.session.add(hObj)
             flash("Manager was set to "+current_user.get_eve_name(), "success")
     

@@ -703,9 +703,9 @@ def xup_index():
         else:
             new_bro = current_user.current_char_obj.newbro
     
-    defaultgroup = db.session.query(WaitlistGroup).filter(WaitlistGroup.groupName == "default").one()
+    defaultgroup = db.session.query(WaitlistGroup).filter(WaitlistGroup.enabled == True).order_by(WaitlistGroup.odering).first()
     activegroups = db.session.query(WaitlistGroup).filter(WaitlistGroup.enabled == True).all()
-    return render_template("xup.html", newbro=new_bro, defgroup=defaultgroup, groups=activegroups)
+    return render_template("xup.html", newbro=new_bro, group=defaultgroup, groups=activegroups)
 
 
 @bp_waitlist.route('/management')

@@ -1,5 +1,6 @@
 <div class="col-sm-12" id="x-up">
 <a href="{{url_for('site_help')}}">FC, WHAT DO?</a>
+{% if group is not none %}
 <form action="/xup" method="post">
 <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 <fieldset class="form-group bg-danger">
@@ -13,10 +14,10 @@ I am new to WarpToMe or Incursions</label>
 <fieldset class="form-group">
 	<label for="group">Fleet to x-up for</label>
 	<select class="form-control" id="group" name="groupID">
-		<option value="{{defgroup.groupID}}">{{defgroup.displayName}}</option>
-		{% for group in groups %}
-		{% if group.groupID != defgroup.groupID %}
 		<option value="{{group.groupID}}">{{group.displayName}}</option>
+		{% for grp in groups %}
+		{% if grp.groupID != group.groupID %}
+		<option value="{{group.groupID}}">{{grp.displayName}}</option>
 		{% endif %}
 		{% endfor %}
 	</select>
@@ -50,4 +51,7 @@ I am new to WarpToMe or Incursions</label>
 </fieldset>
 <button type="submit" class="btn btn-primary">Enter On Waitlist</button>
 </form>
+{% else %}
+<p>All Waitlists are closed!</p>
+{% endif %}
 </div>

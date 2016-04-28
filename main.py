@@ -91,15 +91,26 @@ def force_logout():
 @app.route('/', methods=['GET'])
 @login_required
 def index():
-    defaultgroup = db.session.query(WaitlistGroup).filter(WaitlistGroup.groupName == "default").one()
-    group = None
     if 'groupId' in request.args:
         group_id = int(request.args.get('groupId'))
         group = db.session.query(WaitlistGroup).get(group_id)
     else:
-        group = defaultgroup
+        group = db.session.query(WaitlistGroup).filter(WaitlistGroup.enabled == True).order_by(WaitlistGroup.odering).first()
     
+    if group == None:
+        return render_template("index.html", is_index=True)
     
+    new_bro = True
+    if current_user.type == "character":
+        if current_user.newbro == None:
+            new_bro = True
+        else:
+            new_bro = current_user.newbro
+    elif current_user.type == "account":
+        if current_user.current_char_obj.newbro == None:
+            new_bro = True
+        else:
+            new_bro = current_user.current_char_obj.newbro
     
     wlists = []
     logi_wl = group.logilist
@@ -115,21 +126,9 @@ def index():
     if (other_wl is not None):
         wlists.append(other_wl)
     
-    new_bro = True
-    if current_user.type == "character":
-        if current_user.newbro == None:
-            new_bro = True
-        else:
-            new_bro = current_user.newbro
-    elif current_user.type == "account":
-        if current_user.current_char_obj.newbro == None:
-            new_bro = True
-        else:
-            new_bro = current_user.current_char_obj.newbro
-    
     activegroups = db.session.query(WaitlistGroup).filter(WaitlistGroup.enabled == True).all()
     
-    return render_template("index.html", lists=wlists, user=current_user, is_index=True, is_on_wl=is_on_wl(), newbro=new_bro, defgroup=defaultgroup, group=group, groups=activegroups)
+    return render_template("index.html", lists=wlists, user=current_user, is_index=True, is_on_wl=is_on_wl(), newbro=new_bro, group=group, groups=activegroups)
 
 def is_on_wl():
     eveId = current_user.get_eve_id();

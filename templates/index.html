@@ -14,7 +14,9 @@
 <meta name="api-move-entry-to-wls" content="{{url_for('fittings.move_to_waitlists')}}">
 <meta name="api-waitlists" content="{{url_for('waitlist_api.waitlist')}}">
 <meta name="api-approve-fit" content="{{url_for('fittings.api_move_fit_to_waitlist')}}">
+{% if group %}
 <meta name="wl-group-id" content="{{group.groupID}}">
+{% endif %}
 {% endif %}
 {{ super() }}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
@@ -37,6 +39,7 @@
 	{% include "xup-form.html" with context %}
 {% endif %}
 <div class="row">
+{% if group %}
 <div class="col-sm-6">
 	<form class="form-inline" method="GET" action="/">
 		<div class="form-group">
@@ -127,9 +130,9 @@
 			{% if not perm_man.can() %}
 			{% for entry in wlist.entries %}
 			<li class="list-group-item"
-				id="entry-{{wlist.name}}-{{ entry.user }}" {% if user.get_eve_id() == entry.user %}data-count="{{entry.fittings|length}}"{% endif %}>
+				id="entry-{{wlist.name}}-{{ entry.user }}" {% if current_user.get_eve_id() == entry.user %}data-count="{{entry.fittings|length}}"{% endif %}>
 				<div>
-						{% if user.get_eve_id() == entry.user %}
+						{% if current_user.get_eve_id() == entry.user %}
 						<a href="javascript:CCPEVE.showInfo(1377, {{ entry.user }});">
 						{% endif %}
 						<div class="wel-header-32">
@@ -145,19 +148,19 @@
 						{% if current_user.get_eve_id() == entry.user %}
 						</a>
 						{% endif %}
-						{% if user.get_eve_id() == entry.user or perm_viewfits.can() %}
+						{% if current_user.get_eve_id() == entry.user or perm_viewfits.can() %}
 						<div class="btn-group btn-group-mini" role="group" aria-label="Action Buttons">
-							{% if user.get_eve_id() == entry.user %}
+							{% if current_user.get_eve_id() == entry.user %}
 							<button type="button" class="btn btn-mini btn-warning"
 								onclick="javascript:removeOwnEntry('{{wlist.name}}', {{entry.user}}, {{ entry.id }});"><i class="fa fa-times"></i></button>
 							{% endif %}
-							{% if user.get_eve_id() == entry.user or perm_viewfits.can() %}
+							{% if current_user.get_eve_id() == entry.user or perm_viewfits.can() %}
 							<button type="button" data-toggle="collapse" data-target="#fittings-{{entry.id}}" class="btn btn-primary"><i class="fa fa-plus"></i> &#47; <i class="fa fa-minus"></i> Fits</button>
 							{% endif %}
 						</div>
 						{% endif %}
 
-					{% if user.get_eve_id() == entry.user or perm_viewfits.can() %}
+					{% if current_user.get_eve_id() == entry.user or perm_viewfits.can() %}
 					<ul class="list-group list-group-flush collapse" id="fittings-{{entry.id}}">
 						{% for fit in entry.fittings %}
 						<li class="list-group-item fitting" id="fit-{{ fit.id }}">
@@ -185,7 +188,7 @@
 								{% else %}
 								</div>
 								{% endif %}
-								{% if user.get_eve_id() == entry.user %}
+								{% if current_user.get_eve_id() == entry.user %}
 								<div class="btn-group btn-group-mini" role="group"
 									aria-label="Action Buttons">
 									<button type="button" class="btn btn-mini btn-warning"
@@ -205,5 +208,8 @@
 </div>
 {% endfor %}
 </div>
+{% else %}
+<p>All Waitlists are closed!</p>
+{% endif %}
 </div>
 {% endblock %}
