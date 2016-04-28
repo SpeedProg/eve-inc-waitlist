@@ -158,26 +158,19 @@ $(document).ready(setUpEventhandlers);
 <table class="table">
 <thead>
 	<tr>
-		<th>#</th>
-		<th>Account Name</th>
-		<th>Email</th>
-		<th>Current Char</th>
-		<th>Associated Characters</th>
-		<th>Roles</th>
-		<th>Login Token</th>
 		<th>Actions</th>
+		<th>Account Name</th>
+		<th>Roles</th>
+		<th>Current Char</th>
+		<th>Login Token</th>
+		<th>Associated Characters</th>
+		<th>Email</th>
+		<th>#</th>
 	</tr>
 </thead>
 <tbody>
 	{% for acc in accounts %}
 	<tr id="account-{{acc.id}}"{% if acc.disabled %} class="table-warning"{% endif %}>
-		<td id="acc-{{acc.id}}-id">{{ acc.id }}</td>
-		<td id="acc-{{acc.id}}-name">{{ acc.username }}</td>
-		<td id="acc-{{acc.id}}-email">{% if acc.email is not none %}{{ acc.email }}{% endif %}</td>
-		<td id="acc-{{acc.id}}-cchar">{{ acc.current_char_obj.eve_name }}</td>
-		<td>{% for character in acc.characters %}{{character.eve_name}}{% if not loop.last %},{% endif %}{% endfor %}</td>
-		<td id="acc-{{acc.id}}-roles">{% for role in acc.roles %}{{role.name}}{% if not loop.last %}, {% endif %}{% endfor %}</td>
-		<td><a class="noclick" href="/tokenauth?token={{acc.login_token|safe}}">Auth Link</a></td>
 		<td>
 		<button type="button" class="btn btn-sm btn-warning" data-type="{%if acc.disabled%}acc-enable{%else%}acc-disable{%endif%}" data-id="{{acc.id}}">{%if acc.disabled%}Enable{%else%}Disable{%endif%}</button>
 		<button type="button" class="btn btn-sm btn-secondary" onclick="javascript:editAccount({{acc.id}});">Edit</button>
@@ -185,6 +178,13 @@ $(document).ready(setUpEventhandlers);
 		<button type="button" class="btn btn-sm btn-info" onclick="sendAuthMail({{acc.current_char_obj.id}}, '{{acc.login_token|safe}}', '{{current_user.username}}');">Auth Mail</button>
 		{% endif %}
 		</td>
+		<td id="acc-{{acc.id}}-name">{{ acc.username }}</td>
+		<td id="acc-{{acc.id}}-roles">{% for role in acc.roles %}{{role.name}}{% if not loop.last %}, {% endif %}{% endfor %}</td>
+		<td id="acc-{{acc.id}}-cchar">{{ acc.current_char_obj.eve_name }}</td>
+		<td><a class="noclick" href="/tokenauth?token={{acc.login_token|safe}}">Auth Link</a></td>
+		<td>{% for character in acc.characters %}{{character.eve_name}}{% if not loop.last %},{% endif %}{% endfor %}</td>
+		<td id="acc-{{acc.id}}-email">{% if acc.email is not none %}{{ acc.email }}{% endif %}</td>
+		<td id="acc-{{acc.id}}-id">{{ acc.id }}</td>
 	</tr>
 	{% endfor %}
 </tbody>
