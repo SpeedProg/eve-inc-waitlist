@@ -20,6 +20,14 @@ if  not os.path.isfile(os.path.join(".", "config", "config.cfg")):
     config.set("logging", "info_file", "/var/log/pywaitlist/info.log")
     config.set("logging", "access_file", "/var/log/pywaitlist/access.log")
     
+    config.add_section("crest")
+    config.set("crest", "client_id", "f8934rsdf")
+    config.set("crest", "client_secret", "f893ur3")
+    
+    config.add_section("motd")
+    config.set("motd", "hq", "..")
+    config.set("motd", "vg", "..")
+    
     makedirs(os.path.join(".", "config"))
     with open(os.path.join(".", "config", "config.cfg"), "wb") as configfile:
         config.write(configfile)
@@ -35,3 +43,9 @@ server_bind = config.get("app", "server_bind")
 error_log = config.get("logging", "error_file")
 info_log = config.get("logging", "info_file")
 access_log = config.get("logging", "access_file")
+
+crest_client_id = config.get("crest", "client_id")
+crest_client_secret = config.get("crest", "client_secret")
+
+motd_hq = config.get("motd", "hq")
+motd_vg = config.get("motd", "vg")

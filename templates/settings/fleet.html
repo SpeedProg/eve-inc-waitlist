@@ -6,7 +6,9 @@
 
 {% block head %}
 {{ super() }}
+<meta name="api-fleet-remove" content="{{url_for('api_fleet.removeFleet', fleetID=-1)}}"/>
 <script src="{{url_for('static', filename='js/typeahead.bundle.min.js')}}" type="text/javascript"></script>
+<script src="{{url_for('static', filename='js/fleet-settings.js')}}" type="text/javascript"></script>
 <link rel="stylesheet" href="{{url_for('static', filename='css/typeaheadjs.css')}}">
 <link rel="stylesheet" href="/static/css/settings-fleet.css">
 <script type="text/javascript">
@@ -195,7 +197,28 @@ $(document).ready(function() {
     	</form>
     	</td>
     </tr>
+    <tr>
+    	<th scope="row">Register for Fleet</th>
+    	<td colspan="2">
+			<form>
+			<a href="{{url_for('fleet.take_form')}}" class="btn btn-sm btn-primary">Take over a Fleet</a>
+			</form>
+    	</td>
+    </tr>
+    <tr>
+    <th>Fleet ID</th><th>Current Fleet Comp</th><th>Actions</th>
+    </tr>
     {% endif %}
+    {% for fleet in group.fleets %}
+    <tr id="fleet-{{fleet.fleetID}}">
+        <td>{{fleet.fleetID}}</td>
+        <td>{% if fleet.comp %}<a href="javascript:IGBW.showInfo(1377, {{fleet.comp.get_eve_id()}});">{{fleet.comp.username}}</a>{% else %}{{None}}{% endif %}</td>
+        <td>
+        	<button class="btn btn-danger btn-sm" data-type="remove-fleet" data-id="{{fleet.fleetID}}">Remove</button>
+        	<a href="{{url_for('fleet.change_type', fleetID=fleet.fleetID)}}" class="btn btn-sm btn-warning">Change Fleet Type</a>
+        </td>
+    </tr>
+    {% endfor %}
     </tbody>
     </table>
   </div>

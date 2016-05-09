@@ -2,6 +2,7 @@ from gevent import monkey; monkey.patch_all()
 # inject the lib folder before everything else
 import os
 import sys
+from waitlist.blueprints.api.fleet import bp as fleet_api_bp
 base_path = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(base_path, 'lib'))
 from waitlist.data.version import version
@@ -34,11 +35,16 @@ import flask
 from werkzeug.utils import redirect
 from flask.helpers import url_for
 from waitlist.utility.utils import is_igb
+from waitlist.blueprints.fc_sso import bp as fc_sso_bp
+from waitlist.blueprints.fleet import bp as fleet_bp
 
 app.register_blueprint(bp_waitlist)
 app.register_blueprint(bp_settings, url_prefix='/settings')
 app.register_blueprint(feedback, url_prefix="/feedback")
 app.register_blueprint(wl_api, url_prefix="/wl_api")
+app.register_blueprint(fc_sso_bp, url_prefix="/fc_sso")
+app.register_blueprint(fleet_bp, url_prefix="/fleet")
+app.register_blueprint(fleet_api_bp, url_prefix="/api/fleet")
 
 logger = logging.getLogger(__name__)
 

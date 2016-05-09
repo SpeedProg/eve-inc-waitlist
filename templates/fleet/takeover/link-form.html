@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block title %}Fleet - Takeover - Fleet Link{% endblock %}
+
+{% block head %}
+{{ super() }}
+{% endblock %}
+
+{% block data %}
+<form class="form-inline" action="{{url_for('fleet.take_link')}}" method="post">
+	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+	<label for="fleet-link">External Fleet Link</label>
+	<div class="input-group">
+		<input class="form-control" type="text" name="fleet-link" id="fleet-link">
+		<a href="http://i.imgur.com/kStDdnP.gif" target="_blank" class="input-group-addon" id="fleet-link-addon-help">?</a>
+	</div>
+	<button type="submit" class="btn btn-primary">Next</button>
+</form>
+{% endblock %}

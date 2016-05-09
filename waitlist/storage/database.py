@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, String, SmallInteger, BIGINT, Boolean, DateTime, Index,\
-    sql
+    sql, BigInteger
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.sql.schema import Table, ForeignKey
 from sqlalchemy.dialects.mysql.base import LONGTEXT, TEXT
@@ -95,11 +95,17 @@ class Account(Base):
     email = Column(String(100), unique=True)
     login_token = Column(String(16), unique=True)
     disabled = Column(Boolean, default=False, server_default=sql.expression.false())
+    refresh_token = Column(String(128), default=None)
+    access_token = Column(String(128), default=None)
+    access_token_expires = Column(DateTime, default=datetime.utcnow)
+
     roles = relationship('Role', secondary=roles,
                          backref=backref('account_roles'))
     characters = relationship('Character', secondary=linked_chars,
                               backref=backref('linked_chars'))
     current_char_obj = relationship('Character')
+
+    fleet = relationship('CrestFleet', uselist=False, back_populates="comp")
     
     @property
     def lc_level(self):
@@ -155,7 +161,26 @@ class Account(Base):
     
     def __repr__(self):
         return '<Account %r>' % (self.username)
+
+class CrestFleet(Base):
+    ''' Represents a setup fleet '''
+    __tablename__ = 'crest_fleets'
     
+    fleetID = Column(BigInteger, primary_key=True)
+    logiWingID = Column(BigInteger)
+    logiSquadID = Column(BigInteger)
+    sniperWingID = Column(BigInteger)
+    sniperSquadID = Column(BigInteger)
+    dpsWingID = Column(BigInteger)
+    dpsSquadID = Column(BigInteger)
+    otherWingID = Column(BigInteger)
+    otherSquadID = Column(BigInteger)
+    groupID = Column(Integer, ForeignKey('waitlist_groups.groupID'), nullable=False)
+    compID = Column(Integer, ForeignKey("accounts.id"), nullable=True)
+
+    group = relationship("WaitlistGroup", uselist=False, back_populates="fleets")
+    comp = relationship("Account", uselist=False, back_populates="fleet")
+
 class Character(Base):
     """
     Represents a eve character by its id
@@ -202,7 +227,7 @@ class Character(Base):
     
     def __repr__(self):
         return "<Character id={0} eve_name={1}>".format(self.id, self.eve_name)
-    
+
 class Role(Base):
     '''
     Represents a role like, FleetCommander, Officer, LogisticsMaster, FC-Trainee, Resident
@@ -271,6 +296,7 @@ class WaitlistGroup(Base):
     dockup = relationship("Station", uselist=False)
     system = relationship("SolarSystem", uselist=False)
     constellation = relationship("Constellation", uselist=False)
+    fleets = relationship("CrestFleet", back_populates="group")
 
 class Shipfit(Base):
     """
@@ -310,6 +336,8 @@ class WaitlistEntry(Base):
     user = Column(Integer, ForeignKey('characters.id'))
     fittings = relationship("Shipfit", secondary="waitlist_entry_fits")
     waitlist_id = Column(Integer, ForeignKey("waitlists.id", onupdate="CASCADE", ondelete="CASCADE"))
+    timeInvited = Column(DateTime, default=None)
+    inviteCount = Column(Integer, default=0)
     waitlist = relationship("Waitlist", back_populates="entries")
     user_data = relationship("Character")
 
@@ -418,6 +446,8 @@ class HistoryEntry(Base):
     EVENT_COMP_MV_XUP_FIT = "comp_mv_xup_fit"
     EVENT_SET_FC = "set_fc"
     EVENT_SET_FLEETCOMP = "set_fcomp"
+    EVENT_AUTO_RM_PL = "auto_rm_pl"
+
 
 class HistoryExtInvite(Base):
     __tablename__ = "comp_history_ext_inv"
@@ -426,3 +456,23 @@ class HistoryExtInvite(Base):
     waitlistID = Column(Integer, ForeignKey(Waitlist.id))
     timeCreated = Column(DateTime)
     timeInvited = Column(DateTime)
+
+class EventHistoryType(Base):
+    __tablename__ = "event_history_types"
+    typeID = Column(Integer, primary_key=True)
+    typeName = Column(String(20), unique=True)
+
+class EventHistoryEntry(Base):
+    __tablename__ = "event_history_entries"
+    historyID = Column(Integer, primary_key=True)
+    time = Column(DateTime, default=datetime.utcnow, index=True)
+    typeID = Column(Integer, ForeignKey("event_history_types.typeID"))
+
+    type = relationship("EventHistoryType", uselist=False)
+
+class EventHistoryInfo(Base):
+    __tablename__ = "event_history_info"
+    infoID = Column(Integer, primary_key=True)
+    historyID = Column(Integer, ForeignKey("event_history_entries.historyID"))
+    infoType = Column(Integer)
+    referenceID = Column(Integer)

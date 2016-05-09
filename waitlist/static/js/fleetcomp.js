@@ -11,10 +11,10 @@ var notifyOnProfileOpen = false;
  * @param charId
  * @param wlid
  */
-function inviteCharacter(charId, wlId) {
+function inviteCharacter(charId, wlId, groupID) {
 	IGBW.showInfo(1377, charId);
 	if (notifyOnProfileOpen) {
-		invitePlayer(charId, wlId);
+		invitePlayer(charId, wlId, groupID);
 	}
 }
 
@@ -143,7 +143,7 @@ function createHeaderDOM(wlname, wlid, entry, groupId) {
 	} else {
 		var notifyButton = ""
 		if (!notifyOnProfileOpen) {
-			 notifyButton = '<button type="button" class="btn btn-success" onclick="javascript:invitePlayer('+entry.character.id+', '+wlid+')"><i class="fa fa-bell-o"></i></button>';
+			 notifyButton = '<button type="button" class="btn btn-success" onclick="javascript:invitePlayer('+entry.character.id+', '+wlid+', '+groupId+')"><i class="fa fa-bell-o"></i></button>';
 		}
 		buttonRow = $('<div>'+
 					'<div class="btn-group btn-group-mini" role="group" aria-label="Action Buttons">'+
@@ -424,9 +424,13 @@ function refreshWl() {
  * Send the notification for a player,  and logs from which wl he was invited
  * @param userId eve id of the user, the notification should be send too
  */
-function invitePlayer(userId, wlId) {
+function invitePlayer(userId, wlId, groupID) {
+	$.post(getMetaData('api-invite'), {'charID': userId, 'waitlistID': wlId, 'groupID': groupID, '_csrf_token': getMetaData('csrf-token')}, function(data){
+	}, "json");
+	/*
 	$.post(getMetaData('api-invite-player'), {'playerId': userId, 'wlId': wlId, '_csrf_token': getMetaData('csrf-token')}, function(){
 	}, "text");
+	*/
 }
 
 /**
