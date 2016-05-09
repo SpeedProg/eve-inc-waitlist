@@ -438,6 +438,7 @@ class HistoryEntry(Base):
     EVENT_XUP = "xup"
     EVENT_COMP_RM_PL = "comp_rm_pl"
     EVENT_COMP_INV_PL = "comp_inv_pl"
+    EVENT_COMP_NOTI_PL = "comp_send_noti"
     EVENT_COM_RM_ETR = "comp_rm_etr"
     EVENT_SELF_RM_FIT = "self_rm_fit"
     EVENT_SELF_RM_ETR = "self_rm_etr"

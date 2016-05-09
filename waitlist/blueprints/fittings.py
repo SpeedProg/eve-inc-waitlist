@@ -101,7 +101,7 @@ def api_invite_player():
     #publish(event)
     
     character = db.session.query(Character).filter(Character.id == playerId).first()
-    hEntry = create_history_object(character.get_eve_id(), HistoryEntry.EVENT_COMP_INV_PL, current_user.id)
+    hEntry = create_history_object(character.get_eve_id(), HistoryEntry.EVENT_COMP_SEND_NOTI, current_user.id)
     hEntry.exref = waitlist.group.groupID
     
     # create a invite history extension
@@ -120,7 +120,7 @@ def api_invite_player():
     db.session.add(historyExt)
 
     db.session.commit()
-    logger.info("%s invited %s to fleet from %s.", current_user.username, character.eve_name, waitlist.group.groupName)
+    logger.info("%s send notification to %s.", current_user.username, character.eve_name)
     return "OK"
 
 @bp_waitlist.route("/api/wl/entries/remove/", methods=['POST'])
