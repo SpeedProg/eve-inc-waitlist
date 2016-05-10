@@ -141,13 +141,17 @@ function createHeaderDOM(wlname, wlid, entry, groupId) {
 	var xupTime = new Date(Date.parse(entry.time));
 	var waitTimeMinutes = Math.floor((cTime - xupTime)/60000);
 	var header = $('<div></div>');
+	var oldInvites = "";
+	if (wlname != "queue") {
+		oldInvites = " "+entry.missedInvites+'<i class="fa fa-bed" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="Missed Invites"></i>'
+	}
 	var charRow = $('<a href="javascript:IGBW.showInfo('+entry.character.id+', '+wlid+');">'+
 						'<div class="wel-header-32">'+
 							'<div class="wel-img-32">'+
 									'<img src="https://image.eveonline.com/Character/'+entry.character.id+'_32.jpg" alt="'+entry.character.name+'">'+
 							'</div>'+
 							'<div class="wel-container-32">'+
-								'<div class="wel-text-row-32-2">'+entry.character.name+'('+entry.missedInvites+')'+newBroTag+' <small class="wait-time">'+waitTimeMinutes+' min ago</small></div>'+
+								'<div class="wel-text-row-32-2">'+entry.character.name+oldInvites+newBroTag+' <small class="wait-time">'+waitTimeMinutes+' min ago</small></div>'+
 								'<div class="wel-text-row-32-2 tag-row"></div>'+
 							'</div>'+
 						'</div>'+
