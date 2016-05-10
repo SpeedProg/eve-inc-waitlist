@@ -3,7 +3,8 @@ def makeJsonWLEntry(entry):
             'id': entry.id,
             'character': makeJsonCharacter(entry.user_data),
             'fittings': makeJsonFittings(entry.fittings),
-            'time': entry.creation
+            'time': entry.creation,
+            'missedInvites': entry.inviteCount
             }
 
 def makeJsonWL(dbwl):

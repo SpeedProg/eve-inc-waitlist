@@ -244,11 +244,12 @@ def check_invite_and_remove_timer(charID, groupID, fleetID):
     if group is None or crestFleet is None or crestFleet.comp is None: # the fleet was deleted meanwhile or has no fleetcomp
         return
     member = member_info.get_fleet_members(fleetID, crestFleet.comp)
+    character = db.session.query(Character).filter(Character.id == charID).first()
+    waitlist_entries = db.session.query(WaitlistEntry).filter((WaitlistEntry.user == charID) &
+                                                   ((WaitlistEntry.waitlist_id == group.logiwlID) |
+                                                     (WaitlistEntry.waitlist_id == group.dpswlID) |
+                                                     (WaitlistEntry.waitlist_id == group.sniperwlID))).all()
     if charID in member:# he is in the fleet
-        waitlist_entries = db.session.query(WaitlistEntry).filter((WaitlistEntry.user == charID) &
-                                                           ((WaitlistEntry.waitlist_id == group.logiwlID) |
-                                                             (WaitlistEntry.waitlist_id == group.dpswlID) |
-                                                             (WaitlistEntry.waitlist_id == group.sniperwlID))).all()
         fittings = []
         for entry in waitlist_entries:
             fittings.extend(entry.fittings)
@@ -272,5 +273,14 @@ def check_invite_and_remove_timer(charID, groupID, fleetID):
         hEntry.exref = group.groupID
         db.session.add(hEntry)
         db.session.commit()
-        character = db.session.query(Character).filter(Character.id == charID).first()
+
         logger.info("auto removed %s from %s waitlist.", character.eve_name, group.groupName)
+    else:
+        for entry in waitlist_entries:
+            entry.inviteCount += 1
+        hEntry = create_history_object(charID, HistoryEntry.EVENT_AUTO_CHECK_FAILED, None, None)
+        hEntry.exref = group.groupID
+        db.session.add(hEntry)
+        db.session.commit()
+        logger.info("% missed his invite", character.eve_name)
+        

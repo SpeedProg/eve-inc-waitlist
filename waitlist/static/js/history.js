@@ -36,6 +36,8 @@ var HISTORY = (function(){
 			return "Was set as Fleet Comp";
 		case "auto_rm_pl":
 			return "Player was removed after found in fleet";
+		case "auto_inv_missed":
+			return "Player missed his invite";
 		default:
 			return action;
 		}
