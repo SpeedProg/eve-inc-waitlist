@@ -290,5 +290,5 @@ def check_invite_and_remove_timer(charID, groupID, fleetID):
         hEntry.exref = group.groupID
         db.session.add(hEntry)
         db.session.commit()
-        logger.info("% missed his invite", character.eve_name)
+        logger.info("%s missed his invite", character.eve_name)
         
