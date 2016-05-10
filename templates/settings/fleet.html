@@ -199,6 +199,25 @@ $(document).ready(function() {
     </tr>
     {% endif %}
     <tr>
+    <th scope="row">Backseats:</th>
+    <td colspan="2">
+    {% for backseat in group.backseats %}
+    	<a href="javascript:IGBW.showInfo(1377, {{backseat.current_char_obj.get_eve_id()}});">{{backseat.current_char_obj.get_eve_name()}}</a>
+		{% if not loop.last %} - {% endif %}
+    {% endfor %}
+    	<form action="{{url_for('settings.fleet_status_set', gid=group.groupID)}}" method="post" class="form-inline" style="display:inline;">
+    	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+    	<input type="hidden" name="action" value="remove-backseat">
+    	<button type="submit" class="btn btn-sm btn-danger">Remove Self</button>
+    	</form>
+    	<form action="{{url_for('settings.fleet_status_set', gid=group.groupID)}}" method="post" class="form-inline" style="display:inline;">
+    	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+    	<input type="hidden" name="action" value="add-backseat">
+    	<button type="submit" class="btn btn-sm btn-primary">Add Self</button>
+    	</form>
+    </td>
+    </tr>
+    <tr>
     	<th scope="row">Register for Fleet</th>
     	<td colspan="2">
 			<form>

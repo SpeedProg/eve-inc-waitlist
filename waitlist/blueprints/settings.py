@@ -490,6 +490,10 @@ def fleet_status_set(gid):
             hObj = create_history_object(current_user.get_eve_id(), HistoryEntry.EVENT_SET_FLEETCOMP, current_user.id)
             db.session.add(hObj)
             flash("Manager was set to "+current_user.get_eve_name(), "success")
+    elif action == "add-backseat":
+        group.backseats.append(current_user)
+    elif action == "remove-backseat":
+        group.backseats.remove(current_user)
     
     db.session.commit()
     

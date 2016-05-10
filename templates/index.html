@@ -74,7 +74,18 @@
 	    <tbody>
 	    <tr>
 	    	<th scope="row">Fleet Manager</th>
-	    	<td>{% if group.manager is not none %}<a href="javascript:CCPEVE.showInfo(1377, {{group.manager.current_char_obj.get_eve_id()}});">{{group.manager.current_char_obj.get_eve_name()}}</a>{% else %}Not Set{% endif %}</td>
+	    	<td>{% if group.fleets|length > 0 %}{# we have crest connected fleets with comps #}
+					{% for fleet in group.fleets %}
+						{% if fleet.comp is not none %}
+						<a href="javascript:IGBW.showInfo(1377, {{fleet.comp.current_char_obj.get_eve_id()}});">{{fleet.comp.current_char_obj.get_eve_name()}}</a>
+						{% if not loop.last %} - {% endif %}
+						{% else %}
+						Not Set
+						{% endif %}
+					{% endfor %}
+	    		{% else %}
+	    	{% if group.manager is not none %}<a href="javascript:CCPEVE.showInfo(1377, {{group.manager.current_char_obj.get_eve_id()}});">{{group.manager.current_char_obj.get_eve_name()}}</a>{% else %}Not Set{% endif %}</td>
+				{% endif %}
 	    </tr>
 	    </tbody>
 	    </table>

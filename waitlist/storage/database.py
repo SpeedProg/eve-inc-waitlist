@@ -38,6 +38,12 @@ linked_chars = Table('linked_chars',
                      Column('char_id', Integer, ForeignKey('characters.id', onupdate="CASCADE", ondelete="CASCADE"))
                      )
 
+backseats = Table("backseats",
+                  Base.metadata,
+                  Column("accountID", Integer, ForeignKey('accounts.id', ondelete="CASCADE")),
+                  Column("groupID", Integer, ForeignKey('waitlist_groups.groupID', ondelete="CASCADE"))
+                  )
+
 class Station(Base):
     __tablename__ = "station"
     stationID = Column(Integer, primary_key=True)
@@ -297,6 +303,7 @@ class WaitlistGroup(Base):
     system = relationship("SolarSystem", uselist=False)
     constellation = relationship("Constellation", uselist=False)
     fleets = relationship("CrestFleet", back_populates="group")
+    backseats = relationship("Account", secondary="backseats")
 
 class Shipfit(Base):
     """
