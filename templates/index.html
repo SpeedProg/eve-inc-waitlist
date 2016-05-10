@@ -157,7 +157,7 @@
 								onclick="javascript:removeOwnEntry('{{wlist.name}}', {{entry.user}}, {{ entry.id }});"><i class="fa fa-times"></i></button>
 							{% endif %}
 							{% if current_user.get_eve_id() == entry.user or perm_viewfits.can() %}
-							<button type="button" data-toggle="collapse" data-target="#fittings-{{entry.id}}" class="btn btn-primary"><i class="fa fa-plus"></i> &#47; <i class="fa fa-minus"></i> Fits</button>
+							<button type="button" data-toggle="collapse" data-target="#fittings-{{entry.id}}" class="btn btn-primary"><i class="fa fa-caret-down"></i></i> Fits</button>
 							{% endif %}
 						</div>
 						{% endif %}
