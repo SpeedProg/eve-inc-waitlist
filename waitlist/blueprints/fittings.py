@@ -5,8 +5,7 @@ from waitlist.data.perm import perm_management, perm_dev, perm_officer,\
 from flask_login import login_required, current_user
 from flask.globals import request
 from waitlist.storage.database import WaitlistEntry, Shipfit, Waitlist,\
-    Character, InvType, MarketGroup, HistoryEntry, HistoryExtInvite,\
-    WaitlistGroup
+    Character, InvType, MarketGroup, HistoryEntry, WaitlistGroup
 import re
 from waitlist.storage.modules import resist_ships, logi_ships,\
     sniper_ships, t3c_ships, sniper_weapons, dps_weapons, dps_ships,\
@@ -19,7 +18,7 @@ from datetime import datetime, timedelta
 from waitlist.utility.utils import get_fit_format, create_mod_map,\
     get_character
 from waitlist import db
-from waitlist.data.sse import ServerSentEvent, InviteEvent
+from waitlist.data.sse import ServerSentEvent
 from flask import Response
 from gevent.queue import Queue
 import flask

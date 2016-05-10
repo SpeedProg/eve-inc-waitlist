@@ -3,18 +3,15 @@ import logging
 from flask_login import login_required, current_user
 import flask
 from flask.globals import request
-from datetime import datetime, timedelta
-from waitlist.data.perm import perm_management, perm_comphistory,\
-    perm_leadership, perm_officer
+from waitlist.data.perm import perm_management
 from waitlist.storage.database import CrestFleet, Waitlist, WaitlistGroup,\
     Character, WaitlistEntry, HistoryEntry, HistoryExtInvite
 from waitlist.utility.notifications import send_notification
 from waitlist.utility.history_utils import create_history_object
 from waitlist.utility.fleet import spawn_invite_check, invite, member_info
 from flask.json import jsonify
-from waitlist.utility.json import makeHistoryJson
 from waitlist import db
-from flask.helpers import make_response
+from datetime import datetime
 bp = Blueprint('api_fleet', __name__)
 logger = logging.getLogger(__name__)
 
