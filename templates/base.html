@@ -102,6 +102,13 @@ $(document).ready(function () {
 </div>
 	{% endblock %}
 	</nav>
+	<div id="alert-area-base">
+	{# Show a message if you have comp permissions but you are not fleet comp of a fleet #}
+	{% if perm_man.can() and current_user.fleet is none %}
+	<div class="alert alert-info fade in" role="alert">
+  		<p class="text-xs-center">You are not associated with any fleet, you can change this in <a href="{{url_for('settings.fleet')}}">Fleet Settings</a></p>
+  	</div>
+  	{% endif %}
 	{% with messages = get_flashed_messages(with_categories=true) %}
   		{% if messages %}
   		{% for category, message in messages %}
@@ -114,6 +121,7 @@ $(document).ready(function () {
   		{% endfor %}
   		{% endif %}
 	{% endwith %}
+	</div>
 	<div id="content" class="container-fluid">
 		{% block container_data %}
 		<div class="row" id="data">{% block data %}{% endblock %}</div>

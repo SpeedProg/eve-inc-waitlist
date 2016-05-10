@@ -1,7 +1,7 @@
 from flask.blueprints import Blueprint
 import logging
 from waitlist.data.perm import perm_management, perm_dev
-from waitlist.utility.crest import fleet as fleetUtils
+from waitlist.utility import fleet as fleetUtils
 from werkzeug.utils import redirect
 from flask_login import login_required, current_user
 from waitlist import db
@@ -13,7 +13,7 @@ from flask.templating import render_template
 from flask.globals import request
 import re
 import flask
-from waitlist.utility.crest.fleet import get_wings
+from waitlist.utility.fleet import get_wings
 
 bp = Blueprint('fleet', __name__)
 logger = logging.getLogger(__name__)

@@ -8,13 +8,13 @@
 <meta name="wl-names" content="{% for wl in lists %}{{wl.name|e}}{% if not loop.last %},{% endif %}{% endfor %}">
 {% if perm_man.can() %}
 {# URLs for fleetcomp js #}
-<meta name="api-invite-player" content="{{url_for('fittings.api_invite_player')}}">
+<meta name="api-send-notification" content="{{url_for('api_fittings.send_notification', playerID=-1)}}">
 <meta name="api-wls-remove-player" content="{{url_for('fittings.api_wls_remove_player')}}">
 <meta name="api-wl-remove-entry" content="{{url_for('fittings.api_wl_remove_entry')}}">
 <meta name="api-move-entry-to-wls" content="{{url_for('fittings.move_to_waitlists')}}">
-<meta name="api-waitlists" content="{{url_for('waitlist_api.waitlist')}}">
+<meta name="api-waitlists" content="{{url_for('api_fittings.waitlist')}}">
 <meta name="api-approve-fit" content="{{url_for('fittings.api_move_fit_to_waitlist')}}">
-<meta name="api-invite" content="{{url_for('waitlist_api.invite_to_fleet')}}">
+<meta name="api-send-invite" content="{{url_for('api_fleet.invite_to_fleet')}}">
 {% if group %}
 <meta name="wl-group-id" content="{{group.groupID}}">
 {% endif %}

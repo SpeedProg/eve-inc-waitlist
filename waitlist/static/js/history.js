@@ -1,4 +1,5 @@
 var HISTORY = (function(){
+
 	// 4h in the past
 	var lib = {'laststamp':((new Date(Date.now())).getTime()-14400000)};
 	/**
@@ -14,7 +15,7 @@ var HISTORY = (function(){
 		case "comp_rm_pl":
 			return "Removed a Character from Waitlists";
 		case "comp_inv_pl":
-			return "Send Notification to Character";
+			return "Send Invitation to Character";
 		case "comp_rm_etr":
 			return "Removed Entry from X-UPs";
 		case "self_rm_fit":
@@ -27,6 +28,14 @@ var HISTORY = (function(){
 			return "Approved X-UP entry";
 		case "comp_mv_xup_fit":
 			return "Approved Single Fit";
+		case "comp_send_noti":
+			return "Send Notification to Character";
+		case "set_fc":
+			return "Was set as FC";
+		case "set_fcomp":
+			return "Was set as Fleet Comp";
+		case "auto_rm_pl":
+			return "Player was removed after found in fleet";
 		default:
 			return action;
 		}

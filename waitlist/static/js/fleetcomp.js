@@ -5,17 +5,43 @@ var getMetaData = function (name) {
 	return $('meta[name="'+name+'"]').attr('content');
 }
 
-var notifyOnProfileOpen = false;
+function displayMessage(message, type) {
+	var alertHTML = $($.parseHTML('<div class="alert alert-dismissible" role="alert">'+
+			'<button type="button" class="close" data-dismiss="alert" aria-label="Close">'+
+    			'<span aria-hidden="true">&times;</span>'+
+  			'</button>'+
+			'<p class="text-xs-center"></p>'+
+			'</div>'));
+	var textContainer = $('.text-xs-center', alertHTML);
+	textContainer.text(message);
+	alertHTML.addClass('alert-'+type);
+	var alertArea = $('#alert-area-base');
+	alertArea.append(alertHTML)
+}
+
 /**
- * Opens the profile of a character and sends the notice
+ * Sends out a notification
  * @param charId
  * @param wlid
  */
-function inviteCharacter(charId, wlId, groupID) {
-	IGBW.showInfo(1377, charId);
-	if (notifyOnProfileOpen) {
-		invitePlayer(charId, wlId, groupID);
-	}
+function sendNotification(charID, waitlistID) {
+	$.post({
+		'url':getMetaData('api-send-notification').replace("-1", charID),
+		'data': {
+			'waitlistID': waitlistID,
+			'_csrf_token': getMetaData('csrf-token')
+		},
+		'error': function(data) {
+			var message = data.statusText
+			if (typeof data.message != 'undefined') {
+					message += ": " + data.message;
+			}
+			displayMessage(message, "danger");
+		},
+		'success': function(data){
+		},
+		'dataType': 'json'
+	});
 }
 
 /**
@@ -115,7 +141,7 @@ function createHeaderDOM(wlname, wlid, entry, groupId) {
 	var xupTime = new Date(Date.parse(entry.time));
 	var waitTimeMinutes = Math.floor((cTime - xupTime)/60000);
 	var header = $('<div></div>');
-	var charRow = $('<a href="javascript:inviteCharacter('+entry.character.id+', '+wlid+');">'+
+	var charRow = $('<a href="javascript:IGBW.showInfo('+entry.character.id+', '+wlid+');">'+
 						'<div class="wel-header-32">'+
 							'<div class="wel-img-32">'+
 									'<img src="https://image.eveonline.com/Character/'+entry.character.id+'_32.jpg" alt="'+entry.character.name+'">'+
@@ -135,20 +161,18 @@ function createHeaderDOM(wlname, wlid, entry, groupId) {
 		buttonRow = $('<div>'+
 				'<div class="btn-group btn-group-mini" role="group" aria-label="Action Buttons">'+
 					'<button type="button" class="btn btn-success" onclick="javascript:moveEntryToWaitlists('+entry.id+', '+entry.character.id+')"><i class="fa fa-thumbs-o-up"></i></button>'+
-					'<button aria-expanded="true" type="button" data-toggle="collapse" data-target="#fittings-'+entry.id+'" class="btn btn-primary"><i class="fa fa-plus"></i> &#47; <i class="fa fa-minus"></i> Fits</button>'+
+					'<button aria-expanded="true" type="button" data-toggle="collapse" data-target="#fittings-'+entry.id+'" class="btn btn-primary"><i class="fa fa-caret-down"></i></i> Fits</button>'+
+					'<button type="button" class="btn btn-success" onclick="javascript:sendNotification('+entry.character.id+', '+wlid+')"><i class="fa fa-bell-o"></i></button>'+
 					'<button type="button" class="btn btn-secondary" onclick="javascript:IGBW.startConversation('+entry.character.id+')"><i class="fa fa-comment-o"></i></button>'+
 					'<button type="button" class="btn btn-danger" onclick="javascript:removeEntry('+entry.id+', '+entry.character.id+');"><i class="fa fa-times"></i></button>'+
 				'</div>'+
 			'</div>');
 	} else {
-		var notifyButton = ""
-		if (!notifyOnProfileOpen) {
-			 notifyButton = '<button type="button" class="btn btn-success" onclick="javascript:invitePlayer('+entry.character.id+', '+wlid+', '+groupId+')"><i class="fa fa-bell-o"></i></button>';
-		}
 		buttonRow = $('<div>'+
 					'<div class="btn-group btn-group-mini" role="group" aria-label="Action Buttons">'+
-						notifyButton+
-						'<button aria-expanded="true" type="button" data-toggle="collapse" data-target="#fittings-'+entry.id+'" class="btn btn-primary"><i class="fa fa-plus"></i> &#47; <i class="fa fa-minus"></i> Fits</button>'+
+						'<button type="button" class="btn btn-success" onclick="javascript:invitePlayer('+entry.character.id+', '+wlid+', '+groupId+')"><i class="fa fa-plus"></i></button>'+
+						'<button aria-expanded="true" type="button" data-toggle="collapse" data-target="#fittings-'+entry.id+'" class="btn btn-primary"><i class="fa fa-caret-down"></i> Fits</button>'+
+						'<button type="button" class="btn btn-success" onclick="javascript:sendNotification('+entry.character.id+', '+wlid+')"><i class="fa fa-bell-o"></i></button>'+
 						'<button type="button" class="btn btn-secondary" onclick="javascript:IGBW.startConversation('+entry.character.id+')"><i class="fa fa-comment-o"></i></button>'+
 						'<button type="button" class="btn btn-danger" onclick="javascript:removePlayer('+entry.character.id+', '+groupId+');"><i class="fa fa-times"></i></button>'+
 					'</div>'+
@@ -424,13 +448,29 @@ function refreshWl() {
  * Send the notification for a player,  and logs from which wl he was invited
  * @param userId eve id of the user, the notification should be send too
  */
-function invitePlayer(userId, wlId, groupID) {
-	$.post(getMetaData('api-invite'), {'charID': userId, 'waitlistID': wlId, 'groupID': groupID, '_csrf_token': getMetaData('csrf-token')}, function(data){
-	}, "json");
-	/*
-	$.post(getMetaData('api-invite-player'), {'playerId': userId, 'wlId': wlId, '_csrf_token': getMetaData('csrf-token')}, function(){
-	}, "text");
-	*/
+function invitePlayer(userID, waitlistID, groupID) {
+	$.post({
+		'url':getMetaData('api-send-invite'),
+		'data': {
+			'charID': userID,
+			'waitlistID': waitlistID,
+			'groupID': groupID,
+			'_csrf_token': getMetaData('csrf-token')
+		},
+		'error': function(data) {
+			var message = data.statusText
+			if (typeof data.message != 'undefined') {
+					message += ": " + data.message;
+			}
+			if (typeof data.responseJSON != 'undefined' && typeof data.responseJSON.message != 'undefined') {
+				message += ": " + data.responseJSON.message
+			}
+			displayMessage(message, "danger");
+		},
+		'success': function(data){
+		},
+		'dataType': 'json'
+	});
 }
 
 /**

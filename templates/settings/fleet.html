@@ -197,6 +197,7 @@ $(document).ready(function() {
     	</form>
     	</td>
     </tr>
+    {% endif %}
     <tr>
     	<th scope="row">Register for Fleet</th>
     	<td colspan="2">
@@ -208,7 +209,6 @@ $(document).ready(function() {
     <tr>
     <th>Fleet ID</th><th>Current Fleet Comp</th><th>Actions</th>
     </tr>
-    {% endif %}
     {% for fleet in group.fleets %}
     <tr id="fleet-{{fleet.fleetID}}">
         <td>{{fleet.fleetID}}</td>

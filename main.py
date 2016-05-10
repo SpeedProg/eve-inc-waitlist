@@ -2,7 +2,6 @@ from gevent import monkey; monkey.patch_all()
 # inject the lib folder before everything else
 import os
 import sys
-from waitlist.blueprints.api.fleet import bp as fleet_api_bp
 base_path = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(base_path, 'lib'))
 from waitlist.data.version import version
@@ -10,7 +9,6 @@ from waitlist.utility.eve_id_utils import get_account_from_db, get_char_from_db,
     is_char_banned, get_character_by_id_and_name, get_character_by_name
 from datetime import datetime
 import math
-from waitlist.blueprints.waitlist_api import wl_api
 from sqlalchemy.exc import StatementError
 from waitlist.utility import config
 from logging.handlers import TimedRotatingFileHandler
@@ -37,15 +35,16 @@ from flask.helpers import url_for
 from waitlist.utility.utils import is_igb
 from waitlist.blueprints.fc_sso import bp as fc_sso_bp
 from waitlist.blueprints.fleet import bp as fleet_bp
+from waitlist.blueprints.api.fleet import bp as api_fleet_bp
+from waitlist.blueprints.api.fittings import bp as api_wl_bp
 
 app.register_blueprint(bp_waitlist)
 app.register_blueprint(bp_settings, url_prefix='/settings')
 app.register_blueprint(feedback, url_prefix="/feedback")
-app.register_blueprint(wl_api, url_prefix="/wl_api")
 app.register_blueprint(fc_sso_bp, url_prefix="/fc_sso")
 app.register_blueprint(fleet_bp, url_prefix="/fleet")
-app.register_blueprint(fleet_api_bp, url_prefix="/api/fleet")
-
+app.register_blueprint(api_fleet_bp, url_prefix="/api/fleet")
+app.register_blueprint(api_wl_bp, url_prefix="/api/fittings")
 logger = logging.getLogger(__name__)
 
 # set if it is the igb

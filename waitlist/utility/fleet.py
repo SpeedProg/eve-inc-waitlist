@@ -4,8 +4,51 @@ from waitlist.utility.config import crest_client_id, crest_client_secret,\
     motd_hq, motd_vg
 from time import sleep
 import logging
+from threading import Timer
+from waitlist import db
+from waitlist.storage.database import WaitlistGroup, CrestFleet, WaitlistEntry,\
+    HistoryEntry, Character
+from datetime import datetime, timedelta
+from waitlist.utility.history_utils import create_history_object
 
 logger = logging.getLogger(__name__)
+
+class FleetMemberInfo():
+    def __init__(self):
+        self._lastupdate = {}
+        self._lastmembers = {}
+    
+    def get_fleet_members(self, fleetID, account):
+        return self.get_data(fleetID, account)
+    
+    def _json_to_members(self, json):
+        data = {}
+        for member in json.items:
+            data[member.character.id] = member
+        return data
+    
+    def get_data(self, fleetID, account):
+        utcnow = datetime.utcnow()
+        if (self.is_expired(fleetID, utcnow)):
+            fleet = connection_cache.get_connection(fleetID, account)
+            json = fleet().members()
+            self.update_cache(fleetID, utcnow, self._json_to_members(json))
+        
+        return self._lastmembers[fleetID]
+    
+    def is_expired(self, fleetID, utcnow):
+        if not fleetID in self._lastupdate:
+            return True
+        else:
+            lastUpdated = self._lastupdate[fleetID]
+            if utcnow - lastUpdated < timedelta(seconds=5):
+                return False
+            else:
+                return True
+    
+    def update_cache(self, fleetID, utcnow, data):
+        self._lastmembers[fleetID] = data
+        self._lastupdate[fleetID] = utcnow
 
 class FleetConnectionCache():
     def __init__(self):
@@ -13,7 +56,9 @@ class FleetConnectionCache():
     
     def get_connection(self, fleetID, account):
         if account.id in self._cache:
-            return self._cache[account.id].update_tokens(account.refresh_token, account.access_token, account.access_token_expires)
+            con = self._cache[account.id]
+            con.update_tokens(account.refresh_token, account.access_token, account.access_token_expires)
+            return con
         else:
             return self._add_connection(fleetID, account)
     
@@ -29,6 +74,7 @@ class FleetConnectionCache():
         return connection
 
 connection_cache = FleetConnectionCache()
+member_info = FleetMemberInfo()
 
 class FleetRoles():
     SQUAD_COMMANDER = 'squadCommander'
@@ -180,10 +226,49 @@ def invite(user_id, squadIDList):
             if resp.json()['key'] == "FleetTooManyMembersInSquad":
                 continue
             else:
-                return {'status_code': resp.status_code, 'text': resp.json().message}
+                return {'status_code': resp.status_code, 'text': resp.json()['message']}
         elif resp.status_code == 201:
             return {'status_code': 201, 'text': resp.text}
         else:
-            return {'status_code': resp.status_code, 'text': resp.json().message}
+            return {'status_code': resp.status_code, 'text': resp.json()['message']}
 
     return {'status_code': 403, 'text': 'Failed to invite person a a squad, all squads are full!'}
+
+def spawn_invite_check(characterID, groupID, fleetID):
+    t = Timer(66.0, check_invite_and_remove_timer, [characterID, groupID, fleetID])
+    t.start()
+
+def check_invite_and_remove_timer(charID, groupID, fleetID):
+    group = db.session.query(WaitlistGroup).get(groupID)
+    crestFleet = db.session.query(CrestFleet).get(fleetID)
+    member = member_info.get_fleet_members(fleetID, crestFleet.comp)
+    if charID in member:# he is in the fleet
+        waitlist_entries = db.session.query(WaitlistEntry).filter((WaitlistEntry.user == charID) &
+                                                           ((WaitlistEntry.waitlist_id == group.logiwlID) |
+                                                             (WaitlistEntry.waitlist_id == group.dpswlID) |
+                                                             (WaitlistEntry.waitlist_id == group.sniperwlID))).all()
+        fittings = []
+        for entry in waitlist_entries:
+            fittings.extend(entry.fittings)
+        
+        # check if there is an other waitlist
+        if group.otherwlID is not None:
+            entry = db.session.query(WaitlistEntry).filter((WaitlistEntry.user == charID) & (WaitlistEntry.waitlist_id == group.otherwlID)).on_or_none()
+            if entry is not None:
+                fittings.extend(entry.fittings)
+        
+        
+        waitlist_entries = db.session.query(WaitlistEntry).filter((WaitlistEntry.user == charID) &
+                                                                   ((WaitlistEntry.waitlist_id == group.logiwlID) |
+                                                                     (WaitlistEntry.waitlist_id == group.dpswlID) |
+                                                                     (WaitlistEntry.waitlist_id == group.sniperwlID))).delete()
+        # if other waitlist delete those entries too
+        if group.otherwlID is not None:
+            entry = db.session.query(WaitlistEntry).filter((WaitlistEntry.user == charID) & (WaitlistEntry.waitlist_id == group.otherwlID)).delete()
+        
+        hEntry = create_history_object(charID, HistoryEntry.EVENT_AUTO_RM_PL, None, fittings)
+        hEntry.exref = group.groupID
+        db.session.add(hEntry)
+        db.session.commit()
+        character = db.session.query(Character).filter(Character.id == charID).first()
+        logger.info("auto removed %s from %s waitlist.", character.eve_name, group.groupName)
