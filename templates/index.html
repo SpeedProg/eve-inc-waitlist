@@ -144,7 +144,7 @@
 									alt="{{ entry.user_data.eve_name|e }}">
 							</div>
 							<div class="wel-container-32">
-								{{ entry.user_data.eve_name|e }}{% if wlist.name != "queue" %} {{entry.inviteCount}}<i class="fa fa-bed" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="Missed Invites"></i>{% endif %}{% if entry.user_data.is_new() %} <span class="label label-info">New</span>{% endif %} <small class="wait-time">{{entry.creation|waittime}} min ago</small>
+								{{ entry.user_data.eve_name|e }}{% if wlist.name != "queue" %} {{entry.inviteCount}} <i class="fa fa-bed" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="Missed Invites"></i>{% endif %}{% if entry.user_data.is_new() %} <span class="label label-info">New</span>{% endif %} <small class="wait-time">{{entry.creation|waittime}} min ago</small>
 							</div>
 						</div>
 						{% if current_user.get_eve_id() == entry.user %}
