@@ -119,10 +119,8 @@ def setup(fleet_id, fleet_type):
     wing1 = wing2 = None
     for wing in fleet.wings().items:
         if wing.name == "Wing 1" or wing.name.lower() == "on grid":
-            print "Found wing1"
             wing1 = wing
         elif wing.name == "Wing 2" or wing.name.lower() == "tipping":
-            print "Found wing2"
             wing2 = wing
 
     if wing1.name.lower() != "on grid":
@@ -149,32 +147,23 @@ def setup(fleet_id, fleet_type):
         sleep(6)
 
     wings = fleet().wings()
-    print wings
     for wing in wings.items:
         if wing.name.lower() == "on grid":
-            print "Found wing1"
             wing1 = wing
         elif wing.name.lower() == "tipping":
-            print "Found wing2"
             wing2 = wing
     
     logiSquad = sniperSquad = dpsSquad = moreDpsSquad = None
     print wing1
     for squad in wing1.squadsList:
         if squad.name == "Squad 1" or squad.name.lower() == "logi":
-            print "found "+ squad.name
             logiSquad = squad
         elif squad.name == "Squad 2" or squad.name.lower() == "sniper":
-            print "found "+ squad.name
             sniperSquad = squad
         elif squad.name == "Squad 3" or squad.name.lower() == "dps":
-            print "found "+ squad.name
             dpsSquad = squad
         elif squad.name == "Squad 4" or squad.name.lower() == "more dps" or squad.name.lower() == "other":
-            print "found "+ squad.name
             moreDpsSquad = squad
-        else:
-            print squad.name
     
     if fleet_type == "hq":
         if logiSquad.name == "Squad 1":
@@ -205,7 +194,6 @@ def get_wings(fleet_id):
             'expires_in': current_user.access_token_expires
             }
     fleet = AuthedConnectionB(data, fleet_url, "https://login.eveonline.com/oauth", crest_client_id, crest_client_secret)
-    print fleet().members()
     return fleet().wings().items
 
 def invite(user_id, squadIDList):

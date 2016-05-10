@@ -27,8 +27,7 @@ def login_redirect():
 def login_cb():
     code = request.args.get('code')
     state = request.args.get('state')
-    print code
-    print state
+
     header = {'Authorization': 'Basic '+base64.b64encode("6f5fa2e4ff05442f88feaea8a34b4799:i9ob7wY72cy6ETVQtxHQVvPnHG5uhf5qmoFPuJOF"),
               'Content-Type': 'application/x-www-form-urlencoded',
               'Host': 'login.eveonline.com'}
@@ -36,7 +35,7 @@ def login_cb():
               'code': code}
     r = requests.post("https://login.eveonline.com/oauth/token", headers=header, params=params)
     json = r.json()
-    print json
+
     re_token = json['refresh_token']
     acc_token = json['access_token']
     exp_in = int(json['expires_in'])

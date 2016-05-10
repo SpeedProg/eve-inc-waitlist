@@ -321,7 +321,7 @@ def unauthorized_ogb():
 @perm_admin.require(http_exception=401)
 def create_char_logintoken():
     username = request.args.get('char')
-    print username
+
     eve_char = get_character_by_name(username)
     token = eve_char.get_login_token()
     db.session.commit()
