@@ -10,6 +10,7 @@ from waitlist.storage.database import WaitlistGroup, CrestFleet, WaitlistEntry,\
     HistoryEntry, Character
 from datetime import datetime, timedelta
 from waitlist.utility.history_utils import create_history_object
+from pycrest.errors import APIException
 
 logger = logging.getLogger(__name__)
 
@@ -31,8 +32,11 @@ class FleetMemberInfo():
         utcnow = datetime.utcnow()
         if (self.is_expired(fleetID, utcnow)):
             fleet = connection_cache.get_connection(fleetID, account)
-            json = fleet().members()
-            self.update_cache(fleetID, utcnow, self._json_to_members(json))
+            try:
+                json = fleet().members()
+                self.update_cache(fleetID, utcnow, self._json_to_members(json))
+            except APIException:
+                self.update_cache(fleetID, utcnow, {})
         
         return self._lastmembers[fleetID]
     
@@ -219,9 +223,13 @@ def invite(user_id, squadIDList):
         if squad[0] == oldsquad[0] and squad[1] == oldsquad[1]:
             continue
         logger.info("Invite %s to wingID %s and squadID %s", str(user_id), str(squad[0]), str(squad[1]))
-        resp = fleet().members.post(json={'role':'squadMember', 'wingID': squad[0], 'squadID': squad[1], 'character':{'href':'https://crest-tq.eveonline.com/characters/'+str(user_id)+'/'}})
-        print resp
-        print resp.text
+
+        try:
+            resp = fleet().members.post(json={'role':'squadMember', 'wingID': squad[0], 'squadID': squad[1], 'character':{'href':'https://crest-tq.eveonline.com/characters/'+str(user_id)+'/'}})
+        except APIException as ex:
+            if ex.resp.status_code == 403:
+                return {'status_code': ex.resp.status_code, 'text': ex.resp.json()['message']}
+            
         if resp.status_code == 403:
             if resp.json()['key'] == "FleetTooManyMembersInSquad":
                 continue

@@ -106,7 +106,8 @@ def invite_to_fleet():
     db.session.commit()
     
     # set a timer for 1min and 6s that checks if the person accepted the invite
-    spawn_invite_check(characterID, groupID, fleet.fleetID)
+    if resp.status_code == 201:
+        spawn_invite_check(characterID, groupID, fleet.fleetID)
     return resp
 
 def check_invited(fleetID):
