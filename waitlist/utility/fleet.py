@@ -241,6 +241,8 @@ def spawn_invite_check(characterID, groupID, fleetID):
 def check_invite_and_remove_timer(charID, groupID, fleetID):
     group = db.session.query(WaitlistGroup).get(groupID)
     crestFleet = db.session.query(CrestFleet).get(fleetID)
+    if group is None or crestFleet is None or crestFleet.comp is None: # the fleet was deleted meanwhile or has no fleetcomp
+        return
     member = member_info.get_fleet_members(fleetID, crestFleet.comp)
     if charID in member:# he is in the fleet
         waitlist_entries = db.session.query(WaitlistEntry).filter((WaitlistEntry.user == charID) &
