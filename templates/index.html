@@ -21,9 +21,9 @@
 {% endif %}
 {{ super() }}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
-<script type="text/javascript" src="/static/js/waitlist.js"></script>
+<script type="text/javascript" src="{{url_for('static', filename='js/waitlist'+version+'.js')}}"></script>
 {% if perm_man.can() %}
-<script type="text/javascript" src="/static/js/fleetcomp.js"></script>
+<script type="text/javascript" src="{{url_for('static', filename='js/fleetcomp'+version+'.js')}}"></script>
 {% endif %}
 {% if perm_viewfits.can() %}
 <script src="https://quiescens.duckdns.org/wl/wtm.js"></script>
@@ -32,7 +32,7 @@
 	{% include "xup-form.js" %}
 {% endif %}
 
-<link rel="stylesheet" href="/static/css/waitlist.css">
+<link rel="stylesheet" href="{{url_for('static', filename='css/waitlist'+version+'.css')}}">
 {% endblock %}
 
 {% block container_data %}
