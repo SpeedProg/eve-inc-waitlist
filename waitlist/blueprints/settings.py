@@ -28,7 +28,6 @@ import csv
 from waitlist.data.names import WTMRoles
 from waitlist.utility.history_utils import create_history_object
 from waitlist.utility.settings import settings
-from waitlist.blueprints.api import teamspeak
 from waitlist.utility.settings.settings import sget_active_ts_id,\
     sset_active_ts_id
 from waitlist.ts3.connection import change_connection
