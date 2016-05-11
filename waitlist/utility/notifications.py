@@ -21,7 +21,7 @@ def send_invite_notice(data):
 
 def send_notification(playerID, waitlistID):
     if playerID == None:
-        logger.error("Tried to remove player with None id from waitlists.")
+        logger.error("Tried to send notification to player with None ID.")
     
     # lets check that the given wl exists
     waitlist = db.session.query(Waitlist).get(waitlistID);
