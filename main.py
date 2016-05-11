@@ -3,6 +3,7 @@ from gevent import monkey; monkey.patch_all()
 import os
 import sys
 from waitlist.utility.settings import settings
+from waitlist.utility.config import debug_enabled, debug_fileversion
 base_path = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(base_path, 'lib'))
 from waitlist.data.version import version
@@ -56,13 +57,16 @@ def inject_data():
     is_account = False
     if hasattr(current_user, 'type'):
         is_account=(current_user.type == "account")
-
+    if debug_enabled:
+        display_version = debug_fileversion
+    else:
+        display_version = version
     return dict(is_igb=is_igb(), perm_admin=perm_admin,
                 perm_settings=perm_settings, perm_man=perm_management,
                 perm_officer=perm_officer, perm_accounts=perm_accounts,
                 perm_feedback=perm_feedback, is_account=is_account,
                 perm_dev=perm_dev, perm_leadership=perm_leadership, perm_bans=perm_bans,
-                perm_viewfits=perm_viewfits, version=version, perm_comphistory=perm_comphistory)
+                perm_viewfits=perm_viewfits, version=display_version, perm_comphistory=perm_comphistory)
 
 @app.before_request
 def check_ban():
