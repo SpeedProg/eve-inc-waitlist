@@ -5,22 +5,39 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-ts3conn = TS3Connection(ts_host, ts_port)
+def make_connection():
+    con = TS3Connection(ts_host, ts_port)
 
-try :
-    ts3conn.login(client_login_name=ts_query_name, client_login_password=ts_query_pass)
-    ts3conn.use(sid=ts_server_id)
-    ts3conn.clientupdate(CLIENT_NICKNAME=ts_client_name)
-    ts3conn.clientmove(0, ts_channel_id)
-except TS3QueryError as ex:
-    logger.error("Failed to connect to T3Query %s", ex.resp.error['msg'])
-    ts3conn = None
+    try :
+        con.login(client_login_name=ts_query_name, client_login_password=ts_query_pass)
+        con.use(sid=ts_server_id)
+        con.clientupdate(CLIENT_NICKNAME=ts_client_name)
+        con.clientmove(0, ts_channel_id)
+    except TS3QueryError as ex:
+        logger.error("Failed to connect to T3Query %s", ex.resp.error['msg'])
+        con = None
+    return con
 
+conn = make_connection()
+
+def handle_dc(func, *args, **kwargs):
+    def func_wrapper(*args, **kwargs):
+        global conn
+        if conn is not None:
+            try:
+                func(*args, **kwargs)
+            except:
+                    conn = make_connection()
+                    func(*args, **kwargs)
+        else:
+            logger.error("No TS Connection")
+    return func_wrapper
+
+@handle_dc
 def send_poke(name, msg):
-    if ts3conn is not None:
-        response = ts3conn.clientfind(pattern=name)
-        for resp in response:
-            ts3conn.clientpoke(msg, resp['clid'])
-    else:
-        logger.error("No TS Connection")
+    response = conn.clientfind(pattern=name)
+    for resp in response:
+        conn.clientpoke(msg, resp['clid'])
+    
+
 
