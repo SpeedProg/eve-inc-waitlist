@@ -479,25 +479,19 @@ def fleet_status_set(gid):
                 flash("You do not have the rights to change the status to "+text, "danger")
                 flash("XUP is now "+xup_text, "success")
     elif action == "fc":
-        name = request.form['name']
-        eve_id = get_character_id_from_name(name)
-        if eve_id == 0:
-            flash("Character " + name + " does not exist!")
-        else:
-            character = get_character_by_name(name)
-            group.fc = character
-            hObj = create_history_object(character.id, HistoryEntry.EVENT_SET_FC, current_user.id)
-            db.session.add(hObj)
-            flash("FC was set to "+name, "success")
+        group.fcs.append(current_user)
+        flash("You added your self to FCs "+current_user.get_eve_name(), "success")
     elif action == "manager":
-            group.managerID = current_user.id
-            hObj = create_history_object(current_user.get_eve_id(), HistoryEntry.EVENT_SET_FLEETCOMP, current_user.id)
-            db.session.add(hObj)
-            flash("Manager was set to "+current_user.get_eve_name(), "success")
+        group.manager.append(current_user)
+        flash("You added your self to manager "+current_user.get_eve_name(), "success")
     elif action == "manager-remove":
-        group.manager = None
+        accountID = int(request.form['accountID'])
+        account = db.session.query(Account).get(accountID)
+        group.manager.remove(account)
     elif action == "fc-remove":
-        group.fc = None
+        accountID = int(request.form['accountID'])
+        account = db.session.query(Account).get(accountID)
+        group.fcs.remove(account)
     elif action == "add-backseat":
         group.backseats.append(current_user)
     elif action == "remove-backseat":

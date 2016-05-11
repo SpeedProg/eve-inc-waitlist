@@ -95,15 +95,19 @@
 	    	<td>{% if group.fleets|length > 0 %}{# we have crest connected fleets with comps #}
 					{% for fleet in group.fleets %}
 						{% if fleet.comp is not none %}
-						<a href="javascript:IGBW.showInfo(1377, {{fleet.comp.current_char_obj.get_eve_id()}});">{{fleet.comp.current_char_obj.get_eve_name()}}</a>
+						<a href="javascript:IGBW.showInfo(1377, {{fleet.comp.get_eve_id()}});">{{fleet.comp.get_eve_name()}}</a>
 						{% if not loop.last %} - {% endif %}
 						{% else %}
 						Not Set
 						{% endif %}
 					{% endfor %}
 	    		{% else %}
-	    	{% if group.manager is not none %}<a href="javascript:CCPEVE.showInfo(1377, {{group.manager.current_char_obj.get_eve_id()}});">{{group.manager.current_char_obj.get_eve_name()}}</a>{% else %}Not Set{% endif %}</td>
+	    			{% for manager in group.manager %}
+	    				<a href="javascript:CCPEVE.showInfo(1377, {{manager.get_eve_id()}});">
+	    				{{manager.get_eve_name()}}</a>{% if not loop.last %} - {% endif %}
+	    			{% endfor %}
 				{% endif %}
+			</td>
 	    </tr>
 	    </tbody>
 	    </table>
@@ -114,7 +118,7 @@
 		    <!--
 		    <tr>
 		    	<th scope="row">FC</th>
-		    	<td>{% if group.fc is not none %}<a href="javascript:CCPEVE.showInfo(1377, {{group.fc.get_eve_id()}});">{{group.manager.get_eve_name()}}</a>{% else %}Not Set{% endif %}</td>
+		    	<td>{% for fc in group.fcs %}<a href="javascript:CCPEVE.showInfo(1377, {{fc.get_eve_id()}});">{{fc.get_eve_name()}}</a>{% if not loop.last %} - {% endif %}{% endfor %}</td>
 		    </tr>
 		    -->
 		    <tr>

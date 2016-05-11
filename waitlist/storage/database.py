@@ -43,6 +43,16 @@ backseats = Table("backseats",
                   Column("accountID", Integer, ForeignKey('accounts.id', ondelete="CASCADE")),
                   Column("groupID", Integer, ForeignKey('waitlist_groups.groupID', ondelete="CASCADE"))
                   )
+fcs = Table("fcs",
+            Base.metadata,
+            Column("accountID", Integer, ForeignKey('accounts.id', ondelete="CASCADE")),
+            Column("groupID", Integer, ForeignKey('waitlist_groups.groupID', ondelete="CASCADE"))
+            )
+fmanager = Table("fleetmanager",
+                 Base.metadata,
+                 Column("accountID", Integer, ForeignKey('accounts.id', ondelete="CASCADE")),
+                 Column("groupID", Integer, ForeignKey('waitlist_groups.groupID', ondelete="CASCADE"))
+            )
 
 class Station(Base):
     __tablename__ = "station"
@@ -284,8 +294,6 @@ class WaitlistGroup(Base):
     otherwlID = Column(Integer, ForeignKey(Waitlist.id), nullable=True)
     enabled = Column(Boolean, nullable=False, default=False)
     status = Column(String(1000), default="Down")
-    managerID = Column(Integer, ForeignKey(Account.id), nullable=True)
-    fcID = Column(Integer, ForeignKey(Character.id), nullable=True)
     dockupID = Column(Integer, ForeignKey(Station.stationID), nullable=True)
     systemID = Column(Integer, ForeignKey(SolarSystem.solarSystemID), nullable=True)
     constellationID = Column(Integer, ForeignKey(Constellation.constellationID), nullable=True)
@@ -297,13 +305,13 @@ class WaitlistGroup(Base):
     dpslist = relationship("Waitlist", foreign_keys=[dpswlID])
     sniperlist = relationship("Waitlist", foreign_keys=[sniperwlID])
     otherlist = relationship("Waitlist", foreign_keys=[otherwlID])
-    manager = relationship("Account", uselist=False)
-    fc = relationship("Character", uselist=False)
     dockup = relationship("Station", uselist=False)
     system = relationship("SolarSystem", uselist=False)
     constellation = relationship("Constellation", uselist=False)
     fleets = relationship("CrestFleet", back_populates="group")
     backseats = relationship("Account", secondary="backseats")
+    fcs = relationship("Account", secondary="fcs")
+    manager = relationship("Account", secondary="fleetmanager")
 
 class Shipfit(Base):
     """

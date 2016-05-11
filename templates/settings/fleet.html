@@ -139,46 +139,43 @@ $(document).ready(function() {
     <tr>
     	<th scope="row">FC</th>
     	<td>
-    	{% if group.fc is not none %}
-    	<a href="javascript:CCPEVE.showInfo(1377, {{group.fc.get_eve_id()}});">{{group.fc.get_eve_name()}}</a>
+    	{% for fc in group.fcs %}
+    	<a href="javascript:CCPEVE.showInfo(1377, {{fc.get_eve_id()}});">{{fc.get_eve_name()}}</a>
     	<form action="{{url_for('settings.fleet_status_set', gid=group.groupID)}}" method="post" class="form-inline" style="display:inline;">
     	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
     	<input type="hidden" name="action" value="fc-remove">
+    	<input type="hidden" name="accountID" value="{{fc.id}}">
     	<button type="submit" class="btn btn-mini btn-danger"><i class="fa fa-times" aria-hidden="true"></i></button>
     	</form>
-    	{% else %}
-    	Not Set
-    	{% endif %}
+    	{% endfor %}
     	</td>
     	<td>
     	<form action="{{url_for('settings.fleet_status_set', gid=group.groupID)}}" method="post" class="form-inline">
     	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
     	<input type="hidden" name="action" value="fc">
-    	<input type="text" name="name" value="{{user.get_eve_name()}}" class="form-control form-control-sm">
-    	<button type="submit" class="btn btn-sm btn-primary">Set</button>
+    	<button type="submit" class="btn btn-sm btn-primary">Add Self</button>
     	</form>
     	</td>
     </tr>
     <tr>
     	<th scope="row">Fleet Manager</th>
     	<td>
-    	{% if group.manager is not none %}
-    	<a href="javascript:CCPEVE.showInfo(1377, {{group.manager.get_eve_id()}});">{{group.manager.get_eve_name()}}</a>
+    	{% for manager in group.manager %}
+    	<a href="javascript:CCPEVE.showInfo(1377, {{manager.get_eve_id()}});">{{manager.get_eve_name()}}</a>
     	<form action="{{url_for('settings.fleet_status_set', gid=group.groupID)}}" method="post" class="form-inline" style="display:inline;">
     	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
     	<input type="hidden" name="action" value="manager-remove">
+    	<input type="hidden" name="accountID" value="{{manager.id}}">
     	<button type="submit" class="btn btn-mini btn-danger"><i class="fa fa-times" aria-hidden="true"></i></button>
     	</form>
-    	{% else %}
-    	Not Set
-    	{% endif %}
+    	{% endfor %}
     	</td>
     	<td>
     	<form action="{{url_for('settings.fleet_status_set', gid=group.groupID)}}" method="post" class="form-inline">
     	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
     	<input type="hidden" name="action" value="manager">
     	<!-- <input type="text" name="name" value="{{user.get_eve_name()}}"> -->
-    	<button type="submit" class="btn btn-sm btn-primary">Set Self</button>
+    	<button type="submit" class="btn btn-sm btn-primary">Add Self</button>
     	</form>
     	</td>
     </tr>
