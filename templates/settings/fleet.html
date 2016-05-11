@@ -138,7 +138,18 @@ $(document).ready(function() {
     </tr>
     <tr>
     	<th scope="row">FC</th>
-    	<td>{% if group.fc is not none %}<a href="javascript:CCPEVE.showInfo(1377, {{group.fc.get_eve_id()}});">{{group.fc.get_eve_name()}}</a>{% else %}Not Set{% endif %}</td>
+    	<td>
+    	{% if group.fc is not none %}
+    	<a href="javascript:CCPEVE.showInfo(1377, {{group.fc.get_eve_id()}});">{{group.fc.get_eve_name()}}</a>
+    	<form action="{{url_for('settings.fleet_status_set', gid=group.groupID)}}" method="post" class="form-inline" style="display:inline;">
+    	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+    	<input type="hidden" name="action" value="fc-remove">
+    	<button type="submit" class="btn btn-mini btn-danger"><i class="fa fa-times" aria-hidden="true"></i></button>
+    	</form>
+    	{% else %}
+    	Not Set
+    	{% endif %}
+    	</td>
     	<td>
     	<form action="{{url_for('settings.fleet_status_set', gid=group.groupID)}}" method="post" class="form-inline">
     	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
@@ -150,7 +161,18 @@ $(document).ready(function() {
     </tr>
     <tr>
     	<th scope="row">Fleet Manager</th>
-    	<td>{% if group.manager is not none %}<a href="javascript:CCPEVE.showInfo(1377, {{group.manager.get_eve_id()}});">{{group.manager.get_eve_name()}}</a>{% else %}Not Set{% endif %}</td>
+    	<td>
+    	{% if group.manager is not none %}
+    	<a href="javascript:CCPEVE.showInfo(1377, {{group.manager.get_eve_id()}});">{{group.manager.get_eve_name()}}</a>
+    	<form action="{{url_for('settings.fleet_status_set', gid=group.groupID)}}" method="post" class="form-inline" style="display:inline;">
+    	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+    	<input type="hidden" name="action" value="manager-remove">
+    	<button type="submit" class="btn btn-mini btn-danger"><i class="fa fa-times" aria-hidden="true"></i></button>
+    	</form>
+    	{% else %}
+    	Not Set
+    	{% endif %}
+    	</td>
     	<td>
     	<form action="{{url_for('settings.fleet_status_set', gid=group.groupID)}}" method="post" class="form-inline">
     	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
@@ -203,13 +225,14 @@ $(document).ready(function() {
     <td colspan="2">
     {% for backseat in group.backseats %}
     	<a href="javascript:IGBW.showInfo(1377, {{backseat.current_char_obj.get_eve_id()}});">{{backseat.current_char_obj.get_eve_name()}}</a>
-		{% if not loop.last %} - {% endif %}
-    {% endfor %}
     	<form action="{{url_for('settings.fleet_status_set', gid=group.groupID)}}" method="post" class="form-inline" style="display:inline;">
     	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
     	<input type="hidden" name="action" value="remove-backseat">
-    	<button type="submit" class="btn btn-sm btn-danger">Remove Self</button>
+    	<input type="hidden" name="accountID" value="{{backseat.id}}">
+    	<button type="submit" class="btn btn-mini btn-danger"><i class="fa fa-times" aria-hidden="true"></i></button>
     	</form>
+		{% if not loop.last %} - {% endif %}
+    {% endfor %}
     	<form action="{{url_for('settings.fleet_status_set', gid=group.groupID)}}" method="post" class="form-inline" style="display:inline;">
     	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
     	<input type="hidden" name="action" value="add-backseat">
