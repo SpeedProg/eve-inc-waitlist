@@ -39,11 +39,12 @@ def send_notification(playerID, waitlistID):
     #publish(event)
     
     character = db.session.query(Character).filter(Character.id == playerID).first()
-    try: 
-        message = "You are invited to fleet as %s" % waitlist.name if waitlist.name != "queue" else "The FC is looking for you"
-        send_poke(character.eve_name, message)
-    except TS3QueryError:
-        pass # ignore it a user that is not on TS
+    if character.poke_me: # only poke if he didn't disable it
+        try: 
+            message = "You are invited to fleet as %s" % waitlist.name if waitlist.name != "queue" else "The FC is looking for you"
+            send_poke(character.eve_name, message)
+        except TS3QueryError:
+            pass # ignore it a user that is not on TS
         
     hEntry = create_history_object(character.get_eve_id(), HistoryEntry.EVENT_COMP_NOTI_PL, current_user.id)
     hEntry.exref = waitlist.group.groupID

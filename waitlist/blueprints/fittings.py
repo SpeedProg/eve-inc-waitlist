@@ -173,6 +173,11 @@ def xup_submit():
         flash("X-UP is disabled!!!")
         return redirect(url_for("index"))
     
+    pokeMe = 'pokeMe' in request.form
+
+    if current_user.poke_me != pokeMe:
+        current_user.poke_me = pokeMe
+        db.session.commit()
     # check if it is scruffy
     if fittings.lower().startswith("scruffy"):
         # scruffy mode scruffy

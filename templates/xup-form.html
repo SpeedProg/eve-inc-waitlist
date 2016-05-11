@@ -23,6 +23,10 @@ I am new to WarpToMe or Incursions</label>
 	</select>
 </fieldset>
 {% endif %}
+<label>
+  <input type="checkbox" name="pokeMe" value="on"{% if current_user.poke_me %} checked{% endif %}>
+  Poke me on TS (exact charactername required)
+</label>
 <fieldset class="form-group">
 <label for="fittings">Fittings</label>
 <textarea class="form-control" id="fittings" name="fits" rows="10" cols="50" placeholder="Post your fittings here" required></textarea>

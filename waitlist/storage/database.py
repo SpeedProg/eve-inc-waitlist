@@ -152,6 +152,14 @@ class Account(Base):
     def type(self):
         return "account"
     
+    @property
+    def poke_me(self):
+        return self.current_char_obj.poke_me
+    
+    @poke_me.setter
+    def poke_me(self, value):
+        self.current_char_obj.poke_me = value
+    
     # check if password matches
     def password_match(self, pwd):
         if bcrypt.hashpw(self.pwd, self.password) == self.password:
@@ -209,6 +217,7 @@ class Character(Base):
     lc_level = Column(SmallInteger, default=0, nullable=False)
     cbs_level = Column(SmallInteger, default=0, nullable=False)
     login_token = Column(String(16), nullable=True)
+    teamspeak_poke = Column(Boolean, default=True, server_default="1", nullable=False)
 
     def get_login_token(self):
         if self.login_token == None:
@@ -240,6 +249,14 @@ class Character(Base):
     
     def get_id(self):
         return unicode("char"+unicode(self.id))
+    
+    @property
+    def poke_me(self):
+        return self.teamspeak_poke
+    
+    @poke_me.setter
+    def poke_me(self, value):
+        self.teamspeak_poke = value
     
     def __repr__(self):
         return "<Character id={0} eve_name={1}>".format(self.id, self.eve_name)
