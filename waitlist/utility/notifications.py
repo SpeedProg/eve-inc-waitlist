@@ -40,7 +40,8 @@ def send_notification(playerID, waitlistID):
     
     character = db.session.query(Character).filter(Character.id == playerID).first()
     try: 
-        send_poke(character.eve_name, "You are invited to fleet as %s" % waitlist.name)
+        message = "You are invited to fleet as %s" % waitlist.name if waitlist.name != "queue" else "The FC is looking for you"
+        send_poke(character.eve_name, message)
     except TS3QueryError:
         pass # ignore it a user that is not on TS
         
