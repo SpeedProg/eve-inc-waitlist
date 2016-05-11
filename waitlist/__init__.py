@@ -11,7 +11,7 @@ from waitlist.utility import config
 
 basedir = path.abspath(path.dirname(__file__))
 
-app = Flask(import_name=__name__, template_folder=path.join("..", "templates"))
+app = Flask(import_name=__name__, static_url_path="/static", static_folder="../static", template_folder=path.join("..", "templates"))
 app.secret_key = config.secret_key
 app.config['SESSION_TYPE'] = 'filesystem'
 app.config['SQLALCHEMY_DATABASE_URI'] = config.connection_uri
