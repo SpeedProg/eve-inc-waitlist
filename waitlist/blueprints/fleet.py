@@ -4,7 +4,7 @@ from waitlist.data.perm import perm_management, perm_dev
 from waitlist.utility import fleet as fleetUtils
 from werkzeug.utils import redirect
 from flask_login import login_required, current_user
-from waitlist import db
+from waitlist.base import db
 from waitlist.storage.database import CrestFleet, WaitlistGroup
 from waitlist.utility.config import crest_client_id, crest_client_secret
 from pycrest.eve import AuthedConnectionB

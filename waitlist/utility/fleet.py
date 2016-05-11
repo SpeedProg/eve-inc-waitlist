@@ -5,7 +5,7 @@ from waitlist.utility.config import crest_client_id, crest_client_secret,\
 from time import sleep
 import logging
 from threading import Timer
-from waitlist import db
+from waitlist.base import db
 from waitlist.storage.database import WaitlistGroup, CrestFleet, WaitlistEntry,\
     HistoryEntry, Character
 from datetime import datetime, timedelta

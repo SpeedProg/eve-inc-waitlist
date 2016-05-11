@@ -17,7 +17,7 @@ from flask.templating import render_template
 from datetime import datetime, timedelta
 from waitlist.utility.utils import get_fit_format, create_mod_map,\
     get_character
-from waitlist import db
+from waitlist.base import db
 from waitlist.data.sse import ServerSentEvent
 from flask import Response
 from gevent.queue import Queue

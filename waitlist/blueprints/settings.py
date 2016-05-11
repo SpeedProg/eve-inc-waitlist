@@ -16,7 +16,7 @@ from waitlist.data.eve_xml_api import get_character_id_from_name,\
 from werkzeug.utils import redirect, secure_filename
 from flask.helpers import url_for, flash
 from waitlist.utility.utils import get_random_token, get_info_from_ban
-from waitlist import db, app
+from waitlist.base import db, app
 from waitlist.utility.eve_id_utils import get_constellation, get_system,\
     get_station, get_character_by_name
 from os import path

@@ -1,6 +1,6 @@
 import logging
 from waitlist.storage.database import Waitlist, Character, HistoryEntry
-from waitlist import db
+from waitlist.base import db
 import flask
 from waitlist.data.sse import InviteEvent
 from waitlist.utility.history_utils import create_history_object

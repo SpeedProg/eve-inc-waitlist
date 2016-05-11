@@ -15,7 +15,7 @@ from waitlist.utility import config
 from logging.handlers import TimedRotatingFileHandler
 from waitlist.blueprints.feedback import feedback
 from gevent.pywsgi import WSGIServer
-from waitlist import app, login_manager, db
+from waitlist.base import app, login_manager, db
 from flask_login import login_required, current_user, login_user,\
     logout_user
 import logging

@@ -2,7 +2,7 @@ from ts3.query import TS3Connection, TS3QueryError
 import logging
 from waitlist.utility.settings.settings import sget_active_ts_id
 from waitlist.storage.database import TeamspeakDatum
-from waitlist import db
+from waitlist.base import db
 
 logger = logging.getLogger(__name__)
 

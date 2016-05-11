@@ -1,7 +1,7 @@
 from waitlist.storage.database import APICacheCharacterID, APICacheCharacterInfo,\
     APICacheCorporationInfo, APICacheCharacterAffiliation
 from evelink import eve, api
-from waitlist import db
+from waitlist.base import db
 from datetime import datetime
 
 def get_character_id_from_name(name):

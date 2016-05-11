@@ -5,7 +5,7 @@ from sqlalchemy.sql.schema import Table, ForeignKey
 from sqlalchemy.dialects.mysql.base import LONGTEXT, TEXT
 import bcrypt
 import logging
-from waitlist import db
+from waitlist.base import db
 from datetime import datetime
 from waitlist.utility.utils import get_random_token
 

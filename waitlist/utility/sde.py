@@ -3,7 +3,7 @@ from yaml.events import MappingStartEvent, ScalarEvent, MappingEndEvent
 import yaml
 from waitlist.storage.database import InvType, Station, Constellation,\
     SolarSystem, IncursionLayout
-from waitlist import db
+from waitlist.base import db
 from os import path
 import csv
 import sqlite3

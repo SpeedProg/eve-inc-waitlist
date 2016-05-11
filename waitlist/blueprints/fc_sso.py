@@ -9,7 +9,7 @@ import hashlib
 import requests
 import base64
 from datetime import datetime, timedelta
-from waitlist import db
+from waitlist.base import db
 from flask.helpers import url_for
 bp = Blueprint('fc_sso', __name__)
 logger = logging.getLogger(__name__)

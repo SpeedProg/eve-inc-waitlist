@@ -5,7 +5,7 @@ from waitlist.data.perm import perm_management, perm_comphistory, perm_officer,\
     perm_leadership
 from flask.globals import request
 from waitlist.utility.notifications import send_notification as send_notifiaction_to_player
-from waitlist import db
+from waitlist.base import db
 from waitlist.storage.database import WaitlistGroup, HistoryEntry
 from waitlist.utility.json import makeJsonWL, makeHistoryJson
 from flask.json import jsonify
