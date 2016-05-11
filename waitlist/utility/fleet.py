@@ -122,7 +122,10 @@ def setup(fleet_id, fleet_type):
             wing1 = wing
         elif wing.name == "Wing 2" or wing.name.lower() == "tipping":
             wing2 = wing
-
+    
+    if wing1 is None or wing2 is None:
+        return
+    
     if wing1.name.lower() != "on grid":
         wait_for_change = True
         wing1.put(json={'name':'ON GRID'})
@@ -153,8 +156,11 @@ def setup(fleet_id, fleet_type):
         elif wing.name.lower() == "tipping":
             wing2 = wing
     
+    if wing1 is None or wing2 is None:
+        return
+    
     logiSquad = sniperSquad = dpsSquad = moreDpsSquad = None
-    print wing1
+
     for squad in wing1.squadsList:
         if squad.name == "Squad 1" or squad.name.lower() == "logi":
             logiSquad = squad
@@ -166,22 +172,22 @@ def setup(fleet_id, fleet_type):
             moreDpsSquad = squad
     
     if fleet_type == "hq":
-        if logiSquad.name == "Squad 1":
+        if logiSquad is not None and logiSquad.name == "Squad 1":
             logiSquad.put(json={'name':'LOGI'})
-        if sniperSquad.name == "Squad 2":
+        if sniperSquad is not None and sniperSquad.name == "Squad 2":
             sniperSquad.put(json={'name':'SNIPER'})
-        if dpsSquad.name == "Squad 3":
+        if dpsSquad is not None and dpsSquad.name == "Squad 3":
             dpsSquad.put(json={'name':'DPS'})
-        if moreDpsSquad.name == "Squad 4":
+        if moreDpsSquad is not None and moreDpsSquad.name == "Squad 4":
             moreDpsSquad.put(json={'name':'MORE DPS'})
     elif fleet_type == "vg":
-        if logiSquad.name == "Squad 1":
+        if logiSquad is not None and logiSquad.name == "Squad 1":
             logiSquad.put(json={'name':'LOGI'})
-        if sniperSquad.name == "Squad 2":
+        if sniperSquad is not None and sniperSquad.name == "Squad 2":
             sniperSquad.put(json={'name':'DPS'})
     
 
-    if wing2.squadsList[0].name.lower() != "tipping":
+    if wing2 is not None and wing2.squadsList is not None and wing2.squadsList[0].name.lower() != "tipping":
         wing2.squadsList[0].put(json={'name':'Tipping'})
     
     sleep(5)
