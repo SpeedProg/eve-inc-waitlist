@@ -28,15 +28,6 @@ if  not os.path.isfile(os.path.join(".", "config", "config.cfg")):
     config.set("motd", "hq", "..")
     config.set("motd", "vg", "..")
     
-    config.add_section("teamspeak")
-    config.set("teamspeak", "host", "localhost")
-    config.set("teamspeak", "port", "10011")
-    config.set("teamspeak", "query_name", "queryname")
-    config.set("teamspeak", "query_pass", "querypass")
-    config.set("teamspeak", "server_id", "1")
-    config.set("teamspeak", "channel_id",  "1")
-    config.set("teamspeak", "client_name", "Waitlist")
-    
     makedirs(os.path.join(".", "config"))
     with open(os.path.join(".", "config", "config.cfg"), "wb") as configfile:
         config.write(configfile)
@@ -58,11 +49,3 @@ crest_client_secret = config.get("crest", "client_secret")
 
 motd_hq = config.get("motd", "hq")
 motd_vg = config.get("motd", "vg")
-
-ts_host = config.get("teamspeak", "host")
-ts_port = int(config.get("teamspeak", "port"))
-ts_query_name = config.get("teamspeak", "query_name")
-ts_query_pass = config.get("teamspeak", "query_pass")
-ts_server_id = int(config.get("teamspeak", "server_id"))
-ts_channel_id = int(config.get("teamspeak", "channel_id"))
-ts_client_name = config.get("teamspeak", "client_name")

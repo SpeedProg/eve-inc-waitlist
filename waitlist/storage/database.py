@@ -485,3 +485,23 @@ class EventHistoryInfo(Base):
     historyID = Column(Integer, ForeignKey("event_history_entries.historyID"))
     infoType = Column(Integer)
     referenceID = Column(Integer)
+
+class TeamspeakDatum(Base):
+    __tablename__ = "ts_dati"
+    teamspeakID = Column(Integer, primary_key=True)
+    displayName = Column(String(128)) # this is displayed in menus and such
+    host = Column(String(128)) # for internal connection
+    port = Column(Integer) # for internal connection
+    displayHost = Column(String(128)) # this should be shown to public
+    displayPort = Column(Integer) # this should be shown to public
+    queryName = Column(String(128))
+    queryPassword = Column(String(128))
+    serverID = Column(Integer)
+    channelID = Column(Integer)
+    clientName = Column(String(20))
+
+class Setting(Base):
+    __tablename__ = "settings"
+    key = Column(String(20), primary_key=True)
+    value = Column(String(128))
+    
