@@ -37,6 +37,7 @@ from waitlist.blueprints.fc_sso import bp as fc_sso_bp
 from waitlist.blueprints.fleet import bp as fleet_bp
 from waitlist.blueprints.api.fleet import bp as api_fleet_bp
 from waitlist.blueprints.api.fittings import bp as api_wl_bp
+from waitlist.blueprints.api.teamspeak import bp as api_ts3_bp
 
 app.register_blueprint(bp_waitlist)
 app.register_blueprint(bp_settings, url_prefix='/settings')
@@ -45,6 +46,7 @@ app.register_blueprint(fc_sso_bp, url_prefix="/fc_sso")
 app.register_blueprint(fleet_bp, url_prefix="/fleet")
 app.register_blueprint(api_fleet_bp, url_prefix="/api/fleet")
 app.register_blueprint(api_wl_bp, url_prefix="/api/fittings")
+app.register_blueprint(api_ts3_bp, url_prefix="/api/ts3")
 logger = logging.getLogger(__name__)
 
 # set if it is the igb

@@ -25,6 +25,11 @@
 <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-XdYbMnZ/QjLh6iI4ogqCTaIjrFk87ip+ekIjefZch0Y+PvJ8CDYtEs1ipDmPorQ+" crossorigin="anonymous">
 <script type="text/javascript" src="/static/js/eve-igb-wrapper.js"></script>
 <script type="text/javascript">
+function testTSPoke() {
+	$.get("{{url_for('api_ts3.test_poke')}}")
+}
+</script>
+<script type="text/javascript">
 {% if is_igb %}
 CCPEVE.requestTrust(location.protocol+'//'+location.hostname+(location.port ? ':'+location.port: ''));
 {% endif %}
@@ -46,6 +51,7 @@ CCPEVE.requestTrust(location.protocol+'//'+location.hostname+(location.port ? ':
 		 window.open("https://en.wikipedia.org/wiki/Booby", "_blank");
 	 });
 }
+
 $(document).ready(function () {
 	setupDNA();
 });
@@ -94,6 +100,9 @@ $(document).ready(function () {
 	</li>
 	<li class="nav-item pull-xs-right">
 		<a class="nav-link" href="{{url_for('fittings.notification', user_id=current_user.get_eve_id())}}" target="_blank">Notification Link</a>
+	</li>
+	<li class="nav-item pull-xs-right">
+		<a class="btn btn-danger btn-sm" href="javascript:testTSPoke();">Test TS Poke</a>
 	</li>
 	{% endif %}
 	{% endif %}
