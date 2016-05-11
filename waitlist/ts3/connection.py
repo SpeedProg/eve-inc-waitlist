@@ -37,7 +37,8 @@ def handle_dc(func, *args, **kwargs):
 def send_poke(name, msg):
     response = conn.clientfind(pattern=name)
     for resp in response:
-        conn.clientpoke(msg, resp['clid'])
+        if resp['client_nickname'] == name:
+            conn.clientpoke(msg, resp['clid'])
     
 
 
