@@ -2,6 +2,7 @@ from gevent import monkey; monkey.patch_all()
 # inject the lib folder before everything else
 import os
 import sys
+from waitlist.utility.settings import settings
 base_path = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(base_path, 'lib'))
 from waitlist.data.version import version
@@ -19,7 +20,7 @@ from flask_login import login_required, current_user, login_user,\
     logout_user
 import logging
 from waitlist.storage.database import Account, WaitlistEntry,\
-    Character, WaitlistGroup
+    Character, WaitlistGroup, TeamspeakDatum
 from flask_principal import RoleNeed, identity_changed, Identity, AnonymousIdentity,\
     identity_loaded, UserNeed
 from waitlist.data.perm import perm_management, perm_settings, perm_admin,\
@@ -134,8 +135,12 @@ def index():
         wlists.append(other_wl)
     
     activegroups = db.session.query(WaitlistGroup).filter(WaitlistGroup.enabled == True).all()
+    active_ts_setting_id = settings.sget_active_ts_id()
+    active_ts_setting = None
+    if active_ts_setting_id is not None:
+        active_ts_setting = db.session.query(TeamspeakDatum).get(active_ts_setting_id)
     
-    return render_template("index.html", lists=wlists, user=current_user, is_index=True, is_on_wl=is_on_wl(), newbro=new_bro, group=group, groups=activegroups)
+    return render_template("index.html", lists=wlists, user=current_user, is_index=True, is_on_wl=is_on_wl(), newbro=new_bro, group=group, groups=activegroups, ts=active_ts_setting)
 
 def is_on_wl():
     eveId = current_user.get_eve_id();
