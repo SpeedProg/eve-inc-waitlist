@@ -149,9 +149,8 @@ function sendAuthMail(charId, token, sig, username, type) {
 		mail = {{mails['other'][0]|safe}}
 		topic =  {{mails['other'][1]|safe}}
 	}
-	mail = mail.replace("$recv$", username);
-	mail = mail.replace("$link$", link);
-	mail = mail.replace("$sig$", sig);
+	mail = mail.replace("$recv$", username).replace("$link$", link).replace("$sig$", sig);
+	topic = topic.replace("$recv$", username).replace("$link$", link).replace("$sig$", sig);
 	CCPEVE.sendMail(charId, topic, mail);
 }
 
