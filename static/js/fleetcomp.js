@@ -13,7 +13,7 @@ function displayMessage(message, type) {
 			'<p class="text-xs-center"></p>'+
 			'</div>'));
 	var textContainer = $('.text-xs-center', alertHTML);
-	textContainer.text(message);
+	textContainer.html(message);
 	alertHTML.addClass('alert-'+type);
 	var alertArea = $('#alert-area-base');
 	alertArea.append(alertHTML)

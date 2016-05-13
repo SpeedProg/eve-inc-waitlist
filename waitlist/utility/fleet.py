@@ -12,6 +12,7 @@ from datetime import datetime, timedelta
 from waitlist.utility.history_utils import create_history_object
 from pycrest.errors import APIException
 from waitlist.utility.crest import create_token_cb
+from flask.helpers import url_for
 
 logger = logging.getLogger(__name__)
 
@@ -194,14 +195,18 @@ def setup(fleet_id, fleet_type):
     sleep(5)
 
 def get_wings(fleet_id):
-    fleet_url = "https://crest-tq.eveonline.com/fleets/"+str(fleet_id)+"/"
-    data = {
-            'access_token': current_user.access_token,
-            'refresh_token': current_user.refresh_token,
-            'expires_in': current_user.access_token_expires
-            }
-    fleet = AuthedConnectionB(data, fleet_url, "https://login.eveonline.com/oauth", crest_client_id, crest_client_secret, create_token_cb(current_user.id))
-    return fleet().wings().items
+    try:
+        fleet_url = "https://crest-tq.eveonline.com/fleets/"+str(fleet_id)+"/"
+        data = {
+                'access_token': current_user.access_token,
+                'refresh_token': current_user.refresh_token,
+                'expires_in': current_user.access_token_expires
+                }
+        fleet = AuthedConnectionB(data, fleet_url, "https://login.eveonline.com/oauth", crest_client_id, crest_client_secret, create_token_cb(current_user.id))
+        return fleet().wings().items
+    except APIException as ex:
+        logger.error("CREST failed with %s : %s", str(ex.resp.status_code), ex.resp.json())
+        raise ex
 
 def invite(user_id, squadIDList):
     fleet = current_user.fleet
@@ -211,30 +216,38 @@ def invite(user_id, squadIDList):
             'refresh_token': current_user.refresh_token,
             'expires_in': current_user.access_token_expires
             }
-    fleet = AuthedConnectionB(data, fleet_url, "https://login.eveonline.com/oauth", crest_client_id, crest_client_secret, create_token_cb(current_user.id))
-    oldsquad = (0, 0)
-    for idx in xrange(len(squadIDList)-1):
-        squad = squadIDList[idx];
-        if squad[0] == oldsquad[0] and squad[1] == oldsquad[1]:
-            continue
-        logger.info("Invite %s to wingID %s and squadID %s", str(user_id), str(squad[0]), str(squad[1]))
-
-        try:
-            resp = fleet().members.post(json={'role':'squadMember', 'wingID': squad[0], 'squadID': squad[1], 'character':{'href':'https://crest-tq.eveonline.com/characters/'+str(user_id)+'/'}})
-        except APIException as ex:
-            if ex.resp.status_code == 403:
-                return {'status_code': ex.resp.status_code, 'text': ex.resp.json()['message']}
-            
-        if resp.status_code == 403:
-            if resp.json()['key'] == "FleetTooManyMembersInSquad":
+    try:
+        fleet = AuthedConnectionB(data, fleet_url, "https://login.eveonline.com/oauth", crest_client_id, crest_client_secret, create_token_cb(current_user.id))
+        oldsquad = (0, 0)
+        for idx in xrange(len(squadIDList)-1):
+            squad = squadIDList[idx];
+            if squad[0] == oldsquad[0] and squad[1] == oldsquad[1]:
                 continue
+            logger.info("Invite %s to wingID %s and squadID %s", str(user_id), str(squad[0]), str(squad[1]))
+    
+            try:
+                resp = fleet().members.post(json={'role':'squadMember', 'wingID': squad[0], 'squadID': squad[1], 'character':{'href':'https://crest-tq.eveonline.com/characters/'+str(user_id)+'/'}})
+            except APIException as ex:
+                if ex.resp.status_code == 403:
+                    return {'status_code': ex.resp.status_code, 'text': ex.resp.json()['message']}
+                else:
+                    raise ex
+                
+            if resp.status_code == 403:
+                if resp.json()['key'] == "FleetTooManyMembersInSquad":
+                    continue
+                else:
+                    return {'status_code': resp.status_code, 'text': resp.json()['message']}
+            elif resp.status_code == 201:
+                return {'status_code': 201, 'text': resp.text}
             else:
                 return {'status_code': resp.status_code, 'text': resp.json()['message']}
-        elif resp.status_code == 201:
-            return {'status_code': 201, 'text': resp.text}
+    except APIException as ex:
+        if ex.resp.status_code == 400:
+                return {'status_code': 400, 'text': "You need to go to <a href='"+url_for('fc_sso.login_redirect')+"'>SSO Login</a> and relogin in!"}
         else:
-            return {'status_code': resp.status_code, 'text': resp.json()['message']}
-
+            logger.error("CREST failed with %s : %s", str(ex.resp.status_code), ex.resp.json())
+            return {'status_code': ex.resp.status_code, 'text': ex.resp.json()['error_description']}
     return {'status_code': 403, 'text': 'Failed to invite person a a squad, all squads are full!'}
 
 def spawn_invite_check(characterID, groupID, fleetID):
