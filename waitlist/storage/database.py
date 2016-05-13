@@ -528,5 +528,5 @@ class TeamspeakDatum(Base):
 class Setting(Base):
     __tablename__ = "settings"
     key = Column(String(20), primary_key=True)
-    value = Column(String(128))
+    value = Column(TEXT)
     
