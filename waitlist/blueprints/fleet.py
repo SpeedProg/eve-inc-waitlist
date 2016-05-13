@@ -14,6 +14,7 @@ from flask.globals import request
 import re
 import flask
 from waitlist.utility.fleet import get_wings
+from waitlist.utility.crest import create_token_cb
 
 bp = Blueprint('fleet', __name__)
 logger = logging.getLogger(__name__)
@@ -169,7 +170,7 @@ def print_fleet(fleetid):
             'refresh_token': current_user.refresh_token,
             'expires_in': current_user.access_token_expires
             }
-    fleet = AuthedConnectionB(data, fleet_url, "https://login.eveonline.com/oauth", crest_client_id, crest_client_secret)
+    fleet = AuthedConnectionB(data, fleet_url, "https://login.eveonline.com/oauth", crest_client_id, crest_client_secret, create_token_cb(current_user.id))
     return str(fleet().wings())
 
 @bp.route("/take", methods=['GET'])

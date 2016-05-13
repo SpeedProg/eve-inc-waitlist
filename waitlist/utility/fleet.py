@@ -11,6 +11,7 @@ from waitlist.storage.database import WaitlistGroup, CrestFleet, WaitlistEntry,\
 from datetime import datetime, timedelta
 from waitlist.utility.history_utils import create_history_object
 from pycrest.errors import APIException
+from waitlist.utility.crest import create_token_cb
 
 logger = logging.getLogger(__name__)
 
@@ -73,7 +74,7 @@ class FleetConnectionCache():
             'refresh_token': account.refresh_token,
             'expires_in': account.access_token_expires
             }
-        connection = AuthedConnectionB(data, fleet_url, "https://login.eveonline.com/oauth", crest_client_id, crest_client_secret)
+        connection = AuthedConnectionB(data, fleet_url, "https://login.eveonline.com/oauth", crest_client_id, crest_client_secret, create_token_cb(account.id()))
         self._cache[account.id] = connection
         return connection
 
@@ -93,7 +94,7 @@ def setup(fleet_id, fleet_type):
             'refresh_token': current_user.refresh_token,
             'expires_in': current_user.access_token_expires
             }
-    fleet = AuthedConnectionB(data, fleet_url, "https://login.eveonline.com/oauth", crest_client_id, crest_client_secret)
+    fleet = AuthedConnectionB(data, fleet_url, "https://login.eveonline.com/oauth", crest_client_id, crest_client_secret, create_token_cb(current_user.id))
     fleet()
     wait_for_change = False
     # check number of wings
@@ -199,7 +200,7 @@ def get_wings(fleet_id):
             'refresh_token': current_user.refresh_token,
             'expires_in': current_user.access_token_expires
             }
-    fleet = AuthedConnectionB(data, fleet_url, "https://login.eveonline.com/oauth", crest_client_id, crest_client_secret)
+    fleet = AuthedConnectionB(data, fleet_url, "https://login.eveonline.com/oauth", crest_client_id, crest_client_secret, create_token_cb(current_user.id))
     return fleet().wings().items
 
 def invite(user_id, squadIDList):
@@ -210,7 +211,7 @@ def invite(user_id, squadIDList):
             'refresh_token': current_user.refresh_token,
             'expires_in': current_user.access_token_expires
             }
-    fleet = AuthedConnectionB(data, fleet_url, "https://login.eveonline.com/oauth", crest_client_id, crest_client_secret)
+    fleet = AuthedConnectionB(data, fleet_url, "https://login.eveonline.com/oauth", crest_client_id, crest_client_secret, create_token_cb(current_user.id))
     oldsquad = (0, 0)
     for idx in xrange(len(squadIDList)-1):
         squad = squadIDList[idx];
