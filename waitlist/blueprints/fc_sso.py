@@ -11,6 +11,8 @@ import base64
 from datetime import datetime, timedelta
 from waitlist.base import db
 from flask.helpers import url_for
+from urllib import urlencode
+from waitlist.utility.config import crest_return_url, crest_client_secret, crest_client_id
 bp = Blueprint('fc_sso', __name__)
 logger = logging.getLogger(__name__)
 
@@ -19,7 +21,14 @@ logger = logging.getLogger(__name__)
 @perm_management.require(http_exception=401)
 def login_redirect():
     csrf_token = get_csrf_token()
-    return redirect("https://login.eveonline.com/oauth/authorize?response_type=code&redirect_uri=http%3A%2F%2Fspeedprog.ddns.net%3A81%2Ffc_sso%2Fcb&client_id=6f5fa2e4ff05442f88feaea8a34b4799&scope=fleetRead%20fleetWrite&state=setup-"+csrf_token, code=302)
+    params = urlencode({
+                        'response_type': 'code',
+                        'redirect_uri': crest_return_url,
+                        'client_id': crest_client_id,
+                        'state': 'setup-'+csrf_token,
+                        'scope': 'fleetRead fleetWrite'
+                        })
+    return redirect("https://login.eveonline.com/oauth/authorize?"+params, code=302)
 
 @bp.route("/cb")
 @login_required
@@ -28,7 +37,7 @@ def login_cb():
     code = request.args.get('code')
     state = request.args.get('state')
 
-    header = {'Authorization': 'Basic '+base64.b64encode("6f5fa2e4ff05442f88feaea8a34b4799:i9ob7wY72cy6ETVQtxHQVvPnHG5uhf5qmoFPuJOF"),
+    header = {'Authorization': 'Basic '+base64.b64encode(crest_client_id+":"+crest_client_secret),
               'Content-Type': 'application/x-www-form-urlencoded',
               'Host': 'login.eveonline.com'}
     params = {'grant_type': 'authorization_code',

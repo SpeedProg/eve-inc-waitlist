@@ -23,6 +23,7 @@ if  not os.path.isfile(os.path.join(".", "config", "config.cfg")):
     config.add_section("crest")
     config.set("crest", "client_id", "f8934rsdf")
     config.set("crest", "client_secret", "f893ur3")
+    config.set("crest", "return_url", "")
     
     config.add_section("motd")
     config.set("motd", "hq", "..")
@@ -50,6 +51,7 @@ access_log = config.get("logging", "access_file")
 
 crest_client_id = config.get("crest", "client_id")
 crest_client_secret = config.get("crest", "client_secret")
+crest_return_url = config.get("crest", "return_url")
 
 motd_hq = config.get("motd", "hq")
 motd_vg = config.get("motd", "vg")
