@@ -28,7 +28,8 @@ import csv
 from waitlist.data.names import WTMRoles
 from waitlist.utility.settings import settings
 from waitlist.utility.settings.settings import sget_active_ts_id,\
-    sset_active_ts_id, sget_resident_mail, sget_tbadge_mail
+    sset_active_ts_id, sget_resident_mail, sget_tbadge_mail, sget_resident_topic,\
+    sget_tbadge_topic, sget_other_mail, sget_other_topic
 from waitlist.ts3.connection import change_connection
 import json
 
@@ -95,9 +96,13 @@ def accounts():
 
     roles = db.session.query(Role).order_by(Role.name).all();
     accounts = db.session.query(Account).order_by(asc(Account.disabled)).order_by(Account.username).all()
-    res_mail = sget_resident_mail()
-    t_mail = sget_tbadge_mail()
-    return render_template("settings/accounts.html", roles=roles, accounts=accounts, res_mail=json.dumps(res_mail), t_mail=json.dumps(t_mail))
+    mails = {
+             'resident': [json.dumps(sget_resident_mail()), json.dumps(sget_resident_topic())],
+             'tbadge': [json.dumps(sget_tbadge_mail()), json.dumps(sget_tbadge_topic())],
+             'other': [json.dumps(sget_other_mail()), json.dumps(sget_other_topic())]
+             }
+
+    return render_template("settings/accounts.html", roles=roles, accounts=accounts, mails=mails)
 
 @bp_settings.route('/fmangement')
 @login_required

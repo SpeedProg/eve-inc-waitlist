@@ -42,8 +42,33 @@ def sget_resident_mail():
 def sset_resident_mail(text):
     save("mail_resident", text)
 
+def sget_resident_topic():
+    return get("mail_resident_topic")
+
+def sset_resident_topic(text):
+    save("mail_resident_topic", text)
+
 def sget_tbadge_mail():
     return get("mail_tbadge")
 
 def sset_tbadge_mail(text):
     save("mail_tbadge", text)
+
+def sget_tbadge_topic():
+    return get("mail_tbadge_topic")
+
+def sset_tbadge_topic(text):
+    save("mail_tbadge_topic", text)
+
+def sget_other_mail():
+    return get("mail_other")
+
+def sset_other_mail(text):
+    save("mail_other", text)
+
+def sget_other_topic():
+    return get("mail_other_topic")
+
+def sset_other_topic(text):
+    save("mail_other_topic", text)
+
