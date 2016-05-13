@@ -189,7 +189,7 @@ def take_link():
     
     fleet = db.session.query(CrestFleet).get(fleet_id)
 
-    if fleet is None:
+    if fleet is None or current_user.refresh_token is None:
         return redirect(url_for('fc_sso.login_redirect'))
     else:
         if fleet.compID != current_user.id:
@@ -197,6 +197,7 @@ def take_link():
             if oldfleet != None:
                 oldfleet.compID = None
             fleet.compID = current_user.id
+            db.session.commit()
     return redirect(url_for('settings.fleet'))
 
 @bp.route("/<int:fleetID>/change-type", methods=['GET'])
