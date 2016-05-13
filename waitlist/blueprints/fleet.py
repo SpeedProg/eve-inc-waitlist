@@ -58,7 +58,26 @@ def setup_step_url():
 def get_select_form(fleet_id):
     wings = get_wings(fleet_id)
     active_groups = db.session.query(WaitlistGroup).filter(WaitlistGroup.enabled == True)
-    return render_template("/fleet/setup/select.html", wings=wings, fleet_id=fleet_id, groups=active_groups)
+    auto_assign = {}
+    
+
+    for wing in wings:
+        for squad in wing.squadsList:
+            lname = squad.name.lower()
+            print lname
+            if "logi" in lname:
+                print "found logi"
+                auto_assign['logi'] = squad
+            elif "sniper" in lname:
+                print "found sniper"
+                auto_assign['sniper'] = squad
+            elif "dps" in lname and not "more" in lname:
+                print "found dps"
+                auto_assign['dps'] = squad
+            elif ("dps" in lname and "more" in lname) or "other" in lname:
+                print "found overflow"
+                auto_assign['overflow'] = squad
+    return render_template("/fleet/setup/select.html", wings=wings, fleet_id=fleet_id, groups=active_groups, assign=auto_assign)
 
 def setup_step_select():
     logi_s = request.form.get('wl-logi')
