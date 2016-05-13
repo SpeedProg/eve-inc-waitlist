@@ -5,7 +5,6 @@ from flask_principal import Principal
 from os import path
 from flask_migrate import Migrate, MigrateCommand
 from flask_script import Manager
-import os
 from flask_seasurf import SeaSurf
 from waitlist.utility import config
 

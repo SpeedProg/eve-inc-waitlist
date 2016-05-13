@@ -131,9 +131,27 @@ function noclick() {
 	});
 }
 
-function sendAuthMail(charId, token, sig) {
-	var link_prefix = window.location.protocol + '//' + window.location.host
-	CCPEVE.sendMail(charId, 'Waitlist Login Link', 'You can use <a href="'+link_prefix+'/tokenauth?token='+token+'">this link</a> to authenticate yourself on the waitlist.\nJust save it as a bookmark!\nsincerely '+sig);
+function sendAuthMail(charId, token, sig, username, type) {
+	var link_prefix = window.location.protocol + '//' + window.location.host;
+	var link = link_prefix+'/tokenauth?token='+token;
+	var mail_res = {{res_mail|safe}};
+	var mail_t = {{t_mail|safe}};
+	var mail_other = 'Hello $recv$,\nYou can use <a href="$link$">this link</a> to authenticate yourself on the waitlist.\nJust save it as a bookmark!\nsincerely $sig$'
+	var mail = ""
+	switch(type){
+	case "resident":
+		mail = mail_res;
+		break;
+	case "tbadge":
+		mail = mail_t
+		break;
+	default:
+		mail = mail_other;
+	}
+	mail = mail.replace("$recv$", username);
+	mail = mail.replace("$link$", link);
+	mail = mail.replace("$sig$", sig);
+	CCPEVE.sendMail(charId, 'Welcome Mail', mail);
 }
 
 $(document).ready(noclick);
@@ -175,7 +193,19 @@ $(document).ready(setUpEventhandlers);
 		<button type="button" class="btn btn-sm btn-warning" data-type="{%if acc.disabled%}acc-enable{%else%}acc-disable{%endif%}" data-id="{{acc.id}}">{%if acc.disabled%}Enable{%else%}Disable{%endif%}</button>
 		<button type="button" class="btn btn-sm btn-secondary" onclick="javascript:editAccount({{acc.id}});">Edit</button>
 		{% if is_igb %}
-		<button type="button" class="btn btn-sm btn-info" onclick="sendAuthMail({{acc.current_char_obj.id}}, '{{acc.login_token|safe}}', '{{current_user.username}}');">Auth Mail</button>
+		{% set is_rbadge = ['1'] %}
+		{% set is_tbadge = ['1'] %}
+		{% for role in acc.roles %}
+			{% if role.name == "resident" %}
+				{% if is_rbadge.append('0') %}{%endif %}
+			{% elif role.name == "tbadge" %}
+				tbadge
+				{% if is_tbadge.append('0') %}{%endif %}
+			{% endif %}
+		{% endfor %}
+		{% set is_rbadge = (is_rbadge|length > 1) %}
+		{% set is_tbadge = (is_tbadge|length > 1) %}
+		<button type="button" class="btn btn-sm btn-info" onclick="sendAuthMail({{acc.current_char_obj.id}}, '{{acc.login_token|safe}}', '{{current_user.username}}', '{{acc.username}}', {% if is_tbadge %}'tbadge'{%elif is_rbadge%}'resident'{%else%}'other'{%endif%});">Auth Mail</button>
 		{% endif %}
 		</td>
 		<td id="acc-{{acc.id}}-name">{{ acc.username }}</td>

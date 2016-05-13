@@ -35,3 +35,15 @@ def sset_active_ts_id(tsID):
         remove_setting("active_ts")
     else:
         save("active_ts", str(tsID))
+
+def sget_resident_mail():
+    return get("mail_resident")
+
+def sset_resident_mail(text):
+    save("mail_resident", text)
+
+def sget_tbadge_mail():
+    return get("mail_tbadge")
+
+def sset_tbadge_mail(text):
+    save("mail_tbadge", text)

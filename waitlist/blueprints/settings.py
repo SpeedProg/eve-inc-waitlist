@@ -6,10 +6,10 @@ from waitlist.data.perm import perm_admin, perm_settings, perm_officer,\
     perm_fleetlocation, perm_bans
 from flask.templating import render_template
 from flask.globals import request
-from sqlalchemy import or_, asc, desc
+from sqlalchemy import or_, asc
 from waitlist.storage.database import Account, Role, Character,\
     linked_chars, Ban, Constellation, IncursionLayout, SolarSystem, Station,\
-    WaitlistEntry, WaitlistGroup, Whitelist, HistoryEntry, TeamspeakDatum
+    WaitlistEntry, WaitlistGroup, Whitelist, TeamspeakDatum
 import flask
 from waitlist.data.eve_xml_api import get_character_id_from_name,\
     eve_api_cache_char_ids
@@ -26,11 +26,11 @@ from waitlist.utility import sde
 from flask import jsonify
 import csv
 from waitlist.data.names import WTMRoles
-from waitlist.utility.history_utils import create_history_object
 from waitlist.utility.settings import settings
 from waitlist.utility.settings.settings import sget_active_ts_id,\
-    sset_active_ts_id
+    sset_active_ts_id, sget_resident_mail, sget_tbadge_mail
 from waitlist.ts3.connection import change_connection
+import json
 
 bp_settings = Blueprint('settings', __name__)
 logger = logging.getLogger(__name__)
@@ -95,8 +95,10 @@ def accounts():
 
     roles = db.session.query(Role).order_by(Role.name).all();
     accounts = db.session.query(Account).order_by(desc(Account.disabled)).order_by(Account.username).all()
-    
-    return render_template("settings/accounts.html", roles=roles, accounts=accounts)
+    accounts = db.session.query(Account).order_by(asc(Account.disabled)).order_by(Account.username).all()
+    res_mail = sget_resident_mail()
+    t_mail = sget_tbadge_mail()
+    return render_template("settings/accounts.html", roles=roles, accounts=accounts, res_mail=json.dumps(res_mail), t_mail=json.dumps(t_mail))
 
 @bp_settings.route('/fmangement')
 @login_required

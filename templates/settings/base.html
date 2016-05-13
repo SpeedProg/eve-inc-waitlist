@@ -36,6 +36,11 @@
 		<a class="nav-link {% block m_whitelist %}{% endblock %}" href="{{url_for('settings.whitelist')}}">Whitelist</a>
 	</li>
 	{% endif %}
+	{% if perm_res_mod.can() or perm_t_mod.can() %}
+		<li class="nav-item">
+		<a class="nav-link {% block m_s_mail %}{% endblock %}" href="{{url_for('settings_mail.index')}}">IG Mail Settings</a>
+	</li>
+	{% endif %}
 	{% if perm_feedback.can() %}
 	<li class="navitem">
 		<a class="nav-link {% block m_feedback %}{% endblock %}" href="{{url_for('feedback.settings')}}">Feedback</a>

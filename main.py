@@ -26,7 +26,8 @@ from flask_principal import RoleNeed, identity_changed, Identity, AnonymousIdent
     identity_loaded, UserNeed
 from waitlist.data.perm import perm_management, perm_settings, perm_admin,\
     perm_officer, perm_accounts, perm_feedback, perm_dev, perm_leadership,\
-    perm_bans, perm_viewfits, perm_comphistory
+    perm_bans, perm_viewfits, perm_comphistory, perm_mod_mail_resident,\
+    perm_mod_mail_tbadge
 from flask.templating import render_template
 from waitlist.blueprints.settings import bp_settings
 from waitlist.blueprints.fittings import bp_waitlist
@@ -40,6 +41,7 @@ from waitlist.blueprints.fleet import bp as fleet_bp
 from waitlist.blueprints.api.fleet import bp as api_fleet_bp
 from waitlist.blueprints.api.fittings import bp as api_wl_bp
 from waitlist.blueprints.api.teamspeak import bp as api_ts3_bp
+from waitlist.blueprints.options.mail import bp as settings_mail_bp
 
 app.register_blueprint(bp_waitlist)
 app.register_blueprint(bp_settings, url_prefix='/settings')
@@ -49,6 +51,8 @@ app.register_blueprint(fleet_bp, url_prefix="/fleet")
 app.register_blueprint(api_fleet_bp, url_prefix="/api/fleet")
 app.register_blueprint(api_wl_bp, url_prefix="/api/fittings")
 app.register_blueprint(api_ts3_bp, url_prefix="/api/ts3")
+app.register_blueprint(settings_mail_bp, url_prefix="/settings/mail")
+
 logger = logging.getLogger(__name__)
 
 # set if it is the igb
@@ -66,7 +70,8 @@ def inject_data():
                 perm_officer=perm_officer, perm_accounts=perm_accounts,
                 perm_feedback=perm_feedback, is_account=is_account,
                 perm_dev=perm_dev, perm_leadership=perm_leadership, perm_bans=perm_bans,
-                perm_viewfits=perm_viewfits, version=display_version, perm_comphistory=perm_comphistory)
+                perm_viewfits=perm_viewfits, version=display_version, perm_comphistory=perm_comphistory,
+                perm_res_mod=perm_mod_mail_resident, perm_t_mod=perm_mod_mail_tbadge)
 
 @app.before_request
 def check_ban():

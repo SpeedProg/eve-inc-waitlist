@@ -5,7 +5,7 @@ base_path = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(base_path, 'lib'))
 from waitlist.storage.database import Role, Waitlist, WaitlistGroup
 from waitlist.data.names import WaitlistNames, WTMRoles
-from waitlist import db
+from waitlist.base import db
 
 
 def get_role(name, restrictive=True):
@@ -16,12 +16,16 @@ def get_role(name, restrictive=True):
 
 def createRoles():
     role_list = WTMRoles.get_role_list()
-    roles = []
-    for role in role_list:
-        roles.append(get_role(role))
 
-    for role in roles:
-        db.session.merge(role)
+    existing_roles = db.session.query(Role).all()
+
+    for role_name in role_list:
+        exists = False
+        for dbrole in existing_roles:
+            if dbrole.name == role_name:
+                exists = True
+        if not exists:
+            db.session.add(get_role(role_name))
 
 def createDefaultWaitlistGroup():
     group = createWaitlistGroup("default", "HQ (Default)")

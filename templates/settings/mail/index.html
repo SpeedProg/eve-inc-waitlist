@@ -1,0 +1,51 @@
+{% extends "settings/base.html" %}
+
+{% block title %}Settings - Fleet Settings{% endblock %}
+
+{% block m_s_mail %}active{% endblock %}
+
+{% block head %}
+{{ super() }}
+{% endblock head %}
+{% block content %}
+{% if perm_t_mod.can() %}
+<h4>T-Badge Mail</h4>
+<form method="post" action="{{url_for('settings_mail.change', type_='tbadge')}}">
+<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+<fieldset class="form-group">
+	<label for="t-bdage-textarea">Mail Content $link$ gets replaced with auth link url, $sig$ with the sending users name, $recv$ with the receivers name</label>
+	<textarea name="mail" class="form-control" id="t-bdage-textarea" rows="3">{{t_mail}}</textarea>
+</fieldset>
+<samp>
+Hello $recv$,<br>
+welcome to the T-Badge program!<br>
+your  &lt;a href=&quot;$link$&quot;&gt;Login Link&lt;/a&gt; save it as a bookmark!<br>
+<br>
+sincerely<br>
+$sig$<br>
+</samp>
+<button type="submit" class="btn btn-primary">Save</button>
+</form>
+{% endif %}
+{% if perm_res_mod.can() %}
+<h4>Resident Mail</h4>
+<form method="post" action="{{url_for('settings_mail.change', type_='resident')}}">
+<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+<fieldset class="form-group">
+	<label for="t-bdage-textarea">Mail Content $link$ gets replaced with auth link url, $sig$ with the sending users name, $recv$ with the receivers name</label>
+	<textarea name="mail" class="form-control" id="t-bdage-textarea" rows="3">{{res_mail}}</textarea>
+</fieldset>
+<samp>
+Hello $recv$,<br>
+welcome to the R-Badge program!<br>
+your  &lt;a href=&quot;$link$&quot;&gt;Login Link&lt;/a&gt; save it as a bookmark!<br>
+<br>
+sincerely<br>
+$sig$<br>
+</samp>
+<button type="submit" class="btn btn-primary">Save</button>
+</form>
+{% endif %}
+{% if perm_res_mod.can() %}
+{% endif %}
+{% endblock content %}
