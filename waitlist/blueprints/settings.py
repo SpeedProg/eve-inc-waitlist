@@ -94,7 +94,6 @@ def accounts():
     
 
     roles = db.session.query(Role).order_by(Role.name).all();
-    accounts = db.session.query(Account).order_by(desc(Account.disabled)).order_by(Account.username).all()
     accounts = db.session.query(Account).order_by(asc(Account.disabled)).order_by(Account.username).all()
     res_mail = sget_resident_mail()
     t_mail = sget_tbadge_mail()
