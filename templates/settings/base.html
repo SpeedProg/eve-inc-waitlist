@@ -7,50 +7,28 @@
 {% endblock %}
 
 {% block data %}
+{% set nav = [
+	('settings.overview', 'Overview', true),
+	('settings.fleet', 'Fleet Settings', perm_man.can()),
+	('settings.teamspeak', 'TS Settings', perm_man.can()),
+	('settings.account_self', 'Own Settings', true),
+	('settings.accounts', 'Accounts', perm_accounts.can()),
+	('settings.bans', 'Bans', perm_bans.can()),
+	('settings.whitelist', 'Whitelist', perm_bans.can()),
+	('settings_mail.index', 'IG Mail Settings', (perm_res_mod.can() or perm_t_mod.can() or perm_leadership.can())),
+	('feedback.settings', 'Feedback', perm_feedback.can()),
+	('settings.sde_settings', "Static Data Import", perm_dev.can())
+] -%}
+{{request.endpoint}}
 <div class="col-sm-3 col-md-2 sidebar" id="sidebar">
 	<ul class="nav nav-pills nav-stacked">
+	{% for endpoint, name, perm in nav %}
+	{% if perm %}
 	<li class="nav-item">
-		<a class="nav-link {% block m_overview %}{% endblock %}" href="{{url_for('settings.overview')}}">Overview</a>
-	</li>
-	{% if perm_man.can() %}
-	<li class="nav-item">
-		<a class="nav-link {% block m_fleet %}{% endblock %}" href="{{url_for('settings.fleet')}}">Fleet Settings</a>
-	</li>
-	<li class="nav-item">
-		<a class="nav-link {% block m_ts %}{% endblock %}" href="{{url_for('settings.teamspeak')}}">TS Settings</a>
+		<a class="nav-link {% if request.endpoint == endpoint %}active{% endif %}" href="{{url_for(endpoint)}}">{{name}}</a>
 	</li>
 	{% endif %}
-	<li class="nav-item">
-		<a class="nav-link {% block m_own %}{% endblock %}" href="{{url_for('settings.account_self')}}">Own Settings</a>
-	</li>
-	{% if perm_accounts.can() %}
-	<li class="nav-item">
-		<a class="nav-link {% block m_account %}{% endblock %}" href="{{url_for('settings.accounts')}}">Accounts</a>
-	</li>
-	{% endif %}
-	{% if perm_bans.can() %}
-	<li class="nav-item">
-		<a class="nav-link {% block m_ban %}{% endblock %}" href="{{url_for('settings.bans')}}">Bans</a>
-	</li>
-	<li class="nav-item">
-		<a class="nav-link {% block m_whitelist %}{% endblock %}" href="{{url_for('settings.whitelist')}}">Whitelist</a>
-	</li>
-	{% endif %}
-	{% if perm_res_mod.can() or perm_t_mod.can() or perm_leadership.can() %}
-	<li class="nav-item">
-		<a class="nav-link {% block m_s_mail %}{% endblock %}" href="{{url_for('settings_mail.index')}}">IG Mail Settings</a>
-	</li>
-	{% endif %}
-	{% if perm_feedback.can() %}
-	<li class="navitem">
-		<a class="nav-link {% block m_feedback %}{% endblock %}" href="{{url_for('feedback.settings')}}">Feedback</a>
-	</li>
-	{% endif %}
-	{% if perm_dev.can() %}
-	<li class="navitem">
-		<a class="nav-link {% block m_sde %}{% endblock %}" href="{{url_for('settings.sde_settings')}}">Static Data Import</a>
-	</li>
-	{% endif %}
+	{% endfor %}
 	</ul>
 </div>
 <div class="col-sm-9 col-md-10 content" id="main">
