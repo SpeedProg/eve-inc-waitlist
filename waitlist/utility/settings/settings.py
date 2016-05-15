@@ -72,3 +72,14 @@ def sget_other_topic():
 def sset_other_topic(text):
     save("mail_other_topic", text)
 
+def sget_motd_hq():
+    return get("motd_hq")
+
+def sset_motd_hq(text):
+    save("motd_hq", text)
+
+def sget_motd_vg():
+    return get("motd_vg")
+
+def sset_motd_vg(text):
+    save("motd_vg", text)

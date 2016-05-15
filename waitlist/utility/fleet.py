@@ -7,12 +7,14 @@ import logging
 from threading import Timer
 from waitlist.base import db
 from waitlist.storage.database import WaitlistGroup, CrestFleet, WaitlistEntry,\
-    HistoryEntry, Character
+    HistoryEntry, Character, TeamspeakDatum
 from datetime import datetime, timedelta
 from waitlist.utility.history_utils import create_history_object
 from pycrest.errors import APIException
 from waitlist.utility.crest import create_token_cb
 from flask.helpers import url_for
+from waitlist.utility.settings.settings import sget_active_ts_id, sget_motd_hq,\
+    sget_motd_vg
 
 logger = logging.getLogger(__name__)
 
@@ -108,10 +110,17 @@ def setup(fleet_id, fleet_type):
         fleet.wings.post() # create 2 squad
         wait_for_change = True
 
+    tsString = ""
+    tsID = sget_active_ts_id()
+    if tsID is not None:
+        teamspeak = db.session.query(TeamspeakDatum).get(tsID)
+        tsString = teamspeak.displayHost
+        if teamspeak.displayPort != 9987:
+            tsString = tsString + ":" + str(teamspeak.displayPort)
     if fleet_type == "hq":
-        fleet.put(fleet_url,json={'isFreeMove':True,'motd':motd_hq})
+        fleet.put(fleet_url,json={'isFreeMove':True,'motd':sget_motd_hq().replace("$ts$", tsString)})
     elif fleet_type == "vg":
-        fleet.put(fleet_url,json={'isFreeMove':True,'motd':motd_vg})
+        fleet.put(fleet_url,json={'isFreeMove':True,'motd':sget_motd_vg().replace("$ts$", tsString)})
 
     if wait_for_change:
         sleep(6)

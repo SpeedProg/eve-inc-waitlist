@@ -42,6 +42,7 @@ from waitlist.blueprints.api.fleet import bp as api_fleet_bp
 from waitlist.blueprints.api.fittings import bp as api_wl_bp
 from waitlist.blueprints.api.teamspeak import bp as api_ts3_bp
 from waitlist.blueprints.options.mail import bp as settings_mail_bp
+from waitlist.blueprints.options.fleet_motd import bp as fmotd_bp
 
 app.register_blueprint(bp_waitlist)
 app.register_blueprint(bp_settings, url_prefix='/settings')
@@ -52,6 +53,7 @@ app.register_blueprint(api_fleet_bp, url_prefix="/api/fleet")
 app.register_blueprint(api_wl_bp, url_prefix="/api/fittings")
 app.register_blueprint(api_ts3_bp, url_prefix="/api/ts3")
 app.register_blueprint(settings_mail_bp, url_prefix="/settings/mail")
+app.register_blueprint(fmotd_bp, url_prefix="/settings/fmotd")
 
 logger = logging.getLogger(__name__)
 
