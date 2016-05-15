@@ -18,9 +18,8 @@
 	('settings_mail.index', 'IG Mail Settings', (perm_res_mod.can() or perm_t_mod.can() or perm_leadership.can())),
 	('settings_fmotds.index', 'Fleet MOTD', perm_leadership.can()),
 	('feedback.settings', 'Feedback', perm_feedback.can()),
-	('settings.sde_settings', "Static Data Import", perm_dev.can())
+	('settings.sde_settings', 'Static Data Import', perm_dev.can())
 ] -%}
-{{request.endpoint}}
 <div class="col-sm-3 col-md-2 sidebar" id="sidebar">
 	<ul class="nav nav-pills nav-stacked">
 	{% for endpoint, name, perm in nav %}
