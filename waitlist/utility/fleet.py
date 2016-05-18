@@ -76,7 +76,7 @@ class FleetConnectionCache():
             'refresh_token': account.refresh_token,
             'expires_in': account.access_token_expires
             }
-        connection = AuthedConnectionB(data, fleet_url, "https://login.eveonline.com/oauth", crest_client_id, crest_client_secret, create_token_cb(account.id()))
+        connection = AuthedConnectionB(data, fleet_url, "https://login.eveonline.com/oauth", crest_client_id, crest_client_secret, create_token_cb(account.id))
         self._cache[account.id] = connection
         return connection
 
