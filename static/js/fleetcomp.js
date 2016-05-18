@@ -143,7 +143,7 @@ function createHeaderDOM(wlname, wlid, entry, groupId) {
 	var header = $('<div></div>');
 	var oldInvites = "";
 	if (wlname != "queue") {
-		oldInvites = " <div class='missed-invites'>"+entry.missedInvites+'</div> <i class="fa fa-bed" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="Missed Invites"></i>'
+		oldInvites = " <div style='display: inline;' class='missed-invites'>"+entry.missedInvites+'</div> <i class="fa fa-bed" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="Missed Invites"></i>'
 	}
 	var charRow = $('<a href="javascript:IGBW.showInfo(1377, '+entry.character.id+');">'+
 						'<div class="wel-header-32">'+
