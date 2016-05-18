@@ -51,6 +51,6 @@ def change(type_):
         mail = request.form.get('mail')
         topic = request.form.get('topic')
         sset_other_mail(mail)
-        sset_other_topic(mail)
+        sset_other_topic(topic)
         flash("Other mail set!")
     return redirect(url_for('settings_mail.index'))
