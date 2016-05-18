@@ -1,0 +1,80 @@
+{% extends "settings/base.html" %}
+
+{% block title %}Settings - IG Mail{% endblock %}
+
+{% block head %}
+{{ super() }}
+{% endblock head %}
+{% block content %}
+{% if perm_leadership.can() %}
+<h4>Default Mail</h4>
+<form method="post" action="{{url_for('settings_mail.change', type_='default')}}">
+<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+<fieldset class="form-group">
+	<label for="default-topic">Mail Topic</label>
+	<input type="text" value="{{mails['other'][1]}}" name="topic" class="form-control" id="default-topic"></input>
+</fieldset>
+<fieldset class="form-group">
+	<label for="default-textarea">Mail Content $link$ gets replaced with auth link url, $sig$ with the sending users name, $recv$ with the receivers name</label>
+	<textarea name="mail" class="form-control" id="default-textarea" rows="3">{{mails['other'][0]}}</textarea>
+</fieldset>
+<samp>
+Hello $recv$,<br>
+welcome to the T-Badge program!<br>
+your  &lt;a href=&quot;$link$&quot;&gt;Login Link&lt;/a&gt; save it as a bookmark!<br>
+<br>
+sincerely<br>
+$sig$<br>
+</samp>
+<button type="submit" class="btn btn-primary">Save</button>
+</form>
+{% endif %}
+{% if perm_t_mod.can() %}
+<h4>T-Badge Mail</h4>
+<form method="post" action="{{url_for('settings_mail.change', type_='tbadge')}}">
+<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+<fieldset class="form-group">
+	<label for="t-bdage-topic">Mail Topic</label>
+	<input type="text" value="{{mails['tbadge'][1]}}" name="topic" class="form-control" id="t-bdage-topic"></input>
+</fieldset>
+<fieldset class="form-group">
+	<label for="t-bdage-textarea">Mail Content $link$ gets replaced with auth link url, $sig$ with the sending users name, $recv$ with the receivers name</label>
+	<textarea name="mail" class="form-control" id="t-bdage-textarea" rows="3">{{mails['tbadge'][0]}}</textarea>
+</fieldset>
+<samp>
+Hello $recv$,<br>
+welcome to the T-Badge program!<br>
+your  &lt;a href=&quot;$link$&quot;&gt;Login Link&lt;/a&gt; save it as a bookmark!<br>
+<br>
+sincerely<br>
+$sig$<br>
+</samp>
+<button type="submit" class="btn btn-primary">Save</button>
+</form>
+{% endif %}
+{% if perm_res_mod.can() %}
+<h4>Resident Mail</h4>
+<form method="post" action="{{url_for('settings_mail.change', type_='resident')}}">
+<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+<fieldset class="form-group">
+	<label for="resident-topic">Mail Topic</label>
+	<input type="text" value="{{mails['resident'][1]}}" name="topic" class="form-control" id="resident-topic"></input>
+</fieldset>
+<fieldset class="form-group">
+	<label for="resident-textarea">Mail Content $link$ gets replaced with auth link url, $sig$ with the sending users name, $recv$ with the receivers name</label>
+	<textarea name="mail" class="form-control" id="resident-textarea" rows="3">{{mails['resident'][0]}}</textarea>
+</fieldset>
+<samp>
+Hello $recv$,<br>
+welcome to the R-Badge program!<br>
+your  &lt;a href=&quot;$link$&quot;&gt;Login Link&lt;/a&gt; save it as a bookmark!<br>
+<br>
+sincerely<br>
+$sig$<br>
+</samp>
+<button type="submit" class="btn btn-primary">Save</button>
+</form>
+{% endif %}
+{% if perm_res_mod.can() %}
+{% endif %}
+{% endblock content %}

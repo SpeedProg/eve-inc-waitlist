@@ -11,7 +11,7 @@
 	href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.2/css/bootstrap.min.css"
 	integrity="sha384-y3tfxAZXuh4HwSYylfB+J125MxIs6mR5FOHamPBG064zB+AFeWH94NdvaCBm8qnd"
 	crossorigin="anonymous">
-<link rel="stylesheet" href="/static/css/base.css">
+<link rel="stylesheet" href="{{url_for('static', filename='css/base'+version+'.css')}}">
 {% if is_igb %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/es5-shim/4.5.7/es5-shim.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/es5-shim/4.5.7/es5-sham.min.js"></script>
@@ -23,7 +23,12 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.2.0/js/tether.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.2/js/bootstrap.min.js" integrity="sha384-vZ2WRJMwsjRMW/8U7i6PWi6AlO1L79snBrmgiDpgIWJ82z8eA5lenwvxbMV1PAh7" crossorigin="anonymous"></script>
 <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-XdYbMnZ/QjLh6iI4ogqCTaIjrFk87ip+ekIjefZch0Y+PvJ8CDYtEs1ipDmPorQ+" crossorigin="anonymous">
-<script type="text/javascript" src="/static/js/eve-igb-wrapper.js"></script>
+<script type="text/javascript" src="{{url_for('static', filename='js/eve-igb-wrapper'+version+'.js')}}"></script>
+<script type="text/javascript">
+function testTSPoke() {
+	$.get("{{url_for('api_ts3.test_poke')}}")
+}
+</script>
 <script type="text/javascript">
 {% if is_igb %}
 CCPEVE.requestTrust(location.protocol+'//'+location.hostname+(location.port ? ':'+location.port: ''));
@@ -46,6 +51,7 @@ CCPEVE.requestTrust(location.protocol+'//'+location.hostname+(location.port ? ':
 		 window.open("https://en.wikipedia.org/wiki/Booby", "_blank");
 	 });
 }
+
 $(document).ready(function () {
 	setupDNA();
 });
@@ -95,6 +101,9 @@ $(document).ready(function () {
 	<li class="nav-item pull-xs-right">
 		<a class="nav-link" href="{{url_for('fittings.notification', user_id=current_user.get_eve_id())}}" target="_blank">Notification Link</a>
 	</li>
+	<li class="nav-item pull-xs-right">
+		<a class="btn btn-danger btn-sm" href="javascript:testTSPoke();">Test TS Poke</a>
+	</li>
 	{% endif %}
 	{% endif %}
 	
@@ -102,6 +111,7 @@ $(document).ready(function () {
 </div>
 	{% endblock %}
 	</nav>
+	<div id="alert-area-base">
 	{% with messages = get_flashed_messages(with_categories=true) %}
   		{% if messages %}
   		{% for category, message in messages %}
@@ -114,6 +124,7 @@ $(document).ready(function () {
   		{% endfor %}
   		{% endif %}
 	{% endwith %}
+	</div>
 	<div id="content" class="container-fluid">
 		{% block container_data %}
 		<div class="row" id="data">{% block data %}{% endblock %}</div>

@@ -8,36 +8,56 @@
 <meta name="wl-names" content="{% for wl in lists %}{{wl.name|e}}{% if not loop.last %},{% endif %}{% endfor %}">
 {% if perm_man.can() %}
 {# URLs for fleetcomp js #}
-<meta name="api-invite-player" content="{{url_for('fittings.api_invite_player')}}">
+<meta name="api-send-notification" content="{{url_for('api_fittings.send_notification', playerID=-1)}}">
 <meta name="api-wls-remove-player" content="{{url_for('fittings.api_wls_remove_player')}}">
 <meta name="api-wl-remove-entry" content="{{url_for('fittings.api_wl_remove_entry')}}">
 <meta name="api-move-entry-to-wls" content="{{url_for('fittings.move_to_waitlists')}}">
-<meta name="api-waitlists" content="{{url_for('waitlist_api.waitlist')}}">
+<meta name="api-waitlists" content="{{url_for('api_fittings.waitlist')}}">
 <meta name="api-approve-fit" content="{{url_for('fittings.api_move_fit_to_waitlist')}}">
+<meta name="api-send-invite" content="{{url_for('api_fleet.invite_to_fleet')}}">
 {% if group %}
 <meta name="wl-group-id" content="{{group.groupID}}">
 {% endif %}
 {% endif %}
 {{ super() }}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
-<script type="text/javascript" src="/static/js/waitlist.js"></script>
+<script type="text/javascript" src="{{url_for('static', filename='js/waitlist'+version+'.js')}}"></script>
 {% if perm_man.can() %}
-<script type="text/javascript" src="/static/js/fleetcomp.js"></script>
+<script type="text/javascript" src="{{url_for('static', filename='js/fleetcomp'+version+'.js')}}"></script>
 {% endif %}
 {% if perm_viewfits.can() %}
 <script src="https://quiescens.duckdns.org/wl/wtm.js"></script>
 {% endif %}
-{% if (not is_on_wl) and (not (perm_man.can() or perm_viewfits.can())) and group.enabled %}
+{% if group and (not is_on_wl) and (not (perm_man.can() or perm_viewfits.can())) and group.enabled %}
 	{% include "xup-form.js" %}
 {% endif %}
-<link rel="stylesheet" href="/static/css/waitlist.css">
+
+<link rel="stylesheet" href="{{url_for('static', filename='css/waitlist'+version+'.css')}}">
 {% endblock %}
 
 {% block container_data %}
 {# show there form only if he is not on waitlist, not fleetcomp or has permission to view fits and xups are enabled #}
-{% if (not is_on_wl) and (not (perm_man.can() or perm_viewfits.can())) and group.enabled %}
+{% if group and (not is_on_wl) and (not (perm_man.can() or perm_viewfits.can())) and group.enabled %}
 	{% include "xup-form.html" with context %}
 {% endif %}
+<div class="row">
+	{# Show a message if you have comp permissions but you are not fleet comp of a fleet #}
+	{% if perm_man.can() and current_user.fleet is none %}
+	<div class="alert alert-info fade in" role="alert">
+  		<p class="text-xs-center">You are not associated with any fleet, you can change this in <a href="{{url_for('settings.fleet')}}">Fleet Settings</a></p>
+  	</div>
+  	{% endif %}
+  	{% if is_on_wl %}{#Message for people that are on waitlist#}
+  	<div class="alert alert-info" role="alert">
+  	<p class="text-xs-center">To get informed when you get invited please open the <a href="{{url_for('fittings.notification', user_id=current_user.get_eve_id())}}" target="_blank">Notification Link</a> in Firefox/Chrome
+	{% if ts %}
+	<br>
+		and/or join TS with your FULL EVE Charactername<br>TS3 Server: {{ts.displayHost}}:{{ts.displayPort}}
+	{% endif %}
+  	</p>
+  	</div>
+  	{% endif %}
+</div>
 <div class="row">
 {% if group %}
 <div class="col-sm-6">
@@ -72,7 +92,22 @@
 	    <tbody>
 	    <tr>
 	    	<th scope="row">Fleet Manager</th>
-	    	<td>{% if group.manager is not none %}<a href="javascript:CCPEVE.showInfo(1377, {{group.manager.current_char_obj.get_eve_id()}});">{{group.manager.current_char_obj.get_eve_name()}}</a>{% else %}Not Set{% endif %}</td>
+	    	<td>{% if group.fleets|length > 0 %}{# we have crest connected fleets with comps #}
+					{% for fleet in group.fleets %}
+						{% if fleet.comp is not none %}
+						<a href="javascript:IGBW.showInfo(1377, {{fleet.comp.get_eve_id()}});">{{fleet.comp.get_eve_name()}}</a>
+						{% if not loop.last %} - {% endif %}
+						{% else %}
+						Not Set
+						{% endif %}
+					{% endfor %}
+	    		{% else %}
+	    			{% for manager in group.manager %}
+	    				<a href="javascript:CCPEVE.showInfo(1377, {{manager.get_eve_id()}});">
+	    				{{manager.get_eve_name()}}</a>{% if not loop.last %} - {% endif %}
+	    			{% endfor %}
+				{% endif %}
+			</td>
 	    </tr>
 	    </tbody>
 	    </table>
@@ -83,7 +118,7 @@
 		    <!--
 		    <tr>
 		    	<th scope="row">FC</th>
-		    	<td>{% if group.fc is not none %}<a href="javascript:CCPEVE.showInfo(1377, {{group.fc.get_eve_id()}});">{{group.manager.get_eve_name()}}</a>{% else %}Not Set{% endif %}</td>
+		    	<td>{% for fc in group.fcs %}<a href="javascript:CCPEVE.showInfo(1377, {{fc.get_eve_id()}});">{{fc.get_eve_name()}}</a>{% if not loop.last %} - {% endif %}{% endfor %}</td>
 		    </tr>
 		    -->
 		    <tr>
@@ -142,7 +177,7 @@
 									alt="{{ entry.user_data.eve_name|e }}">
 							</div>
 							<div class="wel-container-32">
-								{{ entry.user_data.eve_name|e }}{% if entry.user_data.is_new() %} <span class="label label-info">New</span>{% endif %} <small class="wait-time">{{entry.creation|waittime}} min ago</small>
+								{{ entry.user_data.eve_name|e }}{% if wlist.name != "queue" %} {{entry.inviteCount}} <i class="fa fa-bed" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="Missed Invites"></i>{% endif %}{% if entry.user_data.is_new() %} <span class="label label-info">New</span>{% endif %} <small class="wait-time">{{entry.creation|waittime}} min ago</small>
 							</div>
 						</div>
 						{% if current_user.get_eve_id() == entry.user %}
@@ -155,7 +190,7 @@
 								onclick="javascript:removeOwnEntry('{{wlist.name}}', {{entry.user}}, {{ entry.id }});"><i class="fa fa-times"></i></button>
 							{% endif %}
 							{% if current_user.get_eve_id() == entry.user or perm_viewfits.can() %}
-							<button type="button" data-toggle="collapse" data-target="#fittings-{{entry.id}}" class="btn btn-primary"><i class="fa fa-plus"></i> &#47; <i class="fa fa-minus"></i> Fits</button>
+							<button type="button" data-toggle="collapse" data-target="#fittings-{{entry.id}}" class="btn btn-primary"><i class="fa fa-caret-down"></i></i> Fits</button>
 							{% endif %}
 						</div>
 						{% endif %}

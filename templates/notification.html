@@ -16,7 +16,6 @@ function getSSE() {
         var sound = document.getElementById('sound');
         sound.volume = 0.5;
         sound.play();
-        sse.close()
     }
 	sse.onerror = handleSSEError;
 	return sse;
@@ -24,7 +23,7 @@ function getSSE() {
 
 $(document).ready(
         function() {
-            var sse = getSSE();           
+            var sse = getSSE();
         });
 </script>
 {% endblock %}

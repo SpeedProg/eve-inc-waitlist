@@ -2,13 +2,13 @@
 
 {% block title %}Settings - Fleet Settings{% endblock %}
 
-{% block m_fleet %}active{% endblock %}
-
 {% block head %}
 {{ super() }}
-<script src="{{url_for('static', filename='js/typeahead.bundle.min.js')}}" type="text/javascript"></script>
-<link rel="stylesheet" href="{{url_for('static', filename='css/typeaheadjs.css')}}">
-<link rel="stylesheet" href="/static/css/settings-fleet.css">
+<meta name="api-fleet-remove" content="{{url_for('api_fleet.removeFleet', fleetID=-1)}}"/>
+<script src="{{url_for('static', filename='js/typeahead.bundle.min'+version+'.js')}}" type="text/javascript"></script>
+<script src="{{url_for('static', filename='js/fleet-settings'+version+'.js')}}" type="text/javascript"></script>
+<link rel="stylesheet" href="{{url_for('static', filename='css/typeaheadjs'+version+'.css')}}">
+<link rel="stylesheet" href="{{url_for('static', filename='css/settings-fleet'+version+'.css')}}">
 <script type="text/javascript">
 $(document).ready(function(){
 	var constellationSource = new Bloodhound({
@@ -136,25 +136,44 @@ $(document).ready(function() {
     </tr>
     <tr>
     	<th scope="row">FC</th>
-    	<td>{% if group.fc is not none %}<a href="javascript:CCPEVE.showInfo(1377, {{group.fc.get_eve_id()}});">{{group.fc.get_eve_name()}}</a>{% else %}Not Set{% endif %}</td>
+    	<td>
+    	{% for fc in group.fcs %}
+    	<a href="javascript:CCPEVE.showInfo(1377, {{fc.get_eve_id()}});">{{fc.get_eve_name()}}</a>
+    	<form action="{{url_for('settings.fleet_status_set', gid=group.groupID)}}" method="post" class="form-inline" style="display:inline;">
+    	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+    	<input type="hidden" name="action" value="fc-remove">
+    	<input type="hidden" name="accountID" value="{{fc.id}}">
+    	<button type="submit" class="btn btn-mini btn-danger"><i class="fa fa-times" aria-hidden="true"></i></button>
+    	</form>
+    	{% endfor %}
+    	</td>
     	<td>
     	<form action="{{url_for('settings.fleet_status_set', gid=group.groupID)}}" method="post" class="form-inline">
     	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
     	<input type="hidden" name="action" value="fc">
-    	<input type="text" name="name" value="{{user.get_eve_name()}}" class="form-control form-control-sm">
-    	<button type="submit" class="btn btn-sm btn-primary">Set</button>
+    	<button type="submit" class="btn btn-sm btn-primary">Add Self</button>
     	</form>
     	</td>
     </tr>
     <tr>
     	<th scope="row">Fleet Manager</th>
-    	<td>{% if group.manager is not none %}<a href="javascript:CCPEVE.showInfo(1377, {{group.manager.get_eve_id()}});">{{group.manager.get_eve_name()}}</a>{% else %}Not Set{% endif %}</td>
+    	<td>
+    	{% for manager in group.manager %}
+    	<a href="javascript:CCPEVE.showInfo(1377, {{manager.get_eve_id()}});">{{manager.get_eve_name()}}</a>
+    	<form action="{{url_for('settings.fleet_status_set', gid=group.groupID)}}" method="post" class="form-inline" style="display:inline;">
+    	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+    	<input type="hidden" name="action" value="manager-remove">
+    	<input type="hidden" name="accountID" value="{{manager.id}}">
+    	<button type="submit" class="btn btn-mini btn-danger"><i class="fa fa-times" aria-hidden="true"></i></button>
+    	</form>
+    	{% endfor %}
+    	</td>
     	<td>
     	<form action="{{url_for('settings.fleet_status_set', gid=group.groupID)}}" method="post" class="form-inline">
     	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
     	<input type="hidden" name="action" value="manager">
     	<!-- <input type="text" name="name" value="{{user.get_eve_name()}}"> -->
-    	<button type="submit" class="btn btn-sm btn-primary">Set Self</button>
+    	<button type="submit" class="btn btn-sm btn-primary">Add Self</button>
     	</form>
     	</td>
     </tr>
@@ -196,6 +215,47 @@ $(document).ready(function() {
     	</td>
     </tr>
     {% endif %}
+    <tr>
+    <th scope="row">Backseats:</th>
+    <td colspan="2">
+    {% for backseat in group.backseats %}
+    	<a href="javascript:IGBW.showInfo(1377, {{backseat.current_char_obj.get_eve_id()}});">{{backseat.current_char_obj.get_eve_name()}}</a>
+    	<form action="{{url_for('settings.fleet_status_set', gid=group.groupID)}}" method="post" class="form-inline" style="display:inline;">
+    	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+    	<input type="hidden" name="action" value="remove-backseat">
+    	<input type="hidden" name="accountID" value="{{backseat.id}}">
+    	<button type="submit" class="btn btn-mini btn-danger"><i class="fa fa-times" aria-hidden="true"></i></button>
+    	</form>
+		{% if not loop.last %} - {% endif %}
+    {% endfor %}
+    	<form action="{{url_for('settings.fleet_status_set', gid=group.groupID)}}" method="post" class="form-inline" style="display:inline;">
+    	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+    	<input type="hidden" name="action" value="add-backseat">
+    	<button type="submit" class="btn btn-sm btn-primary">Add Self</button>
+    	</form>
+    </td>
+    </tr>
+    <tr>
+    	<th scope="row">Register for Fleet</th>
+    	<td colspan="2">
+			<form>
+			<a href="{{url_for('fleet.take_form')}}" class="btn btn-sm btn-primary">Take over a Fleet</a>
+			</form>
+    	</td>
+    </tr>
+    <tr>
+    <th>Fleet ID</th><th>Current Fleet Comp</th><th>Actions</th>
+    </tr>
+    {% for fleet in group.fleets %}
+    <tr id="fleet-{{fleet.fleetID}}">
+        <td>{{fleet.fleetID}}</td>
+        <td>{% if fleet.comp %}<a href="javascript:IGBW.showInfo(1377, {{fleet.comp.get_eve_id()}});">{{fleet.comp.username}}</a>{% else %}{{None}}{% endif %}</td>
+        <td>
+        	<button class="btn btn-danger btn-sm" data-type="remove-fleet" data-id="{{fleet.fleetID}}">Remove</button>
+        	<a href="{{url_for('fleet.change_type', fleetID=fleet.fleetID)}}" class="btn btn-sm btn-warning">Change Fleet Type</a>
+        </td>
+    </tr>
+    {% endfor %}
     </tbody>
     </table>
   </div>

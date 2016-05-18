@@ -2,6 +2,8 @@ from gevent import monkey; monkey.patch_all()
 # inject the lib folder before everything else
 import os
 import sys
+from waitlist.utility.settings import settings
+from waitlist.utility.config import debug_enabled, debug_fileversion
 base_path = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(base_path, 'lib'))
 from waitlist.data.version import version
@@ -9,23 +11,23 @@ from waitlist.utility.eve_id_utils import get_account_from_db, get_char_from_db,
     is_char_banned, get_character_by_id_and_name, get_character_by_name
 from datetime import datetime
 import math
-from waitlist.blueprints.waitlist_api import wl_api
 from sqlalchemy.exc import StatementError
 from waitlist.utility import config
 from logging.handlers import TimedRotatingFileHandler
 from waitlist.blueprints.feedback import feedback
 from gevent.pywsgi import WSGIServer
-from waitlist import app, login_manager, db
+from waitlist.base import app, login_manager, db
 from flask_login import login_required, current_user, login_user,\
     logout_user
 import logging
 from waitlist.storage.database import Account, WaitlistEntry,\
-    Character, WaitlistGroup
+    Character, WaitlistGroup, TeamspeakDatum
 from flask_principal import RoleNeed, identity_changed, Identity, AnonymousIdentity,\
     identity_loaded, UserNeed
 from waitlist.data.perm import perm_management, perm_settings, perm_admin,\
     perm_officer, perm_accounts, perm_feedback, perm_dev, perm_leadership,\
-    perm_bans, perm_viewfits, perm_comphistory
+    perm_bans, perm_viewfits, perm_comphistory, perm_mod_mail_resident,\
+    perm_mod_mail_tbadge
 from flask.templating import render_template
 from waitlist.blueprints.settings import bp_settings
 from waitlist.blueprints.fittings import bp_waitlist
@@ -34,11 +36,24 @@ import flask
 from werkzeug.utils import redirect
 from flask.helpers import url_for
 from waitlist.utility.utils import is_igb
+from waitlist.blueprints.fc_sso import bp as fc_sso_bp
+from waitlist.blueprints.fleet import bp as fleet_bp
+from waitlist.blueprints.api.fleet import bp as api_fleet_bp
+from waitlist.blueprints.api.fittings import bp as api_wl_bp
+from waitlist.blueprints.api.teamspeak import bp as api_ts3_bp
+from waitlist.blueprints.options.mail import bp as settings_mail_bp
+from waitlist.blueprints.options.fleet_motd import bp as fmotd_bp
 
 app.register_blueprint(bp_waitlist)
 app.register_blueprint(bp_settings, url_prefix='/settings')
 app.register_blueprint(feedback, url_prefix="/feedback")
-app.register_blueprint(wl_api, url_prefix="/wl_api")
+app.register_blueprint(fc_sso_bp, url_prefix="/fc_sso")
+app.register_blueprint(fleet_bp, url_prefix="/fleet")
+app.register_blueprint(api_fleet_bp, url_prefix="/api/fleet")
+app.register_blueprint(api_wl_bp, url_prefix="/api/fittings")
+app.register_blueprint(api_ts3_bp, url_prefix="/api/ts3")
+app.register_blueprint(settings_mail_bp, url_prefix="/settings/mail")
+app.register_blueprint(fmotd_bp, url_prefix="/settings/fmotd")
 
 logger = logging.getLogger(__name__)
 
@@ -48,13 +63,17 @@ def inject_data():
     is_account = False
     if hasattr(current_user, 'type'):
         is_account=(current_user.type == "account")
-
+    if debug_enabled:
+        display_version = debug_fileversion
+    else:
+        display_version = version
     return dict(is_igb=is_igb(), perm_admin=perm_admin,
                 perm_settings=perm_settings, perm_man=perm_management,
                 perm_officer=perm_officer, perm_accounts=perm_accounts,
                 perm_feedback=perm_feedback, is_account=is_account,
                 perm_dev=perm_dev, perm_leadership=perm_leadership, perm_bans=perm_bans,
-                perm_viewfits=perm_viewfits, version=version, perm_comphistory=perm_comphistory)
+                perm_viewfits=perm_viewfits, version=display_version, perm_comphistory=perm_comphistory,
+                perm_res_mod=perm_mod_mail_resident, perm_t_mod=perm_mod_mail_tbadge)
 
 @app.before_request
 def check_ban():
@@ -127,8 +146,12 @@ def index():
         wlists.append(other_wl)
     
     activegroups = db.session.query(WaitlistGroup).filter(WaitlistGroup.enabled == True).all()
+    active_ts_setting_id = settings.sget_active_ts_id()
+    active_ts_setting = None
+    if active_ts_setting_id is not None:
+        active_ts_setting = db.session.query(TeamspeakDatum).get(active_ts_setting_id)
     
-    return render_template("index.html", lists=wlists, user=current_user, is_index=True, is_on_wl=is_on_wl(), newbro=new_bro, group=group, groups=activegroups)
+    return render_template("index.html", lists=wlists, user=current_user, is_index=True, is_on_wl=is_on_wl(), newbro=new_bro, group=group, groups=activegroups, ts=active_ts_setting)
 
 def is_on_wl():
     eveId = current_user.get_eve_id();
@@ -316,7 +339,7 @@ def unauthorized_ogb():
 @perm_admin.require(http_exception=401)
 def create_char_logintoken():
     username = request.args.get('char')
-    print username
+
     eve_char = get_character_by_name(username)
     token = eve_char.get_login_token()
     db.session.commit()

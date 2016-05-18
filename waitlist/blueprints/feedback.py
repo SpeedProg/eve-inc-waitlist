@@ -5,7 +5,7 @@ from flask.templating import render_template
 from flask.globals import request
 from flask.helpers import flash
 from waitlist.storage.database import Feedback
-from waitlist import db
+from waitlist.base import db
 import flask
 from waitlist.data.perm import perm_feedback
 

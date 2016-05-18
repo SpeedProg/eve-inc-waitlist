@@ -3,7 +3,7 @@ from yaml.events import MappingStartEvent, ScalarEvent, MappingEndEvent
 import yaml
 from waitlist.storage.database import InvType, Station, Constellation,\
     SolarSystem, IncursionLayout
-from waitlist import db
+from waitlist.base import db
 from os import path
 import csv
 import sqlite3
@@ -39,7 +39,6 @@ def update_invtypes(filepath):
                 else:
                     if att_name == "groupID":
                         inv_type.groupID = int(ev.value)
-                        #print "set group id "+ str(inv_type.groupID)
                     elif att_name == "marketGroupID":
                         inv_type.marketGroupID = int(ev.value)
 
@@ -59,15 +58,12 @@ def update_invtypes(filepath):
                     subatt_name = None
         elif isinstance(ev, MappingEndEvent):
             if mapping_count == 3:
-                #print ">>end subattr mapping"
                 att_name = None
                 subatt_name = None
             elif mapping_count == 2:
-                #print ">end attr mapping"
                 att_name = None
                 db.session.merge(inv_type)
-            #elif mapping_count == 1:
-                #print "end inv mapping"
+
             mapping_count -= 1
     
     f.close()
