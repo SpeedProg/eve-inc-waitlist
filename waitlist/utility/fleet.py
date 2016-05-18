@@ -307,4 +307,6 @@ def check_invite_and_remove_timer(charID, groupID, fleetID):
         db.session.add(hEntry)
         db.session.commit()
         logger.info("%s missed his invite", character.eve_name)
+    
+    db.session.close()
         
