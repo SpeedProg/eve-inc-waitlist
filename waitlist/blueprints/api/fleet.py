@@ -76,6 +76,8 @@ def invite_to_fleet():
     # create a invite history extension
     # get wl entry for creation time
     wlEntry = db.session.query(WaitlistEntry).filter((WaitlistEntry.waitlist_id == waitlistID) & (WaitlistEntry.user == characterID)).first()
+    if wlEntry == None:
+        return resp
     
     db.session.add(hEntry)
     db.session.flush()
