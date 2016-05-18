@@ -157,7 +157,7 @@
 		<div class="panel-heading" id="wl-heading-{{ wlist.id }}">
       		<h4 class="panel-title">
         	<a class="list-group-item text-capitalize" data-toggle="collapse" data-parent="#wl-{{ wlist.id }}-tog" data-target="#wl-fits-{{ wlist.id }}" aria-expanded="true" aria-controls="wl-fits-{{ wlist.id }}">
-				{{ wlist.displayTitle|e }}{% if perm_man.can() %}<span id="wl-count-{{ wlist.name }}" class="label label-pill label-default pull-xs-left">0</span>{% endif %}<i class="fa fa-minus-square pull-xs-right" id="wl-{{ wlist.id }}-tog-icon"></i>
+				{{ wlist.displayTitle|e }}{% if perm_man.can() %}<span id="wl-count-{{ wlist.name }}" class="label label-pill label-default pull-xs-left">0</span>{% endif %}<i style="cursor: pointer;" class="fa fa-minus-square pull-xs-right" id="wl-{{ wlist.id }}-tog-icon"></i>
         	</a>
       		</h4>
     	</div>
