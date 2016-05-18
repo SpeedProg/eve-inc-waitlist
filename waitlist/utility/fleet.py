@@ -1,7 +1,6 @@
 from flask_login import current_user
 from pycrest.eve import AuthedConnectionB
-from waitlist.utility.config import crest_client_id, crest_client_secret,\
-    motd_hq, motd_vg
+from waitlist.utility.config import crest_client_id, crest_client_secret
 from time import sleep
 import logging
 from threading import Timer
