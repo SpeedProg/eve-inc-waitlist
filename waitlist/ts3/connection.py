@@ -61,9 +61,15 @@ def handle_dc(func, *args, **kwargs):
 def send_poke(name, msg):
     global conn
     response = conn.clientfind(pattern=name)
+    found = False
     for resp in response:
         if resp['client_nickname'] == name:
             conn.clientpoke(msg, resp['clid'])
-    
-
+            found = True
+    # deaf people put a * in front
+    if not found:
+        response = conn.clientfind(pattern="*"+name)
+        for resp in response:
+            if resp['client_nickname'] == "*"+name:
+                conn.clientpoke(msg, resp['clid'])
 
