@@ -235,10 +235,10 @@ function updateWlEntry(wlname, wlid, entry) {
 		// update the missed invites
 		if (entry.missedInvites > 0) {
 			var invNumElement = $('.missed-invites-number', jEntries[0])
-			if (invElement.length > 0) {
-				var oldNum = Number(invElement.text());
+			if (invNumElement.length > 0) {
+				var oldNum = Number(invNumElement.text());
 				if (oldNum != entry.missedInvites) {
-					invElement.text(entry.missedInvites);
+					invNumElement.text(entry.missedInvites);
 				}
 			} else {
 				var invElement = $('.missed-invites', jEntries[0]);
