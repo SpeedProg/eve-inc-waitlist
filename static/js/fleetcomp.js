@@ -145,7 +145,7 @@ function createHeaderDOM(wlname, wlid, entry, groupId) {
 	if (wlname != "queue") {
 		oldInvites = " "+entry.missedInvites+' <i class="fa fa-bed" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="Missed Invites"></i>'
 	}
-	var charRow = $('<a href="javascript:IGBW.showInfo('+entry.character.id+', '+wlid+');">'+
+	var charRow = $('<a href="javascript:IGBW.showInfo(1377, '+entry.character.id+');">'+
 						'<div class="wel-header-32">'+
 							'<div class="wel-img-32">'+
 									'<img src="https://image.eveonline.com/Character/'+entry.character.id+'_32.jpg" alt="'+entry.character.name+'">'+
