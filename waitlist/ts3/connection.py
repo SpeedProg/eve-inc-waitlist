@@ -41,6 +41,8 @@ def handle_dc(func, *args, **kwargs):
         if conn is not None:
             try:
                 func(*args, **kwargs)
+            except TS3QueryError:
+                pass
             except Exception as ex:
                     logger.error("To call ts %s", ex)
                     ncon = make_connection()
