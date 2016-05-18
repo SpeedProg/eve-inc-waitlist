@@ -1,6 +1,6 @@
 from waitlist.storage.database import Constellation, SolarSystem, Station,\
     InvType, Account, Character, Ban, Whitelist
-from waitlist import db
+from waitlist.base import db
 import logging
 from waitlist.data.eve_xml_api import get_character_id_from_name,\
     get_affiliation

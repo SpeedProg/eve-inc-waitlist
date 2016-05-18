@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}Fleet - Setup - Fleet Input{% endblock %}
+
+{% block head %}
+{{ super() }}
+{% endblock %}
+
+{% block data %}
+<form action="{{url_for('fleet.setup_steps', step='url')}}" method="post">
+<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+<fieldset class="form-group">
+	<label for="fleet-link-input">External Fleet Link</label>
+		<div class="input-group">
+		<input class="form-control" type="text" name="fleet-link" id="fleet-link-input">
+		<a href="http://i.imgur.com/kStDdnP.gif" target="_blank" class="input-group-addon" id="fleet-link-addon-help">?</a>
+	</div>
+</fieldset>
+<fieldset class="form-group">
+	<label for="fleet-type">Fleet Type:</label>
+	<select class="form-control" id="fleet-type" name="fleet-type">
+		<option value="hq" selected>HQ/Assault</option>
+		<option value="vg">VG</option>
+	</select>
+</fieldset>
+<fieldset class="form-group">
+{% if not is_igb %}
+<label class="c-input c-checkbox">
+	<input type="checkbox" value="no-setup" name="skip-setup">
+	<span class="c-indicator"></span>
+	Skip Auto Fleet Setup
+</label>
+{% else %}
+<label><input type="checkbox" id="skip-setup" name="skip-setup" value="no-setup"> Skip Auto Fleet Setup</label>
+{% endif %}
+</fieldset>
+<button type="submit" class="btn-primary btn">Next</button>
+</form>
+{% endblock %}

@@ -3,6 +3,7 @@
  */
 
 IGBW = (function() {
+
 	var lib = {
 			isigb: (typeof CCPEVE != "undefined")
 	};

@@ -20,6 +20,19 @@ if  not os.path.isfile(os.path.join(".", "config", "config.cfg")):
     config.set("logging", "info_file", "/var/log/pywaitlist/info.log")
     config.set("logging", "access_file", "/var/log/pywaitlist/access.log")
     
+    config.add_section("crest")
+    config.set("crest", "client_id", "f8934rsdf")
+    config.set("crest", "client_secret", "f893ur3")
+    config.set("crest", "return_url", "")
+    
+    config.add_section("motd")
+    config.set("motd", "hq", "..")
+    config.set("motd", "vg", "..")
+    
+    config.add_section("debug")
+    config.set("enabled", "0")
+    config.set("fileversion", "")
+    
     makedirs(os.path.join(".", "config"))
     with open(os.path.join(".", "config", "config.cfg"), "wb") as configfile:
         config.write(configfile)
@@ -35,3 +48,13 @@ server_bind = config.get("app", "server_bind")
 error_log = config.get("logging", "error_file")
 info_log = config.get("logging", "info_file")
 access_log = config.get("logging", "access_file")
+
+crest_client_id = config.get("crest", "client_id")
+crest_client_secret = config.get("crest", "client_secret")
+crest_return_url = config.get("crest", "return_url")
+
+motd_hq = config.get("motd", "hq")
+motd_vg = config.get("motd", "vg")
+
+debug_enabled = True if config.get("debug", "enabled") == "1" else False
+debug_fileversion = config.get("debug", "fileversion")

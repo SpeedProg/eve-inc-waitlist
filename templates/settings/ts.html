@@ -1,0 +1,91 @@
+{% extends "settings/base.html" %}
+
+{% block title %}Settings - Teamspeak{% endblock %}
+
+{% block head %}
+{{ super() }}
+{% endblock %}
+
+{% block content %}
+	{% if perm_man.can() %}
+		<form action="{{url_for('settings.teamspeak_change')}}" method="POST" class="form-inline">
+			<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+			<input type="hidden" name="action" value="set">
+			<select class="c-select" name="teamspeakID">
+				{% if active is none %}
+				{% for ts in all %}
+					<option value="{{ts.teamspeakID}}">{{ts.displayName}}</option>
+				{% endfor %}
+				{% else %}
+				{% for ts in all %}
+					<option value="{{ts.teamspeakID}}"{% if ts.teamspeakID == active.teamspeakID%} selected{% endif %}>{{ts.displayName}}</option>
+				{% endfor %}
+				{% endif %}
+			</select>
+			<button class="btn btn-primary" type="submit">Change TS</button>
+		</form>
+	{% endif %}
+	{% if perm_leadership.can() %}
+			<form action="{{url_for('settings.teamspeak_change')}}" method="POST" class="form-inline">
+			<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+			<input type="hidden" name="action" value="remove">
+			<select class="c-select" name="teamspeakID">
+				{% if active is none %}
+				{% for ts in all %}
+					<option value="{{ts.teamspeakID}}">{{ts.displayName}}</option>
+				{% endfor %}
+				{% else %}
+				{% for ts in all %}
+					<option value="{{ts.teamspeakID}}"{% if ts.teamspeakID == active.teamspeakID%} selected{% endif %}>{{ts.displayName}}</option>
+				{% endfor %}
+				{% endif %}
+			</select>
+			<button class="btn btn-primary" type="submit">Remove TS</button>
+		</form>
+		<form action="{{url_for('settings.teamspeak_change')}}" method="POST">
+			<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+			<input type="hidden" name="action" value="add">
+			<div class="form-group">
+				<label for="displayName">Display Name</label>
+				<input type="text" class="form-control" id="displayName" name="displayName">
+			</div>
+			<div class="form-group">
+				<label for="internalHost">Internal Host</label>
+				<input type="text" class="form-control" id="internalHost" name="internalHost">
+			</div>
+			<div class="form-group">
+				<label for="internalPort">Internal Port</label>
+				<input type="number" class="form-control" id="internalPort" name="internalPort">
+			</div>
+			<div class="form-group">
+				<label for="displayHost">Display Host</label>
+				<input type="text" class="form-control" id="displayHost" name="displayHost">
+			</div>
+			<div class="form-group">
+				<label for="displayPort">Display Port</label>
+				<input type="number" class="form-control" id="displayPort" name="displayPort">
+			</div>
+			<div class="form-group">
+				<label for="queryName">Query Name</label>
+				<input type="text" class="form-control" id="queryName" name="queryName">
+			</div>
+			<div class="form-group">
+				<label for="queryPassword">Query Password</label>
+				<input type="text" class="form-control" id="queryPassword" name="queryPassword">
+			</div>
+			<div class="form-group">
+				<label for="serverID">Server ID</label>
+				<input type="number" class="form-control" id="serverID" name="serverID">
+			</div>
+			<div class="form-group">
+				<label for="channelID">Channel ID</label>
+				<input type="number" class="form-control" id="channelID" name="channelID">
+			</div>
+			<div class="form-group">
+				<label for="clientName">Client Name</label>
+				<input type="text" class="form-control" id="clientName" name="clientName">
+			</div>
+			<button class="btn btn-primary" type="submit">Add TS</button>
+		</form>
+	{% endif %}
+{% endblock %}

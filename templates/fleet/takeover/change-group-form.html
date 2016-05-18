@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}Fleet - Takeover - Change Fleet Group{% endblock %}
+
+{% block head %}
+{{ super() }}
+{% endblock %}
+
+{% block data %}
+<form action="{{url_for('fleet.change_type_submit', fleetID=fleetID)}}" method="post">
+<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+<fieldset class="form-group">
+	<label for="fleet-group">Waitlist Type</label>
+	<select class="form-control" id="fleet-group" name="fleet-group">
+	{% for group in groups %}
+		<option value="{{group.groupID}}">{{group.displayName}}</option>
+	{% endfor %}
+	</select>
+</fieldset>
+<button type="submit" class="btn-primary btn">Change Type</button>
+</form>
+{% endblock %}

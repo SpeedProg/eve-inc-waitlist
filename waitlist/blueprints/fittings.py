@@ -5,8 +5,7 @@ from waitlist.data.perm import perm_management, perm_dev, perm_officer,\
 from flask_login import login_required, current_user
 from flask.globals import request
 from waitlist.storage.database import WaitlistEntry, Shipfit, Waitlist,\
-    Character, InvType, MarketGroup, HistoryEntry, HistoryExtInvite,\
-    WaitlistGroup
+    Character, InvType, MarketGroup, HistoryEntry, WaitlistGroup
 import re
 from waitlist.storage.modules import resist_ships, logi_ships,\
     sniper_ships, t3c_ships, sniper_weapons, dps_weapons, dps_ships,\
@@ -18,15 +17,15 @@ from flask.templating import render_template
 from datetime import datetime, timedelta
 from waitlist.utility.utils import get_fit_format, create_mod_map,\
     get_character
-from waitlist import db
-from waitlist.blueprints import send_invite_notice, subscriptions
-from waitlist.data.sse import ServerSentEvent, InviteEvent
+from waitlist.base import db
+from waitlist.data.sse import ServerSentEvent
 from flask import Response
 from gevent.queue import Queue
 import flask
 from sqlalchemy.sql.expression import desc
 from waitlist.utility.database_utils import parseEft
 from waitlist.utility.history_utils import create_history_object
+from waitlist.utility.notifications import subscriptions
 
 bp_waitlist = Blueprint('fittings', __name__)
 logger = logging.getLogger(__name__)
@@ -75,52 +74,6 @@ def api_wls_remove_player():
     character = db.session.query(Character).filter(Character.id == playerId).first()
     logger.info("%s removed %s from %s waitlist.", current_user.username, character.eve_name, group.groupName)
 
-    return "OK"
-
-@bp_waitlist.route("/api/wl/invite", methods=["POST"])
-@login_required
-@perm_management.require(http_exception=401)
-def api_invite_player():
-    playerId = int(request.form['playerId'])
-    wlId = int(request.form['wlId'])
-    if playerId == None:
-        logger.error("Tried to remove player with None id from waitlists.")
-    
-    # lets check that the given wl exists
-    waitlist = db.session.query(Waitlist).filter(Waitlist.id == wlId).first();
-    if waitlist is None:
-        logger.error("Given waitlist id %s is not valid.", str(wlId))
-        flask.abort(400)
-    # don't remove from queue
-    #queue = db.session.query(Waitlist).filter(Waitlist.name == WaitlistNames.xup_queue).first()
-    
-    #db.session.query(WaitlistEntry).filter((WaitlistEntry.user == playerId) & (WaitlistEntry.waitlist_id != queue.id)).delete()
-    #db.session.commit()
-    event = InviteEvent(playerId)
-    send_invite_notice(event)
-    #publish(event)
-    
-    character = db.session.query(Character).filter(Character.id == playerId).first()
-    hEntry = create_history_object(character.get_eve_id(), HistoryEntry.EVENT_COMP_INV_PL, current_user.id)
-    hEntry.exref = waitlist.group.groupID
-    
-    # create a invite history extension
-    # get wl entry for creation time
-    wlEntry = db.session.query(WaitlistEntry).filter((WaitlistEntry.waitlist_id == wlId) & (WaitlistEntry.user == playerId)).first()
-    
-    db.session.add(hEntry)
-    db.session.flush()
-    db.session.refresh(hEntry)
-    
-    historyExt = HistoryExtInvite()
-    historyExt.historyID = hEntry.historyID
-    historyExt.waitlistID = wlId
-    historyExt.timeCreated = wlEntry.creation
-    historyExt.timeInvited = datetime.utcnow()
-    db.session.add(historyExt)
-
-    db.session.commit()
-    logger.info("%s invited %s to fleet from %s.", current_user.username, character.eve_name, waitlist.group.groupName)
     return "OK"
 
 @bp_waitlist.route("/api/wl/entries/remove/", methods=['POST'])
@@ -220,6 +173,11 @@ def xup_submit():
         flash("X-UP is disabled!!!")
         return redirect(url_for("index"))
     
+    pokeMe = 'pokeMe' in request.form
+
+    if current_user.poke_me != pokeMe:
+        current_user.poke_me = pokeMe
+        db.session.commit()
     # check if it is scruffy
     if fittings.lower().startswith("scruffy"):
         # scruffy mode scruffy

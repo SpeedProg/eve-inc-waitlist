@@ -6,17 +6,17 @@ from waitlist.data.perm import perm_admin, perm_settings, perm_officer,\
     perm_fleetlocation, perm_bans
 from flask.templating import render_template
 from flask.globals import request
-from sqlalchemy import or_, asc, desc
+from sqlalchemy import or_, asc
 from waitlist.storage.database import Account, Role, Character,\
     linked_chars, Ban, Constellation, IncursionLayout, SolarSystem, Station,\
-    WaitlistEntry, WaitlistGroup, Whitelist, HistoryEntry
+    WaitlistEntry, WaitlistGroup, Whitelist, TeamspeakDatum
 import flask
 from waitlist.data.eve_xml_api import get_character_id_from_name,\
     eve_api_cache_char_ids
 from werkzeug.utils import redirect, secure_filename
 from flask.helpers import url_for, flash
 from waitlist.utility.utils import get_random_token, get_info_from_ban
-from waitlist import db, app
+from waitlist.base import db, app
 from waitlist.utility.eve_id_utils import get_constellation, get_system,\
     get_station, get_character_by_name
 from os import path
@@ -26,7 +26,12 @@ from waitlist.utility import sde
 from flask import jsonify
 import csv
 from waitlist.data.names import WTMRoles
-from waitlist.utility.history_utils import create_history_object
+from waitlist.utility.settings import settings
+from waitlist.utility.settings.settings import sget_active_ts_id,\
+    sset_active_ts_id, sget_resident_mail, sget_tbadge_mail, sget_resident_topic,\
+    sget_tbadge_topic, sget_other_mail, sget_other_topic
+from waitlist.ts3.connection import change_connection
+import json
 
 bp_settings = Blueprint('settings', __name__)
 logger = logging.getLogger(__name__)
@@ -90,9 +95,14 @@ def accounts():
     
 
     roles = db.session.query(Role).order_by(Role.name).all();
-    accounts = db.session.query(Account).order_by(desc(Account.disabled)).order_by(Account.username).all()
-    
-    return render_template("settings/accounts.html", roles=roles, accounts=accounts)
+    accounts = db.session.query(Account).order_by(asc(Account.disabled)).order_by(Account.username).all()
+    mails = {
+             'resident': [json.dumps(sget_resident_mail()), json.dumps(sget_resident_topic())],
+             'tbadge': [json.dumps(sget_tbadge_mail()), json.dumps(sget_tbadge_topic())],
+             'other': [json.dumps(sget_other_mail()), json.dumps(sget_other_topic())]
+             }
+
+    return render_template("settings/accounts.html", roles=roles, accounts=accounts, mails=mails)
 
 @bp_settings.route('/fmangement')
 @login_required
@@ -475,21 +485,25 @@ def fleet_status_set(gid):
                 flash("You do not have the rights to change the status to "+text, "danger")
                 flash("XUP is now "+xup_text, "success")
     elif action == "fc":
-        name = request.form['name']
-        eve_id = get_character_id_from_name(name)
-        if eve_id == 0:
-            flash("Character " + name + " does not exist!")
-        else:
-            character = get_character_by_name(name)
-            group.fc = character
-            hObj = create_history_object(character.id, HistoryEntry.EVENT_SET_FC, current_user.id)
-            db.session.add(hObj)
-            flash("FC was set to "+name, "success")
+        group.fcs.append(current_user)
+        flash("You added your self to FCs "+current_user.get_eve_name(), "success")
     elif action == "manager":
-            group.managerID = current_user.id
-            hObj = create_history_object(current_user.get_eve_id(), HistoryEntry.EVENT_SET_FLEETCOMP, current_user.id)
-            db.session.add(hObj)
-            flash("Manager was set to "+current_user.get_eve_name(), "success")
+        group.manager.append(current_user)
+        flash("You added your self to manager "+current_user.get_eve_name(), "success")
+    elif action == "manager-remove":
+        accountID = int(request.form['accountID'])
+        account = db.session.query(Account).get(accountID)
+        group.manager.remove(account)
+    elif action == "fc-remove":
+        accountID = int(request.form['accountID'])
+        account = db.session.query(Account).get(accountID)
+        group.fcs.remove(account)
+    elif action == "add-backseat":
+        group.backseats.append(current_user)
+    elif action == "remove-backseat":
+        accountID = int(request.form['accountID'])
+        account = db.session.query(Account).get(accountID)
+        group.backseats.remove(account)
     
     db.session.commit()
     
@@ -920,6 +934,68 @@ def whitelist_unlist():
     
     return redirect(url_for(".whitelist"))
 
+@bp_settings.route("/ts", methods=["GET"])
+@login_required
+@perm_management.require()
+def teamspeak():
+    active_ts_setting_id = settings.sget_active_ts_id()
+    active_ts_setting = None
+    if active_ts_setting_id is not None:
+        active_ts_setting = db.session.query(TeamspeakDatum).get(active_ts_setting_id)
+    
+    all_ts_settings = db.session.query(TeamspeakDatum).all()
+    
+    return render_template("/settings/ts.html", active=active_ts_setting, all=all_ts_settings)
+
+@bp_settings.route("/ts", methods=["POST"])
+@login_required
+@perm_management.require()
+def teamspeak_change():
+    action = request.form['action'] # add/remove, set
+    if action == "add" and perm_leadership.can():
+        displayName = request.form['displayName']
+        host = request.form['internalHost']
+        port = int(request.form['internalPort'])
+        displayHost = request.form['displayHost']
+        displayPort = int(request.form['displayPort'])
+        queryName = request.form['queryName']
+        queryPassword = request.form['queryPassword']
+        serverID = int(request.form['serverID'])
+        channelID = int(request.form['channelID'])
+        clientName = request.form['clientName']
+        ts = TeamspeakDatum(
+                            displayName=displayName,
+                            host=host,
+                            port=port,
+                            displayHost=displayHost,
+                            displayPort=displayPort,
+                            queryName=queryName,
+                            queryPassword=queryPassword,
+                            serverID=serverID,
+                            channelID=channelID,
+                            clientName=clientName
+                            )
+        db.session.add(ts)
+        db.session.commit()
+    elif action == "remove" and perm_leadership.can():
+        teamspeakID = int(request.form['teamspeakID'])
+        db.session.query(TeamspeakDatum).filter(TeamspeakDatum.teamspeakID == teamspeakID).delete()
+        active_id = sget_active_ts_id()
+        if active_id is not None and active_id == teamspeakID:
+            sset_active_ts_id(None)
+            change_connection()
+        db.session.commit()
+    elif action == "set":
+        teamspeakID = int(request.form['teamspeakID'])
+        active_id = sget_active_ts_id()
+        sset_active_ts_id(teamspeakID)
+        if active_id is None or active_id != teamspeakID:
+            change_connection()
+    else:
+        print action
+        flask.abort(400)
+    
+    return redirect(url_for("settings.teamspeak"))
 '''
 @bp_settings.route("/api/account/", methods=["POST"])
 @login_required
