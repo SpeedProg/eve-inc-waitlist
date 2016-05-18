@@ -52,7 +52,7 @@
   	<p class="text-xs-center">To get informed when you get invited please open the <a href="{{url_for('fittings.notification', user_id=current_user.get_eve_id())}}" target="_blank">Notification Link</a> in Firefox/Chrome
 	{% if ts %}
 	<br>
-		and/or join TS with your FULL EVE Charactername<br>TS3 Server: {{ts.displayHost}}{% if ts.displayPort != 9987 %}:{{ts.displayPort}}{% endif %}
+		and/or join TS for a poke, Character name must match <b>exactly</b> (case sensitive)<br>TS3 Server: {{ts.displayHost}}{% if ts.displayPort != 9987 %}:{{ts.displayPort}}{% endif %}
 	{% endif %}
   	</p>
   	</div>
