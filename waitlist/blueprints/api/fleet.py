@@ -88,15 +88,6 @@ def invite_to_fleet():
     historyExt.timeInvited = datetime.utcnow()
     db.session.add(historyExt)
 
-    # get all the entries and increase invite count by 1
-    waitlist_entries = db.session.query(WaitlistEntry).filter((WaitlistEntry.user == characterID) &
-                                                               ((WaitlistEntry.waitlist_id == group.logiwlID) |
-                                                                 (WaitlistEntry.waitlist_id == group.dpswlID) |
-                                                                 (WaitlistEntry.waitlist_id == group.sniperwlID))).all()
-    
-    for entry in waitlist_entries:
-        entry.inviteCount += 1
-    
     db.session.commit()
     logger.info("%s invited %s to fleet from %s.", current_user.username, character.eve_name, waitlist.group.groupName)
     
