@@ -76,7 +76,7 @@ class FleetConnectionCache():
             'refresh_token': account.refresh_token,
             'expires_in': account.access_token_expires
             }
-        connection = AuthedConnectionB(data, fleet_url, "https://login.eveonline.com/oauth", crest_client_id, crest_client_secret, create_token_cb(account.id()))
+        connection = AuthedConnectionB(data, fleet_url, "https://login.eveonline.com/oauth", crest_client_id, crest_client_secret, create_token_cb(account.id))
         self._cache[account.id] = connection
         return connection
 
@@ -227,7 +227,7 @@ def invite(user_id, squadIDList):
     try:
         fleet = AuthedConnectionB(data, fleet_url, "https://login.eveonline.com/oauth", crest_client_id, crest_client_secret, create_token_cb(current_user.id))
         oldsquad = (0, 0)
-        for idx in xrange(len(squadIDList)-1):
+        for idx in xrange(len(squadIDList)):
             squad = squadIDList[idx];
             if squad[0] == oldsquad[0] and squad[1] == oldsquad[1]:
                 continue

@@ -2,10 +2,10 @@ from gevent import monkey; monkey.patch_all()
 # inject the lib folder before everything else
 import os
 import sys
-from waitlist.utility.settings import settings
-from waitlist.utility.config import debug_enabled, debug_fileversion
 base_path = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(base_path, 'lib'))
+from waitlist.utility.settings import settings
+from waitlist.utility.config import debug_enabled, debug_fileversion
 from waitlist.data.version import version
 from waitlist.utility.eve_id_utils import get_account_from_db, get_char_from_db,\
     is_char_banned, get_character_by_id_and_name, get_character_by_name

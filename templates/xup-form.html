@@ -17,7 +17,7 @@ I am new to WarpToMe or Incursions</label>
 		<option value="{{group.groupID}}">{{group.displayName}}</option>
 		{% for grp in groups %}
 		{% if grp.groupID != group.groupID %}
-		<option value="{{group.groupID}}">{{grp.displayName}}</option>
+		<option value="{{grp.groupID}}">{{grp.displayName}}</option>
 		{% endif %}
 		{% endfor %}
 	</select>
@@ -25,7 +25,7 @@ I am new to WarpToMe or Incursions</label>
 {% endif %}
 <label>
   <input type="checkbox" name="pokeMe" value="on"{% if current_user.poke_me %} checked{% endif %}>
-  Poke me on TS (exact charactername required)
+  Poke me on TS (exact charactername required, case sensitive)
 </label>
 <fieldset class="form-group">
 <label for="fittings">Fittings</label>

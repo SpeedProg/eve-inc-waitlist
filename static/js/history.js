@@ -38,6 +38,8 @@ var HISTORY = (function(){
 			return "Player was removed after found in fleet";
 		case "auto_inv_missed":
 			return "Player missed his invite";
+		case "self_rm_etr":
+			return "Player removed himself from X-UPs";
 		default:
 			return action;
 		}

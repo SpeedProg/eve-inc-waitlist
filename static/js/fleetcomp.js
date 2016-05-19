@@ -143,7 +143,11 @@ function createHeaderDOM(wlname, wlid, entry, groupId) {
 	var header = $('<div></div>');
 	var oldInvites = "";
 	if (wlname != "queue") {
-		oldInvites = " "+entry.missedInvites+' <i class="fa fa-bed" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="Missed Invites"></i>'
+		if (entry.missedInvites > 0) {
+			oldInvites = " <div class='missed-invites' style='display: inline;'><div style='display: inline;' class='missed-invites-number'>"+entry.missedInvites+'</div> <i class="fa fa-bed" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="Missed Invites"></i></div>';
+		} else {
+			oldInvites = " <div class='missed-invites' style='display: inline;'></div>";
+		}
 	}
 	var charRow = $('<a href="javascript:IGBW.showInfo(1377, '+entry.character.id+');">'+
 						'<div class="wel-header-32">'+
@@ -228,6 +232,26 @@ function updateWlEntry(wlname, wlid, entry) {
 			wtElement.text(newTimeText);
 		}
 		
+		// update the missed invites
+		if (entry.missedInvites > 0) {
+			var invNumElement = $('.missed-invites-number', jEntries[0])
+			if (invNumElement.length > 0) {
+				var oldNum = Number(invNumElement.text());
+				if (oldNum != entry.missedInvites) {
+					invNumElement.text(entry.missedInvites);
+				}
+			} else {
+				var invElement = $('.missed-invites', jEntries[0]);
+				var counterElement = $.parseHTML("<div style='display: inline;' class='missed-invites-number'>"+entry.missedInvites+'</div> <i class="fa fa-bed" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="Missed Invites"></i>');
+				invElement.append(counterElement);
+			}
+		} else {
+			var invNumElement = $('.missed-invites-number', jEntries[0]);
+			if (invNumElement.length > 0) {
+				var invElement = $('.missed-invites', jEntries[0]);
+				invElement.empty();
+			}
+		}
 		// update fits and such
 		var modified = false;
 		// backup of original fits, we gonna need them later if sth was modified
