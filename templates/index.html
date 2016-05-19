@@ -52,7 +52,7 @@
   	<p class="text-xs-center">To get informed when you get invited please open the <a href="{{url_for('fittings.notification', user_id=current_user.get_eve_id())}}" target="_blank">Notification Link</a> in Firefox/Chrome
 	{% if ts %}
 	<br>
-		and/or join TS with your FULL EVE Charactername<br>TS3 Server: {{ts.displayHost}}:{{ts.displayPort}}
+		and/or join TS for a poke, Character name must match <b>exactly</b> (case sensitive)<br>TS3 Server: {{ts.displayHost}}{% if ts.displayPort != 9987 %}:{{ts.displayPort}}{% endif %}
 	{% endif %}
   	</p>
   	</div>
@@ -157,7 +157,7 @@
 		<div class="panel-heading" id="wl-heading-{{ wlist.id }}">
       		<h4 class="panel-title">
         	<a class="list-group-item text-capitalize" data-toggle="collapse" data-parent="#wl-{{ wlist.id }}-tog" data-target="#wl-fits-{{ wlist.id }}" aria-expanded="true" aria-controls="wl-fits-{{ wlist.id }}">
-				{{ wlist.displayTitle|e }}{% if perm_man.can() %}<span id="wl-count-{{ wlist.name }}" class="label label-pill label-default pull-xs-left">0</span>{% endif %}<i class="fa fa-minus-square pull-xs-right" id="wl-{{ wlist.id }}-tog-icon"></i>
+				{{ wlist.displayTitle|e }}{% if perm_man.can() %}<span id="wl-count-{{ wlist.name }}" class="label label-pill label-default pull-xs-left">0</span>{% endif %}<i style="cursor: pointer;" class="fa fa-minus-square pull-xs-right" id="wl-{{ wlist.id }}-tog-icon"></i>
         	</a>
       		</h4>
     	</div>
@@ -177,7 +177,7 @@
 									alt="{{ entry.user_data.eve_name|e }}">
 							</div>
 							<div class="wel-container-32">
-								{{ entry.user_data.eve_name|e }}{% if wlist.name != "queue" %} {{entry.inviteCount}} <i class="fa fa-bed" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="Missed Invites"></i>{% endif %}{% if entry.user_data.is_new() %} <span class="label label-info">New</span>{% endif %} <small class="wait-time">{{entry.creation|waittime}} min ago</small>
+								{{ entry.user_data.eve_name|e }}{% if wlist.name != "queue" and entry.inviteCount > 0 %} {{entry.inviteCount}} <i class="fa fa-bed" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="Missed Invites"></i>{% endif %}{% if entry.user_data.is_new() %} <span class="label label-info">New</span>{% endif %} <small class="wait-time">{{entry.creation|waittime}} min ago</small>
 							</div>
 						</div>
 						{% if current_user.get_eve_id() == entry.user %}

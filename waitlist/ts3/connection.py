@@ -3,6 +3,7 @@ import logging
 from waitlist.utility.settings.settings import sget_active_ts_id
 from waitlist.storage.database import TeamspeakDatum
 from waitlist.base import db
+from time import sleep
 
 logger = logging.getLogger(__name__)
 
@@ -40,19 +41,37 @@ def handle_dc(func, *args, **kwargs):
         if conn is not None:
             try:
                 func(*args, **kwargs)
-            except:
-                    conn = make_connection()
+            except TS3QueryError:
+                pass
+            except Exception as ex:
+                    logger.error("To call ts %s", ex)
+                    ncon = make_connection()
+                    if ncon is None:
+                        sleep(2)
+                        ncon = make_connection()
+                        if ncon is not None:
+                            conn = ncon
+                    else:
+                        conn = ncon
                     func(*args, **kwargs)
         else:
+            conn = make_connection()
             logger.error("No TS Connection")
     return func_wrapper
 
 @handle_dc
 def send_poke(name, msg):
+    global conn
     response = conn.clientfind(pattern=name)
+    found = False
     for resp in response:
         if resp['client_nickname'] == name:
             conn.clientpoke(msg, resp['clid'])
-    
-
+            found = True
+    # deaf people put a * in front
+    if not found:
+        response = conn.clientfind(pattern="*"+name)
+        for resp in response:
+            if resp['client_nickname'] == "*"+name:
+                conn.clientpoke(msg, resp['clid'])
 
