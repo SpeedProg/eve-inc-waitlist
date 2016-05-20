@@ -133,6 +133,12 @@ def setup_step_select():
     db.session.commit()
     return redirect(url_for('index'))
 
+@bp.route("/setup/change_squads/<int:fleetID>", methods=["GET"])
+@login_required
+@perm_management.require()
+def change_setup(fleetID):
+    return get_select_form(fleetID)
+
 @bp.route("/setup/", methods=['GET'])
 @login_required
 @perm_management.require(http_exception=401)
