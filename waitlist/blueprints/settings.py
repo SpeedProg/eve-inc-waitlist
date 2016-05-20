@@ -523,36 +523,85 @@ def fleet_location_set(gid):
     action = request.form['action']
     if action == "constellation":
         name = request.form['name']
-        group.constellation = get_constellation(name)
-        logger.info("Constellation was set to %s by %s", name, current_user.username)
+        constellation = get_constellation(name)
+        if constellation is None:
+            flash("This constellation does not exist! "+name)
+            return redirect(url_for(".fleet"), code=303)
+        
         # if we set the constellation look up if we already know dock and hq system
-        inc_layout = db.session.query(IncursionLayout).filter(IncursionLayout.constellation == group.constellation.constellationID).first()
-        # if we know it, set the other information
-        if inc_layout is not None:
-            group.system = inc_layout.obj_headquarter
-            logger.info("HQ System was autoset to %s by %s", group.system.solarSystemName, current_user.username)
-            group.dockup = inc_layout.obj_dockup
-            logger.info("Dock was autoset to %s by %s", group.dockup.stationName, current_user.username)
-                  
-        flash("Constellation was set to " + name, "success")
+        inc_layout = db.session.query(IncursionLayout).filter(IncursionLayout.constellation == constellation.constellationID).first()
+
+        if group.groupName == "default": # if default waitlist, set all of them
+            groups = db.session.query(WaitlistGroup).all()
+            logger.info("All Constellations where set to %s by %s", name, current_user.username)
+            for group in groups:
+                group.constellation = constellation
+
+                # if we know it, set the other information
+                if inc_layout is not None:
+                    group.system = inc_layout.obj_headquarter
+                    logger.info("%s System was autoset to %s by %s for %s", group.groupName, group.system.solarSystemName, current_user.username, group.groupName)
+                    group.dockup = inc_layout.obj_dockup
+                    logger.info("%s Dock was autoset to %s by %s for %s", group.groupName, group.dockup.stationName, current_user.username, group.groupName)
+                else:
+                    flash("No Constellation Layout Data found!")
+                    group.system = None
+                    group.dockup = None
+                          
+            flash("All Constellations where set to " + name + "!", "success")
+        else: # if not default waitlist set only the single waitlist
+            group.constellation = constellation
+            logger.info("%s Constellation was set to %s by %s", group.groupName, name, current_user.username)
+            # if we set the constellation look up if we already know dock and hq system
+            inc_layout = db.session.query(IncursionLayout).filter(IncursionLayout.constellation == group.constellation.constellationID).first()
+            # if we know it, set the other information
+            if inc_layout is not None:
+                group.system = inc_layout.obj_headquarter
+                logger.info("%s System was autoset to %s by %s", group.groupName, group.system.solarSystemName, current_user.username)
+                group.dockup = inc_layout.obj_dockup
+                logger.info("%s Dock was autoset to %s by %s", group.groupName, group.dockup.stationName, current_user.username)
+            else:
+                flash("No Constellation Layout Data found!")
+                group.system = None
+                group.dockup = None
+                      
+            flash(group.displayName + " Constellation was set to " + name, "success")
     elif action == "system":
         name = request.form['name']
         system = get_system(name)
         if system == None:
             flash("Invalid system name "+name, "danger")
             return redirect(url_for(".fleet"), code=303)
-        group.system = system
-        logger.info("HQ System was set to %s by %s", name, current_user.username)
-        flash("HQ System was set to "+name, "success")
+        
+        if group.groupName == "default":
+            groups = db.session.query(WaitlistGroup).all()
+            for group in groups:
+                group.system = system
+            
+            logger.info("All Systems where set to %s by %s", name, current_user.username, group.groupName)
+            flash("All Systems where set to "+name, "success")
+        else:
+            group.system = system
+            logger.info(group.displayName + " System was set to %s by %s", name, current_user.username)
+            flash(group.displayName + " System was set to "+name, "success")
     elif action == "dock":
         name = request.form['name']
         station = get_station(name);
         if station == None:
             flash("Invalid station name "+name, "danger")
             return redirect(url_for(".fleet"), code=303)
-        group.dockup = get_station(name)
-        logger.info("Dock was set to %s by %s", name, current_user.username)
-        flash("Dock was set to " + name, "success")
+        if group.displayName == "default":
+            groups = db.session.query(WaitlistGroup).all()
+            station = get_station(name)
+            for group in groups:
+                group.dockup = station
+            
+            logger.info("All Docks where set to %s by %s", name, current_user.username)
+            flash("All Dock where set to " + name, "success")
+        else:
+            group.dockup = get_station(name)
+            logger.info("%s Dock was set to %s by %s", group.displayName, name, current_user.username)
+            flash(group.displayName + " Dock was set to " + name, "success")
     
     db.session.commit()
 
