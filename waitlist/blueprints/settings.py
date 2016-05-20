@@ -32,6 +32,7 @@ from waitlist.utility.settings.settings import sget_active_ts_id,\
     sget_tbadge_topic, sget_other_mail, sget_other_topic
 from waitlist.ts3.connection import change_connection
 import json
+from datetime import datetime
 
 bp_settings = Blueprint('settings', __name__)
 logger = logging.getLogger(__name__)
@@ -252,7 +253,12 @@ def account_self_edit():
                 acc.characters.append(character)
             
             db.session.flush()
-            acc.current_char = char_id
+            if acc.current_char != char_id:
+                # remove all the access tokens
+                acc.refresh_token = None
+                acc.access_token = None
+                acc.access_token_expires = datetime.utcnow()
+                acc.current_char = char_id
     
     db.session.commit()
     return redirect(url_for('.account_self'), code=303)

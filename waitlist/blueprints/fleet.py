@@ -10,11 +10,13 @@ from waitlist.utility.config import crest_client_id, crest_client_secret
 from pycrest.eve import AuthedConnectionB
 from flask.helpers import url_for
 from flask.templating import render_template
-from flask.globals import request
+from flask.globals import request, session
 import re
 import flask
 from waitlist.utility.fleet import get_wings
 from waitlist.utility.crest import create_token_cb
+from waitlist.blueprints.fc_sso import get_sso_redirect
+from pycrest.errors import APIException
 
 bp = Blueprint('fleet', __name__)
 logger = logging.getLogger(__name__)
@@ -52,12 +54,18 @@ def setup_step_url():
         flask.abort(400)
     
     if not skip_setup:
-        fleetUtils.setup(fleet_id, fleet_type)
+        try:
+            fleetUtils.setup(fleet_id, fleet_type)
+        except APIException as ex:
+            flask.abort(409, "Failed to setup fleet. You may not own this fleet. " + str(ex))
     
     return get_select_form(fleet_id)
 
 def get_select_form(fleet_id):
-    wings = get_wings(fleet_id)
+    try:
+        wings = get_wings(fleet_id)
+    except APIException as ex:
+            flask.abort(409, "Failed to setup fleet. You may not own this fleet. " + str(ex))
     active_groups = db.session.query(WaitlistGroup).filter(WaitlistGroup.enabled == True)
     auto_assign = {}
     
@@ -189,8 +197,11 @@ def take_link():
     
     fleet = db.session.query(CrestFleet).get(fleet_id)
 
-    if fleet is None or current_user.refresh_token is None:
-        return redirect(url_for('fc_sso.login_redirect'))
+    if fleet is None:
+        return get_sso_redirect("setup")
+    elif current_user.refresh_token is None:
+        session['fleet_id'] = fleet_id
+        return get_sso_redirect("takeover")
     else:
         if fleet.compID != current_user.id:
             oldfleet = db.session.query(CrestFleet).filter((CrestFleet.compID == current_user.id)).first()
@@ -198,6 +209,23 @@ def take_link():
                 oldfleet.compID = None
             fleet.compID = current_user.id
             db.session.commit()
+    return redirect(url_for('settings.fleet'))
+
+@bp.route('/take_sso', methods=['GET'])
+@login_required
+@perm_management.require()
+def takeover_sso_cb():
+    if not('fleet_id' in session):
+        flask.abort(400)
+    
+    fleet_id = session['fleet_id']
+    fleet = db.session.query(CrestFleet).get(fleet_id)
+    if fleet.compID != current_user.id:
+        oldfleet = db.session.query(CrestFleet).filter((CrestFleet.compID == current_user.id)).first()
+        if oldfleet != None:
+            oldfleet.compID = None
+        fleet.compID = current_user.id
+        db.session.commit()
     return redirect(url_for('settings.fleet'))
 
 @bp.route("/<int:fleetID>/change-type", methods=['GET'])
