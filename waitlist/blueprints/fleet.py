@@ -149,7 +149,8 @@ def change_setup(fleetID):
 @login_required
 @perm_management.require(http_exception=401)
 def setup_start():
-    return render_template("/fleet/setup/fleet_url.html")
+    fleet_id = session['fleet_id']
+    return render_template("/fleet/setup/fleet_url.html", fleetID=fleet_id)
 
 @bp.route("/setup/<int:fleet_id>", methods=['GET'])
 @login_required
@@ -210,6 +211,7 @@ def take_link():
     fleet = db.session.query(CrestFleet).get(fleet_id)
 
     if fleet is None:
+        session['fleet_id'] = fleet_id
         return get_sso_redirect("setup")
     elif current_user.refresh_token is None:
         session['fleet_id'] = fleet_id
