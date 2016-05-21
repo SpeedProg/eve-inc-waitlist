@@ -276,7 +276,7 @@ def invite(user_id, squadIDList):
     return {'status_code': 403, 'text': 'Failed to invite person a a squad, all squads are full!'}
 
 def spawn_invite_check(characterID, groupID, fleetID):
-    t = Timer(66.0, check_invite_and_remove_timer, [characterID, groupID, fleetID])
+    t = Timer(70.0, check_invite_and_remove_timer, [characterID, groupID, fleetID])
     t.start()
 
 def check_invite_and_remove_timer(charID, groupID, fleetID):
