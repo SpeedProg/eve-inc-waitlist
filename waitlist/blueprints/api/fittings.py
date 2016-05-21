@@ -10,6 +10,7 @@ from waitlist.storage.database import WaitlistGroup, HistoryEntry
 from waitlist.utility.json import makeJsonWL, makeHistoryJson
 from flask.json import jsonify
 from datetime import datetime, timedelta
+import flask
 bp = Blueprint('api_fittings', __name__)
 logger = logging.getLogger(__name__)
 
@@ -25,7 +26,11 @@ def send_notification(playerID):
 @login_required
 @perm_management.require(http_exception=401)
 def waitlist():
-    group_id = int(request.args.get('group'))
+    groupId_str = request.args.get('group')
+    try:
+        group_id = int(groupId_str)
+    except ValueError:
+        flask.abort(400, "You are missing a Waitlist Group.")
     jsonwls = []
     group = db.session.query(WaitlistGroup).get(group_id)
     waitlists = [group.xuplist, group.logilist, group.dpslist, group.sniperlist]

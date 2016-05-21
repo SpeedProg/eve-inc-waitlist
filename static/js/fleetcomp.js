@@ -465,11 +465,14 @@ function getWlEntryCount(wlname) {
  * Refresh entries of all waitlists with the data from the API
  */
 function refreshWl() {
-	$.getJSON(getMetaData('api-waitlists')+"?group="+getMetaData('wl-group-id'), function(data){
-		for (var i=0; i < data.waitlists.length; i++) {
-			updateWaitlist(data.waitlists[i], data.groupID);
-		}
-	});
+	var wlid = getMetaData('wl-group-id');
+	if (typeof wlid != 'undefined') {
+		$.getJSON(getMetaData('api-waitlists')+"?group="+wlid, function(data){
+			for (var i=0; i < data.waitlists.length; i++) {
+				updateWaitlist(data.waitlists[i], data.groupID);
+			}
+		});
+	}
 }
 
 /**
