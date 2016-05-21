@@ -268,7 +268,10 @@ def invite(user_id, squadIDList):
         if ex.resp.status_code == 400:
                 return {'status_code': 400, 'text': "You need to go to <a href='"+url_for('fc_sso.login_redirect')+"'>SSO Login</a> and relogin in!"}
         else:
-            logger.error("CREST failed with %s : %s", str(ex.resp.status_code), ex.resp.json())
+            try:
+                logger.error("CREST failed with %s : %s", str(ex.resp.status_code), ex.resp.json())
+            except ValueError:
+                logger.error("CREST failed with %s : %s", str(ex.resp.status_code), ex.resp.text)
             return {'status_code': ex.resp.status_code, 'text': ex.resp.json()['error_description']}
     return {'status_code': 403, 'text': 'Failed to invite person a a squad, all squads are full!'}
 
