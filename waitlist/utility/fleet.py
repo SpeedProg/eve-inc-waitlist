@@ -97,7 +97,8 @@ def setup(fleet_id, fleet_type):
             'expires_in': current_user.access_token_expires
             }
     fleet = AuthedConnectionB(data, fleet_url, "https://login.eveonline.com/oauth", crest_client_id, crest_client_secret, create_token_cb(current_user.id))
-    fleet()
+    old_motd = fleet().motd
+
     wait_for_change = False
     # check number of wings
     num_wings = len(fleet().wings().items)
@@ -116,10 +117,23 @@ def setup(fleet_id, fleet_type):
         tsString = teamspeak.displayHost
         if teamspeak.displayPort != 9987:
             tsString = tsString + ":" + str(teamspeak.displayPort)
-    if fleet_type == "hq":
-        fleet.put(fleet_url,json={'isFreeMove':True,'motd':sget_motd_hq().replace("$ts$", tsString)})
-    elif fleet_type == "vg":
-        fleet.put(fleet_url,json={'isFreeMove':True,'motd':sget_motd_vg().replace("$ts$", tsString)})
+    
+    if len(old_motd) < 50:
+        
+        new_motd = ""
+        if fleet_type == "hq":
+            hq_motd = sget_motd_hq()
+            
+            if hq_motd is not None:
+                new_motd = hq_motd
+    
+        elif fleet_type == "vg":
+            vg_motd = sget_motd_hq()
+            
+            if vg_motd is not None:
+                new_motd = vg_motd
+        
+        fleet.put(fleet_url,json={'isFreeMove':True,'motd':new_motd.replace("$ts$", tsString)})
 
     if wait_for_change:
         sleep(6)

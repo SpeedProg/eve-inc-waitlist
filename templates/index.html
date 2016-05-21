@@ -60,23 +60,18 @@
 </div>
 <div class="row">
 {% if group %}
-<div class="col-sm-6">
-	<form class="form-inline" method="GET" action="/">
-		<div class="form-group">
-			<label for="wl-group-select">Waitlist To Show</label>
-			<select class="form-control form-control-sm c-select" id="wl-group-select" name="groupId" onchange="this.form.submit()">
-			{% for grp in groups %}
-				<option value="{{grp.groupID}}"{% if grp.groupID == group.groupID %} selected{% endif %}>{{grp.displayName}}</option>
-			{% endfor %}
-			</select>
-		</div>
-		<noscript>
-		<button type="submit" class="btn btn-sm btn-primary">Change</button>
-		</noscript>
-	</form>
-</div>
-<div class="col-sm-6">
-	<h3>Current Waitlist: {{group.displayName}}</h3>
+<div class="col-sm-12">
+	<ul class="nav nav-tabs">
+	{% for grp in groups %}
+		<li class="nav-item">
+			{% if grp.groupID == group.groupID %}
+				<a class="nav-link active" href="#">{{grp.displayName}}</a>
+			{% else %}
+				<a class="nav-link" href="{{url_for('index')}}?groupId={{grp.groupID}}">{{grp.displayName}}</a>
+			{% endif %}
+		</li>
+	{% endfor %}
+	</ul>
 </div>
 </div>
 <div class="row">
@@ -226,8 +221,9 @@
 								{% if current_user.get_eve_id() == entry.user %}
 								<div class="btn-group btn-group-mini" role="group"
 									aria-label="Action Buttons">
-									<button type="button" class="btn btn-mini btn-warning"
+									<button type="button" class="btn btn-mini btn-danger"
 										onclick="javascript:removeOwnFit({{ fit.id }}, '{{ wlist.name }}', {{ entry.user }});"><i class="fa fa-times"></i> Fit</button>
+										<a href="{{url_for('fittings.xup_update', fitID=fit.id)}}" class="btn btn-warning">Update</a>
 								</div>
 								{% endif %}
 							</div>

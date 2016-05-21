@@ -5,6 +5,8 @@ var getMetaData = function (name) {
 	return $('meta[name="'+name+'"]').attr('content');
 }
 
+var is_igb = /.*EVE-IGB/.test(navigator.userAgent);
+
 function displayMessage(message, type) {
 	var alertHTML = $($.parseHTML('<div class="alert alert-dismissible" role="alert">'+
 			'<button type="button" class="close" data-dismiss="alert" aria-label="Close">'+
@@ -164,6 +166,10 @@ function createHeaderDOM(wlname, wlid, entry, groupId) {
 	for (var i = 0; i < tags.length; i++) {
 		tagContainer.append(createTypeTag(tags[i]));
 	}
+	var convoButton = ""
+	if (is_igb) {
+		convoButton = '<button type="button" class="btn btn-secondary" onclick="javascript:IGBW.startConversation('+entry.character.id+')"><i class="fa fa-comment-o"></i></button>';
+	}
 	var buttonRow = null;
 	if (wlname == "queue") {
 		buttonRow = $('<div>'+
@@ -171,7 +177,7 @@ function createHeaderDOM(wlname, wlid, entry, groupId) {
 					'<button type="button" class="btn btn-success" onclick="javascript:moveEntryToWaitlists('+entry.id+', '+entry.character.id+')"><i class="fa fa-thumbs-o-up"></i></button>'+
 					'<button aria-expanded="true" type="button" data-toggle="collapse" data-target="#fittings-'+entry.id+'" class="btn btn-primary"><i class="fa fa-caret-down"></i></i> Fits</button>'+
 					'<button type="button" class="btn btn-success" onclick="javascript:sendNotification('+entry.character.id+', '+wlid+')"><i class="fa fa-bell-o"></i></button>'+
-					'<button type="button" class="btn btn-secondary" onclick="javascript:IGBW.startConversation('+entry.character.id+')"><i class="fa fa-comment-o"></i></button>'+
+					convoButton+
 					'<button type="button" class="btn btn-danger" onclick="javascript:removeEntry('+entry.id+', '+entry.character.id+');"><i class="fa fa-times"></i></button>'+
 				'</div>'+
 			'</div>');
@@ -181,7 +187,7 @@ function createHeaderDOM(wlname, wlid, entry, groupId) {
 						'<button type="button" class="btn btn-success" onclick="javascript:invitePlayer('+entry.character.id+', '+wlid+', '+groupId+')"><i class="fa fa-plus"></i></button>'+
 						'<button aria-expanded="true" type="button" data-toggle="collapse" data-target="#fittings-'+entry.id+'" class="btn btn-primary"><i class="fa fa-caret-down"></i> Fits</button>'+
 						'<button type="button" class="btn btn-success" onclick="javascript:sendNotification('+entry.character.id+', '+wlid+')"><i class="fa fa-bell-o"></i></button>'+
-						'<button type="button" class="btn btn-secondary" onclick="javascript:IGBW.startConversation('+entry.character.id+')"><i class="fa fa-comment-o"></i></button>'+
+						convoButton+
 						'<button type="button" class="btn btn-danger" onclick="javascript:removePlayer('+entry.character.id+', '+groupId+');"><i class="fa fa-times"></i></button>'+
 					'</div>'+
 				'</div>');
