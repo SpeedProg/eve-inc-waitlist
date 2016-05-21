@@ -66,7 +66,7 @@ def get_select_form(fleet_id):
         wings = get_wings(fleet_id)
     except APIException as ex:
             flask.abort(409, "Failed to setup fleet. You may not own this fleet. " + str(ex))
-    active_groups = db.session.query(WaitlistGroup).filter(WaitlistGroup.enabled == True)
+    groups = db.session.query(WaitlistGroup).all()
     auto_assign = {}
     
 
@@ -81,7 +81,7 @@ def get_select_form(fleet_id):
                 auto_assign['dps'] = squad
             elif ("dps" in lname and "more" in lname) or "other" in lname:
                 auto_assign['overflow'] = squad
-    return render_template("/fleet/setup/select.html", wings=wings, fleet_id=fleet_id, groups=active_groups, assign=auto_assign)
+    return render_template("/fleet/setup/select.html", wings=wings, fleet_id=fleet_id, groups=groups, assign=auto_assign)
 
 def setup_step_select():
     logi_s = request.form.get('wl-logi')
@@ -244,8 +244,8 @@ def takeover_sso_cb():
 @login_required
 @perm_management.require()
 def change_type(fleetID):
-    active_groups = db.session.query(WaitlistGroup).filter(WaitlistGroup.enabled == True)
-    return render_template("/fleet/takeover/change-group-form.html", fleetID=fleetID, groups=active_groups)
+    groups = db.session.query(WaitlistGroup).all()
+    return render_template("/fleet/takeover/change-group-form.html", fleetID=fleetID, groups=groups)
 
 @bp.route("/<int:fleetID>/change-type", methods=['POST'])
 @login_required
