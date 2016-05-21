@@ -80,8 +80,14 @@ def setup_step_select():
     sniper_s = request.form.get('wl-sniper')
     dps_s = request.form.get('wl-dps')
     overflow_s = request.form.get('wl-overflow')
-    fleet_id = int(request.form.get('fleet-id'))
-    groupID = int(request.form.get('fleet-group'))
+    try:
+        fleet_id = int(request.form.get('fleet-id'))
+    except ValueError:
+        flask.abort(400, "No valid fleet-id given!")
+    try:
+        groupID = int(request.form.get('fleet-group'))
+    except:
+        flask.abort(400, "No valid fleet-group-id given!")
     # create [wingID, squadID] lists
     logi = [int(x) for x in logi_s.split(';')]
     sniper = [int(x) for x in sniper_s.split(';')]
