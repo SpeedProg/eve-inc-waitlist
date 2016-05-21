@@ -1,7 +1,12 @@
 <div class="col-sm-12" id="x-up">
 <a href="http://i.imgur.com/6KvLvt8.gif" taget="_blank">FC, WHAT DO?</a>
 {% if group is not none %}
-<form action="/xup" method="post">
+{% if update %}
+<form action="{{url_for('fittings.xup_update_submit')}}" method="post">
+<input type="hidden" name="old-fit-id" value="{{oldFitID}}">
+{% else %}
+<form action="{{url_for('fittings.xup_submit')}}" method="post">
+{% endif %}
 <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 <fieldset class="form-group bg-danger">
 <label {% if not newbro %}hidden{%endif%}>

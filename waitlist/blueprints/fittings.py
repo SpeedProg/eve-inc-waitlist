@@ -667,6 +667,37 @@ def xup_index():
     activegroups = db.session.query(WaitlistGroup).filter(WaitlistGroup.enabled == True).all()
     return render_template("xup.html", newbro=new_bro, group=defaultgroup, groups=activegroups)
 
+@bp_waitlist.route("/xup/<int:fitID>", methods=['GET'])
+@login_required
+def xup_update(fitID):
+    new_bro = True
+    if current_user.type == "character":
+        if current_user.newbro == None:
+            new_bro = True
+        else:
+            new_bro = current_user.newbro
+    elif current_user.type == "account":
+        if current_user.current_char_obj.newbro == None:
+            new_bro = True
+        else:
+            new_bro = current_user.current_char_obj.newbro
+    
+    defaultgroup = db.session.query(WaitlistGroup).filter(WaitlistGroup.enabled == True).order_by(WaitlistGroup.odering).first()
+    activegroups = db.session.query(WaitlistGroup).filter(WaitlistGroup.enabled == True).all()
+    return render_template("xup.html", newbro=new_bro, group=defaultgroup, groups=activegroups, update=True, oldFitID=fitID)
+
+@bp_waitlist.route("/xup/update", methods=['POST'])
+@login_required
+def xup_update_submit():
+    oldFitID_str = request.form.get('old-fit-id')
+    try:
+        old_fit_id = int(oldFitID_str)
+    except ValueError:
+        flask.abort(400, "No valid id for the fit to update given!")
+    
+    response = xup_submit()
+    remove_self_fit(old_fit_id)
+    return response
 
 @bp_waitlist.route('/management')
 @login_required

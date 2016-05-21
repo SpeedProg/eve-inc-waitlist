@@ -226,8 +226,9 @@
 								{% if current_user.get_eve_id() == entry.user %}
 								<div class="btn-group btn-group-mini" role="group"
 									aria-label="Action Buttons">
-									<button type="button" class="btn btn-mini btn-warning"
+									<button type="button" class="btn btn-mini btn-danger"
 										onclick="javascript:removeOwnFit({{ fit.id }}, '{{ wlist.name }}', {{ entry.user }});"><i class="fa fa-times"></i> Fit</button>
+										<a href="{{url_for('fittings.xup_update', fitID=fit.id)}}" class="btn btn-warning">Update</a>
 								</div>
 								{% endif %}
 							</div>
