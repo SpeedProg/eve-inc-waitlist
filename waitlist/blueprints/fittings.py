@@ -81,7 +81,9 @@ def api_wls_remove_player():
 @perm_management.require(http_exception=401)
 def api_wl_remove_entry():
     entryId = int(request.form['entryId'])
-    entry = db.session.query(WaitlistEntry).filter(WaitlistEntry.id == entryId).first()
+    entry = db.session.query(WaitlistEntry).get(entryId)
+    if entry is None:
+        flask.abort(404, "Waitlist Entry does not exist!")
     hEntry = create_history_object(entry.user_data.get_eve_id(), HistoryEntry.EVENT_COM_RM_ETR, current_user.id, entry.fittings)
     hEntry.exref = entry.waitlist.group.groupID
     db.session.add(hEntry)
