@@ -319,7 +319,7 @@ def unauth_igb_trusted():
 
     login_user(char, remember=True)
     logger.debug("Getting char id from headers succeeded.")
-    return redirect(url_for("index"))
+    return redirect(request.url)
 
 def unauth_igb_untrused():
     """
