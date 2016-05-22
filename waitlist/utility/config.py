@@ -30,8 +30,8 @@ if  not os.path.isfile(os.path.join(".", "config", "config.cfg")):
     config.set("motd", "vg", "..")
     
     config.add_section("debug")
-    config.set("enabled", "0")
-    config.set("fileversion", "")
+    config.set("debug", "enabled", "0")
+    config.set("debug", "fileversion", "")
     
     makedirs(os.path.join(".", "config"))
     with open(os.path.join(".", "config", "config.cfg"), "wb") as configfile:
