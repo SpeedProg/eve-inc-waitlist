@@ -128,7 +128,7 @@ def setup(fleet_id, fleet_type):
                 new_motd = hq_motd
     
         elif fleet_type == "vg":
-            vg_motd = sget_motd_hq()
+            vg_motd = sget_motd_vg()
             
             if vg_motd is not None:
                 new_motd = vg_motd
