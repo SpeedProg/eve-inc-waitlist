@@ -752,6 +752,6 @@ def history(min_mins, max_mins):
     tnow = datetime.utcnow()
     max_time = tnow-timedelta(minutes=max_mins)
     min_time = tnow-timedelta(minutes=min_mins)
-    history_entries = db.session.query(HistoryEntry).filter((HistoryEntry.time <= min_time) & (HistoryEntry.time > max_time)).order_by(desc(HistoryEntry.time))
+    history_entries = db.session.query(HistoryEntry).filter((HistoryEntry.time <= min_time) & (HistoryEntry.time > max_time)).order_by(desc(HistoryEntry.time)).limit(1000).all()
     return render_template("waitlist/history_cut.html", history=history_entries)
     
