@@ -294,6 +294,7 @@ def check_invite_and_remove_timer(charID, groupID, fleetID):
             logger.error("On Invitecheck crestFleet is None")
         elif crestFleet.comp is None:
             logger.error("On Invitecheck FleetComp is None")
+        db.session.remove()
         return
     member = member_info.get_fleet_members(fleetID, crestFleet.comp)
     character = db.session.query(Character).filter(Character.id == charID).first()
@@ -338,5 +339,5 @@ def check_invite_and_remove_timer(charID, groupID, fleetID):
         db.session.commit()
         logger.info("%s missed his invite", character.eve_name)
     
-    db.session.close()
-        
+    db.session.remove()
+
