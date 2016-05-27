@@ -355,7 +355,7 @@ if __name__ == '__main__':
     err_fh = TimedRotatingFileHandler(filename=config.error_log, when="midnight", interval=1, utc=True)
     info_fh = TimedRotatingFileHandler(filename=config.info_log, when="midnight", interval=1, utc=True)
     access_fh = TimedRotatingFileHandler(filename=config.access_log, when="midnight", interval=1, utc=True)
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(pathname)s - %(funcName)s - %(lineno)d - %(message)s')
     err_fh.setFormatter(formatter)
     info_fh.setFormatter(formatter)
     access_fh.setFormatter(formatter)
