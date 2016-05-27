@@ -27,18 +27,23 @@ class FleetMemberInfo():
     
     def _json_to_members(self, json):
         data = {}
+        logger.info("Got MemberList from CREST %s", str(json))
         for member in json.items:
             data[member.character.id] = member
+        logger.info("Converted to %s", str(data))
         return data
     
     def get_data(self, fleetID, account):
         utcnow = datetime.utcnow()
         if (self.is_expired(fleetID, utcnow)):
+            logger.info("Member Data Expired for %s and account %s", str(fleetID), account.username)
             fleet = connection_cache.get_connection(fleetID, account)
             try:
                 json = fleet().members()
                 self.update_cache(fleetID, utcnow, self._json_to_members(json))
-            except APIException:
+                logger.info("Successfully updated Fleet Members")
+            except APIException as ex:
+                logger.error("Getting Fleet Members caused: %s", str(ex))
                 self.update_cache(fleetID, utcnow, {})
         
         return self._lastmembers[fleetID]
@@ -283,6 +288,12 @@ def check_invite_and_remove_timer(charID, groupID, fleetID):
     group = db.session.query(WaitlistGroup).get(groupID)
     crestFleet = db.session.query(CrestFleet).get(fleetID)
     if group is None or crestFleet is None or crestFleet.comp is None: # the fleet was deleted meanwhile or has no fleetcomp
+        if group is None:
+            logger.error("On Invitecheck group is None")
+        if crestFleet is None:
+            logger.error("On Invitecheck crestFleet is None")
+        elif crestFleet.comp is None:
+            logger.error("On Invitecheck FleetComp is None")
         return
     member = member_info.get_fleet_members(fleetID, crestFleet.comp)
     character = db.session.query(Character).filter(Character.id == charID).first()
@@ -291,6 +302,7 @@ def check_invite_and_remove_timer(charID, groupID, fleetID):
                                                      (WaitlistEntry.waitlist_id == group.dpswlID) |
                                                      (WaitlistEntry.waitlist_id == group.sniperwlID))).all()
     if charID in member:# he is in the fleet
+        logger.info("Member %s found in members", charID)
         fittings = []
         for entry in waitlist_entries:
             fittings.extend(entry.fittings)
@@ -317,6 +329,7 @@ def check_invite_and_remove_timer(charID, groupID, fleetID):
 
         logger.info("auto removed %s from %s waitlist.", character.eve_name, group.groupName)
     else:
+        logger.info("Member %s not found in members", str(charID))
         for entry in waitlist_entries:
             entry.inviteCount += 1
         hEntry = create_history_object(charID, HistoryEntry.EVENT_AUTO_CHECK_FAILED, None, None)
