@@ -598,8 +598,9 @@ def move_to_waitlists():
 def api_move_fit_to_waitlist():
     fit_id = int(request.form['fit_id'])
     fit = db.session.query(Shipfit).filter(Shipfit.id == fit_id).first();
-    if fit == None: # fit doesn't exist, probably double trigger when moving some one
+    if fit == None or fit.waitlist is None: # fit doesn't exist or is not in a waitlist, probably double trigger when moving some one
         return "OK"
+
     entry = db.session.query(WaitlistEntry).filter(WaitlistEntry.id == fit.waitlist.id).first();
     
     group = entry.waitlist.group
