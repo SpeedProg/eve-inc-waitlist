@@ -499,17 +499,26 @@ def fleet_status_set(gid):
     elif action == "manager-remove":
         accountID = int(request.form['accountID'])
         account = db.session.query(Account).get(accountID)
-        group.manager.remove(account)
+        try:
+            group.manager.remove(account)
+        except ValueError:
+            pass
     elif action == "fc-remove":
         accountID = int(request.form['accountID'])
         account = db.session.query(Account).get(accountID)
-        group.fcs.remove(account)
+        try:
+            group.fcs.remove(account)
+        except ValueError:
+            pass
     elif action == "add-backseat":
         group.backseats.append(current_user)
     elif action == "remove-backseat":
         accountID = int(request.form['accountID'])
         account = db.session.query(Account).get(accountID)
-        group.backseats.remove(account)
+        try:
+            group.backseats.remove(account)
+        except ValueError:
+            pass
     
     db.session.commit()
     
