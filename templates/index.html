@@ -223,7 +223,9 @@
 									aria-label="Action Buttons">
 									<button type="button" class="btn btn-mini btn-danger"
 										onclick="javascript:removeOwnFit({{ fit.id }}, '{{ wlist.name }}', {{ entry.user }});"><i class="fa fa-times"></i> Fit</button>
+										{% if wlist.name == "queue" %}
 										<a href="{{url_for('fittings.xup_update', fitID=fit.id)}}" class="btn btn-warning">Update</a>
+										{% endif %}
 								</div>
 								{% endif %}
 							</div>
