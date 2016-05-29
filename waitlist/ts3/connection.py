@@ -62,7 +62,11 @@ def handle_dc(func, *args, **kwargs):
 @handle_dc
 def send_poke(name, msg):
     global conn
-    response = conn.clientfind(pattern=name)
+    try:
+        response = conn.clientfind(pattern=name)
+    except TS3QueryError as er:
+        logger.info("TS3 ClientFind failed on %s with %s", name, str(er))
+        response = []
     found = False
     for resp in response:
         if resp['client_nickname'] == name:
@@ -70,7 +74,11 @@ def send_poke(name, msg):
             found = True
     # deaf people put a * in front
     if not found:
-        response = conn.clientfind(pattern="*"+name)
+        try:
+            response = conn.clientfind(pattern="*"+name)
+        except TS3QueryError as er:
+            logger.info("TS3 ClientFind failed on %s with %s", "*"+name, str(er))
+            return
         for resp in response:
             if resp['client_nickname'] == "*"+name:
                 conn.clientpoke(msg, resp['clid'])
