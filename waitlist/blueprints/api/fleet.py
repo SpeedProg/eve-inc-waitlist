@@ -31,19 +31,11 @@ def invite_to_fleet():
     characterID = int(request.form.get('charID'))
     waitlistID = int(request.form.get('waitlistID'))
     groupID = int(request.form.get('groupID'))
-    
-    send_notification(characterID, waitlistID)
-
-    waitlist = db.session.query(Waitlist).filter(Waitlist.id == waitlistID).first();
-    squad_type = waitlist.name
-        # lets check that the given wl exists
-    if waitlist is None:
-        logger.error("Given waitlist id %s is not valid.", str(waitlistID))
-        flask.abort(400)
-    
-    group = db.session.query(WaitlistGroup).get(groupID)
 
     character = db.session.query(Character).get(characterID)
+    waitlist = db.session.query(Waitlist).filter(Waitlist.id == waitlistID).first();
+
+    squad_type = waitlist.name
     logger.info("Invited %s by %s into %s", character.eve_name, current_user.username, squad_type)
     if current_user.fleet is None:
         resp = jsonify(status_code=409, message="You are not currently Boss of a Fleet")
@@ -68,8 +60,17 @@ def invite_to_fleet():
     resp = flask.jsonify({'status': status['status_code'], 'message': status['text']})
     resp.status_code = status['status_code']
 
-    
-    character = db.session.query(Character).filter(Character.id == characterID).first()
+    if resp.status_code != 201: # invite failed send no notifications
+        logger.error("Invited %s by %s into %s failed", character.eve_name, current_user.username, squad_type)
+        return resp
+
+    send_notification(characterID, waitlistID)
+
+        # lets check that the given wl exists
+    if waitlist is None:
+        logger.error("Given waitlist id %s is not valid.", str(waitlistID))
+        flask.abort(400)
+
     hEntry = create_history_object(character.get_eve_id(), HistoryEntry.EVENT_COMP_INV_PL, current_user.id)
     hEntry.exref = waitlist.group.groupID
     
