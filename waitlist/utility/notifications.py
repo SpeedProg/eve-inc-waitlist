@@ -19,7 +19,7 @@ def send_invite_notice(data):
 
     gevent.spawn(notify)
 
-def send_notification(playerID, waitlistID):
+def send_notification(playerID, waitlistID, message="You are invited to fleet as {0}"):
     if playerID == None:
         logger.error("Tried to send notification to player with None ID.")
     
@@ -41,7 +41,7 @@ def send_notification(playerID, waitlistID):
     character = db.session.query(Character).filter(Character.id == playerID).first()
     if character.poke_me: # only poke if he didn't disable it
         try: 
-            message = "You are invited to fleet as %s" % waitlist.name if waitlist.name != "queue" else "The FC is looking for you"
+            message = message.format(waitlist.name)
             send_poke(character.eve_name, message)
         except TS3QueryError:
             pass # ignore it a user that is not on TS
