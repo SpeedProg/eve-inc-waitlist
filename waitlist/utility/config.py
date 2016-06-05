@@ -19,6 +19,7 @@ if  not os.path.isfile(os.path.join(".", "config", "config.cfg")):
     config.set("logging", "error_file", "/var/log/pywaitlist/error.log")
     config.set("logging", "info_file", "/var/log/pywaitlist/info.log")
     config.set("logging", "access_file", "/var/log/pywaitlist/access.log")
+    config.set("logging", "debug_file", "/var/log/pywaitlist/debug.log")
     
     config.add_section("crest")
     config.set("crest", "client_id", "f8934rsdf")
@@ -48,6 +49,7 @@ server_bind = config.get("app", "server_bind")
 error_log = config.get("logging", "error_file")
 info_log = config.get("logging", "info_file")
 access_log = config.get("logging", "access_file")
+debug_log = config.get("logging", "debug_file")
 
 crest_client_id = config.get("crest", "client_id")
 crest_client_secret = config.get("crest", "client_secret")
