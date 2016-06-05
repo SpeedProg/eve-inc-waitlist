@@ -319,7 +319,7 @@ def check_invite_and_remove_timer(charID, groupID, fleetID):
                 fittings.extend(entry.fittings)
         
         
-        waitlist_entries = db.session.query(WaitlistEntry).filter((WaitlistEntry.user == charID) &
+        db.session.query(WaitlistEntry).filter((WaitlistEntry.user == charID) &
                                                                    ((WaitlistEntry.waitlist_id == group.logiwlID) |
                                                                      (WaitlistEntry.waitlist_id == group.dpswlID) |
                                                                      (WaitlistEntry.waitlist_id == group.sniperwlID))).delete()
