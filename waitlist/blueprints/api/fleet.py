@@ -96,6 +96,3 @@ def invite_to_fleet():
     if resp.status_code == 201:
         spawn_invite_check(characterID, groupID, fleet.fleetID)
     return resp
-
-def check_invited(fleetID):
-    member_info.get_fleet_members(fleetID, current_user)
