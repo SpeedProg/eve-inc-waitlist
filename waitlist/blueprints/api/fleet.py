@@ -41,8 +41,6 @@ def invite_to_fleet():
     if waitlist is None:
         logger.error("Given waitlist id %s is not valid.", str(waitlistID))
         flask.abort(400)
-    
-    group = db.session.query(WaitlistGroup).get(groupID)
 
     character = db.session.query(Character).get(characterID)
     logger.info("Invited %s by %s into %s", character.eve_name, current_user.username, squad_type)
@@ -93,8 +91,6 @@ def invite_to_fleet():
 
     db.session.commit()
     logger.info("%s invited %s to fleet from %s.", current_user.username, character.eve_name, waitlist.group.groupName)
-    
-    db.session.commit()
     
     # set a timer for 1min and 6s that checks if the person accepted the invite
     if resp.status_code == 201:
