@@ -65,7 +65,7 @@ def createWaitlistGroup(groupName, displayName):
     return group
 
 if __name__ == '__main__':
-    #createRoles()
+    createRoles()
     createDefaultWaitlistGroup()
     createAssaultWaitlistGroup()
     createVGWaitlistGroup()

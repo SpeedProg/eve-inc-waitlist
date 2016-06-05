@@ -355,6 +355,7 @@ if __name__ == '__main__':
     err_fh = TimedRotatingFileHandler(filename=config.error_log, when="midnight", interval=1, utc=True)
     info_fh = TimedRotatingFileHandler(filename=config.info_log, when="midnight", interval=1, utc=True)
     access_fh = TimedRotatingFileHandler(filename=config.access_log, when="midnight", interval=1, utc=True)
+    debug_fh = TimedRotatingFileHandler(filename=config.debug_log, when="midnight", interval=1, utc=True)
 
     err_fh.doRollover()
     info_fh.doRollover()
@@ -364,23 +365,36 @@ if __name__ == '__main__':
     err_fh.setFormatter(formatter)
     info_fh.setFormatter(formatter)
     access_fh.setFormatter(formatter)
+    debug_fh.setFormatter(formatter)
 
     info_fh.setLevel(logging.INFO)
     err_fh.setLevel(logging.ERROR)
+    debug_fh.setLevel(logging.DEBUG)
 
     waitlistlogger = logging.getLogger("waitlist")
     waitlistlogger.addHandler(err_fh)
     waitlistlogger.addHandler(info_fh)
-    waitlistlogger.setLevel(logging.INFO)
+    waitlistlogger.addHandler(debug_fh)
+    waitlistlogger.setLevel(logging.DEBUG)
 
     app.logger.addHandler(err_fh)
     app.logger.addHandler(info_fh)
+    app.logger.addHandler(debug_fh)
     app.logger.setLevel(logging.INFO)
     
     wsgi_logger = logging.getLogger("gevent.pywsgi.WSGIServer")
     wsgi_logger.addHandler(err_fh)
     wsgi_logger.addHandler(access_fh)
     wsgi_logger.setLevel(logging.INFO)
+    
+    
+    
+    pycrest_logger = logging.getLogger("pycrest.eve")
+    pycrest_logger.addHandler(debug_fh)
+    pycrest_logger.addHandler(info_fh)
+    pycrest_logger.addHandler(err_fh)
+    pycrest_logger.setLevel(logging.DEBUG)
+    
     #app.run(host="0.0.0.0", port=81, debug=True)
     server = WSGIServer((config.server_bind, config.server_port), app, log=wsgi_logger, error_log=wsgi_logger)
     server.serve_forever()

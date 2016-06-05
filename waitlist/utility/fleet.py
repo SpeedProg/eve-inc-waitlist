@@ -27,25 +27,28 @@ class FleetMemberInfo():
     
     def _json_to_members(self, json):
         data = {}
-        logger.info("Got MemberList from CREST %s", str(json))
+        logger.debug("Got MemberList from CREST %s", str(json))
         for member in json.items:
             data[member.character.id] = member
-        logger.info("Converted to %s", str(data))
         return data
     
     def get_data(self, fleetID, account):
         utcnow = datetime.utcnow()
         if (self.is_expired(fleetID, utcnow)):
-            logger.info("Member Data Expired for %s and account %s", str(fleetID), account.username)
+            logger.debug("Member Data Expired for %d and account %s", fleetID, account.username)
             fleet = connection_cache.get_connection(fleetID, account)
+            logger.debug("%s Got Fleet Connection", account.username)
             try:
+                logger.debug("%s Requesting Fleet Member", account.username)
                 json = fleet().members()
+                logger.debug("%s Got Fleet Members", account.username)
                 self.update_cache(fleetID, utcnow, self._json_to_members(json))
-                logger.info("Successfully updated Fleet Members")
+                logger.debug("%s Successfully updated Fleet Members", account.username)
             except APIException as ex:
-                logger.error("Getting Fleet Members caused: %s", str(ex))
+                logger.error("%s Getting Fleet Members caused: %s", account.username,ex)
                 self.update_cache(fleetID, utcnow, {})
-        
+        else:
+            logger.debug("Cache hit for %d and account %s", fleetID, account.username)
         return self._lastmembers[fleetID]
     
     def is_expired(self, fleetID, utcnow):
@@ -285,6 +288,7 @@ def spawn_invite_check(characterID, groupID, fleetID):
     t.start()
 
 def check_invite_and_remove_timer(charID, groupID, fleetID):
+    logger.info("Checking invite for %d %d %d", charID, groupID, fleetID)
     group = db.session.query(WaitlistGroup).get(groupID)
     crestFleet = db.session.query(CrestFleet).get(fleetID)
     if group is None or crestFleet is None or crestFleet.comp is None: # the fleet was deleted meanwhile or has no fleetcomp
@@ -315,7 +319,7 @@ def check_invite_and_remove_timer(charID, groupID, fleetID):
                 fittings.extend(entry.fittings)
         
         
-        waitlist_entries = db.session.query(WaitlistEntry).filter((WaitlistEntry.user == charID) &
+        db.session.query(WaitlistEntry).filter((WaitlistEntry.user == charID) &
                                                                    ((WaitlistEntry.waitlist_id == group.logiwlID) |
                                                                      (WaitlistEntry.waitlist_id == group.dpswlID) |
                                                                      (WaitlistEntry.waitlist_id == group.sniperwlID))).delete()
