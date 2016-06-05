@@ -60,7 +60,7 @@ def invite_to_fleet():
     elif squad_type == "sniper":
         squadIDList = [(fleet.sniperWingID, fleet.sniperSquadID), (fleet.otherWingID, fleet.otherSquadID), (fleet.dpsWingID, fleet.dpsSquadID), (fleet.logiWingID, fleet.logiSquadID)]
     else:
-        (flask.jsonify({'message': 'Unknown Squad Type'}), 415)
+        return Response(flask.jsonify({'message': 'Unknown Squad Type'}), 415)
 
     # invite over crest and get back the status
     status = invite(characterID, squadIDList)
