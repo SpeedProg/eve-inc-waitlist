@@ -381,6 +381,15 @@ if __name__ == '__main__':
     wsgi_logger.addHandler(err_fh)
     wsgi_logger.addHandler(access_fh)
     wsgi_logger.setLevel(logging.INFO)
+    
+    
+    
+    pycrest_logger = logging.getLogger("pycrest.eve")
+    pycrest_logger.addHandler(debug_fh)
+    pycrest_logger.addHandler(info_fh)
+    pycrest_logger.addHandler(err_fh)
+    pycrest_logger.setLevel(logging.DEBUG)
+    
     #app.run(host="0.0.0.0", port=81, debug=True)
     server = WSGIServer((config.server_bind, config.server_port), app, log=wsgi_logger, error_log=wsgi_logger)
     server.serve_forever()
