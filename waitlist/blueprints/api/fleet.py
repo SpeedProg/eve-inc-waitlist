@@ -12,6 +12,7 @@ from waitlist.utility.fleet import spawn_invite_check, invite, member_info
 from flask.json import jsonify
 from waitlist.base import db
 from datetime import datetime
+from flask.wrappers import Response
 bp = Blueprint('api_fleet', __name__)
 logger = logging.getLogger(__name__)
 
