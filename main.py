@@ -369,8 +369,8 @@ if __name__ == '__main__':
     waitlistlogger = logging.getLogger("waitlist")
     waitlistlogger.addHandler(err_fh)
     waitlistlogger.addHandler(info_fh)
-    waitlistlogger.setLevel(logging.INFO)
     waitlistlogger.addHandler(debug_fh)
+    waitlistlogger.setLevel(logging.DEBUG)
 
     app.logger.addHandler(err_fh)
     app.logger.addHandler(info_fh)
