@@ -39,12 +39,13 @@ def invite_to_fleet():
     squad_type = waitlist.name
         # lets check that the given wl exists
     if waitlist is None:
-        logger.error("Given waitlist id %s is not valid.", str(waitlistID))
+        logger.error("Given waitlist ID=%d is not valid.", waitlistID)
         flask.abort(400)
 
     character = db.session.query(Character).get(characterID)
     logger.info("Invited %s by %s into %s", character.eve_name, current_user.username, squad_type)
     if current_user.fleet is None:
+        logger.info("%s is currently not not boss of a fleet, he can't invite people.", current_user.username)
         resp = jsonify(status_code=409, message="You are not currently Boss of a Fleet")
         resp.status_code = 409
         return resp
@@ -76,6 +77,7 @@ def invite_to_fleet():
     # get wl entry for creation time
     wlEntry = db.session.query(WaitlistEntry).filter((WaitlistEntry.waitlist_id == waitlistID) & (WaitlistEntry.user == characterID)).first()
     if wlEntry == None:
+        logger.error("Waitlist Entry with ID=%d does not exist!", waitlistID)
         return resp
     
     db.session.add(hEntry)
@@ -93,6 +95,7 @@ def invite_to_fleet():
     logger.info("%s invited %s to fleet from %s.", current_user.username, character.eve_name, waitlist.group.groupName)
     
     # set a timer for 1min and 6s that checks if the person accepted the invite
+    logger.info("API Response for %s was %d", character.eve_name, resp.status_code)
     if resp.status_code == 201:
         spawn_invite_check(characterID, groupID, fleet.fleetID)
     return resp
