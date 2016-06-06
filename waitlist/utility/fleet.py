@@ -72,8 +72,12 @@ class FleetConnectionCache():
     def get_connection(self, fleetID, account):
         if account.id in self._cache:
             con = self._cache[account.id]
-            con.update_tokens(account.refresh_token, account.access_token, account.access_token_expires)
-            return con
+            # check it is actually the current fleet
+            if con._endpoint == "https://crest-tq.eveonline.com/fleets/"+str(fleetID)+"/" :
+                con.update_tokens(account.refresh_token, account.access_token, account.access_token_expires)
+                return con
+            else:
+                return self._add_connection(fleetID, account)
         else:
             return self._add_connection(fleetID, account)
     
