@@ -1,0 +1,69 @@
+var REFORM = (function(){
+	var lib = {
+			trigger_selector: "#btn-send-invites",
+			trigger_action: "click",
+			user_list_selector: "#char-list",
+			// it gets a jquery object of the element gotten with the user_list_selector
+			user_list_extractor_func: function(el) {
+				return el.val().split(/\n/);
+			},
+			progress_selector: "#progressbar"
+	};
+	lib.getMetaData = function(name) {
+		return $('meta[name="'+name+'"]').attr('content');
+	};
+	
+	lib.api_invite_by_name = lib.getMetaData('api-invite-by-name');
+	lib.csrf = lib.getMetaData('csrf-token');
+	
+	lib.invite = function(playerName) {
+		console.log("Sending Invite for "+playerName);
+		$.post({
+			'url': lib.api_invite_by_name.replace('-1', playerName),
+			'data': {
+				'_csrf_token': lib.csrf
+			},
+			'error': function(data) {
+				var message = data.statusText
+				if (typeof data.message != 'undefined') {
+						message += ": " + data.message;
+				}
+				if (typeof data.responseJSON != 'undefined' && typeof data.responseJSON.message != 'undefined') {
+					message += ": " + data.responseJSON.message
+				}
+				displayMessage(message, "danger");
+				lib.increaseCounter(1);
+			},
+			'success': function(data){
+				lib.increaseCounter(1);
+			},
+			'dataType': 'json'
+		});
+	};
+	
+	lib.increaseCounter = function(inc) {
+		var bar = $(lib.progress_selector);
+		var old = Number(bar.attr('value'));
+		bar.attr('value', old+inc);
+	};
+	
+	lib.startInvites = function(event) {
+		var character_names = lib.user_list_extractor_func($(lib.user_list_selector));
+		var bar = $(lib.progress_selector)
+		bar.attr('max', character_names.length);
+		bar.attr('value', 0);
+		for (name of character_names) {
+			lib.invite(name);
+		}
+	};
+	
+	lib.init = function(inputAreaID, barContainerID, startButtonID) {
+		var button = $(lib.trigger_selector);
+		button.on(lib.trigger_action, lib.startInvites);
+	};
+	
+	return lib;
+}());
+$(document).ready(function() {
+	REFORM.init()
+});

@@ -4,15 +4,16 @@ from flask_login import login_required, current_user
 import flask
 from flask.globals import request
 from waitlist.data.perm import perm_management
-from waitlist.storage.database import CrestFleet, Waitlist, WaitlistGroup,\
+from waitlist.storage.database import CrestFleet, Waitlist,\
     Character, WaitlistEntry, HistoryEntry, HistoryExtInvite
 from waitlist.utility.notifications import send_notification
 from waitlist.utility.history_utils import create_history_object
-from waitlist.utility.fleet import spawn_invite_check, invite, member_info
+from waitlist.utility.fleet import spawn_invite_check, invite
 from flask.json import jsonify
 from waitlist.base import db
 from datetime import datetime
 from flask.wrappers import Response
+from waitlist.utility.eve_id_utils import get_character_by_name
 bp = Blueprint('api_fleet', __name__)
 logger = logging.getLogger(__name__)
 
@@ -24,6 +25,18 @@ def removeFleet(fleetID):
     db.session.query(CrestFleet).filter(CrestFleet.fleetID == fleetID).delete()
     db.session.commit()
     return flask.jsonify(status_code=200, message="Fleet Deleted")
+
+@bp.route("/fleet/actions/invite/<string:name>", methods=['POST'])
+@login_required
+@perm_management.require()
+def fleet_actions_invite(name):
+    character = get_character_by_name(name)
+    fleet = current_user.fleet
+    status = invite(character.id, [(fleet.dpsWingID, fleet.dpsSquadID), (fleet.otherWingID, fleet.otherSquadID), (fleet.sniperWingID, fleet.sniperSquadID), (fleet.logiWingID, fleet.logiSquadID)])
+    resp = flask.jsonify({'status': status['status_code'], 'message': status['text']})
+    resp.status_code = status['status_code']
+    return resp;
+
 
 @bp.route("/fleet/members/", methods=['POST'])
 @login_required
