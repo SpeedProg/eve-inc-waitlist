@@ -154,7 +154,7 @@ function createHeaderDOM(wlname, wlid, entry, groupId) {
 	var charRow = $('<a href="javascript:IGBW.showInfo(1377, '+entry.character.id+');">'+
 						'<div class="wel-header-32">'+
 							'<div class="wel-img-32">'+
-									'<img src="https://image.eveonline.com/Character/'+entry.character.id+'_32.jpg" alt="'+entry.character.name+'">'+
+									'<img src="https://imageserver.eveonline.com/Character/'+entry.character.id+'_32.jpg" alt="'+entry.character.name+'">'+
 							'</div>'+
 							'<div class="wel-container-32">'+
 								'<div class="wel-text-row-32-2">'+entry.character.name+oldInvites+newBroTag+' <small class="wait-time">'+waitTimeMinutes+' min ago</small></div>'+
@@ -333,7 +333,7 @@ function createFitDOM(fit, queue) {
 	fitdom.append(
 			$(baseElement)
 				.append($($.parseHTML('<div class="wel-header-32"></div>'))
-						.append($.parseHTML('<div class="wel-img-32"><img src="https://image.eveonline.com/Render/'+fit.shipType+'_32.png" alt="'+fit.shipName+'"></div>'))
+						.append($.parseHTML('<div class="wel-img-32"><img src="https://imageserver.eveonline.com/Render/'+fit.shipType+'_32.png" alt="'+fit.shipName+'"></div>'))
 						.append($.parseHTML('<div class="wel-container-32"><div class="wel-text-row-32-2">'+fit.shipName+'</div><div class="wel-text-row-32-2">'+commentHTML+approveButton+'</div></div>'))
 						)
 			);

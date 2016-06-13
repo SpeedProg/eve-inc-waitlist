@@ -94,7 +94,7 @@ $(document).ready(function () {
 	{% if is_account %}
 	<li  class="nav-item">
 		
-		<a class="nav-link" href="{{url_for('logout')}}"><img src="https://image.eveonline.com/Character/{{current_user.get_eve_id()}}_32.jpg" alt="{{current_user.get_eve_name()}}"> Logout</a>
+		<a class="nav-link" href="{{url_for('logout')}}"><img src="https://imageserver.eveonline.com/Character/{{current_user.get_eve_id()}}_32.jpg" alt="{{current_user.get_eve_name()}}"> Logout</a>
 	</li>
 	{% endif %}
 	{% if is_index %}
