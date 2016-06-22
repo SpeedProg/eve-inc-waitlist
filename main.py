@@ -4,8 +4,10 @@ import os
 import sys
 base_path = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(base_path, 'lib'))
+from pycrest.eve import EVE
 from waitlist.utility.settings import settings
-from waitlist.utility.config import debug_enabled, debug_fileversion
+from waitlist.utility.config import debug_enabled, debug_fileversion,\
+    crest_client_id, crest_client_secret, crest_return_url
 from waitlist.data.version import version
 from waitlist.utility.eve_id_utils import get_account_from_db, get_char_from_db,\
     is_char_banned, get_character_by_id_and_name, get_character_by_name
@@ -36,7 +38,8 @@ import flask
 from werkzeug.utils import redirect
 from flask.helpers import url_for
 from waitlist.utility.utils import is_igb
-from waitlist.blueprints.fc_sso import bp as fc_sso_bp
+from waitlist.blueprints.fc_sso import bp as fc_sso_bp, get_sso_redirect,\
+    add_sso_handler
 from waitlist.blueprints.fleet import bp as fleet_bp
 from waitlist.blueprints.api.fleet import bp as api_fleet_bp
 from waitlist.blueprints.api.fittings import bp as api_wl_bp
@@ -334,7 +337,27 @@ def unauthorized_ogb():
     Handle unauthorized users that visit with an out of game browser
     -> Redirect them to SSO
     """
-    return "Login Without Token not yet available"
+    return get_sso_redirect('linelogin', '')
+
+def member_login_cb(code):
+    eve = EVE(client_id=crest_client_id, api_key=crest_client_secret, redirect_uri=crest_return_url)
+    con = eve.authorize(code)
+    authInfo = con.whoami()
+    charID = authInfo['CharacterID']
+    charName = authInfo['CharacterName']
+    if charID is None or charName is None:
+        flask.abort(400, "Getting Character from AuthInformation Failed!")
+    
+    char = get_character_by_id_and_name(charID, charName)
+    is_banned, reason = is_char_banned(char)
+    if is_banned:
+        return flask.abort(401, 'You are banned, because your '+reason+" is banned!")
+
+    login_user(char, remember=True)
+    logger.debug("Member Login by %s successful", char.get_eve_name())
+    return redirect(url_for("index"))
+
+add_sso_handler('linelogin', member_login_cb)
 
 @app.route("/update_token")
 @login_required
