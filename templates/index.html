@@ -167,9 +167,7 @@
 						{% endif %}
 						<div class="wel-header-32">
 							<div class="wel-img-32">
-									<img
-									src="https://imageserver.eveonline.com/Character/{{ entry.user }}_32.jpg"
-									alt="{{ entry.user_data.eve_name|e }}">
+									<img src="https://imageserver.eveonline.com/Character/{{ entry.user }}_32.jpg">
 							</div>
 							<div class="wel-container-32">
 								{{ entry.user_data.eve_name|e }}{% if wlist.name != "queue" and entry.inviteCount > 0 %} {{entry.inviteCount}} <i class="fa fa-bed" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="Missed Invites"></i>{% endif %}{% if entry.user_data.is_new() %} <span class="label label-info">New</span>{% endif %} <small class="wait-time">{{entry.creation|waittime}} min ago</small>
@@ -202,9 +200,7 @@
 								{% endif %}
 									<div class="wel-header-32">
 									<div class="wel-img-32">
-										<img
-											src="https://imageserver.eveonline.com/Render/{{ fit.ship_type }}_32.png"
-											alt="{{ fit.ship.typeName }}">
+										<img src="https://imageserver.eveonline.com/Render/{{ fit.ship_type }}_32.png">
 									</div>
 									<div class="wel-container-32">
 										<div class="wel-text-row-32-2">{{ fit.ship.typeName|e }}</div>
