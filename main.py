@@ -2,6 +2,7 @@ from gevent import monkey; monkey.patch_all()
 # inject the lib folder before everything else
 import os
 import sys
+from waitlist.permissions import perm_manager
 base_path = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(base_path, 'lib'))
 from pycrest.eve import EVE
@@ -47,6 +48,8 @@ from waitlist.blueprints.api.teamspeak import bp as api_ts3_bp
 from waitlist.blueprints.options.mail import bp as settings_mail_bp
 from waitlist.blueprints.options.fleet_motd import bp as fmotd_bp
 from waitlist.blueprints.reform import bp as bp_fleet_reform
+from waitlist.blueprints.history.comphistory import bp as bp_comphistory_search
+from waitlist.blueprints.api.history import bp as bp_api_history
 
 app.register_blueprint(bp_waitlist)
 app.register_blueprint(bp_settings, url_prefix='/settings')
@@ -59,6 +62,8 @@ app.register_blueprint(api_ts3_bp, url_prefix="/api/ts3")
 app.register_blueprint(settings_mail_bp, url_prefix="/settings/mail")
 app.register_blueprint(fmotd_bp, url_prefix="/settings/fmotd")
 app.register_blueprint(bp_fleet_reform, url_prefix="/fleet/reform")
+app.register_blueprint(bp_comphistory_search, url_prefix="/history/comp_search")
+app.register_blueprint(bp_api_history, url_prefix="/api/history")
 
 logger = logging.getLogger(__name__)
 
@@ -78,7 +83,7 @@ def inject_data():
                 perm_feedback=perm_feedback, is_account=is_account,
                 perm_dev=perm_dev, perm_leadership=perm_leadership, perm_bans=perm_bans,
                 perm_viewfits=perm_viewfits, version=display_version, perm_comphistory=perm_comphistory,
-                perm_res_mod=perm_mod_mail_resident, perm_t_mod=perm_mod_mail_tbadge)
+                perm_res_mod=perm_mod_mail_resident, perm_t_mod=perm_mod_mail_tbadge, perm_manager=perm_manager)
 
 @app.before_request
 def check_ban():
