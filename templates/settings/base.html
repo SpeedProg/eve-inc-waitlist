@@ -17,6 +17,7 @@
 	('settings.whitelist', 'Whitelist', perm_bans.can()),
 	('settings_mail.index', 'IG Mail Settings', (perm_res_mod.can() or perm_t_mod.can() or perm_leadership.can())),
 	('settings_fmotds.index', 'Fleet MOTD', perm_leadership.can()),
+	('settings_inserts.index', 'Page Inserts', perm_manager.getPermission('inserts').can()),
 	('feedback.settings', 'Feedback', perm_feedback.can()),
 	('settings.sde_settings', 'Static Data Import', perm_dev.can())
 ] -%}

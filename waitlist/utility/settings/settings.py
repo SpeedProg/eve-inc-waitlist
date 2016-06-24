@@ -83,3 +83,9 @@ def sget_motd_vg():
 
 def sset_motd_vg(text):
     save("motd_vg", text)
+
+def sget_insert(name):
+    return get('insert_'+name)
+
+def sset_insert(name, text):
+    return save('insert_'+name, text)

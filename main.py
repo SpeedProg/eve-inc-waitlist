@@ -3,6 +3,9 @@ from gevent import monkey; monkey.patch_all()
 import os
 import sys
 from waitlist.permissions import perm_manager
+from waitlist.utility.settings.settings import sget_insert
+from waitlist.blueprints.options.inserts import bp
+from waitlist.data.names import WTMRoles
 base_path = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(base_path, 'lib'))
 from pycrest.eve import EVE
@@ -50,6 +53,7 @@ from waitlist.blueprints.options.fleet_motd import bp as fmotd_bp
 from waitlist.blueprints.reform import bp as bp_fleet_reform
 from waitlist.blueprints.history.comphistory import bp as bp_comphistory_search
 from waitlist.blueprints.api.history import bp as bp_api_history
+from waitlist.blueprints.options.inserts import bp as bp_inserts
 
 app.register_blueprint(bp_waitlist)
 app.register_blueprint(bp_settings, url_prefix='/settings')
@@ -64,6 +68,7 @@ app.register_blueprint(fmotd_bp, url_prefix="/settings/fmotd")
 app.register_blueprint(bp_fleet_reform, url_prefix="/fleet/reform")
 app.register_blueprint(bp_comphistory_search, url_prefix="/history/comp_search")
 app.register_blueprint(bp_api_history, url_prefix="/api/history")
+app.register_blueprint(bp_inserts, url_prefix="/settings/inserts")
 
 logger = logging.getLogger(__name__)
 
@@ -77,13 +82,40 @@ def inject_data():
         display_version = debug_fileversion
     else:
         display_version = version
+    header_insert = sget_insert('header')
+    if (header_insert is not None):
+        header_insert = header_insert.replace("$type$", str(get_user_type()))
     return dict(is_igb=is_igb(), perm_admin=perm_admin,
                 perm_settings=perm_settings, perm_man=perm_management,
                 perm_officer=perm_officer, perm_accounts=perm_accounts,
                 perm_feedback=perm_feedback, is_account=is_account,
                 perm_dev=perm_dev, perm_leadership=perm_leadership, perm_bans=perm_bans,
                 perm_viewfits=perm_viewfits, version=display_version, perm_comphistory=perm_comphistory,
-                perm_res_mod=perm_mod_mail_resident, perm_t_mod=perm_mod_mail_tbadge, perm_manager=perm_manager)
+                perm_res_mod=perm_mod_mail_resident, perm_t_mod=perm_mod_mail_tbadge, perm_manager=perm_manager,
+                header_insert=header_insert
+                )
+
+def get_user_type():
+    #0=linemember,1=fc/t,2=lm/r,3=both
+    type = 0
+    if current_user.type == "account":
+        account = db.session.query(Account).filter(Account.id == current_user.id).first()
+        is_lm = False
+        is_fc = False
+        for role in current_user.roles:
+            if (role.name == WTMRoles.fc or role.name == WTMRoles.tbadge):
+                is_fc = True
+                if (is_lm):
+                    break
+            elif (role.name == WTMRoles.lm or role.name == WTMRoles.resident):
+                is_lm = True
+                if (is_fc):
+                    break
+        if is_fc:
+            type += 1
+        if is_lm:
+            type += 2
+    return type
 
 @app.before_request
 def check_ban():

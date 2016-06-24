@@ -58,7 +58,9 @@ $(document).ready(function () {
 </script>
 <title>{% block title %}{% endblock %}</title>
 {% endblock %}
-
+{% if header_insert is not none %}
+{{header_insert|safe}}
+{% endif %}
 </head>
 <body>
 	<nav class="navbar bg-faded">
