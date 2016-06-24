@@ -32,7 +32,10 @@ def removeFleet(fleetID):
 def fleet_actions_invite(name):
     character = get_character_by_name(name)
     fleet = current_user.fleet
+    logger.info("%s invites %s by name to fleet %d", current_user.username, name, fleet.fleetID)
     status = invite(character.id, [(fleet.dpsWingID, fleet.dpsSquadID), (fleet.otherWingID, fleet.otherSquadID), (fleet.sniperWingID, fleet.sniperSquadID), (fleet.logiWingID, fleet.logiSquadID)])
+    hEntry = create_history_object(character.get_eve_id(), HistoryEntry.EVENT_COMP_INV_BY_NAME, current_user.id)
+    db.session.add(hEntry)
     resp = flask.jsonify({'status': status['status_code'], 'message': status['text']})
     resp.status_code = status['status_code']
     return resp;

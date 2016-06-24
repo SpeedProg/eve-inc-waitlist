@@ -40,6 +40,8 @@ var HISTORY = (function(){
 			return "Player missed his invite";
 		case "self_rm_etr":
 			return "Player removed himself from X-UPs";
+		case "comp_inv_by_name":
+			return "Player was invited by Name(Reform Tool?)";
 		default:
 			return action;
 		}
