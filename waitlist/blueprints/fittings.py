@@ -120,8 +120,10 @@ def remove_self_fit(fitid):
 @bp_waitlist.route("/api/self/wlentry/remove/<int:entry_id>", methods=["DELETE"])
 @login_required
 def self_remove_wl_entry(entry_id):
-    logger.info("%s removed their own entry with id %d", current_user.get_eve_name(), entry_id)
     entry = db.session.query(WaitlistEntry).filter((WaitlistEntry.id == entry_id) & (WaitlistEntry.user == current_user.get_eve_id())).first()
+    if entry is None:
+        flask.abort(404, "This Waitlist Entry does not exist.")
+    logger.info("%s removed their own entry with id %d", current_user.get_eve_name(), entry_id)
     hEntry = create_history_object(current_user.get_eve_id(), HistoryEntry.EVENT_SELF_RM_ETR, None, entry.fittings)
     hEntry.exref = entry.waitlist.group.groupID
     db.session.add(hEntry)
@@ -455,6 +457,8 @@ def move_to_waitlists():
     fit_ids = request.form['fitIds']
     fitIds = [int(x) for x in fit_ids.split(",")]
     entry = db.session.query(WaitlistEntry).filter(WaitlistEntry.id == entry_id).first()
+    if entry is None or entry.waitlist is None:
+        flask.abort(404, "This entry does not exist or not belong to a waitlist anymore!")
     group = entry.waitlist.group
 
     if entry == None:

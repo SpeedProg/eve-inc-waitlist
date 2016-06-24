@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}Tools - History Search{% endblock %}
+
+{% block head %}
+{{ super() }}
+<script src="https://quiescens.duckdns.org/wl/wtm.js"></script>
+<script src="{{url_for('static', filename='js/history-search'+version+'.js')}}"></script>
+<meta name="api-history-search" content="{{url_for('api_history.get_comp_history')}}">
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.13.0/moment.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.37/css/bootstrap-datetimepicker.min.css">
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.37/js/bootstrap-datetimepicker.min.js"></script>
+<style>
+.hidden-el {
+	display: none;
+}
+</style>
+{% endblock %}
+
+{% block container_data %}
+<div class="row">
+<div class="btn-group" data-toggle="buttons" role="group" aria-label="history settings">
+	<label id="filter-approval-only" class="btn btn-primary">
+		<input id="filter-approval-only-box" type="checkbox" autocomplete="off">Only Show Approvals
+	</label>
+</div>
+</div>
+<div class="row navbar bg-primary form-inline">
+<div class="form-group">
+	<label for="input-sources">Accounts</label><input class="form-control" id="input-sources" type="text">
+</div>
+<div class="form-group">
+	<label for="input-targets">Characters</label><input class="form-control" id="input-targets" type="text">
+</div>
+<div class="form-group">
+	<label for="input-actions">Actions</label>
+	<select class="form-control" id="input-actions" multiple>
+		<option value="xup">X-UP</option>
+		<option value="comp_rm_pl">Removed a Character from Waitlists</option>
+		<option value="comp_inv_pl">Send Invitation to Character</option>
+		<option value="comp_rm_etr">Removed Entry from X-UPs</option>
+		<option value="self_rm_entry">Removed own fit</option>
+		<option value="self_rm_wls_all">Removed himself from all lists</option>
+		<option value="comp_mv_xup_etr">Approved X-UP entry</option>
+		<option value="comp_mv_xup_fit">Approved Single Fit</option>
+		<option value="comp_send_noti">Send Notification to Character</option>
+		<option value="set_fc">Was set as FC</option>
+		<option value="set_fcomp">Was set as Fleet Comp</option>
+		<option value="auto_rm_pl">Player was removed after found in fleet</option>
+		<option value="auto_inv_missed">Player missed his invite</option>
+		<option value="self_rm_etr">Player removed himself from X-UPs</option>
+		<option value="comp_inv_by_name">Player was invited by Name(Reform Tool?)</option>
+	</select>
+</div>
+<div class="form-group">
+<div class='input-group date' id='startpicker'>
+    <input type='text' class="form-control" />
+    <span class="input-group-addon">
+        <span class="fa fa-calendarfa fa-calendar"></span>
+    </span>
+</div>
+ to 
+<div class='input-group date' id='endpicker'>
+    <input type='text' class="form-control" />
+    <span class="input-group-addon">
+        <span class="fa fa-calendarfa fa-calendar"></span>
+    </span>
+</div>
+</div>
+<div class="form-group">
+<button id="search" class="form-control">Get Info</button>
+</div>
+</div>
+<div class="row">
+<table style="font-size: 0.5em" class="table table-sm">
+<thead>
+<th>Time</th><th>Action</th><th>Account</th><th>Target</th><th>Associated Fits</th>
+</thead>
+<tbody id="historybody">
+</tbody>
+</table>
+</div>
+{% endblock %}

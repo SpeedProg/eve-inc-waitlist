@@ -40,13 +40,15 @@ var HISTORY = (function(){
 			return "Player missed his invite";
 		case "self_rm_etr":
 			return "Player removed himself from X-UPs";
+		case "comp_inv_by_name":
+			return "Player was invited by Name(Reform Tool?)";
 		default:
 			return action;
 		}
 	};
 	lib.createHistoryEntryDOM = function(entry) {
 		var historyEntrySkeleton = $.parseHTML(
-			"<tr class=\"bg-danger h-entry\">\
+			"<tr class=\"bg-danger h-entry\" data-action=\""+entry.action+"\">\
 				<td>"+entry.time+"</td>\
 				<td>"+lib.resolveAction(entry.action)+"</td>\
 				<td></td>\
@@ -81,23 +83,49 @@ var HISTORY = (function(){
 			var hbody = $('#historybody');
 			for (var i=0; i < data.history.length; i++) {
 				var hEntryDOM = lib.createHistoryEntryDOM(data.history[i]);
+				hbody.trigger("hentry-adding", hEntryDOM);
 				hbody.prepend(hEntryDOM);
+				hbody.trigger("hentry-added", hEntryDOM);
 			}
 			if (data.history.length > 0) {
 				lib.laststamp = (new Date(Date.parse( data.history[data.history.length-1].time))).getTime();
 			}
 		});
 	};
+	
+	lib.filter_enabled = function() {
+		return $('#filter-approval-only-box')[0].checked;
+	};
+	
+	lib.filter_handler = function(event) {
+		if (!lib.filter_enabled()) {
+			$('tr.h-entry:not([data-action="comp_mv_xup_etr"])').addClass('hidden-el');
+		} else {
+			$('tr.h-entry:not([data-action="comp_mv_xup_etr"])').removeClass('hidden-el');
+		}
+	};
+	
+	lib.entry_added_handler = function(event, entry) {
+		entry = $(entry);
+		if (lib.filter_enabled()) {
+			if (entry.attr('data-action') != "comp_mv_xup_etr") {
+				entry.addClass("hidden-el");
+			}
+		}
+	};
+	
 	lib.init = function() {
 		$(document).ready(function(){
 			$( document ).on( "mouseenter", ".h-entry", function(e) {
 				var el = $(this);
 				if (el.hasClass("bg-danger")){
-					el.removeClass("h-entry").removeClass("bg-danger");
+					el.removeClass("bg-danger");
 				}
 			});
 			lib.refresh()
 			setInterval(lib.refresh, 10000);
+			$('#filter-approval-only').on('click', lib.filter_handler);
+			$('#historybody').on("hentry-adding", lib.entry_added_handler);
 		});
 	};
 	return lib;

@@ -15,11 +15,68 @@ import re
 import flask
 from waitlist.utility.fleet import get_wings
 from waitlist.utility.crest import create_token_cb
-from waitlist.blueprints.fc_sso import get_sso_redirect
+from waitlist.blueprints.fc_sso import get_sso_redirect, add_sso_handler
 from pycrest.errors import APIException
+from datetime import datetime
+from datetime import timedelta
+import requests
+import base64
 
 bp = Blueprint('fleet', __name__)
 logger = logging.getLogger(__name__)
+
+
+'''
+SSO cb handler
+'''
+@login_required
+def handle_token_update(code):
+    header = {'Authorization': 'Basic '+base64.b64encode(crest_client_id+":"+crest_client_secret),
+              'Content-Type': 'application/x-www-form-urlencoded',
+              'Host': 'login.eveonline.com'}
+    params = {'grant_type': 'authorization_code',
+              'code': code}
+    r = requests.post("https://login.eveonline.com/oauth/token", headers=header, params=params)
+    tokens = r.json()
+    re_token = tokens['refresh_token']
+    acc_token = tokens['access_token']
+    exp_in = int(tokens['expires_in'])
+    
+    # lets check it matches the current character
+    fleet_url = "https://crest-tq.eveonline.com/fleets/0/"
+    data = {
+        'access_token': acc_token,
+        'refresh_token':re_token,
+        'expires_in': (datetime.utcnow() + timedelta(seconds=exp_in))
+        }
+    connection = AuthedConnectionB(data, fleet_url, "https://login.eveonline.com/oauth", crest_client_id, crest_client_secret, create_token_cb(current_user.id))
+    charName = connection.whoami()['CharacterName']
+    if charName != current_user.get_eve_name():
+        flask.abort(409, 'You did not grant authorization for the right character "'+current_user.get_eve_name()+'". Instead you granted it for "'+charName+'"')
+
+    current_user.refresh_token = re_token
+    current_user.access_token = acc_token
+    current_user.access_token_expires = datetime.utcnow() + timedelta(seconds=exp_in)
+    db.session.commit()
+
+@login_required
+@perm_management.require(http_exception=401)
+def handle_setup_start_sso_cb(tokens):
+    handle_token_update(tokens)
+    return redirect(url_for("fleet.setup_start"))
+
+@login_required
+@perm_management.require(http_exception=401)
+def handle_takeover_sso_cb(tokens):
+    handle_token_update(tokens)
+    return redirect(url_for('fleet.takeover_sso_cb'))
+
+
+'''
+register sso handler
+'''
+add_sso_handler('setup', handle_setup_start_sso_cb)
+add_sso_handler("takeover", handle_takeover_sso_cb)
 
 '''
 Setps:
@@ -212,10 +269,10 @@ def take_link():
 
     if fleet is None:
         session['fleet_id'] = fleet_id
-        return get_sso_redirect("setup")
+        return get_sso_redirect("setup", 'fleetRead fleetWrite')
     elif current_user.refresh_token is None:
         session['fleet_id'] = fleet_id
-        return get_sso_redirect("takeover")
+        return get_sso_redirect("takeover", 'fleetRead fleetWrite')
     else:
         if fleet.compID != current_user.id:
             oldfleet = db.session.query(CrestFleet).filter((CrestFleet.compID == current_user.id)).first()

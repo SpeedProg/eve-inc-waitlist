@@ -47,27 +47,27 @@
 			<input type="hidden" name="action" value="add">
 			<div class="form-group">
 				<label for="displayName">Display Name</label>
-				<input type="text" class="form-control" id="displayName" name="displayName">
+				<input type="text" class="form-control" id="displayName" name="displayName" value="{{active.displayName}}">
 			</div>
 			<div class="form-group">
 				<label for="internalHost">Internal Host</label>
-				<input type="text" class="form-control" id="internalHost" name="internalHost">
+				<input type="text" class="form-control" id="internalHost" name="internalHost" value="{{active.host}}">
 			</div>
 			<div class="form-group">
 				<label for="internalPort">Internal Port</label>
-				<input type="number" class="form-control" id="internalPort" name="internalPort">
+				<input type="number" class="form-control" id="internalPort" name="internalPort" value="{{active.port}}">
 			</div>
 			<div class="form-group">
 				<label for="displayHost">Display Host</label>
-				<input type="text" class="form-control" id="displayHost" name="displayHost">
+				<input type="text" class="form-control" id="displayHost" name="displayHost" value="{{active.displayHost}}">
 			</div>
 			<div class="form-group">
 				<label for="displayPort">Display Port</label>
-				<input type="number" class="form-control" id="displayPort" name="displayPort">
+				<input type="number" class="form-control" id="displayPort" name="displayPort" value="{{active.displayPort}}">
 			</div>
 			<div class="form-group">
 				<label for="queryName">Query Name</label>
-				<input type="text" class="form-control" id="queryName" name="queryName">
+				<input type="text" class="form-control" id="queryName" name="queryName" value="{{active.queryName}}">
 			</div>
 			<div class="form-group">
 				<label for="queryPassword">Query Password</label>
@@ -75,15 +75,15 @@
 			</div>
 			<div class="form-group">
 				<label for="serverID">Server ID</label>
-				<input type="number" class="form-control" id="serverID" name="serverID">
+				<input type="number" class="form-control" id="serverID" name="serverID" value="{{active.serverID}}">
 			</div>
 			<div class="form-group">
 				<label for="channelID">Channel ID</label>
-				<input type="number" class="form-control" id="channelID" name="channelID">
+				<input type="number" class="form-control" id="channelID" name="channelID" value="{{active.channelID}}">
 			</div>
 			<div class="form-group">
 				<label for="clientName">Client Name</label>
-				<input type="text" class="form-control" id="clientName" name="clientName">
+				<input type="text" class="form-control" id="clientName" name="clientName" value="{{active.clientName}}">
 			</div>
 			<button class="btn btn-primary" type="submit">Add TS</button>
 		</form>

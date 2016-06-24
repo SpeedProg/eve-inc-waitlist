@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Fleet - Reform{% endblock %}
+{% block head %}
+{{super()}}
+<meta name="api-invite-by-name" content="{{url_for('api_fleet.fleet_actions_invite', name='-1')}}">
+<script type="text/javascript" src="{{url_for('static', filename='js/reform'+version+'.js')}}"></script>
+{% endblock %}
+{% block container_data %}
+<div class="row">
+<fieldset class="form-group">
+<p>You can just copy and paste the ingame fleet channel member list into the field below.
+Then press Send Invites to start sending out the invites.
+People that are still in the old fleet will not get an invite of cause.</p>
+<p>This will not trigger, notifications or pokes.</p>
+<label for="char-list">Character List</label>
+<textarea class="form-control" id="char-list" name="chars" rows="10" cols="50" placeholder="Post character list here" required></textarea>
+</fieldset>
+<button class="btn form-control btn-primary" id="btn-send-invites" type="submit">Start Invites</button>
+</div>
+<div class="row" id="progressbar-row">
+<progress id="progressbar" class="progress progress-animated" value="0" max="1"></progress>
+</div>
+{% endblock %}

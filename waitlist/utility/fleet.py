@@ -285,6 +285,7 @@ def invite(user_id, squadIDList):
             except ValueError:
                 logger.error("CREST failed with %s : %s", str(ex.resp.status_code), ex.resp.text)
             return {'status_code': ex.resp.status_code, 'text': ex.resp.json()['error_description']}
+    logger.info("Failed to invite %d to a squad, because all squads are full!", user_id)
     return {'status_code': 403, 'text': 'Failed to invite person a a squad, all squads are full!'}
 
 def spawn_invite_check(characterID, groupID, fleetID):

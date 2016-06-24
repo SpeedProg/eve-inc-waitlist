@@ -4,15 +4,16 @@ from flask_login import login_required, current_user
 import flask
 from flask.globals import request
 from waitlist.data.perm import perm_management
-from waitlist.storage.database import CrestFleet, Waitlist, WaitlistGroup,\
+from waitlist.storage.database import CrestFleet, Waitlist,\
     Character, WaitlistEntry, HistoryEntry, HistoryExtInvite
 from waitlist.utility.notifications import send_notification
 from waitlist.utility.history_utils import create_history_object
-from waitlist.utility.fleet import spawn_invite_check, invite, member_info
+from waitlist.utility.fleet import spawn_invite_check, invite
 from flask.json import jsonify
 from waitlist.base import db
 from datetime import datetime
 from flask.wrappers import Response
+from waitlist.utility.eve_id_utils import get_character_by_name
 bp = Blueprint('api_fleet', __name__)
 logger = logging.getLogger(__name__)
 
@@ -25,6 +26,21 @@ def removeFleet(fleetID):
     db.session.commit()
     return flask.jsonify(status_code=200, message="Fleet Deleted")
 
+@bp.route("/fleet/actions/invite/<string:name>", methods=['POST'])
+@login_required
+@perm_management.require()
+def fleet_actions_invite(name):
+    character = get_character_by_name(name)
+    fleet = current_user.fleet
+    logger.info("%s invites %s by name to fleet %d", current_user.username, name, fleet.fleetID)
+    status = invite(character.id, [(fleet.dpsWingID, fleet.dpsSquadID), (fleet.otherWingID, fleet.otherSquadID), (fleet.sniperWingID, fleet.sniperSquadID), (fleet.logiWingID, fleet.logiSquadID)])
+    hEntry = create_history_object(character.get_eve_id(), HistoryEntry.EVENT_COMP_INV_BY_NAME, current_user.id)
+    db.session.add(hEntry)
+    resp = flask.jsonify({'status': status['status_code'], 'message': status['text']})
+    resp.status_code = status['status_code']
+    return resp;
+
+
 @bp.route("/fleet/members/", methods=['POST'])
 @login_required
 @perm_management.require(http_exception=401)
@@ -32,17 +48,16 @@ def invite_to_fleet():
     characterID = int(request.form.get('charID'))
     waitlistID = int(request.form.get('waitlistID'))
     groupID = int(request.form.get('groupID'))
-    
-    send_notification(characterID, waitlistID)
 
+    character = db.session.query(Character).get(characterID)
     waitlist = db.session.query(Waitlist).filter(Waitlist.id == waitlistID).first();
-    squad_type = waitlist.name
+
         # lets check that the given wl exists
     if waitlist is None:
         logger.error("Given waitlist ID=%d is not valid.", waitlistID)
         flask.abort(400)
 
-    character = db.session.query(Character).get(characterID)
+    squad_type = waitlist.name
     logger.info("Invited %s by %s into %s", character.eve_name, current_user.username, squad_type)
     if current_user.fleet is None:
         logger.info("%s is currently not not boss of a fleet, he can't invite people.", current_user.username)
@@ -68,8 +83,12 @@ def invite_to_fleet():
     resp = flask.jsonify({'status': status['status_code'], 'message': status['text']})
     resp.status_code = status['status_code']
 
-    
-    character = db.session.query(Character).filter(Character.id == characterID).first()
+    if resp.status_code != 201: # invite failed send no notifications
+        logger.error("Invited %s by %s into %s failed", character.eve_name, current_user.username, squad_type)
+        return resp
+
+    send_notification(characterID, waitlistID)
+
     hEntry = create_history_object(character.get_eve_id(), HistoryEntry.EVENT_COMP_INV_PL, current_user.id)
     hEntry.exref = waitlist.group.groupID
     

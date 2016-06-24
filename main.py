@@ -2,10 +2,16 @@ from gevent import monkey; monkey.patch_all()
 # inject the lib folder before everything else
 import os
 import sys
+from waitlist.permissions import perm_manager
+from waitlist.utility.settings.settings import sget_insert
+from waitlist.blueprints.options.inserts import bp
+from waitlist.data.names import WTMRoles
 base_path = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(base_path, 'lib'))
+from pycrest.eve import EVE
 from waitlist.utility.settings import settings
-from waitlist.utility.config import debug_enabled, debug_fileversion
+from waitlist.utility.config import debug_enabled, debug_fileversion,\
+    crest_client_id, crest_client_secret, crest_return_url
 from waitlist.data.version import version
 from waitlist.utility.eve_id_utils import get_account_from_db, get_char_from_db,\
     is_char_banned, get_character_by_id_and_name, get_character_by_name
@@ -36,13 +42,18 @@ import flask
 from werkzeug.utils import redirect
 from flask.helpers import url_for
 from waitlist.utility.utils import is_igb
-from waitlist.blueprints.fc_sso import bp as fc_sso_bp
+from waitlist.blueprints.fc_sso import bp as fc_sso_bp, get_sso_redirect,\
+    add_sso_handler
 from waitlist.blueprints.fleet import bp as fleet_bp
 from waitlist.blueprints.api.fleet import bp as api_fleet_bp
 from waitlist.blueprints.api.fittings import bp as api_wl_bp
 from waitlist.blueprints.api.teamspeak import bp as api_ts3_bp
 from waitlist.blueprints.options.mail import bp as settings_mail_bp
 from waitlist.blueprints.options.fleet_motd import bp as fmotd_bp
+from waitlist.blueprints.reform import bp as bp_fleet_reform
+from waitlist.blueprints.history.comphistory import bp as bp_comphistory_search
+from waitlist.blueprints.api.history import bp as bp_api_history
+from waitlist.blueprints.options.inserts import bp as bp_inserts
 
 app.register_blueprint(bp_waitlist)
 app.register_blueprint(bp_settings, url_prefix='/settings')
@@ -54,6 +65,10 @@ app.register_blueprint(api_wl_bp, url_prefix="/api/fittings")
 app.register_blueprint(api_ts3_bp, url_prefix="/api/ts3")
 app.register_blueprint(settings_mail_bp, url_prefix="/settings/mail")
 app.register_blueprint(fmotd_bp, url_prefix="/settings/fmotd")
+app.register_blueprint(bp_fleet_reform, url_prefix="/fleet/reform")
+app.register_blueprint(bp_comphistory_search, url_prefix="/history/comp_search")
+app.register_blueprint(bp_api_history, url_prefix="/api/history")
+app.register_blueprint(bp_inserts, url_prefix="/settings/inserts")
 
 logger = logging.getLogger(__name__)
 
@@ -67,13 +82,41 @@ def inject_data():
         display_version = debug_fileversion
     else:
         display_version = version
+    header_insert = sget_insert('header')
+    if (header_insert is not None):
+        header_insert = header_insert.replace("$type$", str(get_user_type()))
     return dict(is_igb=is_igb(), perm_admin=perm_admin,
                 perm_settings=perm_settings, perm_man=perm_management,
                 perm_officer=perm_officer, perm_accounts=perm_accounts,
                 perm_feedback=perm_feedback, is_account=is_account,
                 perm_dev=perm_dev, perm_leadership=perm_leadership, perm_bans=perm_bans,
                 perm_viewfits=perm_viewfits, version=display_version, perm_comphistory=perm_comphistory,
-                perm_res_mod=perm_mod_mail_resident, perm_t_mod=perm_mod_mail_tbadge)
+                perm_res_mod=perm_mod_mail_resident, perm_t_mod=perm_mod_mail_tbadge, perm_manager=perm_manager,
+                header_insert=header_insert
+                )
+
+def get_user_type():
+    #0=linemember,1=fc/t,2=lm/r,3=both
+    val = -1
+    if current_user.is_authenticated:
+        val = 0
+        if current_user.type == "account":
+            is_lm = False
+            is_fc = False
+            for role in current_user.roles:
+                if (role.name == WTMRoles.fc or role.name == WTMRoles.tbadge):
+                    is_fc = True
+                    if (is_lm):
+                        break
+                elif (role.name == WTMRoles.lm or role.name == WTMRoles.resident):
+                    is_lm = True
+                    if (is_fc):
+                        break
+            if is_fc:
+                val += 1
+            if is_lm:
+                val += 2
+    return val
 
 @app.before_request
 def check_ban():
@@ -332,7 +375,27 @@ def unauthorized_ogb():
     Handle unauthorized users that visit with an out of game browser
     -> Redirect them to SSO
     """
-    return "Login Without Token not yet available"
+    return get_sso_redirect('linelogin', '')
+
+def member_login_cb(code):
+    eve = EVE(client_id=crest_client_id, api_key=crest_client_secret, redirect_uri=crest_return_url)
+    con = eve.authorize(code)
+    authInfo = con.whoami()
+    charID = authInfo['CharacterID']
+    charName = authInfo['CharacterName']
+    if charID is None or charName is None:
+        flask.abort(400, "Getting Character from AuthInformation Failed!")
+    
+    char = get_character_by_id_and_name(charID, charName)
+    is_banned, reason = is_char_banned(char)
+    if is_banned:
+        return flask.abort(401, 'You are banned, because your '+reason+" is banned!")
+
+    login_user(char, remember=True)
+    logger.debug("Member Login by %s successful", char.get_eve_name())
+    return redirect(url_for("index"))
+
+add_sso_handler('linelogin', member_login_cb)
 
 @app.route("/update_token")
 @login_required
@@ -356,6 +419,7 @@ if __name__ == '__main__':
     info_fh = TimedRotatingFileHandler(filename=config.info_log, when="midnight", interval=1, utc=True)
     access_fh = TimedRotatingFileHandler(filename=config.access_log, when="midnight", interval=1, utc=True)
     debug_fh = TimedRotatingFileHandler(filename=config.debug_log, when="midnight", interval=1, utc=True)
+
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(pathname)s - %(funcName)s - %(lineno)d - %(message)s')
     err_fh.setFormatter(formatter)
     info_fh.setFormatter(formatter)

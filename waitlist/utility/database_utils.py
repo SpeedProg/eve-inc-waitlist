@@ -31,7 +31,7 @@ def parseEft(lines):
             
             # check if it contains a xNUMBER and is by that drone or cargo
             is_cargo = re.match(".*x\d+$", line) is not None
-            logger.debug("% is_cargo = %b", line, is_cargo)
+            logger.debug("%s is_cargo = %s", line, is_cargo)
 
             # TODO do we want to enable parsing of EFT/Pyfa fits ?
             # if so we need to filter lines that separate charges by ", "

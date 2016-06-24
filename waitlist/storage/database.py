@@ -481,6 +481,7 @@ class HistoryEntry(Base):
     EVENT_SET_FLEETCOMP = "set_fcomp"
     EVENT_AUTO_RM_PL = "auto_rm_pl"
     EVENT_AUTO_CHECK_FAILED = "auto_inv_missed"
+    EVENT_COMP_INV_BY_NAME = "comp_inv_by_name"
 
 
 class HistoryExtInvite(Base):

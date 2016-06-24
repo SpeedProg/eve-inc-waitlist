@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 @perm_management.require(http_exception=401)
 def send_notification(playerID):
     waitlistID = int(request.form['waitlistID'])
-    send_notifiaction_to_player(playerID, waitlistID)
+    send_notifiaction_to_player(playerID, waitlistID, "The FC is looking for you")
     return jsonify(message="Notification send", status_code=200)
 
 @bp.route("/waitlists/", methods=["GET"])

@@ -6,9 +6,21 @@
 <script src="https://quiescens.duckdns.org/wl/wtm.js"></script>
 <script src="{{url_for('static', filename='js/history'+version+'.js')}}"></script>
 <meta name="api-history-changed" content="{{url_for('api_fittings.history_since')}}">
+<style>
+.hidden-el {
+	display: none;
+}
+</style>
 {% endblock %}
 
 {% block container_data %}
+<div class="row">
+<div class="btn-group" data-toggle="buttons" role="group" aria-label="history settings">
+	<label id="filter-approval-only" class="btn btn-primary">
+		<input id="filter-approval-only-box" type="checkbox" autocomplete="off">Only Show Approvals
+	</label>
+</div>
+</div>
 <div class="row">
 <table style="font-size: 0.5em" class="table table-sm">
 <thead>
