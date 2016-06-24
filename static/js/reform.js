@@ -16,6 +16,20 @@ var REFORM = (function(){
 	lib.api_invite_by_name = lib.getMetaData('api-invite-by-name');
 	lib.csrf = lib.getMetaData('csrf-token');
 	
+	lib.displayMessage = function(message, type) {
+		var alertHTML = $($.parseHTML('<div class="alert alert-dismissible" role="alert">'+
+				'<button type="button" class="close" data-dismiss="alert" aria-label="Close">'+
+				'<span aria-hidden="true">&times;</span>'+
+				'</button>'+
+				'<p class="text-xs-center"></p>'+
+				'</div>'));
+		var textContainer = $('.text-xs-center', alertHTML);
+		textContainer.html(message);
+		alertHTML.addClass('alert-'+type);
+		var alertArea = $('#alert-area-base');
+		alertArea.append(alertHTML)
+	};
+	
 	lib.invite = function(playerName) {
 		console.log("Sending Invite for "+playerName);
 		$.post({
@@ -31,7 +45,7 @@ var REFORM = (function(){
 				if (typeof data.responseJSON != 'undefined' && typeof data.responseJSON.message != 'undefined') {
 					message += ": " + data.responseJSON.message
 				}
-				displayMessage(message, "danger");
+				lib.displayMessage(message, "danger");
 				lib.increaseCounter(1);
 			},
 			'success': function(data){
