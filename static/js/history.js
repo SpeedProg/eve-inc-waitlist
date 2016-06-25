@@ -1,7 +1,10 @@
 var HISTORY = (function(){
 
 	// 4h in the past
-	var lib = {'laststamp':((new Date(Date.now())).getTime()-14400000)};
+	var lib = {
+				'laststamp':((new Date(Date.now())).getTime()-14400000),
+				'exclude_selector':'tr.h-entry:not([data-action="comp_mv_xup_etr"]):not([data-action="comp_mv_xup_fit"])'
+	};
 	/**
 	 * Get meta elements content from the website
 	 */
@@ -99,16 +102,17 @@ var HISTORY = (function(){
 	
 	lib.filter_handler = function(event) {
 		if (!lib.filter_enabled()) {
-			$('tr.h-entry:not([data-action="comp_mv_xup_etr"])').addClass('hidden-el');
+			$(lib.exclude_selector).addClass('hidden-el');
 		} else {
-			$('tr.h-entry:not([data-action="comp_mv_xup_etr"])').removeClass('hidden-el');
+			$(lib.exclude_selector).removeClass('hidden-el');
 		}
 	};
 	
 	lib.entry_added_handler = function(event, entry) {
 		entry = $(entry);
 		if (lib.filter_enabled()) {
-			if (entry.attr('data-action') != "comp_mv_xup_etr") {
+			var action = entry.attr('data-action')
+			if (action != "comp_mv_xup_etr" and action != "comp_mv_xup_fit") {
 				entry.addClass("hidden-el");
 			}
 		}
