@@ -112,7 +112,7 @@ var HISTORY = (function(){
 		entry = $(entry);
 		if (lib.filter_enabled()) {
 			var action = entry.attr('data-action')
-			if (action != "comp_mv_xup_etr" and action != "comp_mv_xup_fit") {
+			if (action != "comp_mv_xup_etr" && action != "comp_mv_xup_fit") {
 				entry.addClass("hidden-el");
 			}
 		}
