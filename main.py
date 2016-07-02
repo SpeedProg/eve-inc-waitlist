@@ -54,6 +54,8 @@ from waitlist.blueprints.reform import bp as bp_fleet_reform
 from waitlist.blueprints.history.comphistory import bp as bp_comphistory_search
 from waitlist.blueprints.api.history import bp as bp_api_history
 from waitlist.blueprints.options.inserts import bp as bp_inserts
+from waitlist.blueprints.cc_vote import bp as bp_ccvote
+from waitlist.blueprints.options.ccvote_results import bp as bp_ccvote_settings
 
 app.register_blueprint(bp_waitlist)
 app.register_blueprint(bp_settings, url_prefix='/settings')
@@ -69,6 +71,8 @@ app.register_blueprint(bp_fleet_reform, url_prefix="/fleet/reform")
 app.register_blueprint(bp_comphistory_search, url_prefix="/history/comp_search")
 app.register_blueprint(bp_api_history, url_prefix="/api/history")
 app.register_blueprint(bp_inserts, url_prefix="/settings/inserts")
+app.register_blueprint(bp_ccvote, url_prefix="/ccvote")
+app.register_blueprint(bp_ccvote_settings, url_prefix="/settings/ccvote")
 
 logger = logging.getLogger(__name__)
 

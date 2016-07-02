@@ -530,4 +530,11 @@ class Setting(Base):
     __tablename__ = "settings"
     key = Column(String(20), primary_key=True)
     value = Column(TEXT)
-    
+
+class CCVote(Base):
+    __tablename__ = "ccvote"
+    ccvoteID = Column(Integer, primary_key=True)
+    voterID = Column(Integer, ForeignKey("characters.id"))
+    lmvoteID = Column(Integer, ForeignKey("accounts.id"))
+    fcvoteID = Column(Integer, ForeignKey("accounts.id"))
+    time = Column(DateTime, default=datetime.utcnow)
