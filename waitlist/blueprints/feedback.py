@@ -4,10 +4,11 @@ from flask_login import login_required, current_user
 from flask.templating import render_template
 from flask.globals import request
 from flask.helpers import flash
-from waitlist.storage.database import Feedback
+from waitlist.storage.database import Feedback, Ticket
 from waitlist.base import db
 import flask
 from waitlist.data.perm import perm_feedback
+from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
@@ -40,22 +41,30 @@ def submit():
         flask.abort(400)
     
     char_id = current_user.get_eve_id()
+    if comment != "":
+        ticket = Ticket(
+                        characterID=char_id,
+                        text=comment,
+                        state="new"
+                        )
+        db.session.add(ticket)
+    
     feedback = db.session.query(Feedback).filter(Feedback.user == char_id).first()
     if feedback == None:
         feedback = Feedback()
         feedback.user = char_id
         feedback.likes = does_like
-        feedback.comment = comment
+        feedback.comment = ""
         db.session.add(feedback) 
     else:
-        feedback.comment = comment
-        feedback.likes = does_like
+        if feedback.linkes != does_like:
+            feedback.likes = does_like
+            feedback.last_changed = datetime.utcnow()
     
     db.session.commit()
     
     flash(u"Thank You for your feedback!", "info")
-    
-    char_id = current_user.get_eve_id()
+
     feedback = db.session.query(Feedback).filter(Feedback.user == char_id).first()
     return render_template("feedback/index.html", feedback=feedback)
     
