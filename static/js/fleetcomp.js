@@ -151,7 +151,7 @@ function createHeaderDOM(wlname, wlid, entry, groupId) {
 			oldInvites = " <div class='missed-invites' style='display: inline;'></div>";
 		}
 	}
-	var charRow = $('<a href="javascript:IGBW.showInfo(1377, '+entry.character.id+');">'+
+	var charRow = $('<a href="javascript:IGBW.showInfo(1377, '+entry.character.id+');" data-ext="char-header" data-clipboard-text="'+entry.character.name+'">'+
 						'<div class="wel-header-32">'+
 							'<div class="wel-img-32">'+
 									'<img src="https://imageserver.eveonline.com/Character/'+entry.character.id+'_32.jpg" alt="'+entry.character.name+'">'+
@@ -632,4 +632,5 @@ $(document).ready(function(){
 	});
 	refreshWl();
 	lastRefreshInterval = setInterval(refreshWl, 10000);
+	new Clipboard('[data-ext="char-header"]');
 });

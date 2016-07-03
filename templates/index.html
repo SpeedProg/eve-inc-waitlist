@@ -24,6 +24,7 @@
 <script type="text/javascript" src="{{url_for('static', filename='js/waitlist'+version+'.js')}}"></script>
 {% if perm_man.can() %}
 <script type="text/javascript" src="{{url_for('static', filename='js/fleetcomp'+version+'.js')}}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.5.12/clipboard.min.js"></script>
 {% endif %}
 {% if perm_viewfits.can() %}
 <script src="https://quiescens.duckdns.org/wl/wtm.js"></script>
