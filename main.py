@@ -2,12 +2,11 @@ from gevent import monkey; monkey.patch_all()
 # inject the lib folder before everything else
 import os
 import sys
-from waitlist.permissions import perm_manager
-from waitlist.utility.settings.settings import sget_insert
-from waitlist.blueprints.options.inserts import bp
-from waitlist.data.names import WTMRoles
 base_path = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(base_path, 'lib'))
+from waitlist.permissions import perm_manager
+from waitlist.utility.settings.settings import sget_insert
+from waitlist.data.names import WTMRoles
 from pycrest.eve import EVE
 from waitlist.utility.settings import settings
 from waitlist.utility.config import debug_enabled, debug_fileversion,\
@@ -89,6 +88,12 @@ def inject_data():
     header_insert = sget_insert('header')
     if (header_insert is not None):
         header_insert = header_insert.replace("$type$", str(get_user_type()))
+    
+    currentTime = datetime.utcnow()
+    endTime = datetime(2016, 8, 7, 11, 0, 0)
+    startTime = datetime(2016, 7, 4, 11, 0, 0)
+    cc_vote_on = (currentTime < startTime and currentTime > endTime)
+    
     return dict(is_igb=is_igb(), perm_admin=perm_admin,
                 perm_settings=perm_settings, perm_man=perm_management,
                 perm_officer=perm_officer, perm_accounts=perm_accounts,
@@ -96,7 +101,8 @@ def inject_data():
                 perm_dev=perm_dev, perm_leadership=perm_leadership, perm_bans=perm_bans,
                 perm_viewfits=perm_viewfits, version=display_version, perm_comphistory=perm_comphistory,
                 perm_res_mod=perm_mod_mail_resident, perm_t_mod=perm_mod_mail_tbadge, perm_manager=perm_manager,
-                header_insert=header_insert
+                header_insert=header_insert,
+                ccvote_on=cc_vote_on
                 )
 
 def get_user_type():

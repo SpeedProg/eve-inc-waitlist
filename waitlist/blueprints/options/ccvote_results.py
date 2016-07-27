@@ -6,7 +6,6 @@ from flask.templating import render_template
 from waitlist.storage.database import CCVote, Account
 from waitlist.base import db
 from sqlalchemy.sql.functions import func
-from sqlalchemy.sql.selectable import alias
 bp = Blueprint('settings_ccvote', __name__)
 logger = logging.getLogger(__name__)
 

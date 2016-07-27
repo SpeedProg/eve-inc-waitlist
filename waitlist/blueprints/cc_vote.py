@@ -14,9 +14,15 @@ from sqlalchemy.sql.expression import asc
 bp = Blueprint('cc_vote', __name__)
 logger = logging.getLogger(__name__)
 
+endTime = datetime(2016, 8, 7, 11, 0, 0)
+startTime = datetime(2016, 7, 4, 11, 0, 0)
+
 @bp.route("/", methods=["GET"])
 @login_required
 def index():
+    currentTime = datetime.utcnow()
+    if (currentTime < startTime and currentTime > endTime):
+        flask.abort(404, "Voting period is from %s to %s and is over or did not start yet" % (startTime, endTime))
     if (current_user.type != "character"):
         flask.abort(403, "For voting you need to be on a normal linemember login, please log out and use the linemember auth.")
     if (has_voted_today(current_user.get_eve_id())):
@@ -28,6 +34,9 @@ def index():
 @bp.route("/", methods=["POST"])
 @login_required
 def submit():
+    currentTime = datetime.utcnow()
+    if (currentTime < startTime and currentTime > endTime):
+        flask.abort(404, "Voting period is from %s to %s and is over or did not start yet" % (startTime, endTime))
     if (current_user.type != "character"):
         flask.abort(403, "For voting you need to be on a normal linemember login, please log out and use the linemember auth.")
     fc_vote = int(request.form.get('fc-vote'))
@@ -80,6 +89,6 @@ def get_serverday_start():
     today = utcCurrent.date()
     cTime = utcCurrent.time()
     # if we are over 11:00:00 we need the current day, else we need the previous day
-    if cTime > time(11, 00, 00):
+    if cTime < time(11, 00, 00):
         today = today - timedelta(1)
     return datetime.combine(today, time(11,00,00))
