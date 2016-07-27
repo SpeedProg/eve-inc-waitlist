@@ -42,7 +42,7 @@ def handle_dc(func, *args, **kwargs):
             try:
                 func(*args, **kwargs)
             except TS3QueryError as error:
-                logger.error("TS3 Query Error: %", str(error))
+                logger.error("TS3 Query Error: %s", str(error))
             except Exception as ex:
                     logger.error("To call ts %s", ex)
                     ncon = make_connection()
