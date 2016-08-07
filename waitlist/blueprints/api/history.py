@@ -58,11 +58,7 @@ def get_comp_history():
                 condition = ((condition) | (HistoryEntry.action == a))
         if condition is not None:
             query = query.filter(condition)
-    logger.info("START - History Query %s", datetime.utcnow())
     hEntries = query.all()
-    logger.info("END - History Query START OBJECT %s", datetime.utcnow())
     historyObj = makeHistoryJson(hEntries)
-    logger.info("END - OBJECT START JSON %s", datetime.utcnow())
     jsonResp = jsonify(historyObj)
-    logger.info("END - JSON %s", datetime.utcnow())
     return jsonResp
