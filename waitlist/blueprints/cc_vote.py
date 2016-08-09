@@ -21,7 +21,7 @@ startTime = datetime(2016, 7, 4, 11, 0, 0)
 @login_required
 def index():
     currentTime = datetime.utcnow()
-    if (currentTime < startTime and currentTime > endTime):
+    if (currentTime < startTime or currentTime > endTime):
         flask.abort(404, "Voting period is from %s to %s and is over or did not start yet" % (startTime, endTime))
     if (current_user.type != "character"):
         flask.abort(403, "For voting you need to be on a normal linemember login, please log out and use the linemember auth.")
@@ -35,7 +35,7 @@ def index():
 @login_required
 def submit():
     currentTime = datetime.utcnow()
-    if (currentTime < startTime and currentTime > endTime):
+    if (currentTime < startTime or currentTime > endTime):
         flask.abort(404, "Voting period is from %s to %s and is over or did not start yet" % (startTime, endTime))
     if (current_user.type != "character"):
         flask.abort(403, "For voting you need to be on a normal linemember login, please log out and use the linemember auth.")
