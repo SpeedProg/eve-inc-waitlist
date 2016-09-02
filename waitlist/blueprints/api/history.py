@@ -26,9 +26,9 @@ def get_comp_history():
         condition = None
         for a in a_names:
             if condition is None:
-                condition = (Account.username == a)
+                condition = (Account.username.contains(a))
             else:
-                condition = ((condition) | (Account.username == a))
+                condition = ((condition) | (Account.username.contains(a)))
         if condition is not None:
             query = query.join(HistoryEntry.source).filter(condition)
     
@@ -37,9 +37,9 @@ def get_comp_history():
         condition = None
         for a in a_names:
             if condition is None:
-                condition = (Character.eve_name == a)
+                condition = (Character.eve_namecontains(a))
             else:
-                condition = ((condition) | (Character.eve_name == a))
+                condition = ((condition) | (Character.eve_namecontains(a)))
         if condition is not None:
             query = query.join(HistoryEntry.target).filter(condition)
     
@@ -58,8 +58,7 @@ def get_comp_history():
                 condition = ((condition) | (HistoryEntry.action == a))
         if condition is not None:
             query = query.filter(condition)
-    
     hEntries = query.all()
-        
-    
-    return jsonify(makeHistoryJson(hEntries))
+    historyObj = makeHistoryJson(hEntries)
+    jsonResp = jsonify(historyObj)
+    return jsonResp
