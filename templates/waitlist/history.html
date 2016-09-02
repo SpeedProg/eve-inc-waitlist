@@ -3,14 +3,54 @@
 
 {% block head %}
 {{ super() }}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
 <script src="https://quiescens.duckdns.org/wl/wtm.js"></script>
 <script src="{{url_for('static', filename='js/history'+version+'.js')}}"></script>
 <meta name="api-history-changed" content="{{url_for('api_fittings.history_since')}}">
-<style>
+<style type="text/css" id="history-css">
 .hidden-el {
 	display: none;
 }
+.comp-font {
+	font-size: 1.0em;
+}
 </style>
+<script type="text/javascript">
+var sizeRule = null;
+
+var sheets = document.styleSheets;
+for (sheet of sheets) {
+	if (sheet.ownerNode.id == "history-css") {
+		for (rule of sheet.cssRules) {
+			for (prop of rule.style) {
+				if (prop == "font-size") {
+					sizeRule = rule;
+				}
+			}
+		}
+	}
+}
+
+function increaseSize(size) {
+	setFontSize(getFontSize() + size);
+}
+
+function getFontSize() {
+	var currentSizeStr = sizeRule.style["font-size"];
+	var currentSize = parseFloat(currentSizeStr.substr(0, currentSizeStr.length-2));
+	return currentSize;
+}
+
+function setFontSize(newSize) {
+	sizeRule.style["font-size"] = newSize+"em";
+	$.cookie('fontsize', newSize);
+}
+var savedSize = $.cookie('fontsize');
+if (typeof savedSize === 'undefined') {
+	savedSize = 0.5;
+}
+setFontSize(savedSize);
+</script>
 {% endblock %}
 
 {% block container_data %}
@@ -18,11 +58,11 @@
 <div class="btn-group" data-toggle="buttons" role="group" aria-label="history settings">
 	<label id="filter-approval-only" class="btn btn-primary">
 		<input id="filter-approval-only-box" type="checkbox" autocomplete="off">Only Show Approvals
-	</label>
+	</label><button class="btn btn-sm" style="font-size:1em;" onclick="increaseSize(0.25);">A</button><button class="btn btn-sm" style="font-size:0.5em;" onclick="increaseSize(-0.25);">A</button>
 </div>
 </div>
 <div class="row">
-<table style="font-size: 0.5em" class="table table-sm">
+<table class="table table-sm comp-font">
 <thead>
 <th>Time</th><th>Action</th><th>Account</th><th>Target</th><th>Associated Fits</th>
 </thead>

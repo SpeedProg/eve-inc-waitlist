@@ -269,10 +269,10 @@ def take_link():
 
     if fleet is None:
         session['fleet_id'] = fleet_id
-        return get_sso_redirect("setup", 'fleetRead fleetWrite')
+        return get_sso_redirect("setup", 'fleetRead fleetWrite remoteClientUI')
     elif current_user.refresh_token is None:
         session['fleet_id'] = fleet_id
-        return get_sso_redirect("takeover", 'fleetRead fleetWrite')
+        return get_sso_redirect("takeover", 'fleetRead fleetWrite remoteClientUI')
     else:
         if fleet.compID != current_user.id:
             oldfleet = db.session.query(CrestFleet).filter((CrestFleet.compID == current_user.id)).first()
