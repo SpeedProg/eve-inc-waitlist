@@ -54,6 +54,7 @@ from waitlist.blueprints.reform import bp as bp_fleet_reform
 from waitlist.blueprints.history.comphistory import bp as bp_comphistory_search
 from waitlist.blueprints.api.history import bp as bp_api_history
 from waitlist.blueprints.options.inserts import bp as bp_inserts
+from waitlist.blueprints.api.openwindow import bp as bp_openwindow
 
 app.register_blueprint(bp_waitlist)
 app.register_blueprint(bp_settings, url_prefix='/settings')
@@ -69,6 +70,7 @@ app.register_blueprint(bp_fleet_reform, url_prefix="/fleet/reform")
 app.register_blueprint(bp_comphistory_search, url_prefix="/history/comp_search")
 app.register_blueprint(bp_api_history, url_prefix="/api/history")
 app.register_blueprint(bp_inserts, url_prefix="/settings/inserts")
+app.register_blueprint(bp_openwindow, url_prefix="/api/ui/openwindow")
 
 logger = logging.getLogger(__name__)
 
