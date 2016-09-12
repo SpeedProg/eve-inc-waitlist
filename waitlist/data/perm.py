@@ -26,7 +26,7 @@ perm_bans = Permission(RoleNeed(WTMRoles.admin), RoleNeed(WTMRoles.leadership), 
 
 perm_viewfits = Permission(RoleNeed(WTMRoles.admin), RoleNeed(WTMRoles.leadership), RoleNeed(WTMRoles.officer),
                             RoleNeed(WTMRoles.fc), RoleNeed(WTMRoles.lm), RoleNeed(WTMRoles.tbadge), RoleNeed(WTMRoles.resident))
-perm_comphistory = Permission(RoleNeed(WTMRoles.admin), RoleNeed(WTMRoles.fc), RoleNeed(WTMRoles.lm))
+perm_comphistory = Permission(RoleNeed(WTMRoles.admin), RoleNeed(WTMRoles.fc), RoleNeed(WTMRoles.lm), RoleNeed(WTMRoles.tbadge))
 
 perm_access_mod_mail = Permission(RoleNeed(WTMRoles.admin), RoleNeed(WTMRoles.mod_mail_resident), RoleNeed(WTMRoles.mod_mail_tbadge))
 
