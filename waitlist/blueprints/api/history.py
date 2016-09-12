@@ -37,9 +37,9 @@ def get_comp_history():
         condition = None
         for a in a_names:
             if condition is None:
-                condition = (Character.eve_namecontains(a))
+                condition = (Character.eve_name.contains(a))
             else:
-                condition = ((condition) | (Character.eve_namecontains(a)))
+                condition = ((condition) | (Character.eve_name.contains(a)))
         if condition is not None:
             query = query.join(HistoryEntry.target).filter(condition)
     
