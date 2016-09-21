@@ -60,13 +60,16 @@ var HISTORY = (function(){
 			</tr>");
 		var nameTD = $(":nth-child(3)", historyEntrySkeleton);
 		var targetA = $(":nth-child(4) > a", historyEntrySkeleton);
+		var targetTD = $(":nth-child(4)", historyEntrySkeleton);
 		var fittingsTD = $(":nth-child(5)", historyEntrySkeleton);
 		
 		if (entry.source != null) {
 			nameTD.text(entry.source.username);
 		}
 		targetA.text(entry.target.name)
-		
+		if (entry.target.newbro) {
+			targetTD.prepend('<span class="label label-info">New</span>');
+		}
 		for (var i=0; i < entry.fittings.length; i++) {
 			fittingsTD.append(lib.createFittingDOM(entry.fittings[i]));
 		}
