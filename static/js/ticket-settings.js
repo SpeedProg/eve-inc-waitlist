@@ -27,4 +27,13 @@ function sendTicketMail(ticketId) {
 	var message = ticketElement.getMessage();
 	var charID = ticketElement.getCharacterId();
 	var charName = ticketElement.getCharacterName();
+	IGBW.sendMail(charID, "Answer to your Waitlist Feedback",
+			"Hello "+charName+",\n"
+			+ "We read your ticket:\n"
+			+ "<font size=\"10\" color=\"#ffffcc00\">"
+			+ $("<div>").text(title).html()+"\n\n"
+			+ $("<div>").text(message).html()
+			+ "</font>\n\n"
+			+ "regards,\n"
+			);
 }
