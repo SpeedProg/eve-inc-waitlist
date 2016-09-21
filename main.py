@@ -2,12 +2,13 @@ from gevent import monkey; monkey.patch_all()
 # inject the lib folder before everything else
 import os
 import sys
+base_path = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(os.path.join(base_path, 'lib'))
+import werkzeug.serving
 from waitlist.permissions import perm_manager
 from waitlist.utility.settings.settings import sget_insert
 from waitlist.blueprints.options.inserts import bp
 from waitlist.data.names import WTMRoles
-base_path = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(os.path.join(base_path, 'lib'))
 from pycrest.eve import EVE
 from waitlist.utility.settings import settings
 from waitlist.utility.config import debug_enabled, debug_fileversion,\
