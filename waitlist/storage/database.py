@@ -437,6 +437,20 @@ class Feedback(Base):
     likes = Column(Boolean)
     comment = Column(TEXT)
 
+class Ticket(Base):
+    """
+    Contains a single 'feedback' entry from a linemember, which can have states
+    """
+    __tablename__ = "tickets"
+    id = Column(Integer, primary_key=True)
+    title = Column(String(50))
+    time = Column(DateTime, default=datetime.utcnow, nullable=False, index=True)
+    characterID = Column(Integer, ForeignKey('characters.id'), index=True)
+    message = Column(TEXT)
+    state = Column(String(20), nullable=False, index=True, default="new")
+    
+    character = relationship("Character")
+
 class IncursionLayout(Base):
     __tablename__ = "incursion_layout"
     constellation = Column(Integer, ForeignKey("constellation.constellationID"), primary_key=True)

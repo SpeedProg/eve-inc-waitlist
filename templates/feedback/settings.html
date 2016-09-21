@@ -1,42 +1,32 @@
 {% extends "settings/base.html" %}
 
-{% block title %}Settings - Feedback{% endblock %}
+{% block title %}Settings - Tickets{% endblock %}
 
 {% block head %}
+<meta name="api-igui-openwindow-newmail" content="{{url_for('api_eve_openwindow.newmail')}}">
 {{ super() }}
+<script type="text/javascript" src="{{url_for('static', filename='js/ticket-settings'+version+'.js')}}"></script>
 {% endblock %}
 
 {% block content %}
 <table class="table">
 <thead>
 	<tr>
-		<td>Yes Votes</td>
-		<td>No Votes</td>
-	</tr>
-</thead>
-<tbody>
-	<tr>
-		<td>{{yeses}}</td>
-		<td>{{nos}}</td>
-	</tr>
-</tbody>
-</table>
-<table class="table">
-<thead>
-	<tr>
-		<th>#</th>
+		<th>Actions</th>
+		<th>Time</th>
 		<th>Character Name</th>
-		<th>Likes?</th>
-		<th>Comment</th>
+		<th>Title</th>
+		<th>Message</th>
 	</tr>
 </thead>
 <tbody>
-	{% for fb in feedbacks %}
-	<tr id="fb-{{fb.id}}">
-		<td id="fb-{{fb.id}}-id">{{ fb.id }}</td>
-		<td id="fb-{{fb.id}}-name">{{ fb.user_data.eve_name }}</td>
-		<td id="fb-{{fb.id}}-likes">{% if fb.likes %}Yes{% else %}No{% endif %}</td>
-		<td id="fb-{{fb.id}}-comment">{{fb.comment}}</td>
+	{% for fb in tickets %}
+	<tr id="fb-{{ fb.id }}" data-charID="{{fb.character.id}}">
+		<td id="fb-{{fb.id}}-actions"><button type="button" class="btn btn-sm btn-info" onclick="sendTicketMail({{fb.id}})">Open Answer Mail</button></td>
+		<td id="fb-{{fb.id}}-time">{{ fb.time }}</td>
+		<td id="fb-{{fb.id}}-name">{{ fb.character.eve_name }}</td>
+		<td id="fb-{{fb.id}}-title">{{ fb.title }}</td>
+		<td id="fb-{{fb.id}}-message">{{ fb.message }}</td>
 	</tr>
 	{% endfor %}
 </tbody>

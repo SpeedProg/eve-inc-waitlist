@@ -11,19 +11,12 @@
 <form action="{{url_for('feedback.submit')}}" method="post">
 <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 <fieldset class="form-group">
-<div class="btn-group" data-toggle="buttons">
-	<label class="radio">Do you prefer the Waitlist over x-ups in chat?</label>
-	<label class="btn btn-primary {% if feedback is not none and feedback.likes %} active{% endif %}">
-		<input type="radio" name="likes" id="like" autocomplete="off" value="likes"{% if feedback is not none and feedback.likes %} checked{% endif %}>Yes
-	</label>
-	<label class="btn btn-primary{% if feedback is not none and not feedback.likes %} active{% endif %}">
-		<input type="radio" name="likes" id="dislike" autocomplete="off" value="dislikes"{% if feedback is not none and not feedback.likes %} checked{% endif %}>No
-	</label>
-</div>
+	<label for="title">Feedback Title</label>
+	<input type="text" class="form-control" id="title" name="title" size="50" placeholder="Short feedback sumup (max 50chars)" required/>
 </fieldset>
 <fieldset class="form-group">
-	<label for="comment">Additional Feedback</label>
-	<textarea class="form-control" id="commnet" name="comment" rows="10" cols="50" placeholder="Write additional information for us here">{% if feedback is not none %}{{feedback.comment}}{% endif %}</textarea>
+	<label for="message">Additional Feedback</label>
+	<textarea class="form-control" id="message" name="message" rows="10" cols="50" placeholder="Write additional information for us here" required></textarea>
 </fieldset>
 <button type="submit" class="btn btn-primary">Send Feedback</button>
 </form>
