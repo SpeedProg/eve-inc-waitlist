@@ -2,12 +2,13 @@ from gevent import monkey; monkey.patch_all()
 # inject the lib folder before everything else
 import os
 import sys
+base_path = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(os.path.join(base_path, 'lib'))
+import werkzeug.serving
 from waitlist.permissions import perm_manager
 from waitlist.utility.settings.settings import sget_insert
 from waitlist.blueprints.options.inserts import bp
 from waitlist.data.names import WTMRoles
-base_path = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(os.path.join(base_path, 'lib'))
 from pycrest.eve import EVE
 from waitlist.utility.settings import settings
 from waitlist.utility.config import debug_enabled, debug_fileversion,\
@@ -73,7 +74,10 @@ app.register_blueprint(bp_inserts, url_prefix="/settings/inserts")
 app.register_blueprint(bp_openwindow, url_prefix="/api/ui/openwindow")
 
 logger = logging.getLogger(__name__)
-
+err_fh = None;
+info_fh = None;
+access_fh = None;
+debug_fh  = None;
 # set if it is the igb
 @app.context_processor
 def inject_data():
@@ -416,6 +420,15 @@ def jinja2_waittime_filter(value):
     waitedTime = currentUTC-value
     return str(int(math.floor(waitedTime.total_seconds()/60)))
 
+#@werkzeug.serving.run_with_reloader
+def runServer():
+    wsgi_logger = logging.getLogger("gevent.pywsgi.WSGIServer")
+    wsgi_logger.addHandler(err_fh)
+    wsgi_logger.addHandler(access_fh)
+    wsgi_logger.setLevel(logging.INFO)
+    server = WSGIServer((config.server_bind, config.server_port), app, log=wsgi_logger, error_log=wsgi_logger)
+    server.serve_forever()
+
 if __name__ == '__main__':
     err_fh = TimedRotatingFileHandler(filename=config.error_log, when="midnight", interval=1, utc=True)
     info_fh = TimedRotatingFileHandler(filename=config.info_log, when="midnight", interval=1, utc=True)
@@ -442,14 +455,7 @@ if __name__ == '__main__':
     app.logger.addHandler(info_fh)
     app.logger.addHandler(debug_fh)
     app.logger.setLevel(logging.INFO)
-    
-    wsgi_logger = logging.getLogger("gevent.pywsgi.WSGIServer")
-    wsgi_logger.addHandler(err_fh)
-    wsgi_logger.addHandler(access_fh)
-    wsgi_logger.setLevel(logging.INFO)
-    
-    
-    
+
     pycrest_logger = logging.getLogger("pycrest.eve")
     pycrest_logger.addHandler(debug_fh)
     pycrest_logger.addHandler(info_fh)
@@ -457,5 +463,4 @@ if __name__ == '__main__':
     pycrest_logger.setLevel(logging.DEBUG)
     
     #app.run(host="0.0.0.0", port=81, debug=True)
-    server = WSGIServer((config.server_bind, config.server_port), app, log=wsgi_logger, error_log=wsgi_logger)
-    server.serve_forever()
+    runServer()
