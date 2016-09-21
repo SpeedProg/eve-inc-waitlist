@@ -27,7 +27,7 @@ def index():
 @login_required
 def submit():
     title = request.form['title']
-    if title == None or title.length > 50:
+    if title == None or len(title) > 50:
         return flask.abort(400, "Title is to long (max 50)")
     message = request.form['message']
     if message == None:
@@ -53,6 +53,6 @@ def submit():
 @perm_feedback.require(http_exception=401)
 def settings():
     # only give tickets that are not "closed" and not older then 90 days
-    time90daysAgo = datetime() - timedelta(90)
+    time90daysAgo = datetime.utcnow() - timedelta(90)
     tickets = db.session.query(Ticket).filter(Ticket.time > time90daysAgo).order_by(desc(Ticket.time)).all()
     return render_template("feedback/settings.html", tickets=tickets)
