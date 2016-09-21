@@ -10,33 +10,21 @@
 <table class="table">
 <thead>
 	<tr>
-		<td>Yes Votes</td>
-		<td>No Votes</td>
-	</tr>
-</thead>
-<tbody>
-	<tr>
-		<td>{{yeses}}</td>
-		<td>{{nos}}</td>
-	</tr>
-</tbody>
-</table>
-<table class="table">
-<thead>
-	<tr>
 		<th>#</th>
+		<th>Time</th>
 		<th>Character Name</th>
-		<th>Likes?</th>
-		<th>Comment</th>
+		<th>Title</th>
+		<th>Message</th>
 	</tr>
 </thead>
 <tbody>
 	{% for fb in feedbacks %}
-	<tr id="fb-{{fb.id}}">
+	<tr id="fb-{{ fb.id }}">
 		<td id="fb-{{fb.id}}-id">{{ fb.id }}</td>
+		<td id="fb-{{fb.id}}-time">{{ fb.time }}</td>
 		<td id="fb-{{fb.id}}-name">{{ fb.user_data.eve_name }}</td>
-		<td id="fb-{{fb.id}}-likes">{% if fb.likes %}Yes{% else %}No{% endif %}</td>
-		<td id="fb-{{fb.id}}-comment">{{fb.comment}}</td>
+		<td id="fb-{{fb.id}}-title">{ fb.title }</td>
+		<td id="fb-{{fb.id}}-message">{{ fb.message }}</td>
 	</tr>
 	{% endfor %}
 </tbody>

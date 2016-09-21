@@ -443,11 +443,13 @@ class Ticket(Base):
     """
     __tablename__ = "tickets"
     id = Column(Integer, primary_key=True)
-    time = Column(DateTime, nullable=False, index=True)
+    title = Column(String(50))
+    time = Column(DateTime, default=datetime.utcnow, nullable=False, index=True)
     characterID = Column(Integer, ForeignKey('characters.id'), index=True)
+    message = Column(TEXT)
+    state = Column(String(20), nullable=False, index=True, default="new")
+    
     character = relationship("Character")
-    text = Column(TEXT)
-    state = Column(String(20), nullable=False, index=True)
 
 class IncursionLayout(Base):
     __tablename__ = "incursion_layout"

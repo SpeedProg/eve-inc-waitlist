@@ -3,12 +3,13 @@ import logging
 from flask_login import login_required, current_user
 from flask.templating import render_template
 from flask.globals import request
-from flask.helpers import flash
+from flask.helpers import flash, url_for
 from waitlist.storage.database import Feedback, Ticket
 from waitlist.base import db
 import flask
 from waitlist.data.perm import perm_feedback
-from datetime import datetime
+from datetime import datetime, timedelta
+from sqlalchemy.sql.expression import desc
 
 logger = logging.getLogger(__name__)
 
@@ -19,59 +20,39 @@ feedback = Blueprint('feedback', __name__)
 def index():
     # get old feedback and input data back
     char_id = current_user.get_eve_id()
-    feedback = db.session.query(Feedback).filter(Feedback.user == char_id).first()
-    return render_template("feedback/index.html", feedback=feedback)
+    tickets = db.session.query(Ticket).filter(Ticket.characterID == char_id).all()
+    return render_template("feedback/index.html", tickets=tickets)
 
 @feedback.route("/", methods=["POST"])
 @login_required
 def submit():
-    likes = request.form['likes']
-    if likes == None:
-        return flask.abort(400)    
-    comment = request.form['comment']
-    if comment == None:
+    title = request.form['title']
+    if title == None or title.length > 50:
+        return flask.abort(400, "Title is to long (max 50)")
+    message = request.form['message']
+    if message == None:
         return flask.abort(400)
     
-    does_like = False
-    if likes == "likes":
-        does_like = True
-    elif likes == "dislikes":
-        does_like = False
-    else:
-        flask.abort(400)
-    
     char_id = current_user.get_eve_id()
-    if comment != "":
+    if message != "":
         ticket = Ticket(
+                        title=title,
                         characterID=char_id,
-                        text=comment,
+                        message=message,
                         state="new"
                         )
         db.session.add(ticket)
-    
-    feedback = db.session.query(Feedback).filter(Feedback.user == char_id).first()
-    if feedback == None:
-        feedback = Feedback()
-        feedback.user = char_id
-        feedback.likes = does_like
-        feedback.comment = ""
-        db.session.add(feedback) 
-    else:
-        if feedback.linkes != does_like:
-            feedback.likes = does_like
-            feedback.last_changed = datetime.utcnow()
     
     db.session.commit()
     
     flash(u"Thank You for your feedback!", "info")
 
-    feedback = db.session.query(Feedback).filter(Feedback.user == char_id).first()
-    return render_template("feedback/index.html", feedback=feedback)
+    return flask.redirect(url_for('.index'))
     
 @feedback.route("/settings")
 @perm_feedback.require(http_exception=401)
 def settings():
-    feedbacks = db.session.query(Feedback).order_by(Feedback.last_changed).all()
-    yeses = db.session.query(Feedback).filter(Feedback.likes == True).count()
-    nos = db.session.query(Feedback).filter(Feedback.likes == False).count()
-    return render_template("feedback/settings.html", feedbacks=feedbacks, yeses=yeses, nos=nos)
+    # only give tickets that are not "closed" and not older then 90 days
+    time90daysAgo = datetime() - timedelta(90)
+    tickets = db.session.query(Ticket).filter(Ticket.time > time90daysAgo).order_by(desc(Ticket.time)).all()
+    return render_template("feedback/settings.html", tickets=tickets)
