@@ -1027,6 +1027,7 @@ def teamspeak_change():
         serverID = int(request.form['serverID'])
         channelID = int(request.form['channelID'])
         clientName = request.form['clientName']
+        safetyChannelID = request.form['safetyChannelID']
         ts = TeamspeakDatum(
                             displayName=displayName,
                             host=host,
@@ -1037,7 +1038,8 @@ def teamspeak_change():
                             queryPassword=queryPassword,
                             serverID=serverID,
                             channelID=channelID,
-                            clientName=clientName
+                            clientName=clientName,
+                            safetyChannelID=safetyChannelID
                             )
         db.session.add(ts)
         db.session.commit()
@@ -1056,7 +1058,6 @@ def teamspeak_change():
         if active_id is None or active_id != teamspeakID:
             change_connection()
     else:
-        print action
         flask.abort(400)
     
     return redirect(url_for("settings.teamspeak"))

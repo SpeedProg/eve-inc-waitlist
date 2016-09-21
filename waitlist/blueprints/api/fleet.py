@@ -5,15 +5,19 @@ import flask
 from flask.globals import request
 from waitlist.data.perm import perm_management
 from waitlist.storage.database import CrestFleet, Waitlist,\
-    Character, WaitlistEntry, HistoryEntry, HistoryExtInvite
+    Character, WaitlistEntry, HistoryEntry, HistoryExtInvite, Setting,\
+    TeamspeakDatum
 from waitlist.utility.notifications import send_notification
 from waitlist.utility.history_utils import create_history_object
-from waitlist.utility.fleet import spawn_invite_check, invite
+from waitlist.utility.fleet import spawn_invite_check, invite, member_info
 from flask.json import jsonify
 from waitlist.base import db
 from datetime import datetime
 from flask.wrappers import Response
 from waitlist.utility.eve_id_utils import get_character_by_name
+from flask.helpers import make_response
+from waitlist.ts3.connection import move_to_safety_channel
+from waitlist.utility.settings.settings import sget_active_ts_id
 bp = Blueprint('api_fleet', __name__)
 logger = logging.getLogger(__name__)
 
@@ -118,3 +122,45 @@ def invite_to_fleet():
     if resp.status_code == 201:
         spawn_invite_check(characterID, groupID, fleet.fleetID)
     return resp
+
+def dumpclean(obj):
+    if type(obj) == dict:
+        for k, v in obj.items():
+            if hasattr(v, '__iter__'):
+                print k
+                dumpclean(v)
+            else:
+                print '%s : %s' % (k, v)
+    elif type(obj) == list:
+        for v in obj:
+            if hasattr(v, '__iter__'):
+                dumpclean(v)
+            else:
+                print v
+    else:
+        print obj
+
+@bp.route("/fleet/movetosafety/", methods=['POST'])
+@login_required
+@perm_management.require(http_exception=401)
+def move_fleetmembers_to_safety():
+    fleetID = int(request.form.get('fleetID'))
+    crestFleet = db.session.query(CrestFleet).get(fleetID)
+    if not crestFleet.comp.get_eve_id() == current_user.get_eve_id():
+        flask.abort(403, "You are not the Fleet Comp of this fleet!")
+    
+    teamspeakID = sget_active_ts_id()
+    if teamspeakID is None:
+        flask.abort(500, "No TeamSpeak Server set!")
+    
+    teamspeak = db.session.query(TeamspeakDatum).get(teamspeakID)
+    if teamspeak.safetyChannelID is None:
+        flask.abort(500, "No TeamSpeak Safety Channel set!")
+    
+    # get the safety fleet channel id
+    member = member_info.get_fleet_members(fleetID, crestFleet.comp)
+    for charID in member:
+        charname = member[charID].character.name
+        move_to_safety_channel(charname, teamspeak.safetyChannelID)
+    return make_response("OK", 200)
+    

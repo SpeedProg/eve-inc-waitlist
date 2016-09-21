@@ -18,7 +18,14 @@ def make_connection():
         con.login(client_login_name=teamspeak.queryName, client_login_password=teamspeak.queryPassword)
         con.use(sid=teamspeak.serverID)
         con.clientupdate(CLIENT_NICKNAME=teamspeak.clientName)
-        con.clientmove(0, teamspeak.channelID)
+        try :
+            con.clientmove(0, teamspeak.channelID)
+        except TS3QueryError as ex:
+            if ex.resp.error['msg'] == "already member of channel" :
+                pass
+            else:
+                logger.error("Failed to connect to T3Query %s", ex.resp.error['msg'])
+                con = None
     except TS3QueryError as ex:
         logger.error("Failed to connect to T3Query %s", ex.resp.error['msg'])
         con = None
@@ -83,3 +90,28 @@ def send_poke(name, msg):
             if resp['client_nickname'] == "*"+name:
                 conn.clientpoke(msg, resp['clid'])
 
+@handle_dc
+def move_to_safety_channel(name, channelID):
+    try:
+        response = conn.clientfind(pattern=name)
+    except TS3QueryError as er:
+        logger.info("TS3 ClientFind failed on %s with %s", name, str(er))
+        response = []
+    client = None
+    for resp in response:
+        if resp['client_nickname'] == name:
+            client = resp
+    
+    if client is None:
+        try:
+            response = conn.clientfind(pattern="*"+name)
+        except TS3QueryError as er:
+            logger.info("TS3 ClientFind failed on %s with %s", "*"+name, str(er))
+            return
+        for resp in response:
+            if resp['client_nickname'] == "*"+name:
+                client = resp
+    if client is None: # we didn't find a user
+        return
+    conn.clientmove(resp['clid'], channelID)
+    return;

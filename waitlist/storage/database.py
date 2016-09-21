@@ -539,6 +539,7 @@ class TeamspeakDatum(Base):
     serverID = Column(Integer)
     channelID = Column(Integer)
     clientName = Column(String(20))
+    safetyChannelID = Column(Integer)
 
 class Setting(Base):
     __tablename__ = "settings"

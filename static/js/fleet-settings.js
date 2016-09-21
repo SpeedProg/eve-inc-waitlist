@@ -9,7 +9,8 @@ FSETTINGS = (function(){
 	
 	lib.api = {
 			urls: {
-				remove_fleet: lib.getMetaData('api-fleet-remove')
+				remove_fleet: lib.getMetaData('api-fleet-remove'),
+				move_to_safety: lib.getMetaData('api-movetosafety')
 			}
 	};
 	
@@ -37,6 +38,26 @@ FSETTINGS = (function(){
 	lib.init = function() {
 		lib.removeButton();
 	};
+	
+	lib.move_to_safety = function(fleetID) {
+		$.post({
+			'url': lib.api.urls.move_to_safety,
+			'data': {
+				'_csrf_token': this.getMetaData('csrf-token'),
+				'fleetID': fleetID
+			},
+			'error': function(data) {
+				var message = data.statusText
+				if (typeof data.message != 'undefined') {
+						message += ": " + data.message;
+				}
+				displayMessage(message, "danger");
+			},
+			'success': function(data){
+			}
+		});
+	}
+	
 	return lib;
 }());
 
