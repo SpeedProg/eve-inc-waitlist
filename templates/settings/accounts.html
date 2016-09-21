@@ -3,6 +3,7 @@
 {% block title %}Settings - Accounts{% endblock %}
 
 {% block head %}
+<meta name="api-igui-openwindow-newmail" content="{{url_for('api_eve_openwindow.newmail')}}">
 {{ super() }}
 <script type="text/javascript">
 function deleteAccount(accountId){
@@ -149,7 +150,7 @@ function sendAuthMail(charId, token, sig, username, type) {
 	}
 	mail = mail.replace("$recv$", username).replace("$link$", link).replace("$sig$", sig);
 	topic = topic.replace("$recv$", username).replace("$link$", link).replace("$sig$", sig);
-	CCPEVE.sendMail(charId, topic, mail);
+	IGBW.sendMail(charId, topic, mail);
 }
 
 $(document).ready(noclick);
@@ -190,7 +191,6 @@ $(document).ready(setUpEventhandlers);
 		<td>
 		<button type="button" class="btn btn-sm btn-warning" data-type="{%if acc.disabled%}acc-enable{%else%}acc-disable{%endif%}" data-id="{{acc.id}}">{%if acc.disabled%}Enable{%else%}Disable{%endif%}</button>
 		<button type="button" class="btn btn-sm btn-secondary" onclick="javascript:editAccount({{acc.id}});">Edit</button>
-		{% if is_igb %}
 		{% set is_rbadge = ['1'] %}
 		{% set is_tbadge = ['1'] %}
 		{% for role in acc.roles %}
@@ -203,7 +203,6 @@ $(document).ready(setUpEventhandlers);
 		{% set is_rbadge = (is_rbadge|length > 1) %}
 		{% set is_tbadge = (is_tbadge|length > 1) %}
 		<button type="button" class="btn btn-sm btn-info" onclick="sendAuthMail({{acc.current_char_obj.id}}, '{{acc.login_token|safe}}', '{{current_user.username}}', '{{acc.username}}', {% if is_tbadge %}'tbadge'{%elif is_rbadge%}'resident'{%else%}'other'{%endif%});">Auth Mail</button>
-		{% endif %}
 		</td>
 		<td id="acc-{{acc.id}}-name">{{ acc.username }}</td>
 		<td id="acc-{{acc.id}}-roles">{% for role in acc.roles %}{{role.name}}{% if not loop.last %}, {% endif %}{% endfor %}</td>
