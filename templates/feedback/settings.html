@@ -21,10 +21,14 @@
 		<th>Message</th>
 	</tr>
 </thead>
+
 <tbody>
 	{% for fb in tickets %}
 	<tr id="fb-{{ fb.id }}" data-charID="{{fb.character.id}}">
-		<td id="fb-{{fb.id}}-actions"><button type="button" class="btn btn-sm btn-info" onclick="sendTicketMail({{fb.id}})">Open Answer Mail</button></td>
+		<td id="fb-{{fb.id}}-actions">
+			<button type="button" class="btn btn-sm btn-info" onclick="sendTicketMail({{fb.id}})">Open Answer Mail</button>
+			<button type="button" class="btn btn-sm btn-info" onclick="changeTicketStatus({{fb.id}}, 'close')">Close Ticket</button>
+		</td>
 		<td id="fb-{{fb.id}}-time">{{ fb.time }}</td>
 		<td id="fb-{{fb.id}}-name">{{ fb.character.eve_name }}</td>
 		<td id="fb-{{fb.id}}-title">{{ fb.title }}</td>
