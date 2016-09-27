@@ -11,11 +11,17 @@
 	href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.2/css/bootstrap.min.css"
 	integrity="sha384-y3tfxAZXuh4HwSYylfB+J125MxIs6mR5FOHamPBG064zB+AFeWH94NdvaCBm8qnd"
 	crossorigin="anonymous">
-<link rel="stylesheet" href="{{url_for('static', filename='css/base'+version+'.css')}}">
+{% if nocss == True %}
+{% else %}
+{% assets filters="cssmin", output="gen/base.min.css", "css/base.css" %}
+<link rel="stylesheet" href="{{ ASSET_URL }}">
+{% endassets %}
+{% endif %}
 {% if is_igb %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/es5-shim/4.5.7/es5-shim.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/es5-shim/4.5.7/es5-sham.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/json3/3.3.2/json3.min.js"></script>
+<script type="text/javascript">CCPEVE.requestTrust(location.protocol+'//'+location.hostname+(location.port ? ':'+location.port: ''));</script>
 {% endif %}
 <script src="https://code.jquery.com/jquery-1.12.3.min.js"
 	integrity="sha256-aaODHAgvwQW1bFOGXMeX+pC4PZIPsvn2h1sArYOhgXQ="
@@ -23,39 +29,12 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.2.0/js/tether.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.2/js/bootstrap.min.js" integrity="sha384-vZ2WRJMwsjRMW/8U7i6PWi6AlO1L79snBrmgiDpgIWJ82z8eA5lenwvxbMV1PAh7" crossorigin="anonymous"></script>
 <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-XdYbMnZ/QjLh6iI4ogqCTaIjrFk87ip+ekIjefZch0Y+PvJ8CDYtEs1ipDmPorQ+" crossorigin="anonymous">
-<script type="text/javascript" src="{{url_for('static', filename='js/eve-igb-wrapper'+version+'.js')}}"></script>
-<script type="text/javascript">
-function testTSPoke() {
-	$.get("{{url_for('api_ts3.test_poke')}}")
-}
-</script>
-<script type="text/javascript">
-{% if is_igb %}
-CCPEVE.requestTrust(location.protocol+'//'+location.hostname+(location.port ? ':'+location.port: ''));
+{% if nojs == True %}
+{% else %}
+{% assets filters="jsmin", output="gen/base.min.js", "js/eve-igb-wrapper.js", "js/ts3.js", "js/dnasetup.js" %}
+<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
 {% endif %}
-/*
- * Set up click handlers on fittings
- */
- function setupDNA() {
-	$(document).on("click", ".fit-link", function(event){
-		{% if perm_man.can() and is_igb %}
-		if (event.target.parentNode.tagName == 'BUTTON' || event.target.parentNode.tagName == 'I') {
-			// don't open dna since we actually targeted for a button on the fit dom
-			return;
-		}
-		{% endif %}
-		var dna = this.getAttribute('data-dna');
-		IGBW.showFitting(dna);
-	 });
-	$(document).on("click", ".booby-link", function(event){
-		 window.open("https://en.wikipedia.org/wiki/Booby", "_blank");
-	 });
-}
-
-$(document).ready(function () {
-	setupDNA();
-});
-</script>
 <title>{% block title %}{% endblock %}</title>
 {% endblock %}
 {% if header_insert is not none %}
