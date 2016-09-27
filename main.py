@@ -56,6 +56,7 @@ from waitlist.blueprints.history.comphistory import bp as bp_comphistory_search
 from waitlist.blueprints.api.history import bp as bp_api_history
 from waitlist.blueprints.options.inserts import bp as bp_inserts
 from waitlist.blueprints.api.openwindow import bp as bp_openwindow
+from flask.json import JSONEncoder
 
 app.register_blueprint(bp_waitlist)
 app.register_blueprint(bp_settings, url_prefix='/settings')
@@ -74,6 +75,14 @@ app.register_blueprint(bp_inserts, url_prefix="/settings/inserts")
 app.register_blueprint(bp_openwindow, url_prefix="/api/ui/openwindow")
 
 logger = logging.getLogger(__name__)
+
+class MiniJSONEncoder(JSONEncoder):
+    """Minify JSON output."""
+    item_separator = ','
+    key_separator = ':'
+app.json_encoder = MiniJSONEncoder
+app.config['JSONIFY_PRETTYPRINT_REGULAR'] = False
+
 err_fh = None;
 info_fh = None;
 access_fh = None;
