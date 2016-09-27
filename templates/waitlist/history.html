@@ -5,7 +5,6 @@
 {{ super() }}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
 <script src="https://quiescens.duckdns.org/wl/wtm.js"></script>
-<script src="{{url_for('static', filename='js/history'+version+'.js')}}"></script>
 <meta name="api-history-changed" content="{{url_for('api_fittings.history_since')}}">
 <style type="text/css" id="history-css">
 .hidden-el {
@@ -15,42 +14,6 @@
 	font-size: 1.0em;
 }
 </style>
-<script type="text/javascript">
-var sizeRule = null;
-
-var sheets = document.styleSheets;
-for (sheet of sheets) {
-	if (sheet.ownerNode.id == "history-css") {
-		for (rule of sheet.cssRules) {
-			for (prop of rule.style) {
-				if (prop == "font-size") {
-					sizeRule = rule;
-				}
-			}
-		}
-	}
-}
-
-function increaseSize(size) {
-	setFontSize(getFontSize() + size);
-}
-
-function getFontSize() {
-	var currentSizeStr = sizeRule.style["font-size"];
-	var currentSize = parseFloat(currentSizeStr.substr(0, currentSizeStr.length-2));
-	return currentSize;
-}
-
-function setFontSize(newSize) {
-	sizeRule.style["font-size"] = newSize+"em";
-	$.cookie('fontsize', newSize);
-}
-var savedSize = $.cookie('fontsize');
-if (typeof savedSize === 'undefined') {
-	savedSize = 0.5;
-}
-setFontSize(savedSize);
-</script>
 {% endblock %}
 
 {% block container_data %}
@@ -70,4 +33,7 @@ setFontSize(savedSize);
 </tbody>
 </table>
 </div>
+{% assets filters="jsmin", output="gen/history-setup.min.js", "js/history.js", "js/history-font.js" %}
+<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
 {% endblock %}

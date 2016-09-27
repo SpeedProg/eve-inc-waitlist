@@ -73,6 +73,8 @@ app.register_blueprint(bp_api_history, url_prefix="/api/history")
 app.register_blueprint(bp_inserts, url_prefix="/settings/inserts")
 app.register_blueprint(bp_openwindow, url_prefix="/api/ui/openwindow")
 
+from flask_assets import Environment
+assets = Environment(app)
 logger = logging.getLogger(__name__)
 err_fh = None;
 info_fh = None;
@@ -166,7 +168,7 @@ def index():
         group = db.session.query(WaitlistGroup).filter(WaitlistGroup.enabled == True).order_by(WaitlistGroup.odering).first()
     
     if group == None:
-        return render_template("index.html", is_index=True)
+        return render_template("index.html", is_index=True, nocss=True, nojs=True)
     
     new_bro = True
     if current_user.type == "character":
@@ -199,8 +201,8 @@ def index():
     active_ts_setting = None
     if active_ts_setting_id is not None:
         active_ts_setting = db.session.query(TeamspeakDatum).get(active_ts_setting_id)
-    
-    return render_template("index.html", lists=wlists, user=current_user, is_index=True, is_on_wl=is_on_wl(), newbro=new_bro, group=group, groups=activegroups, ts=active_ts_setting)
+
+    return render_template("index.html", lists=wlists, user=current_user, is_index=True, is_on_wl=is_on_wl(), newbro=new_bro, group=group, groups=activegroups, ts=active_ts_setting, nocss=True, nojs=True)
 
 def is_on_wl():
     eveId = current_user.get_eve_id();

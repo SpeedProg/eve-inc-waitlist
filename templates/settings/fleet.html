@@ -6,10 +6,12 @@
 {{ super() }}
 <meta name="api-fleet-remove" content="{{url_for('api_fleet.removeFleet', fleetID=-1)}}"/>
 <meta name="api-movetosafety" content="{{url_for('api_fleet.move_fleetmembers_to_safety')}}">
-<script src="{{url_for('static', filename='js/typeahead.bundle.min'+version+'.js')}}" type="text/javascript"></script>
-<script src="{{url_for('static', filename='js/fleet-settings'+version+'.js')}}" type="text/javascript"></script>
-<link rel="stylesheet" href="{{url_for('static', filename='css/typeaheadjs'+version+'.css')}}">
-<link rel="stylesheet" href="{{url_for('static', filename='css/settings-fleet'+version+'.css')}}">
+{% assets filters="cssmin", output="gen/fleetsettings-typeahead.min.css", "css/typeaheadjs.css", "css/settings-fleet.css" %}
+    <link rel="stylesheet" href="{{ ASSET_URL }}">
+{% endassets %}
+{% assets filters="jsmin", output="gen/fleetsettings-typeahead.min.js", "js/typeahead.bundle.min.js", "js/fleet-settings.js" %}
+<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
 <script type="text/javascript">
 $(document).ready(function(){
 	var constellationSource = new Bloodhound({

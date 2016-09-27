@@ -21,12 +21,20 @@
 <meta name="wl-group-id" content="{{group.groupID}}">
 {% endif %}
 {% endif %}
+{% assets filters="cssmin", output="gen/full-wl.min.css", "css/base.css", "css/waitlist.css" %}
+<link rel="stylesheet" href="{{ ASSET_URL }}">
+{% endassets %}
 {{ super() }}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
-<script type="text/javascript" src="{{url_for('static', filename='js/waitlist'+version+'.js')}}"></script>
 {% if perm_man.can() %}
-<script type="text/javascript" src="{{url_for('static', filename='js/fleetcomp'+version+'.js')}}"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.5.12/clipboard.min.js"></script>
+{% assets filters="jsmin", output="gen/setup.min.js", "js/eve-igb-wrapper.js", "js/ts3.js", "js/dnasetup.js", "js/fleetcomp.js", "js/waitlist.js" %}
+<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
+{% else %}
+{% assets filters="jsmin", output="gen/member-setup.min.js", "js/eve-igb-wrapper.js", "js/ts3.js", "js/dnasetup.js", "js/waitlist.js" %}
+<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
 {% endif %}
 {% if perm_viewfits.can() %}
 <script src="https://quiescens.duckdns.org/wl/wtm.js"></script>
@@ -35,7 +43,6 @@
 	{% include "xup-form.js" %}
 {% endif %}
 
-<link rel="stylesheet" href="{{url_for('static', filename='css/waitlist'+version+'.css')}}">
 {% endblock %}
 
 {% block container_data %}
