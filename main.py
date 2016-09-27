@@ -83,7 +83,6 @@ class MiniJSONEncoder(JSONEncoder):
     item_separator = ','
     key_separator = ':'
 app.json_encoder = MiniJSONEncoder
-app.config['JSONIFY_PRETTYPRINT_REGULAR'] = False
 
 err_fh = None;
 info_fh = None;
