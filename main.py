@@ -42,6 +42,7 @@ from flask.globals import request, current_app
 import flask
 from werkzeug.utils import redirect
 from flask.helpers import url_for
+from flask.ext.htmlmin import HTMLMIN
 from waitlist.utility.utils import is_igb
 from waitlist.blueprints.fc_sso import bp as fc_sso_bp, get_sso_redirect,\
     add_sso_handler
@@ -73,6 +74,9 @@ app.register_blueprint(bp_comphistory_search, url_prefix="/history/comp_search")
 app.register_blueprint(bp_api_history, url_prefix="/api/history")
 app.register_blueprint(bp_inserts, url_prefix="/settings/inserts")
 app.register_blueprint(bp_openwindow, url_prefix="/api/ui/openwindow")
+
+app.config['MINIFY_PAGE'] = True
+HTMLMIN(app)
 
 from flask_assets import Environment
 assets = Environment(app)
