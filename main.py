@@ -235,6 +235,9 @@ def get_user_from_db(unicode_id):
 # callable like /tokenauth?token=359th8342rt0f3uwf0234r
 @app.route('/tokenauth')
 def login_token():
+    flask.abort(404, "Tokens where removed, please use the EVE SSO")
+    return
+'''
     login_token = request.args.get('token');
     user = db.session.query(Account).filter(Account.login_token == login_token).first()
 
@@ -254,6 +257,7 @@ def login_token():
                                   identity=Identity(user.id))
 
     return redirect(url_for('index'), code=303)
+'''
 
 @app.route("/charauth")
 def char_auth():
@@ -389,10 +393,20 @@ def member_login_cb(code):
     authInfo = con.whoami()
     charID = authInfo['CharacterID']
     charName = authInfo['CharacterName']
+
     if charID is None or charName is None:
         flask.abort(400, "Getting Character from AuthInformation Failed!")
     
     char = get_character_by_id_and_name(charID, charName)
+    
+    # see if there is an fc account connected
+    acc = db.session.query(Account).filter((Account.username == char.get_eve_name()) & (Account.disabled == False)).first()
+    if (acc is not None): # accs are allowed to ignore bans
+        login_user(acc, remember=True)
+        identity_changed.send(current_app._get_current_object(),
+                                  identity=Identity(acc.id))
+        return redirect(url_for("index"))
+    
     is_banned, reason = is_char_banned(char)
     if is_banned:
         return flask.abort(401, 'You are banned, because your '+reason+" is banned!")
