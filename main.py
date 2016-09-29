@@ -4,10 +4,8 @@ import os
 import sys
 base_path = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(base_path, 'lib'))
-import werkzeug.serving
 from waitlist.permissions import perm_manager
 from waitlist.utility.settings.settings import sget_insert
-from waitlist.blueprints.options.inserts import bp
 from waitlist.data.names import WTMRoles
 from pycrest.eve import EVE
 from waitlist.utility.settings import settings
@@ -42,7 +40,6 @@ from flask.globals import request, current_app
 import flask
 from werkzeug.utils import redirect
 from flask.helpers import url_for
-from flask.ext.htmlmin import HTMLMIN
 from waitlist.utility.utils import is_igb
 from waitlist.blueprints.fc_sso import bp as fc_sso_bp, get_sso_redirect,\
     add_sso_handler
@@ -57,7 +54,6 @@ from waitlist.blueprints.history.comphistory import bp as bp_comphistory_search
 from waitlist.blueprints.api.history import bp as bp_api_history
 from waitlist.blueprints.options.inserts import bp as bp_inserts
 from waitlist.blueprints.api.openwindow import bp as bp_openwindow
-from flask.json import JSONEncoder
 
 app.register_blueprint(bp_waitlist)
 app.register_blueprint(bp_settings, url_prefix='/settings')
@@ -75,18 +71,7 @@ app.register_blueprint(bp_api_history, url_prefix="/api/history")
 app.register_blueprint(bp_inserts, url_prefix="/settings/inserts")
 app.register_blueprint(bp_openwindow, url_prefix="/api/ui/openwindow")
 
-app.config['MINIFY_PAGE'] = True
-HTMLMIN(app)
-
-from flask_assets import Environment
-assets = Environment(app)
 logger = logging.getLogger(__name__)
-
-class MiniJSONEncoder(JSONEncoder):
-    """Minify JSON output."""
-    item_separator = ','
-    key_separator = ':'
-app.json_encoder = MiniJSONEncoder
 
 err_fh = None;
 info_fh = None;
