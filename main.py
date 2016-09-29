@@ -4,10 +4,8 @@ import os
 import sys
 base_path = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(base_path, 'lib'))
-import werkzeug.serving
 from waitlist.permissions import perm_manager
 from waitlist.utility.settings.settings import sget_insert
-from waitlist.blueprints.options.inserts import bp
 from waitlist.data.names import WTMRoles
 from pycrest.eve import EVE
 from waitlist.utility.settings import settings
@@ -74,6 +72,7 @@ app.register_blueprint(bp_inserts, url_prefix="/settings/inserts")
 app.register_blueprint(bp_openwindow, url_prefix="/api/ui/openwindow")
 
 logger = logging.getLogger(__name__)
+
 err_fh = None;
 info_fh = None;
 access_fh = None;
@@ -166,7 +165,7 @@ def index():
         group = db.session.query(WaitlistGroup).filter(WaitlistGroup.enabled == True).order_by(WaitlistGroup.odering).first()
     
     if group == None:
-        return render_template("index.html", is_index=True)
+        return render_template("index.html", is_index=True, nocss=True, nojs=True)
     
     new_bro = True
     if current_user.type == "character":
@@ -199,8 +198,8 @@ def index():
     active_ts_setting = None
     if active_ts_setting_id is not None:
         active_ts_setting = db.session.query(TeamspeakDatum).get(active_ts_setting_id)
-    
-    return render_template("index.html", lists=wlists, user=current_user, is_index=True, is_on_wl=is_on_wl(), newbro=new_bro, group=group, groups=activegroups, ts=active_ts_setting)
+
+    return render_template("index.html", lists=wlists, user=current_user, is_index=True, is_on_wl=is_on_wl(), newbro=new_bro, group=group, groups=activegroups, ts=active_ts_setting, nocss=True, nojs=True)
 
 def is_on_wl():
     eveId = current_user.get_eve_id();
@@ -235,6 +234,9 @@ def get_user_from_db(unicode_id):
 # callable like /tokenauth?token=359th8342rt0f3uwf0234r
 @app.route('/tokenauth')
 def login_token():
+    flask.abort(404, "Tokens where removed, please use the EVE SSO")
+    return
+'''
     login_token = request.args.get('token');
     user = db.session.query(Account).filter(Account.login_token == login_token).first()
 
@@ -254,6 +256,7 @@ def login_token():
                                   identity=Identity(user.id))
 
     return redirect(url_for('index'), code=303)
+'''
 
 @app.route("/charauth")
 def char_auth():
@@ -389,10 +392,20 @@ def member_login_cb(code):
     authInfo = con.whoami()
     charID = authInfo['CharacterID']
     charName = authInfo['CharacterName']
+
     if charID is None or charName is None:
         flask.abort(400, "Getting Character from AuthInformation Failed!")
     
     char = get_character_by_id_and_name(charID, charName)
+    
+    # see if there is an fc account connected
+    acc = db.session.query(Account).filter((Account.username == char.get_eve_name()) & (Account.disabled == False)).first()
+    if (acc is not None): # accs are allowed to ignore bans
+        login_user(acc, remember=True)
+        identity_changed.send(current_app._get_current_object(),
+                                  identity=Identity(acc.id))
+        return redirect(url_for("index"))
+    
     is_banned, reason = is_char_banned(char)
     if is_banned:
         return flask.abort(401, 'You are banned, because your '+reason+" is banned!")

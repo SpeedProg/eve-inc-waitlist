@@ -7,6 +7,8 @@ from flask_migrate import Migrate, MigrateCommand
 from flask_script import Manager
 from flask_seasurf import SeaSurf
 from waitlist.utility import config
+from flask_htmlmin import HTMLMIN
+from flask.json import JSONEncoder
 
 app = Flask(import_name=__name__, static_url_path="/static", static_folder="../static", template_folder=path.join("..", "templates"))
 app.secret_key = config.secret_key
@@ -23,3 +25,15 @@ manager = Manager(app)
 manager.add_command("db", MigrateCommand)
 seasurf = SeaSurf(app)
 app.config['UPLOAD_FOLDER'] = path.join(".", "sde")
+
+app.config['MINIFY_PAGE'] = True
+HTMLMIN(app)
+
+from flask_assets import Environment
+assets = Environment(app)
+
+class MiniJSONEncoder(JSONEncoder):
+    """Minify JSON output."""
+    item_separator = ','
+    key_separator = ':'
+app.json_encoder = MiniJSONEncoder
