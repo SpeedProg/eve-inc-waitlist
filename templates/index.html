@@ -21,23 +21,29 @@
 <meta name="wl-group-id" content="{{group.groupID}}">
 {% endif %}
 {% endif %}
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.4/css/bootstrap.min.css" integrity="sha384-2hfp1SzUoho7/TsGGGDaFdsuuDL0LX2hnUp6VkX3CUQ2K4K+xjboZdsXyp4oUHZj" crossorigin="anonymous">
+<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous">
 {% assets filters="cssmin", output="gen/full-wl.min.css", "css/base.css", "css/waitlist.css" %}
 <link rel="stylesheet" href="{{ ASSET_URL }}">
 {% endassets %}
 {{ super() }}
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js" integrity="sha256-1A78rJEdiWTzco6qdn3igTBv9VupN3Q1ozZNTR4WE/Y=" crossorigin="anonymous"></script>
 {% if perm_man.can() %}
-<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.5.12/clipboard.min.js"></script>
-{% assets filters="jsmin", output="gen/setup.min.js", "js/fitlink.js", "js/eve-igb-wrapper.js", "js/ts3.js", "js/dnasetup.js", "js/fleetcomp.js", "js/waitlist.js" %}
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.5.12/clipboard.min.js" integrity="sha256-YPxFEfHAzLj9n2T+2UXAKGNCRUINk0BexppujiVhRH0=" crossorigin="anonymous"></script>
+{% assets filters="jsmin", output="gen/setup.min.js", "js/waitlist.js", "js/fitlink.js", "js/eve-igb-wrapper.js", "js/ts3.js", "js/dnasetup.js", "js/fleetcomp.js" %}
 <script type="text/javascript" src="{{ ASSET_URL }}"></script>
 {% endassets %}
-{% else %}
-{% assets filters="jsmin", output="gen/member-setup.min.js", "js/eve-igb-wrapper.js", "js/ts3.js", "js/dnasetup.js", "js/waitlist.js" %}
-<script type="text/javascript" src="{{ ASSET_URL }}"></script>
-{% endassets %}
-{% endif %}
-{% if perm_viewfits.can() %}
 <script src="https://quiescens.duckdns.org/wl/wtm.js"></script>
+{% elif perm_viewfits.can() %}
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.5.12/clipboard.min.js" integrity="sha256-YPxFEfHAzLj9n2T+2UXAKGNCRUINk0BexppujiVhRH0=" crossorigin="anonymous"></script>
+{% assets filters="jsmin", output="gen/setup.min.js", "js/waitlist.js", "js/fitlink.js", "js/eve-igb-wrapper.js", "js/ts3.js", "js/dnasetup.js" %}
+<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
+<script src="https://quiescens.duckdns.org/wl/wtm.js"></script>
+{% else %}
+{% assets filters="jsmin", output="gen/member-setup.min.js", "js/waitlist.js", "js/eve-igb-wrapper.js", "js/ts3.js", "js/dnasetup.js" %}
+<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
 {% endif %}
 {% if group and (not is_on_wl) and (not (perm_man.can() or perm_viewfits.can())) and group.enabled %}
 	{% include "xup-form.js" %}
@@ -161,8 +167,8 @@
 	<div class="panel panel-default">
 		<div class="panel-heading" id="wl-heading-{{ wlist.id }}">
       		<h4 class="panel-title">
-        	<a class="list-group-item text-capitalize" data-toggle="collapse" data-parent="#wl-{{ wlist.id }}-tog" data-target="#wl-fits-{{ wlist.id }}" aria-expanded="true" aria-controls="wl-fits-{{ wlist.id }}">
-				{{ wlist.displayTitle|e }}{% if perm_man.can() %}<span id="wl-count-{{ wlist.name }}" class="label label-pill label-default pull-xs-left">0</span>{% endif %}<i style="cursor: pointer;" class="fa fa-minus-square pull-xs-right" id="wl-{{ wlist.id }}-tog-icon"></i>
+        	<a class="list-group-item text-uppercase" data-toggle="collapse" data-parent="#wl-{{ wlist.id }}-tog" data-target="#wl-fits-{{ wlist.id }}" aria-expanded="true" aria-controls="wl-fits-{{ wlist.id }}">
+				{{ wlist.displayTitle|e }}{% if perm_man.can() %}<span id="wl-count-{{ wlist.name }}" class="tag tag-pill tag-default pull-xs-left">0</span>{% endif %}<i style="cursor: pointer;" class="fa fa-minus-square pull-xs-right" id="wl-{{ wlist.id }}-tog-icon"></i>
         	</a>
       		</h4>
     	</div>

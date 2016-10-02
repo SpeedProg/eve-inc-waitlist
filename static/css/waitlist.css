@@ -13,7 +13,10 @@
 	height: 50%;
 	font-size: 12px;
 }
-
+.tag {
+    padding-top: 0.2em;
+    padding-bottom: 0.2em;
+}
 .btn-group-mini > .btn, .btn-mini {
     padding: .1rem .4rem;
     font-size: .6rem;

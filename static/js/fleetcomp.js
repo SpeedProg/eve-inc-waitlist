@@ -67,7 +67,7 @@ function createTypeTag(name) {
 	default:
 		type = "default";
 	}
-	return $.parseHTML('<span class="label label-'+type+'">'+name+'</span>');
+	return $.parseHTML('<span class="tag tag-'+type+'">'+name+'</span>');
 }
 
 /**
@@ -83,7 +83,7 @@ function addNewEntry(wlname, wlid, entry, groupID) {
 }
 
 /**
- * Get which labels these fits create
+ * Get which tags these fits create
  * @param fits fits object as received from the API
  * @returns {Array} list of tags
  */
@@ -137,7 +137,7 @@ function createHeaderDOM(wlname, wlid, entry, groupId) {
 	var tags = getTagsFromFits(entry.fittings);
 	var newBroTag = "";
 	if (entry.character.newbro) {
-		newBroTag = ' <span class="label label-info">New</span>';
+		newBroTag = ' <span class="tag tag-info">New</span>';
 	}
 	var cTime = new Date(Date.now());
 	var xupTime = new Date(Date.parse(entry.time));
@@ -225,7 +225,7 @@ function createEntryDOM(wlname, wlid, entry, groupID) {
  */
 function updateWlEntry(wlname, wlid, entry) {
 	var jEntries = $('#entry-'+wlname+'-'+entry.character.id);
-	if (jEntries.size() > 0) {
+	if (jEntries.length > 0) {
 		// update the wait time
 		// ' <small class="wait-time">'+waitTimeMinutes+' min ago</small>
 		var wtElement = $('.wait-time', jEntries[0]);
@@ -360,7 +360,7 @@ function deleteMissingEntries(wldata) {
 	var removeCount = 0;
 	var entries = $('li[id|="entry-'+wldata.name+'"]');
 	var preLen = ("entry-"+wldata.name+"-").length;
-	for (var i=0; i < entries.size(); i++) {
+	for (var i=0; i < entries.length; i++) {
 		var id = $(entries[i]).attr("id");
 		id = Number(id.slice(preLen))
 		var is_existing = false;
@@ -387,7 +387,7 @@ function deleteMissingEntries(wldata) {
 function addNewEntries(wldata, groupID) {
 	var preLen = ("entry-"+wldata.name+"-").length;
 	var entries = $('li[id|="entry-'+wldata.name+'"]');
-	var domEntryCount = entries.size();
+	var domEntryCount = entries.length;
 	var addedCounter = 0;
 
 	// we iterate over our entries, they are in the right order
@@ -560,7 +560,7 @@ function moveEntryToWaitlists(entryId, userId) {
 	var entryDOM = $("#entry-queue-"+userId);
 	var fitDOMs = $(".fitting", entryDOM);
 	var fit_id_str = "";
-	var fitCount = fitDOMs.size();
+	var fitCount = fitDOMs.length;
 	fitDOMs.each(function(idx, element){
 		var cIdStr = $(element).attr("id");
 		var cId = cIdStr.substring(4, cIdStr.length);
@@ -610,7 +610,7 @@ function approveFit(fitId) {
  */
 $(document).ready(function(){
 	var wlists = $('ol[id|="wl-fits"]');
-	for (var i=0; i < wlists.size(); i++) {
+	for (var i=0; i < wlists.length; i++) {
 		var wl = $(wlists[i]);
 		var wlId = wl.attr("id");
 		var cookie = $.cookie(wlId);
