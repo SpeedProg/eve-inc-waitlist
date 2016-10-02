@@ -30,7 +30,7 @@
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js" integrity="sha256-1A78rJEdiWTzco6qdn3igTBv9VupN3Q1ozZNTR4WE/Y=" crossorigin="anonymous"></script>
 {% if perm_man.can() %}
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.5.12/clipboard.min.js" integrity="sha256-YPxFEfHAzLj9n2T+2UXAKGNCRUINk0BexppujiVhRH0=" crossorigin="anonymous"></script>
-{% assets filters="jsmin", output="gen/setup.min.js", "js/waitlist.js", "js/fitlink.js", "js/eve-igb-wrapper.js", "js/ts3.js", "js/dnasetup.js", "js/fleetcomp.js" %}
+{% assets filters="jsmin", output="gen/setup.min.js", "js/waitlist.js", "js/fitlink.js", "js/eve-igb-wrapper.js", "js/ts3.js", "js/dnasetup.js", "js/fleetcomp.js", "js/eve-ui-config.js" %}
 <script type="text/javascript" src="{{ ASSET_URL }}"></script>
 {% endassets %}
 <script src="https://quiescens.duckdns.org/wl/wtm.js"></script>
@@ -210,7 +210,7 @@
 								{% if fit.ship_type == 1 %} {# it is scruffy #}
 								<a href="https://en.wikipedia.org/wiki/Booby" target="_blank">
 								{% else %}
-								<div class="fit-link" data-dna="{{ fit.ship_type }}:{{ fit.modules }}">
+								<div class="fit-link" data-title="{{ entry.user_data.eve_name }}" data-dna="{{ fit.ship_type }}:{{ fit.modules }}">
 								{% endif %}
 									<div class="wel-header-32">
 									<img class="img-32" src="https://imageserver.eveonline.com/Render/{{ fit.ship_type }}_32.png">
