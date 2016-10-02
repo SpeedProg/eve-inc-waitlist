@@ -46,7 +46,7 @@
 <form class="form" action="{{url_for('settings.update_stations')}}" method="post" enctype="multipart/form-data">
 	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 	<div class="form-group">
-		<label class="form-control-label" for="station-file">staStations.csv (can be bz2 compress if you upload it as staStations.csv.bz2)</label>
+		<label class="form-control-label" for="station-file">staStations.yaml</label>
 		<label class="custom-file">
  			<input type="file" name="file" id="station-file" class="custom-file-input">
   			<span class="custom-file-control"></span>
@@ -59,7 +59,7 @@
 <form class="form" action="{{url_for('settings.update_layouts')}}" method="post" enctype="multipart/form-data">
 	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 	<div class="form-group">
-		<label class="form-control-label" for="layout-file">layout.csv (can be bz2 compress if you upload it as layout.csv.bz2)</label>
+		<label class="form-control-label" for="layout-file">layout.csv</label>
 		<label class="custom-file">
  			<input type="file" name="file" id="layout-file" class="custom-file-input">
   			<span class="custom-file-control"></span>
