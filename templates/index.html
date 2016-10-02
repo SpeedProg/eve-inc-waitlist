@@ -95,7 +95,7 @@
 	<div class="card">
 		<div class="card-header" id="status-heading" data-influence="{% if group.influence %}true{% else %}false{% endif %}">
 	      <h4 class="card-title">
-	          Status: {{group.status}}{% if group.influence %} <a href="https://forums.warptome.net/topic/6-influence-guide/" target="_blank">Fit for Influence</a>{% endif %}<i style="cursor: pointer;" id="status-tog-icon" data-toggle="collapse" data-target="#status-body"  class="fa fa-plus-square pull-xs-right"></i>
+	          Status: {{group.status}}{% if group.influence %} <a href="https://forums.warptome.net/influence-guide" target="_blank">Fit for Influence</a>{% endif %}<i style="cursor: pointer;" id="status-tog-icon" data-toggle="collapse" data-target="#status-body"  class="fa fa-plus-square pull-xs-right"></i>
 	      </h4>
 	    </div>
 	    <div class="">
@@ -182,11 +182,9 @@
 						<a href="javascript:CCPEVE.showInfo(1377, {{ entry.user }});">
 						{% endif %}
 						<div class="wel-header-32">
-							<div class="wel-img-32">
-									<img src="https://imageserver.eveonline.com/Character/{{ entry.user }}_32.jpg">
-							</div>
+							<img class="img-32" src="https://imageserver.eveonline.com/Character/{{ entry.user }}_32.jpg">
 							<div class="wel-container-32">
-								{{ entry.user_data.eve_name|e }}{% if wlist.name != "queue" and entry.inviteCount > 0 %} {{entry.inviteCount}} <i class="fa fa-bed" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="Missed Invites"></i>{% endif %}{% if entry.user_data.is_new() %} <span class="label label-info">New</span>{% endif %} <small class="wait-time">{{entry.creation|waittime}} min ago</small>
+								{{ entry.user_data.eve_name|e }}{% if wlist.name != "queue" and entry.inviteCount > 0 %} {{entry.inviteCount}} <i class="fa fa-bed" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="Missed Invites"></i>{% endif %}{% if entry.user_data.is_new() %} <span class="tag tag-info">New</span>{% endif %} <small class="wait-time">{{entry.creation|waittime}} min ago</small>
 							</div>
 						</div>
 						{% if current_user.get_eve_id() == entry.user %}
@@ -215,9 +213,7 @@
 								<div class="fit-link" data-dna="{{ fit.ship_type }}:{{ fit.modules }}">
 								{% endif %}
 									<div class="wel-header-32">
-									<div class="wel-img-32">
-										<img src="https://imageserver.eveonline.com/Render/{{ fit.ship_type }}_32.png">
-									</div>
+									<img class="img-32" src="https://imageserver.eveonline.com/Render/{{ fit.ship_type }}_32.png">
 									<div class="wel-container-32">
 										<div class="wel-text-row-32-2">{{ fit.ship.typeName|e }}</div>
 										{% if fit.comment is not none %}

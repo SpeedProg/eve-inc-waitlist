@@ -1,7 +1,7 @@
 .wel-header-32 {
 	min-height: 32px;
 }
-.wel-img-32 {
+.img-32 {
 	float: left;
 	width: 32px;
 	height: 32px;
@@ -13,9 +13,19 @@
 	height: 50%;
 	font-size: 12px;
 }
+#row-waitlists {
+    padding-top: 0.4rem;
+}
 .tag {
     padding-top: 0.2em;
     padding-bottom: 0.2em;
+}
+.alert-info {
+    margin-bottom: 0.2em;
+    padding: 0.8em 1em 0.8em 1em;
+}
+p.text-xs-center {
+    margin-bottom: 0rem;
 }
 .btn-group-mini > .btn, .btn-mini {
     padding: .1rem .4rem;
