@@ -9,8 +9,7 @@
 {% if nocss == True %}
 {% else %}
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.4/css/bootstrap.min.css" integrity="sha384-2hfp1SzUoho7/TsGGGDaFdsuuDL0LX2hnUp6VkX3CUQ2K4K+xjboZdsXyp4oUHZj" crossorigin="anonymous">
-<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous">
-{% assets filters="cssmin", output="gen/base.min.css", "css/base.css" %}
+{% assets filters="cssmin", output="gen/setup.min.css", "css/base.css", "css/waitlist.css", "css/font.css" %}
 <link rel="stylesheet" href="{{ ASSET_URL }}">
 {% endassets %}
 {% endif %}
@@ -40,7 +39,7 @@
 	{% block menu %}
 <a class="navbar-brand" href="/#">WarpToMe WL</a>
   <button class="navbar-toggler hidden-sm-up" type="button" data-toggle="collapse" data-target="#exCollapsingNavbar2">
-    <i class="fa fa-bars"></i>
+	  &#9776;
   </button>
   <div class="collapse navbar-toggleable-xs" id="exCollapsingNavbar2">
 <ul class="nav navbar-nav">
