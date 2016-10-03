@@ -1,0 +1,1 @@
+eveui_mode='modal';
