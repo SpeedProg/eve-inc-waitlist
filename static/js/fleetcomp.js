@@ -209,7 +209,7 @@ function createEntryDOM(wlname, wlid, entry, groupID) {
 	var fittlistDOM = $('<ul aria-expanded="true" class="list-group list-group-flush collapse" id="fittings-'+entry.id+'"></ul>')
 	entryDOM.append(fittlistDOM);
 	for (var i=0; i<entry.fittings.length; i++) {
-		fittlistDOM.append(createFitDOM(entry.fittings[i], wlname == "queue" ? true : false));
+		fittlistDOM.append(createFitDOM(entry.fittings[i], wlname == "queue" ? true : false, entry));
 	}
 	return entryDOM;
 }
@@ -313,7 +313,7 @@ function updateWlEntry(wlname, wlid, entry) {
  * @param pass if it is the x-up list, so we can add approve button, defaults to false
  * @returns {HTMLElement} the fit's DOM
  */
-function createFitDOM(fit, queue) {
+function createFitDOM(fit, queue, entry) {
 	queue = typeof queue !== 'undefined' ? queue : false;
 	var isDummy = (fit.shipType == 1);
 	var approveButton = "";
@@ -327,7 +327,7 @@ function createFitDOM(fit, queue) {
 	}
 	// lets check if it is the dummy fit
 	
-	var baseElement = isDummy ? $.parseHTML('<div class="booby-link"></div>') : $.parseHTML('<div class="fit-link" data-dna="'+fit.dna+'"></div>');
+	var baseElement = isDummy ? $.parseHTML('<div class="booby-link"></div>') : $.parseHTML('<div class="fit-link" data-title="'+entry.character.name+'" data-dna="'+fit.dna+'"></div>');
 	fitdom.append(
 			$(baseElement)
 				.append($($.parseHTML('<div class="wel-header-32"></div>'))
