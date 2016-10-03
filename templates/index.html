@@ -6,6 +6,7 @@
 <meta name="url-self-remove-all" content="{{url_for('fittings.self_remove_all')}}">
 <meta name="user-id" content="{{ current_user.get_eve_id() }}">
 <meta name="wl-names" content="{% for wl in lists %}{{wl.name|e}}{% if not loop.last %},{% endif %}{% endfor %}">
+<meta name="api-ts-test" content="{{url_for('api_ts3.test_poke')}}">
 {% if perm_man.can() %}
 {# URLs for fleetcomp js #}
 <meta name="api-send-notification" content="{{url_for('api_fittings.send_notification', playerID=-1)}}">
