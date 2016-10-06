@@ -6,10 +6,10 @@
 {{ super() }}
 <meta name="api-fleet-remove" content="{{url_for('api_fleet.removeFleet', fleetID=-1)}}"/>
 <meta name="api-movetosafety" content="{{url_for('api_fleet.move_fleetmembers_to_safety')}}">
-{% assets filters="cssmin", output="gen/fleetsettings-typeahead.min.css", "css/typeaheadjs.css", "css/settings-fleet.css" %}
+{% assets filters="cssmin", output="gen/fleetsettings-typeahead.%(version)s.css", "css/typeaheadjs.css", "css/settings-fleet.css" %}
     <link rel="stylesheet" href="{{ ASSET_URL }}">
 {% endassets %}
-{% assets filters="jsmin", output="gen/fleetsettings-typeahead.min.js", "js/typeahead.bundle.min.js", "js/fleet-settings.js" %}
+{% assets filters="jsmin", output="gen/fleetsettings-typeahead.%(version)s.js", "js/typeahead.bundle.min.js", "js/fleet-settings.js" %}
 <script type="text/javascript" src="{{ ASSET_URL }}"></script>
 {% endassets %}
 <script type="text/javascript">
