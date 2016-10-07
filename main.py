@@ -21,7 +21,7 @@ from waitlist.utility import config
 from logging.handlers import TimedRotatingFileHandler
 from waitlist.blueprints.feedback import feedback
 from gevent.pywsgi import WSGIServer
-from waitlist.base import app, login_manager, db
+from waitlist.base import app, login_manager, db, principals
 from flask_login import login_required, current_user, login_user,\
     logout_user
 import logging
@@ -122,6 +122,11 @@ def get_user_type():
             if is_lm:
                 val += 2
     return val
+
+@principals.identity_loader
+def load_identity_when_session_expires():
+    if hasattr(current_user, 'get_id'):
+        return Identity(current_user.get_id())
 
 @app.before_request
 def check_ban():

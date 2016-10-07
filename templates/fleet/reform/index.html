@@ -3,7 +3,7 @@
 {% block head %}
 {{super()}}
 <meta name="api-invite-by-name" content="{{url_for('api_fleet.fleet_actions_invite', name='-1')}}">
-{% assets filters="jsmin", output="gen/reform.min.js", "js/reform.js" %}
+{% assets filters="jsmin", output="gen/reform.%(version)s.js", "js/reform.js" %}
 <script type="text/javascript" src="{{ ASSET_URL }}"></script>
 {% endassets %}
 {% endblock %}
