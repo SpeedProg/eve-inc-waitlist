@@ -9,7 +9,7 @@
 {% if nocss == True %}
 {% else %}
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.4/css/bootstrap.min.css" integrity="sha384-2hfp1SzUoho7/TsGGGDaFdsuuDL0LX2hnUp6VkX3CUQ2K4K+xjboZdsXyp4oUHZj" crossorigin="anonymous">
-{% assets filters="cssmin", output="gen/setup.min.css", "css/base.css", "css/waitlist.css", "css/font.css" %}
+{% assets filters="cssmin", output="gen/setup.%(version)s.css", "css/base.css", "css/waitlist.css", "css/font.css" %}
 <link rel="stylesheet" href="{{ ASSET_URL }}">
 {% endassets %}
 {% endif %}
@@ -24,7 +24,7 @@
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.4/js/bootstrap.min.js" integrity="sha384-VjEeINv9OSwtWFLAtmc4JCtEJXXBub00gtSnszmspDLCtC0I4z4nqz7rEFbIZLLU" crossorigin="anonymous"></script>
 {% if nojs == True %}
 {% else %}
-{% assets filters="jsmin", output="gen/base.min.js", "js/eve-igb-wrapper.js", "js/ts3.js", "js/dnasetup.js" %}
+{% assets filters="jsmin", output="gen/base.%(version)s.js", "js/eve-igb-wrapper.js", "js/ts3.js", "js/dnasetup.js" %}
 <script type="text/javascript" src="{{ ASSET_URL }}"></script>
 {% endassets %}
 {% endif %}
