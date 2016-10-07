@@ -29,7 +29,12 @@ if  not os.path.isfile(os.path.join(".", "config", "config.cfg")):
     config.add_section("motd")
     config.set("motd", "hq", "..")
     config.set("motd", "vg", "..")
-    
+
+    config.add_section("cdn")
+    config.set("cdn", "cdn_domain", "..")
+    config.set("cdn", "cdn_assets", "..")
+    config.set("cdn", "cdn_https", "..")
+
     config.add_section("debug")
     config.set("debug", "enabled", "0")
     config.set("debug", "fileversion", "")
@@ -42,6 +47,9 @@ config = ConfigParser.SafeConfigParser()
 config.read(os.path.join("config", "config.cfg"))
 
 connection_uri = config.get("database", "connection_uri")
+cdn_https = config.get("cdn", "cdn_https")
+cdn_domain = config.get("cdn", "cdn_domain")
+cdn_assets = config.get("cdn", "cdn_assets")
 sqlalchemy_pool_recycle = config.getint("database", "sqlalchemy_pool_recycle")
 secret_key = base64.b64decode(config.get("app", "secret_key"))
 server_port = config.getint("app", "server_port")

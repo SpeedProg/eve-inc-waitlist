@@ -1,3 +1,6 @@
+var getMetaData = function (name) {
+	return $('meta[name="'+name+'"]').attr('content');
+}
 
 function getTicketElement(ticketId) {
 	var el = {
@@ -36,4 +39,24 @@ function sendTicketMail(ticketId) {
 			+ "</font>\n\n"
 			+ "regards,\n"
 			);
+}
+
+function changeTicketStatus(ticketID, ticketStatus) {
+	$.post({
+		'url': '/feedback/settings',
+		'data': {
+			'_csrf_token': getMetaData('csrf-token'),
+			'ticketID': ticketID,
+			'ticketStatus': ticketStatus
+		},
+		'error': function(data) {
+			var message = data.statusText
+			if (typeof data.message != 'undefined') {
+					message += ": " + data.message;
+			}
+			displayMessage(message, "danger");
+		},
+		'success': function(data){
+		}
+	});
 }

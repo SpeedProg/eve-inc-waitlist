@@ -74,24 +74,40 @@ def update_stations(filename):
     if not path.isfile(filename):
         return
 
-    if filename.rsplit('.', 1)[1] == "csv" :
+    if filename.rsplit('.', 1)[1] == "yaml" :
         f = open(filename, 'r')
     elif filename.rsplit('.', 1)[1] == "bz2":
         f = BZ2File(filename)
     else:
         return
-        
 
-    reader = csv.DictReader(f, delimiter=',', quotechar='\\')
-    for row in reader:
-        station = Station()
-        station.stationID = row['stationID']
-        station.stationName = row['stationName']
-        db.session.merge(station)
+    next_scalar_type = "key"
+    station = None
+    attKey = None
+    attValue = None
+    for ev in yaml.parse(f):
+        if isinstance(ev, MappingStartEvent):
+            # 1 mapping per station
+            station = Station() # create new station
+            next_scalar_type = "key"
+        elif isinstance(ev, ScalarEvent):
+            if next_scalar_type == "key":
+                attKey = ev.value
+                next_scalar_type = "value"
+            elif next_scalar_type == "value":
+                attValue = ev.value
+                if attKey == "stationName":
+                    station.stationName = attValue
+                elif attKey == "stationID":
+                    station.stationID = long(attValue)
+                next_scalar_type = "key"
+        elif isinstance(ev, MappingEndEvent):
+            # write it
+            db.session.merge(station)
+    
+    db.session.commit()
     
     f.close()
-
-    db.session.commit()
 
 def update_constellations(filename):
     if not path.isfile(filename):
