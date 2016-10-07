@@ -3,7 +3,7 @@ import logging
 from flask_login import login_required, current_user
 from flask.templating import render_template
 from flask.globals import request
-from flask.helpers import flash, url_for
+from flask.helpers import flash, url_for, make_response
 from waitlist.storage.database import Feedback, Ticket
 from waitlist.base import db
 import flask
@@ -49,10 +49,20 @@ def submit():
 
     return flask.redirect(url_for('.index'))
     
-@feedback.route("/settings")
+@feedback.route("/settings", methods=["GET"])
 @perm_feedback.require(http_exception=401)
 def settings():
     # only give tickets that are not "closed" and not older then 90 days
     time90daysAgo = datetime.utcnow() - timedelta(90)
-    tickets = db.session.query(Ticket).filter(Ticket.time > time90daysAgo).order_by(desc(Ticket.time)).all()
+    tickets = db.session.query(Ticket).filter((Ticket.time > time90daysAgo) & (Ticket.state == "new")).order_by(desc(Ticket.time)).all()
     return render_template("feedback/settings.html", tickets=tickets)
+
+@feedback.route("/settings", methods=["POST"])
+@perm_feedback.require(http_exception=401)
+def change_status():
+    ticketID = int(request.form.get('ticketID'))
+    newStatus = request.form.get('ticketStatus')
+    ticket = db.session.query(Ticket).get(ticketID)
+    ticket.state = newStatus
+    db.session.commit()
+    return make_response(200, "OK")

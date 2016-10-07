@@ -4,6 +4,14 @@
 
 {% block head %}
 <meta name="api-igui-openwindow-newmail" content="{{url_for('api_eve_openwindow.newmail')}}">
+<style>
+#account-roles {
+	overflow: auto;
+}
+#acc-edit-roles {
+	overflow: auto;
+}
+</style>
 {{ super() }}
 <script type="text/javascript">
 function deleteAccount(accountId){
@@ -162,9 +170,9 @@ $(document).ready(setUpEventhandlers);
 <form action="{{url_for('settings.accounts_import_accounts')}}" method="POST" enctype=multipart/form-data class="form-inline">
 	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 	<div class="form-group">
-		<label for="acc-file" class="file form-control-sm">
-		<input type="file" id="acc-file" name="file">
-		<span class="file-custom"></span>
+		<label for="acc-file" class="custom-file">
+ 			<input type="file" name="file" id="acc-file" class="custom-file-input">
+  			<span class="custom-file-control"></span>
 		</label>
 	</div>
 	<button type="submit" class="btn btn-primary">Add Accounts</button>

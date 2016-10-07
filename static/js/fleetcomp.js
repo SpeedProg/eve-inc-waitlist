@@ -67,7 +67,7 @@ function createTypeTag(name) {
 	default:
 		type = "default";
 	}
-	return $.parseHTML('<span class="label label-'+type+'">'+name+'</span>');
+	return $.parseHTML('<span class="tag tag-'+type+'">'+name+'</span>');
 }
 
 /**
@@ -83,7 +83,7 @@ function addNewEntry(wlname, wlid, entry, groupID) {
 }
 
 /**
- * Get which labels these fits create
+ * Get which tags these fits create
  * @param fits fits object as received from the API
  * @returns {Array} list of tags
  */
@@ -137,7 +137,7 @@ function createHeaderDOM(wlname, wlid, entry, groupId) {
 	var tags = getTagsFromFits(entry.fittings);
 	var newBroTag = "";
 	if (entry.character.newbro) {
-		newBroTag = ' <span class="label label-info">New</span>';
+		newBroTag = ' <span class="tag tag-info">New</span>';
 	}
 	var cTime = new Date(Date.now());
 	var xupTime = new Date(Date.parse(entry.time));
@@ -153,9 +153,7 @@ function createHeaderDOM(wlname, wlid, entry, groupId) {
 	}
 	var charRow = $('<a href="javascript:IGBW.showInfo(1377, '+entry.character.id+');" data-ext="char-header" data-clipboard-text="'+entry.character.name+'">'+
 						'<div class="wel-header-32">'+
-							'<div class="wel-img-32">'+
-									'<img src="https://imageserver.eveonline.com/Character/'+entry.character.id+'_32.jpg" alt="'+entry.character.name+'">'+
-							'</div>'+
+									'<img class="img-32" src="https://imageserver.eveonline.com/Character/'+entry.character.id+'_32.jpg" alt="'+entry.character.name+'">'+
 							'<div class="wel-container-32">'+
 								'<div class="wel-text-row-32-2">'+entry.character.name+oldInvites+newBroTag+' <small class="wait-time">'+waitTimeMinutes+' min ago</small></div>'+
 								'<div class="wel-text-row-32-2 tag-row"></div>'+
@@ -211,7 +209,7 @@ function createEntryDOM(wlname, wlid, entry, groupID) {
 	var fittlistDOM = $('<ul aria-expanded="true" class="list-group list-group-flush collapse" id="fittings-'+entry.id+'"></ul>')
 	entryDOM.append(fittlistDOM);
 	for (var i=0; i<entry.fittings.length; i++) {
-		fittlistDOM.append(createFitDOM(entry.fittings[i], wlname == "queue" ? true : false));
+		fittlistDOM.append(createFitDOM(entry.fittings[i], wlname == "queue" ? true : false, entry));
 	}
 	return entryDOM;
 }
@@ -225,7 +223,7 @@ function createEntryDOM(wlname, wlid, entry, groupID) {
  */
 function updateWlEntry(wlname, wlid, entry) {
 	var jEntries = $('#entry-'+wlname+'-'+entry.character.id);
-	if (jEntries.size() > 0) {
+	if (jEntries.length > 0) {
 		// update the wait time
 		// ' <small class="wait-time">'+waitTimeMinutes+' min ago</small>
 		var wtElement = $('.wait-time', jEntries[0]);
@@ -315,7 +313,7 @@ function updateWlEntry(wlname, wlid, entry) {
  * @param pass if it is the x-up list, so we can add approve button, defaults to false
  * @returns {HTMLElement} the fit's DOM
  */
-function createFitDOM(fit, queue) {
+function createFitDOM(fit, queue, entry) {
 	queue = typeof queue !== 'undefined' ? queue : false;
 	var isDummy = (fit.shipType == 1);
 	var approveButton = "";
@@ -329,11 +327,11 @@ function createFitDOM(fit, queue) {
 	}
 	// lets check if it is the dummy fit
 	
-	var baseElement = isDummy ? $.parseHTML('<div class="booby-link"></div>') : $.parseHTML('<div class="fit-link" data-dna="'+fit.dna+'"></div>');
+	var baseElement = isDummy ? $.parseHTML('<div class="booby-link"></div>') : $.parseHTML('<div class="fit-link" data-title="'+entry.character.name+'" data-dna="'+fit.dna+'"></div>');
 	fitdom.append(
 			$(baseElement)
 				.append($($.parseHTML('<div class="wel-header-32"></div>'))
-						.append($.parseHTML('<div class="wel-img-32"><img src="https://imageserver.eveonline.com/Render/'+fit.shipType+'_32.png" alt="'+fit.shipName+'"></div>'))
+						.append($.parseHTML('<img class="img-32" src="https://imageserver.eveonline.com/Render/'+fit.shipType+'_32.png" alt="'+fit.shipName+'">'))
 						.append($.parseHTML('<div class="wel-container-32"><div class="wel-text-row-32-2">'+fit.shipName+'</div><div class="wel-text-row-32-2">'+commentHTML+approveButton+'</div></div>'))
 						)
 			);
@@ -360,7 +358,7 @@ function deleteMissingEntries(wldata) {
 	var removeCount = 0;
 	var entries = $('li[id|="entry-'+wldata.name+'"]');
 	var preLen = ("entry-"+wldata.name+"-").length;
-	for (var i=0; i < entries.size(); i++) {
+	for (var i=0; i < entries.length; i++) {
 		var id = $(entries[i]).attr("id");
 		id = Number(id.slice(preLen))
 		var is_existing = false;
@@ -387,7 +385,7 @@ function deleteMissingEntries(wldata) {
 function addNewEntries(wldata, groupID) {
 	var preLen = ("entry-"+wldata.name+"-").length;
 	var entries = $('li[id|="entry-'+wldata.name+'"]');
-	var domEntryCount = entries.size();
+	var domEntryCount = entries.length;
 	var addedCounter = 0;
 
 	// we iterate over our entries, they are in the right order
@@ -560,7 +558,7 @@ function moveEntryToWaitlists(entryId, userId) {
 	var entryDOM = $("#entry-queue-"+userId);
 	var fitDOMs = $(".fitting", entryDOM);
 	var fit_id_str = "";
-	var fitCount = fitDOMs.size();
+	var fitCount = fitDOMs.length;
 	fitDOMs.each(function(idx, element){
 		var cIdStr = $(element).attr("id");
 		var cId = cIdStr.substring(4, cIdStr.length);
@@ -610,7 +608,7 @@ function approveFit(fitId) {
  */
 $(document).ready(function(){
 	var wlists = $('ol[id|="wl-fits"]');
-	for (var i=0; i < wlists.size(); i++) {
+	for (var i=0; i < wlists.length; i++) {
 		var wl = $(wlists[i]);
 		var wlId = wl.attr("id");
 		var cookie = $.cookie(wlId);

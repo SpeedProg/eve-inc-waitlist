@@ -665,7 +665,7 @@ def update_map():
 @perm_dev.require(http_exception=401)
 def update_stations():
     f = request.files['file']
-    if f and (f.filename.rsplit('.', 1)[1] == "bz2" or f.filename.rsplit('.', 1)[1] == "csv"):
+    if f and (f.filename.rsplit('.', 1)[1] == "bz2" or f.filename.rsplit('.', 1)[1] == "yaml"):
         filename = secure_filename(f.filename)
         dest_name = path.join(app.config['UPLOAD_FOLDER'], filename)
         if (path.isfile(dest_name)):
