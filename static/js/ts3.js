@@ -1,3 +1,3 @@
 function testTSPoke() {
-    $.get(getMetaData('api-test-ts'))
+    $.get(getMetaData('api-ts-test'))
 }
