@@ -6,6 +6,7 @@
 <meta name="url-self-remove-all" content="{{url_for('fittings.self_remove_all')}}">
 <meta name="user-id" content="{{ current_user.get_eve_id() }}">
 <meta name="wl-names" content="{% for wl in lists %}{{wl.name|e}}{% if not loop.last %},{% endif %}{% endfor %}">
+<meta name="api-ts-test" content="{{url_for('api_ts3.test_poke')}}">
 {% if perm_man.can() %}
 {# URLs for fleetcomp js #}
 <meta name="api-send-notification" content="{{url_for('api_fittings.send_notification', playerID=-1)}}">
@@ -22,8 +23,7 @@
 {% endif %}
 {% endif %}
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.4/css/bootstrap.min.css" integrity="sha384-2hfp1SzUoho7/TsGGGDaFdsuuDL0LX2hnUp6VkX3CUQ2K4K+xjboZdsXyp4oUHZj" crossorigin="anonymous">
-<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous">
-{% assets filters="cssmin", output="gen/full-wl.min.css", "css/base.css", "css/waitlist.css" %}
+{% assets filters="cssmin", output="gen/setup.min.css", "css/base.css", "css/waitlist.css", "css/font.css" %}
 <link rel="stylesheet" href="{{ ASSET_URL }}">
 {% endassets %}
 {{ super() }}
