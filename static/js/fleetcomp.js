@@ -292,7 +292,7 @@ function updateWlEntry(wlname, wlid, entry) {
 			modified = true;
 		}
 		for (var i=0; i < entry.fittings.length; i++) {
-			jFittings.append(createFitDOM(entry.fittings[i], wlname == "queue" ? true : false));
+			jFittings.append(createFitDOM(entry.fittings[i], wlname == "queue" ? true : false, entry));
 		}
 		
 		// if we modified sth update the tags
