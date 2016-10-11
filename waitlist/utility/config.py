@@ -47,7 +47,7 @@ config = ConfigParser.SafeConfigParser()
 config.read(os.path.join("config", "config.cfg"))
 
 connection_uri = config.get("database", "connection_uri")
-cdn_https = config.get("cdn", "cdn_https")
+cdn_https = config.get("cdn", "cdn_https") == "True"
 cdn_domain = config.get("cdn", "cdn_domain")
 cdn_assets = config.get("cdn", "cdn_assets")
 sqlalchemy_pool_recycle = config.getint("database", "sqlalchemy_pool_recycle")

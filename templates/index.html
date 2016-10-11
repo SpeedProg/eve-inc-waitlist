@@ -36,7 +36,7 @@
 <script src="https://quiescens.duckdns.org/wl/wtm.js"></script>
 {% elif perm_viewfits.can() %}
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.5.12/clipboard.min.js" integrity="sha256-YPxFEfHAzLj9n2T+2UXAKGNCRUINk0BexppujiVhRH0=" crossorigin="anonymous"></script>
-{% assets filters="jsmin", output="gen/setup-res.%(version)s.js", "js/waitlist.js", "js/fitlink.js", "js/eve-igb-wrapper.js", "js/ts3.js", "js/dnasetup.js" %}
+{% assets filters="jsmin", output="gen/setup-res.%(version)s.js", "js/waitlist.js", "js/fitlink.js", "js/eve-igb-wrapper.js", "js/ts3.js", "js/dnasetup.js", "js/eve-ui-config.js" %}
 <script type="text/javascript" src="{{ ASSET_URL }}"></script>
 {% endassets %}
 <script src="https://quiescens.duckdns.org/wl/wtm.js"></script>
