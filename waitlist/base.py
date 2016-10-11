@@ -1,5 +1,5 @@
 from flask import Flask
-from flask.ext.cdn import CDN
+from flask_cdn import CDN
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_principal import Principal
@@ -19,7 +19,8 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_POOL_RECYCLE'] = config.sqlalchemy_pool_recycle
 app.config['CDN_DOMAIN'] = config.cdn_domain
 app.config['CDN_HTTPS'] = config.cdn_https
-app.config['FLASK_ASSETS_USE_CDN']= config.cdn_assets
+app.config['FLASK_ASSETS_USE_CDN'] = config.cdn_assets
+app.config['CDN_TIMESTAMP'] = False
 CDN(app)
 login_manager = LoginManager()
 login_manager.init_app(app)

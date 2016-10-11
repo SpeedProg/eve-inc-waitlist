@@ -24,7 +24,7 @@
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.4/js/bootstrap.min.js" integrity="sha384-VjEeINv9OSwtWFLAtmc4JCtEJXXBub00gtSnszmspDLCtC0I4z4nqz7rEFbIZLLU" crossorigin="anonymous"></script>
 {% if nojs == True %}
 {% else %}
-{% assets filters="jsmin", output="gen/base.%(version)s.js", "js/eve-igb-wrapper.js", "js/ts3.js", "js/dnasetup.js" %}
+{% assets filters="jsmin", output="gen/base.%(version)s.js", "js/eve-igb-wrapper.js", "js/dnasetup.js" %}
 <script type="text/javascript" src="{{ ASSET_URL }}"></script>
 {% endassets %}
 {% endif %}

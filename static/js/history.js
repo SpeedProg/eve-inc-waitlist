@@ -68,7 +68,7 @@ var HISTORY = (function(){
 		}
 		targetA.text(entry.target.name)
 		if (entry.target.newbro) {
-			targetTD.prepend('<span class="label label-info">New</span>');
+			targetTD.prepend('<span class="tag tag-info">New</span> ');
 		}
 		for (var i=0; i < entry.fittings.length; i++) {
 			fittingsTD.append(lib.createFittingDOM(entry.fittings[i]));
