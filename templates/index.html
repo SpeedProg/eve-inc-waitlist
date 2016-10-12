@@ -18,6 +18,7 @@
 <meta name="api-send-invite" content="{{url_for('api_fleet.invite_to_fleet')}}">
 <meta name="api-igui-openwindow-ownerdetails" content="{{url_for('api_eve_openwindow.ownerdetails')}}">
 <meta name="api-movetosafety" content="{{url_for('api_fleet.move_fleetmembers_to_safety')}}">
+<meta name="api-sse" content="{{url_for('api_sse.events')}}">
 {% if group %}
 <meta name="wl-group-id" content="{{group.groupID}}">
 {% endif %}
