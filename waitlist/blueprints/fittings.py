@@ -791,9 +791,6 @@ def management():
     queue = db.session.query(Waitlist).filter(Waitlist.name == WaitlistNames.xup_queue).first()
     return render_template("waitlist_management.html", queue=queue)
 
-@bp_waitlist.route("/notification/<int:user_id>", methods=["GET"])
-def notification(user_id):
-    return render_template("notification.html", user=user_id)
 
 @bp_waitlist.route("/debug")
 @login_required
