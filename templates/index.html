@@ -7,7 +7,7 @@
 <meta name="user-id" content="{{ current_user.get_eve_id() }}">
 <meta name="wl-names" content="{% for wl in lists %}{{wl.name|e}}{% if not loop.last %},{% endif %}{% endfor %}">
 <meta name="api-ts-test" content="{{url_for('api_ts3.test_poke')}}">
-<meta name="gong-event" content="{{url_for('fittings.subscribe', user_id=current_user.get_eve_id())}}">
+<meta name="api-sse" content="{{url_for('api_sse.events')}}">
 {% if perm_man.can() %}
 {# URLs for fleetcomp js #}
 <meta name="api-send-notification" content="{{url_for('api_fittings.send_notification', playerID=-1)}}">
@@ -19,7 +19,6 @@
 <meta name="api-send-invite" content="{{url_for('api_fleet.invite_to_fleet')}}">
 <meta name="api-igui-openwindow-ownerdetails" content="{{url_for('api_eve_openwindow.ownerdetails')}}">
 <meta name="api-movetosafety" content="{{url_for('api_fleet.move_fleetmembers_to_safety')}}">
-<meta name="api-sse" content="{{url_for('api_sse.events')}}">
 {% if group %}
 <meta name="wl-group-id" content="{{group.groupID}}">
 {% endif %}
@@ -32,18 +31,18 @@
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js" integrity="sha256-1A78rJEdiWTzco6qdn3igTBv9VupN3Q1ozZNTR4WE/Y=" crossorigin="anonymous"></script>
 {% if perm_man.can() %}
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.5.12/clipboard.min.js" integrity="sha256-YPxFEfHAzLj9n2T+2UXAKGNCRUINk0BexppujiVhRH0=" crossorigin="anonymous"></script>
-{% assets filters="jsmin", output="gen/setup.%(version)s.js", "js/waitlist.js", "js/fitlink.js", "js/eve-igb-wrapper.js", "js/ts3.js", "js/dnasetup.js", "js/waitlist-dom.js", "js/wlsseupdate.js", "js/fleetcomp.js", "js/gong.js", "js/eve-ui-config.js" %}
+{% assets filters="jsmin", output="gen/setup.%(version)s.js", "js/waitlist.js", "js/fitlink.js", "js/eve-igb-wrapper.js", "js/ts3.js", "js/dnasetup.js", "js/waitlist-dom.js", "js/gong.js", "js/wlsseupdate.js", "js/fleetcomp.js",  "js/eve-ui-config.js" %}
 <script type="text/javascript" src="{{ ASSET_URL }}"></script>
 {% endassets %}
 <script src="https://quiescens.duckdns.org/wl/wtm.js"></script>
 {% elif perm_viewfits.can() %}
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.5.12/clipboard.min.js" integrity="sha256-YPxFEfHAzLj9n2T+2UXAKGNCRUINk0BexppujiVhRH0=" crossorigin="anonymous"></script>
-{% assets filters="jsmin", output="gen/member-setup.%(version)s.js", "js/waitlist.js", "js/fitlink.js", "js/eve-igb-wrapper.js", "js/ts3.js", "js/dnasetup.js", "js/eve-ui-config.js", "js/gong.js" %}
+{% assets filters="jsmin", output="gen/member-setup.%(version)s.js", "js/waitlist.js", "js/fitlink.js", "js/eve-igb-wrapper.js", "js/ts3.js", "js/dnasetup.js", "js/eve-ui-config.js", "js/gong.js", "js/wlsseupdate.js" %}
 <script type="text/javascript" src="{{ ASSET_URL }}"></script>
 {% endassets %}
 <script src="https://quiescens.duckdns.org/wl/wtm.js"></script>
 {% else %}
-{% assets filters="jsmin", output="gen/member-setup.%(version)s.js", "js/waitlist.js", "js/fitlink.js", "js/eve-igb-wrapper.js", "js/ts3.js", "js/dnasetup.js", "js/eve-ui-config.js", "js/gong.js" %}
+{% assets filters="jsmin", output="gen/member-setup.%(version)s.js", "js/waitlist.js", "js/fitlink.js", "js/eve-igb-wrapper.js", "js/ts3.js", "js/dnasetup.js", "js/eve-ui-config.js", "js/gong.js", "js/wlsseupdate.js" %}
 <script type="text/javascript" src="{{ ASSET_URL }}"></script>
 {% endassets %}
 {% endif %}
