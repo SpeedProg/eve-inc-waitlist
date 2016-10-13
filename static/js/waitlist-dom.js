@@ -131,7 +131,7 @@ function createHeaderDOM(wlid, entry, groupId, isQueue) {
 	if (isQueue) {
 		buttonRow = $('<div>'+
 				'<div class="btn-group btn-group-mini" role="group" aria-label="Action Buttons">'+
-					'<button type="button" class="btn btn-success" onclick="javascript:moveEntryToWaitlists('+entry.id+', '+entry.character.id+')"><i class="fa fa-thumbs-o-up"></i></button>'+
+					'<button type="button" class="btn btn-success" onclick="javascript:moveEntryToWaitlists('+wlid+', '+entry.id+')"><i class="fa fa-thumbs-o-up"></i></button>'+
 					'<button aria-expanded="true" type="button" data-toggle="collapse" data-target="#fittings-'+entry.id+'" class="btn btn-primary"><i class="fa fa-caret-down"></i></i> Fits</button>'+
 					'<button type="button" class="btn btn-success" onclick="javascript:sendNotification('+entry.character.id+', '+wlid+')"><i class="fa fa-bell-o"></i></button>'+
 					convoButton+
