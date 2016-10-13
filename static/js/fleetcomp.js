@@ -94,14 +94,16 @@ function removeEntry(wlId, entryId) {
  * @param entryId id of the entry that should be approved
  * @param userId eve id the of the user the entry belongs to
  */
-function moveEntryToWaitlists(entryId, userId) {
-	var entryDOM = $("#entry-queue-"+userId);
+function moveEntryToWaitlists(wlId, entryId) {
+	var entryDOM = $("#entry-"+wlId+"-"+entryId);
 	var fitDOMs = $(".fitting", entryDOM);
 	var fit_id_str = "";
 	var fitCount = fitDOMs.length;
+	var fitid_prefix_length = ("fit-"+wlId+"-"+entryId+"-").length;
+	
 	fitDOMs.each(function(idx, element){
 		var cIdStr = $(element).attr("id");
-		var cId = cIdStr.substring(4, cIdStr.length);
+		var cId = cIdStr.substring(fitid_prefix_length, cIdStr.length);
 		fit_id_str += cId;
 		if (idx < fitCount-1) {
 			fit_id_str += ","
@@ -109,12 +111,6 @@ function moveEntryToWaitlists(entryId, userId) {
 	});
 	$.post(getMetaData('api-move-entry-to-wls'), {'entryId': entryId, 'fitIds': fit_id_str, '_csrf_token': getMetaData('csrf-token')}, function(){
 	}, "text");
-	var entry_id = "entry-queue-"+userId
-	var entry = document.getElementById(entry_id);
-	if (entry != null) { // there is a entry for him on that wl
-		entry.parentNode.removeChild(entry); // remote it from the DOM
-		setWlEntryCount("queue", getWlEntryCount("queue")-1)
-	}
 }
 
 /**
