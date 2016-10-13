@@ -30,14 +30,25 @@ function entryRemovedListener(event) {
 	removeEntryFromDom(data.listId, data.entryId);
 }
 
+function gongListener(event) {
+	if(gongEnabled()) {
+		playGong();
+	}
+}
+
+function noSSE() {
+	var nosse = '<div class="alert alert-danger" role="alert"><p class="text-xs-center">We have had to disable <strong>features</strong> please consider upgrading your<a href="http://caniuse.com/#feat=eventsource"> browser</a>!</p></div>'
+	document.getElementById("gong").innerHTML = nosse;
+}
 
 function getSSE() {
-	var sse = new EventSource(getMetaData('api-sse')+"?events="+encodeURIComponent("waitlistUpdates")+"&groupId="+encodeURIComponent(getMetaData("wl-group-id")));
+	var sse = new EventSource(getMetaData('api-sse')+"?events="+encodeURIComponent("waitlistUpdates,gong")+"&groupId="+encodeURIComponent(getMetaData("wl-group-id")));
 	sse.addEventListener("fit-added", fitAddedListener);
 	sse.addEventListener("fit-removed", fitRemovedListener);
 	
 	sse.addEventListener("entry-added", entryAddedListener);
 	sse.addEventListener("entry-removed", entryRemovedListener);
+	sse.addEventListener("invite-send", gongListener);
 	
 	sse.onerror = handleSSEError;
 	return sse;
@@ -46,5 +57,7 @@ function getSSE() {
 $(document).ready(
 function() {
 	eventSource = getSSE();
-	refreshWl();
+	if (refreshWl != undefined) {
+		refreshWl();
+	}
 });
