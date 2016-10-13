@@ -1,27 +1,12 @@
-var getMetaData = function (name) {
-	return $('meta[name="'+name+'"]').attr('content');
+function playGong() {
+	var sound = document.getElementById('sound');
+	sound.volume = 0.5;
+	sound.currentTime = 0;
+	sound.play();
 }
 
-function handleSSEError(event) {
-	event.target.close();
-	var sse = getGongSSE();
-}
-
-function getGongSSE() {
-	var sse = new EventSource(getMetaData('gong-event'));
-    sse.onmessage = function(message) {
-    	var sound = document.getElementById('sound');
-    	sound.volume = 0.5;
-    	sound.currentTime = 0;
-    	sound.play();
-    }
-    sse.onerror = handleSSEError;
-    return sse;
-}
-
-function noSSE() {
-	var nosse = '<div class="alert alert-danger" role="alert"><p class="text-xs-center">We have had to disable <strong>features</strong> please consider upgrading your<a href="http://caniuse.com/#feat=eventsource"> browser</a>!</p></div>'
-	document.getElementById("gong").innerHTML = nosse;
+function gongEnabled() {
+	 return $('#gongbutton').prop("checked")
 }
 
 var sseSource = undefined;
@@ -29,13 +14,9 @@ var sseSource = undefined;
 function gongClicked(event) {
 	var sound = $( document.getElementById("sound") );
 	if (event.target.checked) {
-    	sseSource = getGongSSE();
     	$.cookie("gong", 'open', { expires: 1 });
 		sound.removeAttr('hidden');
     } else {
-    	if (sseSource != undefined) {
-	        sseSource.close();
-        }
         $.removeCookie('gong');
 		sound.attr('hidden', '');
     }
@@ -55,7 +36,7 @@ $(function gongStart() {
 			gongbutton.on("click", gongClicked);
 			if ($.cookie('gong')) {
 				gongbutton.click();
+			}
 		}
-	}
 	}
 });
