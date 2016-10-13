@@ -84,7 +84,18 @@
 		<button type="button" class="nav-link btn btn-danger btn-sm" onclick="removeSelf();">Leave Waitlists</button>
 	</li>
 	<li class="nav-item pull-xs-right">
-		<a class="nav-link" href="{{url_for('fittings.notification', user_id=current_user.get_eve_id())}}" target="_blank">Notification Link</a>
+		<div class="form-group" style="margin: 0;">
+            <input type="checkbox" name="gongbutton" id="gongbutton" autocomplete="off" />
+            <div class="btn-group">
+                <label for="gongbutton" class="btn btn-sm btn-info">
+                    <span>✔</span>
+                    <span>✘</span>
+                </label>
+                <label for="gongbutton" class="btn btn-sm btn-danger">
+					Browser Notifications
+                </label>
+            </div>
+        </div>
 	</li>
 	<li class="nav-item pull-xs-right">
 		<a class="btn btn-danger btn-sm" href="javascript:testTSPoke();">Test TS Poke</a>
