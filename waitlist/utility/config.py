@@ -49,7 +49,7 @@ config.read(os.path.join("config", "config.cfg"))
 connection_uri = config.get("database", "connection_uri")
 cdn_https = config.get("cdn", "cdn_https") == "True"
 cdn_domain = config.get("cdn", "cdn_domain")
-cdn_assets = config.get("cdn", "cdn_assets")
+cdn_assets = config.get("cdn", "cdn_assets") == "True"
 sqlalchemy_pool_recycle = config.getint("database", "sqlalchemy_pool_recycle")
 secret_key = base64.b64decode(config.get("app", "secret_key"))
 server_port = config.getint("app", "server_port")
