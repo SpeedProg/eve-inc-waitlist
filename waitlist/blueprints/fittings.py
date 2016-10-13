@@ -507,6 +507,7 @@ def move_to_waitlists():
     #variables for SSE spawning
     _newEntryCreated = False
     _sseEvents = []
+    _createdEntriesList = []
     
     entry_id = int(request.form['entryId'])
     fit_ids = request.form['fitIds']
@@ -596,6 +597,7 @@ def move_to_waitlists():
         logi_entry.creation = new_entry_timedate  # for sorting entries
         logi_entry.user = entry.user  # associate a user with the entry
         group.logilist.entries.append(logi_entry)
+        _createdEntriesList.append(logi_entry);
     
     # same for dps
     if len(dps) and dps_entry == None:
@@ -603,6 +605,7 @@ def move_to_waitlists():
         dps_entry.creation = new_entry_timedate  # for sorting entries
         dps_entry.user = entry.user  # associate a user with the entry
         group.dpslist.entries.append(dps_entry)
+        _createdEntriesList.append(dps_entry)
 
     # and sniper
     if len(sniper) and sniper_entry == None:
@@ -610,6 +613,7 @@ def move_to_waitlists():
         sniper_entry.creation = new_entry_timedate  # for sorting entries
         sniper_entry.user = entry.user  # associate a user with the entry
         group.sniperlist.entries.append(sniper_entry)
+        _createdEntriesList.append(sniper_entry)
     
     # and other if other exists
     if len(other) and other_entry == None and group.otherlist is not None:
@@ -617,45 +621,85 @@ def move_to_waitlists():
         other_entry.creation = new_entry_timedate  # for sorting entries
         other_entry.user = entry.user  # associate a user with the entry
         group.otherlist.entries.append(other_entry)
+        _createdEntriesList.append(other_entry)
 
     # iterate over sorted fits and add them to their entry
     for logifit in logi:
         logi_entry.fittings.append(logifit)
     
+    if not logi_entry in _createdEntriesList:
+        for fit in logi:
+            event = FitAddedSSE(group.groupID, logi_entry.waitlist_id, logi_entry.id, fit, False)
+            _sseEvents.append(event)
+    
     for dpsfit in dps:
         dps_entry.fittings.append(dpsfit)
+    
+    if not dps_entry in _createdEntriesList:
+        for fit in dps:
+            event = FitAddedSSE(group.groupID, dps_entry.waitlist_id, dps_entry.id, fit, False)
+            _sseEvents.append(event)
         
     for sniperfit in sniper:
         sniper_entry.fittings.append(sniperfit)
+    
+
+    if not sniper_entry in _createdEntriesList:
+        for fit in sniper:
+            event = FitAddedSSE(group.groupID, sniper_entry.waitlist_id, sniper_entry.id, fit, False)
+            _sseEvents.append(event)
     
     # if there is no other list sort other fits in dps
     if group.otherlist is not None:
         for otherfit in other:
             other_entry.fittings.append(otherfit)
+            
+        if not other_entry  in _createdEntriesList:
+            for fit in other:
+                event = FitAddedSSE(group.groupID, other_entry .waitlist_id, other_entry .id, fit, False)
+                _sseEvents.append(event)
     else:
         # it fits should go to dps wl make sure it is there
-        if len(other) and dps_entry == None:
+        if len(other) > 0 and dps_entry == None:
             dps_entry = WaitlistEntry()
             dps_entry.creation = new_entry_timedate  # for sorting entries
             dps_entry.user = entry.user  # associate a user with the entry
             group.dpslist.entries.append(dps_entry)
+            _createdEntriesList.append(dps_entry)
         for otherfit in other:
             dps_entry.fittings.append(otherfit)
+        
+        if not dps_entry in _createdEntriesList:
+            for fit in other:
+                event = FitAddedSSE(group.groupID, dps_entry.waitlist_id, dps_entry.id, fit, False)
+                _sseEvents.append(event)
+        
 
     # add history entry to db
     db.session.add(hEntry)
 
     db.session.commit()
+
+
     if (len(entry.fittings) <= 0):
         event = EntryRemovedSSE(entry.waitlist.group.groupID, entry.waitlist.id, entry.id)
-        db.session.delete(entry)
         sendServerSentEvent(event)
+        db.session.delete(entry)
+        db.session.commit()
     else:
         for fitEvent in _sseEvents:
             if isinstance(fitEvent, FitRemovedSSE):
                 sendServerSentEvent(fitEvent)
 
-    db.session.commit()
+    for fitAddedEvent in _sseEvents:
+        if isinstance(fitAddedEvent, FitAddedSSE):
+            sendServerSentEvent(fitAddedEvent)
+    
+    for createdEntry in _createdEntriesList:
+        event = EntryAddedSSE(createdEntry, group.groupID, createdEntry.waitlist_id, False)
+        sendServerSentEvent(event)
+
+
     
     return "OK"
     
