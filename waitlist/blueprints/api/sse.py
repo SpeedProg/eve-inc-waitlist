@@ -6,11 +6,22 @@ import logging
 import flask
 from waitlist.data.sse import FitAddedSSE, EntryAddedSSE, EntryRemovedSSE,\
     FitRemovedSSE, GongSSE, Subscription, addSubscription, removeSubscription
-from Queue import Queue
 from flask.wrappers import Response
 
 bp = Blueprint('api_sse', __name__)
 logger = logging.getLogger(__name__)
+
+def eventGen(sub):
+    if not isinstance(sub, Subscription):
+        raise TypeError("Not a Subscription Object")
+    addSubscription(sub)
+    try:
+        while True:
+            event = sub.get()
+            logger.info("Sending event: "+event.encode())
+            yield event.encode()
+    finally:
+        removeSubscription(sub)
 
 '''
 Available eventGroups:
@@ -26,13 +37,14 @@ def events():
     event_group_strs = event_groups_str.split(",")
     events = []
     options = {}
-    if 'waitlistUpdates' in event_group_strs:
-        if perm_management.can():
-            events += [FitAddedSSE, EntryAddedSSE, EntryRemovedSSE, FitRemovedSSE]
-            groupId_str = request.args.get('groupId', None)
-            if groupId_str is None:
-                flask.abort(400, "No GroupId defined")
-                options['groupId'] = int(groupId_str)
+    logger.info(event_group_strs);
+    if 'waitlistUpdates' in event_group_strs and perm_management.can():
+        logger.info("adding waitlist update events, to subscription")
+        events += [FitAddedSSE, EntryAddedSSE, EntryRemovedSSE, FitRemovedSSE]
+        groupId_str = request.args.get('groupId', None)
+        if groupId_str is None:
+            flask.abort(400, "No GroupId defined")
+        options['groupId'] = int(groupId_str)
 
     if 'gong' in event_group_strs:
         events += [GongSSE]
@@ -41,17 +53,5 @@ def events():
     if (len(events) <= 0):
         flask.abort("No valid eventgroups specified")
     subs = Subscription(events, options)
-    def gen(sub):
-        if not isinstance(sub, Subscription):
-            raise TypeError("Not a Subscription Object")
-        q = Queue()
-        addSubscription(q)
-        try:
-            while True:
-                event = q.get()
-                yield event.encode()
-        finally:
-            removeSubscription(q)
-    
 
-    return Response(gen(subs), mimetype="text/event-stream")
+    return Response(eventGen(subs), mimetype="text/event-stream")

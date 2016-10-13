@@ -257,11 +257,11 @@ def xup_submit():
         db.session.commit()
         
         if _newEntryCreated:
-            event = EntryAddedSSE(wl_entry, groupID, queue.id)
+            event = EntryAddedSSE(wl_entry, groupID, queue.id, True)
             sendServerSentEvent(event)
         else:
             for fit in _newFits:
-                event = FitAddedSSE(groupID, queue.id, fit)
+                event = FitAddedSSE(groupID, queue.id, wl_entry.id, fit, True)
                 sendServerSentEvent(event)
         
         flash("You where added as "+ship_type)
@@ -484,11 +484,11 @@ def xup_submit():
     db.session.commit()
     
     if _newEntryCreated:
-        event = EntryAddedSSE(wl_entry, groupID, queue.id)
+        event = EntryAddedSSE(wl_entry, groupID, queue.id, True)
         sendServerSentEvent(event)
     else:
         for fit in fits_ready:
-            event = FitAddedSSE(groupID, queue.id, fit)
+            event = FitAddedSSE(groupID, queue.id, wl_entry.id, fit, True)
             sendServerSentEvent(event)
     
     flash("You submitted {0} fits to be check by a fleet comp before getting on the waitlist.".format(fit_count), "success")
@@ -710,7 +710,7 @@ def api_move_fit_to_waitlist():
     #add the fit to the entry
     wl_entry.fittings.append(fit)
     if not new_entry:
-        event = FitAddedSSE(wl_entry.waitlist.groupID, wl_entry.waitlist_id, fit)
+        event = FitAddedSSE(wl_entry.waitlist.groupID, wl_entry.waitlist_id, wl_entry.id, fit, False)
         sendServerSentEvent(event)
     
     # add a history entry
@@ -719,14 +719,16 @@ def api_move_fit_to_waitlist():
     
     if new_entry:
         waitlist.entries.append(wl_entry)
-        event = EntryAddedSSE(wl_entry, wl_entry.waitlist.group.groupID, wl_entry.waitlist_id)
-        sendServerSentEvent(event)
         
     db.session.commit()
     if (len(entry.fittings) == 0):
         event = EntryRemovedSSE(entry.waitlist.group.groupID, entry.waitlist_id, entry.id)
         db.session.delete(entry)
         db.session.commit()
+        sendServerSentEvent(event)
+    
+    if new_entry:
+        event = EntryAddedSSE(wl_entry, wl_entry.waitlist.group.groupID, wl_entry.waitlist_id, False)
         sendServerSentEvent(event)
     
     return "OK"

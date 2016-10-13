@@ -43,7 +43,7 @@ function removeSelf() {
 	$.ajax(settings);
 }
 
-function removeOwnEntry(wlName, charId, entryId) {
+function removeOwnEntry(wlId, charId, entryId) {
 	var settings = {
 			dataType: "text",
 			headers: {
@@ -51,7 +51,7 @@ function removeOwnEntry(wlName, charId, entryId) {
 			},
 			method: 'DELETE',
 			success: function(data, status, jqxhr){
-				var htmlId = "entry-"+wlName+"-"+charId;
+				var htmlId = "entry-"+wlId+"-"+entryId;
 				var entry = document.getElementById(htmlId);
 				if (entry != null) { // there is a entry for him on that wl
 					entry.parentNode.removeChild(entry); // remote it from the DOM
@@ -62,7 +62,7 @@ function removeOwnEntry(wlName, charId, entryId) {
 	$.ajax(settings);
 }
 
-function removeOwnFit(fitId, wlName, charId) {
+function removeOwnFit(fitId, wlId, entryId) {
 	var settings = {
 			dataType: "text",
 			headers: {
@@ -70,8 +70,8 @@ function removeOwnFit(fitId, wlName, charId) {
 			},
 			method: 'DELETE',
 			success: function(data, status, jqxhr){
-				var entryHtmlId = "entry-"+wlName+"-"+charId;
-				var fitHtmlId = "fit-"+fitId;
+				var entryHtmlId = "entry-"+wlId+"-"+entryId;
+				var fitHtmlId = "fit-"+wlId+"-"+entryId+"-"+fitId;
 				var fit = document.getElementById(fitHtmlId);
 				var entry = document.getElementById(entryHtmlId);
 				if (fit != null) { // there is a entry for him on that wl
