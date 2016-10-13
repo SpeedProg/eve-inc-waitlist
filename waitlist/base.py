@@ -31,15 +31,17 @@ manager = Manager(app)
 manager.add_command("db", MigrateCommand)
 seasurf = SeaSurf(app)
 app.config['UPLOAD_FOLDER'] = path.join(".", "sde")
-
-app.config['MINIFY_PAGE'] = True
-HTMLMIN(app)
+app.config['ASSETS_DEBUG'] = True
+#app.config['MINIFY_PAGE'] = True
+#HTMLMIN(app)
 
 from flask_assets import Environment
 assets = Environment(app)
 
+'''
 class MiniJSONEncoder(JSONEncoder):
     """Minify JSON output."""
     item_separator = ','
     key_separator = ':'
 app.json_encoder = MiniJSONEncoder
+'''

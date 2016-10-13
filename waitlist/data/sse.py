@@ -1,7 +1,54 @@
 import gevent
-from flask.json import jsonify
+from flask.json import dumps
 from waitlist.utility.json import makeJsonFitting, makeJsonWLEntry
+from Queue import Queue
+import logging
+logger = logging.getLogger(__name__)
 subscriptions = []
+
+class Subscription(object):
+    # events = [] EventClasses
+    # and a function that tells if the event should be send to this subscription
+    # options = {} additional data
+    def __init__(self, events, options):
+        self.events = events
+        self.options = options
+        self.__q = Queue()
+    
+    def getUserId(self):
+        if 'userId' not in self.options:
+            return None
+        return self.options['userId']
+    
+    def getWaitlistGroupId(self):
+        if 'groupId' not in self.options:
+            return None
+        return self.options['groupId']
+    
+    def setWaitlistGroupId(self, groupId):
+        self.options['groupId'] = groupId
+    
+    def setUserId(self, userId):
+        self.options['userId'] = userId
+    
+    def acceptsEvent(self, event):
+        logger.info("Should we accept "+event.__class__.__name__)
+        if event.__class__ in self.events:
+            logger.info("Event is in configured events")
+            if event.accepts(self):
+                logger.info("Event should go to this subscription")
+                return True
+            else:
+                logger.info("Event should not go to this subscription")
+        else:
+            logger.info("Event is not configured in this subscription")
+        return False
+    
+    def get(self):
+        return self.__q.get()
+    
+    def put(self, element):
+        return self.__q.put(element)
 
 def addSubscription(subscription):
     if not isinstance(subscription, Subscription):
@@ -12,46 +59,6 @@ def removeSubscription(subscription):
     if not isinstance(subscription, Subscription):
         raise TypeError("Not a Subscription Object")
     subscriptions.remove(subscription)
-
-def sendServerSentEvent(sse):
-    if not isinstance(sse, ServerSentEvent):
-        raise TypeError("Not a ServerSentEvent Object")
-    def notify():
-        for sub in subscriptions:
-            if sub.acceptsEvent(sse):
-                sub.put(sse)
-
-    gevent.spawn(notify)
-
-class Subscription(object):
-    # events = [] EventClasses
-    # and a function that tells if the event should be send to this subscription
-    # options = {} additional data
-    def __init__(self, events, options):
-        self.events = events
-        self.options = options
-    
-    def getUserId(self):
-        if 'userId' not in self.options:
-            return None
-        return self.options['userId']
-    
-    def getWaitlistGroupId(self):
-        if 'waitlistGroupId' not in self.options:
-            return None
-        return self.options['waitlistGroupId']
-    
-    def setWaitlistGroupId(self, groupId):
-        self.options['waitlistGroupId'] = groupId
-    
-    def setUserId(self, userId):
-        self.options['userId'] = userId
-    
-    def acceptsEvent(self, event):
-        if event.__class__ in self.events:
-            if event.__class__ in self.events and event.accepts(self):
-                return True
-        return False
 
 # this class should never be used only extended classes
 class ServerSentEvent(object):
@@ -73,17 +80,30 @@ class ServerSentEvent(object):
         
         return "%s\n\n" % "\n".join(lines)
     
-    def accepts(self):
+    def accepts(self, subscription):
         return True
 
+def sendServerSentEvent(sse):
+    if not isinstance(sse, ServerSentEvent):
+        raise TypeError("Not a ServerSentEvent Object")
+    
+    def notify():
+        for sub in subscriptions:
+            if sub.acceptsEvent(sse):
+                sub.put(sse)
+
+    gevent.spawn(notify)
+
 class FitAddedSSE(ServerSentEvent):
-    def __init__(self, groupId, listId, shipfit):
-        ServerSentEvent.__init__(self, self.__getData(listId, shipfit), "fit-added")
+    def __init__(self, groupId, listId, entryId, shipfit, isQueue):
+        ServerSentEvent.__init__(self, self.__getData(listId, entryId, shipfit, isQueue), "fit-added")
         self.groupId = groupId
 
-    def __getData(self, listId, shipfit):
-        return jsonify({
+    def __getData(self, listId, entryId, shipfit, isQueue):
+        return dumps({
             'listId': listId,
+            'entryId': entryId,
+            'isQueue': isQueue,
             'fit': makeJsonFitting(shipfit)
             })
     
@@ -91,13 +111,15 @@ class FitAddedSSE(ServerSentEvent):
         return subscription.getWaitlistGroupId() == self.groupId
 
 class EntryAddedSSE(ServerSentEvent):
-    def __init__(self, waitlistEntry, groupId, listId):
-        ServerSentEvent.__init__(self, self.__getData(waitlistEntry, listId), "entry-added")
+    def __init__(self, waitlistEntry, groupId, listId, isQueue):
+        ServerSentEvent.__init__(self, self.__getData(waitlistEntry, groupId, listId, isQueue), "entry-added")
         self.groupId = groupId
     
-    def __getData(self, waitlistEntry, listId):
-        return jsonify({
+    def __getData(self, waitlistEntry, groupId, listId, isQueue):
+        return dumps({
+            'groupId': groupId,
             'listId': listId,
+            'isQueue': isQueue,
             'entry': makeJsonWLEntry(waitlistEntry)
             })
     
@@ -110,12 +132,14 @@ class EntryRemovedSSE(ServerSentEvent):
         self.groupId = groupId
     
     def __getData(self, listId, entryId):
-        return jsonify({
+        return dumps({
             'listId': listId,
             'entryId': entryId
             })
     
     def accepts(self, subscription):
+        logger.info("subGroupId " + str(subscription.getWaitlistGroupId()))
+        logger.info("ownGroupId "+ str(self.groupId))
         return subscription.getWaitlistGroupId() == self.groupId
 
 class FitRemovedSSE(ServerSentEvent):
@@ -124,9 +148,9 @@ class FitRemovedSSE(ServerSentEvent):
         self.groupId = groupId
         
     def __getData(self, listId, entryId, fitId):
-        return jsonify({
+        return dumps({
             'listId': listId,
-            'entryId': listId,
+            'entryId': entryId,
             'fitId': fitId
             })
 
@@ -139,7 +163,7 @@ class GongSSE(ServerSentEvent):
         self.userId = userId
     
     def __getData(self, userId):
-        return jsonify({
+        return dumps({
             'userId': userId
             })
 
