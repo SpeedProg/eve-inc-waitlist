@@ -8,17 +8,27 @@ $(document).ready(function(){
 	
     $('.collapse').on('show.bs.collapse', function (e) {
     	var id = $(e.target).attr("id");
-    	$.cookie(id, "open");
+    	sessionStorage.setItem(id, 'open');
     	var togglerSelector = $(e.target).data("tog-icon");
        	$(togglerSelector).removeClass("fa-plus-square").addClass("fa-minus-square");
     });
 
     $('.collapse').on('hide.bs.collapse', function (e) {
     	var id = $(e.target).attr("id");
-    	$.cookie(id, "closed");
+    	sessionStorage.removeItem(id);
     	var togglerSelector = $(e.target).data("tog-icon");
 		$(togglerSelector).removeClass("fa-minus-square").addClass("fa-plus-square");
     });
+    var wlists = $('ol[id|="wl-fits"]');
+	for (var i=0; i < wlists.length; i++) {
+		var wl = $(wlists[i]);
+		var wlId = wl.attr("id");
+		var storage = sessionStorage.getItem(wlId);
+
+		if (storage != "open") {
+			wl.collapse('hide');
+		}
+	}
 });
 function removeSelf() {
 	var settings = {
