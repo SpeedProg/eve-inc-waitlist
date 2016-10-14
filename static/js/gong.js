@@ -1,6 +1,5 @@
 function playGong() {
 	var sound = document.getElementById('sound');
-	sound.volume = 0.5;
 	sound.currentTime = 0;
 	sound.play();
 }
@@ -14,6 +13,7 @@ function gongClicked(event) {
 	if (event.target.checked) {
     	$.cookie("gong", 'open', { expires: 1 });
 		sound.removeAttr('hidden');
+	    sound.volume = 0.5;
     } else {
         $.removeCookie('gong');
 		sound.attr('hidden', '');
