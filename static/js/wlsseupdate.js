@@ -55,9 +55,13 @@ function getSSE() {
 }
 
 $(document).ready(
-function() {
-	eventSource = getSSE();
-	if (refreshWl != undefined) {
-		refreshWl();
-	}
+function wlsse() {
+    if (!!window.EventSource) {
+        eventSource = getSSE();
+        if (refreshWl != undefined) {
+            refreshWl();
+        }
+    } else {
+        noSSE;
+    }
 });
