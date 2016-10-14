@@ -113,7 +113,7 @@ function createHeaderDOM(wlid, entry, groupId, isQueue) {
 			oldInvites = " <div class='missed-invites' style='display: inline;'></div>";
 		}
 	}
-	var charRow = $('<a href="javascript:IGBW.showInfo(1377, '+entry.character.id+');" data-ext="char-header" data-clipboard-text="'+entry.character.name+'">'+
+	var charRow = $('<a href="javascript:IGBW.showInfo(1377, '+entry.character.id+');" data-ext="char-header">'+
 						'<div class="wel-header-32">'+
 									'<img class="img-32" src="https://imageserver.eveonline.com/Character/'+entry.character.id+'_32.jpg" alt="'+entry.character.name+'">'+
 							'<div class="wel-container-32">'+
