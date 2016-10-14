@@ -9,8 +9,6 @@ function gongEnabled() {
 	 return $('#gongbutton').prop("checked")
 }
 
-var sseSource = undefined;
-
 function gongClicked(event) {
 	var sound = $( document.getElementById("sound") );
 	if (event.target.checked) {
