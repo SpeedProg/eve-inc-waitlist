@@ -1,42 +1,42 @@
 function playGong() {
 	var sound = document.getElementById('sound');
-	sound.volume = 0.5;
 	sound.currentTime = 0;
 	sound.play();
 }
 
 function gongEnabled() {
-	 return $('#gongbutton').prop("checked")
+	 return document.getElementById("gongbutton").checked
 }
 
-var sseSource = undefined;
-
-function gongClicked(event) {
-	var sound = $( document.getElementById("sound") );
-	if (event.target.checked) {
-    	$.cookie("gong", 'open', { expires: 1 });
-		sound.removeAttr('hidden');
+function gongClicked() {
+	var sound = document.getElementById("sound");
+	if (document.getElementById("gongbutton").checked) {
+	    sound.removeAttribute("hidden");
+	    sound.volume = 0.5;
+	    sessionStorage.setItem('gong', 'open');
     } else {
-        $.removeCookie('gong');
-		sound.attr('hidden', '');
+		sound.setAttribute("hidden", "");
+		sessionStorage.removeItem('gong');
     }
 }
 
-$(function gongStart() {
-	var gongbutton = $( document.getElementById("gongbutton") );
+function gongSetup() {
+	var gongbutton = document.getElementById("gongbutton");
 	// Check if gongbutton exists
 	if (gongbutton) {
-		// Check if browser does not support SSE
-		if (typeof window.EventSource === "undefined") {
-			// If not remove button and warn
-			noSSE();
-			gongbutton.closest('li').remove();
-		} else {
-			// Setup Gong Button and Check Cookie
-			gongbutton.on("click", gongClicked);
-			if ($.cookie('gong')) {
-				gongbutton.click();
+		// Check if browser support SSE
+		if (!!window.EventSource) {
+    		// Add click handler and check Session Storage
+    		gongbutton.addEventListener("click", gongClicked);
+			if (sessionStorage.getItem('gong')) {
+				gongbutton.checked = true;
+				gongClicked();
 			}
+		} else {
+            // If not remove button
+			gongbutton.parentNode.parentNode.remove();
 		}
 	}
-});
+}
+
+document.addEventListener('DOMContentLoaded', gongSetup);
