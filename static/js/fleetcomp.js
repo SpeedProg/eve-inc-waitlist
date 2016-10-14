@@ -149,5 +149,4 @@ $(document).ready(function(){
 		event.stopPropagation();
 		approveFit(wlId, entryId, fitId);
 	});
-	new Clipboard('[data-ext="char-header"]');
 });
