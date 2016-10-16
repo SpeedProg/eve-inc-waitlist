@@ -126,21 +126,6 @@ function approveFit(wlId, entryId, fitId) {
  */
 $(document).ready(function(){
 	var wlists = $('ol[id|="wl-fits"]');
-	for (var i=0; i < wlists.length; i++) {
-		var wl = $(wlists[i]);
-		var wlId = wl.attr("id");
-		var cookie = $.cookie(wlId);
-		if (cookie == null) {
-			$.cookie(wlId, "closed");
-			cookie = "closed";
-		}
-
-		if (cookie == "closed") {
-			wl.collapse('hide');
-		} else if (cookie == "open") {
-			wl.collapse('show');
-		}
-	}
 	$(document).on("click", '[data-type="fit-approve"]', function(event) {
 		var target = $(event.currentTarget);
 		var fitId = Number(target.attr('data-id'));
@@ -149,5 +134,4 @@ $(document).ready(function(){
 		event.stopPropagation();
 		approveFit(wlId, entryId, fitId);
 	});
-	new Clipboard('[data-ext="char-header"]');
 });

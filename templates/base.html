@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-{% block head %}
 <meta charset="utf-8">
 <meta name="csrf-token" content="{{csrf_token()}}">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <meta http-equiv="x-ua-compatible" content="ie=edge">
+{% block head %}
 {% if nocss == True %}
 {% else %}
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.4/css/bootstrap.min.css" integrity="sha384-2hfp1SzUoho7/TsGGGDaFdsuuDL0LX2hnUp6VkX3CUQ2K4K+xjboZdsXyp4oUHZj" crossorigin="anonymous">
@@ -85,7 +85,7 @@
 	</li>
 	<li class="nav-item pull-xs-right">
 		<div class="form-group" style="margin: 0;">
-            <input type="checkbox" name="gongbutton" id="gongbutton" autocomplete="off" />
+            <input type="checkbox" name="gongbutton" id="gongbutton"/>
             <div class="btn-group">
                 <label for="gongbutton" class="btn btn-sm btn-info">
                     <span>✔</span>

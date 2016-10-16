@@ -74,14 +74,17 @@ function getSSE() {
 	sse.addEventListener("entry-removed", entryRemovedListener);
 	sse.addEventListener("invite-send", gongListener);
 	
-	
 	return sse;
 }
 
 $(document).ready(
-function() {
-	connectSSE();
-	if (refreshWl != undefined) {
-		refreshWl();
-	}
+function wlsse() {
+    if (!!window.EventSource) {
+        connectSSE();
+        if (refreshWl != undefined) {
+            refreshWl();
+        }
+    } else {
+        noSSE;
+    }
 });
