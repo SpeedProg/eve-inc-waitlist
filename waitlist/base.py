@@ -20,6 +20,7 @@ app.config['SQLALCHEMY_POOL_RECYCLE'] = config.sqlalchemy_pool_recycle
 app.config['CDN_DOMAIN'] = config.cdn_domain
 app.config['CDN_HTTPS'] = config.cdn_https
 app.config['FLASK_ASSETS_USE_CDN'] = config.cdn_assets
+app.config['ASSETS_DEBUG'] = config.assets_debug
 app.config['CDN_TIMESTAMP'] = False
 CDN(app)
 login_manager = LoginManager()
@@ -31,17 +32,14 @@ manager = Manager(app)
 manager.add_command("db", MigrateCommand)
 seasurf = SeaSurf(app)
 app.config['UPLOAD_FOLDER'] = path.join(".", "sde")
-app.config['ASSETS_DEBUG'] = True
-#app.config['MINIFY_PAGE'] = True
-#HTMLMIN(app)
+app.config['MINIFY_PAGE'] = config.html_min
+HTMLMIN(app)
 
 from flask_assets import Environment
 assets = Environment(app)
 
-'''
 class MiniJSONEncoder(JSONEncoder):
     """Minify JSON output."""
     item_separator = ','
     key_separator = ':'
 app.json_encoder = MiniJSONEncoder
-'''
