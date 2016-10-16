@@ -1,3 +1,4 @@
+'use strict';
 var getMetaData = function (name) {
 	return $('meta[name="'+name+'"]').attr('content');
 }

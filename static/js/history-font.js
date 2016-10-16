@@ -1,10 +1,11 @@
+'use strict';
 var sizeRule = null;
 
 var sheets = document.styleSheets;
-for (sheet of sheets) {
+for (let sheet of sheets) {
     if (sheet.ownerNode.id == "history-css") {
-        for (rule of sheet.cssRules) {
-            for (prop of rule.style) {
+        for (let rule of sheet.cssRules) {
+            for (let prop of rule.style) {
                 if (prop == "font-size") {
                     sizeRule = rule;
                 }

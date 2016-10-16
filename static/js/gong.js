@@ -1,3 +1,4 @@
+'use strict';
 function playGong() {
 	var sound = document.getElementById('sound');
 	sound.currentTime = 0;

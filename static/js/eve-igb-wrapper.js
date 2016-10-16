@@ -1,8 +1,9 @@
+'use strict';
 /**
  * wrapper for eve igb fuctions
  */
 
-IGBW = (function() {
+var IGBW = (function() {
 	var getMetaData = function (name) {
 		return $('meta[name="'+name+'"]').attr('content');
 	}

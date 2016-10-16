@@ -1,3 +1,4 @@
+'use strict';
 /*
  * Set up click handlers on fittings
  */

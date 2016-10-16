@@ -1,3 +1,4 @@
+'use strict';
 var REFORM = (function(){
 	var lib = {
 			trigger_selector: "#btn-send-invites",
