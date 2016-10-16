@@ -3,10 +3,31 @@ var getMetaData = function (name) {
 }
 
 var eventSource = undefined;
-
-function handleSSEError(event) {
+var errorCount = 0;
+function handleSSEError(event) {#
 	console.log("SSE Error Occured");
 	event.target.close();
+	errorCount++;
+	if (errorCount < 2) { // our first error reconnect this instant
+		connectSSE();
+	} else if (errorCount >= 2 && errorCount <= 5) {  // 2-5 errors, try reconnect after 1s
+		setTimeout(connectSSE, 1000);
+	} else { // > 5 errors try reconnect after 10s
+		setTimeout(connectSSE, 10000);
+	}
+	event.target.close();
+}
+
+function handleSSEOpen(event) {
+	console.log("SSE Open");
+	if (errorCount > 1) {
+		// refresh the page using json, to pull ALL the date, we might have missed sth
+		refreshWl();
+	}
+	errorCount = 0; // reset error counter
+}
+
+function connectSSE() {
 	eventSource = getSSE();
 }
 
@@ -43,6 +64,9 @@ function noSSE() {
 
 function getSSE() {
 	var sse = new EventSource(getMetaData('api-sse')+"?events="+encodeURIComponent("waitlistUpdates,gong")+"&groupId="+encodeURIComponent(getMetaData("wl-group-id")));
+	sse.onerror = handleSSEError;
+	sse.onopen = handleSSEOpen;
+	
 	sse.addEventListener("fit-added", fitAddedListener);
 	sse.addEventListener("fit-removed", fitRemovedListener);
 	
@@ -50,13 +74,13 @@ function getSSE() {
 	sse.addEventListener("entry-removed", entryRemovedListener);
 	sse.addEventListener("invite-send", gongListener);
 	
-	sse.onerror = handleSSEError;
+	
 	return sse;
 }
 
 $(document).ready(
 function() {
-	eventSource = getSSE();
+	connectSSE();
 	if (refreshWl != undefined) {
 		refreshWl();
 	}
