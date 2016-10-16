@@ -31,6 +31,12 @@ class Subscription(object):
     def setUserId(self, userId):
         self.options['userId'] = userId
     
+    def setShouldGetFits(self, shouldGetFits):
+        self.options['shouldGetFits'] = shouldGetFits
+    
+    def getShouldGetFits(self):
+        return self.options['shouldGetFits']
+    
     def acceptsEvent(self, event):
         logger.info("Should we accept "+event.__class__.__name__)
         if event.__class__ in self.events:
@@ -49,6 +55,9 @@ class Subscription(object):
     
     def put(self, element):
         return self.__q.put(element)
+    
+    def encode(self, event):
+        return event.encode(self)
 
 def addSubscription(subscription):
     if not isinstance(subscription, Subscription):
@@ -71,6 +80,9 @@ class ServerSentEvent(object):
             self.event : "event",
             self.id : "id"
         }
+    
+    def setData(self, data):
+        self.data = data
 
     def encode(self):
         if not self.data:
@@ -108,23 +120,42 @@ class FitAddedSSE(ServerSentEvent):
             })
     
     def accepts(self, subscription):
-        return subscription.getWaitlistGroupId() == self.groupId
+        return subscription.getWaitlistGroupId() == self.groupId and subscription.getShouldGetFits()
+    
+    def encode(self, sub):
+        return self.encode()
 
 class EntryAddedSSE(ServerSentEvent):
     def __init__(self, waitlistEntry, groupId, listId, isQueue):
-        ServerSentEvent.__init__(self, self.__getData(waitlistEntry, groupId, listId, isQueue), "entry-added")
+        ServerSentEvent.__init__(self, "", "entry-added")
+        self.__setData(waitlistEntry, groupId, listId, isQueue) 
+
+    def __setData(self, waitlistEntry, groupId, listId, isQueue):
         self.groupId = groupId
-    
-    def __getData(self, waitlistEntry, groupId, listId, isQueue):
-        return dumps({
+        self.setData({
             'groupId': groupId,
             'listId': listId,
             'isQueue': isQueue,
-            'entry': makeJsonWLEntry(waitlistEntry)
+            'entry': makeJsonWLEntry(waitlistEntry, True)
             })
+
+        self.jsonWithFits = ServerSentEvent.encode(self)
+        self.setData({
+            'groupId': groupId,
+            'listId': listId,
+            'isQueue': isQueue,
+            'entry': makeJsonWLEntry(waitlistEntry, False)
+            })
+        self.jsonWOFits = ServerSentEvent.encode(self)
     
     def accepts(self, subscription):
         return subscription.getWaitlistGroupId() == self.groupId
+    
+    def encode(self, sub):
+        if (sub.getShouldGetFits()):
+            return self.jsonWithFits
+        return self.jsonWOFits
+
 
 class EntryRemovedSSE(ServerSentEvent):
     def __init__(self, groupId, listId, entryId):
@@ -141,6 +172,9 @@ class EntryRemovedSSE(ServerSentEvent):
         logger.info("subGroupId " + str(subscription.getWaitlistGroupId()))
         logger.info("ownGroupId "+ str(self.groupId))
         return subscription.getWaitlistGroupId() == self.groupId
+    
+    def encode(self, sub):
+        return self.encode()
 
 class FitRemovedSSE(ServerSentEvent):
     def __init__(self, groupId, listId, entryId, fitId):
@@ -155,7 +189,10 @@ class FitRemovedSSE(ServerSentEvent):
             })
 
     def accepts(self, subscription):
-        return subscription.getWaitlistGroupId() == self.groupId
+        return subscription.getWaitlistGroupId() == self.groupId and subscription.getShouldGetFits()
+
+    def encode(self, sub):
+        return self.encode()
 
 class GongSSE(ServerSentEvent):
     def __init__(self, userId):
