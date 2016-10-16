@@ -118,7 +118,7 @@ function createHeaderDOM(wlid, entry, groupId, isQueue) {
 	}
 	var cTime = new Date(Date.now());
 	var xupTime = new Date(Date.parse(entry.time));
-	var waitTimeMinutes = Math.floor((cTime - xupTime)/60000);
+	var waitTimeMinutes = Math.max(0, Math.floor((cTime - xupTime)/60000));
 	var header = $('<div></div>');
 	var oldInvites = "";
 	if ((can_view_fits || entry.character.id == user_id) && !isQueue) {
