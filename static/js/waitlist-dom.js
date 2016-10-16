@@ -1,3 +1,14 @@
+/**
+ * Get meta elements content from the website
+ */
+var getMetaData = function (name) {
+	return $('meta[name="'+name+'"]').attr('content');
+}
+
+var can_view_fits = (getMetaData('can-view-fits') == "True");
+var can_manage = (getMetaData('can-fleetcomp') == "True");
+var user_id = Number((getMetaData('user-id')));
+
 function displayMessage(message, type) {
 	var alertHTML = $($.parseHTML('<div class="alert alert-dismissible" role="alert">'+
 			'<button type="button" class="close" data-dismiss="alert" aria-label="Close">'+
@@ -96,9 +107,8 @@ function getTagFromJsonFit(jsonFit) {
  * @returns {HTMLElement} DOM fo the entries header
  */
 function createHeaderDOM(wlid, entry, groupId, isQueue) {
-	var tags = getTagsFromFits(entry.fittings);
 	var newBroTag = "";
-	if (entry.character.newbro) {
+	if ((can_view_fits || entry.character.id == user_id) && entry.character.newbro) {
 		newBroTag = ' <span class="tag tag-info">New</span>';
 	}
 	var cTime = new Date(Date.now());
@@ -106,7 +116,7 @@ function createHeaderDOM(wlid, entry, groupId, isQueue) {
 	var waitTimeMinutes = Math.floor((cTime - xupTime)/60000);
 	var header = $('<div></div>');
 	var oldInvites = "";
-	if (!isQueue) {
+	if ((can_view_fits || entry.character.id == user_id) && !isQueue) {
 		if (entry.missedInvites > 0) {
 			oldInvites = " <div class='missed-invites' style='display: inline;'><div style='display: inline;' class='missed-invites-number'>"+entry.missedInvites+'</div> <i class="fa fa-bed" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="Missed Invites"></i></div>';
 		} else {
@@ -122,13 +132,16 @@ function createHeaderDOM(wlid, entry, groupId, isQueue) {
 							'</div>'+
 						'</div>'+
 						'</a>');
-	var tagContainer = $('div.tag-row', charRow);
-	for (var i = 0; i < tags.length; i++) {
-		tagContainer.append(createTypeTag(tags[i]));
+	if ((can_view_fits || entry.character.id == user_id)) {
+		var tags = getTagsFromFits(entry.fittings);
+		var tagContainer = $('div.tag-row', charRow);
+		for (var i = 0; i < tags.length; i++) {
+			tagContainer.append(createTypeTag(tags[i]));
+		}
 	}
 	var convoButton = ""
 	var buttonRow = null;
-	if (isQueue) {
+	if (can_manage && isQueue) { // fleetcom queue
 		buttonRow = $('<div>'+
 				'<div class="btn-group btn-group-mini" role="group" aria-label="Action Buttons">'+
 					'<button type="button" class="btn btn-success" onclick="javascript:moveEntryToWaitlists('+wlid+', '+entry.id+')"><i class="fa fa-thumbs-o-up"></i></button>'+
@@ -138,7 +151,7 @@ function createHeaderDOM(wlid, entry, groupId, isQueue) {
 					'<button type="button" class="btn btn-danger" onclick="javascript:removeEntry('+wlid+', '+entry.id+');"><i class="fa fa-times"></i></button>'+
 				'</div>'+
 			'</div>');
-	} else {
+	} else if (can_manage) { // fleetcomp not queue
 		buttonRow = $('<div>'+
 					'<div class="btn-group btn-group-mini" role="group" aria-label="Action Buttons">'+
 						'<button type="button" class="btn btn-success" onclick="javascript:invitePlayer('+entry.character.id+', '+wlid+', '+groupId+')"><i class="fa fa-plus"></i></button>'+
@@ -148,6 +161,18 @@ function createHeaderDOM(wlid, entry, groupId, isQueue) {
 						'<button type="button" class="btn btn-danger" onclick="javascript:removePlayer('+entry.character.id+', '+groupId+');"><i class="fa fa-times"></i></button>'+
 					'</div>'+
 				'</div>');
+	} else { // linemembers/only view fits
+		
+		var buttonHTML = '<div class="btn-group btn-group-mini" role="group" aria-label="Action Buttons">';
+		if (entry.character.id == user_id) {
+			buttonHTML += '<button type="button" class="btn btn-mini btn-warning" '+
+			'onclick="javascript: (\''+wlid+'\', '+entry.character.id+', '+entry.id+');"><i class="fa fa-times"></i></button>';
+		}
+		if (entry.character.id == user_id || can_view_fits) {
+			buttonHTML += '<button type="button" data-toggle="collapse" data-target="#fittings-'+entry.id+'" class="btn btn-primary"><i class="fa fa-caret-down"></i> Fits</button>';
+		}
+		buttonHTML +='</div>';
+		buttonRow = $(buttonHTML);
 	}
 
 	header.append(charRow);
@@ -176,6 +201,7 @@ function createEntryDOM(wlId, entry, groupID, isQueue) {
 function getTagFromDomFit(fit) {
 	return fit.attr('data-type');
 }
+
 function getTagsFromDomEntry(entry) {
 	var tagContainer = $('div.tag-row', entry);
 	var tagList = [];

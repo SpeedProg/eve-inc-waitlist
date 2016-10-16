@@ -75,10 +75,11 @@ class ServerSentEvent(object):
         self.data = data
         self.event = event
         self.id = _id
+        
         self.desc_map = {
-            self.data : "data",
-            self.event : "event",
-            self.id : "id"
+            "data" : "data",
+            "event" : "event",
+            "id" : "id"
         }
     
     def setData(self, data):
@@ -86,11 +87,16 @@ class ServerSentEvent(object):
 
     def encode(self):
         if not self.data:
+            logger.info("No Data Set")
             return ""
-        lines = ["%s: %s" % (v, k) 
-                 for k, v in self.desc_map.iteritems() if k]
+
+        lines = ["%s: %s" % (k, self.getValue(v)) 
+                 for k, v in self.desc_map.iteritems() if hasattr(self, v) and self.getValue(v)]
         
         return "%s\n\n" % "\n".join(lines)
+    
+    def getValue(self, name):
+        return getattr(self, name)
     
     def accepts(self, subscription):
         return True
@@ -107,52 +113,65 @@ def sendServerSentEvent(sse):
     gevent.spawn(notify)
 
 class FitAddedSSE(ServerSentEvent):
-    def __init__(self, groupId, listId, entryId, shipfit, isQueue):
-        ServerSentEvent.__init__(self, self.__getData(listId, entryId, shipfit, isQueue), "fit-added")
+    def __init__(self, groupId, listId, entryId, shipfit, isQueue, userId):
+        ServerSentEvent.__init__(self, self.__getData(listId, entryId, shipfit, isQueue, userId), "fit-added")
         self.groupId = groupId
+        self.userId = userId
 
-    def __getData(self, listId, entryId, shipfit, isQueue):
+    def __getData(self, listId, entryId, shipfit, isQueue, userId):
         return dumps({
             'listId': listId,
             'entryId': entryId,
             'isQueue': isQueue,
+            'userId': userId,
             'fit': makeJsonFitting(shipfit)
             })
     
     def accepts(self, subscription):
-        return subscription.getWaitlistGroupId() == self.groupId and subscription.getShouldGetFits()
+        logger.debug("FitAddedSSE")
+        logger.debug("Should GetFit: "+str(subscription.getShouldGetFits()))
+        logger.debug("UserIds "+str(subscription.getUserId())+"="+str(self.userId))
+        logger.debug("IDs Same "+str(subscription.getUserId() == self.userId))
+        return subscription.getWaitlistGroupId() == self.groupId and (
+            subscription.getShouldGetFits() or subscription.getUserId() == self.userId
+            )
     
     def encode(self, sub):
-        return self.encode()
+        return ServerSentEvent.encode(self)
 
 class EntryAddedSSE(ServerSentEvent):
     def __init__(self, waitlistEntry, groupId, listId, isQueue):
         ServerSentEvent.__init__(self, "", "entry-added")
-        self.__setData(waitlistEntry, groupId, listId, isQueue) 
+        self.__setData(waitlistEntry, groupId, listId, isQueue, waitlistEntry.user)
 
-    def __setData(self, waitlistEntry, groupId, listId, isQueue):
+    def __setData(self, waitlistEntry, groupId, listId, isQueue, userId):
         self.groupId = groupId
-        self.setData({
-            'groupId': groupId,
-            'listId': listId,
-            'isQueue': isQueue,
-            'entry': makeJsonWLEntry(waitlistEntry, True)
-            })
-
-        self.jsonWithFits = ServerSentEvent.encode(self)
-        self.setData({
+        self.userId = userId
+        self.setData(dumps({
             'groupId': groupId,
             'listId': listId,
             'isQueue': isQueue,
             'entry': makeJsonWLEntry(waitlistEntry, False)
-            })
+            }))
+
+        self.jsonWithFits = ServerSentEvent.encode(self)
+        self.setData(dumps({
+            'groupId': groupId,
+            'listId': listId,
+            'isQueue': isQueue,
+            'entry': makeJsonWLEntry(waitlistEntry, True)
+            }))
         self.jsonWOFits = ServerSentEvent.encode(self)
     
     def accepts(self, subscription):
+        logger.info("EntryAddedSSE")
+        logger.info("Should GetFit: "+str(subscription.getShouldGetFits()))
+        logger.info("UserIds "+str(subscription.getUserId())+"="+str(self.userId))
+        logger.info("IDs Same "+str(subscription.getUserId() == self.userId))
         return subscription.getWaitlistGroupId() == self.groupId
     
     def encode(self, sub):
-        if (sub.getShouldGetFits()):
+        if (sub.getShouldGetFits() or sub.getUserId() == self.userId):
             return self.jsonWithFits
         return self.jsonWOFits
 
@@ -169,17 +188,18 @@ class EntryRemovedSSE(ServerSentEvent):
             })
     
     def accepts(self, subscription):
-        logger.info("subGroupId " + str(subscription.getWaitlistGroupId()))
-        logger.info("ownGroupId "+ str(self.groupId))
+        logger.debug("subGroupId " + str(subscription.getWaitlistGroupId()))
+        logger.debug("ownGroupId "+ str(self.groupId))
         return subscription.getWaitlistGroupId() == self.groupId
     
     def encode(self, sub):
-        return self.encode()
+        return ServerSentEvent.encode(self)
 
 class FitRemovedSSE(ServerSentEvent):
-    def __init__(self, groupId, listId, entryId, fitId):
+    def __init__(self, groupId, listId, entryId, fitId, userId):
         ServerSentEvent.__init__(self, self.__getData(listId, entryId, fitId), "fit-removed")
         self.groupId = groupId
+        self.userId = userId
         
     def __getData(self, listId, entryId, fitId):
         return dumps({
@@ -189,10 +209,12 @@ class FitRemovedSSE(ServerSentEvent):
             })
 
     def accepts(self, subscription):
-        return subscription.getWaitlistGroupId() == self.groupId and subscription.getShouldGetFits()
+        return subscription.getWaitlistGroupId() == self.groupId and (
+            subscription.getShouldGetFits() or subscription.getUserId() == self.userId
+            )
 
     def encode(self, sub):
-        return self.encode()
+        return ServerSentEvent.encode(self)
 
 class GongSSE(ServerSentEvent):
     def __init__(self, userId):
@@ -206,3 +228,6 @@ class GongSSE(ServerSentEvent):
 
     def accepts(self, subscription):
         return subscription.getUserId() == self.userId
+    
+    def encode(self, sub):
+        return ServerSentEvent.encode(self)

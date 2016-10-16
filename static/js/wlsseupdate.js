@@ -4,7 +4,7 @@ var getMetaData = function (name) {
 
 var eventSource = undefined;
 var errorCount = 0;
-function handleSSEError(event) {#
+function handleSSEError(event) {
 	console.log("SSE Error Occured");
 	event.target.close();
 	errorCount++;
@@ -33,7 +33,7 @@ function connectSSE() {
 
 function fitAddedListener(event) {
 	var data = JSON.parse(event.data);
-	addFitToDom(data.listId, data.entryId, data.fit, data.isQueue);
+	addFitToDom(data.listId, data.entryId, data.fit, data.isQueue, data.userId);
 }
 
 function entryAddedListener(event) {
