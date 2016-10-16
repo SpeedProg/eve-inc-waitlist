@@ -67,9 +67,9 @@ IGBW = (function() {
 	lib.showFitting = function(dna) {
 		if (this.isigb) {
 			CCPEVE.showFitting(dna);
-		} else {
+		}/* else {
 			window.open("https://o.smium.org/loadout/dna/"+dna, "_blank");
-		}
+		}*/
 	}
 	
 	/**
