@@ -172,7 +172,7 @@ def index():
         group = db.session.query(WaitlistGroup).filter(WaitlistGroup.enabled == True).order_by(WaitlistGroup.odering).first()
     
     if group == None:
-        return render_template("index.html", is_index=True, nocss=True, nojs=True)
+        return render_template("index.html", is_index=True)
     
     new_bro = True
     if current_user.type == "character":
@@ -206,7 +206,7 @@ def index():
     if active_ts_setting_id is not None:
         active_ts_setting = db.session.query(TeamspeakDatum).get(active_ts_setting_id)
 
-    return render_template("index.html", lists=wlists, user=current_user, is_index=True, is_on_wl=is_on_wl(), newbro=new_bro, group=group, groups=activegroups, ts=active_ts_setting, nocss=True, nojs=True)
+    return render_template("index.html", lists=wlists, user=current_user, is_index=True, is_on_wl=is_on_wl(), newbro=new_bro, group=group, groups=activegroups, ts=active_ts_setting)
 
 def is_on_wl():
     eveId = current_user.get_eve_id();

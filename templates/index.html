@@ -26,10 +26,6 @@
 <meta name="api-igui-openwindow-ownerdetails" content="{{url_for('api_eve_openwindow.ownerdetails')}}">
 <meta name="api-movetosafety" content="{{url_for('api_fleet.move_fleetmembers_to_safety')}}">
 {% endif %}
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.4/css/bootstrap.min.css" integrity="sha384-2hfp1SzUoho7/TsGGGDaFdsuuDL0LX2hnUp6VkX3CUQ2K4K+xjboZdsXyp4oUHZj" crossorigin="anonymous">
-{% assets filters="cssmin", output="gen/setup.%(version)s.css", "css/base.css", "css/waitlist.css", "css/font.css" %}
-<link rel="stylesheet" href="{{ ASSET_URL }}">
-{% endassets %}
 {{ super() }}
 {% if perm_man.can() %}
 	{% assets filters="jsmin", output="gen/setup.%(version)s.js", "js/waitlist.js", "js/fitlink.js", "js/eve-igb-wrapper.js", "js/ts3.js", "js/dnasetup.js", "js/waitlist-dom.js", "js/gong.js", "js/wlsseupdate.js", "js/fleetcomp.js",  "js/eve-ui-config.js" %}
