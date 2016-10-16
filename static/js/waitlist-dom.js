@@ -579,3 +579,12 @@ function refreshWl() {
 	}
 }
 
+function updateWaitTimes() {
+	$('li[id|="entry"').each(function(idx, e){
+		var waitElement = $('.wait-time', e);
+		var cTime = new Date(Date.now());
+		var xupTime = new Date(Date.parse(waitElement.attr('data-time')));
+		var waitTimeMinutes = Math.max(0, Math.floor((cTime - xupTime)/60000));
+		waitElement.text(waitTimeMinutes+" min ago");
+	});
+}

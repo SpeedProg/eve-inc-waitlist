@@ -84,6 +84,7 @@ function wlsse() {
         connectSSE();
         if (refreshWl) {
             refreshWl();
+            setInterval(updateWaitTimes, 30000);
         }
     } else {
         noSSE();
