@@ -1,5 +1,5 @@
 from flask_login import login_required, current_user
-from waitlist.data.perm import perm_management
+from waitlist.data.perm import perm_management, perm_viewfits
 from flask.globals import request
 from flask.blueprints import Blueprint
 import logging
@@ -18,8 +18,8 @@ def eventGen(sub):
     try:
         while True:
             event = sub.get()
-            logger.info("Sending event: "+event.encode())
-            yield event.encode()
+            logger.debug("Event "+sub.encode(event))
+            yield sub.encode(event)
     finally:
         removeSubscription(sub)
 
@@ -37,8 +37,9 @@ def events():
     event_group_strs = event_groups_str.split(",")
     events = []
     options = {}
+    options['userId'] = int(current_user.get_eve_id())
     logger.info(event_group_strs);
-    if 'waitlistUpdates' in event_group_strs and perm_management.can():
+    if 'waitlistUpdates' in event_group_strs:
         logger.info("adding waitlist update events, to subscription")
         events += [FitAddedSSE, EntryAddedSSE, EntryRemovedSSE, FitRemovedSSE]
         groupId_str = request.args.get('groupId', None)
@@ -48,7 +49,10 @@ def events():
 
     if 'gong' in event_group_strs:
         events += [GongSSE]
-        options['userId'] = int(current_user.get_eve_id())
+    
+    # is the subscriber allowed to see fits?
+    options['shouldGetFits'] = perm_viewfits.can()
+        
     
     if (len(events) <= 0):
         flask.abort("No valid eventgroups specified")

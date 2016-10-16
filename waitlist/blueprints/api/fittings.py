@@ -1,8 +1,8 @@
 from flask.blueprints import Blueprint
 import logging
-from flask_login import login_required
+from flask_login import login_required, current_user
 from waitlist.data.perm import perm_management, perm_comphistory, perm_officer,\
-    perm_leadership
+    perm_leadership, perm_viewfits
 from flask.globals import request
 from waitlist.utility.notifications import send_notification as send_notifiaction_to_player
 from waitlist.base import db
@@ -24,7 +24,6 @@ def send_notification(playerID):
 
 @bp.route("/waitlists/", methods=["GET"])
 @login_required
-@perm_management.require(http_exception=401)
 def waitlist():
     groupId_str = request.args.get('group')
     try:
@@ -36,9 +35,12 @@ def waitlist():
     waitlists = [group.xuplist, group.logilist, group.dpslist, group.sniperlist]
     if group.otherlist is not None:
         waitlists.append(group.otherlist)
-
+    
+    # is the requester allowed to see fits?
+    excludeFits = not perm_viewfits.can()
+    includeFitsFrom = [current_user.get_eve_id()]
     for wl in waitlists:
-        jsonwls.append(makeJsonWL(wl))
+        jsonwls.append(makeJsonWL(wl, excludeFits, includeFitsFrom))
     
     return jsonify(waitlists=jsonwls, groupName=group.groupName, groupID=group.groupID, displayName=group.displayName)
 

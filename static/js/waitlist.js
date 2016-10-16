@@ -19,6 +19,10 @@ $(document).ready(function(){
     	var togglerSelector = $(e.target).data("tog-icon");
 		$(togglerSelector).removeClass("fa-minus-square").addClass("fa-plus-square");
     });
+    
+    $("#row-waitlists").on("click", '[data-action="remove-own-fit"]', removeOwnFit);
+    $("#row-waitlists").on("click", '[data-action="update-fit"]', updateFit);
+
     var wlists = $('ol[id|="wl-fits"]');
 	for (var i=0; i < wlists.length; i++) {
 		var wl = $(wlists[i]);
@@ -38,15 +42,6 @@ function removeSelf() {
 			},
 			method: 'DELETE',
 			success: function(data, status, jqxhr){
-				var wlNames = getMetaData("wl-names").split(",");
-				for(var i=0, len=wlNames.length; i < len; i++) {
-					var wlName = wlNames[i];
-					var entryId = "entry-"+wlName+"-"+getMetaData('user-id');
-					var entry = document.getElementById(entryId);
-					if (entry != null) { // there is a entry for him on that wl
-						entry.parentNode.removeChild(entry); // remote it from the DOM
-					}
-				}
 			},
 			url: getMetaData('url-self-remove-all')
 	};
@@ -61,18 +56,18 @@ function removeOwnEntry(wlId, charId, entryId) {
 			},
 			method: 'DELETE',
 			success: function(data, status, jqxhr){
-				var htmlId = "entry-"+wlId+"-"+entryId;
-				var entry = document.getElementById(htmlId);
-				if (entry != null) { // there is a entry for him on that wl
-					entry.parentNode.removeChild(entry); // remote it from the DOM
-				}
 			},
 			url: "/api/self/wlentry/remove/"+entryId
 	};
 	$.ajax(settings);
 }
 
-function removeOwnFit(fitId, wlId, entryId) {
+function removeOwnFit(event) {
+	var target = $(event.currentTarget);
+	var fitId = Number(target.attr('data-fit'));
+	var wlId = Number(target.attr('data-wlId'));
+	var entryId = Number(target.attr('data-entryId'));
+	event.stopPropagation();
 	var settings = {
 			dataType: "text",
 			headers: {
@@ -80,25 +75,16 @@ function removeOwnFit(fitId, wlId, entryId) {
 			},
 			method: 'DELETE',
 			success: function(data, status, jqxhr){
-				var entryHtmlId = "entry-"+wlId+"-"+entryId;
-				var fitHtmlId = "fit-"+wlId+"-"+entryId+"-"+fitId;
-				var fit = document.getElementById(fitHtmlId);
-				var entry = document.getElementById(entryHtmlId);
-				if (fit != null) { // there is a entry for him on that wl
-					fit.parentNode.removeChild(fit); // remote it from the DOM
-				}
-				var count = Number(entry.getAttribute("data-count"));
-				if (count <= 1) {
-					// no fit left, remove entry
-					if (entry != null) { // there is a entry for him on that wl
-						entry.parentNode.removeChild(entry); // remote it from the DOM
-					}
-				} else {
-					count--;
-					entry.setAttribute("data-count", count);
-				}
 			},
 			url: "/api/self/fittings/remove/"+fitId
 	};
 	$.ajax(settings);
+}
+
+function updateFit(event) {
+	event.stopPropagation();
+	var target = $(event.currentTarget);
+	var fitId = Number(target.attr('data-fit'));
+	var updateUrl = getFitUpdateUrl(fitId);
+	window.location = updateUrl;
 }
