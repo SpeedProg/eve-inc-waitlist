@@ -85,6 +85,6 @@ function wlsse() {
             refreshWl();
         }
     } else {
-        noSSE;
+        noSSE();
     }
 });
