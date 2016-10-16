@@ -7,11 +7,11 @@ def makeJsonWLEntry(entry, excludeFits = False):
             'missedInvites': entry.inviteCount
             }
 
-def makeJsonWL(dbwl):
+def makeJsonWL(dbwl, excludeFits = False):
     return {
             'id': dbwl.id,
             'name': dbwl.name,
-            'entries': makeEntries(dbwl.entries)
+            'entries': makeEntries(dbwl.entries, excludeFits)
     }
 
 def makeJsonCharacter(dbcharacter):
@@ -42,10 +42,10 @@ def makeJsonFittings(dbfittings, excludeFits = False):
 
     return fittings
 
-def makeEntries(dbentries):
+def makeEntries(dbentries, excludeFits = False):
     entries = []
     for entry in dbentries:
-        entries.append(makeJsonWLEntry(entry))
+        entries.append(makeJsonWLEntry(entry, excludeFits))
     return entries
 
 def makeHistoryJson(entries):
