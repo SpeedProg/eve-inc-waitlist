@@ -12,7 +12,7 @@ from waitlist.utility.settings import settings
 from waitlist.utility.config import crest_client_id, crest_client_secret, crest_return_url
 from waitlist.data.version import version
 from waitlist.utility.eve_id_utils import get_account_from_db, get_char_from_db,\
-    is_char_banned, get_character_by_id_and_name, get_character_by_name
+    is_char_banned, get_character_by_id_and_name
 from datetime import datetime
 import math
 from sqlalchemy.exc import StatementError
@@ -25,7 +25,7 @@ from flask_login import login_required, current_user, login_user,\
     logout_user
 import logging
 from waitlist.storage.database import Account, WaitlistEntry,\
-    Character, WaitlistGroup, TeamspeakDatum
+    WaitlistGroup, TeamspeakDatum
 from flask_principal import RoleNeed, identity_changed, Identity, AnonymousIdentity,\
     identity_loaded, UserNeed
 from waitlist.data.perm import perm_management, perm_settings, perm_admin,\
@@ -236,9 +236,10 @@ def get_user_from_db(unicode_id):
 # callable like /tokenauth?token=359th8342rt0f3uwf0234r
 @app.route('/tokenauth')
 def login_token():
-    flask.abort(404, "Tokens where removed, please use the EVE SSO")
-    return
-'''
+    if not config.debug_enabled:
+        flask.abort(404, "Tokens where removed, please use the EVE SSO")
+        return
+
     login_token = request.args.get('token');
     user = db.session.query(Account).filter(Account.login_token == login_token).first()
 
@@ -256,25 +257,6 @@ def login_token():
     # notify principal extension
     identity_changed.send(current_app._get_current_object(),
                                   identity=Identity(user.id))
-
-    return redirect(url_for('index'), code=303)
-'''
-
-@app.route("/charauth")
-def char_auth():
-    token = request.args.get('token')
-    logger.info("Token %s", token)
-    character = db.session.query(Character).filter(Character.login_token == token).first()
-    # token was not found
-    if character == None:
-        return flask.abort(401);
-    logger.info("Got User %s", character)
-    login_user(character);
-    logger.info("Logged in User %s", character)
-
-    # notify principal extension
-    identity_changed.send(current_app._get_current_object(),
-                                  identity=Identity(character.id))
 
     return redirect(url_for('index'), code=303)
 
@@ -310,77 +292,6 @@ def on_identity_loaded(sender, identity):
                 identity.provides.add(RoleNeed(role.name))
 
 @login_manager.unauthorized_handler
-def unauthorized():
-    '''
-    FC should have a login token, that always going stay the same
-    additionally they are going to have login form
-    
-    if we have igb headers,
-        if the user has no roles or only one of the flowing:
-            log them in by header
-        else
-            Redirect them to SSO login
-    else:
-        Redirect to SSO login
-        // here the user has the ability to activate trust and get logged in on the next request by headers
-        then check them and try to log the user in
-        ONLY users with no roles ore the following '' are allowed to login by headers
-       
-    TODO: Implement 
-    '''
-
-    # if we have a igb check if we are trusted!
-    if is_igb():
-        return unauthorized_igb()
-    
-    return unauthorized_ogb()
-
-def unauthorized_igb():
-    """
-    Handle unauthroized users that visit from the ingame browser
-    """
-    TRUSTED_HEADER = "Eve-Trusted"
-    # TRUESTED_HEADER_NO = "No"
-    TRUESTED_HEADER_YES = "Yes"
-    
-    is_trusted = False
-    trused_header_value = request.headers.get(TRUSTED_HEADER)
-
-    if trused_header_value == TRUESTED_HEADER_YES:
-        is_trusted = True
-
-    if (is_trusted):
-        return unauth_igb_trusted()
-    
-    return unauth_igb_untrused()
-
-def unauth_igb_trusted():
-    """
-    Handle users with igb that trusted us
-    -> try to authorize them by headers, if they are not restricted
-    """
-    char_id_str = request.headers.get('Eve-Charid')
-    if char_id_str == None:
-        logger.debug("Getting char id from headers failed")
-        return flask.abort(400)
-
-    char_id = int(char_id_str)
-    char_name = request.headers.get('Eve-Charname')
-    char = get_character_by_id_and_name(char_id, char_name)
-    is_banned, reason = is_char_banned(char)
-    if is_banned:
-        return flask.abort(401, 'You are banned, because your '+reason+" is banned!")
-
-    login_user(char, remember=True)
-    logger.debug("Getting char id from headers succeeded.")
-    return redirect(request.url)
-
-def unauth_igb_untrused():
-    """
-    Send message to enable trust
-    """
-    return render_template("enable_trust.html")
-
 def unauthorized_ogb():
     """
     Handle unauthorized users that visit with an out of game browser
@@ -417,17 +328,6 @@ def member_login_cb(code):
     return redirect(url_for("index"))
 
 add_sso_handler('linelogin', member_login_cb)
-
-@app.route("/update_token")
-@login_required
-@perm_admin.require(http_exception=401)
-def create_char_logintoken():
-    username = request.args.get('char')
-
-    eve_char = get_character_by_name(username)
-    token = eve_char.get_login_token()
-    db.session.commit()
-    return token
 
 @app.template_filter('waittime')
 def jinja2_waittime_filter(value):
