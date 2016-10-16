@@ -1,3 +1,4 @@
+'use strict';
 /**
  * Get meta elements content from the website
  */
