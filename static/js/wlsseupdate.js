@@ -60,6 +60,7 @@ function gongListener(event) {
 function noSSE() {
 	var nosse = '<div class="alert alert-danger" role="alert"><p class="text-xs-center">We have had to disable <strong>features</strong> please consider upgrading your<a href="http://caniuse.com/#feat=eventsource"> browser</a>!</p></div>'
 	document.getElementById("gong").innerHTML = nosse;
+	setInterval(refreshWl, 30000);
 }
 
 function getSSE() {
