@@ -81,7 +81,7 @@ $(document).ready(
 function wlsse() {
     if (!!window.EventSource) {
         connectSSE();
-        if (refreshWl != undefined) {
+        if (refreshWl) {
             refreshWl();
         }
     } else {
