@@ -1,5 +1,5 @@
 from flask_login import login_required, current_user
-from waitlist.data.perm import perm_management
+from waitlist.data.perm import perm_management, perm_viewfits
 from flask.globals import request
 from flask.blueprints import Blueprint
 import logging
@@ -49,6 +49,10 @@ def events():
     if 'gong' in event_group_strs:
         events += [GongSSE]
         options['userId'] = int(current_user.get_eve_id())
+    
+    # is the subscriber allowed to see fits?
+    options['shouldGetFits'] = perm_viewfits.can()
+        
     
     if (len(events) <= 0):
         flask.abort("No valid eventgroups specified")
