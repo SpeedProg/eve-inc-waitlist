@@ -8,6 +8,4 @@ function booby() {
 	});
 }
 
-$(document).ready(function () {
-    booby();
-});
+document.addEventListener('DOMContentLoaded', booby);
