@@ -1,8 +1,8 @@
-def makeJsonWLEntry(entry, excluseFits = False):
+def makeJsonWLEntry(entry, excludeFits = False):
     return {
             'id': entry.id,
             'character': makeJsonCharacter(entry.user_data),
-            'fittings': makeJsonFittings(entry.fittings, excluseFits),
+            'fittings': makeJsonFittings(entry.fittings, excludeFits),
             'time': entry.creation,
             'missedInvites': entry.inviteCount
             }
