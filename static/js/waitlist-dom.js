@@ -240,6 +240,7 @@ function addTagToDomEntry(entry, tagString) {
 }
 
 function removeFitFromDom(wlId, entryId, fitId) {
+	'use strict';
 	var targetFit = $('#fit-'+wlId+'-'+entryId+'-'+fitId);
 	if (targetFit.length <= 0) {
 		return 0;
@@ -259,6 +260,7 @@ function removeFitFromDom(wlId, entryId, fitId) {
 }
 
 function addFitToDom(wlId, entryId, fit, isQueue, userId) {
+	'use strict';
 	var entry = $('#entry-'+wlId+'-'+entryId);
 	var fitContainer = $('#fittings-'+entryId);
 	var username = entry.attr('data-username');
