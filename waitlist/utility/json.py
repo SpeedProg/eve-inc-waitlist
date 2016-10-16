@@ -1,17 +1,17 @@
-def makeJsonWLEntry(entry):
+def makeJsonWLEntry(entry, excludeFits = False, includeFitsFrom = None):
     return {
             'id': entry.id,
             'character': makeJsonCharacter(entry.user_data),
-            'fittings': makeJsonFittings(entry.fittings),
+            'fittings': makeJsonFittings(entry.fittings, excludeFits, includeFitsFrom, entry.user),
             'time': entry.creation,
             'missedInvites': entry.inviteCount
             }
 
-def makeJsonWL(dbwl):
+def makeJsonWL(dbwl, excludeFits = False, includeFitsFrom = None):
     return {
             'id': dbwl.id,
             'name': dbwl.name,
-            'entries': makeEntries(dbwl.entries)
+            'entries': makeEntries(dbwl.entries, excludeFits, includeFitsFrom)
     }
 
 def makeJsonCharacter(dbcharacter):
@@ -32,17 +32,21 @@ def makeJsonFitting(dbfitting):
             'wl_type': dbfitting.wl_type
         }
 
-def makeJsonFittings(dbfittings):
+def makeJsonFittings(dbfittings, excludeFits = False, includeFitsFrom = None, charId = None):
     fittings = []
+    if (excludeFits and (includeFitsFrom == None or charId == None)):
+        return fittings
+
     for fit in dbfittings:
-        fittings.append(makeJsonFitting(fit))
+        if (not excludeFits or (charId in includeFitsFrom)):
+            fittings.append(makeJsonFitting(fit))
 
     return fittings
 
-def makeEntries(dbentries):
+def makeEntries(dbentries, excludeFits = False, includeFitsFrom = None):
     entries = []
     for entry in dbentries:
-        entries.append(makeJsonWLEntry(entry))
+        entries.append(makeJsonWLEntry(entry, excludeFits, includeFitsFrom))
     return entries
 
 def makeHistoryJson(entries):

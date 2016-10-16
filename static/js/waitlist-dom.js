@@ -1,3 +1,19 @@
+/**
+ * Get meta elements content from the website
+ */
+var getMetaData = function (name) {
+	return $('meta[name="'+name+'"]').attr('content');
+}
+
+function getFitUpdateUrl(fitID) {
+	var baseURL = getMetaData('api-fit-update');
+	return baseURL.replace('-1', fitID);
+}
+
+var can_view_fits = (getMetaData('can-view-fits') == "True");
+var can_manage = (getMetaData('can-fleetcomp') == "True");
+var user_id = Number((getMetaData('user-id')));
+
 function displayMessage(message, type) {
 	var alertHTML = $($.parseHTML('<div class="alert alert-dismissible" role="alert">'+
 			'<button type="button" class="close" data-dismiss="alert" aria-label="Close">'+
@@ -96,17 +112,16 @@ function getTagFromJsonFit(jsonFit) {
  * @returns {HTMLElement} DOM fo the entries header
  */
 function createHeaderDOM(wlid, entry, groupId, isQueue) {
-	var tags = getTagsFromFits(entry.fittings);
 	var newBroTag = "";
-	if (entry.character.newbro) {
+	if ((can_view_fits || entry.character.id == user_id) && entry.character.newbro) {
 		newBroTag = ' <span class="tag tag-info">New</span>';
 	}
 	var cTime = new Date(Date.now());
 	var xupTime = new Date(Date.parse(entry.time));
-	var waitTimeMinutes = Math.floor((cTime - xupTime)/60000);
+	var waitTimeMinutes = Math.max(0, Math.floor((cTime - xupTime)/60000));
 	var header = $('<div></div>');
 	var oldInvites = "";
-	if (!isQueue) {
+	if ((can_view_fits || entry.character.id == user_id) && !isQueue) {
 		if (entry.missedInvites > 0) {
 			oldInvites = " <div class='missed-invites' style='display: inline;'><div style='display: inline;' class='missed-invites-number'>"+entry.missedInvites+'</div> <i class="fa fa-bed" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="Missed Invites"></i></div>';
 		} else {
@@ -117,18 +132,21 @@ function createHeaderDOM(wlid, entry, groupId, isQueue) {
 						'<div class="wel-header-32">'+
 									'<img class="img-32" src="https://imageserver.eveonline.com/Character/'+entry.character.id+'_32.jpg" alt="'+entry.character.name+'">'+
 							'<div class="wel-container-32">'+
-								'<div class="wel-text-row-32-2">'+entry.character.name+oldInvites+newBroTag+' <small class="wait-time">'+waitTimeMinutes+' min ago</small></div>'+
+								'<div class="wel-text-row-32-2">'+entry.character.name+oldInvites+newBroTag+' <small class="wait-time" data-time="'+entry.time+'">'+waitTimeMinutes+' min ago</small></div>'+
 								'<div class="wel-text-row-32-2 tag-row"></div>'+
 							'</div>'+
 						'</div>'+
 						'</a>');
-	var tagContainer = $('div.tag-row', charRow);
-	for (var i = 0; i < tags.length; i++) {
-		tagContainer.append(createTypeTag(tags[i]));
+	if (can_view_fits || entry.character.id == user_id) {
+		var tags = getTagsFromFits(entry.fittings);
+		var tagContainer = $('div.tag-row', charRow);
+		for (var i = 0; i < tags.length; i++) {
+			tagContainer.append(createTypeTag(tags[i]));
+		}
 	}
 	var convoButton = ""
 	var buttonRow = null;
-	if (isQueue) {
+	if (can_manage && isQueue) { // fleetcom queue
 		buttonRow = $('<div>'+
 				'<div class="btn-group btn-group-mini" role="group" aria-label="Action Buttons">'+
 					'<button type="button" class="btn btn-success" onclick="javascript:moveEntryToWaitlists('+wlid+', '+entry.id+')"><i class="fa fa-thumbs-o-up"></i></button>'+
@@ -138,7 +156,7 @@ function createHeaderDOM(wlid, entry, groupId, isQueue) {
 					'<button type="button" class="btn btn-danger" onclick="javascript:removeEntry('+wlid+', '+entry.id+');"><i class="fa fa-times"></i></button>'+
 				'</div>'+
 			'</div>');
-	} else {
+	} else if (can_manage) { // fleetcomp not queue
 		buttonRow = $('<div>'+
 					'<div class="btn-group btn-group-mini" role="group" aria-label="Action Buttons">'+
 						'<button type="button" class="btn btn-success" onclick="javascript:invitePlayer('+entry.character.id+', '+wlid+', '+groupId+')"><i class="fa fa-plus"></i></button>'+
@@ -148,6 +166,17 @@ function createHeaderDOM(wlid, entry, groupId, isQueue) {
 						'<button type="button" class="btn btn-danger" onclick="javascript:removePlayer('+entry.character.id+', '+groupId+');"><i class="fa fa-times"></i></button>'+
 					'</div>'+
 				'</div>');
+	} else { // linemembers/only view fits
+		var buttonHTML = '<div class="btn-group btn-group-mini" role="group" aria-label="Action Buttons">';
+		if (entry.character.id == user_id) {
+			buttonHTML += '<button type="button" class="btn btn-mini btn-warning" '+
+			'onclick="javascript: removeOwnEntry(\''+wlid+'\', '+entry.character.id+', '+entry.id+');"><i class="fa fa-times"></i></button>';
+		}
+		if (entry.character.id == user_id || can_view_fits) {
+			buttonHTML += '<button type="button" data-toggle="collapse" data-target="#fittings-'+entry.id+'" class="btn btn-primary"><i class="fa fa-caret-down"></i> Fits</button>';
+		}
+		buttonHTML +='</div>';
+		buttonRow = $(buttonHTML);
 	}
 
 	header.append(charRow);
@@ -168,7 +197,7 @@ function createEntryDOM(wlId, entry, groupID, isQueue) {
 	var fittlistDOM = $('<ul aria-expanded="true" class="list-group list-group-flush collapse" id="fittings-'+entry.id+'"></ul>')
 	entryDOM.append(fittlistDOM);
 	for (var i=0; i<entry.fittings.length; i++) {
-		fittlistDOM.append(createFitDOM(entry.fittings[i], wlId, entry.id, isQueue, entry.character.name));
+		fittlistDOM.append(createFitDOM(entry.fittings[i], wlId, entry.id, isQueue, entry.character.name, entry.character.id));
 	}
 	return entryDOM;
 }
@@ -176,6 +205,7 @@ function createEntryDOM(wlId, entry, groupID, isQueue) {
 function getTagFromDomFit(fit) {
 	return fit.attr('data-type');
 }
+
 function getTagsFromDomEntry(entry) {
 	var tagContainer = $('div.tag-row', entry);
 	var tagList = [];
@@ -228,14 +258,16 @@ function removeFitFromDom(wlId, entryId, fitId) {
 	return 1;
 }
 
-function addFitToDom(wlId, entryId, fit, isQueue) {
+function addFitToDom(wlId, entryId, fit, isQueue, userId) {
 	var entry = $('#entry-'+wlId+'-'+entryId);
+	var fitContainer = $('#fittings-'+entryId);
 	var username = entry.attr('data-username');
-	var fitDom = createFitDOM(fit, wlId, entryId, isQueue, username);
-	entry.append(fitDom);
+	
+	var fitDom = createFitDOM(fit, wlId, entryId, isQueue, username, userId);
+	fitContainer.append(fitDom);
 	// add new tags if needed
 	var tagList = getTagsFromDomEntry(entry);
-	var fitContainer = $('#fittings-'+entryId);
+	
 	var fitTags = getTagsFromDomFitContainer(fitContainer);
 	for( let tag of fitTags) {
 		if (!tagList.includes(tag)) {
@@ -251,13 +283,21 @@ function addFitToDom(wlId, entryId, fit, isQueue) {
  * @param pass if it is the x-up list, so we can add approve button, defaults to false
  * @returns {HTMLElement} the fit's DOM
  */
-function createFitDOM(fit, wlId, entryId, queue, username) {
+function createFitDOM(fit, wlId, entryId, queue, username, userId) {
 	queue = typeof queue !== 'undefined' ? queue : false;
 	var isDummy = (fit.shipType == 1);
 	var approveButton = "";
-	if (queue) {
+	if (can_manage && queue) {
 		approveButton = ' <button type="button" class="btn btn-mini btn-success" data-type="fit-approve" data-id="'+fit.id+'" data-wlId="'+wlId+'" data-entryId="'+entryId+'"><i class="fa fa-thumbs-o-up"></i></button>';
 	}
+	var fitButtons = "";
+	if (user_id == userId) {
+		fitButtons += '<button type="button" class="btn btn-mini btn-danger" data-action="remove-own-fit" data-fit='+fit.id+' data-wlId='+wlId+' data-entryId='+entryId+'><i class="fa fa-times"></i> Fit</button>';
+		if (queue) {
+			fitButtons += '<button type="button" class="btn btn-mini btn-danger" data-action="update-fit" data-fit="'+fit.id+'" class="btn btn-warning">Update</button>';
+		}
+	}
+	
 	var fitdom = isDummy ? $($.parseHTML('<li class="list-group-item fitting" id="fit-'+wlId+"-"+entryId+"-"+fit.id+'" data-type="'+getTagFromJsonFit(fit)+'"></li>')) : $($.parseHTML('<li class="list-group-item fitting" id="fit-'+wlId+"-"+entryId+"-"+fit.id+'" data-type="'+getTagFromJsonFit(fit)+'"></li>'));
 	var commentHTML = "";
 	if (fit.comment != null) {
@@ -270,12 +310,11 @@ function createFitDOM(fit, wlId, entryId, queue, username) {
 			$(baseElement)
 				.append($($.parseHTML('<div class="wel-header-32"></div>'))
 						.append($.parseHTML('<img class="img-32" src="https://imageserver.eveonline.com/Render/'+fit.shipType+'_32.png" alt="'+fit.shipName+'">'))
-						.append($.parseHTML('<div class="wel-container-32"><div class="wel-text-row-32-2">'+fit.shipName+'</div><div class="wel-text-row-32-2">'+commentHTML+approveButton+'</div></div>'))
+						.append($.parseHTML('<div class="wel-container-32"><div class="wel-text-row-32-2">'+fit.shipName+'</div><div class="wel-text-row-32-2">'+commentHTML+approveButton+fitButtons+'</div></div>'))
 						)
 			);
 	return fitdom
 	// add own fit removal button if its your own entry :/
-	
 }
 
 /**
@@ -336,7 +375,7 @@ function getWlEntryCount(wlid) {
  * @param entry the entry object as received from the api
  * @returns {Number} number of new entry that where added (0 or 1)
  */
-function updateWlEntry(wlid, entry) {
+function updateWlEntry(wlid, entry, isQueue) {
 	var jEntries = $('#entry-'+wlid+'-'+entry.id);
 	if (jEntries.length > 0) {
 		// update the wait time
@@ -407,7 +446,7 @@ function updateWlEntry(wlid, entry) {
 			modified = true;
 		}
 		for (var i=0; i < entry.fittings.length; i++) {
-			jFittings.append(createFitDOM(entry.fittings[i], wlid, entry.id, wlname == "queue" ? true : false, entry));
+			jFittings.append(createFitDOM(entry.fittings[i], wlid, entry.id, isQueue, entry.character.username, entry.character.id));
 		}
 		
 		// if we modified sth update the tags
@@ -484,7 +523,7 @@ function addNewEntries(wldata, groupID) {
 			// if ids match == check for fits that need to be updated
 			if (domId == wldata.entries[n].id) {
 				inserAfterElement = currentDOM;
-				updateWlEntry(wldata.id, wldata.entries[n]);
+				updateWlEntry(wldata.id, wldata.entries[n], wldata.name == "queue" ? true : false);
 			} else {
 				// we need to add a new entry
 				var entryDOM = createEntryDOM(wldata.id, wldata.entries[n], groupID, wldata.name == "queue");
@@ -540,3 +579,12 @@ function refreshWl() {
 	}
 }
 
+function updateWaitTimes() {
+	$('li[id|="entry"').each(function(idx, e){
+		var waitElement = $('.wait-time', e);
+		var cTime = new Date(Date.now());
+		var xupTime = new Date(Date.parse(waitElement.attr('data-time')));
+		var waitTimeMinutes = Math.max(0, Math.floor((cTime - xupTime)/60000));
+		waitElement.text(waitTimeMinutes+" min ago");
+	});
+}

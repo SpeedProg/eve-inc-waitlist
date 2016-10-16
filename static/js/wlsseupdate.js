@@ -4,7 +4,7 @@ var getMetaData = function (name) {
 
 var eventSource = undefined;
 var errorCount = 0;
-function handleSSEError(event) {#
+function handleSSEError(event) {
 	console.log("SSE Error Occured");
 	event.target.close();
 	errorCount++;
@@ -33,7 +33,7 @@ function connectSSE() {
 
 function fitAddedListener(event) {
 	var data = JSON.parse(event.data);
-	addFitToDom(data.listId, data.entryId, data.fit, data.isQueue);
+	addFitToDom(data.listId, data.entryId, data.fit, data.isQueue, data.userId);
 }
 
 function entryAddedListener(event) {
@@ -60,6 +60,7 @@ function gongListener(event) {
 function noSSE() {
 	var nosse = '<div class="alert alert-danger" role="alert"><p class="text-xs-center">We have had to disable <strong>features</strong> please consider upgrading your<a href="http://caniuse.com/#feat=eventsource"> browser</a>!</p></div>'
 	document.getElementById("gong").innerHTML = nosse;
+	setInterval(refreshWl, 30000);
 }
 
 function getSSE() {
@@ -81,10 +82,11 @@ $(document).ready(
 function wlsse() {
     if (!!window.EventSource) {
         connectSSE();
-        if (refreshWl != undefined) {
+        if (refreshWl) {
             refreshWl();
+            setInterval(updateWaitTimes, 30000);
         }
     } else {
-        noSSE;
+        noSSE();
     }
 });
