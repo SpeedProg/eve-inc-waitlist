@@ -6,7 +6,7 @@ function playGong() {
 }
 
 function gongEnabled() {
-	 return document.getElementById("gongbutton").checked
+	 return document.getElementById("gongbutton").checked;
 }
 
 function gongClicked() {
