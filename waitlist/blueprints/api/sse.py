@@ -19,7 +19,7 @@ def eventGen(sub):
         while True:
             event = sub.get()
             logger.info("Sending event: "+event.encode())
-            yield event.encode()
+            yield sub.encode(event)
     finally:
         removeSubscription(sub)
 

@@ -1,8 +1,8 @@
-def makeJsonWLEntry(entry):
+def makeJsonWLEntry(entry, excluseFits = False):
     return {
             'id': entry.id,
             'character': makeJsonCharacter(entry.user_data),
-            'fittings': makeJsonFittings(entry.fittings),
+            'fittings': makeJsonFittings(entry.fittings, excluseFits),
             'time': entry.creation,
             'missedInvites': entry.inviteCount
             }
@@ -32,8 +32,11 @@ def makeJsonFitting(dbfitting):
             'wl_type': dbfitting.wl_type
         }
 
-def makeJsonFittings(dbfittings):
+def makeJsonFittings(dbfittings, excludeFits = False):
     fittings = []
+    if (excludeFits):
+        return fittings
+
     for fit in dbfittings:
         fittings.append(makeJsonFitting(fit))
 
