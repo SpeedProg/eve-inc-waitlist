@@ -115,15 +115,16 @@ def remove_self_fit(fitid):
 
     if (wlentry.user == current_user.get_eve_id()):
         logger.info("%s removed their fit with id %d from group %s", current_user.get_eve_name(), fitid, wlentry.waitlist.group.groupName)
-        event = FitRemovedSSE(wlentry.waitlist.groupID, wlentry.waitlist_id, wlentry.id, fit.id)
+        event = FitRemovedSSE(wlentry.waitlist.groupID, wlentry.waitlist_id, wlentry.id, fit.id, wlentry.user)
         wlentry.fittings.remove(fit)
-        sendServerSentEvent(event)
+        
         # don't delete anymore we need them for history
         #db.session.delete(fit)
         if len(wlentry.fittings) <= 0:
             event = EntryRemovedSSE(wlentry.waitlist.groupID, wlentry.waitlist_id, wlentry.id)
             db.session.delete(wlentry)
-            sendServerSentEvent(event)
+        
+        sendServerSentEvent(event)
         hEntry = create_history_object(current_user.get_eve_id(), HistoryEntry.EVENT_SELF_RM_FIT, None, [fit])
         hEntry.exref = wlentry.waitlist.group.groupID
         db.session.add(hEntry)
@@ -261,7 +262,7 @@ def xup_submit():
             sendServerSentEvent(event)
         else:
             for fit in _newFits:
-                event = FitAddedSSE(groupID, queue.id, wl_entry.id, fit, True)
+                event = FitAddedSSE(groupID, queue.id, wl_entry.id, fit, True, wl_entry.user)
                 sendServerSentEvent(event)
         
         flash("You where added as "+ship_type)
@@ -488,7 +489,7 @@ def xup_submit():
         sendServerSentEvent(event)
     else:
         for fit in fits_ready:
-            event = FitAddedSSE(groupID, queue.id, wl_entry.id, fit, True)
+            event = FitAddedSSE(groupID, queue.id, wl_entry.id, fit, True, wl_entry.user)
             sendServerSentEvent(event)
     
     flash("You submitted {0} fits to be check by a fleet comp before getting on the waitlist.".format(fit_count), "success")
@@ -587,7 +588,7 @@ def move_to_waitlists():
         fits_to_remove.append(fit)
     
     for fit in fits_to_remove:
-        event = FitRemovedSSE(entry.waitlist.group.groupID, entry.waitlist.id, entry.id, fit.id)
+        event = FitRemovedSSE(entry.waitlist.group.groupID, entry.waitlist.id, entry.id, fit.id, entry.user)
         _sseEvents.append(event)
         entry.fittings.remove(fit)
     
@@ -629,7 +630,7 @@ def move_to_waitlists():
     
     if not logi_entry in _createdEntriesList:
         for fit in logi:
-            event = FitAddedSSE(group.groupID, logi_entry.waitlist_id, logi_entry.id, fit, False)
+            event = FitAddedSSE(group.groupID, logi_entry.waitlist_id, logi_entry.id, fit, False, logi_entry.user)
             _sseEvents.append(event)
     
     for dpsfit in dps:
@@ -637,7 +638,7 @@ def move_to_waitlists():
     
     if not dps_entry in _createdEntriesList:
         for fit in dps:
-            event = FitAddedSSE(group.groupID, dps_entry.waitlist_id, dps_entry.id, fit, False)
+            event = FitAddedSSE(group.groupID, dps_entry.waitlist_id, dps_entry.id, fit, False, dps_entry.user)
             _sseEvents.append(event)
         
     for sniperfit in sniper:
@@ -646,7 +647,7 @@ def move_to_waitlists():
 
     if not sniper_entry in _createdEntriesList:
         for fit in sniper:
-            event = FitAddedSSE(group.groupID, sniper_entry.waitlist_id, sniper_entry.id, fit, False)
+            event = FitAddedSSE(group.groupID, sniper_entry.waitlist_id, sniper_entry.id, fit, False, sniper_entry.user)
             _sseEvents.append(event)
     
     # if there is no other list sort other fits in dps
@@ -656,7 +657,7 @@ def move_to_waitlists():
             
         if not other_entry  in _createdEntriesList:
             for fit in other:
-                event = FitAddedSSE(group.groupID, other_entry .waitlist_id, other_entry .id, fit, False)
+                event = FitAddedSSE(group.groupID, other_entry.waitlist_id, other_entry.id, fit, False, other_entry.user)
                 _sseEvents.append(event)
     else:
         # it fits should go to dps wl make sure it is there
@@ -671,7 +672,7 @@ def move_to_waitlists():
         
         if not dps_entry in _createdEntriesList:
             for fit in other:
-                event = FitAddedSSE(group.groupID, dps_entry.waitlist_id, dps_entry.id, fit, False)
+                event = FitAddedSSE(group.groupID, dps_entry.waitlist_id, dps_entry.id, fit, False, dps_entry.user)
                 _sseEvents.append(event)
         
 
@@ -747,14 +748,14 @@ def api_move_fit_to_waitlist():
         new_entry = True
     
     #remove fit from old entry
-    event = FitRemovedSSE(entry.waitlist.group.groupID, entry.waitlist_id, entry.id, fit.id)
+    event = FitRemovedSSE(entry.waitlist.group.groupID, entry.waitlist_id, entry.id, fit.id, entry.user)
     entry.fittings.remove(fit)
     sendServerSentEvent(event)
 
     #add the fit to the entry
     wl_entry.fittings.append(fit)
     if not new_entry:
-        event = FitAddedSSE(wl_entry.waitlist.groupID, wl_entry.waitlist_id, wl_entry.id, fit, False)
+        event = FitAddedSSE(wl_entry.waitlist.groupID, wl_entry.waitlist_id, wl_entry.id, fit, False, wl_entry.user)
         sendServerSentEvent(event)
     
     # add a history entry
