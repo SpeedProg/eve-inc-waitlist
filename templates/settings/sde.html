@@ -6,6 +6,14 @@
 
 {% block head %}
 {{ super() }}
+{% assets filters="cssmin", output="gen/fileinput.%(version)s.css", "css/fileinput.css" %}
+<link rel="stylesheet" href="{{ ASSET_URL }}">
+{% endassets %}
+
+{% assets filters="jsmin", output="gen/fileinput.%(version)s.js", "js/fileinput.js" %}
+<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
+
 {% endblock %}
 
 {% block raw_content %}
@@ -21,10 +29,9 @@
 	<div class="form-group">
 		<label class="form-control-label" for="typeid-file">typeIDs.yaml</label>
 		<label class="custom-file">
- 			<input type="file" name="file" id="typeid-file" class="custom-file-input">
-  			<span class="custom-file-control"></span>
+ 			<input data-toggle="custom-file" data-target="#typeid" type="file" name="file" id="typeid-file" class="custom-file-input">
+  			<span id="typeid" data-content="Choose file..." class="custom-file-name custom-file-control"></span>
 		</label>
-		<span class='tag tag-info' id="upload-file-info"></span>
 	</div>
 	<button type="submit" class="btn btn-primary">Update typeIDs</button>
 </form>
@@ -35,8 +42,8 @@
 	<div class="form-group">
 		<label class="form-control-label" for="universe-file">universeDataDx.db</label>
 		<label class="custom-file">
- 			<input type="file" name="file" id="universe-file" class="custom-file-input">
-  			<span class="custom-file-control"></span>
+ 			<input data-toggle="custom-file" data-target="#universe" type="file" name="file" id="universe-file" class="custom-file-input">
+  			<span id="universe" data-content="Choose file..." class="custom-file-name custom-file-control"></span>
 		</label>
 	</div>
 	<button type="submit" class="btn btn-primary">Update Systems and Constellations</button>
@@ -48,8 +55,8 @@
 	<div class="form-group">
 		<label class="form-control-label" for="station-file">staStations.yaml</label>
 		<label class="custom-file">
- 			<input type="file" name="file" id="station-file" class="custom-file-input">
-  			<span class="custom-file-control"></span>
+ 			<input data-toggle="custom-file" data-target="#station" type="file" name="file" id="station-file" class="custom-file-input">
+  			<span id="station" data-content="Choose file..." class="custom-file-name custom-file-control"></span>
 		</label>
 	</div>
 	<button type="submit" class="btn btn-primary">Update Stations</button>
@@ -61,8 +68,8 @@
 	<div class="form-group">
 		<label class="form-control-label" for="layout-file">layout.csv</label>
 		<label class="custom-file">
- 			<input type="file" name="file" id="layout-file" class="custom-file-input">
-  			<span class="custom-file-control"></span>
+ 			<input data-toggle="custom-file" data-target="#layout" type="file" name="file" id="layout-file" class="custom-file-input">
+  			<span id="layout" data-content="Choose file..." class="custom-file-name custom-file-control"></span>
 		</label>
 	</div>
 	<p>This cvs file, needs to be data separated by tabs. and the first line need to contain the following separated by tabs instead of a space and comma:
