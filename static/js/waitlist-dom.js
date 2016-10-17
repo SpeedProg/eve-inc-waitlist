@@ -362,8 +362,7 @@ function setWlEntryCount(wlid, count) {
  * @returns {Number} count of entries in the waitlist
  */
 function getWlEntryCount(wlid) {
-	var dataElement = $('#wl-'+wlid);
-	return Number(dataElement.attr("data-count"));
+	return Number(document.getElementById('wl-'+wlid).getAttribute("data-count"));
 }
 
 
