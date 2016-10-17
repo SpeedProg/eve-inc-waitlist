@@ -82,9 +82,7 @@ $(document).ready(
 function wlsse() {
     if (!!window.EventSource) {
         connectSSE();
-        if (refreshWl) {
-            refreshWl();
-        }
+        refreshWl();
     } else {
         noSSE();
         //setInterval(updateWaitTimes, 30000);
