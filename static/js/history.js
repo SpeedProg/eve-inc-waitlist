@@ -11,7 +11,8 @@ var HISTORY = (function(){
 	 */
 	lib.getMetaData = function (name) {
 		return $('meta[name="'+name+'"]').attr('content');
-	}
+	};
+
 	lib.resolveAction = function(action) {
 		switch (action){
 		case "xup":
@@ -51,6 +52,7 @@ var HISTORY = (function(){
 		}
 	};
 	lib.createHistoryEntryDOM = function(entry) {
+		/*jshint multistr: true */
 		var historyEntrySkeleton = $.parseHTML(
 			"<tr class=\"bg-danger h-entry\" data-action=\""+entry.action+"\">\
 				<td>"+entry.time+"</td>\
@@ -64,10 +66,10 @@ var HISTORY = (function(){
 		var targetTD = $(":nth-child(4)", historyEntrySkeleton);
 		var fittingsTD = $(":nth-child(5)", historyEntrySkeleton);
 		
-		if (entry.source != null) {
+		if (entry.source !== null) {
 			nameTD.text(entry.source.username);
 		}
-		targetA.text(entry.target.name)
+		targetA.text(entry.target.name);
 		if (entry.target.newbro) {
 			targetTD.prepend('<span class="tag tag-info">New</span> ');
 		}
@@ -78,10 +80,10 @@ var HISTORY = (function(){
 	};
 	
 	lib.createFittingDOM = function(fit) {
-		if (fit.ship_type == 1) {
-			return $.parseHTML("<a class=\"booby-link\">"+fit.shipName+" </a> ")
+		if (fit.ship_type === 1) {
+			return $.parseHTML("<a class=\"booby-link\">"+fit.shipName+" </a> ");
 		} else {
-			return $.parseHTML("<a class=\"fit-link\" data-dna=\""+fit.dna+"\">"+fit.shipName+" </a>")
+			return $.parseHTML("<a class=\"fit-link\" data-dna=\""+fit.dna+"\">"+fit.shipName+" </a>");
 		}
 	};
 	
@@ -115,8 +117,8 @@ var HISTORY = (function(){
 	lib.entry_added_handler = function(event, entry) {
 		entry = $(entry);
 		if (lib.filter_enabled()) {
-			var action = entry.attr('data-action')
-			if (action != "comp_mv_xup_etr" && action != "comp_mv_xup_fit") {
+			var action = entry.attr('data-action');
+			if (action !== "comp_mv_xup_etr" && action !== "comp_mv_xup_fit") {
 				entry.addClass("hidden-el");
 			}
 		}
@@ -130,7 +132,7 @@ var HISTORY = (function(){
 					el.removeClass("bg-danger");
 				}
 			});
-			lib.refresh()
+			lib.refresh();
 			setInterval(lib.refresh, 10000);
 			$('#filter-approval-only').on('click', lib.filter_handler);
 			$('#historybody').on("hentry-adding", lib.entry_added_handler);

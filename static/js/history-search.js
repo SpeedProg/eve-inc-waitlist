@@ -11,7 +11,8 @@ var HISTORY = (function() {
 	 */
 	lib.getMetaData = function(name) {
 		return $('meta[name="' + name + '"]').attr('content');
-	}
+	};
+
 	lib.resolveAction = function(action) {
 		switch (action) {
 		case "xup":
@@ -50,29 +51,26 @@ var HISTORY = (function() {
 			return action;
 		}
 	};
+
 	lib.createHistoryEntryDOM = function(entry) {
+		/* jshint: multi line str */
 		var historyEntrySkeleton = $
-				.parseHTML("<tr class=\"bg-danger h-entry\" data-action=\""
-						+ entry.action
-						+ "\">\
-				<td>"
-						+ entry.time
-						+ "</td>\
-				<td>"
-						+ lib.resolveAction(entry.action)
-						+ "</td>\
-				<td></td>\
-				<td><a href=\"char:"+entry.target.id+"\"></a></td>\
-				<td></td>\
-			</tr>");
+				.parseHTML("<tr class=\"bg-danger h-entry\" data-action=\"" +
+						entry.action +
+						"\"><td>" +
+						entry.time +
+						"</td><td>" +
+						lib.resolveAction(entry.action) +
+						"</td><td></td>" +
+						"<td><a href=\"char:"+entry.target.id+"\"></a></td><td></td></tr>");
 		var nameTD = $(":nth-child(3)", historyEntrySkeleton);
 		var targetA = $(":nth-child(4) > a", historyEntrySkeleton);
 		var fittingsTD = $(":nth-child(5)", historyEntrySkeleton);
 
-		if (entry.source != null) {
+		if (entry.source !== null) {
 			nameTD.text(entry.source.username);
 		}
-		targetA.text(entry.target.name)
+		targetA.text(entry.target.name);
 
 		for (var i = 0; i < entry.fittings.length; i++) {
 			fittingsTD.append(lib.createFittingDOM(entry.fittings[i]));
@@ -81,28 +79,28 @@ var HISTORY = (function() {
 	};
 
 	lib.createFittingDOM = function(fit) {
-		if (fit.ship_type == 1) {
-			return $.parseHTML("<a class=\"booby-link\">" + fit.shipName
-					+ " </a> ")
+		if (fit.ship_type === 1) {
+			return $.parseHTML("<a class=\"booby-link\">" + fit.shipName +
+					" </a> ");
 		} else {
-			return $.parseHTML("<a class=\"fit-link\" data-dna=\"" + fit.dna
-					+ "\">" + fit.shipName + " </a>")
+			return $.parseHTML("<a class=\"fit-link\" data-dna=\"" + fit.dna +
+					"\">" + fit.shipName + " </a>");
 		}
 	};
 
 	lib.loadData = function(sources, targets, actions, startdate, enddate) {
 		var data = {};
 		if (sources !== null) {
-			data['accs'] = sources;
+			data.accs = sources;
 		}
 		if (targets !== null) {
-			data['chars'] = targets;
+			data.chars = targets;
 		}
 		if (actions !== null) {
-			data['actions'] = actions
+			data.actions = actions;
 		}
-		data['start'] = startdate;
-		data['end'] = enddate;
+		data.start = startdate;
+		data.end = enddate;
 		$.getJSON(lib.getMetaData('api-history-search'), data, function(data) {
 			var hbody = $('#historybody');
 			hbody.empty();
@@ -138,7 +136,7 @@ var HISTORY = (function() {
 		entry = $(entry);
 		if (lib.filter_enabled()) {
 			var action = entry.attr('data-action');
-			if (action != "comp_mv_xup_etr" && action != "comp_mv_xup_fit") {
+			if (action !== "comp_mv_xup_etr" && action !== "comp_mv_xup_fit") {
 				entry.addClass("hidden-el");
 			}
 		}
@@ -148,24 +146,24 @@ var HISTORY = (function() {
 		var sources = $('#input-sources').val();
 		var targets = $('#input-targets').val();
 		var actions = $('#input-actions').val();
-		if (actions != null)
+		if (actions !== null)
 			actions = actions.join('|');
 		var start = $('#startpicker > input').val();
 		var end = $('#endpicker > input').val();
 
-		if (sources == "") {
+		if (sources === "") {
 			sources = null;
 		}
-		if (targets == "") {
+		if (targets === "") {
 			targets = null;
 		}
-		if (actions == "") {
+		if (actions === "") {
 			actions = null;
 		}
-		if (start == "") {
+		if (start === "") {
 			start = moment().subtract(1, 'day').format("YYYY/MM/DD HH:mm");
 		}
-		if (end == "") {
+		if (end === "") {
 			end = moment().format("YYYY/MM/DD HH:mm");
 		}
 

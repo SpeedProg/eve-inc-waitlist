@@ -3,10 +3,10 @@ var sizeRule = null;
 
 var sheets = document.styleSheets;
 for (let sheet of sheets) {
-    if (sheet.ownerNode.id == "history-css") {
+    if (sheet.ownerNode.id === "history-css") {
         for (let rule of sheet.cssRules) {
             for (let prop of rule.style) {
-                if (prop == "font-size") {
+                if (prop === "font-size") {
                     sizeRule = rule;
                 }
             }
