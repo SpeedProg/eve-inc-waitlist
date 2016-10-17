@@ -350,10 +350,8 @@ function removeEntryFromDom(wlid, entryId) {
  * @param count count of entries to set to
  */
 function setWlEntryCount(wlid, count) {
-	var dataElement = $('#wl-'+wlid);
-	dataElement.attr("data-count", count);
-	var textElement = $('#wl-count-'+wlid);
-	textElement.text(count);
+	document.getElementById('wl-'+wlid).setAttribute("data-count", count);
+	document.getElementById('wl-count-'+wlid).innerHTML = count;
 }
 
 /**
