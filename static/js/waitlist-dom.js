@@ -129,7 +129,10 @@ function createHeaderDOM(wlid, entry, groupId, isQueue) {
 			oldInvites = " <div class='missed-invites' style='display: inline;'></div>";
 		}
 	}
-	var charRow = $('<a href="javascript:IGBW.showInfo(1377, '+entry.character.id+');" data-ext="char-header">'+
+	
+	// make managers call the CREST API others should open in quie's tool
+	var charHref = can_manage ? 'javascript:IGBW.showInfo(1377, '+entry.character.id+');' : 'char:'+entry.character.id;
+	var charRow = $('<a href="' + charHref + '" data-ext="char-header">'+
 						'<div class="wel-header-32">'+
 									'<img class="img-32" src="https://imageserver.eveonline.com/Character/'+entry.character.id+'_32.jpg" alt="'+entry.character.name+'">'+
 							'<div class="wel-container-32">'+

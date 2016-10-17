@@ -829,14 +829,6 @@ def xup_update_submit():
     remove_self_fit(old_fit_id)
     return response
 
-@bp_waitlist.route('/management')
-@login_required
-@perm_management.require(http_exception=401)
-def management():
-    queue = db.session.query(Waitlist).filter(Waitlist.name == WaitlistNames.xup_queue).first()
-    return render_template("waitlist_management.html", queue=queue)
-
-
 @bp_waitlist.route("/debug")
 @login_required
 @perm_dev.require(http_exception=401)
