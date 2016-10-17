@@ -5,7 +5,7 @@
 {% block head %}
 <meta name="api-igui-openwindow-newmail" content="{{url_for('api_eve_openwindow.newmail')}}">
 {{ super() }}
-{% assets filters="jsmin", output="gen/ticket.%(version)s.css", "js/ticket-settings.js" %}
+{% assets filters="jsmin", output="gen/ticket.%(version)s.js", "js/ticket-settings.js" %}
 <script type="text/javascript" src="{{ ASSET_URL }}"></script>
 {% endassets %}
 {% endblock %}

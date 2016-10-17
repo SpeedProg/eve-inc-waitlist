@@ -492,13 +492,25 @@ def fleet_status_set(gid):
                 flash("XUP is now "+xup_text, "success")
     elif action == "fc":
         group.fcs.append(current_user)
+
+        with open("set_history.log", "a+") as f:
+            f.write('{} - {} sets them self as FC\n'.format(datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S"), current_user.username))
+
         flash("You added your self to FCs "+current_user.get_eve_name(), "success")
     elif action == "manager":
         group.manager.append(current_user)
+
+        with open("set_history.log", "a+") as f:
+            f.write('{} - {} sets them self as Fleet Manager\n'.format(datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S"), current_user.username))
+
         flash("You added your self to manager "+current_user.get_eve_name(), "success")
     elif action == "manager-remove":
         accountID = int(request.form['accountID'])
         account = db.session.query(Account).get(accountID)
+    
+        with open("set_history.log", "a+") as f:
+            f.write('{} - {} is removed as Fleet Manager by {}\n'.format(datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S"), account.username, current_user.username))
+
         try:
             group.manager.remove(account)
         except ValueError:
@@ -506,15 +518,27 @@ def fleet_status_set(gid):
     elif action == "fc-remove":
         accountID = int(request.form['accountID'])
         account = db.session.query(Account).get(accountID)
+
+        with open("set_history.log", "a+") as f:
+            f.write('{} - {} is removed as FC by {}\n'.format(datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S"), account.username, current_user.username))
+
         try:
             group.fcs.remove(account)
         except ValueError:
             pass
     elif action == "add-backseat":
         group.backseats.append(current_user)
+
+        with open("set_history.log", "a+") as f:
+            f.write('{} - {} sets them self as Backseat\n'.format(datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S"), current_user.username))
+
+        flash("You added your self as Backseat "+current_user.get_eve_name(), "success")
     elif action == "remove-backseat":
         accountID = int(request.form['accountID'])
         account = db.session.query(Account).get(accountID)
+        with open("set_history.log", "a+") as f:
+            f.write('{} - {} is removed as Backseat by {}\n'.format(datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S"), account.username, current_user.username))
+        
         try:
             group.backseats.remove(account)
         except ValueError:

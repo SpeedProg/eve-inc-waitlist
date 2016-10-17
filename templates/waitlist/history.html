@@ -3,11 +3,7 @@
 
 {% block head %}
 {{ super() }}
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js" integrity="sha256-1A78rJEdiWTzco6qdn3igTBv9VupN3Q1ozZNTR4WE/Y=" crossorigin="anonymous"></script>
 <script src="https://quiescens.duckdns.org/wl/wtm.js"></script>
-{% assets filters="cssmin", output="gen/fitlink.%(version)s.js", "js/fitlink.js" %}
-    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
-{% endassets %}
 <meta name="api-history-changed" content="{{url_for('api_fittings.history_since')}}">
 <style type="text/css" id="history-css">
 .hidden-el {
@@ -36,7 +32,7 @@
 </tbody>
 </table>
 </div>
-{% assets filters="jsmin", output="gen/history-setup.%(version)s.js", "js/history.js", "js/history-font.js" %}
+{% assets filters="jsmin", output="gen/history-setup.%(version)s.js", "js/history.js", "js/history-font.js", "js/fitlink.js" %}
 <script type="text/javascript" src="{{ ASSET_URL }}"></script>
 {% endassets %}
 {% endblock %}

@@ -1,4 +1,5 @@
-FSETTINGS = (function(){
+'use strict';
+var FSETTINGS = (function(){
 	var lib = {};
 	/**
 	 * Get meta elements content from the website
@@ -17,7 +18,7 @@ FSETTINGS = (function(){
 	lib.removeFleet = function(fleetID) {
 		$.ajax({
 			success: function(){
-				$('#fleet-'+fleetID).remove()
+				$('#fleet-'+fleetID).remove();
 			},
 			data: {
 				'_csrf_token': this.getMetaData('csrf-token')
@@ -47,8 +48,8 @@ FSETTINGS = (function(){
 				'fleetID': fleetID
 			},
 			'error': function(data) {
-				var message = data.statusText
-				if (typeof data.message != 'undefined') {
+				var message = data.statusText;
+				if (typeof data.message !== 'undefined') {
 						message += ": " + data.message;
 				}
 				displayMessage(message, "danger");
@@ -56,8 +57,8 @@ FSETTINGS = (function(){
 			'success': function(data){
 			}
 		});
-	}
-	
+	};
+
 	return lib;
 }());
 

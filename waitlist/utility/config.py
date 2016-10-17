@@ -36,8 +36,7 @@ if  not os.path.isfile(os.path.join(".", "config", "config.cfg")):
     config.set("cdn", "cdn_https", "..")
 
     config.add_section("debug")
-    config.set("debug", "enabled", "0")
-    config.set("debug", "fileversion", "")
+    config.set("debug", "enabled", "False")
     
     makedirs(os.path.join(".", "config"))
     with open(os.path.join(".", "config", "config.cfg"), "wb") as configfile:
@@ -46,10 +45,14 @@ if  not os.path.isfile(os.path.join(".", "config", "config.cfg")):
 config = ConfigParser.SafeConfigParser()
 config.read(os.path.join("config", "config.cfg"))
 
+debug_enabled = config.get("debug", "enabled") == "True"
+
 connection_uri = config.get("database", "connection_uri")
-cdn_https = config.get("cdn", "cdn_https")
+cdn_https = config.get("cdn", "cdn_https") == "True"
 cdn_domain = config.get("cdn", "cdn_domain")
-cdn_assets = config.get("cdn", "cdn_assets")
+cdn_assets = config.get("cdn", "cdn_assets") == "True"
+html_min = not debug_enabled
+assets_debug = debug_enabled
 sqlalchemy_pool_recycle = config.getint("database", "sqlalchemy_pool_recycle")
 secret_key = base64.b64decode(config.get("app", "secret_key"))
 server_port = config.getint("app", "server_port")
@@ -66,5 +69,3 @@ crest_return_url = config.get("crest", "return_url")
 motd_hq = config.get("motd", "hq")
 motd_vg = config.get("motd", "vg")
 
-debug_enabled = True if config.get("debug", "enabled") == "1" else False
-debug_fileversion = config.get("debug", "fileversion")

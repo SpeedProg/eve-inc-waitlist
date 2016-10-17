@@ -1,26 +1,29 @@
-var getMetaData = function (name) {
-	return $('meta[name="'+name+'"]').attr('content');
+'use strict';
+if (!getMetaData){
+	var getMetaData = function (name) {
+		return $('meta[name="'+name+'"]').attr('content');
+	};
 }
 
 function getTicketElement(ticketId) {
 	var el = {
 			id: ticketId,
 			jqE: $('#fb-'+ticketId)
-	}
+	};
 	el.getTitle = function(){
 		return $(":nth-child(4)", this.jqE).text();
-	}
+	};
 	
 	el.getMessage = function() {
 		return $(":nth-child(5)", this.jqE).text();
-	}
+	};
 	
 	el.getCharacterId = function() {
 		return this.jqE.attr('data-charID');
-	}
+	};
 	el.getCharacterName = function() {
 		return $(":nth-child(3)", this.jqE).text();
-	}
+	};
 	return el;
 }
 
@@ -50,8 +53,8 @@ function changeTicketStatus(ticketID, ticketStatus) {
 			'ticketStatus': ticketStatus
 		},
 		'error': function(data) {
-			var message = data.statusText
-			if (typeof data.message != 'undefined') {
+			var message = data.statusText;
+			if (typeof data.message !== 'undefined') {
 					message += ": " + data.message;
 			}
 			displayMessage(message, "danger");

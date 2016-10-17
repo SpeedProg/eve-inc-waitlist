@@ -45,7 +45,7 @@
 		{% endif %}#}
 		<td>{{resolve_action(hEl.action)}}</td>
 		<td>{{hEl.source.username}}</td>
-		<td><a href="javascript:CCPEVE.showInfo(1377, {{ hEl.targetID }});">{{hEl.target.get_eve_name()}}</a></td>
+		<td><a href="char:{{ hEl.targetID }});">{{hEl.target.get_eve_name()}}</a></td>
 		<td>{% for fit in hEl.fittings %} {% if fit.ship_type == 1 %}<a class="booby-link">{{fit.ship.typeName}}</a>{% else %}<a class="fit-link" data-dna="{{fit.get_dna()}}">{{fit.ship.typeName}}</a>{% endif %}{% endfor %}</td>
 	</tr>
 {% endfor %}

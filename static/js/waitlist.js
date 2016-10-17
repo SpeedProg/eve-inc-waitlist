@@ -1,5 +1,13 @@
-var getMetaData = function (name) {
-	return $('meta[name="'+name+'"]').attr('content');
+'use strict';
+if (!getMetaData){
+	var getMetaData = function (name) {
+		return $('meta[name="'+name+'"]').attr('content');
+	};
+}
+
+function getFitUpdateUrl(fitID) {
+	var baseURL = getMetaData('api-fit-update');
+	return baseURL.replace('-1', fitID);
 }
 
 $(document).ready(function(){    
@@ -8,17 +16,31 @@ $(document).ready(function(){
 	
     $('.collapse').on('show.bs.collapse', function (e) {
     	var id = $(e.target).attr("id");
-    	$.cookie(id, "open");
+    	sessionStorage.setItem(id, 'open');
     	var togglerSelector = $(e.target).data("tog-icon");
        	$(togglerSelector).removeClass("fa-plus-square").addClass("fa-minus-square");
     });
 
     $('.collapse').on('hide.bs.collapse', function (e) {
     	var id = $(e.target).attr("id");
-    	$.cookie(id, "closed");
+    	sessionStorage.removeItem(id);
     	var togglerSelector = $(e.target).data("tog-icon");
 		$(togglerSelector).removeClass("fa-minus-square").addClass("fa-plus-square");
     });
+    
+    $("#row-waitlists").on("click", '[data-action="remove-own-fit"]', removeOwnFit);
+    $("#row-waitlists").on("click", '[data-action="update-fit"]', updateFit);
+
+    var wlists = $('ol[id|="wl-fits"]');
+	for (var i=0; i < wlists.length; i++) {
+		var wl = $(wlists[i]);
+		var wlId = wl.attr("id");
+		var storage = sessionStorage.getItem(wlId);
+
+		if (storage !== "open") {
+			wl.collapse('hide');
+		}
+	}
 });
 function removeSelf() {
 	var settings = {
@@ -28,22 +50,13 @@ function removeSelf() {
 			},
 			method: 'DELETE',
 			success: function(data, status, jqxhr){
-				var wlNames = getMetaData("wl-names").split(",");
-				for(var i=0, len=wlNames.length; i < len; i++) {
-					var wlName = wlNames[i];
-					var entryId = "entry-"+wlName+"-"+getMetaData('user-id');
-					var entry = document.getElementById(entryId);
-					if (entry != null) { // there is a entry for him on that wl
-						entry.parentNode.removeChild(entry); // remote it from the DOM
-					}
-				}
 			},
 			url: getMetaData('url-self-remove-all')
 	};
 	$.ajax(settings);
 }
 
-function removeOwnEntry(wlName, charId, entryId) {
+function removeOwnEntry(wlId, charId, entryId) {
 	var settings = {
 			dataType: "text",
 			headers: {
@@ -51,18 +64,18 @@ function removeOwnEntry(wlName, charId, entryId) {
 			},
 			method: 'DELETE',
 			success: function(data, status, jqxhr){
-				var htmlId = "entry-"+wlName+"-"+charId;
-				var entry = document.getElementById(htmlId);
-				if (entry != null) { // there is a entry for him on that wl
-					entry.parentNode.removeChild(entry); // remote it from the DOM
-				}
 			},
 			url: "/api/self/wlentry/remove/"+entryId
 	};
 	$.ajax(settings);
 }
 
-function removeOwnFit(fitId, wlName, charId) {
+function removeOwnFit(event) {
+	var target = $(event.currentTarget);
+	var fitId = Number(target.attr('data-fit'));
+	var wlId = Number(target.attr('data-wlId'));
+	var entryId = Number(target.attr('data-entryId'));
+	event.stopPropagation();
 	var settings = {
 			dataType: "text",
 			headers: {
@@ -70,25 +83,16 @@ function removeOwnFit(fitId, wlName, charId) {
 			},
 			method: 'DELETE',
 			success: function(data, status, jqxhr){
-				var entryHtmlId = "entry-"+wlName+"-"+charId;
-				var fitHtmlId = "fit-"+fitId;
-				var fit = document.getElementById(fitHtmlId);
-				var entry = document.getElementById(entryHtmlId);
-				if (fit != null) { // there is a entry for him on that wl
-					fit.parentNode.removeChild(fit); // remote it from the DOM
-				}
-				var count = Number(entry.getAttribute("data-count"));
-				if (count <= 1) {
-					// no fit left, remove entry
-					if (entry != null) { // there is a entry for him on that wl
-						entry.parentNode.removeChild(entry); // remote it from the DOM
-					}
-				} else {
-					count--;
-					entry.setAttribute("data-count", count);
-				}
 			},
 			url: "/api/self/fittings/remove/"+fitId
 	};
 	$.ajax(settings);
+}
+
+function updateFit(event) {
+	event.stopPropagation();
+	var target = $(event.currentTarget);
+	var fitId = Number(target.attr('data-fit'));
+	var updateUrl = getFitUpdateUrl(fitId);
+	window.location = updateUrl;
 }
