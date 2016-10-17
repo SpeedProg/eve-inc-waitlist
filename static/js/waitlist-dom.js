@@ -25,8 +25,7 @@ function displayMessage(message, type) {
 	var textContainer = $('.text-xs-center', alertHTML);
 	textContainer.html(message);
 	alertHTML.addClass('alert-'+type);
-	var alertArea = $('#alert-area-base');
-	alertArea.append(alertHTML)
+    $(document.getElementById('alert-area-base')).append(alertHTML);
 }
 
 /**
@@ -242,16 +241,15 @@ function addTagToDomEntry(entry, tagString) {
 
 function removeFitFromDom(wlId, entryId, fitId) {
 	'use strict';
-	var targetFit = $('#fit-'+wlId+'-'+entryId+'-'+fitId);
+	var targetFit = document.getElementById('fit-'+wlId+'-'+entryId+'-'+fitId);
 	if (targetFit.length <= 0) {
 		return 0;
 	}
 	targetFit.remove();
 	// make sure that a tag gets removed if they are not needed anymore
-	var entry = $('#entry-'+wlId+'-'+entryId);
+	var entry = document.getElementById('entry-'+wlId+'-'+entryId);
 	var tagList = getTagsFromDomEntry(entry);
-	var fitContainer = $('#fittings-'+entryId);
-	var fitTags = getTagsFromDomFitContainer(fitContainer);
+	var fitTags = getTagsFromDomFitContainer(document.getElementById('fittings-'+entryId));
 	for( let tag of tagList) {
 		if (!fitTags.includes(tag)) {
 			removeTagFromDomEntry(entry, tag);
@@ -262,12 +260,12 @@ function removeFitFromDom(wlId, entryId, fitId) {
 
 function addFitToDom(wlId, entryId, fit, isQueue, userId) {
 	'use strict';
-	var entry = $('#entry-'+wlId+'-'+entryId);
-	var fitContainer = $('#fittings-'+entryId);
+    var entry = document.getElementById('entry-'+wlId+'-'+entryId);
+	var fitContainer = document.getElementById('fittings-'+entryId);
 	var username = entry.attr('data-username');
 	
 	var fitDom = createFitDOM(fit, wlId, entryId, isQueue, username, userId);
-	fitContainer.append(fitDom);
+	fitContainer.appendChild(fitDom);
 	// add new tags if needed
 	var tagList = getTagsFromDomEntry(entry);
 	
@@ -329,20 +327,17 @@ function createFitDOM(fit, wlId, entryId, queue, username, userId) {
  */
 function addNewEntry(wlid, entry, groupID, isQueue) {
 	var entryDOM = createEntryDOM(wlid, entry, groupID, isQueue);
-	var wlEntryContainer = $('#wl-'+wlid);
-	wlEntryContainer.append(entryDOM);
-	var oldCount = getWlEntryCount(wlid);
-	setWlEntryCount(wlid, oldCount+1);
+    $(document.getElementById('wl-'+wlid)).append(entryDOM);
+	setWlEntryCount(wlid, getWlEntryCount(wlid)+1);
 }
 
 function removeEntryFromDom(wlid, entryId) {
-	var targetEntry = $('#entry-'+wlid+'-'+entryId);
+	var targetEntry = document.getElementById('entry-'+wlid+'-'+entryId);
 	if (targetEntry.length <= 0) {
 		return 0;
 	}
 	targetEntry.remove();
-	var oldCount = getWlEntryCount(wlid);
-	setWlEntryCount(wlid, oldCount-1);
+	setWlEntryCount(wlid, getWlEntryCount(wlid)-1);
 	return 1;
 }
 
@@ -352,10 +347,8 @@ function removeEntryFromDom(wlid, entryId) {
  * @param count count of entries to set to
  */
 function setWlEntryCount(wlid, count) {
-	var dataElement = $('#wl-'+wlid);
-	dataElement.attr("data-count", count);
-	var textElement = $('#wl-count-'+wlid);
-	textElement.text(count);
+	document.getElementById('wl-'+wlid).setAttribute("data-count", count);
+	document.getElementById('wl-count-'+wlid).innerHTML = count;
 }
 
 /**
@@ -364,8 +357,7 @@ function setWlEntryCount(wlid, count) {
  * @returns {Number} count of entries in the waitlist
  */
 function getWlEntryCount(wlid) {
-	var dataElement = $('#wl-'+wlid);
-	return Number(dataElement.attr("data-count"));
+	return Number(document.getElementById('wl-'+wlid).getAttribute("data-count"));
 }
 
 
@@ -470,8 +462,7 @@ function updateWlEntry(wlid, entry, isQueue) {
  * @param wldata wl object as received from the api
  */
 function cleanWL(wldata) {
-	var wlbody = $('#wl-fits-'+wldata.id);
-	wlbody.empty();
+	$('#wl-fits-'+wldata.id).empty();
 }
 
 /**
