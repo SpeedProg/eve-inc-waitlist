@@ -2,9 +2,9 @@
 /**
  * Get meta elements content from the website
  */
-var getMetaData = function (name) {
+let getMetaData = function (name) {
 	return $('meta[name="'+name+'"]').attr('content');
-}
+};
 
 /**
  * Sends out a notification
@@ -19,8 +19,8 @@ function sendNotification(charID, waitlistID) {
 			'_csrf_token': getMetaData('csrf-token')
 		},
 		'error': function(data) {
-			var message = data.statusText
-			if (typeof data.message != 'undefined') {
+			var message = data.statusText;
+			if (typeof data.message !== 'undefined') {
 					message += ": " + data.message;
 			}
 			displayMessage(message, "danger");
@@ -45,12 +45,12 @@ function invitePlayer(userID, waitlistID, groupID) {
 			'_csrf_token': getMetaData('csrf-token')
 		},
 		'error': function(data) {
-			var message = data.statusText
-			if (typeof data.message != 'undefined') {
+			var message = data.statusText;
+			if (typeof data.message !== 'undefined') {
 					message += ": " + data.message;
 			}
-			if (typeof data.responseJSON != 'undefined' && typeof data.responseJSON.message != 'undefined') {
-				message += ": " + data.responseJSON.message
+			if (typeof data.responseJSON !== 'undefined' && typeof data.responseJSON.message !== 'undefined') {
+				message += ": " + data.responseJSON.message;
 			}
 			displayMessage(message, "danger");
 		},
@@ -68,13 +68,13 @@ function removePlayer(userId, groupId) {
 	$.post(getMetaData('api-wls-remove-player'), {'playerId': userId, 'groupId': groupId, '_csrf_token': getMetaData('csrf-token')}, function(){
 	}, "text");
 	var wl_names = getMetaData('wl-names').split(',');
-	for (idx in wl_names) {
-		var wl_name = wl_names[idx]
-		var entry_id = "entry-"+wl_name+"-"+userId
+	for (let idx in wl_names) {
+		var wl_name = wl_names[idx];
+		var entry_id = "entry-"+wl_name+"-"+userId;
 		var entry = document.getElementById(entry_id);
-		if (entry != null) { // there is a entry for him on that wl
+		if (entry !== null) { // there is a entry for him on that wl
 			entry.parentNode.removeChild(entry); // remote it from the DOM
-			setWlEntryCount(wl_name, getWlEntryCount(wl_name)-1)
+			setWlEntryCount(wl_name, getWlEntryCount(wl_name)-1);
 		}
 	 }
 }
@@ -107,7 +107,7 @@ function moveEntryToWaitlists(wlId, entryId) {
 		var cId = cIdStr.substring(fitid_prefix_length, cIdStr.length);
 		fit_id_str += cId;
 		if (idx < fitCount-1) {
-			fit_id_str += ","
+			fit_id_str += ",";
 		}
 	});
 	$.post(getMetaData('api-move-entry-to-wls'), {'entryId': entryId, 'fitIds': fit_id_str, '_csrf_token': getMetaData('csrf-token')}, function(){

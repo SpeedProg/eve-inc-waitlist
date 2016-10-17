@@ -28,23 +28,22 @@ var REFORM = (function(){
 		textContainer.html(message);
 		alertHTML.addClass('alert-'+type);
 		var alertArea = $('#alert-area-base');
-		alertArea.append(alertHTML)
+		alertArea.append(alertHTML);
 	};
 	
 	lib.invite = function(playerName) {
-		console.log("Sending Invite for "+playerName);
 		$.post({
 			'url': lib.api_invite_by_name.replace('-1', playerName),
 			'data': {
 				'_csrf_token': lib.csrf
 			},
 			'error': function(data) {
-				var message = data.statusText
-				if (typeof data.message != 'undefined') {
+				var message = data.statusText;
+				if (typeof data.message !== 'undefined') {
 						message += ": " + data.message;
 				}
-				if (typeof data.responseJSON != 'undefined' && typeof data.responseJSON.message != 'undefined') {
-					message += ": " + data.responseJSON.message
+				if (typeof data.responseJSON !== 'undefined' && typeof data.responseJSON.message !== 'undefined') {
+					message += ": " + data.responseJSON.message;
 				}
 				lib.displayMessage(message, "danger");
 				lib.increaseCounter(1);
@@ -64,10 +63,10 @@ var REFORM = (function(){
 	
 	lib.startInvites = function(event) {
 		var character_names = lib.user_list_extractor_func($(lib.user_list_selector));
-		var bar = $(lib.progress_selector)
+		var bar = $(lib.progress_selector);
 		bar.attr('max', character_names.length);
 		bar.attr('value', 0);
-		for (name of character_names) {
+		for (let name of character_names) {
 			lib.invite(name);
 		}
 	};
@@ -80,5 +79,5 @@ var REFORM = (function(){
 	return lib;
 }());
 $(document).ready(function() {
-	REFORM.init()
+	REFORM.init();
 });

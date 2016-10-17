@@ -4,15 +4,10 @@
  */
 var getMetaData = function (name) {
 	return $('meta[name="'+name+'"]').attr('content');
-}
+};
 
-function getFitUpdateUrl(fitID) {
-	var baseURL = getMetaData('api-fit-update');
-	return baseURL.replace('-1', fitID);
-}
-
-var can_view_fits = (getMetaData('can-view-fits') == "True");
-var can_manage = (getMetaData('can-fleetcomp') == "True");
+var can_view_fits = (getMetaData('can-view-fits') === "True");
+var can_manage = (getMetaData('can-fleetcomp') === "True");
 var user_id = Number((getMetaData('user-id')));
 
 function displayMessage(message, type) {
@@ -26,7 +21,7 @@ function displayMessage(message, type) {
 	textContainer.html(message);
 	alertHTML.addClass('alert-'+type);
 	var alertArea = $('#alert-area-base');
-	alertArea.append(alertHTML)
+	alertArea.append(alertHTML);
 }
 
 /**
@@ -62,10 +57,10 @@ function getTagsFromFits(fits) {
 	var tags = {};
 	var addTag = function(name) {
 		if (name in tags) {
-			return
+			return;
 		}
 		tags[name] = true;
-	}
+	};
 	for (var i=0; i < fits.length; i++) {
 		addTag(getTagFromJsonFit(fits[i]));
 	}
@@ -81,27 +76,23 @@ function getTagFromJsonFit(jsonFit) {
 	switch (jsonFit.wl_type) {
 	case "logi":
 		// since we want to have basi/scimi specificly need to check shipType here
-		if (jsonFit.shipType == 11985) {
+		if (jsonFit.shipType === 11985) {
 			return "B";
-		} else if (jsonFit.shipType == 11978) {
+		} else if (jsonFit.shipType === 11978) {
 			return "S";
-		} else if (jsonFit.shipType == 1) {
+		} else if (jsonFit.shipType === 1) {
 			// it is scruffy
 			return "LOGI";
 		}
 		break;
 	case "sniper":
 		return "SNI";
-		break;
 	case "dps":
 		return "DPS";
-		break;
 	case "other":
 		return "OTHER";
-		break;
 	default:
 		return "UNKNOWN";
-		break;
 	}
 }
 
@@ -114,7 +105,7 @@ function getTagFromJsonFit(jsonFit) {
  */
 function createHeaderDOM(wlid, entry, groupId, isQueue) {
 	var newBroTag = "";
-	if ((can_view_fits || entry.character.id == user_id) && entry.character.newbro) {
+	if ((can_view_fits || entry.character.id === user_id) && entry.character.newbro) {
 		newBroTag = ' <span class="tag tag-info">New</span>';
 	}
 	var cTime = new Date(Date.now());
@@ -122,7 +113,7 @@ function createHeaderDOM(wlid, entry, groupId, isQueue) {
 	var waitTimeMinutes = Math.max(0, Math.floor((cTime - xupTime)/60000));
 	var header = $('<div></div>');
 	var oldInvites = "";
-	if ((can_view_fits || entry.character.id == user_id) && !isQueue) {
+	if ((can_view_fits || entry.character.id === user_id) && !isQueue) {
 		if (entry.missedInvites > 0) {
 			oldInvites = " <div class='missed-invites' style='display: inline;'><div style='display: inline;' class='missed-invites-number'>"+entry.missedInvites+'</div> <i class="fa fa-bed" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="Missed Invites"></i></div>';
 		} else {
@@ -141,14 +132,14 @@ function createHeaderDOM(wlid, entry, groupId, isQueue) {
 							'</div>'+
 						'</div>'+
 						'</a>');
-	if (can_view_fits || entry.character.id == user_id) {
+	if (can_view_fits || entry.character.id === user_id) {
 		var tags = getTagsFromFits(entry.fittings);
 		var tagContainer = $('div.tag-row', charRow);
 		for (var i = 0; i < tags.length; i++) {
 			tagContainer.append(createTypeTag(tags[i]));
 		}
 	}
-	var convoButton = ""
+	var convoButton = "";
 	var buttonRow = null;
 	if (can_manage && isQueue) { // fleetcom queue
 		buttonRow = $('<div>'+
@@ -172,11 +163,11 @@ function createHeaderDOM(wlid, entry, groupId, isQueue) {
 				'</div>');
 	} else { // linemembers/only view fits
 		var buttonHTML = '<div class="btn-group btn-group-mini" role="group" aria-label="Action Buttons">';
-		if (entry.character.id == user_id) {
+		if (entry.character.id === user_id) {
 			buttonHTML += '<button type="button" class="btn btn-mini btn-warning" '+
 			'onclick="javascript: removeOwnEntry(\''+wlid+'\', '+entry.character.id+', '+entry.id+');"><i class="fa fa-times"></i></button>';
 		}
-		if (entry.character.id == user_id || can_view_fits) {
+		if (entry.character.id === user_id || can_view_fits) {
 			buttonHTML += '<button type="button" data-toggle="collapse" data-target="#fittings-'+entry.id+'" class="btn btn-primary"><i class="fa fa-caret-down"></i> Fits</button>';
 		}
 		buttonHTML +='</div>';
@@ -198,7 +189,7 @@ function createHeaderDOM(wlid, entry, groupId, isQueue) {
 function createEntryDOM(wlId, entry, groupID, isQueue) {
 	var entryDOM = $('<li class="list-group-item" data-username="'+entry.character.name+'" id="entry-'+wlId+'-'+entry.id+'" data-count="'+entry.fittings.length+'"></li>');
 	entryDOM.append(createHeaderDOM(wlId, entry, groupID, isQueue));
-	var fittlistDOM = $('<ul aria-expanded="true" class="list-group list-group-flush collapse" id="fittings-'+entry.id+'"></ul>')
+	var fittlistDOM = $('<ul aria-expanded="true" class="list-group list-group-flush collapse" id="fittings-'+entry.id+'"></ul>');
 	entryDOM.append(fittlistDOM);
 	for (var i=0; i<entry.fittings.length; i++) {
 		fittlistDOM.append(createFitDOM(entry.fittings[i], wlId, entry.id, isQueue, entry.character.name, entry.character.id));
@@ -223,7 +214,7 @@ function getTagsFromDomFitContainer(fitContainer) {
 	var tagList = [];
 	fitContainer.children().each(function(){
 		tagList.push(getTagFromDomFit($(this)));
-	})
+	});
 	return tagList;
 }
 
@@ -231,7 +222,7 @@ function removeTagFromDomEntry(entry, tagString) {
 	var tagContainer = $('div.tag-row', entry);
 	tagContainer.children().each(function(){
 		var e = $(this);
-		if (e.text() == tagString) {
+		if (e.text() === tagString) {
 			e.remove();
 		}
 	});
@@ -253,7 +244,7 @@ function removeFitFromDom(wlId, entryId, fitId) {
 	var entry = $('#entry-'+wlId+'-'+entryId);
 	var tagList = getTagsFromDomEntry(entry);
 	var fitTags = getTagsFromDomFitContainer($('#fittings-'+entryId));
-	for( let tag of tagList) {
+	for(let tag of tagList) {
 		if (!fitTags.includes(tag)) {
 			removeTagFromDomEntry(entry, tag);
 		}
@@ -288,13 +279,13 @@ function addFitToDom(wlId, entryId, fit, isQueue, userId) {
  */
 function createFitDOM(fit, wlId, entryId, queue, username, userId) {
 	queue = typeof queue !== 'undefined' ? queue : false;
-	var isDummy = (fit.shipType == 1);
+	var isDummy = (fit.shipType === 1);
 	var approveButton = "";
 	if (can_manage && queue) {
 		approveButton = ' <button type="button" class="btn btn-mini btn-success" data-type="fit-approve" data-id="'+fit.id+'" data-wlId="'+wlId+'" data-entryId="'+entryId+'"><i class="fa fa-thumbs-o-up"></i></button>';
 	}
 	var fitButtons = "";
-	if (user_id == userId) {
+	if (user_id === userId) {
 		fitButtons += '<button type="button" class="btn btn-mini btn-danger" data-action="remove-own-fit" data-fit='+fit.id+' data-wlId='+wlId+' data-entryId='+entryId+'><i class="fa fa-times"></i> Fit</button>';
 		if (queue) {
 			fitButtons += '<button type="button" class="btn btn-mini btn-danger" data-action="update-fit" data-fit="'+fit.id+'" class="btn btn-warning">Update</button>';
@@ -303,7 +294,7 @@ function createFitDOM(fit, wlId, entryId, queue, username, userId) {
 	
 	var fitdom = isDummy ? $($.parseHTML('<li class="list-group-item fitting" id="fit-'+wlId+"-"+entryId+"-"+fit.id+'" data-type="'+getTagFromJsonFit(fit)+'"></li>')) : $($.parseHTML('<li class="list-group-item fitting" id="fit-'+wlId+"-"+entryId+"-"+fit.id+'" data-type="'+getTagFromJsonFit(fit)+'"></li>'));
 	var commentHTML = "";
-	if (fit.comment != null) {
+	if (fit.comment !== null) {
 		commentHTML = '<small>'+fit.comment+'</small>';
 	}
 	// lets check if it is the dummy fit
@@ -316,8 +307,7 @@ function createFitDOM(fit, wlId, entryId, queue, username, userId) {
 						.append($.parseHTML('<div class="wel-container-32"><div class="wel-text-row-32-2">'+fit.shipName+'</div><div class="wel-text-row-32-2">'+commentHTML+approveButton+fitButtons+'</div></div>'))
 						)
 			);
-	return fitdom
-	// add own fit removal button if its your own entry :/
+	return fitdom;
 }
 
 /**
@@ -384,27 +374,27 @@ function updateWlEntry(wlid, entry, isQueue) {
 		var waitTimeMinutes = Math.floor((cTime - xupTime)/60000);
 		var newTimeText = waitTimeMinutes+" min ago";
 		var oldTimeText = wtElement.text();
-		if (oldTimeText != newTimeText) {
+		if (oldTimeText !== newTimeText) {
 			wtElement.text(newTimeText);
 		}
 		
 		// update the missed invites
 		if (entry.missedInvites > 0) {
-			var invNumElement = $('.missed-invites-number', jEntries[0])
+			let invNumElement = $('.missed-invites-number', jEntries[0]);
 			if (invNumElement.length > 0) {
 				var oldNum = Number(invNumElement.text());
-				if (oldNum != entry.missedInvites) {
+				if (oldNum !== entry.missedInvites) {
 					invNumElement.text(entry.missedInvites);
 				}
 			} else {
-				var invElement = $('.missed-invites', jEntries[0]);
-				var counterElement = $.parseHTML("<div style='display: inline;' class='missed-invites-number'>"+entry.missedInvites+'</div> <i class="fa fa-bed" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="Missed Invites"></i>');
+				let invElement = $('.missed-invites', jEntries[0]);
+				let counterElement = $.parseHTML("<div style='display: inline;' class='missed-invites-number'>"+entry.missedInvites+'</div> <i class="fa fa-bed" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="Missed Invites"></i>');
 				invElement.append(counterElement);
 			}
 		} else {
-			var invNumElement = $('.missed-invites-number', jEntries[0]);
+			let invNumElement = $('.missed-invites-number', jEntries[0]);
 			if (invNumElement.length > 0) {
-				var invElement = $('.missed-invites', jEntries[0]);
+				let invElement = $('.missed-invites', jEntries[0]);
 				invElement.empty();
 			}
 		}
@@ -421,10 +411,10 @@ function updateWlEntry(wlid, entry, isQueue) {
 			var currentElement = $(this);
 			var currentId = currentElement.attr("id");
 			currentId = Number(currentId.slice(4));
-			var is_existing = false
-			for (var i=0; i < entry.fittings.length; i++ ) {
+			var is_existing = false;
+			for (let i=0; i < entry.fittings.length; i++ ) {
 				var fit = entry.fittings[i];
-				if (fit.id == currentId) {
+				if (fit.id === currentId) {
 					is_existing = true;
 					entry.fittings.splice(i, 1); // this fit is already there we don't need it
 					i=i-1;
@@ -449,10 +439,10 @@ function updateWlEntry(wlid, entry, isQueue) {
 		
 		// if we modified sth update the tags
 		if (modified) {
-			var tags = getTagsFromFits(fittings);
-			var tagContainer = $('div.tag-row', jEntries);
+			let tags = getTagsFromFits(fittings);
+			let tagContainer = $('div.tag-row', jEntries);
 			tagContainer.empty();
-			for (var i = 0; i < tags.length; i++) {
+			for (let i = 0; i < tags.length; i++) {
 				tagContainer.append(createTypeTag(tags[i]));
 			}
 		}
@@ -477,12 +467,12 @@ function deleteMissingEntries(wldata) {
 	var removeCount = 0;
 	var entries = $('li[id|="entry-'+wldata.id+'"]');
 	var preLen = ("entry-"+wldata.id+"-").length;
-	for (var i=0; i < entries.length; i++) {
+	for (let i=0; i < entries.length; i++) {
 		var id = $(entries[i]).attr("id");
-		id = Number(id.slice(preLen))
+		id = Number(id.slice(preLen));
 		var is_existing = false;
-		for (var n=0; n < wldata.entries.length; n++) {
-			if (wldata.entries[n].id == id) {
+		for (let n=0; n < wldata.entries.length; n++) {
+			if (wldata.entries[n].id === id) {
 				is_existing = true;
 				break;
 			}
@@ -512,19 +502,19 @@ function addNewEntries(wldata, groupID) {
 	// there needs to be added the current entry there
 	// if we do match, we need to check the fits there
 	var inserAfterElement = null;
-	for (var n=0; n < wldata.entries.length; n++) {
+	for (let n=0; n < wldata.entries.length; n++) {
 		var currentDOMIdx = n-addedCounter;
 		if (currentDOMIdx < domEntryCount) {
 			var currentDOM = $(entries[n-addedCounter]);
 			var domId = Number(currentDOM.attr('id').slice(preLen));
 			// if ids match == check for fits that need to be updated
-			if (domId == wldata.entries[n].id) {
+			if (domId === wldata.entries[n].id) {
 				inserAfterElement = currentDOM;
-				updateWlEntry(wldata.id, wldata.entries[n], wldata.name == "queue" ? true : false);
+				updateWlEntry(wldata.id, wldata.entries[n], wldata.name === "queue" ? true : false);
 			} else {
 				// we need to add a new entry
-				var entryDOM = createEntryDOM(wldata.id, wldata.entries[n], groupID, wldata.name == "queue");
-				if (inserAfterElement == null) {
+				let entryDOM = createEntryDOM(wldata.id, wldata.entries[n], groupID, wldata.name === "queue");
+				if (inserAfterElement === null) {
 					var wlEntryContainer = $('#wl-fits-'+wldata.id);
 					wlEntryContainer.prepend(entryDOM);
 					inserAfterElement = entryDOM;
@@ -535,9 +525,9 @@ function addNewEntries(wldata, groupID) {
 				addedCounter += 1;
 			}
 		} else {
-			var entryDOM = createEntryDOM(wldata.id, wldata.entries[n], groupID, wldata.name == "queue");
-			if (inserAfterElement == null) {
-				var wlEntryContainer = $('#wl-fits-'+wldata.id);
+			let entryDOM = createEntryDOM(wldata.id, wldata.entries[n], groupID, wldata.name === "queue");
+			if (inserAfterElement === null) {
+				let wlEntryContainer = $('#wl-fits-'+wldata.id);
 				wlEntryContainer.prepend(entryDOM);
 				inserAfterElement = entryDOM;
 			} else {
@@ -567,7 +557,7 @@ function updateWaitlist(wldata, groupID) {
  */
 function refreshWl() {
 	var wlid = getMetaData('wl-group-id');
-	if (typeof wlid != 'undefined') {
+	if (typeof wlid !== 'undefined') {
 		$.getJSON(getMetaData('api-waitlists')+"?group="+wlid, function(data){
 			for (var i=0; i < data.waitlists.length; i++) {
 				updateWaitlist(data.waitlists[i], data.groupID);

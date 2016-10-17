@@ -1,12 +1,11 @@
 'use strict';
-var getMetaData = function (name) {
+let getMetaData = function (name) {
 	return $('meta[name="'+name+'"]').attr('content');
-}
+};
 
-var eventSource = undefined;
+var eventSource;
 var errorCount = 0;
 function handleSSEError(event) {
-	console.log("SSE Error Occured");
 	event.target.close();
 	errorCount++;
 	if (errorCount < 2) { // our first error reconnect this instant
@@ -20,7 +19,6 @@ function handleSSEError(event) {
 }
 
 function handleSSEOpen(event) {
-	console.log("SSE Open");
 	if (errorCount > 1) {
 		// refresh the page using json, to pull ALL the date, we might have missed sth
 		refreshWl();
@@ -44,7 +42,7 @@ function entryAddedListener(event) {
 
 function fitRemovedListener(event) {
 	var data = JSON.parse(event.data);
-	removeFitFromDom(data.listId, data.entryId, data.fitId)
+	removeFitFromDom(data.listId, data.entryId, data.fitId);
 }
 
 function entryRemovedListener(event) {

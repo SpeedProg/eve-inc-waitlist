@@ -1,6 +1,11 @@
 'use strict';
-var getMetaData = function (name) {
+let getMetaData = function (name) {
 	return $('meta[name="'+name+'"]').attr('content');
+};
+
+function getFitUpdateUrl(fitID) {
+	var baseURL = getMetaData('api-fit-update');
+	return baseURL.replace('-1', fitID);
 }
 
 $(document).ready(function(){    
@@ -30,7 +35,7 @@ $(document).ready(function(){
 		var wlId = wl.attr("id");
 		var storage = sessionStorage.getItem(wlId);
 
-		if (storage != "open") {
+		if (storage !== "open") {
 			wl.collapse('hide');
 		}
 	}
