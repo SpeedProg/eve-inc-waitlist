@@ -343,7 +343,10 @@ function removeEntryFromDom(wlid, entryId) {
  */
 function setWlEntryCount(wlid, count) {
 	document.getElementById('wl-'+wlid).setAttribute("data-count", count);
-	document.getElementById('wl-count-'+wlid).textContent = count;
+	var countElement = document.getElementById('wl-count-'+wlid);
+	if (countElement !== null) {
+		countElement.textContent = count;
+	}
 }
 
 /**
