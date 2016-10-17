@@ -85,6 +85,6 @@ function wlsse() {
         refreshWl();
     } else {
         noSSE();
-        //setInterval(updateWaitTimes, 30000);
+        refreshWl();
     }
 });
