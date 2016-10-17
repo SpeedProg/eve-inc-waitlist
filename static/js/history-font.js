@@ -25,11 +25,19 @@ function getFontSize() {
 }
 
 function setFontSize(newSize) {
+    localStorage.setItem('fontsize', newSize);
     sizeRule.style["font-size"] = newSize+"em";
-    $.cookie('fontsize', newSize);
 }
-var savedSize = $.cookie('fontsize');
-if (typeof savedSize === 'undefined') {
-    savedSize = 0.5;
+
+function fontSizeSetup() {
+    var storageFont = localStorage.getItem('fontsize');
+
+    if (storageFont === null) {
+       localStorage.setItem('fontsize', 0.5);
+       storageFont = "0.5";
+    }
+
+    setFontSize(storageFont);
 }
-setFontSize(savedSize);
+
+document.addEventListener('DOMContentLoaded', fontSizeSetup);
