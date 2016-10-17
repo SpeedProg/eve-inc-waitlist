@@ -25,8 +25,7 @@ function displayMessage(message, type) {
 	var textContainer = $('.text-xs-center', alertHTML);
 	textContainer.html(message);
 	alertHTML.addClass('alert-'+type);
-	var alertArea = $('#alert-area-base');
-	alertArea.append(alertHTML)
+    $(document.getElementById('alert-area-base')).append(alertHTML);
 }
 
 /**
