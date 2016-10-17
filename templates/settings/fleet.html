@@ -141,7 +141,7 @@ $(document).ready(function() {
     	<th scope="row">FC</th>
     	<td>
     	{% for fc in group.fcs %}
-    	<a href="javascript:CCPEVE.showInfo(1377, {{fc.get_eve_id()}});">{{fc.get_eve_name()}}</a>
+    	<a href="char:{{fc.get_eve_id()}}">{{fc.get_eve_name()}}</a>
     	<form action="{{url_for('settings.fleet_status_set', gid=group.groupID)}}" method="post" class="form-inline" style="display:inline;">
     	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
     	<input type="hidden" name="action" value="fc-remove">
@@ -162,7 +162,7 @@ $(document).ready(function() {
     	<th scope="row">Fleet Manager</th>
     	<td>
     	{% for manager in group.manager %}
-    	<a href="javascript:CCPEVE.showInfo(1377, {{manager.get_eve_id()}});">{{manager.get_eve_name()}}</a>
+    	<a href="char:{{manager.get_eve_id()}}">{{manager.get_eve_name()}}</a>
     	<form action="{{url_for('settings.fleet_status_set', gid=group.groupID)}}" method="post" class="form-inline" style="display:inline;">
     	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
     	<input type="hidden" name="action" value="manager-remove">
@@ -183,7 +183,7 @@ $(document).ready(function() {
     {% if perm_officer.can() or perm_leadership.can() %}
     <tr>
     	<th scope="row">Constellation</th>
-    	<td>{% if group.constellation is not none %}<a href="javascript:CCPEVE.showInfo(4, {{group.constellation.constellationID}});">{{group.constellation.constellationName}}</a>{% else %}Not Set{% endif %}</td>
+    	<td>{% if group.constellation is not none %}<a href="#">{{group.constellation.constellationName}}</a>{% else %}Not Set{% endif %}</td>
     	<td>
     	<form action="{{url_for('settings.fleet_location_set', gid=group.groupID)}}" method="post" class="form-inline">
     	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
@@ -195,7 +195,7 @@ $(document).ready(function() {
     </tr>
     <tr>
     	<th scope="row">Dockup</th>
-    	<td>{% if group.dockup is not none %}<a href="javascript:CCPEVE.setDestination({{group.dockup.stationID}});">{{group.dockup.stationName}}</a>{% else %}Not Set{% endif %}</td>
+    	<td>{% if group.dockup is not none %}<a href="#">{{group.dockup.stationName}}</a>{% else %}Not Set{% endif %}</td>
     	<td>
     	<form action="{{url_for('settings.fleet_location_set', gid=group.groupID)}}" method="post" class="form-inline">
     	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
@@ -207,7 +207,7 @@ $(document).ready(function() {
     </tr>
     <tr>
     	<th scope="row">System</th>
-    	<td>{% if group.system is not none %}<a href="javascript:CCPEVE.showInfo(5, {{group.system.solarSystemID}});">{{group.system.solarSystemName}}</a>{% else %}Not Set{% endif %}</td>
+    	<td>{% if group.system is not none %}<a href="#">{{group.system.solarSystemName}}</a>{% else %}Not Set{% endif %}</td>
     	<td>
     	<form action="{{url_for('settings.fleet_location_set', gid=group.groupID)}}" method="post" class="form-inline">
     	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
@@ -222,7 +222,7 @@ $(document).ready(function() {
     <th scope="row">Backseats:</th>
     <td colspan="2">
     {% for backseat in group.backseats %}
-    	<a href="javascript:IGBW.showInfo(1377, {{backseat.current_char_obj.get_eve_id()}});">{{backseat.current_char_obj.get_eve_name()}}</a>
+    	<a href=char:{{backseat.current_char_obj.get_eve_id()}}">{{backseat.current_char_obj.get_eve_name()}}</a>
     	<form action="{{url_for('settings.fleet_status_set', gid=group.groupID)}}" method="post" class="form-inline" style="display:inline;">
     	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
     	<input type="hidden" name="action" value="remove-backseat">
