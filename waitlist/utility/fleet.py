@@ -295,6 +295,8 @@ def spawn_invite_check(characterID, groupID, fleetID):
     t.start()
 
 def check_invite_and_remove_timer(charID, groupID, fleetID):
+    # hold SSE till sending
+    _events = []
     logger.info("Checking invite for %d %d %d", charID, groupID, fleetID)
     group = db.session.query(WaitlistGroup).get(groupID)
     crestFleet = db.session.query(CrestFleet).get(fleetID)
@@ -325,6 +327,9 @@ def check_invite_and_remove_timer(charID, groupID, fleetID):
             if entry is not None:
                 fittings.extend(entry.fittings)
         
+        for entry in waitlist:
+            event = EntryRemovedSSE(entry.waitlist.groupID, entry.waitlist_id, entry.id)
+            _events.append(event)
         
         db.session.query(WaitlistEntry).filter((WaitlistEntry.user == charID) &
                                                                    ((WaitlistEntry.waitlist_id == group.logiwlID) |
@@ -338,6 +343,9 @@ def check_invite_and_remove_timer(charID, groupID, fleetID):
         hEntry.exref = group.groupID
         db.session.add(hEntry)
         db.session.commit()
+        
+        for event in _events:
+            sendServerSentEvent(event)
 
         logger.info("auto removed %s from %s waitlist.", character.eve_name, group.groupName)
     else:
