@@ -78,7 +78,6 @@ function getSSE() {
 	return sse;
 }
 
-$(document).ready(
 function wlsse() {
     if (!!window.EventSource) {
         connectSSE();
@@ -87,4 +86,6 @@ function wlsse() {
         noSSE();
         refreshWl();
     }
-});
+}
+
+document.addEventListener('DOMContentLoaded', wlsse);
