@@ -334,13 +334,12 @@ function addNewEntry(wlid, entry, groupID, isQueue) {
 }
 
 function removeEntryFromDom(wlid, entryId) {
-	var targetEntry = $('#entry-'+wlid+'-'+entryId);
+	var targetEntry = document.getElementById('entry-'+wlid+'-'+entryId);
 	if (targetEntry.length <= 0) {
 		return 0;
 	}
 	targetEntry.remove();
-	var oldCount = getWlEntryCount(wlid);
-	setWlEntryCount(wlid, oldCount-1);
+	setWlEntryCount(wlid, getWlEntryCount(wlid)-1);
 	return 1;
 }
 
