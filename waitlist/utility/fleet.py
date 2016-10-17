@@ -330,7 +330,7 @@ def check_invite_and_remove_timer(charID, groupID, fleetID):
             if entry is not None:
                 fittings.extend(entry.fittings)
         
-        for entry in waitlist:
+        for entry in waitlist_entries:
             event = EntryRemovedSSE(entry.waitlist.groupID, entry.waitlist_id, entry.id)
             _events.append(event)
         
