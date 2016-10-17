@@ -5,7 +5,8 @@ from flask.blueprints import Blueprint
 import logging
 import flask
 from waitlist.data.sse import FitAddedSSE, EntryAddedSSE, EntryRemovedSSE,\
-    FitRemovedSSE, GongSSE, Subscription, addSubscription, removeSubscription
+    FitRemovedSSE, GongSSE, Subscription, addSubscription, removeSubscription,\
+    InviteMissedSSE
 from flask.wrappers import Response
 
 bp = Blueprint('api_sse', __name__)
@@ -41,7 +42,7 @@ def events():
     logger.info(event_group_strs);
     if 'waitlistUpdates' in event_group_strs:
         logger.info("adding waitlist update events, to subscription")
-        events += [FitAddedSSE, EntryAddedSSE, EntryRemovedSSE, FitRemovedSSE]
+        events += [FitAddedSSE, EntryAddedSSE, EntryRemovedSSE, FitRemovedSSE, InviteMissedSSE]
         groupId_str = request.args.get('groupId', None)
         if groupId_str is None:
             flask.abort(400, "No GroupId defined")

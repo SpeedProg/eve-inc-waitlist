@@ -231,3 +231,19 @@ class GongSSE(ServerSentEvent):
     
     def encode(self, sub):
         return ServerSentEvent.encode(self)
+
+class InviteMissedSSE(ServerSentEvent):
+    def __init__(self, groupId, userId):
+        ServerSentEvent.__init__(self, self.__getData(userId), "invite-missed")
+        self.groupId = groupId
+    
+    def __getData(self, userId):
+        return dumps({
+            'userId': userId
+            })
+
+    def accepts(self, subscription):
+        return True
+    
+    def encode(self, sub):
+        return ServerSentEvent.encode(self)
