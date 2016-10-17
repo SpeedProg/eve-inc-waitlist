@@ -24,15 +24,16 @@
 	</select>
 </fieldset>
 <fieldset class="form-group">
-{% if not is_igb %}
-<label class="c-input c-checkbox">
-	<input type="checkbox" value="no-setup" name="skip-setup">
-	<span class="c-indicator"></span>
-	Skip Auto Fleet Setup
-</label>
-{% else %}
-<label><input type="checkbox" id="skip-setup" name="skip-setup" value="no-setup"> Skip Auto Fleet Setup</label>
-{% endif %}
+	<input type="checkbox" value="no-setup" name="skip-setup" id="skip-setup"/>
+	<div class="btn-group">
+		<label for="skip-setup" class="btn btn-sm btn-info">
+			<span>✔</span>
+ 			<span>✘</span>
+		</label>
+	<label for="skip-setup" class="btn btn-sm btn-danger">
+		Skip Auto Fleet Setup
+	</label>
+	</div>
 </fieldset>
 <button type="submit" class="btn-primary btn">Next</button>
 </form>
