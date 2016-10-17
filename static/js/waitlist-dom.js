@@ -468,8 +468,7 @@ function updateWlEntry(wlid, entry, isQueue) {
  * @param wldata wl object as received from the api
  */
 function cleanWL(wldata) {
-	var wlbody = $('#wl-fits-'+wldata.id);
-	wlbody.empty();
+	$('#wl-fits-'+wldata.id).empty();
 }
 
 /**
