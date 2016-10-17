@@ -1,7 +1,9 @@
 'use strict';
-let getMetaData = function (name) {
-	return $('meta[name="'+name+'"]').attr('content');
-};
+if (!getMetaData){
+	var getMetaData = function (name) {
+		return $('meta[name="'+name+'"]').attr('content');
+	};
+}
 
 function getFitUpdateUrl(fitID) {
 	var baseURL = getMetaData('api-fit-update');

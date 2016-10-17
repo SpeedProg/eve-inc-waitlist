@@ -2,9 +2,11 @@
 /**
  * Get meta elements content from the website
  */
-let getMetaData = function (name) {
-	return $('meta[name="'+name+'"]').attr('content');
-};
+if (!getMetaData){
+	var getMetaData = function (name) {
+		return $('meta[name="'+name+'"]').attr('content');
+	};
+}
 
 /**
  * Sends out a notification

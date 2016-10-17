@@ -1,8 +1,9 @@
 'use strict';
-let getMetaData = function (name) {
-	return $('meta[name="'+name+'"]').attr('content');
-};
-
+if (!getMetaData){
+	var getMetaData = function (name) {
+		return $('meta[name="'+name+'"]').attr('content');
+	};
+}
 var eventSource;
 var errorCount = 0;
 function handleSSEError(event) {
