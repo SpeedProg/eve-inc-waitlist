@@ -4,6 +4,9 @@ if (!getMetaData){
 		return $('meta[name="'+name+'"]').attr('content');
 	};
 }
+if (!can_manage) {
+	var can_manage = (getMetaData('can-fleetcomp') === "True");
+}
 var eventSource;
 var errorCount = 0;
 function handleSSEError(event) {
@@ -39,6 +42,9 @@ function fitAddedListener(event) {
 function entryAddedListener(event) {
 	var data = JSON.parse(event.data);
 	addNewEntry(data.listId, data.entry, data.groupId, data.isQueue);
+	if (data.isQueue) {
+		sendNotificationForEntry(data);
+	}
 }
 
 function fitRemovedListener(event) {
@@ -92,6 +98,28 @@ function wlsse() {
         noSSE();
         refreshWl();
     }
+}
+
+function sendNotificationForEntry(data) {
+	if (!("Notification" in window)) {
+		return;
+	}
+	var title = "New X-UP"
+	var options = {
+		'body': "New X-UP from "+data.entry.character.name
+	}
+	// if we have permission
+	if (Notification.permission === "granted") {
+		var notification = new Notification(title, options);
+	// if we are not denied (user didn't select yet
+	} else if (Notification.permission !== 'denied') {
+		Notification.requestPermission(function (permission) {
+			// If the user accepts, let's create a notification
+			if (permission === "granted") {
+				var notification = new Notification(title, options);
+			}
+		});
+	}
 }
 
 document.addEventListener('DOMContentLoaded', wlsse);
