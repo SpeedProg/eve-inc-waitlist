@@ -255,8 +255,8 @@ function removeFitFromDom(wlId, entryId, fitId) {
 }
 
 function addFitToDom(wlId, entryId, fit, isQueue, userId) {
-    var entry = document.getElementById('entry-'+wlId+'-'+entryId);
-	var fitContainer = document.getElementById('fittings-'+entryId);
+    var entry = $('#entry-'+wlId+'-'+entryId);
+	var fitContainer = $('#fittings-'+entryId);
 	var username = entry.attr('data-username');
 	
 	var fitDom = createFitDOM(fit, wlId, entryId, isQueue, username, userId);
