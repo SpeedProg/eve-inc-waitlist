@@ -2,9 +2,11 @@
 /**
  * Get meta elements content from the website
  */
-var getMetaData = function (name) {
-	return $('meta[name="'+name+'"]').attr('content');
-};
+if (!getMetaData){
+	var getMetaData = function (name) {
+		return $('meta[name="'+name+'"]').attr('content');
+	};
+}
 
 var can_view_fits = (getMetaData('can-view-fits') === "True");
 var can_manage = (getMetaData('can-fleetcomp') === "True");
