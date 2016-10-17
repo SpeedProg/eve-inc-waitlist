@@ -4,9 +4,6 @@
 {% block head %}
 {{ super() }}
 <script src="https://quiescens.duckdns.org/wl/wtm.js"></script>
-{% assets filters="jsmin", output="gen/fitlink.%(version)s.js", "js/fitlink.js" %}
-    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
-{% endassets %}
 <meta name="api-history-search" content="{{url_for('api_history.get_comp_history')}}">
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.15.1/moment.min.js" integrity="sha256-4PIvl58L9q7iwjT654TQJM+C/acEyoG738iL8B8nhXg=" crossorigin="anonymous"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.42/css/bootstrap-datetimepicker.min.css" integrity="sha256-IihK1cRp3mOP+uJ2NIWC4NK60QT0nPwLDHyh1ekT5/w=" crossorigin="anonymous" />
@@ -87,7 +84,7 @@
 </tbody>
 </table>
 </div>
-{% assets filters="jsmin", output="gen/history-search-setup.%(version)s.js", "js/history-search.js", "js/history-font.js" %}
+{% assets filters="jsmin", output="gen/history-search-setup.%(version)s.js", "js/history-search.js", "js/history-font.js", "js/fitlink.js" %}
 <script type="text/javascript" src="{{ ASSET_URL }}"></script>
 {% endassets %}
 {% endblock %}
