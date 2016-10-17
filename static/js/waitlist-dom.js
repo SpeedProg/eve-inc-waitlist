@@ -327,10 +327,8 @@ function createFitDOM(fit, wlId, entryId, queue, username, userId) {
  */
 function addNewEntry(wlid, entry, groupID, isQueue) {
 	var entryDOM = createEntryDOM(wlid, entry, groupID, isQueue);
-	var wlEntryContainer = $('#wl-'+wlid);
-	wlEntryContainer.append(entryDOM);
-	var oldCount = getWlEntryCount(wlid);
-	setWlEntryCount(wlid, oldCount+1);
+    $(document.getElementById('wl-'+wlid)).append(entryDOM);
+	setWlEntryCount(wlid, getWlEntryCount(wlid)+1);
 }
 
 function removeEntryFromDom(wlid, entryId) {
