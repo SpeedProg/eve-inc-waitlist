@@ -241,16 +241,15 @@ function addTagToDomEntry(entry, tagString) {
 
 function removeFitFromDom(wlId, entryId, fitId) {
 	'use strict';
-	var targetFit = $('#fit-'+wlId+'-'+entryId+'-'+fitId);
+	var targetFit = document.getElementById('fit-'+wlId+'-'+entryId+'-'+fitId);
 	if (targetFit.length <= 0) {
 		return 0;
 	}
 	targetFit.remove();
 	// make sure that a tag gets removed if they are not needed anymore
-	var entry = $('#entry-'+wlId+'-'+entryId);
+	var entry = document.getElementById('entry-'+wlId+'-'+entryId);
 	var tagList = getTagsFromDomEntry(entry);
-	var fitContainer = $('#fittings-'+entryId);
-	var fitTags = getTagsFromDomFitContainer(fitContainer);
+	var fitTags = getTagsFromDomFitContainer(document.getElementById('fittings-'+entryId));
 	for( let tag of tagList) {
 		if (!fitTags.includes(tag)) {
 			removeTagFromDomEntry(entry, tag);
