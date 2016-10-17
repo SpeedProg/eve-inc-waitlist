@@ -14,6 +14,9 @@ from waitlist.utility.crest import create_token_cb
 from flask.helpers import url_for
 from waitlist.utility.settings.settings import sget_active_ts_id, sget_motd_hq,\
     sget_motd_vg
+from waitlist.data.sse import sendServerSentEvent, InviteMissedSSE,\
+    EntryRemovedSSE
+from waitlist.blueprints.api.fittings import waitlist
 
 logger = logging.getLogger(__name__)
 
@@ -356,7 +359,8 @@ def check_invite_and_remove_timer(charID, groupID, fleetID):
         hEntry.exref = group.groupID
         db.session.add(hEntry)
         db.session.commit()
+        sendServerSentEvent(InviteMissedSSE(groupID, charID))
+
         logger.info("%s missed his invite", character.eve_name)
     
     db.session.remove()
-

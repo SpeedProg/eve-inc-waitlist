@@ -57,6 +57,11 @@ function gongListener(event) {
 	}
 }
 
+function missedInviteListener(event) {
+	var data = JSON.parse(event.data);
+	updateMissedInvite(data.userId);
+}
+
 function noSSE() {
 	displayMessage('We have had to disable <strong>features</strong> please consider upgrading your<a href="http://caniuse.com/#feat=eventsource"> browser', 'danger');
 	//setInterval(refreshWl, 30000);
@@ -72,7 +77,9 @@ function getSSE() {
 	
 	sse.addEventListener("entry-added", entryAddedListener);
 	sse.addEventListener("entry-removed", entryRemovedListener);
+
 	sse.addEventListener("invite-send", gongListener);
+	sse.addEventListener("invite-missed", missedInviteListener);
 	
 	return sse;
 }

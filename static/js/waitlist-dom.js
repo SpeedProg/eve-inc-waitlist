@@ -117,9 +117,9 @@ function createHeaderDOM(wlid, entry, groupId, isQueue) {
 	var oldInvites = "";
 	if ((can_view_fits || entry.character.id === user_id) && !isQueue) {
 		if (entry.missedInvites > 0) {
-			oldInvites = " <div class='missed-invites' style='display: inline;'><div style='display: inline;' class='missed-invites-number'>"+entry.missedInvites+'</div> <i class="fa fa-bed" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="Missed Invites"></i></div>';
+			oldInvites = " <div class='missed-invites' style='display: inline;' data-userId='"+entry.character.id+"'><div style='display: inline;' class='missed-invites-number'>"+entry.missedInvites+'</div> <i class="fa fa-bed" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="Missed Invites"></i></div>';
 		} else {
-			oldInvites = " <div class='missed-invites' style='display: inline;'></div>";
+			oldInvites = " <div class='missed-invites' style='display: inline;' data-userId='"+entry.character.id+"'></div>";
 		}
 	}
 	
@@ -575,5 +575,25 @@ function updateWaitTimes() {
 		var xupTime = new Date(Date.parse(waitElement.attr('data-time')));
 		var waitTimeMinutes = Math.max(0, Math.floor((cTime - xupTime)/60000));
 		waitElement.text(waitTimeMinutes+" min ago");
+	});
+}
+
+function updateMissedInvite(userId) {
+	// first get the missed invites elements
+	var missedElements = $('.missed-invites[data-userId="'+userId+'"]');
+	// go through them and check if there is allready a missed invites dom
+	missedElements.each(function(idx, e){
+		let el = $(e);
+		let count = 0;
+		if (el.children().length > 0) { // we have the DOM
+			// read current count
+			let countEl = $('.missed-invites-number', el);
+			count = Number(countEl.text());
+			// set the new count
+			countEl.text(count+1);
+		} else {
+			// he didn't miss invites yet, no DOM
+			el.append($("<div style='display: inline;' class='missed-invites-number'>"+(count+1)+'</div> <i class="fa fa-bed" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="Missed Invites"></i>'))
+		}
 	});
 }
