@@ -16,7 +16,6 @@ from waitlist.utility.settings.settings import sget_active_ts_id, sget_motd_hq,\
     sget_motd_vg
 from waitlist.data.sse import sendServerSentEvent, InviteMissedSSE,\
     EntryRemovedSSE
-from waitlist.blueprints.api.fittings import waitlist
 
 logger = logging.getLogger(__name__)
 
