@@ -36,7 +36,6 @@ if  not os.path.isfile(os.path.join(".", "config", "config.cfg")):
     config.set("cdn", "cdn_https", "..")
 
     config.add_section("debug")
-    config.set("debug", "fileversion", "")
     config.set("debug", "enabled", "False")
     
     makedirs(os.path.join(".", "config"))
@@ -70,4 +69,3 @@ crest_return_url = config.get("crest", "return_url")
 motd_hq = config.get("motd", "hq")
 motd_vg = config.get("motd", "vg")
 
-debug_fileversion = config.get("debug", "fileversion")

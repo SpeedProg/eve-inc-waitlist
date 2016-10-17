@@ -9,8 +9,7 @@ from waitlist.utility.settings.settings import sget_insert
 from waitlist.data.names import WTMRoles
 from pycrest.eve import EVE
 from waitlist.utility.settings import settings
-from waitlist.utility.config import debug_enabled, debug_fileversion,\
-    crest_client_id, crest_client_secret, crest_return_url
+from waitlist.utility.config import crest_client_id, crest_client_secret, crest_return_url
 from waitlist.data.version import version
 from waitlist.utility.eve_id_utils import get_account_from_db, get_char_from_db,\
     is_char_banned, get_character_by_id_and_name, get_character_by_name
@@ -85,10 +84,6 @@ def inject_data():
     is_account = False
     if hasattr(current_user, 'type'):
         is_account=(current_user.type == "account")
-    if debug_enabled:
-        display_version = debug_fileversion
-    else:
-        display_version = version
     header_insert = sget_insert('header')
     if (header_insert is not None):
         header_insert = header_insert.replace("$type$", str(get_user_type()))
@@ -97,7 +92,7 @@ def inject_data():
                 perm_officer=perm_officer, perm_accounts=perm_accounts,
                 perm_feedback=perm_feedback, is_account=is_account,
                 perm_dev=perm_dev, perm_leadership=perm_leadership, perm_bans=perm_bans,
-                perm_viewfits=perm_viewfits, version=display_version, perm_comphistory=perm_comphistory,
+                perm_viewfits=perm_viewfits, version=version, perm_comphistory=perm_comphistory,
                 perm_res_mod=perm_mod_mail_resident, perm_t_mod=perm_mod_mail_tbadge, perm_manager=perm_manager,
                 header_insert=header_insert
                 )
