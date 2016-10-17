@@ -62,9 +62,7 @@ var HISTORY = (function() {
 						+ lib.resolveAction(entry.action)
 						+ "</td>\
 				<td></td>\
-				<td><a href=\"javascript:CCPEVE.showInfo(1377, "
-						+ entry.target.id
-						+ ");\"></a></td>\
+				<td><a href=\"char:"+entry.target.id+"\"></a></td>\
 				<td></td>\
 			</tr>");
 		var nameTD = $(":nth-child(3)", historyEntrySkeleton);
