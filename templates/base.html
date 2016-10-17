@@ -1,33 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-{% block head %}
 <meta charset="utf-8">
 <meta name="csrf-token" content="{{csrf_token()}}">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <meta http-equiv="x-ua-compatible" content="ie=edge">
-{% if nocss == True %}
-{% else %}
+{% block head %}
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.4/css/bootstrap.min.css" integrity="sha384-2hfp1SzUoho7/TsGGGDaFdsuuDL0LX2hnUp6VkX3CUQ2K4K+xjboZdsXyp4oUHZj" crossorigin="anonymous">
 {% assets filters="cssmin", output="gen/setup.%(version)s.css", "css/base.css", "css/waitlist.css", "css/font.css" %}
 <link rel="stylesheet" href="{{ ASSET_URL }}">
 {% endassets %}
-{% endif %}
 {% if is_igb %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/es5-shim/4.5.7/es5-shim.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/es5-shim/4.5.7/es5-sham.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/json3/3.3.2/json3.min.js"></script>
-<script type="text/javascript">CCPEVE.requestTrust(location.protocol+'//'+location.hostname+(location.port ? ':'+location.port: ''));</script>
 {% endif %}
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.3.7/js/tether.min.js" integrity="sha256-/5pHDZh2fv1eZImyfiThtB5Ag4LqDjyittT7fLjdT/8=" crossorigin="anonymous"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.4/js/bootstrap.min.js" integrity="sha384-VjEeINv9OSwtWFLAtmc4JCtEJXXBub00gtSnszmspDLCtC0I4z4nqz7rEFbIZLLU" crossorigin="anonymous"></script>
-{% if nojs == True %}
-{% else %}
-{% assets filters="jsmin", output="gen/base.%(version)s.js", "js/eve-igb-wrapper.js", "js/ts3.js", "js/dnasetup.js" %}
-<script type="text/javascript" src="{{ ASSET_URL }}"></script>
-{% endassets %}
-{% endif %}
+<script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.4/js/bootstrap.min.js" integrity="sha384-VjEeINv9OSwtWFLAtmc4JCtEJXXBub00gtSnszmspDLCtC0I4z4nqz7rEFbIZLLU" crossorigin="anonymous"></script>
 <title>{% block title %}{% endblock %}</title>
 {% endblock %}
 {% if header_insert is not none %}
@@ -49,14 +39,14 @@
 	<li class="nav-item">
 	<a class="nav-link btn btn-success btn-sm" href="{{url_for('fittings.xup_index')}}">X-UP</a>
 	</li>
-	{% if perm_man.can() %}
+	{% if perm_comphistory.can() %}
 	<li class="nav-item dropdown">
 		<a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Tools</a>
 		<div class="dropdown-menu">
+			{% if perm_man.can() %}
 			<a class="dropdown-item" href="{{url_for('fleet_reform.index')}}">Reform</a>
-			{% if perm_comphistory.can() %}
-			<a class="dropdown-item" href="{{url_for('fittings.history_default')}}">Comp History</a>
 			{% endif %}
+			<a class="dropdown-item" href="{{url_for('fittings.history_default')}}">Comp History</a>
 			{% if perm_manager.getPermission('history_search').can() %}
 			<div class="dropdown-divider"></div>
 			<a class="dropdown-item" href="{{url_for('comp_history_search.index')}}">Comp History Search</a>
@@ -84,7 +74,18 @@
 		<button type="button" class="nav-link btn btn-danger btn-sm" onclick="removeSelf();">Leave Waitlists</button>
 	</li>
 	<li class="nav-item pull-xs-right">
-		<a class="nav-link" href="{{url_for('fittings.notification', user_id=current_user.get_eve_id())}}" target="_blank">Notification Link</a>
+		<div class="form-group" style="margin: 0;">
+            <input type="checkbox" name="gongbutton" id="gongbutton"/>
+            <div class="btn-group">
+                <label for="gongbutton" class="btn btn-sm btn-info">
+                    <span>✔</span>
+                    <span>✘</span>
+                </label>
+                <label for="gongbutton" class="btn btn-sm btn-danger">
+					Browser Notifications
+                </label>
+            </div>
+        </div>
 	</li>
 	<li class="nav-item pull-xs-right">
 		<a class="btn btn-danger btn-sm" href="javascript:testTSPoke();">Test TS Poke</a>
@@ -117,7 +118,7 @@
 	</div>
 	{% block footer %}
 	<footer class="footer">
-		&copy; Copyright 2016+ by <a href="javascript:CCPEVE.showInfo(1377, 91495852)">Bruce Warhead</a> v{{version}}.<br/>
+		&copy; Copyright 2016+ by <a href="char:91495852">Bruce Warhead ISK Donations are appreciated</a> v{{version}}.<br/>
 		EVE Online and the EVE logo are the registered trademarks of CCP hf. All rights are reserved worldwide. All other trademarks are the property of their respective owners. EVE Online, the EVE logo, EVE and all associated logos and designs are the intellectual property of CCP hf. All artwork, screenshots, characters, vehicles, storylines, world facts or other recognizable features of the intellectual property relating to these trademarks are likewise the intellectual property of CCP hf. CCP hf. has granted permission to Bruce Warhead to use EVE Online and all associated logos and designs for promotional and information purposes on its website but does not endorse, and is not in any way affiliated with, Bruce Warhead. CCP is in no way responsible for the content on or functioning of this website, nor can it be liable for any damage arising from the use of this website.
 	</footer>
 	{% endblock %}

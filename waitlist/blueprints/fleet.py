@@ -194,6 +194,8 @@ def setup_step_select():
             fleet.compID = current_user.id
 
     db.session.commit()
+    with open("set_history.log", "a+") as f:
+        f.write('{} - {} is taking a fleet on CREST\n'.format(datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S"), fleet.comp.username))
     return redirect(url_for('index'))
 
 @bp.route("/setup/change_squads/<int:fleetID>", methods=["GET"])
@@ -230,6 +232,9 @@ def setup(fleet_id):
         fleet.otherSquadID = moreDpsID
 
     current_user.fleet = fleet
+    with open("set_history.log", "a+") as f:
+        f.write('{} - {} is taking a fleet on CREST\n'.format(datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S"), fleet.comp.username))
+
     db.session.commit()
     return redirect(url_for('settings.fleet'))
 
@@ -280,6 +285,8 @@ def take_link():
                 oldfleet.compID = None
             fleet.compID = current_user.id
             db.session.commit()
+            with open("set_history.log", "a+") as f:
+                f.write('{} - {} is taking a fleet on CREST\n'.format(datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S"), fleet.comp.username))
     return redirect(url_for('settings.fleet'))
 
 @bp.route('/take_sso', methods=['GET'])
@@ -297,6 +304,8 @@ def takeover_sso_cb():
             oldfleet.compID = None
         fleet.compID = current_user.id
         db.session.commit()
+        with open("set_history.log", "a+") as f:
+            f.write('{} - {} is taking a fleet on CREST\n'.format(datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S"), fleet.comp.username))
     return redirect(url_for('settings.fleet'))
 
 @bp.route("/<int:fleetID>/change-type", methods=['GET'])

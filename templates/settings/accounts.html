@@ -13,6 +13,15 @@
 }
 </style>
 {{ super() }}
+
+{% assets filters="cssmin", output="gen/fileinput.%(version)s.css", "css/fileinput.css" %}
+<link rel="stylesheet" href="{{ ASSET_URL }}">
+{% endassets %}
+
+{% assets filters="jsmin", output="gen/fileinput.%(version)s.js", "js/fileinput.js" %}
+<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
+
 <script type="text/javascript">
 function deleteAccount(accountId){
 	var settings = {
@@ -171,8 +180,8 @@ $(document).ready(setUpEventhandlers);
 	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 	<div class="form-group">
 		<label for="acc-file" class="custom-file">
- 			<input type="file" name="file" id="acc-file" class="custom-file-input">
-  			<span class="custom-file-control"></span>
+ 			<input data-toggle="custom-file" data-target="#accounts" type="file" name="file" id="acc-file" class="custom-file-input">
+  			<span id="accounts" data-content="Choose file..." class="custom-file-name custom-file-control"></span>
 		</label>
 	</div>
 	<button type="submit" class="btn btn-primary">Add Accounts</button>

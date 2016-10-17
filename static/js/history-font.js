@@ -1,11 +1,12 @@
+'use strict';
 var sizeRule = null;
 
 var sheets = document.styleSheets;
-for (sheet of sheets) {
-    if (sheet.ownerNode.id == "history-css") {
-        for (rule of sheet.cssRules) {
-            for (prop of rule.style) {
-                if (prop == "font-size") {
+for (let sheet of sheets) {
+    if (sheet.ownerNode.id === "history-css") {
+        for (let rule of sheet.cssRules) {
+            for (let prop of rule.style) {
+                if (prop === "font-size") {
                     sizeRule = rule;
                 }
             }
@@ -24,11 +25,19 @@ function getFontSize() {
 }
 
 function setFontSize(newSize) {
+    localStorage.setItem('fontsize', newSize);
     sizeRule.style["font-size"] = newSize+"em";
-    $.cookie('fontsize', newSize);
 }
-var savedSize = $.cookie('fontsize');
-if (typeof savedSize === 'undefined') {
-    savedSize = 0.5;
+
+function fontSizeSetup() {
+    var storageFont = localStorage.getItem('fontsize');
+
+    if (storageFont === null) {
+       localStorage.setItem('fontsize', 0.5);
+       storageFont = "0.5";
+    }
+
+    setFontSize(storageFont);
 }
-setFontSize(savedSize);
+
+document.addEventListener('DOMContentLoaded', fontSizeSetup);

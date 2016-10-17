@@ -491,8 +491,6 @@ class HistoryEntry(Base):
     EVENT_SELF_RM_WLS_ALL = "self_rm_wls_all"
     EVENT_COMP_MV_XUP_ETR = "comp_mv_xup_etr"
     EVENT_COMP_MV_XUP_FIT = "comp_mv_xup_fit"
-    EVENT_SET_FC = "set_fc"
-    EVENT_SET_FLEETCOMP = "set_fcomp"
     EVENT_AUTO_RM_PL = "auto_rm_pl"
     EVENT_AUTO_CHECK_FAILED = "auto_inv_missed"
     EVENT_COMP_INV_BY_NAME = "comp_inv_by_name"

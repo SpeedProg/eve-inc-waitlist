@@ -2,22 +2,12 @@ import logging
 from waitlist.storage.database import Waitlist, Character, HistoryEntry
 from waitlist.base import db
 import flask
-from waitlist.data.sse import InviteEvent
+from waitlist.data.sse import GongSSE, sendServerSentEvent
 from waitlist.utility.history_utils import create_history_object
 from flask_login import current_user
 from waitlist.ts3.connection import send_poke
 from ts3.query import TS3QueryError
 logger = logging.getLogger(__name__)
-
-import gevent
-subscriptions = []
-
-def send_invite_notice(data):
-    def notify():
-        for sub in subscriptions:
-            sub.put(data)
-
-    gevent.spawn(notify)
 
 def send_notification(playerID, waitlistID, message="You are invited to fleet as {0}"):
     if playerID == None:
@@ -33,8 +23,8 @@ def send_notification(playerID, waitlistID, message="You are invited to fleet as
     
     #db.session.query(WaitlistEntry).filter((WaitlistEntry.user == playerId) & (WaitlistEntry.waitlist_id != queue.id)).delete()
     #db.session.commit()
-    event = InviteEvent(playerID)
-    send_invite_notice(event)
+    event = GongSSE(playerID)
+    sendServerSentEvent(event)
 
     #publish(event)
     

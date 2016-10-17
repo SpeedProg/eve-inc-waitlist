@@ -3,52 +3,47 @@
 {% block title %}Overview{% endblock %}
 
 {% block head %}
+<meta name="can-view-fits" content="{{perm_viewfits.can()}}">
+<meta name="can-fleetcomp" content="{{perm_man.can()}}">
 <meta name="url-self-remove-all" content="{{url_for('fittings.self_remove_all')}}">
 <meta name="user-id" content="{{ current_user.get_eve_id() }}">
 <meta name="wl-names" content="{% for wl in lists %}{{wl.name|e}}{% if not loop.last %},{% endif %}{% endfor %}">
 <meta name="api-ts-test" content="{{url_for('api_ts3.test_poke')}}">
+<meta name="api-sse" content="{{url_for('api_sse.events')}}">
+<meta name="api-waitlists" content="{{url_for('api_fittings.waitlist')}}">
+<meta name="api-fit-update" content="{{url_for('fittings.xup_update', fitID=-1)}}">
+{% if group %}
+<meta name="wl-group-id" content="{{group.groupID}}">
+{% endif %}
 {% if perm_man.can() %}
 {# URLs for fleetcomp js #}
 <meta name="api-send-notification" content="{{url_for('api_fittings.send_notification', playerID=-1)}}">
 <meta name="api-wls-remove-player" content="{{url_for('fittings.api_wls_remove_player')}}">
 <meta name="api-wl-remove-entry" content="{{url_for('fittings.api_wl_remove_entry')}}">
 <meta name="api-move-entry-to-wls" content="{{url_for('fittings.move_to_waitlists')}}">
-<meta name="api-waitlists" content="{{url_for('api_fittings.waitlist')}}">
 <meta name="api-approve-fit" content="{{url_for('fittings.api_move_fit_to_waitlist')}}">
 <meta name="api-send-invite" content="{{url_for('api_fleet.invite_to_fleet')}}">
 <meta name="api-igui-openwindow-ownerdetails" content="{{url_for('api_eve_openwindow.ownerdetails')}}">
 <meta name="api-movetosafety" content="{{url_for('api_fleet.move_fleetmembers_to_safety')}}">
-{% if group %}
-<meta name="wl-group-id" content="{{group.groupID}}">
 {% endif %}
-{% endif %}
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.4/css/bootstrap.min.css" integrity="sha384-2hfp1SzUoho7/TsGGGDaFdsuuDL0LX2hnUp6VkX3CUQ2K4K+xjboZdsXyp4oUHZj" crossorigin="anonymous">
-{% assets filters="cssmin", output="gen/setup.%(version)s.css", "css/base.css", "css/waitlist.css", "css/font.css" %}
-<link rel="stylesheet" href="{{ ASSET_URL }}">
-{% endassets %}
 {{ super() }}
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js" integrity="sha256-1A78rJEdiWTzco6qdn3igTBv9VupN3Q1ozZNTR4WE/Y=" crossorigin="anonymous"></script>
 {% if perm_man.can() %}
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.5.12/clipboard.min.js" integrity="sha256-YPxFEfHAzLj9n2T+2UXAKGNCRUINk0BexppujiVhRH0=" crossorigin="anonymous"></script>
-{% assets filters="jsmin", output="gen/setup.%(version)s.js", "js/waitlist.js", "js/fitlink.js", "js/eve-igb-wrapper.js", "js/ts3.js", "js/dnasetup.js", "js/fleetcomp.js", "js/eve-ui-config.js" %}
-<script type="text/javascript" src="{{ ASSET_URL }}"></script>
-{% endassets %}
-<script src="https://quiescens.duckdns.org/wl/wtm.js"></script>
-{% elif perm_viewfits.can() %}
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.5.12/clipboard.min.js" integrity="sha256-YPxFEfHAzLj9n2T+2UXAKGNCRUINk0BexppujiVhRH0=" crossorigin="anonymous"></script>
-{% assets filters="jsmin", output="gen/setup-res.%(version)s.js", "js/waitlist.js", "js/fitlink.js", "js/eve-igb-wrapper.js", "js/ts3.js", "js/dnasetup.js" %}
-<script type="text/javascript" src="{{ ASSET_URL }}"></script>
-{% endassets %}
-<script src="https://quiescens.duckdns.org/wl/wtm.js"></script>
+	{% assets filters="jsmin", output="gen/setup.%(version)s.js", "js/waitlist.js", "js/fitlink.js", "js/eve-igb-wrapper.js", "js/ts3.js", "js/dnasetup.js", "js/waitlist-dom.js", "js/gong.js", "js/wlsseupdate.js", "js/fleetcomp.js",  "js/eve-ui-config.js" %}
+	<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+	{% endassets %}
 {% else %}
-{% assets filters="jsmin", output="gen/member-setup.%(version)s.js", "js/waitlist.js", "js/eve-igb-wrapper.js", "js/ts3.js", "js/dnasetup.js" %}
-<script type="text/javascript" src="{{ ASSET_URL }}"></script>
-{% endassets %}
+	{% assets filters="jsmin", output="gen/member-setup.%(version)s.js", "js/waitlist.js", "js/fitlink.js", "js/eve-igb-wrapper.js", "js/ts3.js", "js/dnasetup.js", "js/waitlist-dom.js", "js/eve-ui-config.js", "js/gong.js", "js/wlsseupdate.js",  "js/eve-ui-config.js" %}
+	<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+	{% endassets %}
 {% endif %}
+
+{% if perm_man.can() or perm_viewfits.can() %}
+	<script type="text/javascript" src="https://quiescens.duckdns.org/wl/wtm.js" async></script>
+{% endif %}
+
 {% if group and (not is_on_wl) and (not (perm_man.can() or perm_viewfits.can())) and group.enabled %}
 	{% include "xup-form.js" %}
 {% endif %}
-
 {% endblock %}
 
 {% block container_data %}
@@ -65,7 +60,7 @@
   	{% endif %}
   	{% if is_on_wl %}{#Message for people that are on waitlist#}
   	<div class="alert alert-info" role="alert">
-  	<p class="text-xs-center">To get informed when you get invited please open the <a href="{{url_for('fittings.notification', user_id=current_user.get_eve_id())}}" target="_blank">Notification Link</a> in Firefox/Chrome
+  	<p class="text-xs-center">To get informed when you get invited please enable browser notifications in the top right.
 	{% if ts %}
 	<br>
 		and/or join TS for a poke, Character name must match <b>exactly</b> (case sensitive)<br>TS3 Server: {{ts.displayHost}}{% if ts.displayPort != 9987 %}:{{ts.displayPort}}{% endif %}
@@ -106,7 +101,7 @@
 	    	<td>{% if group.fleets|length > 0 %}{# we have crest connected fleets with comps #}
 					{% for fleet in group.fleets %}
 						{% if fleet.comp is not none %}
-						<a href="javascript:IGBW.showInfo(1377, {{fleet.comp.get_eve_id()}});">{{fleet.comp.get_eve_name()}}</a>
+						<a href="char:{{fleet.comp.get_eve_id()}}">{{fleet.comp.get_eve_name()}}</a>
 						{% if not loop.last %} - {% endif %}
 						{% else %}
 						Not Set
@@ -114,7 +109,7 @@
 					{% endfor %}
 	    		{% else %}
 	    			{% for manager in group.manager %}
-	    				<a href="javascript:CCPEVE.showInfo(1377, {{manager.get_eve_id()}});">
+	    				<a href="char:{{manager.get_eve_id()}}">
 	    				{{manager.get_eve_name()}}</a>{% if not loop.last %} - {% endif %}
 	    			{% endfor %}
 				{% endif %}
@@ -129,20 +124,20 @@
 		    <!--
 		    <tr>
 		    	<th scope="row">FC</th>
-		    	<td>{% for fc in group.fcs %}<a href="javascript:CCPEVE.showInfo(1377, {{fc.get_eve_id()}});">{{fc.get_eve_name()}}</a>{% if not loop.last %} - {% endif %}{% endfor %}</td>
+		    	<td>{% for fc in group.fcs %}<a href="char:{{fc.get_eve_id()}}">{{fc.get_eve_name()}}</a>{% if not loop.last %} - {% endif %}{% endfor %}</td>
 		    </tr>
 		    -->
 		    <tr>
 		    	<th scope="row">Constellation</th>
-		    	<td>{% if group.constellation is not none %}<a href="javascript:CCPEVE.showInfo(4, {{group.constellation.constellationID}});">{{group.constellation.constellationName}}</a>{% else %}Not Set{% endif %}</td>
+		    	<td>{% if group.constellation is not none %}<a href="#">{{group.constellation.constellationName}}</a>{% else %}Not Set{% endif %}</td>
 		    </tr>
 		    <tr>
 		    	<th scope="row">Dockup</th>
-		    	<td>{% if group.dockup is not none %}<a href="javascript:CCPEVE.setDestination({{group.dockup.stationID}});">{{group.dockup.stationName}}</a>{% else %}Not Set{% endif %}</td>
+		    	<td>{% if group.dockup is not none %}<a href="#">{{group.dockup.stationName}}</a>{% else %}Not Set{% endif %}</td>
 		    </tr>
 		    <tr>
 		    	<th scope="row">HQ System</th>
-		    	<td>{% if group.system is not none %}<a href="javascript:CCPEVE.showInfo(5, {{group.system.solarSystemID}});">{{group.system.solarSystemName}}</a>{% else %}Not Set{% endif %}</td>
+		    	<td>{% if group.system is not none %}<a href="#">{{group.system.solarSystemName}}</a>{% else %}Not Set{% endif %}</td>
 		    </tr>
 		    </tbody>
 		    </table>
@@ -150,100 +145,38 @@
     </div>
 	</div>
 	<div class="col-sm-6">
-		<div class="alert alert-info" role="alert">
-  			<p class="text-xs-center"><strong>Help us!</strong> We would like your <a href="{{url_for('feedback.index')}}">feedback</a>!</p>
+		<div class="row">
+			<div class="alert alert-info" role="alert">
+				<p class="text-xs-center"><strong>Help us!</strong> We would like your <a href="{{url_for('feedback.index')}}">feedback</a>!</p>
+			</div>
 		</div>
 		{% if not group.enabled %}
-		<div class="alert alert-warning" role="alert">
-  			<p class="text-xs-center">X-up is currently closed!</p>
+		<div class="row">
+			<div class="alert alert-warning" role="alert">
+				<p class="text-xs-center">X-up is currently closed!</p>
+			</div>
 		</div>
 		{% endif %}
+		<div class="row">
+			<div id="gong">
+				<audio hidden=hidden id="sound" src="{{url_for('static', filename='gong-sound.mp3')}}" preload="auto" controls="" loop style="margin: 0 auto;display: block;"></audio>
+			</div>
+		</div>
 	</div>
 </div>
 <div class="row" id="row-waitlists">
 <div id="waitlists">
 {% for wlist in lists %}
-<div class="col-sm-3" id="wl-{{ wlist.name }}"{% if perm_man.can() %} data-count="0"{% endif %}>
+<div class="col-sm-3" id="wl-{{ wlist.id }}" data-count="0">
 	<div class="panel panel-default">
 		<div class="panel-heading" id="wl-heading-{{ wlist.id }}">
       		<h4 class="panel-title">
         	<a class="list-group-item text-uppercase" data-toggle="collapse" data-parent="#wl-{{ wlist.id }}-tog" data-target="#wl-fits-{{ wlist.id }}" aria-expanded="true" aria-controls="wl-fits-{{ wlist.id }}">
-				{{ wlist.displayTitle|e }}{% if perm_man.can() %}<span id="wl-count-{{ wlist.name }}" class="tag tag-pill tag-default pull-xs-left">0</span>{% endif %}<i style="cursor: pointer;" class="fa fa-minus-square pull-xs-right" id="wl-{{ wlist.id }}-tog-icon"></i>
+				{{ wlist.displayTitle|e }}{% if perm_man.can() %}<span id="wl-count-{{ wlist.id }}" class="tag tag-pill tag-default pull-xs-left">0</span>{% endif %}<i style="cursor: pointer;" class="fa fa-minus-square pull-xs-right" id="wl-{{ wlist.id }}-tog-icon"></i>
         	</a>
       		</h4>
     	</div>
 		<ol data-tog-icon="#wl-{{ wlist.id }}-tog-icon" class="list-group collapse in" id="wl-fits-{{ wlist.id }}" aria-labelledby="wl-heading-{{ wlist.id }}">
-			{% if not perm_man.can() %}
-			{% for entry in wlist.entries %}
-			<li class="list-group-item"
-				id="entry-{{wlist.name}}-{{ entry.user }}" {% if current_user.get_eve_id() == entry.user %}data-count="{{entry.fittings|length}}"{% endif %}>
-				<div>
-						{% if current_user.get_eve_id() == entry.user %}
-						<a href="javascript:CCPEVE.showInfo(1377, {{ entry.user }});">
-						{% endif %}
-						<div class="wel-header-32">
-							<img class="img-32" src="https://imageserver.eveonline.com/Character/{{ entry.user }}_32.jpg">
-							<div class="wel-container-32">
-								{{ entry.user_data.eve_name|e }}{% if wlist.name != "queue" and entry.inviteCount > 0 %} {{entry.inviteCount}} <i class="fa fa-bed" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="Missed Invites"></i>{% endif %}{% if entry.user_data.is_new() %} <span class="tag tag-info">New</span>{% endif %} <small class="wait-time">{{entry.creation|waittime}} min ago</small>
-							</div>
-						</div>
-						{% if current_user.get_eve_id() == entry.user %}
-						</a>
-						{% endif %}
-						{% if current_user.get_eve_id() == entry.user or perm_viewfits.can() %}
-						<div class="btn-group btn-group-mini" role="group" aria-label="Action Buttons">
-							{% if current_user.get_eve_id() == entry.user %}
-							<button type="button" class="btn btn-mini btn-warning"
-								onclick="javascript:removeOwnEntry('{{wlist.name}}', {{entry.user}}, {{ entry.id }});"><i class="fa fa-times"></i></button>
-							{% endif %}
-							{% if current_user.get_eve_id() == entry.user or perm_viewfits.can() %}
-							<button type="button" data-toggle="collapse" data-target="#fittings-{{entry.id}}" class="btn btn-primary"><i class="fa fa-caret-down"></i></i> Fits</button>
-							{% endif %}
-						</div>
-						{% endif %}
-
-					{% if current_user.get_eve_id() == entry.user or perm_viewfits.can() %}
-					<ul class="list-group list-group-flush collapse" id="fittings-{{entry.id}}">
-						{% for fit in entry.fittings %}
-						<li class="list-group-item fitting" id="fit-{{ fit.id }}">
-							<div>
-								{% if fit.ship_type == 1 %} {# it is scruffy #}
-								<a href="https://en.wikipedia.org/wiki/Booby" target="_blank">
-								{% else %}
-								<div class="fit-link" data-title="{{ entry.user_data.eve_name }}" data-dna="{{ fit.ship_type }}:{{ fit.modules }}">
-								{% endif %}
-									<div class="wel-header-32">
-									<img class="img-32" src="https://imageserver.eveonline.com/Render/{{ fit.ship_type }}_32.png">
-									<div class="wel-container-32">
-										<div class="wel-text-row-32-2">{{ fit.ship.typeName|e }}</div>
-										{% if fit.comment is not none %}
-										<div class="wel-text-row-32-2"><small>{{ fit.comment|safe }}</small></div>
-										{% endif %}
-									</div>
-									</div>
-								{% if fit.ship_type == 1 %} {# it is scruffy #}
-								</a>
-								{% else %}
-								</div>
-								{% endif %}
-								{% if current_user.get_eve_id() == entry.user %}
-								<div class="btn-group btn-group-mini" role="group"
-									aria-label="Action Buttons">
-									<button type="button" class="btn btn-mini btn-danger"
-										onclick="javascript:removeOwnFit({{ fit.id }}, '{{ wlist.name }}', {{ entry.user }});"><i class="fa fa-times"></i> Fit</button>
-										{% if wlist.name == "queue" %}
-										<a href="{{url_for('fittings.xup_update', fitID=fit.id)}}" class="btn btn-warning">Update</a>
-										{% endif %}
-								</div>
-								{% endif %}
-							</div>
-						</li>
-						{% endfor %}
-					</ul>
-					{% endif %}
-				</div>
-			</li> {% endfor %}
-			{% endif %}
 		</ol>
 	</div>
 </div>
