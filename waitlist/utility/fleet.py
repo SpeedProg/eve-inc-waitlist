@@ -294,10 +294,22 @@ def invite(user_id, squadIDList):
     return {'status_code': 403, 'text': 'Failed to invite person a a squad, all squads are full!'}
 
 def spawn_invite_check(characterID, groupID, fleetID):
-    t = Timer(70.0, check_invite_and_remove_timer, [characterID, groupID, fleetID])
+    if (characterID, groupID, fleetID) in check_timers: # this invite check is already running
+        return
+    t = Timer(20.0, check_invite_and_remove_timer, [characterID, groupID, fleetID])
     t.start()
 
+check_timers = dict()
+
 def check_invite_and_remove_timer(charID, groupID, fleetID):
+    max_runs = 4
+    current_run = 1
+    timerID = (charID, groupID, fleetID)
+    if timerID in check_timers:
+        current_run = check_timers[timerID]+1
+    
+    check_timers[timerID] = current_run
+    
     # hold SSE till sending
     _events = []
     logger.info("Checking invite for %d %d %d", charID, groupID, fleetID)
@@ -351,16 +363,25 @@ def check_invite_and_remove_timer(charID, groupID, fleetID):
             sendServerSentEvent(event)
 
         logger.info("auto removed %s from %s waitlist.", character.eve_name, group.groupName)
+        # we are done delete timer entry
+        del check_timers[timerID]
     else:
-        logger.info("Member %s not found in members", str(charID))
-        for entry in waitlist_entries:
-            entry.inviteCount += 1
-        hEntry = create_history_object(charID, HistoryEntry.EVENT_AUTO_CHECK_FAILED, None, None)
-        hEntry.exref = group.groupID
-        db.session.add(hEntry)
-        db.session.commit()
-        sendServerSentEvent(InviteMissedSSE(groupID, charID))
-
-        logger.info("%s missed his invite", character.eve_name)
+        if current_run == max_runs: # he reached his invite timeout
+            logger.info("Member %s not found in members", str(charID))
+            for entry in waitlist_entries:
+                entry.inviteCount += 1
+            hEntry = create_history_object(charID, HistoryEntry.EVENT_AUTO_CHECK_FAILED, None, None)
+            hEntry.exref = group.groupID
+            db.session.add(hEntry)
+            db.session.commit()
+            sendServerSentEvent(InviteMissedSSE(groupID, charID))
+    
+            logger.info("%s missed his invite", character.eve_name)
+            # we are done delete the timer entry
+            del check_timers[timerID]
+        else:
+            # we want to wait some more, set up new timer
+            t = Timer(20.0, check_invite_and_remove_timer, [charID, groupID, fleetID])
+            t.start()
     
     db.session.remove()
