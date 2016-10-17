@@ -260,12 +260,12 @@ function removeFitFromDom(wlId, entryId, fitId) {
 
 function addFitToDom(wlId, entryId, fit, isQueue, userId) {
 	'use strict';
-	var entry = $('#entry-'+wlId+'-'+entryId);
-	var fitContainer = $('#fittings-'+entryId);
+    var entry = document.getElementById('entry-'+wlId+'-'+entryId);
+	var fitContainer = document.getElementById('fittings-'+entryId);
 	var username = entry.attr('data-username');
 	
 	var fitDom = createFitDOM(fit, wlId, entryId, isQueue, username, userId);
-	fitContainer.append(fitDom);
+	fitContainer.appendChild(fitDom);
 	// add new tags if needed
 	var tagList = getTagsFromDomEntry(entry);
 	
