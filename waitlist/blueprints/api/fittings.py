@@ -3,6 +3,7 @@ import logging
 from flask_login import login_required, current_user
 from waitlist.data.perm import perm_management, perm_comphistory, perm_officer,\
     perm_leadership, perm_viewfits
+from waitlist.permissions import perm_manager
 from flask.globals import request
 from waitlist.utility.notifications import send_notification as send_notifiaction_to_player
 from waitlist.base import db
@@ -53,10 +54,16 @@ def history_since():
     since = datetime.utcfromtimestamp(laststamp / 1000.0)
     logger.info("Looking for %s", str(since))
     tnow = datetime.utcnow()
+
     if not (perm_officer.can() or perm_leadership.can()):
-        maxTime = timedelta(minutes=240)
-        if tnow - since > maxTime:
-            since = tnow - maxTime
+        if (perm_manager.getPermission('trainee').can()):
+            maxTime = timedelta(minutes=30)
+            if tnow - since > maxTime:
+                since = tnow - maxTime
+        else:
+            maxTime = timedelta(minutes=240)
+            if tnow - since > maxTime:
+                since = tnow - maxTime
 
     newHistoryEntries = db.session.query(HistoryEntry).filter(HistoryEntry.time > since).all()
     

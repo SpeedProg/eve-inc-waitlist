@@ -40,14 +40,14 @@
 	<li class="nav-item">
 	<a class="nav-link btn btn-success btn-sm" href="{{url_for('fittings.xup_index')}}">X-UP</a>
 	</li>
-	{% if perm_man.can() %}
+	{% if perm_comphistory.can() %}
 	<li class="nav-item dropdown">
 		<a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Tools</a>
 		<div class="dropdown-menu">
+			{% if perm_man.can() %}
 			<a class="dropdown-item" href="{{url_for('fleet_reform.index')}}">Reform</a>
-			{% if perm_comphistory.can() %}
-			<a class="dropdown-item" href="{{url_for('fittings.history_default')}}">Comp History</a>
 			{% endif %}
+			<a class="dropdown-item" href="{{url_for('fittings.history_default')}}">Comp History</a>
 			{% if perm_manager.getPermission('history_search').can() %}
 			<div class="dropdown-divider"></div>
 			<a class="dropdown-item" href="{{url_for('comp_history_search.index')}}">Comp History Search</a>
