@@ -43,7 +43,7 @@ var eveui_use_localstorage = eveui_use_localstorage || 4e6,
     }
 
     function mark(mark) {
-        console.log("eveui: " + performance.now().toFixed(3) + " " + mark)
+
     }
 
     function format_fit(dna, eveui_name) {
