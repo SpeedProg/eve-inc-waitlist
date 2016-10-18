@@ -320,9 +320,39 @@ function createFitDOM(fit, wlId, entryId, queue, username, userId) {
  * @param if this waitlist is the intial queue
  */
 function addNewEntry(wlid, entry, groupID, isQueue) {
+
+	var newEntryTime = new Date(Date.parse(entry.time));
+	
 	var entryDOM = createEntryDOM(wlid, entry, groupID, isQueue);
 	var wlEntryContainer = $('#wl-'+wlid);
-	wlEntryContainer.append(entryDOM);
+	var entries = wlEntryContainer.children();
+
+	var insertBefore = null;
+	var insertBeforeTime = null;
+
+	entries.each(function(idx, e){
+		var el = $(e);
+		var waitElement = $('.wait-time', el);
+		var cTime = new Date(Date.now());
+		var xupTime = new Date(Date.parse(waitElement.attr('data-time')));
+		// the entry we are looking at happened after ours
+		if (xupTime > newEntryTime) {
+			
+			// the entry that we saved is newer then the one we are look at atm
+			// or we didn't save one yet
+			// => save this one
+			if (insertBeforeTime === null || insertBeforeTime > xupTime) {
+				insertBefore = el;
+				insertBeforeTime = xupTime;
+			}
+		}
+	});
+
+	if (insertBefore !== null) {
+		insertBefore.before(entryDOM);
+	} else {
+		wlEntryContainer.append(entryDOM);
+	}
 	setWlEntryCount(wlid, getWlEntryCount(wlid)+1);
 }
 
