@@ -81,9 +81,9 @@ var HISTORY = (function(){
 	
 	lib.createFittingDOM = function(fit) {
 		if (fit.ship_type === 1) {
-			return $.parseHTML("<a class=\"booby-link\">"+fit.shipName+" </a> ");
+			return $.parseHTML("<a href=\"#\" class=\"booby-link\">"+fit.shipName+" </a> ");
 		} else {
-			return $.parseHTML("<a class=\"fit-link\" data-dna=\""+fit.dna+"\">"+fit.shipName+" </a>");
+			return $.parseHTML("<a href=\"#\" class=\"fit-link\" data-dna=\""+(fit.shipType+':'+fit.modules)+"\">"+fit.shipName+" </a>");
 		}
 	};
 	
