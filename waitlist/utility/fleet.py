@@ -53,6 +53,11 @@ class FleetMemberInfo():
             logger.debug("Cache hit for %d and account %s", fleetID, account.username)
         return self._lastmembers[fleetID]
     
+    def get_cache_data(self, fleetID):
+        if (fleetID in self._lastmembers):
+            return self._lastmembers[fleetID]
+        return None
+    
     def is_expired(self, fleetID, utcnow):
         if not fleetID in self._lastupdate:
             return True
