@@ -94,6 +94,7 @@ function wlsse() {
     if (!!window.EventSource) {
         connectSSE();
         refreshWl();
+        setInterval(updateWaitTimes, 30000);
     } else {
         noSSE();
         refreshWl();
