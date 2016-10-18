@@ -1,3 +1,4 @@
+'use strict';
 function nameFiles() {
 	$('body').on('change', 'input[type="file"][data-toggle="custom-file"]', function (ev) {
 
