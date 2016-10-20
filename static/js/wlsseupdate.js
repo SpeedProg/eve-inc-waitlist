@@ -31,7 +31,11 @@ function handleSSEOpen(event) {
 }
 
 function connectSSE() {
-	eventSource = getSSE();
+var wlgroup = getMetaData("wl-group-id:");
+    if(typeof wlgroup !== "undefined") {
+        eventSource = getSSE();
+}
+
 }
 
 function fitAddedListener(event) {
