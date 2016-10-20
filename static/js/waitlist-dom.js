@@ -602,7 +602,7 @@ function refreshWl() {
 }
 
 function updateWaitTimes() {
-	$('li[id|="entry"').each(function(idx, e){
+	$('li[id|="entry"]').each(function(idx, e){
 		var waitElement = $('.wait-time', e);
 		var cTime = new Date(Date.now());
 		var xupTime = new Date(Date.parse(waitElement.attr('data-time')));
