@@ -298,8 +298,10 @@ def invite(user_id, squadIDList):
     return {'status_code': 403, 'text': 'Failed to invite person a a squad, all squads are full!'}
 
 def spawn_invite_check(characterID, groupID, fleetID):
-    if (characterID, groupID, fleetID) in check_timers: # this invite check is already running
+    timerID = (characterID, groupID, fleetID)
+    if timerID in check_timers: # this invite check is already running
         return
+    check_timers[timerID] = 0
     t = Timer(20.0, check_invite_and_remove_timer, [characterID, groupID, fleetID])
     t.start()
 
@@ -368,7 +370,7 @@ def check_invite_and_remove_timer(charID, groupID, fleetID):
 
         logger.info("auto removed %s from %s waitlist.", character.eve_name, group.groupName)
         # we are done delete timer entry
-        del check_timers[timerID]
+        check_timers.pop(timerID, None)
     else:
         if current_run == max_runs: # he reached his invite timeout
             logger.info("Member %s not found in members", str(charID))
@@ -382,7 +384,7 @@ def check_invite_and_remove_timer(charID, groupID, fleetID):
     
             logger.info("%s missed his invite", character.eve_name)
             # we are done delete the timer entry
-            del check_timers[timerID]
+            check_timers.pop(timerID, None)
         else:
             # we want to wait some more, set up new timer
             t = Timer(20.0, check_invite_and_remove_timer, [charID, groupID, fleetID])
