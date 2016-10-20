@@ -10,38 +10,51 @@ function getFitUpdateUrl(fitID) {
 	return baseURL.replace('-1', fitID);
 }
 
-$(document).ready(function(){    
+function dropdownManagment(){
 	
 	// extract urls out of html meta tags
-	
+
     $('.collapse').on('show.bs.collapse', function (e) {
     	var id = $(e.target).attr("id");
-    	sessionStorage.setItem(id, 'open');
     	var togglerSelector = $(e.target).data("tog-icon");
-       	$(togglerSelector).removeClass("fa-plus-square").addClass("fa-minus-square");
+    	if (togglerSelector !== undefined || togglerSelector !== null) {
+            localStorage.removeItem(id);
+       	    $(togglerSelector).removeClass("fa-plus-square").addClass("fa-minus-square");
+        }
     });
 
     $('.collapse').on('hide.bs.collapse', function (e) {
     	var id = $(e.target).attr("id");
-    	sessionStorage.removeItem(id);
     	var togglerSelector = $(e.target).data("tog-icon");
-		$(togglerSelector).removeClass("fa-minus-square").addClass("fa-plus-square");
+    	if (togglerSelector !== undefined || togglerSelector !== null) {
+            localStorage.setItem(id, 'closed');
+       	    $(togglerSelector).removeClass("fa-minus-square").addClass("fa-plus-square");
+        }
     });
     
     $("#row-waitlists").on("click", '[data-action="remove-own-fit"]', removeOwnFit);
     $("#row-waitlists").on("click", '[data-action="update-fit"]', updateFit);
 
+}
+
+document.addEventListener('DOMContentLoaded', dropdownManagment);
+
+function dropdownLoad(){
     var wlists = $('ol[id|="wl-fits"]');
 	for (var i=0; i < wlists.length; i++) {
 		var wl = $(wlists[i]);
 		var wlId = wl.attr("id");
-		var storage = sessionStorage.getItem(wlId);
+		var wllist = wl.attr("data-tog-icon");
+		var storage = localStorage.getItem(wlId);
 
-		if (storage !== "open") {
-			wl.collapse('hide');
+		if (storage !== null) {
+            wl.collapse('hide');
 		}
 	}
-});
+}
+
+document.addEventListener('DOMContentLoaded', dropdownLoad);
+
 function removeSelf() {
 	var settings = {
 			dataType: "text",
