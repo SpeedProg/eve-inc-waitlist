@@ -324,7 +324,7 @@ function addNewEntry(wlid, entry, groupID, isQueue) {
 	var newEntryTime = new Date(Date.parse(entry.time));
 	
 	var entryDOM = createEntryDOM(wlid, entry, groupID, isQueue);
-	var wlEntryContainer = $('#wl-'+wlid);
+	var wlEntryContainer = $('#wl-fits-'+wlid);
 	var entries = wlEntryContainer.children();
 
 	var insertBefore = null;
