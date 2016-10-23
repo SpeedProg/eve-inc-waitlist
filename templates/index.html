@@ -32,7 +32,7 @@
 	<script type="text/javascript" src="{{ ASSET_URL }}"></script>
 	{% endassets %}
 {% else %}
-	{% assets filters="jsmin", output="gen/member-setup.%(version)s.js", "js/base.js", "js/waitlist.js", "js/fitlink.js", "js/eve-igb-wrapper.js", "js/ts3.js", "js/dnasetup.js", "js/waitlist-dom.js", "js/eve-ui-config.js", "js/gong.js", "js/wlsseupdate.js",  "js/eve-ui-config.js" %}
+	{% assets filters="jsmin", output="gen/member-setup.%(version)s.js", "js/base.js", "js/waitlist.js", "js/fitlink.js", "js/eve-igb-wrapper.js", "js/ts3.js", "js/dnasetup.js", "js/waitlist-dom.js", "js/gong.js", "js/wlsseupdate.js", "js/eve-ui-config.js" %}
 	<script type="text/javascript" src="{{ ASSET_URL }}"></script>
 	{% endassets %}
 {% endif %}
