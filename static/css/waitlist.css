@@ -42,3 +42,6 @@ p.text-xs-center {
 .fitting {
 	cursor: pointer;
 }
+#sound {
+    display: block;
+}
