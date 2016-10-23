@@ -1,65 +1,96 @@
 'use strict';
-if (!getMetaData){
-	var getMetaData = function (name) {
-		return $('meta[name="'+name+'"]').attr('content');
-	};
+
+
+if (!waitlist) {
+	var waitlist = {};
 }
 
-function getTicketElement(ticketId) {
-	var el = {
-			id: ticketId,
-			jqE: $('#fb-'+ticketId)
-	};
-	el.getTitle = function(){
-		return $(":nth-child(4)", this.jqE).text();
-	};
+waitlist.ticketsettings = (function (){
 	
-	el.getMessage = function() {
-		return $(":nth-child(5)", this.jqE).text();
-	};
+	var sendMail = waitlist.IGBW.sendMail;
+	var getMetaData = waitlist.base.getMetaData;
+	var displayMessage = waitlist.base.displayMessage;
 	
-	el.getCharacterId = function() {
-		return this.jqE.attr('data-charID');
-	};
-	el.getCharacterName = function() {
-		return $(":nth-child(3)", this.jqE).text();
-	};
-	return el;
-}
+	function getTicketElement(ticketId) {
+		var el = {
+				id: ticketId,
+				jqE: $('#fb-'+ticketId)
+		};
+		el.getTitle = function(){
+			return $(":nth-child(4)", this.jqE).text();
+		};
+		
+		el.getMessage = function() {
+			return $(":nth-child(5)", this.jqE).text();
+		};
+		
+		el.getCharacterId = function() {
+			return this.jqE.attr('data-characterid');
+		};
+		el.getCharacterName = function() {
+			return $(":nth-child(3)", this.jqE).text();
+		};
+		return el;
+	}
 
-function sendTicketMail(ticketId) {
-	var ticketElement = getTicketElement(ticketId);
-	var title = ticketElement.getTitle();
-	var message = ticketElement.getMessage();
-	var charID = ticketElement.getCharacterId();
-	var charName = ticketElement.getCharacterName();
-	IGBW.sendMail(charID, "Answer to your Waitlist Feedback",
-			"Hello "+charName+",\n"
-			+ "We read your ticket:\n"
-			+ "<font size=\"10\" color=\"#ffffcc00\">"
-			+ $("<div>").text(title).html()+"\n\n"
-			+ $("<div>").text(message).html()
-			+ "</font>\n\n"
-			+ "regards,\n"
-			);
-}
+	function sendTicketMail(ticketId) {
+		var ticketElement = getTicketElement(ticketId);
+		var title = ticketElement.getTitle();
+		var message = ticketElement.getMessage();
+		var charID = ticketElement.getCharacterId();
+		var charName = ticketElement.getCharacterName();
+		sendMail(charID, 
+				"Answer to your Waitlist Feedback",
+				`Hello ${charName},\n
+				We read your ticket:\n
+				<font size="10" color="#ffffcc00">
+				${$("<div>").text(title).html()}\n\n
+				${$("<div>").text(message).html()}
+				</font>\n\n
+				regards,\n`
+				);
+	}
 
-function changeTicketStatus(ticketID, ticketStatus) {
-	$.post({
-		'url': '/feedback/settings',
-		'data': {
-			'_csrf_token': getMetaData('csrf-token'),
-			'ticketID': ticketID,
-			'ticketStatus': ticketStatus
-		},
-		'error': function(data) {
-			var message = data.statusText;
-			if (typeof data.message !== 'undefined') {
-					message += ": " + data.message;
+	function changeTicketStatus(ticketID, ticketStatus) {
+		$.post({
+			'url': '/feedback/settings',
+			'data': {
+				'_csrf_token': getMetaData('csrf-token'),
+				'ticketID': ticketID,
+				'ticketStatus': ticketStatus
+			},
+			'error': function(data) {
+				var message = data.statusText;
+				if (typeof data.message !== 'undefined') {
+						message += ": " + data.message;
+				}
+				displayMessage(message, "danger");
+			},
+			'success': function(data){
 			}
-			displayMessage(message, "danger");
-		},
-		'success': function(data){
-		}
-	});
-}
+		});
+	}
+	
+	function sendMailClickedHandler(event) {
+		var target = $(event.currentTarget);
+		var ticketId = target.attr('data-ticketId');
+		sendTicketMail(ticketId);
+	}
+	
+	function changeTicketStatusClickedHandler(event) {
+		var target = $(event.currentTarget);
+		var ticketId = target.attr('data-ticketId');
+		var newStatus = target.attr('data-newStatus');
+		changeTicketStatus(ticketId, newStatus);
+	}
+	
+	function init() {
+		$('#ticket-table-body').on('click', sendMailClickedHandler);
+		$('#ticket-table-body').on('click', changeTicketStatusClickedHandler);
+	}
+	
+	document.addEventListener('DOMContentLoaded', init);
+	
+	return {};
+})();
+

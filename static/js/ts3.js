@@ -4,6 +4,15 @@ if (!getMetaData){
 		return $('meta[name="'+name+'"]').attr('content');
 	};
 }
-function testTSPoke() {
-    $.get(getMetaData('api-ts-test'));
+
+if (!waitlist) {
+	var waitlist = {};
 }
+
+waitlist.ts3 = (function () {
+	var getMetaData = waitlist.base.getMetaData;
+	function testPoke() {
+		$.get(getMetaData('api-ts-test'));
+	}
+	return {};
+})();
