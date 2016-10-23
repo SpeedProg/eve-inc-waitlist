@@ -30,6 +30,7 @@ db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 manager = Manager(app)
 manager.add_command("db", MigrateCommand)
+app.config['REMEMBER_COOKIE_HTTPONLY'] = True
 seasurf = SeaSurf(app)
 app.config['UPLOAD_FOLDER'] = path.join(".", "sde")
 app.config['MINIFY_PAGE'] = config.html_min
