@@ -35,6 +35,9 @@ if  not os.path.isfile(os.path.join(".", "config", "config.cfg")):
     config.set("cdn", "cdn_assets", "..")
     config.set("cdn", "cdn_https", "..")
 
+    config.add_section("cookies")
+    config.set("cookies", "secure_cookies", "..")
+
     config.add_section("debug")
     config.set("debug", "enabled", "False")
     
@@ -48,6 +51,7 @@ config.read(os.path.join("config", "config.cfg"))
 debug_enabled = config.get("debug", "enabled") == "True"
 
 connection_uri = config.get("database", "connection_uri")
+secure_cookies = config.get("cookies", "secure_cookies") == "True"
 cdn_https = config.get("cdn", "cdn_https") == "True"
 cdn_domain = config.get("cdn", "cdn_domain")
 cdn_assets = config.get("cdn", "cdn_assets") == "True"
