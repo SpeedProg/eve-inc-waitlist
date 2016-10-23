@@ -4,14 +4,6 @@
 
 {% block head %}
 <meta name="api-igui-openwindow-newmail" content="{{url_for('api_eve_openwindow.newmail')}}">
-<style>
-#account-roles {
-	overflow: auto;
-}
-#acc-edit-roles {
-	overflow: auto;
-}
-</style>
 {{ super() }}
 
 {% assets filters="cssmin", output="gen/fileinput.%(version)s.css", "css/fileinput.css" %}

@@ -90,7 +90,7 @@
 	<div class="card">
 		<div class="card-header" id="status-heading" data-influence="{% if group.influence %}true{% else %}false{% endif %}">
 	      <h4 class="card-title">
-	          Status: {{group.status}}{% if group.influence %} <a href="https://forums.warptome.net/influence-guide" target="_blank">Fit for Influence</a>{% endif %}<i style="cursor: pointer;" id="status-tog-icon" data-toggle="collapse" data-target="#status-body"  class="fa fa-plus-square pull-xs-right"></i>
+	          Status: {{group.status}}{% if group.influence %} <a href="https://forums.warptome.net/influence-guide" target="_blank">Fit for Influence</a>{% endif %}<i style="cursor: pointer;" id="status-tog-icon" data-toggle="collapse" data-target="#status-body"  class="fa fa-plus-square float-xs-right"></i>
 	      </h4>
 	    </div>
 	    <div class="">
@@ -159,7 +159,7 @@
 		{% endif %}
 		<div class="row">
 			<div id="gong">
-				<audio hidden=hidden id="sound" src="{{url_for('static', filename='gong-sound.mp3')}}" preload="auto" controls="" loop style="margin: 0 auto;display: block;"></audio>
+				<audio hidden=hidden id="sound" src="{{url_for('static', filename='gong-sound.mp3')}}" preload="auto" class="mx-auto" controls="" loop></audio>
 			</div>
 		</div>
 	</div>
@@ -172,7 +172,7 @@
 		<div class="panel-heading" id="wl-heading-{{ wlist.id }}">
       		<h4 class="panel-title">
         	<a class="list-group-item text-uppercase" data-toggle="collapse" data-parent="#wl-{{ wlist.id }}-tog" data-target="#wl-fits-{{ wlist.id }}" aria-expanded="true" aria-controls="wl-fits-{{ wlist.id }}">
-				{{ wlist.displayTitle|e }}{% if perm_man.can() %}<span id="wl-count-{{ wlist.id }}" class="tag tag-pill tag-default pull-xs-left">0</span>{% endif %}<i style="cursor: pointer;" class="fa fa-minus-square pull-xs-right" id="wl-{{ wlist.id }}-tog-icon"></i>
+				{{ wlist.displayTitle|e }}{% if perm_man.can() %}<span id="wl-count-{{ wlist.id }}" class="tag tag-pill tag-default float-xs-left">0</span>{% endif %}<i style="cursor: pointer;" class="fa fa-minus-square float-xs-right" id="wl-{{ wlist.id }}-tog-icon"></i>
         	</a>
       		</h4>
     	</div>
