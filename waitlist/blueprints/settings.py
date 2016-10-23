@@ -566,7 +566,7 @@ def fleet_location_set(gid):
 
         if group.groupName == "default": # if default waitlist, set all of them
             groups = db.session.query(WaitlistGroup).all()
-            logger.info("All Constellations where set to %s by %s", name, current_user.username)
+            logger.info("All Constellations were set to %s by %s", name, current_user.username)
             for group in groups:
                 group.constellation = constellation
 
@@ -581,7 +581,7 @@ def fleet_location_set(gid):
                     group.system = None
                     group.dockup = None
                           
-            flash("All Constellations where set to " + name + "!", "success")
+            flash("All Constellations were set to " + name + "!", "success")
         else: # if not default waitlist set only the single waitlist
             group.constellation = constellation
             logger.info("%s Constellation was set to %s by %s", group.groupName, name, current_user.username)
@@ -611,8 +611,8 @@ def fleet_location_set(gid):
             for group in groups:
                 group.system = system
             
-            logger.info("All Systems where set to %s by %s", name, current_user.username, group.groupName)
-            flash("All Systems where set to "+name, "success")
+            logger.info("All Systems were set to %s by %s", name, current_user.username, group.groupName)
+            flash("All Systems were set to "+name, "success")
         else:
             group.system = system
             logger.info(group.displayName + " System was set to %s by %s", name, current_user.username)
@@ -629,8 +629,8 @@ def fleet_location_set(gid):
             for group in groups:
                 group.dockup = station
             
-            logger.info("All Docks where set to %s by %s", name, current_user.username)
-            flash("All Dock where set to " + name, "success")
+            logger.info("All Docks were set to %s by %s", name, current_user.username)
+            flash("All Dock were set to " + name, "success")
         else:
             group.dockup = get_station(name)
             logger.info("%s Dock was set to %s by %s", group.displayName, name, current_user.username)
@@ -653,7 +653,7 @@ def update_type_ids():
         f.save(dest_name)
         # start the update
         sde.update_invtypes(dest_name)
-        flash("Type IDs where updated!", "success")
+        flash("Type IDs were updated!", "success")
     
     return redirect(url_for('.sde_settings'))
 
@@ -680,7 +680,7 @@ def update_map():
         # start the update
         sde.update_constellations(raw_file)
         sde.update_systems(raw_file)
-        flash("Constellations and Systems where updated!", "success")
+        flash("Constellations and Systems were updated!", "success")
     
     return redirect(url_for('.sde_settings'))
 
@@ -697,7 +697,7 @@ def update_stations():
         f.save(dest_name)
         # start the update
         sde.update_stations(dest_name)
-        flash("Stations where updated!", "success")
+        flash("Stations were updated!", "success")
     
     return redirect(url_for('.sde_settings'))
 
@@ -714,7 +714,7 @@ def update_layouts():
         f.save(dest_name)
         # start the update
         sde.update_layouts(dest_name)
-        flash("Layouts where updated!", "success")
+        flash("Layouts were updated!", "success")
     
     return redirect(url_for('.sde_settings'))
 
@@ -780,7 +780,7 @@ def clear_waitlist(gid):
                                             ).delete()
 
     db.session.commit()
-    flash("Waitlists where cleared!", "danger")
+    flash("Waitlists were cleared!", "danger")
     return redirect(url_for('.fleet'))
 
 @bp_settings.route("/accounts/import/accounts", methods=["POST"])
@@ -796,7 +796,7 @@ def accounts_import_accounts():
         f.save(dest_name)
         # start the update
         update_accounts_by_file(dest_name)
-        flash("Accounts where updated!", "success")
+        flash("Accounts were updated!", "success")
     
     return redirect(url_for('.accounts'))
 

@@ -44,7 +44,7 @@ waitlist.sse = (function() {
 	}
 
 	function connectSSE() {
-		var wlgroup = getMetaData("wl-group-id");
+		var wlgroup = getMetaData('wl-group-id');
 		if(typeof wlgroup !== "undefined") {
 			eventSource = getSSE();
 		}
