@@ -31,12 +31,12 @@ if  not os.path.isfile(os.path.join(".", "config", "config.cfg")):
     config.set("motd", "vg", "..")
 
     config.add_section("cdn")
-    config.set("cdn", "cdn_domain", "..")
-    config.set("cdn", "cdn_assets", "..")
-    config.set("cdn", "cdn_https", "..")
+    config.set("cdn", "cdn_domain", "")
+    config.set("cdn", "cdn_assets", "False")
+    config.set("cdn", "cdn_https", "False")
 
     config.add_section("cookies")
-    config.set("cookies", "secure_cookies", "..")
+    config.set("cookies", "secure_cookies", "False")
 
     config.add_section("debug")
     config.set("debug", "enabled", "False")
