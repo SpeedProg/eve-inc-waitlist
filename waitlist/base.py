@@ -31,6 +31,8 @@ migrate = Migrate(app, db)
 manager = Manager(app)
 manager.add_command("db", MigrateCommand)
 app.config['REMEMBER_COOKIE_HTTPONLY'] = True
+app.config['REMEMBER_COOKIE_SECURE'] = config.secure_cookies
+app.config['SESSION_COOKIE_SECURE'] = config.secure_cookies
 seasurf = SeaSurf(app)
 app.config['UPLOAD_FOLDER'] = path.join(".", "sde")
 app.config['MINIFY_PAGE'] = config.html_min
