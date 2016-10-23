@@ -22,21 +22,18 @@ function gongClicked() {
 }
 
 function gongSetup() {
-	var gongbutton = document.getElementById("gongbutton");
-	// Check if gongbutton exists
-	if (gongbutton) {
-		// Check if browser support SSE
-		if (!!window.EventSource) {
-    		// Add click handler and check Session Storage
-    		gongbutton.addEventListener("click", gongClicked);
-			if (sessionStorage.getItem('gong')) {
-				gongbutton.checked = true;
-				gongClicked();
-			}
-		} else {
-            // If not remove button
-			gongbutton.parentNode.parentNode.remove();
+	const gongbutton = document.getElementById("gongbutton");
+	// Check if gongbutton exists & browser supports SSE
+	if (gongbutton && window.EventSource) {
+   		// Add click handler and check Session Storage
+   		gongbutton.addEventListener("click", gongClicked);
+		if (sessionStorage.getItem('gong')) {
+			gongbutton.checked = true;
+			gongClicked();
 		}
+	} else {
+        // If not remove button
+		gongbutton.parentNode.parentNode.remove();
 	}
 }
 
