@@ -5,7 +5,7 @@
 {% block head %}
 <meta name="api-igui-openwindow-newmail" content="{{url_for('api_eve_openwindow.newmail')}}">
 {{ super() }}
-{% assets filters="jsmin", output="gen/ticket.%(version)s.js", "js/ticket-settings.js", "js/eve-igb-warapper.js" %}
+{% assets filters="jsmin", output="gen/ticket.%(version)s.js", "js/base.js", "js/eve-igb-wrapper.js", "js/ticket-settings.js" %}
 <script type="text/javascript" src="{{ ASSET_URL }}"></script>
 {% endassets %}
 {% endblock %}
@@ -22,12 +22,12 @@
 	</tr>
 </thead>
 
-<tbody>
+<tbody id="ticket-table-body">
 	{% for fb in tickets %}
-	<tr id="fb-{{ fb.id }}" data-charID="{{fb.character.id}}">
+	<tr id="fb-{{ fb.id }}" data-characterid="{{fb.character.id}}">
 		<td id="fb-{{fb.id}}-actions">
-			<button type="button" class="btn btn-sm btn-info" onclick="sendTicketMail({{fb.id}})">Open Answer Mail</button>
-			<button type="button" class="btn btn-sm btn-info" onclick="changeTicketStatus({{fb.id}}, 'close')">Close Ticket</button>
+			<button type="button" class="btn btn-sm btn-info" data-action="sendTicketMail" data-ticketId="{{fb.id}}">Open Answer Mail</button>
+			<button type="button" class="btn btn-sm btn-info" data-action="changeTicketStatus" data-ticketId="{{fb.id}}" data-newStatus="close">Close Ticket</button>
 		</td>
 		<td id="fb-{{fb.id}}-time">{{ fb.time }}</td>
 		<td id="fb-{{fb.id}}-name">{{ fb.character.eve_name }}</td>

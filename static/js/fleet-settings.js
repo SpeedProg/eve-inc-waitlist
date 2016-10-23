@@ -1,50 +1,56 @@
 'use strict';
-var FSETTINGS = (function(){
-	var lib = {};
+if (!waitlist) {
+	var waitlist = {};
+}
+waitlist.fsettings = (function(){
 	/**
 	 * Get meta elements content from the website
 	 */
-	lib.getMetaData = function (name) {
-		return $('meta[name="'+name+'"]').attr('content');
+	var urls = {
+		remove_fleet: waitlist.base.getMetaData('api-fleet-remove'),
+		move_to_safety: waitlist.base.getMetaData('api-movetosafety')
 	};
 	
-	lib.api = {
-			urls: {
-				remove_fleet: lib.getMetaData('api-fleet-remove'),
-				move_to_safety: lib.getMetaData('api-movetosafety')
-			}
-	};
-	
-	lib.removeFleet = function(fleetID) {
+	function removeFleet(fleetID) {
 		$.ajax({
 			success: function(){
 				$('#fleet-'+fleetID).remove();
 			},
 			data: {
-				'_csrf_token': this.getMetaData('csrf-token')
+				'_csrf_token': waitlist.base.getMetaData('csrf-token')
 			},
 			dataType: 'text',
 			method: 'DELETE',
-			url: this.api.urls.remove_fleet.replace("-1", fleetID)
+			url: urls.remove_fleet.replace("-1", fleetID)
 		});
-	};
+	}
 	
-	lib.removeButton = function() {
-		$('[data-type="remove-fleet"]').on('click', function(e){
-			var target = $(e.target);
-			var id = Number(target.attr('data-id'));
-			lib.removeFleet(id);
-		});
-	};
-	lib.init = function() {
-		lib.removeButton();
-	};
+	function setupActionHandler() {
+		$('body').on('click', '[data-type="remove-fleet"]', removeButtonHandler);
+		$('body').on('click', '[data-action="moveToSafety"]', safetyButtonHandler);
+	}
 	
-	lib.move_to_safety = function(fleetID) {
+	function removeButtonHandler(event) {
+		var target = $(event.currentTarget);
+		var id = Number(target.attr('data-id'));
+		removeFleet(id);
+	}
+	
+	function safetyButtonHandler(event) {
+		var target = $(event.currentTarget);
+		var fleetId = Number(target.attr('data-fleetId'));
+		moveFleetToSafetyChannel(fleetId);
+	}
+
+	function init() {
+		setupActionHandler();
+	}
+	
+	function moveFleetToSafetyChannel(fleetID) {
 		$.post({
-			'url': lib.api.urls.move_to_safety,
+			'url': urls.move_to_safety,
 			'data': {
-				'_csrf_token': this.getMetaData('csrf-token'),
+				'_csrf_token': waitlist.base.getMetaData('csrf-token'),
 				'fleetID': fleetID
 			},
 			'error': function(data) {
@@ -52,14 +58,14 @@ var FSETTINGS = (function(){
 				if (typeof data.message !== 'undefined') {
 						message += ": " + data.message;
 				}
-				displayMessage(message, "danger");
+				waitlist.base.displayMessage(message, "danger");
 			},
 			'success': function(data){
 			}
 		});
-	};
+	}
+	
+	document.addEventListener('DOMContentLoaded', init);
 
-	return lib;
+	return {};
 }());
-
-$(document).ready(FSETTINGS.init);

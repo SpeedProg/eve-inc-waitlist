@@ -98,9 +98,9 @@ def accounts():
     roles = db.session.query(Role).order_by(Role.name).all();
     accounts = db.session.query(Account).order_by(asc(Account.disabled)).order_by(Account.username).all()
     mails = {
-             'resident': [json.dumps(sget_resident_mail()), json.dumps(sget_resident_topic())],
-             'tbadge': [json.dumps(sget_tbadge_mail()), json.dumps(sget_tbadge_topic())],
-             'other': [json.dumps(sget_other_mail()), json.dumps(sget_other_topic())]
+             'resident': [sget_resident_mail(), sget_resident_topic()],
+             'tbadge': [sget_tbadge_mail(), sget_tbadge_topic()],
+             'other': [sget_other_mail(), sget_other_topic()]
              }
 
     return render_template("settings/accounts.html", roles=roles, accounts=accounts, mails=mails)
