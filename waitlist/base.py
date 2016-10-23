@@ -10,37 +10,63 @@ from flask_seasurf import SeaSurf
 from waitlist.utility import config
 from flask_htmlmin import HTMLMIN
 from flask.json import JSONEncoder
+from flask_assets import Environment
 
 app = Flask(import_name=__name__, static_url_path="/static", static_folder="../static", template_folder=path.join("..", "templates"))
 app.secret_key = config.secret_key
+
+# flask config
 app.config['SESSION_TYPE'] = 'filesystem'
-app.config['SQLALCHEMY_DATABASE_URI'] = config.connection_uri
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SQLALCHEMY_POOL_RECYCLE'] = config.sqlalchemy_pool_recycle
-app.config['CDN_DOMAIN'] = config.cdn_domain
-app.config['CDN_HTTPS'] = config.cdn_https
-app.config['FLASK_ASSETS_USE_CDN'] = config.cdn_assets
-app.config['ASSETS_DEBUG'] = config.assets_debug
-app.config['CDN_TIMESTAMP'] = False
-CDN(app)
-login_manager = LoginManager()
-login_manager.init_app(app)
-principals = Principal(app)
-db = SQLAlchemy(app)
-migrate = Migrate(app, db)
-manager = Manager(app)
-manager.add_command("db", MigrateCommand)
 app.config['REMEMBER_COOKIE_HTTPONLY'] = True
 app.config['REMEMBER_COOKIE_SECURE'] = config.secure_cookies
 app.config['SESSION_COOKIE_SECURE'] = config.secure_cookies
-seasurf = SeaSurf(app)
 app.config['UPLOAD_FOLDER'] = path.join(".", "sde")
+
+# sqlalchemy config
+app.config['SQLALCHEMY_DATABASE_URI'] = config.connection_uri
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SQLALCHEMY_POOL_RECYCLE'] = config.sqlalchemy_pool_recycle
+
+# flask cdn config
+app.config['CDN_DOMAIN'] = config.cdn_domain
+app.config['CDN_HTTPS'] = config.cdn_https
+app.config['CDN_TIMESTAMP'] = False
+
+# flask assets config
+app.config['FLASK_ASSETS_USE_CDN'] = config.cdn_assets
+app.config['ASSETS_DEBUG'] = config.assets_debug
+
+# flask HTMLMIN config
 app.config['MINIFY_PAGE'] = config.html_min
+
+# init SQLAlchemy
+db = SQLAlchemy(app)
+
+# init login manager
+login_manager = LoginManager()
+login_manager.init_app(app)
+
+# init flask principal
+principals = Principal(app)
+
+# init sqlmigration manager
+migrate = Migrate(app, db)
+manager = Manager(app)
+manager.add_command("db", MigrateCommand)
+
+# init SeaSurf
+seasurf = SeaSurf(app)
+
+# init flask CDN
+CDN(app)
+
+# init flask HTMLMIN
 HTMLMIN(app)
 
-from flask_assets import Environment
+# init assets environment
 assets = Environment(app)
 
+# set json encoder so use less space in minified format
 class MiniJSONEncoder(JSONEncoder):
     """Minify JSON output."""
     item_separator = ','
