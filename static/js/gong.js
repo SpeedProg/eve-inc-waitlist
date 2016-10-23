@@ -31,7 +31,7 @@ waitlist.gong = (function(){
 	function gongSetup() {
 		var gongbutton = document.getElementById("gongbutton");
 		// Check if browser supports event source
-		if (!!window.EventSource) {
+		if (!!window.EventSource && gongbutton) {
 			// Add click handler and check Session Storage
 			gongbutton.addEventListener("click", gongClicked);
 			if (sessionStorage.getItem('gong')) {
