@@ -45,3 +45,14 @@ p.text-xs-center {
 #sound {
     display: block;
 }
+
+.fitdd::before {
+    display: inline-block;
+    margin-right: .3em;
+    vertical-align: middle;
+    content: "";
+    border-top: .6em solid;
+    border-right: .5em solid transparent;
+    border-left: .5em solid transparent;
+}
+

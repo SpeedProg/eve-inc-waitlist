@@ -147,7 +147,7 @@ function createHeaderDOM(wlid, entry, groupId, isQueue) {
 		buttonRow = $('<div>'+
 				'<div class="btn-group btn-group-mini" role="group" aria-label="Action Buttons">'+
 					'<button type="button" class="btn btn-success" onclick="javascript:moveEntryToWaitlists('+wlid+', '+entry.id+')"><i class="fa fa-thumbs-o-up"></i></button>'+
-					'<button aria-expanded="true" type="button" data-toggle="collapse" data-target="#fittings-'+entry.id+'" class="btn btn-primary"><i class="fa fa-caret-down"></i></i> Fits</button>'+
+					'<button aria-expanded="true" type="button" data-toggle="collapse" data-target="#fittings-'+entry.id+'" class="btn btn-primary"><span class="fitdd">Fits</span></button>'+
 					'<button type="button" class="btn btn-success" onclick="javascript:sendNotification('+entry.character.id+', '+wlid+')"><i class="fa fa-bell-o"></i></button>'+
 					convoButton+
 					'<button type="button" class="btn btn-danger" onclick="javascript:removeEntry('+wlid+', '+entry.id+');"><i class="fa fa-times"></i></button>'+
@@ -157,8 +157,8 @@ function createHeaderDOM(wlid, entry, groupId, isQueue) {
 		buttonRow = $('<div>'+
 					'<div class="btn-group btn-group-mini" role="group" aria-label="Action Buttons">'+
 						'<button type="button" class="btn btn-success" onclick="javascript:invitePlayer('+entry.character.id+', '+wlid+', '+groupId+')"><i class="fa fa-plus"></i></button>'+
-						'<button aria-expanded="true" type="button" data-toggle="collapse" data-target="#fittings-'+entry.id+'" class="btn btn-primary"><i class="fa fa-caret-down"></i> Fits</button>'+
 						'<button type="button" class="btn btn-success" onclick="javascript:sendNotification('+entry.character.id+', '+wlid+')"><i class="fa fa-bell-o"></i></button>'+
+						'<button aria-expanded="true" type="button" data-toggle="collapse" data-target="#fittings-'+entry.id+'" class="btn btn-primary"><span class="fitdd">Fits</span></button>'+
 						convoButton+
 						'<button type="button" class="btn btn-danger" onclick="javascript:removePlayer('+entry.character.id+', '+groupId+');"><i class="fa fa-times"></i></button>'+
 					'</div>'+
@@ -170,7 +170,7 @@ function createHeaderDOM(wlid, entry, groupId, isQueue) {
 			'onclick="javascript: removeOwnEntry(\''+wlid+'\', '+entry.character.id+', '+entry.id+');"><i class="fa fa-times"></i></button>';
 		}
 		if (entry.character.id === user_id || can_view_fits) {
-			buttonHTML += '<button type="button" data-toggle="collapse" data-target="#fittings-'+entry.id+'" class="btn btn-primary"><i class="fa fa-caret-down"></i> Fits</button>';
+			buttonHTML += '<button type="button" data-toggle="collapse" data-target="#fittings-'+entry.id+'" class="btn btn-primary"><span class="fitdd">Fits</span></button>';
 		}
 		buttonHTML +='</div>';
 		buttonRow = $(buttonHTML);
