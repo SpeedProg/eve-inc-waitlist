@@ -144,7 +144,7 @@ waitlist.listdom = (function(){
 					`<div>
 						<div class="btn-group btn-group-mini" role="group" aria-label="Action Buttons">
 							<button type="button" class="btn btn-success" data-action="approveEntry" data-wlId="${wlid}" data-entryId="${entry.id}"><i class="fa fa-thumbs-o-up"></i></button>
-							<button aria-expanded="true" type="button" data-toggle="collapse" data-target="#fittings-${entry.id}" class="btn btn-primary"><i class="fa fa-caret-down"></i></i> Fits</button>
+							<button aria-expanded="true" type="button" data-toggle="collapse" data-target="#fittings-${entry.id}" class="btn btn-primary"><span class="fitdd">Fits</span></button>
 							<button type="button" class="btn btn-success" data-action="sendNotification" data-characterid="${entry.character.id}" data-wlId="${wlid}"><i class="fa fa-bell-o"></i></button>
 							${convoButton}
 							<button type="button" class="btn btn-danger" data-action="dismissEntry" data-wlId="${wlid}" data-entryId="${entry.id}"><i class="fa fa-times"></i></button>
@@ -155,7 +155,7 @@ waitlist.listdom = (function(){
 					`<div>
 						<div class="btn-group btn-group-mini" role="group" aria-label="Action Buttons">
 							<button type="button" class="btn btn-success" data-action="invitePlayer" data-characterid="${entry.character.id}" data-wlId="${wlid}" data-groupId="${groupId}"><i class="fa fa-plus"></i></button>
-							<button aria-expanded="true" type="button" data-toggle="collapse" data-target="#fittings-${entry.id}" class="btn btn-primary"><i class="fa fa-caret-down"></i> Fits</button>
+							<button aria-expanded="true" type="button" data-toggle="collapse" data-target="#fittings-${entry.id}" class="btn btn-primary"><span class="fitdd">Fits</span></button>
 							<button type="button" class="btn btn-success" data-action="sendNotification" data-characterid="${entry.character.id}" data-wlId="${wlid}"><i class="fa fa-bell-o"></i></button>
 							${convoButton}
 							<button type="button" class="btn btn-danger" data-action="removePlayer" data-characterid="${entry.character.id}" data-groupId="${groupId}"><i class="fa fa-times"></i></button>
