@@ -76,6 +76,7 @@ waitlist.linemember = (function(){
 	}
 	
 	function waitlistCollapseHandler(event) {
+		event.stopPropagation();
 		var target = $(event.currentTarget);
     	var id = target.attr("id");
     	var togglerSelector = target.attr("data-tog-icon");
@@ -86,6 +87,7 @@ waitlist.linemember = (function(){
 	}
 	
 	function waitlistExpandeHandler(event) {
+		event.stopPropagation();
 		var target = $(event.currentTarget);
     	var id = target.attr("id");
     	var togglerSelector = target.data("tog-icon");
@@ -111,8 +113,8 @@ waitlist.linemember = (function(){
 	    $("#waitlists").on('click', '[data-action="removeOwnEntry"]', removeOwnEntryHandler);
 
 	    // setup waitlist close/opne event handlers
-	    $('.collapse').on('show.bs.collapse', waitlistExpandeHandler);
-	    $('.collapse').on('hide.bs.collapse', waitlistCollapseHandler);
+	    $('#waitlists').on('show.bs.collapse', '.collapse', waitlistExpandeHandler);
+	    $('#waitlists').on('hide.bs.collapse', '.collapse', waitlistCollapseHandler);
 	    
 	    
 	    // load old states of the waitlists
