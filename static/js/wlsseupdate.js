@@ -14,10 +14,9 @@ waitlist.sse = (function() {
 	var removeFitFromDom = waitlist.listdom.removeFitFromDom;
 	var removeEntryFromDom = waitlist.listdom.removeEntryFromDom;
 	var updateMissedInvite = waitlist.listdom.updateMissedInvite;
-	
-	var gongEnabled = waitlist.gong.isGongEnabled;
-	var playGong = waitlist.gong.playGong;
-	
+
+	var eventListeners = [];
+
 	var settings = {};
 	
 	var eventSource;
@@ -73,12 +72,6 @@ waitlist.sse = (function() {
 		removeEntryFromDom(data.listId, data.entryId);
 	}
 
-	function gongListener(event) {
-		if(gongEnabled()) {
-			playGong();
-		}
-	}
-
 	function missedInviteListener(event) {
 		var data = JSON.parse(event.data);
 		updateMissedInvite(data.userId);
@@ -99,14 +92,13 @@ waitlist.sse = (function() {
 		sse.addEventListener("entry-added", entryAddedListener);
 		sse.addEventListener("entry-removed", entryRemovedListener);
 
-		sse.addEventListener("invite-send", gongListener);
 		sse.addEventListener("invite-missed", missedInviteListener);
-		
+
+		for (let events of eventListeners){
+		    sse.addEventListener(events.event, events.listener);
+		}
+
 		return sse;
-	}
-
-	function wlsse() {
-
 	}
 
 	function sendNotificationForEntry(data) {
@@ -131,6 +123,13 @@ waitlist.sse = (function() {
 		}
 	}
 
+    function addEventListener(event, listener) {
+        eventListeners.push({event: event, listener: listener});
+        if (typeof eventSource !== 'undefined') {
+            eventSource.addEventListener(event, listener);
+        }
+    }
+
 	function init() {
 		settings.can_manage = (getMetaData('can-fleetcomp') === "True");
 		if (!!window.EventSource) {
@@ -144,7 +143,9 @@ waitlist.sse = (function() {
 	
 	
     $(document).ready(init);
-	return {};
+	return {
+	addEventListener: addEventListener
+	};
 })();
 
 
