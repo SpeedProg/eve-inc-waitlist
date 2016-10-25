@@ -103,10 +103,10 @@
 </div>
 <div class="row">
 	<div class="col-sm-6">
-	<div class="card">
-		<div class="card-header" id="status-heading" data-influence="{% if group.influence %}true{% else %}false{% endif %}">
+	<div id="status" class="card">
+		<div style="cursor: pointer;" data-toggle="collapse" data-target="#status-body" class="card-header" id="status-heading" data-influence="{% if group.influence %}true{% else %}false{% endif %}">
 	      <h4 class="card-title">
-	          Status: {{group.status}}{% if group.influence %} <a href="https://forums.warptome.net/influence-guide" target="_blank">Fit for Influence</a>{% endif %}<i style="cursor: pointer;" id="status-tog-icon" data-toggle="collapse" data-target="#status-body"  class="fa fa-plus-square float-xs-right"></i>
+	          Status: {{group.status}}{% if group.influence %} <a href="https://forums.warptome.net/influence-guide" target="_blank">Fit for Influence</a>{% endif %}<i id="status-tog-icon" class="fa fa-plus-square float-xs-right"></i>
 	      </h4>
 	    </div>
 	    <div class="">
