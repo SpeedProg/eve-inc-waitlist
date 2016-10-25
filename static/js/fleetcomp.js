@@ -179,7 +179,7 @@ waitlist.fleetcomp = (function(){
 		$('body').on('click', '[data-action="openCharInfo"]', openCharInfoHandler);
 	}
 	
-	document.addEventListener('DOMContentLoaded', init);
+    $(document).ready(init);
 	
 	return {};
 })();

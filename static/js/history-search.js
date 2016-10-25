@@ -113,7 +113,7 @@ waitlist.history.historysearch = (function() {
 		});
 	}
 	
-	document.addEventListener('DOMContentLoaded', init);
+     $(document).ready(init);
 
 	// we need nothing to be externally reachable
 	return {};

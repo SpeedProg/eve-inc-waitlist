@@ -179,6 +179,6 @@ waitlist.accounts = (function() {
 		setUpEventhandlers();
 	}
 
-	document.addEventListener('DOMContentLoaded', init);
+	$(document).ready(init);
 	return {};
 })();

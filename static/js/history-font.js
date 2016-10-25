@@ -49,5 +49,5 @@
 		$('[data-action="changeSize"]').on('click', fontSizeChangeHandler);
 	}
 
-	document.addEventListener('DOMContentLoaded', init);
+    $(document).ready(init);
 })();

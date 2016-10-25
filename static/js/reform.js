@@ -67,7 +67,7 @@ waitlist.reform = (function(){
 		button.on(data.trigger_action, startInvites);
 	}
 	
-	document.addEventListener('DOMContentLoaded', init);
+    $(document).ready(init);
 	
 	return {};
 }());
