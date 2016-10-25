@@ -142,8 +142,8 @@ waitlist.sse = (function() {
 		}
 	}
 	
-	document.addEventListener('DOMContentLoaded', init);
 	
+    $(document).ready(init);
 	return {};
 })();
 

@@ -138,7 +138,7 @@ waitlist.history.base = (function(){
 		$('#historybody').on("mouseenter", ".h-entry", entryEnteredHandler);
 	}
 	
-	document.addEventListener('DOMContentLoaded', init);
+    $(document).ready(init);
 	
 	return {
 		createHistoryEntryDOM: createHistoryEntryDOM,

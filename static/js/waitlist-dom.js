@@ -639,8 +639,8 @@ waitlist.listdom = (function(){
 		}
 	}
 
-	document.addEventListener('DOMContentLoaded', init);
 	
+    $(document).ready(init);
 	return {
 		loadWaitlist: refreshWl,
 		addFitToDom: addFitToDom,

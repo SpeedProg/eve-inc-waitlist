@@ -46,8 +46,8 @@ waitlist.gong = (function(){
 		}
 	}
 	
-	document.addEventListener('DOMContentLoaded', gongSetup);
 	
+	$(document).ready(gongSetup);
 	return {
 		playGong: playGong,
 		isGongEnabled: gongEnabled
