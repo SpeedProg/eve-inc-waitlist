@@ -39,7 +39,6 @@ from flask.globals import request, current_app
 import flask
 from werkzeug.utils import redirect
 from flask.helpers import url_for
-from waitlist.utility.utils import is_igb
 from waitlist.blueprints.fc_sso import bp as fc_sso_bp, get_sso_redirect,\
     add_sso_handler
 from waitlist.blueprints.fleet import bp as fleet_bp
@@ -87,14 +86,13 @@ def inject_data():
     header_insert = sget_insert('header')
     if (header_insert is not None):
         header_insert = header_insert.replace("$type$", str(get_user_type()))
-    return dict(is_igb=is_igb(), perm_admin=perm_admin,
-                perm_settings=perm_settings, perm_man=perm_management,
-                perm_officer=perm_officer, perm_accounts=perm_accounts,
-                perm_feedback=perm_feedback, is_account=is_account,
-                perm_dev=perm_dev, perm_leadership=perm_leadership, perm_bans=perm_bans,
-                perm_viewfits=perm_viewfits, version=version, perm_comphistory=perm_comphistory,
-                perm_res_mod=perm_mod_mail_resident, perm_t_mod=perm_mod_mail_tbadge, perm_manager=perm_manager,
-                header_insert=header_insert
+    return dict(perm_admin=perm_admin, perm_settings=perm_settings,
+                perm_man=perm_management, perm_officer=perm_officer,
+                perm_accounts=perm_accounts, perm_feedback=perm_feedback,
+                is_account=is_account, perm_dev=perm_dev, perm_leadership=perm_leadership,
+                perm_bans=perm_bans, perm_viewfits=perm_viewfits, version=version,
+                perm_comphistory=perm_comphistory, perm_res_mod=perm_mod_mail_resident,
+                perm_t_mod=perm_mod_mail_tbadge, perm_manager=perm_manager, header_insert=header_insert
                 )
 
 def get_user_type():
@@ -132,17 +130,6 @@ def check_ban():
             is_banned, _ = is_char_banned(current_user)
             if is_banned:
                 force_logout()
-            else:
-                # check if character has right charid in header, since clients seem to share ids
-                # this could be used to detect multiboxers actually
-                if is_igb(): # should allways be if he is char authenticated, but well lets check again
-                    char_id_str = request.headers.get('Eve-Charid')
-                    if char_id_str is None: # he was logged in with other account and no trust on this
-                        force_logout()
-                        return
-                    char_id = int(char_id_str)
-                    if current_user.get_eve_id() != char_id:
-                        force_logout()
         elif current_user.type == "account":
             if current_user.disabled:
                 force_logout()
