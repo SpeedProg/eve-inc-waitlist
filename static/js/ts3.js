@@ -1,9 +1,4 @@
 'use strict';
-if (!getMetaData){
-	var getMetaData = function (name) {
-		return $('meta[name="'+name+'"]').attr('content');
-	};
-}
 
 if (!waitlist) {
 	var waitlist = {};
