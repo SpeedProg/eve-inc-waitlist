@@ -12,6 +12,10 @@
 <meta name="api-sse" content="{{url_for('api_sse.events')}}">
 <meta name="api-waitlists" content="{{url_for('api_fittings.waitlist')}}">
 <meta name="api-fit-update" content="{{url_for('fittings.xup_update', fitID=-1)}}">
+<link rel="preconnect" href="https://crest-tq.eveonline.com/">
+{% if perm_viewfits.can() %}
+<link rel="preconnect" href="https://quiescens.duckdns.org">
+{% endif %}
 {% if group %}
 <meta name="wl-group-id" content="{{group.groupID}}">
 {% endif %}
