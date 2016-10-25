@@ -8,9 +8,11 @@ from flask_migrate import Migrate, MigrateCommand
 from flask_script import Manager
 from flask_seasurf import SeaSurf
 from waitlist.utility import config
+from waitlist.utility.babili import BabiliFilter
 from flask_htmlmin import HTMLMIN
 from flask.json import JSONEncoder
 from flask_assets import Environment
+from webassets.filter import register_filter
 
 app = Flask(import_name=__name__, static_url_path="/static", static_folder="../static", template_folder=path.join("..", "templates"))
 app.secret_key = config.secret_key
@@ -65,6 +67,7 @@ HTMLMIN(app)
 
 # init assets environment
 assets = Environment(app)
+register_filter(BabiliFilter)
 
 # set json encoder so use less space in minified format
 class MiniJSONEncoder(JSONEncoder):

@@ -9,7 +9,7 @@
 {% assets filters="cssmin", output="gen/fleetsettings-typeahead.%(version)s.css", "css/typeaheadjs.css", "css/settings-fleet.css" %}
     <link rel="stylesheet" href="{{ ASSET_URL }}">
 {% endassets %}
-{% assets filters="jsmin", output="gen/fleetsettings-typeahead.%(version)s.js", "js/base.js", "js/typeahead.bundle.min.js", "js/fleet-settings.js" %}
+{% assets filters="babili", output="gen/fleetsettings-typeahead.%(version)s.js", "js/base.js", "js/typeahead.bundle.min.js", "js/fleet-settings.js" %}
 <script type="text/javascript" src="{{ ASSET_URL }}"></script>
 {% endassets %}
 <script type="text/javascript">
