@@ -26,7 +26,9 @@ waitlist.sse = (function() {
 		errorCount++;
 		if (errorCount < 2) { // our first error reconnect this instant
 			connectSSE();
-		} else if (errorCount >= 2 && errorCount <= 5) {  // 2-5 errors, try reconnect after 1s
+		} else if (errorCount >= 2 && errorCount <= 5) {  // 2-5 errors, try
+															// reconnect after
+															// 1s
 			setTimeout(connectSSE, 1000);
 		} else { // > 5 errors try reconnect after 10s
 			setTimeout(connectSSE, 10000);
@@ -36,7 +38,8 @@ waitlist.sse = (function() {
 
 	function handleSSEOpen(event) {
 		if (errorCount > 1) {
-			// refresh the page using json, to pull ALL the date, we might have missed sth
+			// refresh the page using json, to pull ALL the date, we might have
+			// missed sth
 			loadWaitlist();
 		}
 		errorCount = 0; // reset error counter

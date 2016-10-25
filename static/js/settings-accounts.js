@@ -125,9 +125,10 @@ waitlist.accounts = (function() {
 		var default_char_name = $('#acc-'+accountId+'-cchar').text();
 		$('#acc-edit-name').val(name);
 		// this is more complicated
-		//$('#acc-edit-roles')
+		// $('#acc-edit-roles')
 		roles = roles.split(", ");
-		// map the roles he has to a dict so we can fast and easy check for them later
+		// map the roles he has to a dict so we can fast and easy check for them
+		// later
 		var has_roles = {};
 		for (let role in roles) {
 			has_roles[roles[role]] = true;

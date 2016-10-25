@@ -66,7 +66,7 @@ waitlist.history.base = (function(){
 	}
 	
 	function createHistoryEntryDOM(entry) {
-		/*jshint multistr: true */
+		/* jshint multistr: true */
 		var historyEntrySkeleton = $.parseHTML(
 			`<tr class="bg-danger h-entry" data-action="${entry.action}">
 				<td>${entry.time}</td>

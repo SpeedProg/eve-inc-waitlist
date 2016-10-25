@@ -4,9 +4,9 @@ if (!waitlist) {
 	var waitlist = {};
 }
 
-waitlist.gong = (function(){
+waitlist.gong = (function() {
 
-    var addListener = waitlist.sse.addEventListener;
+	var addListener = waitlist.sse.addEventListener;
 
 	function playGong() {
 		var sound = document.getElementById('sound');
@@ -15,11 +15,11 @@ waitlist.gong = (function(){
 	}
 
 	function gongEnabled() {
-		 return document.getElementById("gongbutton").checked;
+		return document.getElementById("gongbutton").checked;
 	}
 
-    function gongListener(event) {
-		if(gongEnabled()) {
+	function gongListener(event) {
+		if (gongEnabled()) {
 			playGong();
 		}
 	}
@@ -50,12 +50,11 @@ waitlist.gong = (function(){
 		} else {
 			// If not remove button
 			if (gongbutton) {
-			    gongbutton.parentNode.parentNode.remove();
+				gongbutton.parentNode.parentNode.remove();
 			}
 		}
 	}
-	
-	
+
 	$(document).ready(gongSetup);
 	return {};
 })();
