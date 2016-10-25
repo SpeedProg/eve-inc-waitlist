@@ -40,7 +40,9 @@ waitlist.gong = (function(){
 			}
 		} else {
 			// If not remove button
-			gongbutton.parentNode.parentNode.remove();
+			if (gongbutton) {
+			    gongbutton.parentNode.parentNode.remove();
+			}
 		}
 	}
 	
