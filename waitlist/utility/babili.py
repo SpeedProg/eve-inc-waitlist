@@ -29,7 +29,6 @@ class BabiliFilter(ExternalTool):
         args = [config.babel_bin or 'babel']
         if self.presets:
             args += ['--presets', self.presets]
-        args += []
         if self.extra_args:
             args.extend(self.extra_args)
         return self.subprocess(args, out, _in)
