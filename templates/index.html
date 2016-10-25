@@ -38,7 +38,7 @@
 
 	{% if perm_man.can() %}
 		{% assets filters="babili", output="gen/comp.%(version)s.js", "js/eve-igb-wrapper.js", "js/fleetcomp.js" %}
-		<script type="text/javascript" src="{{ ASSET_URL }}" defer async></script>
+		<script type="text/javascript" src="{{ ASSET_URL }}" defer></script>
 		{% endassets %}
 	{% endif %}
 
