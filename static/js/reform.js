@@ -13,7 +13,8 @@ waitlist.reform = (function(){
 			trigger_selector: "#btn-send-invites",
 			trigger_action: "click",
 			user_list_selector: "#char-list",
-			// it gets a jquery object of the element gotten with the user_list_selector
+			// it gets a jquery object of the element gotten with the
+			// user_list_selector
 			user_list_extractor_func: function(el) {
 				return el.val().split(/\n/);
 			},

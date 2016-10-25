@@ -10,11 +10,9 @@ waitlist.history.historysearch = (function() {
 	var setStamp = waitlist.history.base.setLastRefresh;
 	var isApprovalEnabled = waitlist.history.base.isApprovalEnabled;
 	var exclude_selector = waitlist.history.base.getExcludeSelector();
-	
+
 	var getMetaData = waitlist.base.getMetaData();
 	var createHistoryEntryDOM = waitlist.history.base.createHistoryEntryDOM;
-
-
 
 	function loadData(sources, targets, actions, startdate, enddate) {
 		var data = {};
@@ -40,8 +38,8 @@ waitlist.history.historysearch = (function() {
 			}
 			if (data.history.length > 0) {
 				data.laststamp = (new Date(Date
-						.parse(data.history[data.history.length - 1].time)))
-						.getTime();
+					.parse(data.history[data.history.length - 1].time)))
+					.getTime();
 			}
 		});
 	}
@@ -77,33 +75,33 @@ waitlist.history.historysearch = (function() {
 	function init() {
 		$('#search').on('click', search_click_handler);
 		$('#startpicker').datetimepicker({
-			icons : {
-				time : "fa fa-clock-o",
-				date : "fa fa-calendar",
-				up : "fa fa-arrow-up",
-				down : "fa fa-arrow-down",
-				previous : 'fa fa-chevron-left',
-				next : 'fa fa-chevron-right',
-				today : 'fa fa-calendar-o',
-				clear : 'fa fa-trash',
-				close : 'fa fa-times'
+			icons: {
+				time: "fa fa-clock-o",
+				date: "fa fa-calendar",
+				up: "fa fa-arrow-up",
+				down: "fa fa-arrow-down",
+				previous: 'fa fa-chevron-left',
+				next: 'fa fa-chevron-right',
+				today: 'fa fa-calendar-o',
+				clear: 'fa fa-trash',
+				close: 'fa fa-times'
 			},
-			format : "YYYY/MM/DD HH:mm"
+			format: "YYYY/MM/DD HH:mm"
 		});
 		$('#endpicker').datetimepicker({
-			useCurrent : false,
-			icons : {
-				time : "fa fa-clock-o",
-				date : "fa fa-calendar",
-				up : "fa fa-arrow-up",
-				down : "fa fa-arrow-down",
-				previous : 'fa fa-chevron-left',
-				next : 'fa fa-chevron-right',
-				today : 'fa fa-calendar-o',
-				clear : 'fa fa-trash',
-				close : 'fa fa-times'
+			useCurrent: false,
+			icons: {
+				time: "fa fa-clock-o",
+				date: "fa fa-calendar",
+				up: "fa fa-arrow-up",
+				down: "fa fa-arrow-down",
+				previous: 'fa fa-chevron-left',
+				next: 'fa fa-chevron-right',
+				today: 'fa fa-calendar-o',
+				clear: 'fa fa-trash',
+				close: 'fa fa-times'
 			},
-			format : "YYYY/MM/DD HH:mm"
+			format: "YYYY/MM/DD HH:mm"
 		});
 		$("#startpicker").on("dp.change", function(e) {
 			$('#endpicker').data("DateTimePicker").minDate(e.date);
@@ -112,8 +110,8 @@ waitlist.history.historysearch = (function() {
 			$('#startpicker').data("DateTimePicker").maxDate(e.date);
 		});
 	}
-	
-     $(document).ready(init);
+
+	$(document).ready(init);
 
 	// we need nothing to be externally reachable
 	return {};
