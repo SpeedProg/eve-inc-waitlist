@@ -6,42 +6,34 @@ if (!waitlist) {
 
 waitlist.gong = (function() {
 
-	var addListener = waitlist.sse.addEventListener;
+	const addListener = waitlist.sse.addEventListener;
+	const gongbutton = document.getElementById("gongbutton");
+	const sound = document.getElementById("sound");
 
 	function playGong() {
-		var sound = document.getElementById('sound');
-		sound.currentTime = 0;
-		sound.play();
-	}
-
-	function gongEnabled() {
-		return document.getElementById("gongbutton").checked;
-	}
-
-	function gongListener(event) {
-		if (gongEnabled()) {
-			playGong();
+		if (gongbutton.checked) {
+			sound.currentTime = 0;
+			sound.play();
 		}
 	}
 
 	function gongClicked() {
-		var sound = document.getElementById("sound");
-		if (document.getElementById("gongbutton").checked) {
+		if (gongbutton.checked) {
 			sound.removeAttribute("hidden");
 			sound.volume = 0.5;
 			sessionStorage.setItem('gong', 'open');
 		} else {
 			sound.setAttribute("hidden", "");
+			sound.pause();
 			sessionStorage.removeItem('gong');
 		}
 	}
 
 	function gongSetup() {
-		var gongbutton = document.getElementById("gongbutton");
 		// Check if browser supports event source
 		if (!!window.EventSource && gongbutton) {
 			// Add click handler & add eventlistener & check Session Storage
-			addListener("invite-send", gongListener);
+			addListener("invite-send", playGong);
 			gongbutton.addEventListener("click", gongClicked);
 			if (sessionStorage.getItem('gong')) {
 				gongbutton.checked = true;
