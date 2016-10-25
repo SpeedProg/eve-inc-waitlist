@@ -11,7 +11,9 @@ waitlist.listdom = (function(){
 	
 	/**
 	 * Create a DOM for a ship type tag
-	 * @param tag: B = Basi, S = Scimi, DPS = Short Range Damage, SNI = Sniper, LOGI == Scruffy Logi
+	 * 
+	 * @param tag: B = Basi, S = Scimi, DPS = Short Range Damage, SNI = Sniper,
+	 *            LOGI == Scruffy Logi
 	 */
 	function createTypeTag(name) {
 		var type = "default";
@@ -35,6 +37,7 @@ waitlist.listdom = (function(){
 	
 	/**
 	 * Get which tags these fits create
+	 * 
 	 * @param fits fits object as received from the API
 	 * @returns {Array} list of tags
 	 */
@@ -59,12 +62,14 @@ waitlist.listdom = (function(){
 	
 	/**
 	 * returns back what kind of tag this fit is
+	 * 
 	 * @param jsonFit a fit in the json format as returned by the api
 	 */
 	function getTagFromJsonFit(jsonFit) {
 		switch (jsonFit.wl_type) {
 		case "logi":
-			// since we want to have basi/scimi specificly need to check shipType here
+			// since we want to have basi/scimi specificly need to check
+			// shipType here
 			if (jsonFit.shipType === 11985) {
 				return "B";
 			} else if (jsonFit.shipType === 11978) {
@@ -87,6 +92,7 @@ waitlist.listdom = (function(){
 	
 	/**
 	 * Create the html entity for the entry's header
+	 * 
 	 * @param wlname name of the waitlist the entry belongs to
 	 * @parm wlid id of the waitlist
 	 * @param entry the waitlist entry as received from the api
@@ -95,7 +101,8 @@ waitlist.listdom = (function(){
 	function createHeaderDOM(wlid, entry, groupId, isQueue) {
 		var newBroTag = "";
 		
-		// if the current user can view fits and or it is this character and this entry is a rookie
+		// if the current user can view fits and or it is this character and
+		// this entry is a rookie
 		if ((settings.can_view_fits || entry.character.id === settings.user_id) && entry.character.newbro) {
 			newBroTag = ' <span class="tag tag-info">New</span>';
 		}
@@ -105,7 +112,8 @@ waitlist.listdom = (function(){
 		var header = $('<div></div>');
 		var oldInvites = "";
 		// we can view fits or this is our entry and the entry is not in a queue
-		// display missed invites if there are any, but at least create the element for it
+		// display missed invites if there are any, but at least create the
+		// element for it
 		if ((settings.can_view_fits || entry.character.id === settings.user_id) && !isQueue) {
 			if (entry.missedInvites > 0) {
 				oldInvites =
@@ -180,6 +188,7 @@ waitlist.listdom = (function(){
 	
 	/**
 	 * Create the html entity of the entry
+	 * 
 	 * @param wlname name of the waitlist the entry belongs to
 	 * @param wlid id of the waitlist
 	 * @param entry the entry object as received from the api
@@ -273,8 +282,10 @@ waitlist.listdom = (function(){
 	
 	/**
 	 * Creat html entity of a fit
+	 * 
 	 * @param fit fit object as received from the api
-	 * @param pass if it is the x-up list, so we can add approve button, defaults to false
+	 * @param pass if it is the x-up list, so we can add approve button,
+	 *            defaults to false
 	 * @returns {HTMLElement} the fit's DOM
 	 */
 	function createFitDOM(fit, wlId, entryId, queue, username, userId) {
@@ -312,6 +323,7 @@ waitlist.listdom = (function(){
 	
 	/**
 	 * Add a new entry to the given list
+	 * 
 	 * @param wlid id of the waitlist
 	 * @param entry the entry object as received from the api
 	 * @param groupId id of the group this waitlist belongs to
@@ -336,7 +348,8 @@ waitlist.listdom = (function(){
 			// the entry we are looking at happened after ours
 			if (xupTime > newEntryTime) {
 				
-				// the entry that we saved is newer then the one we are look at atm
+				// the entry that we saved is newer then the one we are look at
+				// atm
 				// or we didn't save one yet
 				// => save this one
 				if (insertBeforeTime === null || insertBeforeTime > xupTime) {
@@ -366,6 +379,7 @@ waitlist.listdom = (function(){
 
 	/**
 	 * Set the entry counter for a given waitlist
+	 * 
 	 * @param wlid id of the waitlist
 	 * @param count count of entries to set to
 	 */
@@ -379,6 +393,7 @@ waitlist.listdom = (function(){
 
 	/**
 	 * Get the count for a given waitlist
+	 * 
 	 * @param wlid id of the waitlist
 	 * @returns {Number} count of entries in the waitlist
 	 */
@@ -390,6 +405,7 @@ waitlist.listdom = (function(){
 
 	/**
 	 * Updates fits of entries
+	 * 
 	 * @param wlname name of the waitlist the entry belongs to
 	 * @param wlid id of the waitlist the entry belongs to
 	 * @param entry the entry object as received from the api
@@ -432,7 +448,8 @@ waitlist.listdom = (function(){
 			}
 			// update fits and such
 			var modified = false;
-			// backup of original fits, we gonna need them later if sth was modified
+			// backup of original fits, we gonna need them later if sth was
+			// modified
 			var fittings = entry.fittings.slice();
 			var jFittings = $($('#fittings-'+entry.id)[0]);
 			var existingFits = jFittings.children();
@@ -448,7 +465,9 @@ waitlist.listdom = (function(){
 					var fit = entry.fittings[i];
 					if (fit.id === currentId) {
 						is_existing = true;
-						entry.fittings.splice(i, 1); // this fit is already there we don't need it
+						entry.fittings.splice(i, 1); // this fit is already
+														// there we don't need
+														// it
 						i=i-1;
 						break;
 					}
@@ -484,6 +503,7 @@ waitlist.listdom = (function(){
 
 	/**
 	 * Remove a entries from a waitlist
+	 * 
 	 * @param wldata wl object as received from the api
 	 */
 	function cleanWL(wldata) {
@@ -492,6 +512,7 @@ waitlist.listdom = (function(){
 
 	/**
 	 * Remove missing entries from DOM
+	 * 
 	 * @param wldata waitlist data as received from api
 	 * @returns {Number} number of entries that where removed
 	 */
@@ -517,9 +538,11 @@ waitlist.listdom = (function(){
 		return removeCount;
 	}
 
-	// before using this all none existing entries need to be removed from the DOM
+	// before using this all none existing entries need to be removed from the
+	// DOM
 	/**
 	 * Adds entries that do not exist in the DOM at their correct positions
+	 * 
 	 * @param wldata waitlist data as received from the api
 	 * @return {Number} number of added entries
 	 */
@@ -574,6 +597,7 @@ waitlist.listdom = (function(){
 
 	/**
 	 * Update a waitlist
+	 * 
 	 * @param wldata waitlist object as received from the api
 	 */
 	function updateWaitlist(wldata, groupID) {
