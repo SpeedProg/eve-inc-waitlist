@@ -6,6 +6,8 @@ if (!waitlist) {
 
 waitlist.gong = (function(){
 
+    var addListener = waitlist.sse.addEventListener;
+
 	function playGong() {
 		var sound = document.getElementById('sound');
 		sound.currentTime = 0;
@@ -14,6 +16,12 @@ waitlist.gong = (function(){
 
 	function gongEnabled() {
 		 return document.getElementById("gongbutton").checked;
+	}
+
+    function gongListener(event) {
+		if(gongEnabled()) {
+			playGong();
+		}
 	}
 
 	function gongClicked() {
@@ -32,7 +40,8 @@ waitlist.gong = (function(){
 		var gongbutton = document.getElementById("gongbutton");
 		// Check if browser supports event source
 		if (!!window.EventSource && gongbutton) {
-			// Add click handler and check Session Storage
+			// Add click handler & add eventlistener & check Session Storage
+			addListener("invite-send", gongListener);
 			gongbutton.addEventListener("click", gongClicked);
 			if (sessionStorage.getItem('gong')) {
 				gongbutton.checked = true;
@@ -48,8 +57,5 @@ waitlist.gong = (function(){
 	
 	
 	$(document).ready(gongSetup);
-	return {
-		playGong: playGong,
-		isGongEnabled: gongEnabled
-	};
+	return {};
 })();
