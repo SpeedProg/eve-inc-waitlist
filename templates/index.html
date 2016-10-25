@@ -31,19 +31,31 @@
 <meta name="api-movetosafety" content="{{url_for('api_fleet.move_fleetmembers_to_safety')}}">
 {% endif %}
 {{ super() }}
-{% if perm_man.can() %}
-	{% assets filters="babili", output="gen/setup.%(version)s.js", "js/base.js", "js/waitlist.js", "js/fitlink.js", "js/eve-igb-wrapper.js", "js/ts3.js", "js/dnasetup.js", "js/waitlist-dom.js", "js/gong.js", "js/wlsseupdate.js", "js/fleetcomp.js",  "js/eve-ui-config.js" %}
+{% if group and group.enabled %}
+	{% assets filters="babili", output="gen/setup.%(version)s.js", "js/base.js", "js/waitlist.js", "js/waitlist-dom.js", "js/wlsseupdate.js", "js/dnasetup.js" %}
 	<script type="text/javascript" src="{{ ASSET_URL }}"></script>
 	{% endassets %}
-{% else %}
-	{% assets filters="babili", output="gen/member-setup.%(version)s.js", "js/base.js", "js/waitlist.js", "js/fitlink.js", "js/eve-igb-wrapper.js", "js/ts3.js", "js/dnasetup.js", "js/waitlist-dom.js", "js/gong.js", "js/wlsseupdate.js", "js/eve-ui-config.js" %}
-	<script type="text/javascript" src="{{ ASSET_URL }}"></script>
-	{% endassets %}
+
+	{% if perm_man.can() %}
+		{% assets filters="babili", output="gen/comp.%(version)s.js", "js/eve-igb-wrapper.js", "js/fleetcomp.js" %}
+		<script type="text/javascript" src="{{ ASSET_URL }}" defer async></script>
+		{% endassets %}
+	{% endif %}
+
+	{% if is_on_wl %}
+		{% assets filters="babili", output="gen/wlinteract.%(version)s.js", "js/ts3.js", "js/gong.js" %}
+		<script type="text/javascript" src="{{ ASSET_URL }}" defer async></script>
+		{% endassets %}
+	{% endif %}
+
+	{% if perm_viewfits.can() %}
+	<script type="text/javascript" src="https://quiescens.duckdns.org/wl/wtm.js" defer async></script>
+	{% endif %}
 {% endif %}
 
-{% if perm_man.can() or perm_viewfits.can() %}
-	<script type="text/javascript" src="https://quiescens.duckdns.org/wl/wtm.js" async></script>
-{% endif %}
+{% assets filters="babili", output="gen/eve-ui.%(version)s.js", "js/fitlink.js", "js/eve-ui-config.js" %}
+<script type="text/javascript" src="{{ ASSET_URL }}" defer async></script>
+{% endassets %}
 
 {% if group and (not is_on_wl) and (not (perm_man.can() or perm_viewfits.can())) and group.enabled %}
 	{% include "xup-form.js" %}
