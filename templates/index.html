@@ -32,7 +32,7 @@
 {% endif %}
 {{ super() }}
 {% if group and group.enabled %}
-	{% assets filters="babili", output="gen/setup.%(version)s.js", "js/base.js", "js/waitlist.js", "js/waitlist-dom.js", "js/wlsseupdate.js", "js/dnasetup.js" %}
+	{% assets filters="babili", output="gen/setup.%(version)s.js", "js/base.js", "js/dropdown.js", "js/waitlist-dom.js", "js/wlsseupdate.js", "js/dnasetup.js" %}
 	<script type="text/javascript" src="{{ ASSET_URL }}"></script>
 	{% endassets %}
 
@@ -43,7 +43,7 @@
 	{% endif %}
 
 	{% if is_on_wl %}
-		{% assets filters="babili", output="gen/wlinteract.%(version)s.js", "js/ts3.js", "js/gong.js" %}
+		{% assets filters="babili", output="gen/wlinteract.%(version)s.js", "js/waitlist.js", "js/ts3.js", "js/gong.js" %}
 		<script type="text/javascript" src="{{ ASSET_URL }}" defer async></script>
 		{% endassets %}
 	{% endif %}
