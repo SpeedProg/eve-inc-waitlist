@@ -57,3 +57,6 @@ p.text-xs-center {
 .dd {
 	cursor: pointer;
 }
+.alert-dismissible .close {
+    right: 0;
+}
