@@ -62,8 +62,7 @@
 		<a class="nav-link" href="{{url_for('logout')}}"><img class="profile-img-32" src="https://imageserver.eveonline.com/Character/{{current_user.get_eve_id()}}_32.jpg"> Logout</a>
 	</li>
 	{% endif %}
-	{% if is_index %}
-	{% if is_on_wl %}
+	{% if is_on_wl and is_index %}
 	<li class="nav-item float-xs-right">
 		<button type="button" class="nav-link btn btn-danger btn-sm" data-action="removeSelfFromWaitlists">Leave Waitlists</button>
 	</li>
@@ -85,8 +84,6 @@
 		<button type="button" class="btn btn-danger btn-sm" data-action="test-poke">Test TS Poke</button>
 	</li>
 	{% endif %}
-	{% endif %}
-	
 </ul>
 </div>
 	{% endblock %}
