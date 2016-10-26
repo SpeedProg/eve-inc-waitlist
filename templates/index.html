@@ -3,8 +3,6 @@
 {% block title %}Overview{% endblock %}
 
 {% block head %}
-<meta name="can-view-fits" content="{{perm_viewfits.can()}}">
-<meta name="can-fleetcomp" content="{{perm_man.can()}}">
 <meta name="url-self-remove-all" content="{{url_for('fittings.self_remove_all')}}">
 <meta name="user-id" content="{{ current_user.get_eve_id() }}">
 <meta name="wl-names" content="{% for wl in lists %}{{wl.name|e}}{% if not loop.last %},{% endif %}{% endfor %}">
@@ -15,12 +13,14 @@
 <link rel="preconnect" href="https://crest-tq.eveonline.com/">
 {% if perm_viewfits.can() %}
 <link rel="preconnect" href="https://quiescens.duckdns.org">
+<meta name="can-view-fits" content="True">
 {% endif %}
 {% if group %}
 <meta name="wl-group-id" content="{{group.groupID}}">
 {% endif %}
 {% if perm_man.can() %}
 {# URLs for fleetcomp js #}
+<meta name="can-fleetcomp" content="True">
 <meta name="api-send-notification" content="{{url_for('api_fittings.send_notification', playerID=-1)}}">
 <meta name="api-wls-remove-player" content="{{url_for('fittings.api_wls_remove_player')}}">
 <meta name="api-wl-remove-entry" content="{{url_for('fittings.api_wl_remove_entry')}}">
