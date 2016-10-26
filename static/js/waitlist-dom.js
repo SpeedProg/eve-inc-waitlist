@@ -175,7 +175,7 @@ waitlist.listdom = (function(){
 				buttonHTML += `<button type="button" class="btn btn-mini btn-warning" data-action="removeOwnEntry" data-characterid="${entry.character.id}" data-wlId="${wlid}" data-entryId="${entry.id}"><i class="fa fa-times"></i></button>`;
 			}
 			if (entry.character.id === settings.user_id || settings.can_view_fits) {
-				buttonHTML += `<button type="button" data-toggle="collapse" data-target="#fittings-${entry.id}" class="btn btn-primary"><i class="fa fa-caret-down"></i> Fits</button>`;
+				buttonHTML += `<button type="button" data-toggle="collapse" data-target="#fittings-${entry.id}" class="btn btn-primary"><span class="fitdd">Fits</span></button>`;
 			}
 			buttonHTML +='</div>';
 			buttonRow = $(buttonHTML);
