@@ -74,13 +74,10 @@
   		<p class="text-xs-center">You are not associated with any fleet, you can change this in <a href="{{url_for('settings.fleet')}}">Fleet Settings</a></p>
   	</div>
   	{% endif %}
-  	{% if is_on_wl %}{#Message for people that are on waitlist#}
-  	<div class="alert alert-info" role="alert">
-  	<p class="text-xs-center">To get informed when you are invited please enable browser notifications in the top right.
-	{% if ts %}
-	<br>
-		and/or join TS for a poke, Character name must match <b>exactly</b> (case sensitive)<br>TS3 Server: {{ts.displayHost}}{% if ts.displayPort != 9987 %}:{{ts.displayPort}}{% endif %}
-	{% endif %}
+	{% if ts and is_on_wl %}
+	<div class="alert alert-info" role="alert">
+  	<p class="text-xs-center">
+		Please join Teamspeak, your character name must match <b>exactly</b> (case sensitive)<br>TS3 Server: {{ts.displayHost}}{% if ts.displayPort != 9987 %}:{{ts.displayPort}}{% endif %}
   	</p>
   	</div>
   	{% endif %}
