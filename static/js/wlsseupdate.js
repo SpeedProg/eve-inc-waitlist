@@ -81,7 +81,7 @@ waitlist.sse = (function() {
 	}
 
 	function noSSE() {
-		displayMessage('We have had to disable <strong>features</strong> please consider upgrading your<a href="http://caniuse.com/#feat=eventsource"> browser', 'danger');
+		displayMessage('We have had to disable <strong>features</strong> please consider upgrading your<a href="http://caniuse.com/#feat=eventsource"> browser', 'danger', true);
 	}
 
 	function getSSE() {
