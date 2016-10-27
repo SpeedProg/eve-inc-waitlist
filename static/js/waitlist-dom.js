@@ -117,12 +117,12 @@ waitlist.listdom = (function(){
 		if ((settings.can_view_fits || entry.character.id === settings.user_id) && !isQueue) {
 			if (entry.missedInvites > 0) {
 				oldInvites =
-				` <div class="missed-invites" style="display: inline;" data-userId="${entry.character.id}">
-					<div style="display: inline;" class="missed-invites-number">${entry.missedInvites}</div> 
+				` <div class="missed-invites" data-userId="${entry.character.id}">
+					<div class="missed-invites-number">${entry.missedInvites}</div>
 					<i class="fa fa-bed" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="Missed Invites"></i>
 				</div>`;
 			} else {
-				oldInvites = ` <div class="missed-invites" style="display: inline;" data-userId="${entry.character.id}"></div>`;
+				oldInvites = ` <div class="missed-invites" data-userId="${entry.character.id}"></div>`;
 			}
 		}
 		
@@ -436,7 +436,7 @@ waitlist.listdom = (function(){
 					}
 				} else {
 					let invElement = $('.missed-invites', jEntries[0]);
-					let counterElement = $.parseHTML("<div style='display: inline;' class='missed-invites-number'>"+entry.missedInvites+'</div> <i class="fa fa-bed" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="Missed Invites"></i>');
+					let counterElement = $.parseHTML("<div class='missed-invites-number'>"+entry.missedInvites+'</div> <i class="fa fa-bed" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="Missed Invites"></i>');
 					invElement.append(counterElement);
 				}
 			} else {
@@ -647,7 +647,7 @@ waitlist.listdom = (function(){
 				countEl.text(count+1);
 			} else {
 				// he didn't miss invites yet, no DOM
-				el.append($(`<div style="display: inline;" class="missed-invites-number">${count+1}</div> <i class="fa fa-bed" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="Missed Invites"></i>`));
+				el.append($(`<div class="missed-invites-number">${count+1}</div> <i class="fa fa-bed" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="Missed Invites"></i>`));
 			}
 		});
 	}
