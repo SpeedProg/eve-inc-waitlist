@@ -22,8 +22,7 @@ waitlist.gong = (function() {
 	function gongClicked() {
 		if (gongbutton.checked) {
 			sound.removeAttribute("hidden");
-			sound.volume = 0.5;
-			storage.setItem("gong", "open");
+			storage["gong"] = "open";
 		} else {
 			sound.setAttribute("hidden", "");
 			sound.pause();
@@ -41,6 +40,7 @@ waitlist.gong = (function() {
 		// Setup SSE invite-send event
 		addListener("invite-send", playGong);
 		gongbutton.addEventListener("click", gongClicked);
+		sound.volume = 0.5;
 		// Checks storage for gong info if not found alert to please enable notification
 		if (storage.getItem("gong")) {
 			gongbutton.checked = true;
@@ -51,8 +51,8 @@ waitlist.gong = (function() {
 	}
 
 	function init() {
-		gongbutton = document.getElementById(gongbutton);
-		sound = document.getElementById(sound);
+		gongbutton = document.getElementById("gongbutton");
+		sound = document.getElementById("sound");
 		if (gongbutton) {
 			if (!!window.EventSource) {
 				gongSetup();
