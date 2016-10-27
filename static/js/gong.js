@@ -30,10 +30,10 @@ waitlist.gong = (function() {
 		}
 	}
 
-	function gongDisable() {
+	function disableGong() {
 		gongbutton.checked = false;
-		sound.setAttribute("hidden", "");
-		sound.pause();
+		gongClicked();
+		document.getElementById("gong").remove();
 	}
 
 	function gongSetup() {
@@ -57,13 +57,13 @@ waitlist.gong = (function() {
 			if (!!window.EventSource) {
 				gongSetup();
 			} else {
-				document.getElementById(gong).remove();
+				disableGong();
 			}
 		}
 	}
 
 	$(document).ready(init);
 	return {
-	gongDisable: gongDisable
+	disableGong: disableGong
 	};
 })();
