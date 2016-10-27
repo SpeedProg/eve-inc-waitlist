@@ -6,6 +6,8 @@ if (!waitlist) {
 
 waitlist.dropdown = (function() {
 
+	const storage = localStorage;
+
 	function dropdownHandler(event) {
 		event.stopPropagation();
 		const icon = event.target.dataset.togIcon;
@@ -22,10 +24,10 @@ waitlist.dropdown = (function() {
 
 	function manageDropdownState(event) {
 		if (event.type === "show") {
-			localStorage.removeItem(event.target.id);
+			storage.removeItem(event.target.id);
 		}
 		if (event.type === "hide") {
-			localStorage.setItem(event.target.id, "closed");
+			storage[event.target.id] = "closed";
 		}
 	}
 
@@ -36,7 +38,7 @@ waitlist.dropdown = (function() {
         // Load previous state of the waitlist
         const wlists = Array.from($("ol[id|='wl-fits']"));
         wlists.forEach( function(wlist) {
-            if (localStorage.getItem(wlist.id) !== null) {
+            if (storage.getItem(wlist.id) !== null) {
             	$(wlist).collapse("hide");
             }
 		});
