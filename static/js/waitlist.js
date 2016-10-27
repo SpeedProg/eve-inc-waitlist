@@ -6,6 +6,7 @@ if (!waitlist) {
 
 waitlist.linemember = (function() {
 	var getMetaData = waitlist.base.getMetaData;
+	const disableGong  = waitlist.gong.disableGong;
 	var settings = {};
 
 	function getFitUpdateUrl(fitID) {
@@ -77,6 +78,7 @@ waitlist.linemember = (function() {
 
 	function removeSelfHandler(event) {
 		removeSelf();
+		disableGong();
 	}
 
 	function init() {

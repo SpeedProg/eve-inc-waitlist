@@ -43,7 +43,7 @@
 	{% endif %}
 
 	{% if is_on_wl %}
-		{% assets filters="babili", output="gen/wlinteract.%(version)s.js", "js/waitlist.js", "js/ts3.js", "js/gong.js" %}
+		{% assets filters="babili", output="gen/wlinteract.%(version)s.js", "js/ts3.js", "js/gong.js", "js/waitlist.js" %}
 		<script type="text/javascript" src="{{ ASSET_URL }}" defer async></script>
 		{% endassets %}
 	{% endif %}
