@@ -63,10 +63,10 @@
 	</li>
 	{% endif %}
 	{% if is_on_wl and is_index %}
-	<li class="nav-item float-xs-right">
+	<li class="nav-item float-xs-right wlb">
 		<button type="button" class="nav-link btn btn-danger btn-sm" data-action="removeSelfFromWaitlists">Leave Waitlists</button>
 	</li>
-	<li id="gong" class="nav-item float-xs-right">
+	<li id="gong" class="nav-item float-xs-right wlb">
 		<div class="form-group pretty-dd">
             <input type="checkbox" name="gongbutton" id="gongbutton"/>
             <div class="btn-group">
@@ -80,7 +80,7 @@
             </div>
         </div>
 	</li>
-	<li class="nav-item float-xs-right">
+	<li class="nav-item float-xs-right wlb">
 		<button type="button" class="btn btn-danger btn-sm" data-action="test-poke">Test TS Poke</button>
 	</li>
 	{% endif %}

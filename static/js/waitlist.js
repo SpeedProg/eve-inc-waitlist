@@ -79,6 +79,7 @@ waitlist.linemember = (function() {
 	function removeSelfHandler(event) {
 		removeSelf();
 		disableGong();
+		$('.wlb').remove();
 	}
 
 	function init() {
