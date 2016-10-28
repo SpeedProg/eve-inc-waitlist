@@ -496,6 +496,7 @@ waitlist.listdom = (function(){
 				for (let i = 0; i < tags.length; i++) {
 					tagContainer.append(createTypeTag(tags[i]));
 				}
+				$('[data-toggle="tooltip"]').tooltip();
 			}
 		}
 	}
