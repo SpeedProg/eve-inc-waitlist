@@ -5,7 +5,7 @@ if (!waitlist) {
 }
 
 waitlist.history = {};
-waitlist.history.base = (function(){
+waitlist.history.base = (function() {
 
 	var getMetaData = waitlist.base.getMetaData();
 	// 4h in the past

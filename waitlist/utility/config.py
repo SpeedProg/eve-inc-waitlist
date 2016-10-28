@@ -38,8 +38,8 @@ if  not os.path.isfile(os.path.join(".", "config", "config.cfg")):
     config.add_section("cookies")
     config.set("cookies", "secure_cookies", "False")
 
-    config.add_section("babel")
-    config.set("babel", "babel_bin", "/opt/waitlist/node_modules/.bin/babel")
+    config.add_section("node")
+    config.set("node", "node_bin", "/opt/waitlist/node_modules/.bin/")
 
     config.add_section("debug")
     config.set("debug", "enabled", "False")
@@ -52,7 +52,7 @@ config = ConfigParser.SafeConfigParser()
 config.read(os.path.join("config", "config.cfg"))
 
 debug_enabled = config.get("debug", "enabled") == "True"
-babel_bin = config.get("babel", "babel_bin")
+node_bin = config.get("node", "node_bin")
 connection_uri = config.get("database", "connection_uri")
 secure_cookies = config.get("cookies", "secure_cookies") == "True"
 cdn_https = config.get("cdn", "cdn_https") == "True"
