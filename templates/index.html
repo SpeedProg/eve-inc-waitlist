@@ -18,6 +18,9 @@
 {% if group %}
 <meta name="wl-group-id" content="{{group.groupID}}">
 {% endif %}
+{% if is_on_wl %}
+<meta name="audio" content="{{url_for('static', filename='gong-sound.mp3')}}">
+{% endif %}
 {% if perm_man.can() %}
 {# URLs for fleetcomp js #}
 <meta name="can-fleetcomp" content="True">
@@ -44,7 +47,7 @@
 
 	{% if is_on_wl %}
 		{% assets filters="babili", output="gen/wlinteract.%(version)s.js", "js/ts3.js", "js/gong.js", "js/waitlist.js" %}
-		<script type="text/javascript" src="{{ ASSET_URL }}" defer async></script>
+		<script type="text/javascript" src="{{ ASSET_URL }}" defer></script>
 		{% endassets %}
 	{% endif %}
 
@@ -158,7 +161,7 @@
     </div>
 	</div>
 	<div class="col-sm-6">
-		<div class="row">
+		<div class="row container-fluid">
 			<div class="alert alert-info" role="alert">
 				<p class="text-xs-center"><strong>Help us!</strong> We would like your <a href="{{url_for('feedback.index')}}">feedback</a>!</p>
 			</div>
@@ -170,9 +173,9 @@
 			</div>
 		</div>
 		{% endif %}
-		<div class="row">
-			<audio hidden=hidden id="sound" src="{{url_for('static', filename='gong-sound.mp3')}}" preload="auto" class="mx-auto" controls="" loop></audio>
-		</div>
+		{% if is_on_wl %}
+		<audio id="sound" class="mx-auto" hidden controls loop></audio>
+		{% endif %}
 	</div>
 </div>
 <div class="row" id="row-waitlists">
@@ -182,7 +185,7 @@
 	<div class="panel panel-default">
 		<div class="panel-heading" id="wl-heading-{{ wlist.id }}">
       		<h4 class="panel-title">
-        	<a class="dd list-group-item text-uppercase" data-toggle="collapse" data-parent="#wl-{{ wlist.id }}-tog" data-target="#wl-fits-{{ wlist.id }}" aria-expanded="true" aria-controls="wl-fits-{{ wlist.id }}">
+        	<a class="list-group-item text-uppercase" data-toggle="collapse" data-parent="#wl-{{ wlist.id }}-tog" data-target="#wl-fits-{{ wlist.id }}" aria-expanded="true" aria-controls="wl-fits-{{ wlist.id }}">
 				{{ wlist.displayTitle|e }}{% if perm_man.can() %}<span id="wl-count-{{ wlist.id }}" class="tag tag-pill tag-default float-xs-left">0</span>{% endif %}<i class="fa fa-minus-square float-xs-right" id="wl-{{ wlist.id }}-tog-icon"></i>
         	</a>
       		</h4>
