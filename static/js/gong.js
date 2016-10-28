@@ -22,6 +22,9 @@ waitlist.gong = (function() {
 
 	function gongClicked() {
 		if (gongbutton.checked) {
+			if (gongLoaded !== true) {
+				checkGongCache();
+			}
 			if (gongAlert === "y") {
 				removeGongAlert();
 			}
@@ -58,6 +61,34 @@ waitlist.gong = (function() {
 		} else {
 			displayMessage("To get informed when you are invited please enable browser notifications in the top right.", "info", false, "gong-alert");
 			gongAlert = "y";
+		}
+	}
+	
+	function setGongSrc() {
+		gongLoaded = true;
+		var gongBlob = storage["gongFile"];
+		sound.setAttribute("src", gongBlob);
+	}
+
+	function getGong() {
+		fetch(gongURL).then(function(response) {
+			response.blob().then(function(blob) {
+				var reader = new FileReader();
+					reader.addEventListener("loadend", function() {
+						storage["gongFile"] = reader.result.toString();
+						storage["gongVersion"] = gongVersion;
+						setGongSrc();
+					});
+				reader.readAsDataURL(blob);
+			});
+		});
+	};
+
+	function checkGongCache() {
+		if (storage["gongVersion"] !== gongVersion || storage["gongFile"] === undefined) {
+			getGong();
+		} else {
+			setGongSrc();
 		}
 	}
 
