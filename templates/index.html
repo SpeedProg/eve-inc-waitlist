@@ -44,7 +44,7 @@
 
 	{% if is_on_wl %}
 		{% assets filters="babili", output="gen/wlinteract.%(version)s.js", "js/ts3.js", "js/gong.js", "js/waitlist.js" %}
-		<script type="text/javascript" src="{{ ASSET_URL }}" defer async></script>
+		<script type="text/javascript" src="{{ ASSET_URL }}" defer></script>
 		{% endassets %}
 	{% endif %}
 
