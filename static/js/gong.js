@@ -8,9 +8,9 @@ waitlist.gong = (function() {
 
 	const displayMessage = waitlist.base.displayMessage;
 	const addListener = waitlist.sse.addEventListener;
-	const storage = sessionStorage;
 	var gongbutton;
 	var sound;
+	const storage = localStorage;
 
 	function playGong() {
 		if (gongbutton.checked) {
@@ -42,7 +42,7 @@ waitlist.gong = (function() {
 		gongbutton.addEventListener("click", gongClicked);
 		sound.volume = 0.5;
 		// Checks storage for gong info if not found alert to please enable notification
-		if (storage.getItem("gong")) {
+		if (storage["gong"]) {
 			gongbutton.checked = true;
 			gongClicked();
 		} else {
