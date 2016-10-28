@@ -60,7 +60,7 @@ waitlist.sse = (function() {
 	function entryAddedListener(event) {
 		var data = JSON.parse(event.data);
 		addNewEntry(data.listId, data.entry, data.groupId, data.isQueue);
-		if (data.isQueue) {
+		if (data.isQueue && settings.can_manage) {
 			sendNotificationForEntry(data);
 		}
 	}
