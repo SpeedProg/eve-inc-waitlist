@@ -54,7 +54,7 @@ waitlist.gong = (function() {
 		gongbutton = document.getElementById("gongbutton");
 		sound = document.getElementById("sound");
 		if (gongbutton) {
-			if (!!window.EventSource) {
+			if (window.EventSource) {
 				gongSetup();
 			} else {
 				disableGong();
