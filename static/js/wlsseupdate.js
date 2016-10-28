@@ -135,7 +135,7 @@ waitlist.sse = (function() {
 
 	function init() {
 		settings.can_manage = (getMetaData('can-fleetcomp') === "True");
-		if (!!window.EventSource) {
+		if (window.EventSource) {
 			connectSSE();
 			loadWaitlist();
 		} else {
