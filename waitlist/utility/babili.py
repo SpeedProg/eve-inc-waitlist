@@ -26,7 +26,7 @@ class BabiliFilter(ExternalTool):
         else:
             self.extra_args = ['--no-babelrc', '--no-comments', '--plugins=transform-remove-console']
 
-        args = [config.node_bin + 'babel' or 'babel']
+        args = [config.node_bin + 'babel']
         if self.presets:
             args += ['--presets', self.presets]
         if self.extra_args:

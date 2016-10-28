@@ -22,7 +22,6 @@
 }
 .alert-info {
     margin-bottom: 0.2em;
-    padding: 0.8em 1em 0.8em 1em;
 }
 p.text-xs-center {
     margin-bottom: 0rem;
@@ -43,8 +42,8 @@ p.text-xs-center {
 }
 #sound {
     display: block;
+    width: 16rem;
 }
-
 .fitdd::before {
     display: inline-block;
     margin-right: .3em;
@@ -56,9 +55,6 @@ p.text-xs-center {
 }
 .dd {
 	cursor: pointer;
-}
-.alert-dismissible .close {
-    right: 0;
 }
 .missed-invites {
 	display: inline;
