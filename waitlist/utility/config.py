@@ -39,7 +39,7 @@ if  not os.path.isfile(os.path.join(".", "config", "config.cfg")):
     config.set("cookies", "secure_cookies", "False")
 
     config.add_section("node")
-    config.set("node", "node_bin", "/opt/waitlist/node_modules/.bin/")
+    config.set("node", "node_bin", "")
 
     config.add_section("debug")
     config.set("debug", "enabled", "False")
