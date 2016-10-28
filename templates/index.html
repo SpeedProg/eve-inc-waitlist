@@ -163,13 +163,6 @@
 				<p class="text-xs-center"><strong>Help us!</strong> We would like your <a href="{{url_for('feedback.index')}}">feedback</a>!</p>
 			</div>
 		</div>
-		{% if not group.enabled %}
-		<div class="row">
-			<div class="alert alert-warning" role="alert">
-				<p class="text-xs-center">X-up is currently closed!</p>
-			</div>
-		</div>
-		{% endif %}
 		<div class="row">
 			<audio hidden=hidden id="sound" src="{{url_for('static', filename='gong-sound.mp3')}}" preload="auto" class="mx-auto" controls="" loop></audio>
 		</div>
