@@ -4,15 +4,13 @@ if (!waitlist) {
 	var waitlist = {};
 }
 
-waitlist.history = {};
 waitlist.history.comphistory = (function() {
 
+	var getMetaData = waitlist.base.getMetaData;
 	var getStamp = waitlist.history.base.getLastRefresh;
 	var setStamp = waitlist.history.base.setLastRefresh;
 	var isApprovalEnabled = waitlist.history.base.isApprovalEnabled;
-	var exclude_selector = waitlist.history.base.getExcludeSelector();
-
-	var getMetaData = waitlist.base.getMetaData();
+	var exclude_selector = waitlist.history.base.getExcludeSelector;
 	var createHistoryEntryDOM = waitlist.history.base.createHistoryEntryDOM;
 
 	function refresh() {

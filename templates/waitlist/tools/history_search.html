@@ -79,7 +79,13 @@
 </tbody>
 </table>
 </div>
-{% assets filters="babili", output="gen/history-search-setup.%(version)s.js", "js/base.js", "js/history-base.js", "js/history-search.js", "js/history-font.js", "js/fitlink.js" %}
+{% assets filters="babili", output="gen/history-base.%(version)s.js", "js/base.js", "js/history-base.js", "js/history-font.js" %}
 <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
+{% assets filters="babili", output="gen/history-search.%(version)s.js", "js/history-search.js" %}
+<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
+{% assets filters="babili", output="gen/eve-ui.%(version)s.js", "js/fitlink.js", "js/eve-ui-config.js" %}
+<script type="text/javascript" src="{{ ASSET_URL }}" defer async></script>
 {% endassets %}
 {% endblock %}

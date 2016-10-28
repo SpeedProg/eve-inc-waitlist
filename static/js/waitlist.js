@@ -6,6 +6,7 @@ if (!waitlist) {
 
 waitlist.linemember = (function() {
 	var getMetaData = waitlist.base.getMetaData;
+	const disableGong  = waitlist.gong.disableGong;
 	var settings = {};
 
 	function getFitUpdateUrl(fitID) {
@@ -75,32 +76,10 @@ waitlist.linemember = (function() {
 		removeOwnEntry(wlId, charId, entryId);
 	}
 
-	function waitlistCollapseHandler(event) {
-		event.stopPropagation();
-		var target = $(event.currentTarget);
-		var id = target.attr("id");
-		var togglerSelector = target.attr("data-tog-icon");
-		if (togglerSelector !== undefined || togglerSelector !== null) {
-			localStorage.setItem(id, 'closed');
-			$(togglerSelector).removeClass("fa-minus-square").addClass(
-				"fa-plus-square");
-		}
-	}
-
-	function waitlistExpandeHandler(event) {
-		event.stopPropagation();
-		var target = $(event.currentTarget);
-		var id = target.attr("id");
-		var togglerSelector = target.data("tog-icon");
-		if (togglerSelector !== undefined || togglerSelector !== null) {
-			localStorage.removeItem(id);
-			$(togglerSelector).removeClass("fa-plus-square").addClass(
-				"fa-minus-square");
-		}
-	}
-
 	function removeSelfHandler(event) {
 		removeSelf();
+		disableGong();
+		$('.wlb').remove();
 	}
 
 	function init() {
@@ -116,25 +95,6 @@ waitlist.linemember = (function() {
 		$("#waitlists").on("click", '[data-action="update-fit"]', updateFit);
 		$("#waitlists").on('click', '[data-action="removeOwnEntry"]',
 			removeOwnEntryHandler);
-
-		// setup waitlist close/opne event handlers
-		$('#waitlists').on('show.bs.collapse', '.collapse',
-			waitlistExpandeHandler);
-		$('#waitlists').on('hide.bs.collapse', '.collapse',
-			waitlistCollapseHandler);
-
-		// load old states of the waitlists
-		var wlists = $('ol[id|="wl-fits"]');
-		for (var i = 0; i < wlists.length; i++) {
-			var wl = $(wlists[i]);
-			var wlId = wl.attr("id");
-			var wllist = wl.attr("data-tog-icon");
-			var storage = localStorage.getItem(wlId);
-
-			if (storage !== null) {
-				wl.collapse('hide');
-			}
-		}
 	}
 
 	$(document).ready(init);

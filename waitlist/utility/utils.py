@@ -45,15 +45,6 @@ def get_fit_format(line):
         return "eft"
     else:  # just consider everyhting else dna
         return "dna"
-    
-
-
-
-def is_igb():
-    user_agent = request.headers.get('User-Agent')
-    if user_agent == None:
-        return False
-    return ("EVE-IGB" in user_agent)
 
 
 def get_character(user):

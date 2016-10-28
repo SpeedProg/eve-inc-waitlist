@@ -6,55 +6,64 @@ if (!waitlist) {
 
 waitlist.gong = (function() {
 
-	var addListener = waitlist.sse.addEventListener;
+	const displayMessage = waitlist.base.displayMessage;
+	const addListener = waitlist.sse.addEventListener;
+	const storage = sessionStorage;
+	var gongbutton;
+	var sound;
 
 	function playGong() {
-		var sound = document.getElementById('sound');
-		sound.currentTime = 0;
-		sound.play();
-	}
-
-	function gongEnabled() {
-		return document.getElementById("gongbutton").checked;
-	}
-
-	function gongListener(event) {
-		if (gongEnabled()) {
-			playGong();
+		if (gongbutton.checked) {
+			sound.currentTime = 0;
+			sound.play();
 		}
 	}
 
 	function gongClicked() {
-		var sound = document.getElementById("sound");
-		if (document.getElementById("gongbutton").checked) {
+		if (gongbutton.checked) {
 			sound.removeAttribute("hidden");
-			sound.volume = 0.5;
-			sessionStorage.setItem('gong', 'open');
+			storage["gong"] = "open";
 		} else {
 			sound.setAttribute("hidden", "");
-			sessionStorage.removeItem('gong');
+			sound.pause();
+			storage.removeItem("gong");
 		}
+	}
+
+	function disableGong() {
+		gongbutton.checked = false;
+		gongClicked();
+		document.getElementById("gong").remove();
 	}
 
 	function gongSetup() {
-		var gongbutton = document.getElementById("gongbutton");
-		// Check if browser supports event source
-		if (!!window.EventSource && gongbutton) {
-			// Add click handler & add eventlistener & check Session Storage
-			addListener("invite-send", gongListener);
-			gongbutton.addEventListener("click", gongClicked);
-			if (sessionStorage.getItem('gong')) {
-				gongbutton.checked = true;
-				gongClicked();
-			}
+		// Setup SSE invite-send event
+		addListener("invite-send", playGong);
+		gongbutton.addEventListener("click", gongClicked);
+		sound.volume = 0.5;
+		// Checks storage for gong info if not found alert to please enable notification
+		if (storage.getItem("gong")) {
+			gongbutton.checked = true;
+			gongClicked();
 		} else {
-			// If not remove button
-			if (gongbutton) {
-				gongbutton.parentNode.parentNode.remove();
+			displayMessage("To get informed when you are invited please enable browser notifications in the top right.", "info");
+		}
+	}
+
+	function init() {
+		gongbutton = document.getElementById("gongbutton");
+		sound = document.getElementById("sound");
+		if (gongbutton) {
+			if (!!window.EventSource) {
+				gongSetup();
+			} else {
+				disableGong();
 			}
 		}
 	}
 
-	$(document).ready(gongSetup);
-	return {};
+	$(document).ready(init);
+	return {
+	disableGong: disableGong
+	};
 })();
