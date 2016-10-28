@@ -18,6 +18,9 @@
 {% if group %}
 <meta name="wl-group-id" content="{{group.groupID}}">
 {% endif %}
+{% if is_on_wl %}
+<meta name="audio" content="{{url_for('static', filename='gong-sound.mp3')}}">
+{% endif %}
 {% if perm_man.can() %}
 {# URLs for fleetcomp js #}
 <meta name="can-fleetcomp" content="True">
@@ -163,9 +166,9 @@
 				<p class="text-xs-center"><strong>Help us!</strong> We would like your <a href="{{url_for('feedback.index')}}">feedback</a>!</p>
 			</div>
 		</div>
-		<div class="row">
-			<audio hidden=hidden id="sound" src="{{url_for('static', filename='gong-sound.mp3')}}" preload="auto" class="mx-auto" controls="" loop></audio>
-		</div>
+		{% if is_on_wl %}
+		<audio id="sound" class="mx-auto" hidden controls loop></audio>
+		{% endif %}
 	</div>
 </div>
 <div class="row" id="row-waitlists">
