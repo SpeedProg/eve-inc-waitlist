@@ -30,6 +30,7 @@ waitlist.gong = (function() {
 		} else {
 			sound.setAttribute("hidden", "");
 			sound.pause();
+			sound.currentTime = 0;
 			storage.removeItem("gong");
 		}
 	}
