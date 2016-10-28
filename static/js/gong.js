@@ -6,11 +6,12 @@ if (!waitlist) {
 
 waitlist.gong = (function() {
 
+	const getMetaData = waitlist.base.getMetaData;
 	const displayMessage = waitlist.base.displayMessage;
 	const addListener = waitlist.sse.addEventListener;
-	var gongbutton;
-	var sound;
 	const storage = localStorage;
+	const gongVersion = "1";
+	var gongbutton, sound, gongLoaded, gongAlert, gongURL;
 
 	function playGong() {
 		if (gongbutton.checked) {
@@ -53,6 +54,7 @@ waitlist.gong = (function() {
 	function init() {
 		gongbutton = document.getElementById("gongbutton");
 		sound = document.getElementById("sound");
+		gongURL = getMetaData("audio");
 		if (gongbutton) {
 			if (window.EventSource) {
 				gongSetup();
