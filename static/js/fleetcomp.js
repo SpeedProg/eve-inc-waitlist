@@ -33,8 +33,6 @@ waitlist.fleetcomp = (function() {
 				}
 				displayMessage(message, "danger");
 			},
-			'success': function(data) {
-			},
 			'dataType': 'json'
 		});
 	}
@@ -63,8 +61,6 @@ waitlist.fleetcomp = (function() {
 					message += ": " + data.responseJSON.message;
 				}
 				displayMessage(message, "danger");
-			},
-			'success': function(data) {
 			},
 			'dataType': 'json'
 		});

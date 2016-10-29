@@ -61,8 +61,6 @@ waitlist.fsettings = (function() {
 					message += ": " + data.message;
 				}
 				waitlist.base.displayMessage(message, "danger");
-			},
-			'success': function(data) {
 			}
 		});
 	}

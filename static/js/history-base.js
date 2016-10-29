@@ -7,10 +7,9 @@ if (!waitlist) {
 waitlist.history = {};
 waitlist.history.base = (function() {
 
-	var getMetaData = waitlist.base.getMetaData();
 	// 4h in the past
 	var data = {
-		laststamp:((new Date(Date.now())).getTime()-14400000),
+		laststamp: new Date(Date.now().getTime()-14400000),
 		exclude_selector:'tr.h-entry:not([data-action="comp_mv_xup_etr"]):not([data-action="comp_mv_xup_fit"])'
 	};
 	
@@ -98,7 +97,7 @@ waitlist.history.base = (function() {
 		if (fit.ship_type === 1) {
 			return $.parseHTML(`<a href="#" class="booby-link">${fit.shipName}</a>`);
 		} else {
-			return $.parseHTML(`<a href="#" class="fit-link" data-dna="${(fit.shipType+':'+fit.modules)}">${fit.shipName}</a>`);
+			return $.parseHTML(`<a href="#" class="fit-link" data-dna="${fit.shipType+':'+fit.modules}">${fit.shipName}</a>`);
 		}
 	}
 	
@@ -116,7 +115,7 @@ waitlist.history.base = (function() {
 		}
 	}
 	
-	function filter_handler(event) {
+	function filter_handler() {
 		if (!filter_enabled()) {
 			$(data.exclude_selector).addClass('hidden-el');
 		} else {

@@ -6,11 +6,6 @@ if (!waitlist) {
 
 waitlist.history.historysearch = (function() {
 
-	var getStamp = waitlist.history.base.getLastRefresh;
-	var setStamp = waitlist.history.base.setLastRefresh;
-	var isApprovalEnabled = waitlist.history.base.isApprovalEnabled;
-	var exclude_selector = waitlist.history.base.getExcludeSelector();
-
 	var getMetaData = waitlist.base.getMetaData();
 	var createHistoryEntryDOM = waitlist.history.base.createHistoryEntryDOM;
 
@@ -44,12 +39,13 @@ waitlist.history.historysearch = (function() {
 		});
 	}
 
-	function search_click_handler(event) {
+	function search_click_handler() {
 		var sources = $('#input-sources').val();
 		var targets = $('#input-targets').val();
 		var actions = $('#input-actions').val();
-		if (actions !== null)
+		if (actions !== null) {
 			actions = actions.join('|');
+		}
 		var start = $('#startpicker > input').val();
 		var end = $('#endpicker > input').val();
 

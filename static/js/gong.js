@@ -29,7 +29,7 @@ waitlist.gong = (function() {
 				removeGongAlert();
 			}
 			sound.removeAttribute("hidden");
-			storage["gong"] = "open";
+			storage.gong = "open";
 		} else {
 			sound.setAttribute("hidden", "");
 			sound.pause();
@@ -55,7 +55,7 @@ waitlist.gong = (function() {
 		gongbutton.addEventListener("click", gongClicked);
 		sound.volume = 0.5;
 		// Checks storage for gong info if not found alert to please enable notification
-		if (storage["gong"]) {
+		if (storage.gong) {
 			gongbutton.checked = true;
 			gongClicked();
 		} else {
@@ -66,7 +66,7 @@ waitlist.gong = (function() {
 	
 	function setGongSrc() {
 		gongLoaded = true;
-		var gongBlob = storage["gongFile"];
+		var gongBlob = storage.gongFile;
 		sound.setAttribute("src", gongBlob);
 	}
 
@@ -75,17 +75,17 @@ waitlist.gong = (function() {
 			response.blob().then(function(blob) {
 				var reader = new FileReader();
 					reader.addEventListener("loadend", function() {
-						storage["gongFile"] = reader.result.toString();
-						storage["gongVersion"] = gongVersion;
+						storage.gongFile = reader.result.toString();
+						storage.gongVersion = gongVersion;
 						setGongSrc();
 					});
 				reader.readAsDataURL(blob);
 			});
 		});
-	};
+	}
 
 	function checkGongCache() {
-		if (storage["gongVersion"] !== gongVersion || storage["gongFile"] === undefined) {
+		if (storage.gongVersion !== gongVersion || storage.gongFile === undefined) {
 			getGong();
 		} else {
 			setGongSrc();
