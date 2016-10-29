@@ -33,6 +33,7 @@ from waitlist.utility.settings.settings import sget_active_ts_id,\
 from waitlist.ts3.connection import change_connection
 import json
 from datetime import datetime
+from waitlist.data.sse import StatusChangedSSE, sendServerSentEvent
 
 bp_settings = Blueprint('settings', __name__)
 logger = logging.getLogger(__name__)
@@ -545,6 +546,9 @@ def fleet_status_set(gid):
             pass
     
     db.session.commit()
+    
+    event = StatusChangedSSE(group)
+    sendServerSentEvent(event)
     
     return redirect(url_for(".fleet"), code=303)
 

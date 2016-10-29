@@ -14,6 +14,7 @@ waitlist.sse = (function() {
 	var removeFitFromDom = waitlist.listdom.removeFitFromDom;
 	var removeEntryFromDom = waitlist.listdom.removeEntryFromDom;
 	var updateMissedInvite = waitlist.listdom.updateMissedInvite;
+	var setStatusDom = waitlist.listdom.setStatusDom;
 
 	var eventListeners = [];
 
@@ -79,13 +80,18 @@ waitlist.sse = (function() {
 		var data = JSON.parse(event.data);
 		updateMissedInvite(data.userId);
 	}
+	
+	function statusChangedListener(event) {
+		var data = JSON.parse(event.data);
+		setStatusDom(data);
+	}
 
 	function noSSE() {
 		displayMessage('We have had to disable <strong>features</strong> please consider upgrading your<a href="http://caniuse.com/#feat=eventsource"> browser', 'danger', true);
 	}
 
 	function getSSE() {
-		var sse = new EventSource(getMetaData('api-sse')+"?events="+encodeURIComponent("waitlistUpdates,gong")+"&groupId="+encodeURIComponent(getMetaData("wl-group-id")));
+		var sse = new EventSource(getMetaData('api-sse')+"?events="+encodeURIComponent("waitlistUpdates,gong,statusChanged")+"&groupId="+encodeURIComponent(getMetaData("wl-group-id")));
 		sse.onerror = handleSSEError;
 		sse.onopen = handleSSEOpen;
 		
@@ -96,9 +102,11 @@ waitlist.sse = (function() {
 		sse.addEventListener("entry-removed", entryRemovedListener);
 
 		sse.addEventListener("invite-missed", missedInviteListener);
+		
+		sse.addEventListener("status-changed", statusChangedListener);
 
 		for (let events of eventListeners){
-		    sse.addEventListener(events.event, events.listener);
+			sse.addEventListener(events.event, events.listener);
 		}
 
 		return sse;
