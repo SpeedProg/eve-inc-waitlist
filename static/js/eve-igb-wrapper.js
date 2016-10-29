@@ -34,8 +34,6 @@ waitlist.IGBW = (function() {
 							message += ": " + data.message;
 					}
 					waitlist.base.displayMessage(message, "danger");
-				},
-				'success': function(data){
 				}
 			});
 		}
@@ -63,8 +61,6 @@ waitlist.IGBW = (function() {
 						message += ": " + data.message;
 				}
 				waitlist.base.displayMessage(message, "danger");
-			},
-			'success': function(data){
 			}
 		});
 	}

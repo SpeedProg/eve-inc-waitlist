@@ -290,7 +290,7 @@ waitlist.listdom = (function(){
 	 */
 	function createFitDOM(fit, wlId, entryId, queue, username, userId) {
 		queue = typeof queue !== 'undefined' ? queue : false;
-		var isDummy = (fit.shipType === 1);
+		var isDummy = fit.shipType === 1;
 		var approveButton = "";
 		if (settings.can_manage && queue) {
 			approveButton = ' <button type="button" class="btn btn-mini btn-success" data-action="approveFit" data-id="'+fit.id+'" data-wlId="'+wlId+'" data-entryId="'+entryId+'"><i class="fa fa-thumbs-o-up"></i></button>';
@@ -343,7 +343,6 @@ waitlist.listdom = (function(){
 		entries.each(function(idx, e){
 			var el = $(e);
 			var waitElement = $('.wait-time', el);
-			var cTime = new Date(Date.now());
 			var xupTime = new Date(Date.parse(waitElement.attr('data-time')));
 			// the entry we are looking at happened after ours
 			if (xupTime > newEntryTime) {
@@ -501,15 +500,6 @@ waitlist.listdom = (function(){
 		}
 	}
 
-
-	/**
-	 * Remove a entries from a waitlist
-	 * 
-	 * @param wldata wl object as received from the api
-	 */
-	function cleanWL(wldata) {
-		$('#wl-fits-'+wldata.id).empty();
-	}
 
 	/**
 	 * Remove missing entries from DOM
@@ -744,9 +734,9 @@ waitlist.listdom = (function(){
 	// status update end
 	
 	function init() {
-		settings.can_view_fits = (getMetaData('can-view-fits') === "True");
-		settings.can_manage = (getMetaData('can-fleetcomp') === "True");
-		settings.user_id = Number((getMetaData('user-id')));
+		settings.can_view_fits = getMetaData('can-view-fits') === "True";
+		settings.can_manage = getMetaData('can-fleetcomp') === "True";
+		settings.user_id = Number(getMetaData('user-id'));
 		if (!!window.EventSource) {
 			setInterval(updateWaitTimes, 30000);
 		}

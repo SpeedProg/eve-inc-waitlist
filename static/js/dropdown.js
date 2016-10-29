@@ -6,11 +6,13 @@ if (!waitlist) {
 
 waitlist.dropdown = (function() {
 
-	const storage = localStorage;
+	const
+	storage = localStorage;
 
 	function dropdownHandler(event) {
 		event.stopPropagation();
-		const icon = event.target.dataset.togIcon;
+		const
+		icon = event.target.dataset.togIcon;
 		if (event.type === "show") {
 			$(icon).addClass("fa-minus-square").removeClass("fa-plus-square");
 		}
@@ -33,14 +35,16 @@ waitlist.dropdown = (function() {
 
 	function init() {
 		// Setup open & close event handler
-		$("#content").on("hide.bs.collapse show.bs.collapse", ".collapse", dropdownHandler);
+		$("#content").on("hide.bs.collapse show.bs.collapse", ".collapse",
+			dropdownHandler);
 
-        // Load previous state of the waitlist
-        const wlists = Array.from($("ol[id|='wl-fits']"));
-        wlists.forEach( function(wlist) {
-            if (storage.getItem(wlist.id) !== null) {
-            	$(wlist).collapse("hide");
-            }
+		// Load previous state of the waitlist
+		const
+		wlists = Array.from($("ol[id|='wl-fits']"));
+		wlists.forEach(function(wlist) {
+			if (storage.getItem(wlist.id) !== null) {
+				$(wlist).collapse("hide");
+			}
 		});
 	}
 

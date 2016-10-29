@@ -7,33 +7,30 @@ document
 				.on(
 					'change',
 					'input[type="file"][data-toggle="custom-file"]',
-					function(ev) {
+					function(event) {
+						const $input = $(event.currentTarget);
+						const target = $input.data('target');
+						const $target = $(target);
 
-						const
-						$input = $(this);
-						const
-						target = $input.data('target');
-						const
-						$target = $(target);
-
-						if (!$target.length)
+						if (!$target.length) {
 							return console.error(
 								'Invalid target for custom file', $input);
+						}
 
-						if (!$target.attr('data-content'))
-							return console
-								.error(
+						if (!$target.attr('data-content')) {
+							return console.error(
 									'Invalid `data-content` for custom file target',
 									$input);
+						}
 
 						// set original content so we can revert
 						// if user deselects file
-						if (!$target.attr('data-original-content'))
+						if (!$target.attr('data-original-content')) {
 							$target.attr('data-original-content', $target
 								.attr('data-content'));
+						}
 
-						const
-						input = $input.get(0);
+						const input = $input.get(0);
 
 						let
 						name = $.type(input)
@@ -42,8 +39,9 @@ document
 							&& $.type(input.files[0].name) === "string" ? input.files[0].name
 							: $input.val();
 
-						if ($.type(name) === "null" || name === '')
+						if ($.type(name) === "null" || name === '') {
 							name = $target.attr('data-original-content');
+						}
 
 						$target.attr('data-content', name);
 

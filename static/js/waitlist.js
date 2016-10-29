@@ -20,8 +20,6 @@ waitlist.linemember = (function() {
 				'X-CSRFToken': getMetaData('csrf-token')
 			},
 			method: 'DELETE',
-			success: function(data, status, jqxhr) {
-			},
 			url: getMetaData('url-self-remove-all')
 		};
 		$.ajax(settings);
@@ -34,8 +32,6 @@ waitlist.linemember = (function() {
 				'X-CSRFToken': getMetaData('csrf-token')
 			},
 			method: 'DELETE',
-			success: function(data, status, jqxhr) {
-			},
 			url: "/api/self/wlentry/remove/" + entryId
 		};
 		$.ajax(settings);
@@ -44,8 +40,6 @@ waitlist.linemember = (function() {
 	function removeOwnFit(event) {
 		var target = $(event.currentTarget);
 		var fitId = Number(target.attr('data-fit'));
-		var wlId = Number(target.attr('data-wlId'));
-		var entryId = Number(target.attr('data-entryId'));
 		event.stopPropagation();
 		var settings = {
 			dataType: "text",
@@ -53,8 +47,6 @@ waitlist.linemember = (function() {
 				'X-CSRFToken': getMetaData('csrf-token')
 			},
 			method: 'DELETE',
-			success: function(data, status, jqxhr) {
-			},
 			url: "/api/self/fittings/remove/" + fitId
 		};
 		$.ajax(settings);
@@ -76,7 +68,7 @@ waitlist.linemember = (function() {
 		removeOwnEntry(wlId, charId, entryId);
 	}
 
-	function removeSelfHandler(event) {
+	function removeSelfHandler() {
 		removeSelf();
 		disableGong();
 		$('.wlb').remove();

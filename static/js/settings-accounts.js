@@ -10,25 +10,6 @@ waitlist.accounts = (function() {
 	
 	var sendMail = waitlist.IGBW.sendMail;
 
-	function deleteAccount(accountId){
-		var settings = {
-				async: true,
-				dataType: "text",
-				error: function() {
-					displayMessage("error", "Account Deletion failed!");
-				},
-				method: "DELETE",
-				success: function() {
-					var id = "#account-"+accountId;
-					$(id).remove();
-				},
-				headers: {
-					'X-CSRFToken': getMetaData('csrf-token')
-				}
-		};
-		$.ajax(getMetaData('api-account-delete').replace("-1", accountId), settings);
-	}
-
 	function disableAccount(accountId, onsuccess){
 		var settings = {
 				async: true,

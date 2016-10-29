@@ -37,7 +37,7 @@ waitlist.sse = (function() {
 		event.target.close();
 	}
 
-	function handleSSEOpen(event) {
+	function handleSSEOpen() {
 		if (errorCount > 1) {
 			// refresh the page using json, to pull ALL the date, we might have
 			// missed sth
@@ -122,13 +122,13 @@ waitlist.sse = (function() {
 		};
 		// if we have permission
 		if (Notification.permission === "granted") {
-			var notification = new Notification(title, options);
+			new Notification(title, options);
 		// if we are not denied (user didn't select yet
 		} else if (Notification.permission !== 'denied') {
 			Notification.requestPermission(function (permission) {
 				// If the user accepts, let's create a notification
 				if (permission === "granted") {
-					var notification = new Notification(title, options);
+					new Notification(title, options);
 				}
 			});
 		}
@@ -142,7 +142,7 @@ waitlist.sse = (function() {
     }
 
 	function init() {
-		settings.can_manage = (getMetaData('can-fleetcomp') === "True");
+		settings.can_manage = getMetaData('can-fleetcomp') === "True";
 		if (window.EventSource) {
 			connectSSE();
 			loadWaitlist();

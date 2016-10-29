@@ -38,7 +38,7 @@ waitlist.reform = (function(){
 				displayMessage(message, "danger");
 				increaseCounter(1);
 			},
-			'success': function(data){
+			'success': function(){
 				increaseCounter(1);
 			},
 			'dataType': 'json'
@@ -51,7 +51,7 @@ waitlist.reform = (function(){
 		bar.attr('value', old+inc);
 	}
 	
-	function startInvites(event) {
+	function startInvites() {
 		var character_names = data.user_list_extractor_func($(data.user_list_selector));
 		var bar = $(data.progress_selector);
 		bar.attr('max', character_names.length);
@@ -61,7 +61,7 @@ waitlist.reform = (function(){
 		}
 	}
 	
-	function init(inputAreaID, barContainerID, startButtonID) {
+	function init() {
 		data.api_invite_by_name = getMetaData('api-invite-by-name');
 		data.csrf = getMetaData('csrf-token');
 		var button = $(data.trigger_selector);
