@@ -19,7 +19,7 @@ var eveui_autocomplete_endpoint = eveui_autocomplete_endpoint || function (str) 
 var eveui_style = eveui_style || '<style>' + ".eveui_window{position:fixed;line-height:1;background:#eee;border:1px solid;opacity:.95;display:flex;flex-direction:column}.eveui_modal_overlay{cursor:pointer;position:fixed;background:#000;top:0;left:0;right:0;bottom:0;z-index:10;opacity:.5}.eveui_title{width:100%;background:#ccc;cursor:move;white-space:nowrap;margin-right:2em}.eveui_scrollable{padding-right:17px;text-align:left;overflow:auto}.eveui_content{display:inline-block;margin:2px;max-width:30em}.eveui_content div{display:flex}.eveui_content table{border-collapse:collapse}.eveui_content td{vertical-align:top;padding:0 2px}.eveui_flexgrow{flex-grow:1}.eveui_fit_header{align-items:center}.eveui_line_spacer{line-height:.5em}.eveui_right{text-align:right}.eveui_icon{display:inline-block;margin:1px;vertical-align:middle;height:1em;width:1em;background-position:center;background-repeat:no-repeat;background-size:contain}.eveui_item_icon{height:20px;width:20px}.eveui_ship_icon{height:32px;width:32px}.eveui_close_icon{cursor:pointer;position:absolute;top:0;right:0;background-image:url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxwYXRoIGQ9Ik0uOTMgMi4zNDNMMi4zNDIuOTI5IDE1LjA3IDEzLjY1NmwtMS40MTQgMS40MTR6Ii8+PHBhdGggZD0iTTIuMzQzIDE1LjA3TC45MjkgMTMuNjU4IDEzLjY1Ni45M2wxLjQxNCAxLjQxNHoiLz48L3N2Zz4=)}.eveui_info_icon{cursor:pointer;background-image:url(data:image/svg+xml;base64,PHN2ZyBoZWlnaHQ9IjEwMjQiIHdpZHRoPSI4OTYiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTQ0OCAzODRjMzUgMCA2NC0yOSA2NC02NHMtMjktNjQtNjQtNjQtNjQgMjktNjQgNjQgMjkgNjQgNjQgNjR6bTAtMzIwQzIwMSA2NCAwIDI2NSAwIDUxMnMyMDEgNDQ4IDQ0OCA0NDggNDQ4LTIwMSA0NDgtNDQ4UzY5NSA2NCA0NDggNjR6bTAgNzY4Yy0xNzcgMC0zMjAtMTQzLTMyMC0zMjBzMTQzLTMyMCAzMjAtMzIwIDMyMCAxNDMgMzIwIDMyMC0xNDMgMzIwLTMyMCAzMjB6bTY0LTMyMGMwLTMyLTMyLTY0LTY0LTY0aC02NGMtMzIgMC02NCAzMi02NCA2NGg2NHYxOTJjMCAzMiAzMiA2NCA2NCA2NGg2NGMzMiAwIDY0LTMyIDY0LTY0aC02NFY1MTJ6Ii8+PC9zdmc+)}.eveui_plus_icon{cursor:pointer;background-image:url(data:image/svg+xml;base64,PHN2ZyBoZWlnaHQ9IjEwMjQiIHdpZHRoPSI2NDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiAgPHBhdGggZD0iTTM4NCA0NDhWMTkySDI1NnYyNTZIMHYxMjhoMjU2djI1NmgxMjhWNTc2aDI1NlY0NDhIMzg0eiIgLz4KPC9zdmc+Cg==)}.eveui_minus_icon{cursor:pointer;background-image:url(data:image/svg+xml;base64,PHN2ZyBoZWlnaHQ9IjEwMjQiIHdpZHRoPSI1MTIiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiAgPHBhdGggZD0iTTAgNDQ4djEyOGg1MTJWNDQ4SDB6IiAvPgo8L3N2Zz4K)}.eveui_more_icon{cursor:pointer;background-image:url(data:image/svg+xml;base64,PHN2ZyBoZWlnaHQ9IjEwMjQiIHdpZHRoPSI3NjgiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiAgPHBhdGggZD0iTTAgNTc2aDEyOHYtMTI4aC0xMjh2MTI4eiBtMC0yNTZoMTI4di0xMjhoLTEyOHYxMjh6IG0wIDUxMmgxMjh2LTEyOGgtMTI4djEyOHogbTI1Ni0yNTZoNTEydi0xMjhoLTUxMnYxMjh6IG0wLTI1Nmg1MTJ2LTEyOGgtNTEydjEyOHogbTAgNTEyaDUxMnYtMTI4aC01MTJ2MTI4eiIgLz4KPC9zdmc+Cg==)}.eveui_edit_icon{cursor:pointer;background-image:url(data:image/svg+xml;base64,PHN2ZyBoZWlnaHQ9IjEwMjQiIHdpZHRoPSI4OTYiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiAgPHBhdGggZD0iTTcwNCA2NEw1NzYgMTkybDE5MiAxOTIgMTI4LTEyOEw3MDQgNjR6TTAgNzY4bDAuNjg4IDE5Mi41NjJMMTkyIDk2MGw1MTItNTEyTDUxMiAyNTYgMCA3Njh6TTE5MiA4OTZINjRWNzY4aDY0djY0aDY0Vjg5NnoiIC8+Cjwvc3ZnPgo=)}.eveui_copy_icon{cursor:pointer;background-image:url(data:image/svg+xml;base64,PHN2ZyBoZWlnaHQ9IjEwMjQiIHdpZHRoPSI4OTYiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiAgPHBhdGggZD0iTTcwNCA4OTZoLTY0MHYtNTc2aDY0MHYxOTJoNjR2LTMyMGMwLTM1LTI5LTY0LTY0LTY0aC0xOTJjMC03MS01Ny0xMjgtMTI4LTEyOHMtMTI4IDU3LTEyOCAxMjhoLTE5MmMtMzUgMC02NCAyOS02NCA2NHY3MDRjMCAzNSAyOSA2NCA2NCA2NGg2NDBjMzUgMCA2NC0yOSA2NC02NHYtMTI4aC02NHYxMjh6IG0tNTEyLTcwNGMyOSAwIDI5IDAgNjQgMHM2NC0yOSA2NC02NCAyOS02NCA2NC02NCA2NCAyOSA2NCA2NCAzMiA2NCA2NCA2NCAzMyAwIDY0IDAgNjQgMjkgNjQgNjRoLTUxMmMwLTM5IDI4LTY0IDY0LTY0eiBtLTY0IDUxMmgxMjh2LTY0aC0xMjh2NjR6IG00NDgtMTI4di0xMjhsLTI1NiAxOTIgMjU2IDE5MnYtMTI4aDMyMHYtMTI4aC0zMjB6IG0tNDQ4IDI1NmgxOTJ2LTY0aC0xOTJ2NjR6IG0zMjAtNDQ4aC0zMjB2NjRoMzIwdi02NHogbS0xOTIgMTI4aC0xMjh2NjRoMTI4di02NHoiIC8+Cjwvc3ZnPgo=)}.copy_only{position:absolute;display:inline-block;line-height:0;font-size:0}.nocopy::after{content:attr(data-content)}.whitespace_nowrap{white-space:nowrap}.float_left{float:left}.float_right{float:right}" + '</style>';
 var eveui;
 (function (eveui) {
-    console.log('eveui: ' + performance.now().toFixed(3) + ' ' + 'script start');
+    mark('script start');
     // variables
     var $ = jQuery;
     var mouse_x = 0;
@@ -209,15 +209,15 @@ var eveui;
             eveui_window.css('left', window.innerWidth / 2 - eveui_window.width() / 2);
         }
     });
-    console.log('eveui: ' + performance.now().toFixed(3) + ' ' + 'event handlers set');
+    mark('event handlers set');
     function eve_version_query() {
-        console.log('eveui: ' + performance.now().toFixed(3) + ' ' + 'eve version request');
+        mark('eve version request');
         $.ajax("https://crest-tq.eveonline.com/", {
             dataType: 'json',
             cache: true,
         }).done(function (data) {
             eve_version = data.serverVersion;
-            console.log('eveui: ' + performance.now().toFixed(3) + ' ' + 'eve version response ' + eve_version);
+            mark('eve version response ' + eve_version);
             if (eveui_use_localstorage > 0) {
                 // load localstorage cache if applicable
                 var localstorage_cache = JSON.parse(localStorage.getItem('eveui_cache'));
@@ -242,17 +242,17 @@ var eveui;
                     }
                 });
                 localStorage.setItem('eveui_cache', JSON.stringify(localstorage_cache));
-                console.log('eveui: ' + performance.now().toFixed(3) + ' ' + 'localstorage cache loaded ' + Object.keys(cache).length + ' entries');
+                mark("localstorage cache loaded " + Object.keys(cache).length + " entries");
             }
             $(document).ready(function () {
-                console.log('eveui: ' + performance.now().toFixed(3) + ' ' + 'expanding fits');
+                mark('expanding fits');
                 expand();
             });
             // lazy preload timer
             preload_timer = setTimeout(lazy_preload, eveui_preload_interval);
-            console.log('eveui: ' + performance.now().toFixed(3) + ' ' + 'preload timer set');
+            mark('preload timer set');
         }).fail(function (xhr) {
-            console.log('eveui: ' + performance.now().toFixed(3) + ' ' + 'eve version request failed');
+            mark('eve version request failed');
             setTimeout(eve_version_query, 10000);
         });
     }
@@ -268,6 +268,10 @@ var eveui;
         eveui_window.css('left', mouse_x + 10);
         eveui_window.css('top', mouse_y - 10);
         return eveui_window;
+    }
+    function mark(mark) {
+        // log script time with annotation for performance metric
+        console.log('eveui: ' + performance.now().toFixed(3) + ' ' + mark);
     }
     function format_fit(dna, eveui_name) {
         // generates html for a fit display
@@ -378,12 +382,12 @@ var eveui;
         $('body').append(eveui_window);
         $(window).trigger('resize');
         // load required items and set callback to display
-        console.log('eveui: ' + performance.now().toFixed(3) + ' ' + 'fit window created');
+        mark('fit window created');
         cache_fit(dna).done(function () {
             var eveui_window = $(".eveui_window[data-eveui-dna=\"" + dna + "\"]");
             eveui_window.find('.eveui_content ').html(format_fit(dna, eveui_name));
             $(window).trigger('resize');
-            console.log('eveui: ' + performance.now().toFixed(3) + ' ' + 'fit window populated');
+            mark('fit window populated');
         });
         return eveui_window;
     }
@@ -413,13 +417,13 @@ var eveui;
                 $('body').append(eveui_window);
                 break;
         }
-        console.log('eveui: ' + performance.now().toFixed(3) + ' ' + 'item window created');
+        mark('item window created');
         // load required items and set callback to display
         cache_request('inventory/types/' + item_id).done(function () {
             var eveui_window = $(".eveui_window[data-eveui-itemid=\"" + item_id + "\"]");
             eveui_window.find('.eveui_content').html(format_item(item_id));
             $(window).trigger('resize');
-            console.log('eveui: ' + performance.now().toFixed(3) + ' ' + 'item window populated');
+            mark('item window populated');
         }).fail(function () {
             var eveui_window = $(".eveui_window[data-eveui-itemid=\"" + item_id + "\"]");
             eveui_window.remove();
@@ -444,13 +448,13 @@ var eveui;
                 $('body').append(eveui_window);
                 break;
         }
-        console.log('eveui: ' + performance.now().toFixed(3) + ' ' + 'char window created');
+        mark('char window created');
         // load required chars and set callback to display
         cache_request('characters/' + char_id).done(function () {
             var eveui_window = $(".eveui_window[data-eveui-charid=\"" + char_id + "\"]");
             eveui_window.find('.eveui_content').html(format_char(char_id));
             $(window).trigger('resize');
-            console.log('eveui: ' + performance.now().toFixed(3) + ' ' + 'char window populated');
+            mark('char window populated');
         }).fail(function () {
             var eveui_window = $(".eveui_window[data-eveui-charid=\"" + char_id + "\"]");
             eveui_window.remove();
@@ -475,7 +479,7 @@ var eveui;
             cache_fit(dna).done(function () {
                 var eveui_name = $(this).text().trim();
                 selected_element.replaceWith("<span class=\"eveui_content eveui_fit\">" + format_fit(dna, eveui_name) + "</span>");
-                console.log('eveui: ' + performance.now().toFixed(3) + ' ' + 'fit window expanded');
+                mark('fit window expanded');
             });
         });
         $(eveui_item_selector).filter(expand_filter).each(function () {
@@ -487,7 +491,7 @@ var eveui;
             var item_id = selected_element.attr('data-itemid') || this.href.substring(this.href.indexOf(':') + 1);
             cache_request('inventory/types/' + item_id).done(function () {
                 selected_element.replaceWith("<span class=\"eveui_content eveui_item\">" + format_item(item_id) + "</span>");
-                console.log('eveui: ' + performance.now().toFixed(3) + ' ' + 'item window expanded');
+                mark('item window expanded');
             });
         });
         $(eveui_char_selector).filter(expand_filter).each(function () {
@@ -499,7 +503,7 @@ var eveui;
             var char_id = selected_element.attr('data-charid') || this.href.substring(this.href.indexOf(':') + 1);
             cache_request('characters/' + char_id).done(function () {
                 selected_element.replaceWith("<span class=\"eveui_content eveui_char\">" + format_char(char_id) + "</span>");
-                console.log('eveui: ' + performance.now().toFixed(3) + ' ' + 'char window expanded');
+                mark('char window expanded');
             });
         });
     }
@@ -580,12 +584,12 @@ var eveui;
                     $.extend(true, localstorage_cache, localstorage_pending);
                     var localstorage_cache_json = JSON.stringify(localstorage_cache);
                     if (localstorage_cache_json.length > eveui_use_localstorage) {
-                        console.log('eveui: ' + performance.now().toFixed(3) + ' ' + 'localstorage limit exceeded');
+                        mark('localstorage limit exceeded');
                         return;
                     }
                     try {
                         localStorage.setItem('eveui_cache', localstorage_cache_json);
-                        console.log('eveui: ' + performance.now().toFixed(3) + ' ' + 'localstorage updated ' + Object.keys(localstorage_pending).length);
+                        mark('localstorage updated ' + Object.keys(localstorage_pending).length);
                     }
                     catch (err) {
                     }
@@ -675,5 +679,5 @@ var eveui;
             return this.substr(position, searchString.length) === searchString;
         };
     }
-    console.log('eveui: ' + performance.now().toFixed(3) + ' ' + 'script end');
+    mark('script end');
 })(eveui || (eveui = {}));

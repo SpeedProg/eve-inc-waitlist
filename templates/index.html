@@ -159,6 +159,11 @@ include "xup-form.html" with context %} {% endif %}
 						href="{{url_for('feedback.index')}}">feedback</a>!
 				</p>
 			</div>
+			{% if not group.enabled %}
+			<div class="alert alert-warning" role="alert">
+				<p class="text-xs-center">This waitlist is currently closed however <a href="{{url_for('index')}}">another</a> is open!</p>
+			</div>
+			{% endif %}
 		</div>
 		{% if not group.enabled %}
 		<div class="row">
