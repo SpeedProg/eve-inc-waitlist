@@ -71,7 +71,7 @@ app.register_blueprint(bp_api_history, url_prefix="/api/history")
 app.register_blueprint(bp_inserts, url_prefix="/settings/inserts")
 app.register_blueprint(bp_openwindow, url_prefix="/api/ui/openwindow")
 app.register_blueprint(bp_sse, url_prefix="/api/sse")
-app.register_blueprint(bp_waitlists, url_prefix="/api/public/")
+app.register_blueprint(bp_waitlists, url_prefix="/api/public")
 
 logger = logging.getLogger(__name__)
 

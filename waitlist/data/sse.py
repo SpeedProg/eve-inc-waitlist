@@ -4,6 +4,8 @@ from flask.json import dumps
 from Queue import Queue
 import logging
 from waitlist.utility.json import makeJsonFitting, makeJsonWLEntry
+from waitlist.utility.json import makeJsonConstellation,\
+    makeJsonSolarSystem, makeJsonStation, makeJsonManagers, makeJsonFCs
 logger = logging.getLogger(__name__)
 subscriptions = []
 
@@ -246,5 +248,28 @@ class InviteMissedSSE(ServerSentEvent):
     def accepts(self, subscription):
         return True
     
+    def encode(self, sub):
+        return ServerSentEvent.encode(self)
+
+class StatusChangedSSE(ServerSentEvent):
+    def __init__(self, group):
+        ServerSentEvent.__init__(self, self.__getData(group), "status-changed")
+        self.groupId = group.groupID
+
+    def __getData(self, group):
+        return dumps({
+            'groupID': group.groupID,
+            'status': group.status,
+            'influence': group.influence,
+            'constellation': makeJsonConstellation(group.constellation),
+            'solarSystem': makeJsonSolarSystem(group.system),
+            'station': makeJsonStation(group.dockup),
+            'fcs': makeJsonFCs(group.fcs),
+            'managers': makeJsonManagers(group),
+            })
+
+    def accepts(self, subscription):
+        return subscription.getWaitlistGroupId() == self.groupId
+
     def encode(self, sub):
         return ServerSentEvent.encode(self)

@@ -4,7 +4,7 @@ Created on 29.10.2016
 @author: SpeedProg
 '''
 from __future__ import absolute_import
-from waitlist.utility.json import makeJsonCharacter, makeJsonFitting
+import waitlist.utility.json
 
 def makeJsonAccount(acc):
     return {'id': acc.id,

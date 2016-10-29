@@ -33,7 +33,11 @@ class WaitlistBaseDataAPI(MethodView):
                 flask.abort(404, 'No Waitlist with this ID found')
             return jsonify(makeJsonWaitlistBaseData(waitlist))
         
-groups_view = WaitlistGroupsAPI.as_view('api_waitlist_groups')
-waitlist_base_view = WaitlistBaseDataAPI.as_view('api_waitlist_wlbasedata')
+groups_view = WaitlistGroupsAPI.as_view('groups')
+waitlist_base_view = WaitlistBaseDataAPI.as_view('wlbasedata')
+
 bp.add_url_rule(rule='/groups/', defaults={'groupID': None}, view_func=groups_view, methods=['GET'])
-bp.add_url_rule(rule='/waitlists/', defauls={'waitlistID': None}, view_func=waitlist_base_view, methods=['GET'])
+bp.add_url_rule(rule='/groups/<int:groupID>', view_func=groups_view, methods=['GET'])
+
+bp.add_url_rule(rule='/waitlists/', defaults={'waitlistID': None}, view_func=waitlist_base_view, methods=['GET'])
+bp.add_url_rule(rule='/waitlists/<int:waitlistID>', view_func=waitlist_base_view, methods=['GET'])

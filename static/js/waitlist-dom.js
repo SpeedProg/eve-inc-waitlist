@@ -620,6 +620,9 @@ waitlist.listdom = (function(){
 					updateWaitlist(data.waitlists[i], data.groupID);
 				}
 			});
+			$.getJSON(getMetaData('api-waitlists-groups').replace('-1', wlid), function(data) {
+				setStatusDom(data);
+			});
 		}
 	}
 
@@ -655,6 +658,88 @@ waitlist.listdom = (function(){
 	
 	// end of json update related stuff
 	
+	// status update start
+	/**
+	 * @param groupStatus
+	 *        {
+	 *         groupID=INT, status=STR, influence=BOOL,
+	 *         constellation={constellationID=INT,constellationName=STR},
+	 *         solarSystem={systemID=INT,systemName=STR},
+	 *         station={stationID=INT, stationName=STR},
+	 *         fcs=[{id=INT,name=STR,newbro=BOOL}...],
+	 *         managers=[{id=INT,name=STR,newbro=BOOL}...],
+	 *         fleets=[{grouID=INT, comp={id=INT,name=STR,newbro=BOOL}}...]
+	 *        }
+	 */
+	
+	function setStatusDom(groupStatus) {
+		// get the TD that contains all the FCs
+		var fcTD = $(`#grp-${groupStatus.groupID}-fcs`);
+		// remove all FC entries
+		fcTD.empty();
+		for(let fc of groupStatus.fcs) {
+			// create the fc link
+			let fcA = $(`<a href="char:${fc.id}">${fc.name}</a>`);
+			fcTD.append(fcA);
+		}
+
+		// set the constellation
+		var constTD = $(`#grp-${groupStatus.groupID}-const`);
+		constTD.empty();
+		var constA;
+		if (groupStatus.constellation) {
+			constA = $(`<a href="#">${groupStatus.constellation.constellationName}</a>`);
+		} else {
+			constA = $('<a href="#">Not Set</a>');
+		}
+		constTD.append(constA);
+		
+		// set the dockup
+		var dockupTD = $(`#grp-${groupStatus.groupID}-dockup`);
+		dockupTD.empty();
+		var dockupA;
+		if (groupStatus.station) {
+			dockupA = $(`<a href="#">${groupStatus.station.stationName}</a>`);
+		} else {
+			dockupA = $(`<a href="#">Not Set</a>`);
+		}
+		dockupTD.append(dockupA);
+		
+
+		var systemTD = $(`#grp-${groupStatus.groupID}-system`);
+		systemTD.empty();
+		var systemA;
+		if (groupStatus.solarSystem) {
+			systemA = $(`<a href="#">${groupStatus.solarSystem.solarSystemName}</a>`);
+		} else {
+			systemA = $(`<a href="#">Not Set</a>`);
+		}
+		systemTD.append(systemA);
+		
+		// update managers
+		var managerTD = $(`#grp-${groupStatus.groupID}-manager`);
+		managerTD.empty();
+		//  we have connected crest fleets, use the managers from those
+		for(let manager of groupStatus.managers) {
+			var managerA = $(`<a href="char:${manager.id}">${manager.name}</a>`);
+			managerTD.append(managerA);
+		}
+		
+		// set the status
+		var statusDiv = $(`#grp-${groupStatus.groupID}-status`);
+		statusDiv.empty();
+		if (groupStatus.status) {
+			statusDiv.text(groupStatus.status+' ');
+			if (groupStatus.influence) {
+				statusDiv.append($(`<a href="https://forums.warptome.net/influence-guide" target="_blank">Fit for Influence</a>`));
+			}
+		}
+		statusDiv.append($('<i id="status-tog-icon" class="fa fa-plus-square float-xs-right"></i>'));
+		
+	}
+	
+	// status update end
+	
 	function init() {
 		settings.can_view_fits = (getMetaData('can-view-fits') === "True");
 		settings.can_manage = (getMetaData('can-fleetcomp') === "True");
@@ -672,6 +757,7 @@ waitlist.listdom = (function(){
 		addNewEntry: addNewEntry,
 		removeFitFromDom: removeFitFromDom,
 		removeEntryFromDom: removeEntryFromDom,
-		updateMissedInvite: updateMissedInvite
+		updateMissedInvite: updateMissedInvite,
+		setStatusDom: setStatusDom
 	};
 })();

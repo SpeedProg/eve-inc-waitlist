@@ -61,8 +61,8 @@ def makeJsonGroup(group):
         'status': group.status,
         'enabled': group.enabled,
         'fcs': makeJsonFCs(group.fcs),
-        'managers': makeJsonManagers(group.manager),
-        'station': makeJsonConstellation(group.constellation),
+        'managers': makeJsonManagers(group),
+        'station': makeJsonStation(group.dockup),
         'solarSystem': makeJsonSolarSystem(group.system),
         'constellation': makeJsonConstellation(group.constellation),
         'logiwlID': group.logiwlID,
@@ -77,31 +77,36 @@ def makeJsonFCs(fcs):
 def makeJsonFC(fc):
     return makeJsonCharacter(fc.current_char_obj)
 
-def makeJsonManagers(managers):
-    return [makeJsonManager(manager) for manager in managers]
-
-def makeJsonManager(manager):
-    return makeJsonCharacter(manager.current_char_obj)
-
-
+def makeJsonManagers(group):
+    if len(group.fleets) > 0:
+        return [makeJsonCharacter(fleet.comp) for fleet in group.fleets]
+    else:
+        return [makeJsonCharacter(manager.current_char_obj) for manager in group.manager]
 
 def makeJsonSolarSystem(system):
+    if system is None:
+        return None
     return {
         'solarSystemID': system.solarSystemID,
         'solarSystemName': system.solarSystemName
         }
 
 def makeJsonConstellation(constellation):
+    if constellation is None:
+        return None
     return {
         'constellationID': constellation.constellationID,
         'constellationName': constellation.constellationName
         }
 
 def makeJsonStation(station):
+    if station is None:
+        return None
     return {
         'stationID': station.stationID,
         'stationName': station.stationName
         }
+
 def makeJsonWaitlistsBaseData(waitlists):
     return [makeJsonWaitlistBaseData(l) for l in waitlists]
 
