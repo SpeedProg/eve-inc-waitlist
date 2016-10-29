@@ -1,8 +1,9 @@
+from __future__ import absolute_import
 import gevent
 from flask.json import dumps
-from waitlist.utility.json import makeJsonFitting, makeJsonWLEntry
 from Queue import Queue
 import logging
+from waitlist.utility.json import makeJsonFitting, makeJsonWLEntry
 logger = logging.getLogger(__name__)
 subscriptions = []
 
