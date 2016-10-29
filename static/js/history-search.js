@@ -6,7 +6,7 @@ if (!waitlist) {
 
 waitlist.history.historysearch = (function() {
 
-	var getMetaData = waitlist.base.getMetaData();
+	var getMetaData = waitlist.base.getMetaData;
 	var createHistoryEntryDOM = waitlist.history.base.createHistoryEntryDOM;
 
 	function loadData(sources, targets, actions, startdate, enddate) {
