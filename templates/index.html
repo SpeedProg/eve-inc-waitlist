@@ -97,7 +97,8 @@ include "xup-form.html" with context %} {% endif %}
 				<a class="nav-link"
 				href="{{url_for('index')}}?groupId={{grp.groupID}}">{{grp.displayName}}</a>
 				{% endif %}
-			</li> {% endfor %}
+			</li>
+			{% endfor %}
 		</ul>
 	</div>
 </div>
