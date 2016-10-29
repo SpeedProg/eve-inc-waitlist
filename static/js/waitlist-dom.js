@@ -731,7 +731,10 @@ waitlist.listdom = (function(){
 		if (groupStatus.status) {
 			statusDiv.text(groupStatus.status+' ');
 			if (groupStatus.influence) {
-				statusDiv.append($(`<a href="https://forums.warptome.net/influence-guide" target="_blank">Fit for Influence</a>`));
+				statusDiv.append($(`<a id='influence-link' class=".no-collapse" href="https://forums.warptome.net/influence-guide" target="_blank">Fit for Influence</a>`));
+				$('#influence-link').on('click', function (e) {
+					e.stopPropagation();
+				});
 			}
 		}
 		statusDiv.append($('<i id="status-tog-icon" class="fa fa-plus-square float-xs-right"></i>'));
