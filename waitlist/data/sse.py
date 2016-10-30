@@ -6,6 +6,7 @@ import logging
 from waitlist.utility.json import makeJsonFitting, makeJsonWLEntry
 from waitlist.utility.json import makeJsonConstellation,\
     makeJsonSolarSystem, makeJsonStation, makeJsonManagers, makeJsonFCs
+from waitlist.utility import config
 logger = logging.getLogger(__name__)
 subscriptions = []
 
@@ -162,7 +163,7 @@ class EntryAddedSSE(ServerSentEvent):
             'groupId': groupId,
             'listId': listId,
             'isQueue': isQueue,
-            'entry': makeJsonWLEntry(waitlistEntry, True)
+            'entry': makeJsonWLEntry(waitlistEntry, True, scramble_names=config.scramble_names_on_public_api)
             }))
         self.jsonWOFits = ServerSentEvent.encode(self)
     

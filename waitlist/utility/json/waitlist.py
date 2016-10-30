@@ -1,23 +1,23 @@
-def makeJsonWLEntry(entry, excludeFits = False, includeFitsFrom = None):
+def makeJsonWLEntry(entry, excludeFits = False, includeFitsFrom = None, scramble_names = False, include_names_from = None):
     return {
             'id': entry.id,
-            'character': makeJsonCharacter(entry.user_data),
+            'character': makeJsonCharacter(entry.user_data, scramble_names=scramble_names, include_names_from=include_names_from),
             'fittings': makeJsonFittings(entry.fittings, excludeFits, includeFitsFrom, entry.user),
             'time': entry.creation,
             'missedInvites': entry.inviteCount
             }
 
-def makeJsonWL(dbwl, excludeFits = False, includeFitsFrom = None):
+def makeJsonWL(dbwl, excludeFits = False, includeFitsFrom = None, scramble_names=False, include_names_from = None):
     return {
             'id': dbwl.id,
             'name': dbwl.name,
-            'entries': makeEntries(dbwl.entries, excludeFits, includeFitsFrom)
+            'entries': makeEntries(dbwl.entries, excludeFits, includeFitsFrom, scramble_names=scramble_names, include_names_from=include_names_from)
     }
 
-def makeJsonCharacter(dbcharacter):
+def makeJsonCharacter(dbcharacter, scramble_names=False, include_names_from = None):
     return {
-            'id': dbcharacter.get_eve_id(),
-            'name': dbcharacter.get_eve_name(),
+            'id': dbcharacter.get_eve_id() if not scramble_names or (include_names_from is not None and dbcharacter.get_eve_id() in include_names_from) else None,
+            'name': dbcharacter.get_eve_name() if not scramble_names or (include_names_from is not None and dbcharacter.get_eve_id() in include_names_from) else 'Name Hidden',
             'newbro': dbcharacter.is_new()
             }
 
@@ -43,10 +43,10 @@ def makeJsonFittings(dbfittings, excludeFits = False, includeFitsFrom = None, ch
 
     return fittings
 
-def makeEntries(dbentries, excludeFits = False, includeFitsFrom = None):
+def makeEntries(dbentries, excludeFits = False, includeFitsFrom = None, scramble_names=False, include_names_from = None):
     entries = []
     for entry in dbentries:
-        entries.append(makeJsonWLEntry(entry, excludeFits, includeFitsFrom))
+        entries.append(makeJsonWLEntry(entry, excludeFits, includeFitsFrom, scramble_names, include_names_from=include_names_from))
     return entries
 
 def makeJsonGroups(groups):

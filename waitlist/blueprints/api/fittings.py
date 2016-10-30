@@ -13,6 +13,7 @@ from waitlist.utility.json import makeJsonWL, makeHistoryJson
 from flask.json import jsonify
 from datetime import datetime, timedelta
 import flask
+from waitlist.utility.config import scramble_names_on_public_api
 bp = Blueprint('api_fittings', __name__)
 logger = logging.getLogger(__name__)
 
@@ -42,7 +43,7 @@ def waitlist():
     excludeFits = not perm_viewfits.can()
     includeFitsFrom = [current_user.get_eve_id()]
     for wl in waitlists:
-        jsonwls.append(makeJsonWL(wl, excludeFits, includeFitsFrom))
+        jsonwls.append(makeJsonWL(wl, excludeFits, includeFitsFrom, scramble_names=(scramble_names_on_public_api and excludeFits), include_names_from=includeFitsFrom))
     
     return jsonify(waitlists=jsonwls, groupName=group.groupName, groupID=group.groupID, displayName=group.displayName)
 
