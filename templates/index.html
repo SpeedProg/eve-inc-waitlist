@@ -11,6 +11,7 @@ block head %}
 	content="{{url_for('api_fittings.waitlist')}}">
 <meta name="api-fit-update"
 	content="{{url_for('fittings.xup_update', fitID=-1)}}">
+<meta name="api-waitlists-groups" content="{{url_for('api_waitlists.groups', groupID=-1)}}">
 <link rel="preconnect" href="https://crest-tq.eveonline.com/">
 {% if perm_viewfits.can() %}
 <link rel="preconnect" href="https://quiescens.duckdns.org">
@@ -38,7 +39,6 @@ block head %}
 	content="{{url_for('api_eve_openwindow.ownerdetails')}}">
 <meta name="api-movetosafety"
 	content="{{url_for('api_fleet.move_fleetmembers_to_safety')}}">
-<meta name="api-waitlists-groups" content="{{url_for('api_waitlists.groups', groupID=-1)}}">
 
 {% endif %} {{ super() }} {% if group and group.enabled %} {% assets
 filters="babili", output="gen/setup.%(version)s.js", "js/base.js",
