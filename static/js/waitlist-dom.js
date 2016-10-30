@@ -129,9 +129,19 @@ waitlist.listdom = (function(){
 		// make managers call the CREST API others should open in quie's tool
 		var charHref = settings.can_manage ? '#' : `char:${entry.character.id}`;
 		var charInserts = settings.can_manage ? ` data-action="openCharInfo" data-characterid="${entry.character.id}"` : '';
+		
+		
+		var imgHTML;
+		if (entry.character.id === null) {
+			imgHTML = '<img class="img-32" src="#" alt="">';
+			charHref = '#'; // change the href to not call quies script because we have no id
+		} else {
+			imgHTML = `<img class="img-32" src="https://imageserver.eveonline.com/Character/${entry.character.id}_32.jpg" alt="${entry.character.name}">`;
+		}
+		
 		var charRow = $(`<a href="${charHref}"${charInserts}>
 							<div class="wel-header-32">
-								<img class="img-32" src="https://imageserver.eveonline.com/Character/${entry.character.id}_32.jpg" alt="${entry.character.name}">
+								${imgHTML}
 								<div class="wel-container-32">
 									<div class="wel-text-row-32-2">${entry.character.name}${oldInvites}${newBroTag} <small class="wait-time" data-time="${entry.time}">${waitTimeMinutes} min ago</small></div>
 									<div class="wel-text-row-32-2 tag-row"></div>
