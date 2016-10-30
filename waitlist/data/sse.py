@@ -270,7 +270,8 @@ class StatusChangedSSE(ServerSentEvent):
             })
 
     def accepts(self, subscription):
-        return subscription.getWaitlistGroupId() == self.groupId
+        subGroupId = subscription.getWaitlistGroupId()
+        return subGroupId is None or subGroupId == self.groupId
 
     def encode(self, sub):
         return ServerSentEvent.encode(self)
