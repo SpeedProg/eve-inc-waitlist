@@ -49,12 +49,12 @@ waitlist.listdom = (function(){
 			}
 			tags[name] = true;
 		};
-		for (var i=0; i < fits.length; i++) {
-			addTag(getTagFromJsonFit(fits[i]));
+		for (let fit of fits) {
+			addTag(getTagFromJsonFit(fit));
 		}
 		// make a list out of the object properties
 		var tagList = [];
-		for (var tag in tags) {
+		for (let tag in tags) {
 			tagList.push(tag);
 		}
 		return tagList;
@@ -141,8 +141,8 @@ waitlist.listdom = (function(){
 		if (settings.can_view_fits || entry.character.id === settings.user_id) {
 			var tags = getTagsFromFits(entry.fittings);
 			var tagContainer = $('div.tag-row', charRow);
-			for (var i = 0; i < tags.length; i++) {
-				tagContainer.append(createTypeTag(tags[i]));
+			for (let tag of tags) {
+				tagContainer.append(createTypeTag(tag));
 			}
 		}
 		var buttonHTML;
@@ -186,8 +186,8 @@ waitlist.listdom = (function(){
 		entryDOM.append(createHeaderDOM(wlId, entry, groupID, isQueue));
 		var fittlistDOM = $(`<ul aria-expanded="true" class="list-group list-group-flush collapse" id="fittings-${entry.id}"></ul>`);
 		entryDOM.append(fittlistDOM);
-		for (var i=0; i<entry.fittings.length; i++) {
-			fittlistDOM.append(createFitDOM(entry.fittings[i], wlId, entry.id, isQueue, entry.character.name, entry.character.id));
+		for (let fit of entry.fittings) {
+			fittlistDOM.append(createFitDOM(fit, wlId, entry.id, isQueue, entry.character.name, entry.character.id));
 		}
 		return entryDOM;
 	}
@@ -458,8 +458,8 @@ waitlist.listdom = (function(){
 			if (entry.fittings.length > 0) {
 				modified = true;
 			}
-			for (var i=0; i < entry.fittings.length; i++) {
-				jFittings.append(createFitDOM(entry.fittings[i], wlid, entry.id, isQueue, entry.character.username, entry.character.id));
+			for (let fit of entry.fittings) {
+				jFittings.append(createFitDOM(fit, wlid, entry.id, isQueue, entry.character.username, entry.character.id));
 			}
 			
 			// if we modified sth update the tags
@@ -467,8 +467,8 @@ waitlist.listdom = (function(){
 				let tags = getTagsFromFits(fittings);
 				let tagContainer = $('div.tag-row', jEntries);
 				tagContainer.empty();
-				for (let i = 0; i < tags.length; i++) {
-					tagContainer.append(createTypeTag(tags[i]));
+				for (let tag of tags) {
+					tagContainer.append(createTypeTag(tag));
 				}
 				$('[data-toggle="tooltip"]').tooltip();
 			}
@@ -575,8 +575,8 @@ waitlist.listdom = (function(){
 		var wlid = getMetaData('wl-group-id');
 		if (typeof wlid !== 'undefined') {
 			$.getJSON(getMetaData('api-waitlists')+"?group="+wlid, function(data){
-				for (var i=0; i < data.waitlists.length; i++) {
-					updateWaitlist(data.waitlists[i], data.groupID);
+				for (let waitlist of data.waitlists) {
+					updateWaitlist(waitlist, data.groupID);
 				}
 			});
 			$.getJSON(getMetaData('api-waitlists-groups').replace('-1', wlid), function(data) {
