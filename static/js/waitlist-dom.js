@@ -293,7 +293,7 @@ waitlist.listdom = (function(){
 		var isDummy = fit.shipType === 1;
 		var approveButton = "";
 		if (settings.can_manage && queue) {
-			approveButton = ' <button type="button" class="btn btn-mini btn-success" data-action="approveFit" data-id="'+fit.id+'" data-wlId="'+wlId+'" data-entryId="'+entryId+'"><i class="fa fa-thumbs-o-up"></i></button>';
+			approveButton = '<button type="button" class="btn btn-mini btn-success" data-action="approveFit" data-id="'+fit.id+'" data-wlId="'+wlId+'" data-entryId="'+entryId+'"><i class="fa fa-thumbs-o-up"></i></button>';
 		}
 		var fitButtons = "";
 		if (settings.user_id === userId) {
