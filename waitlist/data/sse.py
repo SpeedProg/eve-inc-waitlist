@@ -260,6 +260,7 @@ class StatusChangedSSE(ServerSentEvent):
         return dumps({
             'groupID': group.groupID,
             'status': group.status,
+            'enabled': group.enabled,
             'influence': group.influence,
             'constellation': makeJsonConstellation(group.constellation),
             'solarSystem': makeJsonSolarSystem(group.system),
