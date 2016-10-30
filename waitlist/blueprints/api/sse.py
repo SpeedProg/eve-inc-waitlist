@@ -41,17 +41,16 @@ def events():
     options = {}
     options['userId'] = int(current_user.get_eve_id())
     logger.info(event_group_strs);
-    
-    if 'waitlistUpdates' in event_group_strs or 'statusChanged' in event_group_strs:
-        groupId_str = request.args.get('groupId', None)
-        if groupId_str is None:
-            flask.abort(400, "No GroupId defined")
+    groupId_str = request.args.get('groupId', None)
+    if groupId_str is not None:
         options['groupId'] = int(groupId_str)
     
     if 'waitlistUpdates' in event_group_strs:
         logger.info("adding waitlist update events, to subscription")
+        if groupId_str is None:
+            flask.abort(400, "No GroupId defined")
         events += [FitAddedSSE, EntryAddedSSE, EntryRemovedSSE, FitRemovedSSE, InviteMissedSSE]
-
+        
     if 'statusChanged' in event_group_strs:
         logger.info("Adding statusChanged event to subscription")
         events += [StatusChangedSSE]
