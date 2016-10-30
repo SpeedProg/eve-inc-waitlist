@@ -350,7 +350,7 @@ waitlist.listdom = (function(){
 		} else {
 			wlEntryContainer.append(entryDOM);
 		}
-		setWlEntryCount(wlid);
+		updateWlEntryTagCount(wlid);
 	}
 	
 	function removeEntryFromDom(wlid, entryId) {
@@ -359,16 +359,16 @@ waitlist.listdom = (function(){
 			return 0;
 		}
 		targetEntry.remove();
-		setWlEntryCount(wlid);
+		updateWlEntryTagCount(wlid);
 		return 1;
 	}
 
 	/**
-	 * Set the entry counter for a given waitlist
+	 * Update the entry tag counter for a given waitlist
 	 * 
 	 * @param wlid id of the waitlist
 	 */
-	function setWlEntryCount(wlid) {
+	function updateWlEntryTagCount(wlid) {
 		const countElement = document.getElementById('wl-count-'+wlid);
 		if (countElement) {
 			countElement.textContent = $('#wl-fits-' + wlid)[0].childNodes.length;
@@ -565,7 +565,7 @@ waitlist.listdom = (function(){
 	function updateWaitlist(wldata, groupID) {
 		deleteMissingEntries(wldata);
 		addNewEntries(wldata, groupID);
-		setWlEntryCount(wldata.id);
+		updateWlEntryTagCount(wldata.id);
 	}
 
 	/**
