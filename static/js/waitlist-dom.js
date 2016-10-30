@@ -706,7 +706,9 @@ waitlist.listdom = (function(){
 		settings.can_view_fits = getMetaData('can-view-fits') === "True";
 		settings.can_manage = getMetaData('can-fleetcomp') === "True";
 		settings.user_id = Number(getMetaData('user-id'));
-		setInterval(updateWaitTimes, 30000);
+		if (window.EventSource) {
+			setInterval(updateWaitTimes, 30000);
+		}
 	}
 
 	
