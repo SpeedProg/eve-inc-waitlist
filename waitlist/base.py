@@ -13,6 +13,8 @@ from flask_htmlmin import HTMLMIN
 from flask.json import JSONEncoder
 from flask_assets import Environment
 from webassets.filter import register_filter
+from flask_limiter.extension import Limiter
+from flask_limiter.util import get_ipaddr
 
 app = Flask(import_name=__name__, static_url_path="/static", static_folder="../static", template_folder=path.join("..", "templates"))
 app.secret_key = config.secret_key
@@ -75,3 +77,7 @@ class MiniJSONEncoder(JSONEncoder):
     item_separator = ','
     key_separator = ':'
 app.json_encoder = MiniJSONEncoder
+
+# init rate limiting
+limiter = Limiter(key_func=get_ipaddr, storage_uri="memory://", strategy="moving-window")
+limiter.init_app(app)
