@@ -9,7 +9,7 @@ waitlist.history.base = (function() {
 
 	// 4h in the past
 	var data = {
-		laststamp: new Date(Date.now().getTime()-14400000),
+		laststamp: new Date(Date.now()-14400000).getTime(),
 		exclude_selector:'tr.h-entry:not([data-action="comp_mv_xup_etr"]):not([data-action="comp_mv_xup_fit"])'
 	};
 	
