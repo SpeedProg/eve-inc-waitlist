@@ -131,7 +131,7 @@ waitlist.listdom = (function(){
 		var charInserts = settings.can_manage ? ` data-action="openCharInfo" data-characterid="${entry.character.id}"` : '';
 		var charRow = $(`<a href="${charHref}"${charInserts}>
 							<div class="wel-header-32">
-								<img class="img-32" src="https://imageserver.eveonline.com/Character/${entry.character.id}_32.jpg" alt="${entry.character.name}">
+								<img class="img-32" src="https://imageserver.eveonline.com/Character/${entry.character.id}_32.jpg">
 								<div class="wel-container-32">
 									<div class="wel-text-row-32-2">${entry.character.name}${oldInvites}${newBroTag} <small class="wait-time" data-time="${entry.time}">${waitTimeMinutes} min ago</small></div>
 									<div class="wel-text-row-32-2 tag-row"></div>
@@ -314,7 +314,7 @@ waitlist.listdom = (function(){
 		fitdom.append(
 				$(baseElement)
 					.append($($.parseHTML('<div class="wel-header-32"></div>'))
-							.append($.parseHTML('<img class="img-32" src="https://imageserver.eveonline.com/Render/'+fit.shipType+'_32.png" alt="'+fit.shipName+'">'))
+							.append($.parseHTML('<img class="img-32" src="https://imageserver.eveonline.com/Render/'+fit.shipType+'_32.png">'))
 							.append($.parseHTML('<div class="wel-container-32"><div class="wel-text-row-32-2">'+fit.shipName+'</div><div class="wel-text-row-32-2">'+commentHTML+approveButton+fitButtons+'</div></div>'))
 							)
 				);
