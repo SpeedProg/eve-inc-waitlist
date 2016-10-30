@@ -195,7 +195,7 @@ waitlist.listdom = (function(){
 	 * @returns {HTMLElement} DOM of an entry
 	 */
 	function createEntryDOM(wlId, entry, groupID, isQueue) {
-		var entryDOM = $(`<li class="list-group-item" data-username="${entry.character.name}" id="entry-${wlId}-${entry.id}" data-count="${entry.fittings.length}"></li>`);
+		var entryDOM = $(`<li class="list-group-item" data-username="${entry.character.name}" id="entry-${wlId}-${entry.id}"></li>`);
 		entryDOM.append(createHeaderDOM(wlId, entry, groupID, isQueue));
 		var fittlistDOM = $(`<ul aria-expanded="true" class="list-group list-group-flush collapse" id="fittings-${entry.id}"></ul>`);
 		entryDOM.append(fittlistDOM);
@@ -363,7 +363,7 @@ waitlist.listdom = (function(){
 		} else {
 			wlEntryContainer.append(entryDOM);
 		}
-		setWlEntryCount(wlid, getWlEntryCount(wlid)+1);
+		setWlEntryCount(wlid);
 	}
 	
 	function removeEntryFromDom(wlid, entryId) {
@@ -372,7 +372,7 @@ waitlist.listdom = (function(){
 			return 0;
 		}
 		targetEntry.remove();
-		setWlEntryCount(wlid, getWlEntryCount(wlid)-1);
+		setWlEntryCount(wlid);
 		return 1;
 	}
 
@@ -380,26 +380,14 @@ waitlist.listdom = (function(){
 	 * Set the entry counter for a given waitlist
 	 * 
 	 * @param wlid id of the waitlist
-	 * @param count count of entries to set to
 	 */
-	function setWlEntryCount(wlid, count) {
-		document.getElementById('wl-'+wlid).setAttribute("data-count", count);
-		var countElement = document.getElementById('wl-count-'+wlid);
-		if (countElement !== null) {
-			countElement.textContent = count;
+	function setWlEntryCount(wlid) {
+		const countElement = document.getElementById('wl-count-'+wlid);
+		if (countElement) {
+			countElement.textContent = $('#wl-fits-' + wlid)[0].childNodes.length;
 		}
 	}
 
-	/**
-	 * Get the count for a given waitlist
-	 * 
-	 * @param wlid id of the waitlist
-	 * @returns {Number} count of entries in the waitlist
-	 */
-	function getWlEntryCount(wlid) {
-		return Number(document.getElementById('wl-'+wlid).getAttribute("data-count"));
-	}
-	
 	// json update only related stuff down here
 
 	/**
@@ -508,7 +496,6 @@ waitlist.listdom = (function(){
 	 * @returns {Number} number of entries that where removed
 	 */
 	function deleteMissingEntries(wldata) {
-		var removeCount = 0;
 		var entries = $('li[id|="entry-'+wldata.id+'"]');
 		var preLen = ("entry-"+wldata.id+"-").length;
 		for (let i=0; i < entries.length; i++) {
@@ -523,10 +510,8 @@ waitlist.listdom = (function(){
 			}
 			if (! is_existing) {
 				$(entries[i]).remove();
-				removeCount += 1;
 			}
 		}
-		return removeCount;
 	}
 
 	// before using this all none existing entries need to be removed from the
@@ -583,7 +568,6 @@ waitlist.listdom = (function(){
 				addedCounter += 1;
 			}
 		}
-		return addedCounter;
 	}
 
 	/**
@@ -592,11 +576,9 @@ waitlist.listdom = (function(){
 	 * @param wldata waitlist object as received from the api
 	 */
 	function updateWaitlist(wldata, groupID) {
-		var removedEntryCount = deleteMissingEntries(wldata);
-		var addedEntryCount = addNewEntries(wldata, groupID);
-		var oldCount = getWlEntryCount(wldata.id);
-		var newCount = oldCount + addedEntryCount - removedEntryCount;
-		setWlEntryCount(wldata.id, newCount);
+		deleteMissingEntries(wldata);
+		addNewEntries(wldata, groupID);
+		setWlEntryCount(wldata.id);
 	}
 
 	/**
