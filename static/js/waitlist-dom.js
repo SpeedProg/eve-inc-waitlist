@@ -145,42 +145,29 @@ waitlist.listdom = (function(){
 				tagContainer.append(createTypeTag(tags[i]));
 			}
 		}
-		var convoButton = "";
-		var buttonRow = null;
-		if (settings.can_manage && isQueue) { // fleetcom queue
-			buttonRow = $(
-					`<div>
-						<div class="btn-group btn-group-mini" role="group" aria-label="Action Buttons">
-							<button type="button" class="btn btn-success" data-action="approveEntry" data-wlId="${wlid}" data-entryId="${entry.id}"><i class="fa fa-thumbs-o-up"></i></button>
-							<button aria-expanded="true" type="button" data-toggle="collapse" data-target="#fittings-${entry.id}" class="btn btn-primary"><span class="fitdd">Fits</span></button>
-							<button type="button" class="btn btn-success" data-action="sendNotification" data-characterid="${entry.character.id}" data-wlId="${wlid}"><i class="fa fa-bell-o"></i></button>
-							${convoButton}
-							<button type="button" class="btn btn-danger" data-action="dismissEntry" data-wlId="${wlid}" data-entryId="${entry.id}"><i class="fa fa-times"></i></button>
-						</div>
-					</div>`);
-		} else if (settings.can_manage) { // fleetcomp not queue
-			buttonRow = $(
-					`<div>
-						<div class="btn-group btn-group-mini" role="group" aria-label="Action Buttons">
-							<button type="button" class="btn btn-success" data-action="invitePlayer" data-characterid="${entry.character.id}" data-wlId="${wlid}" data-groupId="${groupId}"><i class="fa fa-plus"></i></button>
-							<button aria-expanded="true" type="button" data-toggle="collapse" data-target="#fittings-${entry.id}" class="btn btn-primary"><span class="fitdd">Fits</span></button>
-							<button type="button" class="btn btn-success" data-action="sendNotification" data-characterid="${entry.character.id}" data-wlId="${wlid}"><i class="fa fa-bell-o"></i></button>
-							${convoButton}
-							<button type="button" class="btn btn-danger" data-action="removePlayer" data-characterid="${entry.character.id}" data-groupId="${groupId}"><i class="fa fa-times"></i></button>
-						</div>
-					</div>`);
-		} else { // linemembers/only view fits
-			var buttonHTML = '<div class="btn-group btn-group-mini" role="group" aria-label="Action Buttons">';
+		var buttonHTML;
+		const dropdownButton = `<button type="button" data-toggle="collapse" data-target="#fittings-${entry.id}" class="btn btn-primary"><span class="fitdd">Fits</span></button>`;
+		if (settings.can_manage) { // fleet comp
+			var button1, button4, convoButton = "";
+			const notificationButton = `<button type="button" class="btn btn-success" data-action="sendNotification" data-characterid="${entry.character.id}" data-wlId="${wlid}"><i class="fa fa-bell-o"></i></button>`;
+			if (isQueue) { // if in x'ups
+				button1 = `<button type="button" class="btn btn-success" data-action="approveEntry" data-wlId="${wlid}" data-entryId="${entry.id}"><i class="fa fa-thumbs-o-up"></i></button>`;
+				button4 = `<button type="button" class="btn btn-danger" data-action="dismissEntry" data-wlId="${wlid}" data-entryId="${entry.id}"><i class="fa fa-times"></i></button>`;
+			} else { // else in wl's
+				button1 = `<button type="button" class="btn btn-success" data-action="invitePlayer" data-characterid="${entry.character.id}" data-wlId="${wlid}" data-groupId="${groupId}"><i class="fa fa-plus"></i></button>`;
+				button4 = `<button type="button" class="btn btn-danger" data-action="removePlayer" data-characterid="${entry.character.id}" data-groupId="${groupId}"><i class="fa fa-times"></i></button>`;
+			}
+			buttonHTML = button1 + dropdownButton + convoButton + notificationButton + button4;
+		} else { // line members/view fits
 			if (entry.character.id === settings.user_id) {
-				buttonHTML += `<button type="button" class="btn btn-mini btn-warning" data-action="removeOwnEntry" data-characterid="${entry.character.id}" data-wlId="${wlid}" data-entryId="${entry.id}"><i class="fa fa-times"></i></button>`;
+				buttonHTML = `<button type="button" class="btn btn-warning" data-action="removeOwnEntry" data-characterid="${entry.character.id}" data-wlId="${wlid}" data-entryId="${entry.id}"><i class="fa fa-times"></i></button>`;
 			}
 			if (entry.character.id === settings.user_id || settings.can_view_fits) {
-				buttonHTML += `<button type="button" data-toggle="collapse" data-target="#fittings-${entry.id}" class="btn btn-primary"><span class="fitdd">Fits</span></button>`;
+				buttonHTML += dropdownButton;
 			}
-			buttonHTML +='</div>';
-			buttonRow = $(buttonHTML);
 		}
 
+	    var buttonRow = $('<div class="btn-group btn-group-mini" role="group"></div>').append(buttonHTML);
 		header.append(charRow);
 		header.append(buttonRow);
 		return header;
