@@ -40,12 +40,16 @@ block head %}
 <meta name="api-movetosafety"
 	content="{{url_for('api_fleet.move_fleetmembers_to_safety')}}">
 
-{% endif %} {{ super() }} {% if group and group.enabled %} {% assets
-filters="babili", output="gen/setup.%(version)s.js", "js/base.js",
+{% endif %}
+{{ super() }}
+{% assets filters="babili", output="gen/setup.%(version)s.js", "js/base.js",
 "js/dropdown.js", "js/waitlist-dom.js", "js/wlsseupdate.js",
 "js/dnasetup.js" %}
 <script type="text/javascript" src="{{ ASSET_URL }}"></script>
-{% endassets %} {% if perm_man.can() %} {% assets filters="babili",
+{% endassets %}
+
+{% if group and group.enabled %}
+{% if perm_man.can() %} {% assets filters="babili",
 output="gen/comp.%(version)s.js", "js/eve-igb-wrapper.js",
 "js/fleetcomp.js" %}
 <script type="text/javascript" src="{{ ASSET_URL }}" defer></script>
