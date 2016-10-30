@@ -738,6 +738,15 @@ waitlist.listdom = (function(){
 		
 	}
 	
+	function clearWaitlists() {
+		var fitLists = $('ol[id|="wl-fits"]');
+		fitLists.each(function(idx, el){
+			var wlId = Number($(el).attr('id').replace('wl-fits-', ''));
+			setWlEntryCount(wlId, 0);
+		});
+		fitLists.empty();
+	}
+	
 	// status update end
 	
 	function init() {
@@ -758,6 +767,7 @@ waitlist.listdom = (function(){
 		removeFitFromDom: removeFitFromDom,
 		removeEntryFromDom: removeEntryFromDom,
 		updateMissedInvite: updateMissedInvite,
-		setStatusDom: setStatusDom
+		setStatusDom: setStatusDom,
+		clearWaitlists: clearWaitlists
 	};
 })();
