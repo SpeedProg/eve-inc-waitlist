@@ -45,7 +45,7 @@ if  not os.path.isfile(os.path.join(".", "config", "config.cfg")):
     config.set("debug", "enabled", "False")
     
     config.add_section("security")
-    config.set("security", "scramble_names_on_public_api", "False")
+    config.set("security", "scramble_names", "False")
     
     makedirs(os.path.join(".", "config"))
     with open(os.path.join(".", "config", "config.cfg"), "wb") as configfile:
@@ -79,5 +79,5 @@ crest_return_url = config.get("crest", "return_url")
 motd_hq = config.get("motd", "hq")
 motd_vg = config.get("motd", "vg")
 
-scramble_names_on_public_api = config.get("security", "scramble_names_on_public_api") == "True"
+scramble_names = config.get("security", "scramble_names") == "True"
 

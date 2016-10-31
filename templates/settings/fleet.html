@@ -12,6 +12,7 @@
 {% assets filters="babili", output="gen/fleetsettings-typeahead.%(version)s.js", "js/base.js", "js/typeahead.bundle.min.js", "js/fleet-settings.js" %}
 <script type="text/javascript" src="{{ ASSET_URL }}"></script>
 {% endassets %}
+<meta name="api-global-fleet" content="{{url_for('settings.fleet_status_global_set')}}">
 <script type="text/javascript">
 $(document).ready(function(){
 	var constellationSource = new Bloodhound({
@@ -102,6 +103,16 @@ $(document).ready(function() {
 {% endblock %}
 
 {% block content %}
+<div class="form-group pretty-dd">
+	<input type="checkbox" name="scramble" id="scramble-cbx" {% if scramble %}checked{% endif %}/>
+	<div class="btn-group">
+		<label for="scramble-cbx" class="btn btn-sm btn-info">
+			<span><i class="fa fa-check"></i></span>
+			<span><i class="fa fa-times"></i></span>
+		</label>
+		<label for="scramble-cbx" class="btn btn-sm btn-danger">Hide Names</label>
+	</div>
+</div>
 {% for group in groups %}
 <form id="clearwaitlistform-{{group.groupID}}" action="{{url_for('settings.clear_waitlist', gid=group.groupID)}}" method="post" class="form-inline hidden">
 <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
