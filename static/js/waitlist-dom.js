@@ -155,7 +155,7 @@ waitlist.listdom = (function(){
 				tagContainer.append(createTypeTag(tag));
 			}
 		}
-		var buttonHTML;
+		var buttonHTML = "";
 		const dropdownButton = `<button type="button" data-toggle="collapse" data-target="#fittings-${entry.id}" class="btn btn-primary"><span class="fitdd">Fits</span></button>`;
 		if (settings.can_manage) { // fleet comp
 			var button1, button4, convoButton = "";
@@ -177,9 +177,12 @@ waitlist.listdom = (function(){
 			}
 		}
 
-	    var buttonRow = $('<div class="btn-group btn-group-mini" role="group"></div>').append(buttonHTML);
+		
 		header.append(charRow);
-		header.append(buttonRow);
+		if (buttonHTML !== "") {
+			var buttonRow = $('<div class="btn-group btn-group-mini" role="group">'+buttonHTML+'</div>');
+			header.append(buttonRow);
+		}
 		return header;
 	}
 	
