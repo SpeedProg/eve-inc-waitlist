@@ -6,10 +6,9 @@ waitlist.fsettings = (function() {
 	/**
 	 * Get meta elements content from the website
 	 */
-	var urls = {
-		remove_fleet: waitlist.base.getMetaData('api-fleet-remove'),
-		move_to_safety: waitlist.base.getMetaData('api-movetosafety')
-	};
+	var getMetaData = waitlist.base.getMetaData;
+	
+	var urls = {};
 
 	function removeFleet(fleetID) {
 		$.ajax({
@@ -17,7 +16,7 @@ waitlist.fsettings = (function() {
 				$('#fleet-' + fleetID).remove();
 			},
 			data: {
-				'_csrf_token': waitlist.base.getMetaData('csrf-token')
+				'_csrf_token': getMetaData('csrf-token')
 			},
 			dataType: 'text',
 			method: 'DELETE',
@@ -45,6 +44,8 @@ waitlist.fsettings = (function() {
 	}
 
 	function init() {
+		urls.remove_fleet = getMetaData('api-fleet-remove');
+		urls.move_to_safety = getMetaData('api-movetosafety');
 		setupActionHandler();
 	}
 
@@ -52,7 +53,7 @@ waitlist.fsettings = (function() {
 		$.post({
 			'url': urls.move_to_safety,
 			'data': {
-				'_csrf_token': waitlist.base.getMetaData('csrf-token'),
+				'_csrf_token': getMetaData('csrf-token'),
 				'fleetID': fleetID
 			},
 			'error': function(data) {
