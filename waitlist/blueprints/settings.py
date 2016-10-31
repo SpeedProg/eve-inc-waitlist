@@ -31,7 +31,6 @@ from waitlist.utility.settings.settings import sget_active_ts_id,\
     sset_active_ts_id, sget_resident_mail, sget_tbadge_mail, sget_resident_topic,\
     sget_tbadge_topic, sget_other_mail, sget_other_topic
 from waitlist.ts3.connection import change_connection
-import json
 from datetime import datetime
 from waitlist.data.sse import StatusChangedSSE, sendServerSentEvent
 from waitlist.utility import config
