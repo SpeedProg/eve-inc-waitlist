@@ -30,6 +30,22 @@ waitlist.fsettings = (function() {
 		$('body').on('click', '[data-action="moveToSafety"]',
 			safetyButtonHandler);
 		$('#scramble-cbx').on('change', scrambleStatusChanged);
+		
+		// confirm dialog handler
+		$("#remove-diag").on('show.bs.modal', function(e){
+			var source = $(e.relatedTarget);
+			var fname = source.data("type");
+			var gid = Number(source.data("id"));
+			if (fname === "clearWaitlist") {
+				$("#remove-diag-accept").off();
+				$("#remove-diag-accept").on("click", function() {
+					clearWaitlist(gid);
+				});
+				
+				$("#remove-diag-body").text("Do your really want to clear the Waitlist and all Xups?");
+				$("#remove-diag-label").text("Clear Waitlist???");
+			}
+		});
 	}
 
 	function removeButtonHandler(event) {
@@ -42,13 +58,6 @@ waitlist.fsettings = (function() {
 		var target = $(event.currentTarget);
 		var fleetId = Number(target.attr('data-fleetId'));
 		moveFleetToSafetyChannel(fleetId);
-	}
-
-	function init() {
-		urls.remove_fleet = getMetaData('api-fleet-remove');
-		urls.move_to_safety = getMetaData('api-movetosafety');
-		urls.global_fleet_set = getMetaData('api-global-fleet');
-		setupActionHandler();
 	}
 
 	function moveFleetToSafetyChannel(fleetID) {
@@ -91,7 +100,89 @@ waitlist.fsettings = (function() {
 			}
 		});
 	}
+	
+	function setupTypeahead(){
+		var constellationSource = new Bloodhound({
+			datumTokenizer: Bloodhound.tokenizers.obj.whitespace('conName'),
+			queryTokenizer: Bloodhound.tokenizers.whitespace,
+			remote: {
+				url: urls.settings_fleet_query_constellations+'?term=%QUERY',
+				wildcard: '%QUERY',
+				filter: function(response) {
+		            return response.result;
+		        }
+			}
+		});
+		$('.con-typeahead').typeahead({
+			  hint: true,
+			  highlight: true,
+			  minLength: 1
+			}, {
+			name: 'constellations',
+			display: 'conName',
+			source: constellationSource
+		});
+		
+		var stationSource = new Bloodhound({
+			datumTokenizer: Bloodhound.tokenizers.obj.whitespace('statName'),
+			queryTokenizer: Bloodhound.tokenizers.whitespace,
+			remote: {
+				url: urls.settings_fleet_query_stations+'?term=%QUERY',
+				wildcard: '%QUERY',
+				filter: function(response) {
+		            return response.result;
+		        }
+			}
+		});
+		$('.dock-typeahead').typeahead({
+			  hint: true,
+			  highlight: true,
+			  minLength: 1
+			}, {
+			name: 'stations',
+			display: 'statName',
+			source: stationSource
+		});
 
+		var systemSource = new Bloodhound({
+			datumTokenizer: Bloodhound.tokenizers.obj.whitespace('sysName'),
+			queryTokenizer: Bloodhound.tokenizers.whitespace,
+			remote: {
+				url: urls.settings_fleet_query_systems+'?term=%QUERY',
+				wildcard: '%QUERY',
+				filter: function(response) {
+		            return response.result;
+		        }
+			}
+		});
+		$('.hq-typeahead').typeahead({
+			  hint: true,
+			  highlight: true,
+			  minLength: 1
+			}, {
+			name: 'SolarSystems',
+			display: 'sysName',
+			source: systemSource
+		});
+	}
+	
+	$(document).ready();
+
+	function clearWaitlist(gid) {
+		$('#clearwaitlistform-'+gid).submit();
+	}
+	
+	function init() {
+		urls.remove_fleet = getMetaData('api-fleet-remove');
+		urls.move_to_safety = getMetaData('api-movetosafety');
+		urls.global_fleet_set = getMetaData('api-global-fleet');
+		urls.settings_fleet_query_constellations = getMetaData('settings.fleet_query_constellations');
+		urls.settings_fleet_query_systems = getMetaData('settings.fleet_query_systems');
+		urls.settings_fleet_query_stations = getMetaData('settings.fleet_query_stations');
+		setupActionHandler();
+		setupTypeahead();
+	}
+	
 	$(document).ready(init);
 
 	return {};
