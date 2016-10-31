@@ -6,8 +6,9 @@ if (!waitlist) {
 
 waitlist.listdom = (function(){
 	var getMetaData = waitlist.base.getMetaData;
-
-	var settings = {};
+	var settings = {
+			anno_icon: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAAAAABWESUoAAAAWHRFWHRDb3B5cmlnaHQAQ0MwIFB1YmxpYyBEb21haW4gRGVkaWNhdGlvbiBodHRwOi8vY3JlYXRpdmVjb21tb25zLm9yZy9wdWJsaWNkb21haW4vemVyby8xLjAvxuO9+QAAAXNJREFUOMuFkz8oxGEcxr+PuHAOOX/u8qcMVgxMIgNdFsrAcpEUxXCFhGzEYqGb5MqgM0hKKQYpd4qSUmIQSko5zoI7/+6x+N37o/N6pvf5PJ/lHb5ClY+rlZbUtFq/N2SCop4nVdvPM87sofBGyX4CIbZWgC1yaIC8sNk2fwqRw4WeYsDywAt72hFZh6Qm33lceKlNAQCghgzseNZJFwAgt6Z9nRRyE9/pID9nG6NktUEynijkuFF7SbZlfZKFBsEehaw3WjPJIpwxmhwX/BS+phstL0ZasMrD+I5pCoOqHjMCeDmvSB+Fu6r28w6YZKcirnfhsKrW0CUw+mZXxP4obFUVnnNgeNEEMu+FxaZuWQa6Ss3gTkIwJx9I+gHWJABt5sSnF0ZkTC+4xa0XGqReL5RLmV5wSKZeSBa7XoAM6nerRCq1QoXwNEezO4NCHjj+3JtuKCSvq//44pJxOFFbor07HL+s2NREgtz+Pt7E+Vf4AmxYMy7fksTaAAAAAElFTkSuQmCC"
+		};
 	
 	/**
 	 * Create a DOM for a ship type tag
@@ -133,7 +134,7 @@ waitlist.listdom = (function(){
 		
 		var imgHTML;
 		if (entry.character.id === null) {
-			imgHTML = '<img class="img-32" src="#">';
+			imgHTML = `<img class="img-32" src="${settings.anno_icon}">`;
 			charHref = '#'; // change the href to not call quies script because we have no id
 		} else {
 			imgHTML = `<img class="img-32" src="//imageserver.eveonline.com/Character/${entry.character.id}_32.jpg">`;
