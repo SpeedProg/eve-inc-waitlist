@@ -129,9 +129,19 @@ waitlist.listdom = (function(){
 		// make managers call the CREST API others should open in quie's tool
 		var charHref = settings.can_manage ? '#' : `char:${entry.character.id}`;
 		var charInserts = settings.can_manage ? ` data-action="openCharInfo" data-characterid="${entry.character.id}"` : '';
+		
+		
+		var imgHTML;
+		if (entry.character.id === null) {
+			imgHTML = '<img class="img-32" src="#" alt="">';
+			charHref = '#'; // change the href to not call quies script because we have no id
+		} else {
+			imgHTML = `<img class="img-32" src="https://imageserver.eveonline.com/Character/${entry.character.id}_32.jpg" alt="${entry.character.name}">`;
+		}
+		
 		var charRow = $(`<a href="${charHref}"${charInserts}>
 							<div class="wel-header-32">
-								<img class="img-32" src="https://imageserver.eveonline.com/Character/${entry.character.id}_32.jpg" alt="${entry.character.name}">
+								${imgHTML}
 								<div class="wel-container-32">
 									<div class="wel-text-row-32-2">${entry.character.name}${oldInvites}${newBroTag} <small class="wait-time" data-time="${entry.time}">${waitTimeMinutes} min ago</small></div>
 									<div class="wel-text-row-32-2 tag-row"></div>
@@ -718,17 +728,33 @@ waitlist.listdom = (function(){
 		// set the status
 		var statusDiv = $(`#grp-${groupStatus.groupID}-status`);
 		statusDiv.empty();
-		if (groupStatus.status) {
-			statusDiv.text(groupStatus.status+' ');
-			if (groupStatus.influence) {
-				statusDiv.append($(`<a id='influence-link' class=".no-collapse" href="https://forums.warptome.net/influence-guide" target="_blank">Fit for Influence</a>`));
-				$('#influence-link').on('click', function (e) {
-					e.stopPropagation();
-				});
+		if (groupStatus.enabled) {
+			if (groupStatus.status) {
+				statusDiv.text(groupStatus.status+' ');
+				if (groupStatus.influence) {
+					statusDiv.append($(`<a id='influence-link' class=".no-collapse" href="https://forums.warptome.net/influence-guide" target="_blank">Fit for Influence</a>`));
+					$('#influence-link').on('click', function (e) {
+						e.stopPropagation();
+					});
+				}
 			}
+		} else {
+			statusDiv.html('This waitlist is currently closed however there might be <a href="/" id="status-link">anothers</a> open!');
+			$('#status-link').on('click', function (e) {
+				e.stopPropagation();
+			});
 		}
 		statusDiv.append($('<i id="status-tog-icon" class="fa fa-plus-square float-xs-right"></i>'));
 		
+	}
+	
+	function clearWaitlists() {
+		var fitLists = $('ol[id|="wl-fits"]');
+		fitLists.each(function(idx, el){
+			var wlId = Number($(el).attr('id').replace('wl-fits-', ''));
+			setWlEntryCount(wlId, 0);
+		});
+		fitLists.empty();
 	}
 	
 	// status update end
@@ -751,6 +777,7 @@ waitlist.listdom = (function(){
 		removeFitFromDom: removeFitFromDom,
 		removeEntryFromDom: removeEntryFromDom,
 		updateMissedInvite: updateMissedInvite,
-		setStatusDom: setStatusDom
+		setStatusDom: setStatusDom,
+		clearWaitlists: clearWaitlists
 	};
 })();
