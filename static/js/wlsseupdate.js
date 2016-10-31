@@ -15,6 +15,7 @@ waitlist.sse = (function() {
 	var removeEntryFromDom = waitlist.listdom.removeEntryFromDom;
 	var updateMissedInvite = waitlist.listdom.updateMissedInvite;
 	var setStatusDom = waitlist.listdom.setStatusDom;
+	var clearWaitlists = waitlist.listdom.clearWaitlists;
 
 	var eventListeners = [];
 
@@ -49,7 +50,9 @@ waitlist.sse = (function() {
 	function connectSSE() {
 		var wlgroup = getMetaData('wl-group-id');
 		if(typeof wlgroup !== "undefined") {
-			eventSource = getSSE();
+			eventSource = getSSE("waitlistUpdates,gong,statusChanged", wlgroup);
+		} else {
+			eventSource = getSSE("statusChanged");
 		}
 	}
 
@@ -83,15 +86,39 @@ waitlist.sse = (function() {
 	
 	function statusChangedListener(event) {
 		var data = JSON.parse(event.data);
-		setStatusDom(data);
+		// check if we are current disabled
+		// and if we are and the new status is not reload main page
+		var wlgroup = getMetaData('wl-group-id');
+		if(typeof wlgroup === "undefined") {
+			if (data.enabled) {
+				window.location.reload();
+			}
+		} else {
+			if (!data.enabled) { // this waitlist got disabled
+				// kill the current sse and setup a new one
+				if (typeof eventSource !== 'undefined') {
+					eventSource.close();
+					eventSource = getSSE('statusChanged');
+				}
+				// clear all the lists
+				clearWaitlists();
+				// remove the id from meta data
+				$('meta[name="wl-group-id"]').remove();
+			}
+			setStatusDom(data);
+		}
 	}
 
 	function noSSE() {
 		displayMessage('We have had to disable <strong>features</strong> please consider upgrading your<a href="http://caniuse.com/#feat=eventsource"> browser', 'danger', true);
 	}
 
-	function getSSE() {
-		var sse = new EventSource(getMetaData('api-sse')+"?events="+encodeURIComponent("waitlistUpdates,gong,statusChanged")+"&groupId="+encodeURIComponent(getMetaData("wl-group-id")));
+	function getSSE(events, groupId=null) {
+		var url = getMetaData('api-sse')+"?events="+encodeURIComponent(events);
+		if (groupId !== null) {
+			url += "&groupId="+encodeURIComponent(groupId);
+		}
+		var sse = new EventSource(url);
 		sse.onerror = handleSSEError;
 		sse.onopen = handleSSEOpen;
 		

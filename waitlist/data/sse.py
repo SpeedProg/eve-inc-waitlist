@@ -6,6 +6,7 @@ import logging
 from waitlist.utility.json import makeJsonFitting, makeJsonWLEntry
 from waitlist.utility.json import makeJsonConstellation,\
     makeJsonSolarSystem, makeJsonStation, makeJsonManagers, makeJsonFCs
+from waitlist.utility import config
 logger = logging.getLogger(__name__)
 subscriptions = []
 
@@ -162,7 +163,7 @@ class EntryAddedSSE(ServerSentEvent):
             'groupId': groupId,
             'listId': listId,
             'isQueue': isQueue,
-            'entry': makeJsonWLEntry(waitlistEntry, True)
+            'entry': makeJsonWLEntry(waitlistEntry, True, scramble_names=config.scramble_names_on_public_api)
             }))
         self.jsonWOFits = ServerSentEvent.encode(self)
     
@@ -260,6 +261,7 @@ class StatusChangedSSE(ServerSentEvent):
         return dumps({
             'groupID': group.groupID,
             'status': group.status,
+            'enabled': group.enabled,
             'influence': group.influence,
             'constellation': makeJsonConstellation(group.constellation),
             'solarSystem': makeJsonSolarSystem(group.system),
@@ -269,7 +271,8 @@ class StatusChangedSSE(ServerSentEvent):
             })
 
     def accepts(self, subscription):
-        return subscription.getWaitlistGroupId() == self.groupId
+        subGroupId = subscription.getWaitlistGroupId()
+        return subGroupId is None or subGroupId == self.groupId
 
     def encode(self, sub):
         return ServerSentEvent.encode(self)
