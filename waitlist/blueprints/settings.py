@@ -34,6 +34,7 @@ from waitlist.ts3.connection import change_connection
 import json
 from datetime import datetime
 from waitlist.data.sse import StatusChangedSSE, sendServerSentEvent
+from waitlist.utility import config
 
 bp_settings = Blueprint('settings', __name__)
 logger = logging.getLogger(__name__)
@@ -111,7 +112,7 @@ def accounts():
 @perm_management.require(http_exception=401)
 def fleet():
     groups = db.session.query(WaitlistGroup).all()
-    return render_template("settings/fleet.html", user=current_user, groups=groups)
+    return render_template("settings/fleet.html", user=current_user, groups=groups, scramble=config.scramble_names)
 
 
 @bp_settings.route("/account_edit", methods=["POST"])
@@ -1089,6 +1090,17 @@ def teamspeak_change():
         flask.abort(400)
     
     return redirect(url_for("settings.teamspeak"))
+
+@bp_settings.route("/fleet/status/set/", methods=["POST"])
+@login_required
+@perm_management.require(http_exception=401)
+def fleet_status_global_set():
+    action = request.form['action']
+    if action == "set_name_scramble":
+        should_scrable = not (request.form.get('scramble', 'off') == 'off')
+        config.scramble_names = should_scrable
+    return "OK"
+
 '''
 @bp_settings.route("/api/account/", methods=["POST"])
 @login_required

@@ -163,7 +163,7 @@ class EntryAddedSSE(ServerSentEvent):
             'groupId': groupId,
             'listId': listId,
             'isQueue': isQueue,
-            'entry': makeJsonWLEntry(waitlistEntry, True, scramble_names=config.scramble_names_on_public_api)
+            'entry': makeJsonWLEntry(waitlistEntry, True, scramble_names=config.scramble_names)
             }))
         self.jsonWOFits = ServerSentEvent.encode(self)
     
