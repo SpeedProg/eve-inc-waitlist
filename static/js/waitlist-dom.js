@@ -719,11 +719,11 @@ waitlist.listdom = (function(){
 	
 	function clearWaitlists() {
 		var fitLists = $('ol[id|="wl-fits"]');
+		fitLists.empty();
 		fitLists.each(function(idx, el){
 			var wlId = Number($(el).attr('id').replace('wl-fits-', ''));
 	        updateWlEntryTagCount(wlid);
 		});
-		fitLists.empty();
 	}
 	
 	// status update end
