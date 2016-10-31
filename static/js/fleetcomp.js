@@ -152,7 +152,12 @@ waitlist.fleetcomp = (function() {
 		var target = $(event.currentTarget);
 		var wlId = target.attr('data-wlId');
 		var entryId = target.attr('data-entryId');
-		moveEntryToWaitlists(wlId, entryId);
+		if (entryViewed(wlId, entryId)) {
+			moveEntryToWaitlists(wlId, entryId);
+		} else {
+			var name = event.currentTarget.offsetParent.offsetParent.dataset.username;
+			displayMessage("You should view all of "+ name + "'s fits before accepting them.", "danger");
+		}
 	}
 
 	function sendNotificationHandler(event) {
@@ -198,6 +203,17 @@ waitlist.fleetcomp = (function() {
 		} else {
 			return false;
 		}
+	}
+
+	function entryViewed(wlId, entryId) {
+		var fits = $("#entry-" + wlId + "-" + entryId)[0].children[1].childNodes;
+		var viewed = true;
+		for (let fit of fits) {
+			if (!fitViewed(fit.id)) {
+				viewed = false;
+			}
+		}
+		return viewed;
 	}
 
 	function onViewfit(event) {
