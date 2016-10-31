@@ -13,93 +13,9 @@
 <script type="text/javascript" src="{{ ASSET_URL }}"></script>
 {% endassets %}
 <meta name="api-global-fleet" content="{{url_for('settings.fleet_status_global_set')}}">
-<script type="text/javascript">
-$(document).ready(function(){
-	var constellationSource = new Bloodhound({
-		datumTokenizer: Bloodhound.tokenizers.obj.whitespace('conName'),
-		queryTokenizer: Bloodhound.tokenizers.whitespace,
-		remote: {
-			url: "{{url_for('settings.fleet_query_constellations')}}?term=%QUERY",
-			wildcard: '%QUERY',
-			filter: function(response) {
-	            return response.result;
-	        }
-		}
-	});
-	$('.con-typeahead').typeahead({
-		  hint: true,
-		  highlight: true,
-		  minLength: 1
-		}, {
-		name: 'constellations',
-		display: 'conName',
-		source: constellationSource
-	});
-	
-	var stationSource = new Bloodhound({
-		datumTokenizer: Bloodhound.tokenizers.obj.whitespace('statName'),
-		queryTokenizer: Bloodhound.tokenizers.whitespace,
-		remote: {
-			url: "{{url_for('settings.fleet_query_stations')}}?term=%QUERY",
-			wildcard: '%QUERY',
-			filter: function(response) {
-	            return response.result;
-	        }
-		}
-	});
-	$('.dock-typeahead').typeahead({
-		  hint: true,
-		  highlight: true,
-		  minLength: 1
-		}, {
-		name: 'stations',
-		display: 'statName',
-		source: stationSource
-	});
-
-	var systemSource = new Bloodhound({
-		datumTokenizer: Bloodhound.tokenizers.obj.whitespace('sysName'),
-		queryTokenizer: Bloodhound.tokenizers.whitespace,
-		remote: {
-			url: "{{url_for('settings.fleet_query_systems')}}?term=%QUERY",
-			wildcard: '%QUERY',
-			filter: function(response) {
-	            return response.result;
-	        }
-		}
-	});
-	$('.hq-typeahead').typeahead({
-		  hint: true,
-		  highlight: true,
-		  minLength: 1
-		}, {
-		name: 'SolarSystems',
-		display: 'sysName',
-		source: systemSource
-	});
-});
-
-function clearWaitlist(gid) {
-	$('#clearwaitlistform-'+gid).submit();
-}
-
-$(document).ready(function() {
-	$("#remove-diag").on('show.bs.modal', function(e){
-		var source = $(e.relatedTarget);
-		var fname = source.data("type")
-		var gid = Number(source.data("id"))
-		if (fname == "clearWaitlist") {
-			$("#remove-diag-accept").off();
-			$("#remove-diag-accept").on("click", function() {
-				window[fname](gid);
-			});
-			
-			$("#remove-diag-body").text("Do your really want to clear the Waitlist and all Xups?");
-			$("#remove-diag-label").text("Clear Waitlist???");
-		}
-	});
-});
-</script>
+<meta name="settings.fleet_query_stations" content="{{url_for('settings.fleet_query_stations')}}">
+<meta name="settings.fleet_query_systems" content="{{url_for('settings.fleet_query_systems')}}">
+<meta name="settings.fleet_query_constellations" content="{{url_for('settings.fleet_query_constellations')}}">
 {% endblock %}
 
 {% block content %}
