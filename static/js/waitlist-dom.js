@@ -49,12 +49,12 @@ waitlist.listdom = (function(){
 			}
 			tags[name] = true;
 		};
-		for (var i=0; i < fits.length; i++) {
-			addTag(getTagFromJsonFit(fits[i]));
+		for (let fit of fits) {
+			addTag(getTagFromJsonFit(fit));
 		}
 		// make a list out of the object properties
 		var tagList = [];
-		for (var tag in tags) {
+		for (let tag in tags) {
 			tagList.push(tag);
 		}
 		return tagList;
@@ -133,10 +133,10 @@ waitlist.listdom = (function(){
 		
 		var imgHTML;
 		if (entry.character.id === null) {
-			imgHTML = '<img class="img-32" src="#" alt="">';
+			imgHTML = '<img class="img-32" src="#">';
 			charHref = '#'; // change the href to not call quies script because we have no id
 		} else {
-			imgHTML = `<img class="img-32" src="https://imageserver.eveonline.com/Character/${entry.character.id}_32.jpg" alt="${entry.character.name}">`;
+			imgHTML = `<img class="img-32" src="//imageserver.eveonline.com/Character/${entry.character.id}_32.jpg">`;
 		}
 		
 		var charRow = $(`<a href="${charHref}"${charInserts}>
@@ -151,46 +151,33 @@ waitlist.listdom = (function(){
 		if (settings.can_view_fits || entry.character.id === settings.user_id) {
 			var tags = getTagsFromFits(entry.fittings);
 			var tagContainer = $('div.tag-row', charRow);
-			for (var i = 0; i < tags.length; i++) {
-				tagContainer.append(createTypeTag(tags[i]));
+			for (let tag of tags) {
+				tagContainer.append(createTypeTag(tag));
 			}
 		}
-		var convoButton = "";
-		var buttonRow = null;
-		if (settings.can_manage && isQueue) { // fleetcom queue
-			buttonRow = $(
-					`<div>
-						<div class="btn-group btn-group-mini" role="group" aria-label="Action Buttons">
-							<button type="button" class="btn btn-success" data-action="approveEntry" data-wlId="${wlid}" data-entryId="${entry.id}"><i class="fa fa-thumbs-o-up"></i></button>
-							<button aria-expanded="true" type="button" data-toggle="collapse" data-target="#fittings-${entry.id}" class="btn btn-primary"><span class="fitdd">Fits</span></button>
-							<button type="button" class="btn btn-success" data-action="sendNotification" data-characterid="${entry.character.id}" data-wlId="${wlid}"><i class="fa fa-bell-o"></i></button>
-							${convoButton}
-							<button type="button" class="btn btn-danger" data-action="dismissEntry" data-wlId="${wlid}" data-entryId="${entry.id}"><i class="fa fa-times"></i></button>
-						</div>
-					</div>`);
-		} else if (settings.can_manage) { // fleetcomp not queue
-			buttonRow = $(
-					`<div>
-						<div class="btn-group btn-group-mini" role="group" aria-label="Action Buttons">
-							<button type="button" class="btn btn-success" data-action="invitePlayer" data-characterid="${entry.character.id}" data-wlId="${wlid}" data-groupId="${groupId}"><i class="fa fa-plus"></i></button>
-							<button aria-expanded="true" type="button" data-toggle="collapse" data-target="#fittings-${entry.id}" class="btn btn-primary"><span class="fitdd">Fits</span></button>
-							<button type="button" class="btn btn-success" data-action="sendNotification" data-characterid="${entry.character.id}" data-wlId="${wlid}"><i class="fa fa-bell-o"></i></button>
-							${convoButton}
-							<button type="button" class="btn btn-danger" data-action="removePlayer" data-characterid="${entry.character.id}" data-groupId="${groupId}"><i class="fa fa-times"></i></button>
-						</div>
-					</div>`);
-		} else { // linemembers/only view fits
-			var buttonHTML = '<div class="btn-group btn-group-mini" role="group" aria-label="Action Buttons">';
+		var buttonHTML;
+		const dropdownButton = `<button type="button" data-toggle="collapse" data-target="#fittings-${entry.id}" class="btn btn-primary"><span class="fitdd">Fits</span></button>`;
+		if (settings.can_manage) { // fleet comp
+			var button1, button4, convoButton = "";
+			const notificationButton = `<button type="button" class="btn btn-success" data-action="sendNotification" data-characterid="${entry.character.id}" data-wlId="${wlid}"><i class="fa fa-bell-o"></i></button>`;
+			if (isQueue) { // if in x'ups
+				button1 = `<button type="button" class="btn btn-success" data-action="approveEntry" data-wlId="${wlid}" data-entryId="${entry.id}"><i class="fa fa-thumbs-o-up"></i></button>`;
+				button4 = `<button type="button" class="btn btn-danger" data-action="dismissEntry" data-wlId="${wlid}" data-entryId="${entry.id}"><i class="fa fa-times"></i></button>`;
+			} else { // else in wl's
+				button1 = `<button type="button" class="btn btn-success" data-action="invitePlayer" data-characterid="${entry.character.id}" data-wlId="${wlid}" data-groupId="${groupId}"><i class="fa fa-plus"></i></button>`;
+				button4 = `<button type="button" class="btn btn-danger" data-action="removePlayer" data-characterid="${entry.character.id}" data-groupId="${groupId}"><i class="fa fa-times"></i></button>`;
+			}
+			buttonHTML = button1 + dropdownButton + convoButton + notificationButton + button4;
+		} else { // line members/view fits
 			if (entry.character.id === settings.user_id) {
-				buttonHTML += `<button type="button" class="btn btn-mini btn-warning" data-action="removeOwnEntry" data-characterid="${entry.character.id}" data-wlId="${wlid}" data-entryId="${entry.id}"><i class="fa fa-times"></i></button>`;
+				buttonHTML = `<button type="button" class="btn btn-warning" data-action="removeOwnEntry" data-characterid="${entry.character.id}" data-wlId="${wlid}" data-entryId="${entry.id}"><i class="fa fa-times"></i></button>`;
 			}
 			if (entry.character.id === settings.user_id || settings.can_view_fits) {
-				buttonHTML += `<button type="button" data-toggle="collapse" data-target="#fittings-${entry.id}" class="btn btn-primary"><span class="fitdd">Fits</span></button>`;
+				buttonHTML += dropdownButton;
 			}
-			buttonHTML +='</div>';
-			buttonRow = $(buttonHTML);
 		}
 
+	    var buttonRow = $('<div class="btn-group btn-group-mini" role="group"></div>').append(buttonHTML);
 		header.append(charRow);
 		header.append(buttonRow);
 		return header;
@@ -205,12 +192,12 @@ waitlist.listdom = (function(){
 	 * @returns {HTMLElement} DOM of an entry
 	 */
 	function createEntryDOM(wlId, entry, groupID, isQueue) {
-		var entryDOM = $(`<li class="list-group-item" data-username="${entry.character.name}" id="entry-${wlId}-${entry.id}" data-count="${entry.fittings.length}"></li>`);
+		var entryDOM = $(`<li class="list-group-item" data-username="${entry.character.name}" id="entry-${wlId}-${entry.id}"></li>`);
 		entryDOM.append(createHeaderDOM(wlId, entry, groupID, isQueue));
 		var fittlistDOM = $(`<ul aria-expanded="true" class="list-group list-group-flush collapse" id="fittings-${entry.id}"></ul>`);
 		entryDOM.append(fittlistDOM);
-		for (var i=0; i<entry.fittings.length; i++) {
-			fittlistDOM.append(createFitDOM(entry.fittings[i], wlId, entry.id, isQueue, entry.character.name, entry.character.id));
+		for (let fit of entry.fittings) {
+			fittlistDOM.append(createFitDOM(fit, wlId, entry.id, isQueue, entry.character.name, entry.character.id));
 		}
 		return entryDOM;
 	}
@@ -303,7 +290,7 @@ waitlist.listdom = (function(){
 		var isDummy = fit.shipType === 1;
 		var approveButton = "";
 		if (settings.can_manage && queue) {
-			approveButton = ' <button type="button" class="btn btn-mini btn-success" data-action="approveFit" data-id="'+fit.id+'" data-wlId="'+wlId+'" data-entryId="'+entryId+'"><i class="fa fa-thumbs-o-up"></i></button>';
+			approveButton = '<button type="button" class="btn btn-mini btn-success" data-action="approveFit" data-id="'+fit.id+'" data-wlId="'+wlId+'" data-entryId="'+entryId+'"><i class="fa fa-thumbs-o-up"></i></button>';
 		}
 		var fitButtons = "";
 		if (settings.user_id === userId) {
@@ -324,7 +311,7 @@ waitlist.listdom = (function(){
 		fitdom.append(
 				$(baseElement)
 					.append($($.parseHTML('<div class="wel-header-32"></div>'))
-							.append($.parseHTML('<img class="img-32" src="https://imageserver.eveonline.com/Render/'+fit.shipType+'_32.png" alt="'+fit.shipName+'">'))
+							.append($.parseHTML('<img class="img-32" src="//imageserver.eveonline.com/Render/'+fit.shipType+'_32.png">'))
 							.append($.parseHTML('<div class="wel-container-32"><div class="wel-text-row-32-2">'+fit.shipName+'</div><div class="wel-text-row-32-2">'+commentHTML+approveButton+fitButtons+'</div></div>'))
 							)
 				);
@@ -373,7 +360,7 @@ waitlist.listdom = (function(){
 		} else {
 			wlEntryContainer.append(entryDOM);
 		}
-		setWlEntryCount(wlid, getWlEntryCount(wlid)+1);
+		updateWlEntryTagCount(wlid);
 	}
 	
 	function removeEntryFromDom(wlid, entryId) {
@@ -382,34 +369,22 @@ waitlist.listdom = (function(){
 			return 0;
 		}
 		targetEntry.remove();
-		setWlEntryCount(wlid, getWlEntryCount(wlid)-1);
+		updateWlEntryTagCount(wlid);
 		return 1;
 	}
 
 	/**
-	 * Set the entry counter for a given waitlist
+	 * Update the entry tag counter for a given waitlist
 	 * 
 	 * @param wlid id of the waitlist
-	 * @param count count of entries to set to
 	 */
-	function setWlEntryCount(wlid, count) {
-		document.getElementById('wl-'+wlid).setAttribute("data-count", count);
-		var countElement = document.getElementById('wl-count-'+wlid);
-		if (countElement !== null) {
-			countElement.textContent = count;
+	function updateWlEntryTagCount(wlid) {
+		const countElement = document.getElementById('wl-count-'+wlid);
+		if (countElement) {
+			countElement.textContent = $('#wl-fits-' + wlid)[0].childNodes.length;
 		}
 	}
 
-	/**
-	 * Get the count for a given waitlist
-	 * 
-	 * @param wlid id of the waitlist
-	 * @returns {Number} count of entries in the waitlist
-	 */
-	function getWlEntryCount(wlid) {
-		return Number(document.getElementById('wl-'+wlid).getAttribute("data-count"));
-	}
-	
 	// json update only related stuff down here
 
 	/**
@@ -493,8 +468,8 @@ waitlist.listdom = (function(){
 			if (entry.fittings.length > 0) {
 				modified = true;
 			}
-			for (var i=0; i < entry.fittings.length; i++) {
-				jFittings.append(createFitDOM(entry.fittings[i], wlid, entry.id, isQueue, entry.character.username, entry.character.id));
+			for (let fit of entry.fittings) {
+				jFittings.append(createFitDOM(fit, wlid, entry.id, isQueue, entry.character.username, entry.character.id));
 			}
 			
 			// if we modified sth update the tags
@@ -502,8 +477,8 @@ waitlist.listdom = (function(){
 				let tags = getTagsFromFits(fittings);
 				let tagContainer = $('div.tag-row', jEntries);
 				tagContainer.empty();
-				for (let i = 0; i < tags.length; i++) {
-					tagContainer.append(createTypeTag(tags[i]));
+				for (let tag of tags) {
+					tagContainer.append(createTypeTag(tag));
 				}
 				$('[data-toggle="tooltip"]').tooltip();
 			}
@@ -518,7 +493,6 @@ waitlist.listdom = (function(){
 	 * @returns {Number} number of entries that where removed
 	 */
 	function deleteMissingEntries(wldata) {
-		var removeCount = 0;
 		var entries = $('li[id|="entry-'+wldata.id+'"]');
 		var preLen = ("entry-"+wldata.id+"-").length;
 		for (let i=0; i < entries.length; i++) {
@@ -533,10 +507,8 @@ waitlist.listdom = (function(){
 			}
 			if (! is_existing) {
 				$(entries[i]).remove();
-				removeCount += 1;
 			}
 		}
-		return removeCount;
 	}
 
 	// before using this all none existing entries need to be removed from the
@@ -593,7 +565,6 @@ waitlist.listdom = (function(){
 				addedCounter += 1;
 			}
 		}
-		return addedCounter;
 	}
 
 	/**
@@ -602,11 +573,9 @@ waitlist.listdom = (function(){
 	 * @param wldata waitlist object as received from the api
 	 */
 	function updateWaitlist(wldata, groupID) {
-		var removedEntryCount = deleteMissingEntries(wldata);
-		var addedEntryCount = addNewEntries(wldata, groupID);
-		var oldCount = getWlEntryCount(wldata.id);
-		var newCount = oldCount + addedEntryCount - removedEntryCount;
-		setWlEntryCount(wldata.id, newCount);
+		deleteMissingEntries(wldata);
+		addNewEntries(wldata, groupID);
+		updateWlEntryTagCount(wldata.id);
 	}
 
 	/**
@@ -616,8 +585,8 @@ waitlist.listdom = (function(){
 		var wlid = getMetaData('wl-group-id');
 		if (typeof wlid !== 'undefined') {
 			$.getJSON(getMetaData('api-waitlists')+"?group="+wlid, function(data){
-				for (var i=0; i < data.waitlists.length; i++) {
-					updateWaitlist(data.waitlists[i], data.groupID);
+				for (let waitlist of data.waitlists) {
+					updateWaitlist(waitlist, data.groupID);
 				}
 			});
 			$.getJSON(getMetaData('api-waitlists-groups').replace('-1', wlid), function(data) {
@@ -752,7 +721,7 @@ waitlist.listdom = (function(){
 		var fitLists = $('ol[id|="wl-fits"]');
 		fitLists.each(function(idx, el){
 			var wlId = Number($(el).attr('id').replace('wl-fits-', ''));
-			setWlEntryCount(wlId, 0);
+	        updateWlEntryTagCount(wlid);
 		});
 		fitLists.empty();
 	}
@@ -763,7 +732,7 @@ waitlist.listdom = (function(){
 		settings.can_view_fits = getMetaData('can-view-fits') === "True";
 		settings.can_manage = getMetaData('can-fleetcomp') === "True";
 		settings.user_id = Number(getMetaData('user-id'));
-		if (!!window.EventSource) {
+		if (window.EventSource) {
 			setInterval(updateWaitTimes, 30000);
 		}
 	}

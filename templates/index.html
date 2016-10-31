@@ -178,7 +178,7 @@ include "xup-form.html" with context %} {% endif %}
 <div class="row" id="row-waitlists">
 	<div id="waitlists">
 		{% for wlist in lists %}
-		<div class="col-sm-3" id="wl-{{ wlist.id }}" data-count="0">
+		<div class="col-sm-3" id="wl-{{ wlist.id }}">
 			<div class="panel panel-default">
 				<div class="panel-heading" id="wl-heading-{{ wlist.id }}">
 					<h4 class="panel-title">
@@ -196,8 +196,7 @@ include "xup-form.html" with context %} {% endif %}
 				</div>
 				<ol data-tog-icon="#wl-{{ wlist.id }}-tog-icon"
 					class="list-group collapse in" id="wl-fits-{{ wlist.id }}"
-					aria-labelledby="wl-heading-{{ wlist.id }}">
-				</ol>
+					aria-labelledby="wl-heading-{{ wlist.id }}"></ol>
 			</div>
 		</div>
 		{% endfor %}
