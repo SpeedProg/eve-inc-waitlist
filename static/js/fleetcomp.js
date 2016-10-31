@@ -140,7 +140,12 @@ waitlist.fleetcomp = (function() {
 		var wlId = Number(target.attr('data-wlId'));
 		var entryId = Number(target.attr('data-entryId'));
 		event.stopPropagation();
-		approveFit(wlId, entryId, fitId);
+		if (fitViewed(event.currentTarget.offsetParent.id)) {
+			approveFit(wlId, entryId, fitId);
+		} else {
+			var name = event.currentTarget.offsetParent.firstChild.dataset.title;
+			displayMessage("You should view "+ name + "'s fit before accepting it.", "danger");
+		}
 	}
 
 	function approveEntryHandler(event) {
@@ -185,6 +190,23 @@ waitlist.fleetcomp = (function() {
 		showInfo(1337, charId);
 	}
 
+	function fitViewed(fitId) {
+		var viewed = $("#" + fitId).attr('data-viewed');
+		var child = $("#" + fitId).children('.booby-link').hasClass("booby-link");
+		if (viewed === "y" || child) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	function onViewfit(event) {
+		const fit = event.currentTarget.offsetParent;
+        if (fit.dataset.viewed !== "y") {
+        	document.getElementById(fit.id).setAttribute("data-viewed", "y");
+        }
+	}
+
 	function init() {
 		$('#waitlists').on("click", '[data-action="approveFit"]',
 			approveFitHandler);
@@ -200,6 +222,8 @@ waitlist.fleetcomp = (function() {
 			removePlayerHandler);
 		$('body').on('click', '[data-action="openCharInfo"]',
 			openCharInfoHandler);
+		$('#waitlists').on('click', '[href^="fitting:"],[data-dna]',
+		 	onViewfit);
 	}
 
 	$(document).ready(init);
