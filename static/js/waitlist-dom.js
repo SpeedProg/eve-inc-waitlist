@@ -292,34 +292,40 @@ waitlist.listdom = (function(){
 	function createFitDOM(fit, wlId, entryId, queue, username, userId) {
 		queue = typeof queue !== 'undefined' ? queue : false;
 		var isDummy = fit.shipType === 1;
-		var approveButton = "";
+		var approveButton = "", fitButtons = "",commentHTML = "";
+		// if user can manage fleet and if on x'ups
 		if (settings.can_manage && queue) {
+			// approve fit button
 			approveButton = '<button type="button" class="btn btn-mini btn-success" data-action="approveFit" data-id="'+fit.id+'" data-wlId="'+wlId+'" data-entryId="'+entryId+'"><i class="fa fa-thumbs-o-up"></i></button>';
 		}
-		var fitButtons = "";
+		// if user is looking at their own entry
 		if (settings.user_id === userId) {
-			fitButtons += '<button type="button" class="btn btn-mini btn-danger" data-action="remove-own-fit" data-fit='+fit.id+' data-wlId='+wlId+' data-entryId='+entryId+'><i class="fa fa-times"></i> Fit</button>';
+			// remove own fit
+			fitButtons = '<button type="button" class="btn btn-mini btn-danger" data-action="remove-own-fit" data-fit='+fit.id+' data-wlId='+wlId+' data-entryId='+entryId+'><i class="fa fa-times"></i> Fit</button>';
 			if (queue) {
+				// update fit (only displayed if in x'up)
 				fitButtons += '<button type="button" class="btn btn-mini btn-danger" data-action="update-fit" data-fit="'+fit.id+'" class="btn btn-warning">Update</button>';
 			}
 		}
-		
-		var fitdom = isDummy ? $($.parseHTML('<li class="list-group-item fitting" id="fit-'+wlId+"-"+entryId+"-"+fit.id+'" data-type="'+getTagFromJsonFit(fit)+'"></li>')) : $($.parseHTML('<li class="list-group-item fitting" id="fit-'+wlId+"-"+entryId+"-"+fit.id+'" data-type="'+getTagFromJsonFit(fit)+'"></li>'));
-		var commentHTML = "";
+		// button group
+        var buttonRowHTML = '<div class="btn-group btn-group-mini">'+approveButton+fitButtons+'</div>';
+
+		// if fit has a comment add it
 		if (fit.comment !== null) {
-			commentHTML = '<small>' +fit.comment+'</small>';
+			commentHTML = '<small> '+fit.comment+'</small>';
 		}
+        // text html with ship name and comment
+        var textHTML = '<div class="wel-text-row-32-2">'+fit.shipName+commentHTML+'</div>';
+
+        var fitDOM = $('<li class="list-group-item fitting" id="fit-'+wlId+"-"+entryId+"-"+fit.id+'" data-type="'+getTagFromJsonFit(fit)+'"></li>');
 		// lets check if it is the dummy fit
-		
-		var baseElement = isDummy ? $.parseHTML('<div class="booby-link" ></div>') : $.parseHTML('<div class="fit-link" data-title="'+username+'" data-dna="'+fit.shipType+':'+fit.modules+'" data-type="'+fit.wl_type+'"></div>');
-		fitdom.append(
-				$(baseElement)
-					.append($($.parseHTML('<div class="wel-header-32"></div>'))
-							.append($.parseHTML('<img class="img-32" src="//imageserver.eveonline.com/Render/'+fit.shipType+'_32.png">'))
-							.append($.parseHTML('<div class="wel-container-32"><div class="wel-text-row-32-2">'+fit.shipName+commentHTML+'</div><div class="wel-text-row-32-2">'+approveButton+fitButtons+'</div></div>'))
-							)
-				);
-		return fitdom;
+        var baseHTML = isDummy ? '<div class="booby-link" ></div>' : '<div class="fit-link" data-title="'+username+'" data-dna="'+fit.shipType+':'+fit.modules+'" data-type="'+fit.wl_type+'"></div>';
+		fitDOM.append($(baseHTML)
+					.append($('<div class="wel-header-32"></div>')
+						.append('<img class="img-32" src="//imageserver.eveonline.com/Render/'+fit.shipType+'_32.png">')
+						.append('<div class="wel-container-32">'+textHTML+buttonRowHTML+'</div>'))
+					);
+        return fitDOM;
 	}
 	
 	/**
