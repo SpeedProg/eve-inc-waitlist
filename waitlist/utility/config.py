@@ -31,12 +31,21 @@ if  not os.path.isfile(os.path.join(".", "config", "config.cfg")):
     config.set("motd", "vg", "..")
 
     config.add_section("cdn")
-    config.set("cdn", "cdn_domain", "..")
-    config.set("cdn", "cdn_assets", "..")
-    config.set("cdn", "cdn_https", "..")
+    config.set("cdn", "cdn_domain", "")
+    config.set("cdn", "cdn_assets", "False")
+    config.set("cdn", "cdn_https", "False")
+
+    config.add_section("cookies")
+    config.set("cookies", "secure_cookies", "False")
+
+    config.add_section("node")
+    config.set("node", "node_bin", "")
 
     config.add_section("debug")
     config.set("debug", "enabled", "False")
+    
+    config.add_section("security")
+    config.set("security", "scramble_names", "False")
     
     makedirs(os.path.join(".", "config"))
     with open(os.path.join(".", "config", "config.cfg"), "wb") as configfile:
@@ -46,8 +55,9 @@ config = ConfigParser.SafeConfigParser()
 config.read(os.path.join("config", "config.cfg"))
 
 debug_enabled = config.get("debug", "enabled") == "True"
-
+node_bin = config.get("node", "node_bin")
 connection_uri = config.get("database", "connection_uri")
+secure_cookies = config.get("cookies", "secure_cookies") == "True"
 cdn_https = config.get("cdn", "cdn_https") == "True"
 cdn_domain = config.get("cdn", "cdn_domain")
 cdn_assets = config.get("cdn", "cdn_assets") == "True"
@@ -68,4 +78,6 @@ crest_return_url = config.get("crest", "return_url")
 
 motd_hq = config.get("motd", "hq")
 motd_vg = config.get("motd", "vg")
+
+scramble_names = config.get("security", "scramble_names") == "True"
 

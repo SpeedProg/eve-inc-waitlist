@@ -2,7 +2,7 @@
 /*
  * Set up click handlers on fittings
  */
-document.addEventListener('DOMContentLoaded', function() {
+ $(document).ready(function() {
 	$(document).on("click", ".booby-link", function(){
 		window.open("https://en.wikipedia.org/wiki/Booby", "_blank");
 	});

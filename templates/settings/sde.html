@@ -10,7 +10,7 @@
 <link rel="stylesheet" href="{{ ASSET_URL }}">
 {% endassets %}
 
-{% assets filters="jsmin", output="gen/fileinput.%(version)s.js", "js/fileinput.js" %}
+{% assets filters="babili", output="gen/fileinput.%(version)s.js", "js/base.js", "js/fileinput.js" %}
 <script type="text/javascript" src="{{ ASSET_URL }}"></script>
 {% endassets %}
 

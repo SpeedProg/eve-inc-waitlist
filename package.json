@@ -1,0 +1,12 @@
+{
+  "name": "babel-babili",
+  "version": "1.0.0",
+  "description": "Used to compress an optimize JS",
+  "dependencies": {
+    "babel-cli": "^6.18.0",
+    "babel-plugin-transform-remove-console": "^6.8.0",
+    "babel-preset-babili": "0.0.8"
+  },
+  "devDependencies": {},
+  "license": "PyWaitlist License"
+}

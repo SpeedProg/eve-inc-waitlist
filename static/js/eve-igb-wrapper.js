@@ -1,44 +1,43 @@
 'use strict';
+
+if (!waitlist) {
+	var waitlist = {};
+}
+
 /**
  * wrapper for eve igb fuctions
  */
-var IGBW = (function() {
-	let getMetaData = function (name) {
-		return $('meta[name="'+name+'"]').attr('content');
+waitlist.IGBW = (function() {
+
+	var urls = {
+		openwindow: waitlist.base.getMetaData('api-igui-openwindow-ownerdetails'),
+		newmail: waitlist.base.getMetaData('api-igui-openwindow-newmail')
 	};
 
-	var lib = {
-			urls: {
-				openwindow: getMetaData('api-igui-openwindow-ownerdetails'),
-				newmail: getMetaData('api-igui-openwindow-newmail')
-			}
-	};
 	/**
 	 * Opens information window for the given item, oog it opens chruker.dk if only typeID is given
 	 * @param typeID id for the type of the item id can be corporationID, allianceID, factionID, characterID, a celestial ID like regionID or solarSystemID 
 	 */
-	lib.showInfo = function(typeID, itemID) {
+	function showInfo(typeID, itemID) {
 		if (typeof itemID === "undefined") {
 			window.open("http://games.chruker.dk/eve_online/item.php?type_id="+typeID, "_blank");
 		} else {
 			$.post({
-				'url': lib.urls.openwindow,
+				'url': urls.openwindow,
 				'data': {
 					'characterID': itemID,
-					'_csrf_token': getMetaData('csrf-token')
+					'_csrf_token': waitlist.base.getMetaData('csrf-token')
 				},
 				'error': function(data) {
 					var message = data.statusText;
 					if (typeof data.message !== 'undefined') {
 							message += ": " + data.message;
 					}
-					displayMessage(message, "danger");
-				},
-				'success': function(data){
+					waitlist.base.displayMessage(message, "danger");
 				}
 			});
 		}
-	};
+	}
 
 	/**
 	 * Opens a mailwindow either igbapi or crest
@@ -47,11 +46,11 @@ var IGBW = (function() {
 	 * @param subject Mails Subject
 	 * @param body Mails Body
 	 */
-	lib.sendMail = function(charId, subject, body) {
+	function sendMail(charId, subject, body) {
 		$.post({
-			'url': lib.urls.newmail,
+			'url': urls.newmail,
 			'data': {
-				'_csrf_token': getMetaData('csrf-token'),
+				'_csrf_token': waitlist.base.getMetaData('csrf-token'),
 				'mailRecipients': charId,
 				'mailBody': body,
 				'mailSubject': subject
@@ -61,12 +60,13 @@ var IGBW = (function() {
 				if (typeof data.message !== 'undefined') {
 						message += ": " + data.message;
 				}
-				displayMessage(message, "danger");
-			},
-			'success': function(data){
+				waitlist.base.displayMessage(message, "danger");
 			}
 		});
-	};
+	}
 
-	return lib;
+	return {
+		sendMail: sendMail,
+		showInfo: showInfo
+	};
 }());

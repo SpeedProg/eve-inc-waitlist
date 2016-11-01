@@ -22,7 +22,6 @@
 }
 .alert-info {
     margin-bottom: 0.2em;
-    padding: 0.8em 1em 0.8em 1em;
 }
 p.text-xs-center {
     margin-bottom: 0rem;
@@ -30,15 +29,21 @@ p.text-xs-center {
 .btn-group-mini > .btn, .btn-mini {
     padding: .1rem .4rem;
     font-size: .6rem;
-    line-height: 1.0;
     border-radius: .1rem;
 }
 .list-group-item {
 	padding: .1rem .1rem;
 }
-.card {
-	margin-bottom: 0rem;
+#sound {
+    display: block;
+    width: 16rem;
 }
-.fitting {
-	cursor: pointer;
+.fitdd::before {
+    display: inline-block;
+    margin-right: .3em;
+    vertical-align: middle;
+    content: "";
+    border-top: .6em solid;
+    border-right: .5em solid transparent;
+    border-left: .5em solid transparent;
 }

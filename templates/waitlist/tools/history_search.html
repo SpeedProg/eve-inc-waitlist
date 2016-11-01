@@ -15,9 +15,6 @@
 .comp-font {
 	font-size: 1.0em;
 }
-#input-actions {
-	overflow: auto;
-}
 </style>
 {% endblock %}
 
@@ -26,7 +23,7 @@
 <div class="btn-group" data-toggle="buttons" role="group" aria-label="history settings">
 	<label id="filter-approval-only" class="btn btn-primary">
 		<input id="filter-approval-only-box" type="checkbox" autocomplete="off">Only Show Approvals
-	</label><button class="btn btn-sm" style="font-size:1em;" onclick="increaseSize(0.25);">A</button><button class="btn btn-sm" style="font-size:0.5em;" onclick="increaseSize(-0.25);">A</button>
+	</label><button class="btn btn-sm" style="font-size:1em;" data-action="changeSize" data-size="0.25">A</button><button class="btn btn-sm" style="font-size:0.5em;" data-action="changeSize" data-size="-0.25">A</button>
 </div>
 </div>
 <div class="row navbar bg-primary form-inline">
@@ -82,7 +79,13 @@
 </tbody>
 </table>
 </div>
-{% assets filters="jsmin", output="gen/history-search-setup.%(version)s.js", "js/history-search.js", "js/history-font.js", "js/fitlink.js" %}
+{% assets filters="babili", output="gen/history-base.%(version)s.js", "js/base.js", "js/history-base.js", "js/history-font.js" %}
 <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
+{% assets filters="babili", output="gen/history-search.%(version)s.js", "js/history-search.js" %}
+<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
+{% assets filters="babili", output="gen/eve-ui.%(version)s.js", "js/fitlink.js", "js/eve-ui-config.js" %}
+<script type="text/javascript" src="{{ ASSET_URL }}" defer async></script>
 {% endassets %}
 {% endblock %}

@@ -1,65 +1,189 @@
 'use strict';
-var FSETTINGS = (function(){
-	var lib = {};
+if (!waitlist) {
+	var waitlist = {};
+}
+waitlist.fsettings = (function() {
 	/**
 	 * Get meta elements content from the website
 	 */
-	lib.getMetaData = function (name) {
-		return $('meta[name="'+name+'"]').attr('content');
-	};
+	var getMetaData = waitlist.base.getMetaData;
 	
-	lib.api = {
-			urls: {
-				remove_fleet: lib.getMetaData('api-fleet-remove'),
-				move_to_safety: lib.getMetaData('api-movetosafety')
-			}
-	};
-	
-	lib.removeFleet = function(fleetID) {
+	var urls = {};
+
+	function removeFleet(fleetID) {
 		$.ajax({
-			success: function(){
-				$('#fleet-'+fleetID).remove();
+			success: function() {
+				$('#fleet-' + fleetID).remove();
 			},
 			data: {
-				'_csrf_token': this.getMetaData('csrf-token')
+				'_csrf_token': getMetaData('csrf-token')
 			},
 			dataType: 'text',
 			method: 'DELETE',
-			url: this.api.urls.remove_fleet.replace("-1", fleetID)
+			url: urls.remove_fleet.replace("-1", fleetID)
 		});
-	};
-	
-	lib.removeButton = function() {
-		$('[data-type="remove-fleet"]').on('click', function(e){
-			var target = $(e.target);
-			var id = Number(target.attr('data-id'));
-			lib.removeFleet(id);
+	}
+
+	function setupActionHandler() {
+		$('body')
+			.on('click', '[data-type="remove-fleet"]', removeButtonHandler);
+		$('body').on('click', '[data-action="moveToSafety"]',
+			safetyButtonHandler);
+		$('#scramble-cbx').on('change', scrambleStatusChanged);
+		
+		// confirm dialog handler
+		$("#remove-diag").on('show.bs.modal', function(e){
+			var source = $(e.relatedTarget);
+			var fname = source.data("type");
+			var gid = Number(source.data("id"));
+			if (fname === "clearWaitlist") {
+				$("#remove-diag-accept").off();
+				$("#remove-diag-accept").on("click", function() {
+					clearWaitlist(gid);
+				});
+				
+				$("#remove-diag-body").text("Do your really want to clear the Waitlist and all Xups?");
+				$("#remove-diag-label").text("Clear Waitlist???");
+			}
 		});
-	};
-	lib.init = function() {
-		lib.removeButton();
-	};
-	
-	lib.move_to_safety = function(fleetID) {
+	}
+
+	function removeButtonHandler(event) {
+		var target = $(event.currentTarget);
+		var id = Number(target.attr('data-id'));
+		removeFleet(id);
+	}
+
+	function safetyButtonHandler(event) {
+		var target = $(event.currentTarget);
+		var fleetId = Number(target.attr('data-fleetId'));
+		moveFleetToSafetyChannel(fleetId);
+	}
+
+	function moveFleetToSafetyChannel(fleetID) {
 		$.post({
-			'url': lib.api.urls.move_to_safety,
+			'url': urls.move_to_safety,
 			'data': {
-				'_csrf_token': this.getMetaData('csrf-token'),
+				'_csrf_token': getMetaData('csrf-token'),
 				'fleetID': fleetID
 			},
 			'error': function(data) {
 				var message = data.statusText;
 				if (typeof data.message !== 'undefined') {
-						message += ": " + data.message;
+					message += ": " + data.message;
 				}
-				displayMessage(message, "danger");
-			},
-			'success': function(data){
+				waitlist.base.displayMessage(message, "danger");
 			}
 		});
-	};
+	}
+	
+	function scrambleStatusChanged(event) {
+		var scramble;
+		if (event.currentTarget.checked) {
+			scramble = 'on';
+		} else {
+			scramble = 'off';
+		}
+		$.post({
+			'url': urls.global_fleet_set,
+			'data': {
+				'_csrf_token': getMetaData('csrf-token'),
+				'action': 'set_name_scramble',
+				'scramble': scramble
+			},
+			'error': function(data) {
+				var message = data.statusText;
+				if (typeof data.message !== 'undefined') {
+					message += ": " + data.message;
+				}
+				waitlist.base.displayMessage(message, "danger");
+			}
+		});
+	}
+	
+	function setupTypeahead(){
+		var constellationSource = new Bloodhound({
+			datumTokenizer: Bloodhound.tokenizers.obj.whitespace('conName'),
+			queryTokenizer: Bloodhound.tokenizers.whitespace,
+			remote: {
+				url: urls.settings_fleet_query_constellations+'?term=%QUERY',
+				wildcard: '%QUERY',
+				filter: function(response) {
+		            return response.result;
+		        }
+			}
+		});
+		$('.con-typeahead').typeahead({
+			  hint: true,
+			  highlight: true,
+			  minLength: 1
+			}, {
+			name: 'constellations',
+			display: 'conName',
+			source: constellationSource
+		});
+		
+		var stationSource = new Bloodhound({
+			datumTokenizer: Bloodhound.tokenizers.obj.whitespace('statName'),
+			queryTokenizer: Bloodhound.tokenizers.whitespace,
+			remote: {
+				url: urls.settings_fleet_query_stations+'?term=%QUERY',
+				wildcard: '%QUERY',
+				filter: function(response) {
+		            return response.result;
+		        }
+			}
+		});
+		$('.dock-typeahead').typeahead({
+			  hint: true,
+			  highlight: true,
+			  minLength: 1
+			}, {
+			name: 'stations',
+			display: 'statName',
+			source: stationSource
+		});
 
-	return lib;
+		var systemSource = new Bloodhound({
+			datumTokenizer: Bloodhound.tokenizers.obj.whitespace('sysName'),
+			queryTokenizer: Bloodhound.tokenizers.whitespace,
+			remote: {
+				url: urls.settings_fleet_query_systems+'?term=%QUERY',
+				wildcard: '%QUERY',
+				filter: function(response) {
+		            return response.result;
+		        }
+			}
+		});
+		$('.hq-typeahead').typeahead({
+			  hint: true,
+			  highlight: true,
+			  minLength: 1
+			}, {
+			name: 'SolarSystems',
+			display: 'sysName',
+			source: systemSource
+		});
+	}
+	
+	$(document).ready();
+
+	function clearWaitlist(gid) {
+		$('#clearwaitlistform-'+gid).submit();
+	}
+	
+	function init() {
+		urls.remove_fleet = getMetaData('api-fleet-remove');
+		urls.move_to_safety = getMetaData('api-movetosafety');
+		urls.global_fleet_set = getMetaData('api-global-fleet');
+		urls.settings_fleet_query_constellations = getMetaData('settings.fleet_query_constellations');
+		urls.settings_fleet_query_systems = getMetaData('settings.fleet_query_systems');
+		urls.settings_fleet_query_stations = getMetaData('settings.fleet_query_stations');
+		setupActionHandler();
+		setupTypeahead();
+	}
+	
+	$(document).ready(init);
+
+	return {};
 }());
-
-$(document).ready(FSETTINGS.init);

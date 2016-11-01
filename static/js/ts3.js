@@ -1,9 +1,19 @@
 'use strict';
-if (!getMetaData){
-	var getMetaData = function (name) {
-		return $('meta[name="'+name+'"]').attr('content');
-	};
+
+if (!waitlist) {
+	var waitlist = {};
 }
-function testTSPoke() {
-    $.get(getMetaData('api-ts-test'));
-}
+
+waitlist.ts3 = (function() {
+	var getMetaData = waitlist.base.getMetaData;
+	function testPoke() {
+		$.get(getMetaData('api-ts-test'));
+	}
+	function init() {
+		// setup fit button handler related to linemembers
+		$("body").on('click', '[data-action="test-poke"]', testPoke);
+	}
+
+	$(document).ready(init);
+	return {};
+})();
