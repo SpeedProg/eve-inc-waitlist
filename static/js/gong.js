@@ -1,43 +1,112 @@
 'use strict';
-function playGong() {
-	var sound = document.getElementById('sound');
-	sound.currentTime = 0;
-	sound.play();
+
+if (!waitlist) {
+	var waitlist = {};
 }
 
-function gongEnabled() {
-	 return document.getElementById("gongbutton").checked;
-}
+waitlist.gong = (function() {
 
-function gongClicked() {
-	var sound = document.getElementById("sound");
-	if (document.getElementById("gongbutton").checked) {
-	    sound.removeAttribute("hidden");
-	    sound.volume = 0.5;
-	    sessionStorage.setItem('gong', 'open');
-    } else {
-		sound.setAttribute("hidden", "");
-		sessionStorage.removeItem('gong');
-    }
-}
+	const getMetaData = waitlist.base.getMetaData;
+	const displayMessage = waitlist.base.displayMessage;
+	const addListener = waitlist.sse.addEventListener;
+	const storage = localStorage;
+	const gongVersion = "1";
+	var gongbutton, sound, gongLoaded, gongAlert, gongURL;
 
-function gongSetup() {
-	var gongbutton = document.getElementById("gongbutton");
-	// Check if gongbutton exists
-	if (gongbutton) {
-		// Check if browser support SSE
-		if (!!window.EventSource) {
-    		// Add click handler and check Session Storage
-    		gongbutton.addEventListener("click", gongClicked);
-			if (sessionStorage.getItem('gong')) {
-				gongbutton.checked = true;
-				gongClicked();
-			}
-		} else {
-            // If not remove button
-			gongbutton.parentNode.parentNode.remove();
+	function playGong() {
+		if (gongbutton.checked) {
+			sound.currentTime = 0;
+			sound.play();
 		}
 	}
-}
 
-document.addEventListener('DOMContentLoaded', gongSetup);
+	function gongClicked() {
+		if (gongbutton.checked) {
+			if (gongLoaded !== true) {
+				checkGongCache();
+			}
+			if (gongAlert === "y") {
+				removeGongAlert();
+			}
+			sound.removeAttribute("hidden");
+			storage.gong = "open";
+		} else {
+			sound.setAttribute("hidden", "");
+			sound.pause();
+			sound.currentTime = 0;
+			storage.removeItem("gong");
+		}
+	}
+
+	function removeGongAlert() {
+		$("#gong-alert").remove();
+	}
+
+	function disableGong() {
+		gongbutton.checked = false;
+		gongClicked();
+		removeGongAlert();
+		document.getElementById("gong").remove();
+	}
+
+	function gongSetup() {
+		// Setup SSE invite-send event
+		addListener("invite-send", playGong);
+		gongbutton.addEventListener("click", gongClicked);
+		sound.volume = 0.5;
+		// Checks storage for gong info if not found alert to please enable notification
+		if (storage.gong) {
+			gongbutton.checked = true;
+			gongClicked();
+		} else {
+			displayMessage("To get informed when you are invited please enable browser notifications in the top right.", "info", false, "gong-alert");
+			gongAlert = "y";
+		}
+	}
+	
+	function setGongSrc() {
+		gongLoaded = true;
+		var gongBlob = storage.gongFile;
+		sound.setAttribute("src", gongBlob);
+	}
+
+	function getGong() {
+		fetch(gongURL).then(function(response) {
+			response.blob().then(function(blob) {
+				var reader = new FileReader();
+					reader.addEventListener("loadend", function() {
+						storage.gongFile = reader.result.toString();
+						storage.gongVersion = gongVersion;
+						setGongSrc();
+					});
+				reader.readAsDataURL(blob);
+			});
+		});
+	}
+
+	function checkGongCache() {
+		if (storage.gongVersion !== gongVersion || storage.gongFile === undefined) {
+			getGong();
+		} else {
+			setGongSrc();
+		}
+	}
+
+	function init() {
+		gongbutton = document.getElementById("gongbutton");
+		sound = document.getElementById("sound");
+		gongURL = getMetaData("audio");
+		if (gongbutton) {
+			if (window.EventSource) {
+				gongSetup();
+			} else {
+				disableGong();
+			}
+		}
+	}
+
+	$(document).ready(init);
+	return {
+	disableGong: disableGong
+	};
+})();

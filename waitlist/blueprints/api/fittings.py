@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 from flask.blueprints import Blueprint
 import logging
 from flask_login import login_required, current_user
@@ -12,6 +13,7 @@ from waitlist.utility.json import makeJsonWL, makeHistoryJson
 from flask.json import jsonify
 from datetime import datetime, timedelta
 import flask
+from waitlist.utility import config
 bp = Blueprint('api_fittings', __name__)
 logger = logging.getLogger(__name__)
 
@@ -41,8 +43,7 @@ def waitlist():
     excludeFits = not perm_viewfits.can()
     includeFitsFrom = [current_user.get_eve_id()]
     for wl in waitlists:
-        jsonwls.append(makeJsonWL(wl, excludeFits, includeFitsFrom))
-    
+        jsonwls.append(makeJsonWL(wl, excludeFits, includeFitsFrom, scramble_names=(config.scramble_names and excludeFits), include_names_from=includeFitsFrom))
     return jsonify(waitlists=jsonwls, groupName=group.groupName, groupID=group.groupID, displayName=group.displayName)
 
 @bp.route("/history/since", methods=["GET"])

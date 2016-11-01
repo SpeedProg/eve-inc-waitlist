@@ -1,0 +1,15 @@
+JS:
+tether: MIT like
+jquery: MIT like
+typeahead: MIT like
+
+CSS:
+typeaheadjs.css: MIT like
+
+Python:
+Flask: Flask license (three clause BSD License)
+flask-login: MIT
+flask-principal: MIT
+
+Beryls Code:
+MIT with a no TVP (The Vallahalla Project eve ingame community) causel

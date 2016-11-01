@@ -16,7 +16,7 @@ var eveui_char_selector = eveui_char_selector || '[href^="char:"],[data-charid]'
 var eveui_urlify = eveui_urlify || function (dna) { return 'https://o.smium.org/loadout/dna/' + encodeURI(dna); };
 var eveui_autocomplete_endpoint = eveui_autocomplete_endpoint || function (str) { return 'https://zkillboard.com/autocomplete/typeID/' + encodeURI(str) + '/'; };
 /* icons from https://github.com/primer/octicons */
-var eveui_style = eveui_style || "\n\t<style>\n\t\t/* eveui_css_start */\n\t\t.eveui_window {\n\t\t\tposition: fixed;\n\t\t\tline-height: 1;\n\t\t\tbackground: #eee;\n\t\t\tborder: 1px solid;\n\t\t\topacity: 0.95;\n\t\t\tdisplay: flex;\n\t\t\tflex-direction: column;\n\t\t}\n\t\t.eveui_modal_overlay {\n\t\t\tcursor: pointer;\n\t\t\tposition: fixed;\n\t\t\tbackground: #000;\n\t\t\ttop: 0;\n\t\t\tleft: 0;\n\t\t\tright: 0;\n\t\t\tbottom: 0;\n\t\t\tz-index: 10;\n\t\t\topacity: 0.5;\n\t\t}\n\t\t.eveui_title {\n\t\t\twidth: 100%;\n\t\t\tbackground: #ccc;\n\t\t\tcursor: move;\n\t\t\twhite-space: nowrap;\n\t\t\tmargin-right: 2em;\n\t\t}\n\t\t.eveui_scrollable {\n\t\t\tpadding-right: 17px;\n\t\t\ttext-align: left;\n\t\t\toverflow: auto;\n\t\t}\n\t\t.eveui_content {\n\t\t\tdisplay: inline-block;\n\t\t\tmargin: 2px;\n\t\t\tmax-width: 30em;\n\t\t}\n\t\t.eveui_content div {\n\t\t\tdisplay: flex;\n\t\t}\n\t\t.eveui_content table {\n\t\t\tborder-collapse: collapse;\n\t\t}\n\t\t.eveui_content td {\n\t\t\tvertical-align: top;\n\t\t\tpadding: 0 2px;\n\t\t}\n\t\t.eveui_flexgrow {\n\t\t\tflex-grow: 1;\n\t\t}\n\t\t.eveui_fit_header {\n\t\t\talign-items: center;\n\t\t}\n\t\t.eveui_line_spacer {\n\t\t\tline-height: 0.5em;\n\t\t}\n\t\t.eveui_right {\n\t\t\ttext-align: right;\n\t\t}\n\t\t.eveui_icon {\n\t\t\tdisplay: inline-block;\n\t\t\tmargin: 1px;\n\t\t\tvertical-align: middle;\n\t\t\theight: 1em;\n\t\t\twidth: 1em;\n\t\t\tbackground-position: center;\n\t\t\tbackground-repeat: no-repeat;\n\t\t\tbackground-size: contain;\n\t\t}\n\t\t.eveui_item_icon {\n\t\t\theight: 20px;\n\t\t\twidth: 20px;\n\t\t}\n\t\t.eveui_ship_icon {\n\t\t\theight: 32px;\n\t\t\twidth: 32px;\n\t\t}\n\t\t.eveui_close_icon {\n\t\t\tcursor: pointer;\n\t\t\tposition: absolute;\n\t\t\ttop: 0;\n\t\t\tright: 0;\n\t\t\tbackground-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxyZWN0IHg9IjciIHk9Ii0xIiB0cmFuc2Zvcm09Im1hdHJpeCgwLjcwNzEgLTAuNzA3MSAwLjcwNzEgMC43MDcxIC0zLjMxMzUgNy45OTk1KSIgd2lkdGg9IjIiIGhlaWdodD0iMTcuOTk5Ii8+CjxyZWN0IHg9IjciIHk9Ii0wLjk5OSIgdHJhbnNmb3JtPSJtYXRyaXgoLTAuNzA3MSAtMC43MDcxIDAuNzA3MSAtMC43MDcxIDcuOTk4OCAxOS4zMTQyKSIgd2lkdGg9IjIiIGhlaWdodD0iMTcuOTk5Ii8+PC9zdmc+Cg==);\n\t\t}\n\t\t.eveui_info_icon {\n\t\t\tcursor: pointer;\n\t\t\tbackground-image: url(data:image/svg+xml;base64,PHN2ZyBoZWlnaHQ9IjEwMjQiIHdpZHRoPSI4OTYiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiAgPHBhdGggZD0iTTQ0OCAzODRjMzUgMCA2NC0yOSA2NC02NHMtMjktNjQtNjQtNjQtNjQgMjktNjQgNjQgMjkgNjQgNjQgNjR6IG0wLTMyMGMtMjQ3IDAtNDQ4IDIwMS00NDggNDQ4czIwMSA0NDggNDQ4IDQ0OCA0NDgtMjAxIDQ0OC00NDgtMjAxLTQ0OC00NDgtNDQ4eiBtMCA3NjhjLTE3NyAwLTMyMC0xNDMtMzIwLTMyMHMxNDMtMzIwIDMyMC0zMjAgMzIwIDE0MyAzMjAgMzIwLTE0MyAzMjAtMzIwIDMyMHogbTY0LTMyMGMwLTMyLTMyLTY0LTY0LTY0cy0zMiAwLTY0IDAtNjQgMzItNjQgNjRoNjRzMCAxNjAgMCAxOTIgMzIgNjQgNjQgNjQgMzIgMCA2NCAwIDY0LTMyIDY0LTY0aC02NHMwLTE2MCAwLTE5MnoiIC8+Cjwvc3ZnPgo=);\n\t\t}\n\t\t.eveui_plus_icon {\n\t\t\tcursor: pointer;\n\t\t\tbackground-image: url(data:image/svg+xml;base64,PHN2ZyBoZWlnaHQ9IjEwMjQiIHdpZHRoPSI2NDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiAgPHBhdGggZD0iTTM4NCA0NDhWMTkySDI1NnYyNTZIMHYxMjhoMjU2djI1NmgxMjhWNTc2aDI1NlY0NDhIMzg0eiIgLz4KPC9zdmc+Cg==);\n\t\t}\n\t\t.eveui_minus_icon {\n\t\t\tcursor: pointer;\n\t\t\tbackground-image: url(data:image/svg+xml;base64,PHN2ZyBoZWlnaHQ9IjEwMjQiIHdpZHRoPSI1MTIiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiAgPHBhdGggZD0iTTAgNDQ4djEyOGg1MTJWNDQ4SDB6IiAvPgo8L3N2Zz4K);\n\t\t}\n\t\t.eveui_more_icon {\n\t\t\tcursor: pointer;\n\t\t\tbackground-image: url(data:image/svg+xml;base64,PHN2ZyBoZWlnaHQ9IjEwMjQiIHdpZHRoPSI3NjgiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiAgPHBhdGggZD0iTTAgNTc2aDEyOHYtMTI4aC0xMjh2MTI4eiBtMC0yNTZoMTI4di0xMjhoLTEyOHYxMjh6IG0wIDUxMmgxMjh2LTEyOGgtMTI4djEyOHogbTI1Ni0yNTZoNTEydi0xMjhoLTUxMnYxMjh6IG0wLTI1Nmg1MTJ2LTEyOGgtNTEydjEyOHogbTAgNTEyaDUxMnYtMTI4aC01MTJ2MTI4eiIgLz4KPC9zdmc+Cg==);\n\t\t}\n\t\t.eveui_edit_icon {\n\t\t\tcursor: pointer;\n\t\t\tbackground-image: url(data:image/svg+xml;base64,PHN2ZyBoZWlnaHQ9IjEwMjQiIHdpZHRoPSI4OTYiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiAgPHBhdGggZD0iTTcwNCA2NEw1NzYgMTkybDE5MiAxOTIgMTI4LTEyOEw3MDQgNjR6TTAgNzY4bDAuNjg4IDE5Mi41NjJMMTkyIDk2MGw1MTItNTEyTDUxMiAyNTYgMCA3Njh6TTE5MiA4OTZINjRWNzY4aDY0djY0aDY0Vjg5NnoiIC8+Cjwvc3ZnPgo=);\n\t\t}\n\t\t.eveui_copy_icon {\n\t\t\tcursor: pointer;\n\t\t\tbackground-image: url(data:image/svg+xml;base64,PHN2ZyBoZWlnaHQ9IjEwMjQiIHdpZHRoPSI4OTYiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiAgPHBhdGggZD0iTTcwNCA4OTZoLTY0MHYtNTc2aDY0MHYxOTJoNjR2LTMyMGMwLTM1LTI5LTY0LTY0LTY0aC0xOTJjMC03MS01Ny0xMjgtMTI4LTEyOHMtMTI4IDU3LTEyOCAxMjhoLTE5MmMtMzUgMC02NCAyOS02NCA2NHY3MDRjMCAzNSAyOSA2NCA2NCA2NGg2NDBjMzUgMCA2NC0yOSA2NC02NHYtMTI4aC02NHYxMjh6IG0tNTEyLTcwNGMyOSAwIDI5IDAgNjQgMHM2NC0yOSA2NC02NCAyOS02NCA2NC02NCA2NCAyOSA2NCA2NCAzMiA2NCA2NCA2NCAzMyAwIDY0IDAgNjQgMjkgNjQgNjRoLTUxMmMwLTM5IDI4LTY0IDY0LTY0eiBtLTY0IDUxMmgxMjh2LTY0aC0xMjh2NjR6IG00NDgtMTI4di0xMjhsLTI1NiAxOTIgMjU2IDE5MnYtMTI4aDMyMHYtMTI4aC0zMjB6IG0tNDQ4IDI1NmgxOTJ2LTY0aC0xOTJ2NjR6IG0zMjAtNDQ4aC0zMjB2NjRoMzIwdi02NHogbS0xOTIgMTI4aC0xMjh2NjRoMTI4di02NHoiIC8+Cjwvc3ZnPgo=);\n\t\t}\n\t\t.copy_only {\n\t\t\tposition: absolute;\n\t\t\tdisplay:inline-block;\n\t\t\tline-height: 0;\n\t\t\tfont-size: 0;\n\t\t}\n\t\t.nocopy::after {\n\t\t\tcontent: attr(data-content);\n\t\t}\n\t\t.whitespace_nowrap {\n\t\t\twhite-space: nowrap;\n\t\t}\n\t\t.float_left {\n\t\t\tfloat: left;\n\t\t}\n\t\t.float_right {\n\t\t\tfloat: right;\n\t\t}\n\t\t/* eveui_css_end */\n\t</style>\n";
+var eveui_style = eveui_style || '<style>' + ".eveui_window{position:fixed;line-height:1;background:#eee;border:1px solid;opacity:.95;display:flex;flex-direction:column}.eveui_modal_overlay{cursor:pointer;position:fixed;background:#000;top:0;left:0;right:0;bottom:0;z-index:10;opacity:.5}.eveui_title{width:100%;background:#ccc;cursor:move;white-space:nowrap;margin-right:2em}.eveui_scrollable{padding-right:17px;text-align:left;overflow:auto}.eveui_content{display:inline-block;margin:2px;max-width:30em}.eveui_content div{display:flex}.eveui_content table{border-collapse:collapse}.eveui_content td{vertical-align:top;padding:0 2px}.eveui_flexgrow{flex-grow:1}.eveui_fit_header{align-items:center}.eveui_line_spacer{line-height:.5em}.eveui_right{text-align:right}.eveui_icon{display:inline-block;margin:1px;vertical-align:middle;height:1em;width:1em;background-position:center;background-repeat:no-repeat;background-size:contain}.eveui_item_icon{height:20px;width:20px}.eveui_ship_icon{height:32px;width:32px}.eveui_close_icon{cursor:pointer;position:absolute;top:0;right:0;background-image:url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxwYXRoIGQ9Ik0uOTMgMi4zNDNMMi4zNDIuOTI5IDE1LjA3IDEzLjY1NmwtMS40MTQgMS40MTR6Ii8+PHBhdGggZD0iTTIuMzQzIDE1LjA3TC45MjkgMTMuNjU4IDEzLjY1Ni45M2wxLjQxNCAxLjQxNHoiLz48L3N2Zz4=)}.eveui_info_icon{cursor:pointer;background-image:url(data:image/svg+xml;base64,PHN2ZyBoZWlnaHQ9IjEwMjQiIHdpZHRoPSI4OTYiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTQ0OCAzODRjMzUgMCA2NC0yOSA2NC02NHMtMjktNjQtNjQtNjQtNjQgMjktNjQgNjQgMjkgNjQgNjQgNjR6bTAtMzIwQzIwMSA2NCAwIDI2NSAwIDUxMnMyMDEgNDQ4IDQ0OCA0NDggNDQ4LTIwMSA0NDgtNDQ4UzY5NSA2NCA0NDggNjR6bTAgNzY4Yy0xNzcgMC0zMjAtMTQzLTMyMC0zMjBzMTQzLTMyMCAzMjAtMzIwIDMyMCAxNDMgMzIwIDMyMC0xNDMgMzIwLTMyMCAzMjB6bTY0LTMyMGMwLTMyLTMyLTY0LTY0LTY0aC02NGMtMzIgMC02NCAzMi02NCA2NGg2NHYxOTJjMCAzMiAzMiA2NCA2NCA2NGg2NGMzMiAwIDY0LTMyIDY0LTY0aC02NFY1MTJ6Ii8+PC9zdmc+)}.eveui_plus_icon{cursor:pointer;background-image:url(data:image/svg+xml;base64,PHN2ZyBoZWlnaHQ9IjEwMjQiIHdpZHRoPSI2NDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiAgPHBhdGggZD0iTTM4NCA0NDhWMTkySDI1NnYyNTZIMHYxMjhoMjU2djI1NmgxMjhWNTc2aDI1NlY0NDhIMzg0eiIgLz4KPC9zdmc+Cg==)}.eveui_minus_icon{cursor:pointer;background-image:url(data:image/svg+xml;base64,PHN2ZyBoZWlnaHQ9IjEwMjQiIHdpZHRoPSI1MTIiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiAgPHBhdGggZD0iTTAgNDQ4djEyOGg1MTJWNDQ4SDB6IiAvPgo8L3N2Zz4K)}.eveui_more_icon{cursor:pointer;background-image:url(data:image/svg+xml;base64,PHN2ZyBoZWlnaHQ9IjEwMjQiIHdpZHRoPSI3NjgiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiAgPHBhdGggZD0iTTAgNTc2aDEyOHYtMTI4aC0xMjh2MTI4eiBtMC0yNTZoMTI4di0xMjhoLTEyOHYxMjh6IG0wIDUxMmgxMjh2LTEyOGgtMTI4djEyOHogbTI1Ni0yNTZoNTEydi0xMjhoLTUxMnYxMjh6IG0wLTI1Nmg1MTJ2LTEyOGgtNTEydjEyOHogbTAgNTEyaDUxMnYtMTI4aC01MTJ2MTI4eiIgLz4KPC9zdmc+Cg==)}.eveui_edit_icon{cursor:pointer;background-image:url(data:image/svg+xml;base64,PHN2ZyBoZWlnaHQ9IjEwMjQiIHdpZHRoPSI4OTYiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiAgPHBhdGggZD0iTTcwNCA2NEw1NzYgMTkybDE5MiAxOTIgMTI4LTEyOEw3MDQgNjR6TTAgNzY4bDAuNjg4IDE5Mi41NjJMMTkyIDk2MGw1MTItNTEyTDUxMiAyNTYgMCA3Njh6TTE5MiA4OTZINjRWNzY4aDY0djY0aDY0Vjg5NnoiIC8+Cjwvc3ZnPgo=)}.eveui_copy_icon{cursor:pointer;background-image:url(data:image/svg+xml;base64,PHN2ZyBoZWlnaHQ9IjEwMjQiIHdpZHRoPSI4OTYiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiAgPHBhdGggZD0iTTcwNCA4OTZoLTY0MHYtNTc2aDY0MHYxOTJoNjR2LTMyMGMwLTM1LTI5LTY0LTY0LTY0aC0xOTJjMC03MS01Ny0xMjgtMTI4LTEyOHMtMTI4IDU3LTEyOCAxMjhoLTE5MmMtMzUgMC02NCAyOS02NCA2NHY3MDRjMCAzNSAyOSA2NCA2NCA2NGg2NDBjMzUgMCA2NC0yOSA2NC02NHYtMTI4aC02NHYxMjh6IG0tNTEyLTcwNGMyOSAwIDI5IDAgNjQgMHM2NC0yOSA2NC02NCAyOS02NCA2NC02NCA2NCAyOSA2NCA2NCAzMiA2NCA2NCA2NCAzMyAwIDY0IDAgNjQgMjkgNjQgNjRoLTUxMmMwLTM5IDI4LTY0IDY0LTY0eiBtLTY0IDUxMmgxMjh2LTY0aC0xMjh2NjR6IG00NDgtMTI4di0xMjhsLTI1NiAxOTIgMjU2IDE5MnYtMTI4aDMyMHYtMTI4aC0zMjB6IG0tNDQ4IDI1NmgxOTJ2LTY0aC0xOTJ2NjR6IG0zMjAtNDQ4aC0zMjB2NjRoMzIwdi02NHogbS0xOTIgMTI4aC0xMjh2NjRoMTI4di02NHoiIC8+Cjwvc3ZnPgo=)}.copy_only{position:absolute;display:inline-block;line-height:0;font-size:0}.nocopy::after{content:attr(data-content)}.whitespace_nowrap{white-space:nowrap}.float_left{float:left}.float_right{float:right}" + '</style>';
 var eveui;
 (function (eveui) {
     mark('script start');
@@ -147,7 +147,7 @@ var eveui;
         e.preventDefault();
         var item_id = $(this).closest('[data-eveui-itemid]').attr('data-eveui-itemid');
         var dna = $(this).closest('[data-eveui-dna]').attr('data-eveui-dna');
-        var eveui_window = $("\n\t\t\t<span class=\"eveui_window\" style=\"position:absolute\">\n\t\t\t\t<span class=\"eveui_close_icon\" />\n\t\t\t\t<span class=\"eveui_content\">\n\t\t\t\t\tAutocomplete goes here\n\t\t\t\t</span>\n\t\t\t</span>\n\t\t\t");
+        var eveui_window = $("<span class=\"eveui_window\" style=\"position:absolute\"><span class=\"eveui_close_icon\" /><span class=\"eveui_content\">Autocomplete goes here</span></span>");
         eveui_window.css('z-index', current_zindex++);
         $(this).parent().after(eveui_window);
     });
@@ -190,8 +190,8 @@ var eveui;
             else {
                 eveui_window.css('height', '');
             }
-            if (eveui_content.width() > window.innerWidth - 20) {
-                eveui_window.css('width', window.innerWidth - 20);
+            if (eveui_content.width() > window.innerWidth - 40) {
+                eveui_window.css('width', window.innerWidth - 40);
             }
             else {
                 eveui_window.css('width', '');
@@ -259,7 +259,7 @@ var eveui;
     eve_version_query();
     function new_window(title) {
         if (title === void 0) { title = '&nbsp;'; }
-        var eveui_window = $("\n\t\t\t<span class=\"eveui_window\">\n\t\t\t\t<div class=\"eveui_title\">" + title + "</div>\n\t\t\t\t<span class=\"eveui_icon eveui_close_icon\" />\n\t\t\t\t<span class=\"eveui_scrollable\">\n\t\t\t\t\t<span class=\"eveui_content\">\n\t\t\t\t\t\tLoading...\n\t\t\t\t\t</span>\n\t\t\t\t</span>\n\t\t\t</span>\n\t\t");
+        var eveui_window = $("<span class=\"eveui_window\"><div class=\"eveui_title\">" + title + "</div><span class=\"eveui_icon eveui_close_icon\" /><span class=\"eveui_scrollable\"><span class=\"eveui_content\">Loading...</span></span></span>");
         if (eveui_mode === 'modal' && $('.eveui_modal_overlay').length === 0) {
             $('body').append("<div class=\"eveui_modal_overlay\" />");
             eveui_window.attr('data-eveui-modal', 1);
@@ -342,35 +342,35 @@ var eveui;
             for (var item_id in fittings) {
                 slots_used += fittings[item_id];
                 if (slots_available) {
-                    html += "\n\t\t\t\t\t\t<tr class=\"copy_only\">\n\t\t\t\t\t\t<td>\n\t\t\t\t\t\t\t" + (cache['inventory/types/' + item_id].name + '<br />').repeat(fittings[item_id]) + "\n\t\t\t\t\t\t<tr class=\"nocopy\" data-eveui-itemid=\"" + item_id + "\">\n\t\t\t\t\t\t\t<td><img src=\"https://imageserver.eveonline.com/Type/" + item_id + "_32.png\" class=\"eveui_icon eveui_item_icon\" />\n\t\t\t\t\t\t\t<td class=\"eveui_right\">" + fittings[item_id] + "\n\t\t\t\t\t\t\t<td>" + cache['inventory/types/' + item_id].name + "\n\t\t\t\t\t\t";
+                    html += "<tr class=\"copy_only\"><td>" + (cache['inventory/types/' + item_id].name + '<br />').repeat(fittings[item_id]) + "<tr class=\"nocopy\" data-eveui-itemid=\"" + item_id + "\"><td><img src=\"https://imageserver.eveonline.com/Type/" + item_id + "_32.png\" class=\"eveui_icon eveui_item_icon\" /><td class=\"eveui_right\">" + fittings[item_id] + "<td>" + cache['inventory/types/' + item_id].name;
                 }
                 else {
-                    html += "\n\t\t\t\t\t\t<tr class=\"copy_only\">\n\t\t\t\t\t\t<td>\n\t\t\t\t\t\t\t" + cache['inventory/types/' + item_id].name + " x" + fittings[item_id] + "<br />\n\t\t\t\t\t\t<tr class=\"nocopy\" data-eveui-itemid=\"" + item_id + "\">\n\t\t\t\t\t\t\t<td><img src=\"https://imageserver.eveonline.com/Type/" + item_id + "_32.png\" class=\"eveui_icon eveui_item_icon\" />\n\t\t\t\t\t\t\t<td class=\"eveui_right\">" + fittings[item_id] + "\n\t\t\t\t\t\t\t<td>" + cache['inventory/types/' + item_id].name + "\n\t\t\t\t\t\t";
+                    html += "<tr class=\"copy_only\"><td>" + cache['inventory/types/' + item_id].name + " x" + fittings[item_id] + "<br /><tr class=\"nocopy\" data-eveui-itemid=\"" + item_id + "\"><td><img src=\"https://imageserver.eveonline.com/Type/" + item_id + "_32.png\" class=\"eveui_icon eveui_item_icon\" /><td class=\"eveui_right\">" + fittings[item_id] + "<td>" + cache['inventory/types/' + item_id].name;
                 }
-                html += "\n\t\t\t\t\t<td class=\"eveui_right whitespace_nowrap\"><span data-itemid=\"" + item_id + "\" class=\"eveui_icon eveui_info_icon\" />\n\t\t\t\t\t";
+                html += "<td class=\"eveui_right whitespace_nowrap\"><span data-itemid=\"" + item_id + "\" class=\"eveui_icon eveui_info_icon\" />";
                 if (eveui_allow_edit) {
-                    html += "\n\t\t\t\t\t\t<span class=\"eveui_icon eveui_plus_icon\" />\n\t\t\t\t\t\t<span class=\"eveui_icon eveui_minus_icon\" />\n\t\t\t\t\t\t<span class=\"eveui_icon eveui_more_icon\" />\n\t\t\t\t\t\t";
+                    html += "<span class=\"eveui_icon eveui_plus_icon\" /><span class=\"eveui_icon eveui_minus_icon\" /><span class=\"eveui_icon eveui_more_icon\" />";
                 }
             }
             if (typeof (slots_available) != 'undefined') {
                 if (slots_available > slots_used) {
-                    html += "\n\t\t\t\t\t\t<tr class=\"nocopy\">\n\t\t\t\t\t\t\t<td class=\"eveui_icon eveui_item_icon\" />\n\t\t\t\t\t\t\t<td class=\"eveui_right whitespace_nowrap\">" + (slots_available - slots_used) + "\n\t\t\t\t\t\t\t<td>Empty\n\t\t\t\t\t\t";
+                    html += "<tr class=\"nocopy\"><td class=\"eveui_icon eveui_item_icon\" /><td class=\"eveui_right whitespace_nowrap\">" + (slots_available - slots_used) + "<td>Empty";
                     if (eveui_allow_edit) {
                         html += '<td class="eveui_right"><span class="eveui_more_icon" />';
                     }
                 }
                 if (slots_used > slots_available) {
-                    html += "\n\t\t\t\t\t\t<tr class=\"nocopy\">\n\t\t\t\t\t\t\t<td class=\"eveui_icon eveui_item_icon\" />\n\t\t\t\t\t\t\t<td class=\"eveui_right\">" + (slots_available - slots_used) + "\n\t\t\t\t\t\t\t<td>Excess\n\t\t\t\t\t\t";
+                    html += "<tr class=\"nocopy\"><td class=\"eveui_icon eveui_item_icon\" /><td class=\"eveui_right\">" + (slots_available - slots_used) + "<td>Excess";
                 }
             }
             return html;
         }
         var html = '';
-        html += "\n\t\t\t<table>\n\t\t\t<thead>\n\t\t\t<tr class=\"eveui_fit_header\" data-eveui-itemid=\"" + ship_id + "\">\n\t\t\t<td colspan=\"2\"><img src=\"https://imageserver.eveonline.com/Type/" + ship_id + "_32.png\" class=\"eveui_icon eveui_ship_icon\" />\n\t\t\t<td>\n\t\t\t\t<span class=\"eveui_startcopy\" />[" + cache['inventory/types/' + ship_id].name + ",\n\t\t\t\t<a target=\"_blank\" href=\"" + eveui_urlify(dna) + "\">" + (eveui_name || cache['inventory/types/' + ship_id].name) + "</a>]\n\t\t\t<td class=\"eveui_right whitespace_nowrap\">\n\t\t\t<span class=\"eveui_icon clipboard_copy_icon\" />\n\t\t\t<span data-itemid=\"" + ship_id + "\" class=\"eveui_icon eveui_info_icon\" />\n\t\t\t";
+        html += "<table><thead><tr class=\"eveui_fit_header\" data-eveui-itemid=\"" + ship_id + "\"><td colspan=\"2\"><img src=\"https://imageserver.eveonline.com/Type/" + ship_id + "_32.png\" class=\"eveui_icon eveui_ship_icon\" /><td><span class=\"eveui_startcopy\" />[<a target=\"_blank\" href=\"" + eveui_urlify(dna) + "\">" + cache['inventory/types/' + ship_id].name + "," + (eveui_name || cache['inventory/types/' + ship_id].name) + "</a>]<td class=\"eveui_right whitespace_nowrap\"><span class=\"eveui_icon clipboard_copy_icon\" /><span data-itemid=\"" + ship_id + "\" class=\"eveui_icon eveui_info_icon\" />";
         if (eveui_allow_edit) {
-            html += "\n\t\t\t\t<span class=\"eveui_icon\" />\n\t\t\t\t<span class=\"eveui_icon\" />\n\t\t\t\t<span class=\"eveui_icon eveui_more_icon\" />\n\t\t\t\t";
+            html += "<span class=\"eveui_icon\" /><span class=\"eveui_icon\" /><span class=\"eveui_icon eveui_more_icon\" />";
         }
-        html += "\n\t\t\t</thead>\n\t\t\t<tbody class=\"whitespace_nowrap\">\n\t\t\t" + item_rows(high_slots, ship.hiSlots) + "\n\t\t\t<tr><td class=\"eveui_line_spacer\">&nbsp;\n\t\t\t" + item_rows(med_slots, ship.medSlots) + "\n\t\t\t<tr><td class=\"eveui_line_spacer\">&nbsp;\n\t\t\t" + item_rows(low_slots, ship.lowSlots) + "\n\t\t\t<tr><td class=\"eveui_line_spacer\">&nbsp;\n\t\t\t" + item_rows(rig_slots, ship.rigSlots) + "\n\t\t\t<tr><td class=\"eveui_line_spacer\">&nbsp;\n\t\t\t" + item_rows(subsystem_slots, ship.maxSubsystems) + "\n\t\t\t<tr><td class=\"eveui_line_spacer\">&nbsp;\n\t\t\t" + item_rows(other_slots) + "\n\t\t\t</tbody>\n\t\t\t</table>\n\t\t\t<span class=\"eveui_endcopy\" />\n\t\t\t";
+        html += "</thead><tbody class=\"whitespace_nowrap\">" + item_rows(high_slots, ship.hiSlots) + "<tr><td class=\"eveui_line_spacer\">&nbsp;" + item_rows(med_slots, ship.medSlots) + "<tr><td class=\"eveui_line_spacer\">&nbsp;" + item_rows(low_slots, ship.lowSlots) + "<tr><td class=\"eveui_line_spacer\">&nbsp;" + item_rows(rig_slots, ship.rigSlots) + "<tr><td class=\"eveui_line_spacer\">&nbsp;" + item_rows(subsystem_slots, ship.maxSubsystems) + "<tr><td class=\"eveui_line_spacer\">&nbsp;" + item_rows(other_slots) + "</tbody></table><span class=\"eveui_endcopy\" />";
         return html;
     }
     eveui.format_fit = format_fit;
@@ -435,9 +435,7 @@ var eveui;
     function format_char(char_id) {
         var character = cache['characters/' + char_id];
         var html = '';
-        html += '<table>';
-        html += "\n\t\t\t<tr><td colspan=\"2\">\n\t\t\t<img class=\"float_left\" src=\"https://imageserver.eveonline.com/Character/" + character.id + "_128.jpg\" height=\"128\" width=\"128\" />\n\t\t\t" + character.name + "\n\t\t\t<hr />\n\t\t\t<img class=\"float_left\" src=\"https://imageserver.eveonline.com/Corporation/" + character.corporation.id_str + "_64.png\" height=\"64\" width=\"64\" />\n\t\t\tMember of " + character.corporation.name + "\n\t\t\t<tr><td>Bio:<td>" + character.description.replace(/<font[^>]+>/g, '<font>') + "\n\t\t\t";
-        html += '</table>';
+        html += "<table><tr><td colspan=\"2\"><img class=\"float_left\" src=\"https://imageserver.eveonline.com/Character/" + character.id + "_128.jpg\" height=\"128\" width=\"128\" />" + character.name + "<hr /><img class=\"float_left\" src=\"https://imageserver.eveonline.com/Corporation/" + character.corporation.id_str + "_64.png\" height=\"64\" width=\"64\" />Member of " + character.corporation.name + "<tr><td>Bio:<td>" + character.description.replace(/<font[^>]+>/g, '<font>') + "</table>";
         return html;
     }
     eveui.format_char = format_char;
@@ -585,17 +583,17 @@ var eveui;
                     var localstorage_cache = JSON.parse(localStorage.getItem('eveui_cache')) || {};
                     $.extend(true, localstorage_cache, localstorage_pending);
                     var localstorage_cache_json = JSON.stringify(localstorage_cache);
-                    localstorage_pending = {};
                     if (localstorage_cache_json.length > eveui_use_localstorage) {
                         mark('localstorage limit exceeded');
                         return;
                     }
                     try {
                         localStorage.setItem('eveui_cache', localstorage_cache_json);
-                        mark('localstorage updated');
+                        mark('localstorage updated ' + Object.keys(localstorage_pending).length);
                     }
                     catch (err) {
                     }
+                    localstorage_pending = {};
                 }, 5000);
             }
         }).fail(function (xhr) {

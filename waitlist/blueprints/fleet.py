@@ -13,7 +13,7 @@ from flask.templating import render_template
 from flask.globals import request, session
 import re
 import flask
-from waitlist.utility.fleet import get_wings
+from waitlist.utility.fleet import get_wings, member_info
 from waitlist.utility.crest import create_token_cb
 from waitlist.blueprints.fc_sso import get_sso_redirect, add_sso_handler
 from pycrest.errors import APIException
@@ -242,14 +242,10 @@ def setup(fleet_id):
 @login_required
 @perm_dev.require(http_exception=401)
 def print_fleet(fleetid):
-    fleet_url = "https://crest-tq.eveonline.com/fleets/"+str(fleetid)+"/"
-    data = {
-            'access_token': current_user.access_token,
-            'refresh_token': current_user.refresh_token,
-            'expires_in': current_user.access_token_expires
-            }
-    fleet = AuthedConnectionB(data, fleet_url, "https://login.eveonline.com/oauth", crest_client_id, crest_client_secret, create_token_cb(current_user.id))
-    return str(fleet().wings())
+    cachedMembers = member_info.get_cache_data(fleetid)
+    if (cachedMembers == None):
+        return "No cached info"
+    return str(cachedMembers)
 
 @bp.route("/take", methods=['GET'])
 @login_required

@@ -4,174 +4,26 @@
 
 {% block head %}
 <meta name="api-igui-openwindow-newmail" content="{{url_for('api_eve_openwindow.newmail')}}">
-<style>
-#account-roles {
-	overflow: auto;
-}
-#acc-edit-roles {
-	overflow: auto;
-}
-</style>
+<meta name="mail-resident-body" content="{{mails['resident'][0]}}">
+<meta name="mail-tbadge-body" content="{{mails['tbadge'][0]}}">
+<meta name="mail-other-body" content="{{mails['other'][0]}}">
+<meta name="mail-resident-topic" content="{{mails['resident'][1]}}">
+<meta name="mail-tbadge-topic" content="{{mails['tbadge'][1]}}">
+<meta name="mail-other-topic" content="{{mails['other'][1]}}">
+<meta name="api-account-delete" content="{{url_for('settings.api_account_delete', acc_id='-1')}}">
+<meta name="api-account-disable" content="{{url_for('settings.account_disabled')}}">
 {{ super() }}
 
 {% assets filters="cssmin", output="gen/fileinput.%(version)s.css", "css/fileinput.css" %}
 <link rel="stylesheet" href="{{ ASSET_URL }}">
 {% endassets %}
 
-{% assets filters="jsmin", output="gen/fileinput.%(version)s.js", "js/fileinput.js" %}
+{% assets filters="babili", output="gen/fileinput.%(version)s.js", "js/base.js", "js/eve-igb-wrapper.js", "js/fileinput.js", "js/settings-accounts.js" %}
 <script type="text/javascript" src="{{ ASSET_URL }}"></script>
 {% endassets %}
 
 <script type="text/javascript">
-function deleteAccount(accountId){
-	var settings = {
-			async: true,
-			dataType: "text",
-			error: function() {
-				// TODO: flash an error message
-				console.log("Error");
-			},
-			method: "DELETE",
-			success: function() {
-				var id = "#account-"+accountId;
-				$(id).remove();
-			},
-			headers: {
-				'X-CSRFToken': '{{csrf_token()}}'
-			}
-	};
-	$.ajax("{{url_for('settings.api_account_delete', acc_id='-1')}}".replace("-1", accountId), settings)
-}
 
-function disableAccount(accountId, onsuccess){
-	var settings = {
-			async: true,
-			dataType: "text",
-			error: function() {
-				// TODO: flash an error message
-				console.log("Error");
-			},
-			method: "POST",
-			data: {
-				id: accountId,
-				disabled: true
-			},
-			success: onsuccess,
-			headers: {
-				'X-CSRFToken': '{{csrf_token()}}'
-			}
-	};
-	$.ajax("{{url_for('settings.account_disabled')}}", settings);
-}
-
-function enableAccount(accountId, onsuccess){
-	var settings = {
-			async: true,
-			dataType: "text",
-			error: function() {
-				// TODO: flash an error message
-				console.log("Error");
-			},
-			method: "POST",
-			data: {
-				id: accountId,
-				disabled: false
-			},
-			success: onsuccess,
-			headers: {
-				'X-CSRFToken': '{{csrf_token()}}'
-			}
-	};
-	$.ajax("{{url_for('settings.account_disabled')}}", settings);
-}
-
-function setUpEventhandlers() {
-	var doc = $(document);
-	doc.on("click", "[data-type='acc-enable']", function(event){
-		var source = $(event.target);
-		var id = Number(source.data('id'));
-		enableAccount(id, function() {
-			var row_id = "#account-"+id;
-			var row = $(row_id);
-			row.removeClass("table-warning");
-			source.attr("data-type", "acc-disable");
-			source.text("Disable");
-		});
-	});
-	doc.on("click", "[data-type='acc-disable']", function(event){
-		var source = $(event.target);
-		var id = Number(source.data('id'));
-		disableAccount(id, function() {
-			var row_id = "#account-"+id;
-			var row = $(row_id);
-			row.addClass("table-warning");
-			source.attr("data-type", "acc-enable");
-			source.text("Enable")
-		});
-	});
-}
-
-function editAccount(accountId) {
-	var name = $('#acc-'+accountId+"-name").text();
-	var roles = $('#acc-'+accountId+'-roles').text();
-	var email = $('#acc-'+accountId+'-email').text();
-	var default_char_name = $('#acc-'+accountId+'-cchar').text();
-	$('#acc-edit-name').val(name);
-	// this is more complicated
-	//$('#acc-edit-roles')
-	roles = roles.split(", ")
-	// map the roles he has to a dict so we can fast and easy check for them later
-	var has_roles = {};
-	for (role in roles) {
-		has_roles[roles[role]] = true;
-	}
-
-	var edit_roles_select = document.getElementById('acc-edit-roles');
-	for (var i=0; i < edit_roles_select.options.length; i++) {
-		var option = edit_roles_select.options[i];
-		var val = option.value;
-		if (val in has_roles) {
-			option.selected = true;
-		} else {
-			option.selected = false;
-		}
-	}
-	$('#acc-edit-email').val(email);
-	$('#acc-edit-cchar').val(default_char_name);
-	$('#acc-edit-id').val(accountId);
-	$('#modal-account-edit').modal('toggle');
-}
-function noclick() {
-	$('.noclick').click(function(e){
-		e.preventDefault();
-	});
-}
-
-function sendAuthMail(charId, token, sig, username, type) {
-	var link_prefix = window.location.protocol + '//' + window.location.host;
-	var link = link_prefix+'/tokenauth?token='+token;
-	var mail = "";
-	var topic = "";
-	switch(type){
-	case "resident":
-		mail = {{mails['resident'][0]|safe}}
-		topic =  {{mails['resident'][1]|safe}}
-		break;
-	case "tbadge":
-		mail = {{mails['tbadge'][0]|safe}}
-		topic =  {{mails['tbadge'][1]|safe}}
-		break;
-	default:
-		mail = {{mails['other'][0]|safe}}
-		topic =  {{mails['other'][1]|safe}}
-	}
-	mail = mail.replace("$recv$", username).replace("$link$", link).replace("$sig$", sig);
-	topic = topic.replace("$recv$", username).replace("$link$", link).replace("$sig$", sig);
-	IGBW.sendMail(charId, topic, mail);
-}
-
-$(document).ready(noclick);
-$(document).ready(setUpEventhandlers);
 </script>
 {% endblock %}
 
@@ -202,12 +54,12 @@ $(document).ready(setUpEventhandlers);
 		<th>#</th>
 	</tr>
 </thead>
-<tbody>
+<tbody id="account-table-body">
 	{% for acc in accounts %}
 	<tr id="account-{{acc.id}}"{% if acc.disabled %} class="table-warning"{% endif %}>
 		<td>
 		<button type="button" class="btn btn-sm btn-warning" data-type="{%if acc.disabled%}acc-enable{%else%}acc-disable{%endif%}" data-id="{{acc.id}}">{%if acc.disabled%}Enable{%else%}Disable{%endif%}</button>
-		<button type="button" class="btn btn-sm btn-secondary" onclick="javascript:editAccount({{acc.id}});">Edit</button>
+		<button type="button" class="btn btn-sm btn-secondary" data-action="editAccount" data-accId="{{acc.id}}">Edit</button>
 		{% set is_rbadge = ['1'] %}
 		{% set is_tbadge = ['1'] %}
 		{% for role in acc.roles %}
@@ -219,7 +71,7 @@ $(document).ready(setUpEventhandlers);
 		{% endfor %}
 		{% set is_rbadge = (is_rbadge|length > 1) %}
 		{% set is_tbadge = (is_tbadge|length > 1) %}
-		<button type="button" class="btn btn-sm btn-info" onclick="sendAuthMail({{acc.current_char_obj.id}}, '{{acc.login_token|safe}}', '{{current_user.username}}', '{{acc.username}}', {% if is_tbadge %}'tbadge'{%elif is_rbadge%}'resident'{%else%}'other'{%endif%});">Auth Mail</button>
+		<button type="button" class="btn btn-sm btn-info" data-action="sendAuthMail" data-characterid="{{acc.current_char_obj.id}}" data-token="{{acc.login_token}}" data-username="{{current_user.username}}" data-accusername="{{acc.username}}" data-userType="{% if is_tbadge %}tbadge{%elif is_rbadge%}resident{%else%}other{%endif%}">Auth Mail</button>
 		</td>
 		<td id="acc-{{acc.id}}-name">{{ acc.username }}</td>
 		<td id="acc-{{acc.id}}-roles">{% for role in acc.roles %}{{role.name}}{% if not loop.last %}, {% endif %}{% endfor %}</td>

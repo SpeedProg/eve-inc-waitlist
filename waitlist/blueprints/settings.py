@@ -31,8 +31,9 @@ from waitlist.utility.settings.settings import sget_active_ts_id,\
     sset_active_ts_id, sget_resident_mail, sget_tbadge_mail, sget_resident_topic,\
     sget_tbadge_topic, sget_other_mail, sget_other_topic
 from waitlist.ts3.connection import change_connection
-import json
 from datetime import datetime
+from waitlist.data.sse import StatusChangedSSE, sendServerSentEvent
+from waitlist.utility import config
 
 bp_settings = Blueprint('settings', __name__)
 logger = logging.getLogger(__name__)
@@ -98,9 +99,9 @@ def accounts():
     roles = db.session.query(Role).order_by(Role.name).all();
     accounts = db.session.query(Account).order_by(asc(Account.disabled)).order_by(Account.username).all()
     mails = {
-             'resident': [json.dumps(sget_resident_mail()), json.dumps(sget_resident_topic())],
-             'tbadge': [json.dumps(sget_tbadge_mail()), json.dumps(sget_tbadge_topic())],
-             'other': [json.dumps(sget_other_mail()), json.dumps(sget_other_topic())]
+             'resident': [sget_resident_mail(), sget_resident_topic()],
+             'tbadge': [sget_tbadge_mail(), sget_tbadge_topic()],
+             'other': [sget_other_mail(), sget_other_topic()]
              }
 
     return render_template("settings/accounts.html", roles=roles, accounts=accounts, mails=mails)
@@ -110,7 +111,7 @@ def accounts():
 @perm_management.require(http_exception=401)
 def fleet():
     groups = db.session.query(WaitlistGroup).all()
-    return render_template("settings/fleet.html", user=current_user, groups=groups)
+    return render_template("settings/fleet.html", user=current_user, groups=groups, scramble=config.scramble_names)
 
 
 @bp_settings.route("/account_edit", methods=["POST"])
@@ -546,6 +547,9 @@ def fleet_status_set(gid):
     
     db.session.commit()
     
+    event = StatusChangedSSE(group)
+    sendServerSentEvent(event)
+    
     return redirect(url_for(".fleet"), code=303)
 
 @bp_settings.route("/fleet/location/set/<int:gid>", methods=["POST"])
@@ -566,7 +570,7 @@ def fleet_location_set(gid):
 
         if group.groupName == "default": # if default waitlist, set all of them
             groups = db.session.query(WaitlistGroup).all()
-            logger.info("All Constellations where set to %s by %s", name, current_user.username)
+            logger.info("All Constellations were set to %s by %s", name, current_user.username)
             for group in groups:
                 group.constellation = constellation
 
@@ -581,7 +585,7 @@ def fleet_location_set(gid):
                     group.system = None
                     group.dockup = None
                           
-            flash("All Constellations where set to " + name + "!", "success")
+            flash("All Constellations were set to " + name + "!", "success")
         else: # if not default waitlist set only the single waitlist
             group.constellation = constellation
             logger.info("%s Constellation was set to %s by %s", group.groupName, name, current_user.username)
@@ -611,8 +615,8 @@ def fleet_location_set(gid):
             for group in groups:
                 group.system = system
             
-            logger.info("All Systems where set to %s by %s", name, current_user.username, group.groupName)
-            flash("All Systems where set to "+name, "success")
+            logger.info("All Systems were set to %s by %s", name, current_user.username, group.groupName)
+            flash("All Systems were set to "+name, "success")
         else:
             group.system = system
             logger.info(group.displayName + " System was set to %s by %s", name, current_user.username)
@@ -629,8 +633,8 @@ def fleet_location_set(gid):
             for group in groups:
                 group.dockup = station
             
-            logger.info("All Docks where set to %s by %s", name, current_user.username)
-            flash("All Dock where set to " + name, "success")
+            logger.info("All Docks were set to %s by %s", name, current_user.username)
+            flash("All Dock were set to " + name, "success")
         else:
             group.dockup = get_station(name)
             logger.info("%s Dock was set to %s by %s", group.displayName, name, current_user.username)
@@ -653,7 +657,7 @@ def update_type_ids():
         f.save(dest_name)
         # start the update
         sde.update_invtypes(dest_name)
-        flash("Type IDs where updated!", "success")
+        flash("Type IDs were updated!", "success")
     
     return redirect(url_for('.sde_settings'))
 
@@ -680,7 +684,7 @@ def update_map():
         # start the update
         sde.update_constellations(raw_file)
         sde.update_systems(raw_file)
-        flash("Constellations and Systems where updated!", "success")
+        flash("Constellations and Systems were updated!", "success")
     
     return redirect(url_for('.sde_settings'))
 
@@ -697,7 +701,7 @@ def update_stations():
         f.save(dest_name)
         # start the update
         sde.update_stations(dest_name)
-        flash("Stations where updated!", "success")
+        flash("Stations were updated!", "success")
     
     return redirect(url_for('.sde_settings'))
 
@@ -714,7 +718,7 @@ def update_layouts():
         f.save(dest_name)
         # start the update
         sde.update_layouts(dest_name)
-        flash("Layouts where updated!", "success")
+        flash("Layouts were updated!", "success")
     
     return redirect(url_for('.sde_settings'))
 
@@ -780,7 +784,7 @@ def clear_waitlist(gid):
                                             ).delete()
 
     db.session.commit()
-    flash("Waitlists where cleared!", "danger")
+    flash("Waitlists were cleared!", "danger")
     return redirect(url_for('.fleet'))
 
 @bp_settings.route("/accounts/import/accounts", methods=["POST"])
@@ -796,7 +800,7 @@ def accounts_import_accounts():
         f.save(dest_name)
         # start the update
         update_accounts_by_file(dest_name)
-        flash("Accounts where updated!", "success")
+        flash("Accounts were updated!", "success")
     
     return redirect(url_for('.accounts'))
 
@@ -1085,6 +1089,17 @@ def teamspeak_change():
         flask.abort(400)
     
     return redirect(url_for("settings.teamspeak"))
+
+@bp_settings.route("/fleet/status/set/", methods=["POST"])
+@login_required
+@perm_management.require(http_exception=401)
+def fleet_status_global_set():
+    action = request.form['action']
+    if action == "set_name_scramble":
+        should_scrable = not (request.form.get('scramble', 'off') == 'off')
+        config.scramble_names = should_scrable
+    return "OK"
+
 '''
 @bp_settings.route("/api/account/", methods=["POST"])
 @login_required

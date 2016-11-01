@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 from flask.blueprints import Blueprint
 import logging
 from pycrest.eve import AuthedConnectionB
