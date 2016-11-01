@@ -588,13 +588,13 @@ waitlist.listdom = (function(){
 	function refreshWl() {
 		var wlid = getMetaData('wl-group-id');
 		if (typeof wlid !== 'undefined') {
+			$.getJSON(getMetaData('api-waitlists-groups').replace('-1', wlid), function(data) {
+				setStatusDom(data);
+			});
 			$.getJSON(getMetaData('api-waitlists')+"?group="+wlid, function(data){
 				for (let waitlist of data.waitlists) {
 					updateWaitlist(waitlist, data.groupID);
 				}
-			});
-			$.getJSON(getMetaData('api-waitlists-groups').replace('-1', wlid), function(data) {
-				setStatusDom(data);
 			});
 		}
 	}
