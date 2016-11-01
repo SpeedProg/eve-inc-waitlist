@@ -140,10 +140,10 @@ waitlist.fleetcomp = (function() {
 		var wlId = Number(target.attr('data-wlId'));
 		var entryId = Number(target.attr('data-entryId'));
 		event.stopPropagation();
-		if (fitViewed(event.currentTarget.offsetParent.id)) {
+		if (fitViewed(`fit-${wlId}-${entryId}-${fitId}`)) {
 			approveFit(wlId, entryId, fitId);
 		} else {
-			var name = event.currentTarget.offsetParent.firstChild.dataset.title;
+			var name = document.getElementById(`entry-${wlId}-${entryId}`).dataset.username;
 			displayMessage("You should view "+ name + "'s fit before accepting it.", "danger");
 		}
 	}
@@ -155,7 +155,7 @@ waitlist.fleetcomp = (function() {
 		if (entryViewed(wlId, entryId)) {
 			moveEntryToWaitlists(wlId, entryId);
 		} else {
-			var name = event.currentTarget.offsetParent.offsetParent.dataset.username;
+			var name = document.getElementById(`entry-${wlId}-${entryId}`).dataset.username;
 			displayMessage("You should view all of "+ name + "'s fits before accepting them.", "danger");
 		}
 	}
@@ -206,7 +206,7 @@ waitlist.fleetcomp = (function() {
 	}
 
 	function entryViewed(wlId, entryId) {
-		var fits = $("#entry-" + wlId + "-" + entryId)[0].children[1].childNodes;
+		var fits = document.getElementById('fittings-' + entryId).childNodes;
 		var viewed = true;
 		for (let fit of fits) {
 			if (!fitViewed(fit.id)) {
