@@ -307,7 +307,7 @@ waitlist.listdom = (function(){
 		var fitdom = isDummy ? $($.parseHTML('<li class="list-group-item fitting" id="fit-'+wlId+"-"+entryId+"-"+fit.id+'" data-type="'+getTagFromJsonFit(fit)+'"></li>')) : $($.parseHTML('<li class="list-group-item fitting" id="fit-'+wlId+"-"+entryId+"-"+fit.id+'" data-type="'+getTagFromJsonFit(fit)+'"></li>'));
 		var commentHTML = "";
 		if (fit.comment !== null) {
-			commentHTML = '<small>'+fit.comment+'</small>';
+			commentHTML = '<small>' +fit.comment+'</small>';
 		}
 		// lets check if it is the dummy fit
 		
@@ -316,7 +316,7 @@ waitlist.listdom = (function(){
 				$(baseElement)
 					.append($($.parseHTML('<div class="wel-header-32"></div>'))
 							.append($.parseHTML('<img class="img-32" src="//imageserver.eveonline.com/Render/'+fit.shipType+'_32.png">'))
-							.append($.parseHTML('<div class="wel-container-32"><div class="wel-text-row-32-2">'+fit.shipName+'</div><div class="wel-text-row-32-2">'+commentHTML+approveButton+fitButtons+'</div></div>'))
+							.append($.parseHTML('<div class="wel-container-32"><div class="wel-text-row-32-2">'+fit.shipName+commentHTML+'</div><div class="wel-text-row-32-2">'+approveButton+fitButtons+'</div></div>'))
 							)
 				);
 		return fitdom;
