@@ -317,7 +317,7 @@ waitlist.listdom = (function(){
         // text html with ship name and comment
         var textHTML = '<div class="wel-text-row-32-2">'+fit.shipName+commentHTML+'</div>';
 
-        var fitDOM = $('<li class="list-group-item fitting" id="fit-'+wlId+"-"+entryId+"-"+fit.id+'" data-type="'+getTagFromJsonFit(fit)+'"></li>');
+        var fitDOM = $('<li class="list-group-item" id="fit-'+wlId+"-"+entryId+"-"+fit.id+'" data-type="'+getTagFromJsonFit(fit)+'" role="button"></li>');
 		// lets check if it is the dummy fit
         var baseHTML = isDummy ? '<div class="booby-link" ></div>' : '<div class="fit-link" data-title="'+username+'" data-dna="'+fit.shipType+':'+fit.modules+'" data-type="'+fit.wl_type+'"></div>';
 		fitDOM.append($(baseHTML)
