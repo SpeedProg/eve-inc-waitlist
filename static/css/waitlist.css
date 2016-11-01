@@ -34,9 +34,6 @@ p.text-xs-center {
 .list-group-item {
 	padding: .1rem .1rem;
 }
-.card {
-	margin-bottom: 0rem;
-}
 .fitting {
 	cursor: pointer;
 }
