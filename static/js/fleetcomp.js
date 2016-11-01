@@ -102,7 +102,7 @@ waitlist.fleetcomp = (function() {
 	 */
 	function moveEntryToWaitlists(wlId, entryId) {
 		var entryDOM = $("#entry-" + wlId + "-" + entryId);
-		var fitDOMs = $(".fitting", entryDOM);
+		var fitDOMs = $('li[id|="fit"]', entryDOM);
 		var fit_id_str = "";
 		var fitCount = fitDOMs.length;
 		var fitid_prefix_length = ("fit-" + wlId + "-" + entryId + "-").length;
