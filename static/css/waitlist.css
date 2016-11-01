@@ -53,9 +53,6 @@ p.text-xs-center {
     border-right: .5em solid transparent;
     border-left: .5em solid transparent;
 }
-.dd {
-	cursor: pointer;
-}
 .missed-invites {
 	display: inline;
 }

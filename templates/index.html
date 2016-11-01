@@ -110,7 +110,7 @@ include "xup-form.html" with context %} {% endif %}
 	<div class="col-sm-6">
 		<div id="status" class="card">
 			<div data-toggle="collapse" data-target="#status-body"
-				class="dd card-header" id="status-heading">
+				class="card-header" id="status-heading" role="button">
 					<div class="h5 mb-0" id="grp-{{group.groupID}}-status">
 					</div>
 			</div>
@@ -184,7 +184,7 @@ include "xup-form.html" with context %} {% endif %}
 						<a class="list-group-item text-uppercase" data-toggle="collapse"
 							data-parent="#wl-{{ wlist.id }}-tog"
 							data-target="#wl-fits-{{ wlist.id }}" aria-expanded="true"
-							aria-controls="wl-fits-{{ wlist.id }}"> {{
+							aria-controls="wl-fits-{{ wlist.id }}" role="button"> {{
 							wlist.displayTitle|e }}{% if perm_man.can() %}<span
 							id="wl-count-{{ wlist.id }}"
 							class="tag tag-pill tag-default float-xs-left">0</span>{% endif
