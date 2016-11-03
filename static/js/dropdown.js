@@ -40,12 +40,12 @@ waitlist.dropdown = (function() {
 
 		// Load previous state of the waitlist
 		const
-		wlists = Array.from($("ol[id|='wl-fits']"));
-		wlists.forEach(function(wlist) {
+		wlists = $("ol[id|='wl-fits']");
+		for (let wlist of wlists){
 			if (storage.getItem(wlist.id) !== null) {
 				$(wlist).collapse("hide");
 			}
-		});
+		}
 	}
 
 	$(document).ready(init);
