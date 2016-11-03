@@ -113,9 +113,9 @@ waitlist.sse = (function() {
 		displayMessage('We have had to disable <strong>features</strong> please consider upgrading your<a href="http://caniuse.com/#feat=eventsource"> browser', 'danger', true);
 	}
 
-	function getSSE(events, groupId=null) {
+	function getSSE(events, groupId) {
 		var url = getMetaData('api-sse')+"?events="+encodeURIComponent(events);
-		if (groupId !== null) {
+		if (typeof groupId !== "undefined") {
 			url += "&groupId="+encodeURIComponent(groupId);
 		}
 		var sse = new EventSource(url);
