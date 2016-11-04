@@ -132,8 +132,8 @@ waitlist.sse = (function() {
 		
 		sse.addEventListener("status-changed", statusChangedListener);
 
-		for (let events of eventListeners){
-			sse.addEventListener(events.event, events.listener);
+		for (let addedEvents of eventListeners) {
+			sse.addEventListener(addedEvents.event, addedEvents.listener);
 		}
 
 		return sse;
