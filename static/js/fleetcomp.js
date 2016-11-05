@@ -144,6 +144,11 @@ waitlist.fleetcomp = (function() {
 			approveFit(wlId, entryId, fitId);
 		} else {
 			var name = document.getElementById(`entry-${wlId}-${entryId}`).dataset.username;
+			$.post(getMetaData('api-fail-approve'), 
+				{'_csrf_token': getMetaData('csrf-token')},
+				function() {},
+				"text"
+			);
 			displayMessage("You should view "+ name + "'s fit before accepting it.", "danger");
 		}
 	}
@@ -157,6 +162,11 @@ waitlist.fleetcomp = (function() {
 		} else {
 			var name = document.getElementById(`entry-${wlId}-${entryId}`).dataset.username;
 			displayMessage("You should view all of "+ name + "'s fits before accepting them.", "danger");
+			$.post(getMetaData('api-fail-approve'), 
+				{'_csrf_token': getMetaData('csrf-token')},
+				function() {},
+				"text"
+			);
 		}
 	}
 
