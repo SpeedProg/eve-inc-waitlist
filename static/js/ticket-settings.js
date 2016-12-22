@@ -41,17 +41,11 @@ waitlist.ticketsettings = (function (){
 		var charName = ticketElement.getCharacterName();
 		sendMail(charID, 
 				"Answer to your Waitlist Feedback",
-				`Hello ${charName},\n
-				We read your ticket:\n
-				<font size="10" color="#ffffcc00">
-				${$("<div>").text(title).html()}\n\n
-				${$("<div>").text(message).html()}
-				</font>\n\n
-				regards,\n`
+				`Hello ${charName},\nWe read your ticket:\n<font size="10" color="#ffffcc00">${$("<div>").text(title).html()}\n\n${$("<div>").text(message).html()}</font>\n\nregards,\n`
 				);
 	}
 
-	function changeTicketStatus(ticketID, ticketStatus) {
+	function changeTicketStatus(ticketID, ticketStatus, successFunc) {
 		$.post({
 			'url': '/feedback/settings',
 			'data': {
@@ -66,8 +60,7 @@ waitlist.ticketsettings = (function (){
 				}
 				displayMessage(message, "danger");
 			},
-			'success': function(data){
-			}
+			'success': successFunc
 		});
 	}
 	
@@ -81,12 +74,14 @@ waitlist.ticketsettings = (function (){
 		var target = $(event.currentTarget);
 		var ticketId = target.attr('data-ticketId');
 		var newStatus = target.attr('data-newStatus');
-		changeTicketStatus(ticketId, newStatus);
+		changeTicketStatus(ticketId, newStatus, function() {
+			target.parent().parent().remove();
+		});
 	}
 	
 	function init() {
-		$('#ticket-table-body').on('click', sendMailClickedHandler);
-		$('#ticket-table-body').on('click', changeTicketStatusClickedHandler);
+		$('#ticket-table-body').on('click', '[data-action="sendTicketMail"]', sendMailClickedHandler);
+		$('#ticket-table-body').on('click', '[data-action="changeTicketStatus"]', changeTicketStatusClickedHandler);
 	}
 	
 	

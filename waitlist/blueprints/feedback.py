@@ -65,4 +65,4 @@ def change_status():
     ticket = db.session.query(Ticket).get(ticketID)
     ticket.state = newStatus
     db.session.commit()
-    return make_response(200, "OK")
+    return make_response("OK")
