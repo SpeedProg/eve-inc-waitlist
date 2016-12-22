@@ -34,6 +34,8 @@ from waitlist.ts3.connection import change_connection
 from datetime import datetime
 from waitlist.data.sse import StatusChangedSSE, sendServerSentEvent
 from waitlist.utility import config
+from blinker.base import Signal
+from waitlist.signal.signals import SIG_ROLES_EDITED, sendRolesChanged
 
 bp_settings = Blueprint('settings', __name__)
 logger = logging.getLogger(__name__)
@@ -118,9 +120,16 @@ def fleet():
 @login_required
 @perm_accounts.require(http_exception=401)
 def account_edit():
+    
+    # get the signals we need in here
+    sig_roles_changed = Signal(SIG_ROLES_EDITED)
+    
     acc_id = int(request.form['account_id'])
     acc_name = request.form['account_name']
     acc_pw = request.form['account_pw']
+    
+    note = request.form['change_note']
+    
     if acc_pw == "":
         acc_pw = None
 
@@ -171,6 +180,7 @@ def account_edit():
             new_roles = db.session.query(Role).filter(or_(Role.name == name for name in roles_new))
             for role in new_roles:
                 acc.roles.append(role)
+        sendRolesChanged(acc.id, current_user.id, roles_to_remove, new_roles, note)
     else:
         # make sure all roles are removed
         roles_to_remove = []
@@ -180,6 +190,7 @@ def account_edit():
         for role in roles_to_remove:
             acc.roles.remove(role)
         db.session.flush()
+        sendRolesChanged(acc.id, current_user.id, roles_to_remove, [], note)
 
     if char_name is not None:
         char_id = get_character_id_from_name(char_name)
