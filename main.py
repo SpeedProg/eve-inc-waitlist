@@ -54,6 +54,7 @@ from waitlist.blueprints.options.inserts import bp as bp_inserts
 from waitlist.blueprints.api.openwindow import bp as bp_openwindow
 from waitlist.blueprints.api.sse import bp as bp_sse
 from waitlist.blueprints.api.waitlist import bp as bp_waitlists
+from waitlist.blueprints.accounts.commandcore import bp as bp_commandcore
 
 app.register_blueprint(bp_waitlist)
 app.register_blueprint(bp_settings, url_prefix='/settings')
@@ -72,6 +73,7 @@ app.register_blueprint(bp_inserts, url_prefix="/settings/inserts")
 app.register_blueprint(bp_openwindow, url_prefix="/api/ui/openwindow")
 app.register_blueprint(bp_sse, url_prefix="/api/sse")
 app.register_blueprint(bp_waitlists, url_prefix="/api/public/waitlists")
+app.register_blueprint(bp_commandcore, url_prefix="/accounts/cc")
 
 logger = logging.getLogger(__name__)
 
