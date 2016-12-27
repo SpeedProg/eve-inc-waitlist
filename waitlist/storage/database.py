@@ -551,6 +551,7 @@ class RoleHistoryEntry(Base):
     byAccountID = Column(Integer, ForeignKey('accounts.id'), nullable=False)
     note = Column(TEXT, nullable=True)
     time = Column(DateTime, default=datetime.utcnow, index=True)
+    role_changes = relationship("RoleChangeEntry", back_populates="history_entry", order_by="desc(RoleChangeEntry.added)")
 
 class RoleChangeEntry(Base):
     __tablename__ = "role_changes"
@@ -558,3 +559,5 @@ class RoleChangeEntry(Base):
     entryID = Column(Integer, ForeignKey('role_history.entryID', onupdate="CASCADE", ondelete="CASCADE"), nullable=False)
     roleID = Column(Integer, ForeignKey('roles.id', onupdate="CASCADE", ondelete="CASCADE"), nullable=False)
     added = Column(Boolean, nullable=False)
+    history_entry = relationship("RoleHistoryEntry", back_populates="role_changes")
+    role = relationship('Role')
