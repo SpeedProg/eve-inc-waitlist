@@ -34,8 +34,7 @@ from waitlist.ts3.connection import change_connection
 from datetime import datetime
 from waitlist.data.sse import StatusChangedSSE, sendServerSentEvent
 from waitlist.utility import config
-from blinker.base import Signal
-from waitlist.signal.signals import SIG_ROLES_EDITED, sendRolesChanged
+from waitlist.signal.signals import sendRolesChanged
 
 bp_settings = Blueprint('settings', __name__)
 logger = logging.getLogger(__name__)
@@ -120,9 +119,6 @@ def fleet():
 @login_required
 @perm_accounts.require(http_exception=401)
 def account_edit():
-    
-    # get the signals we need in here
-    sig_roles_changed = Signal(SIG_ROLES_EDITED)
     
     acc_id = int(request.form['account_id'])
     acc_name = request.form['account_name']
