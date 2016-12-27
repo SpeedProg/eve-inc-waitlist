@@ -176,7 +176,9 @@ def account_edit():
             new_roles = db.session.query(Role).filter(or_(Role.name == name for name in roles_new))
             for role in new_roles:
                 acc.roles.append(role)
-        sendRolesChanged(acc.id, current_user.id, roles_to_remove, new_roles, note)
+        
+        if len(roles_to_remove) > 0 or len(roles_new) > 0:
+            sendRolesChanged(account_edit, acc.id, current_user.id, roles_to_remove, new_roles, note)
     else:
         # make sure all roles are removed
         roles_to_remove = []
@@ -186,7 +188,9 @@ def account_edit():
         for role in roles_to_remove:
             acc.roles.remove(role)
         db.session.flush()
-        sendRolesChanged(acc.id, current_user.id, roles_to_remove, [], note)
+        
+        if len(roles_to_remove) > 0:
+            sendRolesChanged(account_edit, acc.id, current_user.id, roles_to_remove, [], note)
 
     if char_name is not None:
         char_id = get_character_id_from_name(char_name)
