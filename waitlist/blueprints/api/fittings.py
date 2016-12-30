@@ -69,3 +69,11 @@ def history_since():
     newHistoryEntries = db.session.query(HistoryEntry).filter(HistoryEntry.time > since).all()
     
     return jsonify(makeHistoryJson(newHistoryEntries))
+
+@bp.route("/fittings/unchecked_approve", methods=["POST"])
+@login_required
+@perm_comphistory.require(http_exception=401)
+def unchecked_approve():
+    with open('unchecked_approve.log', 'a+') as f:
+        f.write(current_user.username + " tried to approve a fit/entry without checking fits\n")
+    return "OK"

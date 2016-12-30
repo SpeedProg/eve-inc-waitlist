@@ -39,7 +39,7 @@ block head %}
 	content="{{url_for('api_eve_openwindow.ownerdetails')}}">
 <meta name="api-movetosafety"
 	content="{{url_for('api_fleet.move_fleetmembers_to_safety')}}">
-
+<meta name="api-fail-approve" content="{{url_for('api_fittings.unchecked_approve')}}">
 {% endif %}
 {{ super() }}
 {% assets filters="babili", output="gen/setup.%(version)s.js", "js/base.js",
