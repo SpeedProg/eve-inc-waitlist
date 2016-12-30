@@ -33,7 +33,7 @@
 	<li class="nav-item">
 	<a class="nav-link btn btn-success btn-sm" href="{{url_for('fittings.xup_index')}}">X-UP</a>
 	</li>
-	{% if perm_comphistory.can() %}
+	{% if perm_manager.getPermission('commandcore').can() %}
 	<li class="nav-item dropdown">
 		<a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Tools</a>
 		<div class="dropdown-menu">
@@ -41,6 +41,7 @@
 			<a class="dropdown-item" href="{{url_for('fleet_reform.index')}}">Reform</a>
 			{% endif %}
 			<a class="dropdown-item" href="{{url_for('fittings.history_default')}}">Comp History</a>
+			<a class="dropdown-item" href="{{url_for('accounts_cc.accounts')}}">Command Core List</a>
 			{% if perm_manager.getPermission('history_search').can() %}
 			<div class="dropdown-divider"></div>
 			<a class="dropdown-item" href="{{url_for('comp_history_search.index')}}">Comp History Search</a>
