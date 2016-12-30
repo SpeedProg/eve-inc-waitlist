@@ -11,6 +11,7 @@ from waitlist.base import db
 def get_role(name, restrictive=True):
     r = Role()
     r.name = name
+    r.displayName = WTMRoles.get_display_name(name)
     r.is_restrictive = restrictive
     return r
 
@@ -24,23 +25,36 @@ def createRoles():
         for dbrole in existing_roles:
             if dbrole.name == role_name:
                 exists = True
+                print("Found roles ", role_name)
+                break
         if not exists:
             db.session.add(get_role(role_name))
 
 def createDefaultWaitlistGroup():
     group = createWaitlistGroup("default", "HQ (Default)")
+    if group is None:
+        return
     group.enabled = True
     group.ordering = 0
+    
 
 def createAssaultWaitlistGroup():
     group = createWaitlistGroup("assault", "Assaults")
+    if group is None:
+        return
     group.ordering = 1
 
 def createVGWaitlistGroup():
     group = createWaitlistGroup("vanguard", "Vanguards")
+    if group is None:
+        return
     group.ordering = 2
     
 def createWaitlistGroup(groupName, displayName):
+    # lets check if this group exists
+    if db.session.query(WaitlistGroup).filter(WaitlistGroup.groupName == groupName).first() != None:
+        print("Found Group ", groupName)
+        return None
     xuplist = Waitlist(name=WaitlistNames.xup_queue, displayTitle="X-UP")
     logilist = Waitlist(name=WaitlistNames.logi, displayTitle="Logi")
     dpslist = Waitlist(name=WaitlistNames.dps, displayTitle="Dps")
