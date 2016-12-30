@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}Tools - CommandCore List{% endblock %}
+
+{% block head %}
+{% assets filters="babili", output="gen/editablegrid.%(version)s.css", "js/editablegrid.js", "js/editablegrid_utils.js", "js/editablegrid_renderers.js", "js/editablegrid_editors.js" %}
+<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
+{{ super() }}
+		<script>
+		var editableGrid = null;
+			$(document).ready(function() {
+				editableGrid = new EditableGrid("CommandCore", {
+					enableSort: true,
+					pageSize: 10,
+					maxBars: 10
+				}); 
+
+				editableGrid.load({ metadata: [
+					{ name: "Account Name", datatype: "string", editable: false },
+					{ name: "Roles", datatype: "string", editable: false },
+					{ name: "Known Alts", datatype: "string", editable: false }
+				]});
+
+				editableGrid.attachToHTMLTable('commanderlist');
+				editableGrid.renderGrid();
+				$('#filter').on('keyup', function() { editableGrid.filter($('#filter').val()); });
+			});
+			
+		</script>
+{% endblock %}
+
+{% block container_data %}
+<label for="filter">Filter :</label>
+<input type="text" id="filter"/>
+<table class="table" id="commanderlist">
+<thead>
+	<tr>
+		<th>Account Name</th>
+		<th>Roles</th>
+		<th>Known Alts</th>
+	</tr>
+</thead>
+<tbody id="account-table-body">
+	{% for acc in accounts %}
+	<tr id="account-{{acc.id}}"{% if acc.disabled %} class="table-warning"{% endif %}>
+		<td id="acc-{{acc.id}}-name">{{ acc.username }}</td>
+		<td id="acc-{{acc.id}}-roles">{% for role in acc.roles %}{{role.name}}{% if not loop.last %}, {% endif %}{% endfor %}</td>
+		<td>{% for character in acc.characters %}{{character.eve_name}}{% if not loop.last %},{% endif %}{% endfor %}</td>
+	</tr>
+	{% endfor %}
+</tbody>
+</table>
+{% endblock %}
