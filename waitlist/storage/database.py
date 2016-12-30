@@ -269,6 +269,7 @@ class Role(Base):
     
     id = Column(Integer, primary_key=True)
     name = Column(String(50), unique=True)
+    displayName = Column(String(150), unique=False)
     # if this = 1 and some one has this role, he can not login by igb header
     is_restrictive = Column(Integer)
 
@@ -543,4 +544,21 @@ class Setting(Base):
     __tablename__ = "settings"
     key = Column(String(20), primary_key=True)
     value = Column(TEXT)
-    
+
+class RoleHistoryEntry(Base):
+    __tablename__ = "role_history"
+    entryID = Column(Integer, primary_key=True)
+    accountID = Column(Integer, ForeignKey('accounts.id'), nullable=False)
+    byAccountID = Column(Integer, ForeignKey('accounts.id'), nullable=False)
+    note = Column(TEXT, nullable=True)
+    time = Column(DateTime, default=datetime.utcnow, index=True)
+    role_changes = relationship("RoleChangeEntry", back_populates="history_entry", order_by="desc(RoleChangeEntry.added)")
+
+class RoleChangeEntry(Base):
+    __tablename__ = "role_changes"
+    roleChangeID = Column(Integer, primary_key=True)
+    entryID = Column(Integer, ForeignKey('role_history.entryID', onupdate="CASCADE", ondelete="CASCADE"), nullable=False)
+    roleID = Column(Integer, ForeignKey('roles.id', onupdate="CASCADE", ondelete="CASCADE"), nullable=False)
+    added = Column(Boolean, nullable=False)
+    history_entry = relationship("RoleHistoryEntry", back_populates="role_changes")
+    role = relationship('Role')

@@ -2,11 +2,13 @@
 (function () {
 	var sizeRule = null;
 
-	var sheets = document.styleSheets;
+	var sheets = $(document.styleSheets);
 	for (let sheet of sheets) {
 		if (sheet.ownerNode.id === "history-css") {
-			for (let rule of sheet.cssRules) {
-				for (let prop of rule.style) {
+			sheet = $(sheet.cssRules);
+			for (let rule of sheet) {
+				let rule1 = $(rule.style);
+				for (let prop of rule1) {
 					if (prop === "font-size") {
 						sizeRule = rule;
 					}

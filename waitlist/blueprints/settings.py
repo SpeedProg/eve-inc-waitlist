@@ -34,6 +34,7 @@ from waitlist.ts3.connection import change_connection
 from datetime import datetime
 from waitlist.data.sse import StatusChangedSSE, sendServerSentEvent
 from waitlist.utility import config
+from waitlist.signal.signals import sendRolesChanged
 
 bp_settings = Blueprint('settings', __name__)
 logger = logging.getLogger(__name__)
@@ -118,9 +119,13 @@ def fleet():
 @login_required
 @perm_accounts.require(http_exception=401)
 def account_edit():
+    
     acc_id = int(request.form['account_id'])
     acc_name = request.form['account_name']
     acc_pw = request.form['account_pw']
+    
+    note = request.form['change_note'].strip()
+    
     if acc_pw == "":
         acc_pw = None
 
@@ -168,9 +173,11 @@ def account_edit():
         
         # add remaining roles
         if len(roles_new) >0 :
-            new_roles = db.session.query(Role).filter(or_(Role.name == name for name in roles_new))
-            for role in new_roles:
+            new_db_roles = db.session.query(Role).filter(or_(Role.name == name for name in roles_new))
+            for role in new_db_roles:
                 acc.roles.append(role)
+        
+        sendRolesChanged(account_edit, acc.id, current_user.id, [x for x in roles_new], [x.name for x in roles_to_remove], note)
     else:
         # make sure all roles are removed
         roles_to_remove = []
@@ -180,6 +187,8 @@ def account_edit():
         for role in roles_to_remove:
             acc.roles.remove(role)
         db.session.flush()
+        
+        sendRolesChanged(account_edit, acc.id, current_user.id, [x.name for x in roles_to_remove], [], note)
 
     if char_name is not None:
         char_id = get_character_id_from_name(char_name)
