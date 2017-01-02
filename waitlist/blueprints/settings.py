@@ -9,7 +9,7 @@ from flask.globals import request
 from sqlalchemy import or_, asc
 from waitlist.storage.database import Account, Role, Character,\
     linked_chars, Ban, Constellation, IncursionLayout, SolarSystem, Station,\
-    WaitlistEntry, WaitlistGroup, Whitelist, TeamspeakDatum
+    WaitlistEntry, WaitlistGroup, Whitelist, TeamspeakDatum, Shipfit, InvType
 import flask
 from waitlist.data.eve_xml_api import get_character_id_from_name,\
     eve_api_cache_char_ids
@@ -43,7 +43,53 @@ logger = logging.getLogger(__name__)
 @login_required
 @perm_settings.require(http_exception=401)
 def overview():
-    return render_template('settings/overview.html')
+    shipStatsQuery = '''
+SELECT shipType, COUNT(name)
+FROM (
+    SELECT DISTINCT invtypes.typeName AS shipType, characters.eve_name AS name
+    FROM fittings
+    JOIN invtypes ON fittings.ship_type = invtypes.typeID
+    JOIN comp_history_fits ON fittings.id = comp_history_fits.fitID
+    JOIN comp_history ON comp_history_fits.historyID = comp_history.historyID
+    JOIN characters ON comp_history.targetID = characters.id
+    WHERE
+     (
+     comp_history.action = 'comp_mv_xup_etr'
+     OR
+     comp_history.action = 'comp_mv_xup_fit'
+     )
+    AND DATEDIFF(NOW(),comp_history.TIME) < 30
+) AS temp
+GROUP BY shipType
+ORDER BY COUNT(name) DESC
+LIMIT 15;
+    '''
+    
+    approvedFitsByFCQuery = '''
+    SELECT name, COUNT(fitid)
+FROM (
+    SELECT DISTINCT accounts.username AS name, comp_history_fits.id as fitid
+    FROM fittings
+    JOIN invtypes ON fittings.ship_type = invtypes.typeID
+    JOIN comp_history_fits ON fittings.id = comp_history_fits.fitID
+    JOIN comp_history ON comp_history_fits.historyID = comp_history.historyID
+    JOIN accounts ON comp_history.sourceID = accounts.id
+    JOIN characters ON comp_history.targetID = characters.id
+    WHERE
+     (
+     comp_history.action = 'comp_mv_xup_etr'
+     OR
+     comp_history.action = 'comp_mv_xup_fit'
+     )
+    AND DATEDIFF(NOW(),comp_history.TIME) < 30
+) AS temp
+GROUP BY name
+ORDER BY COUNT(fitid) DESC
+LIMIT 15;
+    '''
+    result = db.engine.execute(shipStatsQuery)
+    approvedFitsByFCResult = db.engine.execute(approvedFitsByFCQuery)
+    return render_template('settings/overview.html', shipStats=result, fcStats=approvedFitsByFCResult)
 
 @bp_settings.route("/accounts", methods=["GET", "POST"])
 @login_required
