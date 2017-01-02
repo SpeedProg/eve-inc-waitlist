@@ -1821,13 +1821,18 @@ EditableGrid.prototype.getSlidingPageInterval = function(slidingWindowSize)
 	if (nbPages <= 1) return null;
 
 	var curPageIndex = this.getCurrentPageIndex();
-	var startPageIndex = Math.max(0, curPageIndex - (slidingWindowSize/2));
-	var endPageIndex = Math.min(nbPages, curPageIndex + (slidingWindowSize/2));
+	var startPageIndex = Math.max(0, curPageIndex - Math.floor(slidingWindowSize/2));
+	var endPageIndex = Math.min(nbPages, curPageIndex + Math.floor(slidingWindowSize/2));
 
 	if (endPageIndex - startPageIndex < slidingWindowSize) {
 		var diff = slidingWindowSize - (endPageIndex - startPageIndex);
-		startPageIndex = Math.max(0, startPageIndex - diff);
 		endPageIndex = Math.min(nbPages, endPageIndex + diff);
+		// are we still missing some window part?
+		if (endPageIndex - startPageIndex < slidingWindowSize) {
+			diff = slidingWindowSize - (endPageIndex - startPageIndex);
+			startPageIndex = Math.max(0, startPageIndex - diff);
+		}
+		
 	}
 
 	return { startPageIndex: startPageIndex, endPageIndex: endPageIndex };
