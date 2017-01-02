@@ -2,7 +2,7 @@ EditableGrid.prototype.updatePaginator = function() {
 	var editableGrid = this;
 
 	// get interval
-	var interval = this.getSlidingPageInterval(20);
+	var interval = this.getSlidingPageInterval(this.maxBars);
 	if (interval === null){
 		return;
 	}
@@ -13,11 +13,11 @@ EditableGrid.prototype.updatePaginator = function() {
 			if (isCurrent) {
 				return $($.parseHTML(`<li class="page-item active"><a class="page-link" href="#">${pageIndex}</a></li>`)[0]);
 			}
-			return $($.parseHTML(`<li class="page-item"><a class="page-link" href="#">${pageIndex}</a></li>`)[0].on('click',
+			return $($.parseHTML(`<li class="page-item"><a class="page-link" href="#">${pageIndex}</a></li>`)[0]).on('click',
 				function(){
 					editableGrid.setPageIndex(pageIndex);
 				}
-			));
+			);
 		}
 	);
 
@@ -131,8 +131,8 @@ $(document).ready(function() {
 		"CommandCore",
 		{
 			enableSort: true,
-			pageSize: 20,
-			maxBars: 20
+			pageSize: 10,
+			maxBars: 5
 		},
 		$.parseHTML('<i class="fa fa-arrow-down" aria-hidden="true"></i>')[0],
 		$.parseHTML('<i class="fa fa-arrow-up" aria-hidden="true"></i>')[0]);
