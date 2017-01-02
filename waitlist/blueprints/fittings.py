@@ -327,14 +327,14 @@ def xup_submit():
         # [18:02:07] Bruce Warhead > x  <url=fitting:17740:2048;1:26076;1:17559;1:3186;8:33844;2:19317;1:15895;4:26394;1:14268;1:4349;2:2446;5:29001;1:12787;4888:12791;7368::>VeniVindiVG</url> sdf3>yx <url=fitting:11978:14240;3:1987;1:1447;1:31378;2:14134;2:3608;4:12058;1:4349;1:33706;4:23711;5:29001;3:28668;97::>&gt;.&gt;</url>
         lines = fittings.split('\n')
         for line in lines:
-            fitIter = re.finditer("<url=fitting:(\d+):([\d;:]+)>", line)
+            fitIter = re.finditer("<url=fitting:(\d+):((?:\d+;\d+:)+:)>", line)
             for fitMatch in fitIter:
                 ship_type = int(fitMatch.group(1))
                 dna_fit = fitMatch.group(2)
                 fit = Shipfit()
                 fit.ship_type = ship_type
                 fit.modules = dna_fit
-                fits.append(fit)            
+                fits.append(fit)
         
     fit_count = len(fits)
     
