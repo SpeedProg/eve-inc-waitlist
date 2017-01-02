@@ -3,36 +3,48 @@
 {% block title %}Tools - CommandCore List{% endblock %}
 
 {% block head %}
-{% assets filters="babili", output="gen/editablegrid.%(version)s.css", "js/editablegrid.js", "js/editablegrid_utils.js", "js/editablegrid_renderers.js", "js/editablegrid_editors.js" %}
+{{ super() }}
+{% assets filters="babili", output="gen/eve-ui.%(version)s.js", "js/fitlink.js", "js/eve-ui-config.js" %}
 <script type="text/javascript" src="{{ ASSET_URL }}"></script>
 {% endassets %}
-{{ super() }}
-		<script>
-		var editableGrid = null;
-			$(document).ready(function() {
-				editableGrid = new EditableGrid("CommandCore", {
-					enableSort: true,
-					pageSize: 10,
-					maxBars: 10
-				}); 
-
-				editableGrid.load({ metadata: [
-					{ name: "Account Name", datatype: "string", editable: false },
-					{ name: "Roles", datatype: "string", editable: false },
-					{ name: "Known Alts", datatype: "string", editable: false }
-				]});
-
-				editableGrid.attachToHTMLTable('commanderlist');
-				editableGrid.renderGrid();
-				$('#filter').on('keyup', function() { editableGrid.filter($('#filter').val()); });
-			});
-			
-		</script>
+{% assets filters="babili", output="gen/editablegrid.%(version)s.js", "js/editablegrid/editablegrid.js", "js/editablegrid/editablegrid_utils.js", "js/editablegrid/editablegrid_renderers.js", "js/editablegrid/editablegrid_editors.js", "js/accounts/commandcorelist.js" %}
+<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
 {% endblock %}
 
 {% block container_data %}
-<label for="filter">Filter :</label>
-<input type="text" id="filter"/>
+<div class="input-group">
+<span class="input-group-addon" id="filter-addon">Filter</span>
+<input class="form-control" type="text" id="filter"/>
+</div>
+<nav aria-label="Page navigation">
+	<ul class="pagination" id="paginator">
+		<li class="page-item">
+			<a class="page-link" href="#" aria-label="First">
+				<span aria-hidden="true"><i class="fa fa-angle-double-left"></i></span>
+				<span class="sr-only">First</span>
+			</a>
+		</li>
+		<li class="page-item">
+			<a class="page-link" href="#" aria-label="Previous">
+				<span aria-hidden="true"><i class="fa fa-angle-left"></i></span>
+				<span class="sr-only">Previous</span>
+			</a>
+		</li>
+		<li class="page-item">
+			<a class="page-link" href="#" aria-label="Next">
+				<span aria-hidden="true"><i class="fa fa-angle-right"></i></span>
+				<span class="sr-only">Next</span>
+			</a>
+		</li>
+		<li class="page-item">
+			<a class="page-link" href="#" aria-label="Next">
+				<span aria-hidden="true"><i class="fa fa-angle-double-right"></i></span>
+				<span class="sr-only">Last</span>
+			</a>
+		</li>
+	</ul>
+</nav>
 <table class="table" id="commanderlist">
 <thead>
 	<tr>
