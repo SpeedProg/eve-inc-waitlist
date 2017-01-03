@@ -111,26 +111,22 @@ LIMIT 15;
     result = []
     approvedFitsByFCResult = []
     if hasCacheItem('shipStats'):
-        print("Getting shipStats from cache")
         cacheItem = getCacheItem('shipStats')
         result = cacheItem['data']
     else:
-        print("Executing Query for shipstats")
         db_result = db.engine.execute(shipStatsQuery)
         for row in db_result:
             result.append([str(row[0]), int(row[1])])
         addItemToCache('shipStats', createCacheItem(result, 3600))
 
     if hasCacheItem('approvedFits'):
-        print("Getting Aproved fit stats from cache")
         cacheItem = getCacheItem('approvedFits')
         approvedFitsByFCResult = cacheItem['data']
     else:
-        print("Execiting approved fits query")
         db_result = db.engine.execute(approvedFitsByFCQuery)
         for row in db_result:
             approvedFitsByFCResult.append([str(row[0]), int(row[1])])
-        addItemToCache('approvedFits', createCacheItem(result, 3600))
+        addItemToCache('approvedFits', createCacheItem(approvedFitsByFCResult, 3600))
     return render_template('settings/overview.html', shipStats=result, fcStats=approvedFitsByFCResult)
 
 @bp_settings.route("/accounts", methods=["GET", "POST"])
