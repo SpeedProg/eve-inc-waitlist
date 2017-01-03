@@ -137,7 +137,7 @@ waitlist.listdom = (function(){
 			imgHTML = `<img class="img-32" src="${settings.anno_icon}">`;
 			charHref = '#'; // change the href to not call quies script because we have no id
 		} else {
-			imgHTML = `<img class="img-32" src="//imageserver.eveonline.com/Character/${entry.character.id}_32.jpg">`;
+			imgHTML = `<img class="img-32" src="${eve_image("Character/"+entry.character.id+"_32", "jpg")}">`;
 		}
 		
 		var charRow = $(`<a href="${charHref}"${charInserts}>
@@ -322,7 +322,7 @@ waitlist.listdom = (function(){
         var baseHTML = isDummy ? '<div class="booby-link" ></div>' : '<div class="fit-link" data-title="'+username+'" data-dna="'+fit.shipType+':'+fit.modules+'" data-type="'+fit.wl_type+'"></div>';
 		fitDOM.append($(baseHTML)
 					.append($('<div class="wel-header-32"></div>')
-						.append('<img class="img-32" src="//imageserver.eveonline.com/Render/'+fit.shipType+'_32.png">')
+						.append('<img class="img-32" src="'+eve_image('Render/'+fit.shipType+'_32', 'png')+'">')
 						.append('<div class="wel-container-32">'+textHTML+buttonRowHTML+'</div>'))
 					);
         return fitDOM;
