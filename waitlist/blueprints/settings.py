@@ -9,7 +9,7 @@ from flask.globals import request
 from sqlalchemy import or_, asc
 from waitlist.storage.database import Account, Role, Character,\
     linked_chars, Ban, Constellation, IncursionLayout, SolarSystem, Station,\
-    WaitlistEntry, WaitlistGroup, Whitelist, TeamspeakDatum
+    WaitlistEntry, WaitlistGroup, Whitelist, TeamspeakDatum, Shipfit, InvType
 import flask
 from waitlist.data.eve_xml_api import get_character_id_from_name,\
     eve_api_cache_char_ids
@@ -31,7 +31,7 @@ from waitlist.utility.settings.settings import sget_active_ts_id,\
     sset_active_ts_id, sget_resident_mail, sget_tbadge_mail, sget_resident_topic,\
     sget_tbadge_topic, sget_other_mail, sget_other_topic
 from waitlist.ts3.connection import change_connection
-from datetime import datetime
+from datetime import datetime, timedelta
 from waitlist.data.sse import StatusChangedSSE, sendServerSentEvent
 from waitlist.utility import config
 from waitlist.signal.signals import sendRolesChanged
@@ -39,11 +39,95 @@ from waitlist.signal.signals import sendRolesChanged
 bp_settings = Blueprint('settings', __name__)
 logger = logging.getLogger(__name__)
 
+cache = {};
+
+def createCacheItem(data, expire_in_s):
+    return {'data': data, 'datetime': (datetime.utcnow() + timedelta(seconds=expire_in_s))}
+
+def hasCacheItem(key):
+    if not key in cache:
+        return False
+    
+    if cache[key]['datetime'] < datetime.utcnow():
+        return False
+    return True
+
+def getCacheItem(key):
+    if not key in cache:
+        return None
+    return cache[key]
+
+def addItemToCache(key, item):
+    cache[key] = item
+
 @bp_settings.route("/")
 @login_required
 @perm_settings.require(http_exception=401)
 def overview():
-    return render_template('settings/overview.html')
+    shipStatsQuery = '''
+SELECT shipType, COUNT(name)
+FROM (
+    SELECT DISTINCT invtypes.typeName AS shipType, characters.eve_name AS name
+    FROM fittings
+    JOIN invtypes ON fittings.ship_type = invtypes.typeID
+    JOIN comp_history_fits ON fittings.id = comp_history_fits.fitID
+    JOIN comp_history ON comp_history_fits.historyID = comp_history.historyID
+    JOIN characters ON comp_history.targetID = characters.id
+    WHERE
+     (
+     comp_history.action = 'comp_mv_xup_etr'
+     OR
+     comp_history.action = 'comp_mv_xup_fit'
+     )
+    AND DATEDIFF(NOW(),comp_history.TIME) < 30
+) AS temp
+GROUP BY shipType
+ORDER BY COUNT(name) DESC
+LIMIT 15;
+    '''
+    
+    approvedFitsByFCQuery = '''
+    SELECT name, COUNT(fitid)
+FROM (
+    SELECT DISTINCT accounts.username AS name, comp_history_fits.id as fitid
+    FROM fittings
+    JOIN invtypes ON fittings.ship_type = invtypes.typeID
+    JOIN comp_history_fits ON fittings.id = comp_history_fits.fitID
+    JOIN comp_history ON comp_history_fits.historyID = comp_history.historyID
+    JOIN accounts ON comp_history.sourceID = accounts.id
+    JOIN characters ON comp_history.targetID = characters.id
+    WHERE
+     (
+     comp_history.action = 'comp_mv_xup_etr'
+     OR
+     comp_history.action = 'comp_mv_xup_fit'
+     )
+    AND DATEDIFF(NOW(),comp_history.TIME) < 30
+) AS temp
+GROUP BY name
+ORDER BY COUNT(fitid) DESC
+LIMIT 15;
+    '''
+    result = []
+    approvedFitsByFCResult = []
+    if hasCacheItem('shipStats'):
+        cacheItem = getCacheItem('shipStats')
+        result = cacheItem['data']
+    else:
+        db_result = db.engine.execute(shipStatsQuery)
+        for row in db_result:
+            result.append([str(row[0]), int(row[1])])
+        addItemToCache('shipStats', createCacheItem(result, 3600))
+
+    if hasCacheItem('approvedFits'):
+        cacheItem = getCacheItem('approvedFits')
+        approvedFitsByFCResult = cacheItem['data']
+    else:
+        db_result = db.engine.execute(approvedFitsByFCQuery)
+        for row in db_result:
+            approvedFitsByFCResult.append([str(row[0]), int(row[1])])
+        addItemToCache('approvedFits', createCacheItem(approvedFitsByFCResult, 3600))
+    return render_template('settings/overview.html', shipStats=result, fcStats=approvedFitsByFCResult)
 
 @bp_settings.route("/accounts", methods=["GET", "POST"])
 @login_required

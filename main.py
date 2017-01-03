@@ -9,7 +9,8 @@ from waitlist.utility.settings.settings import sget_insert
 from waitlist.data.names import WTMRoles
 from pycrest.eve import EVE
 from waitlist.utility.settings import settings
-from waitlist.utility.config import crest_client_id, crest_client_secret, crest_return_url
+from waitlist.utility.config import crest_client_id, crest_client_secret, crest_return_url,\
+    cdn_eveimg, cdn_eveimg_js, cdn_eveimg_webp
 from waitlist.data.version import version
 from waitlist.utility.eve_id_utils import get_account_from_db, get_char_from_db,\
     is_char_banned, get_character_by_id_and_name
@@ -99,7 +100,8 @@ def inject_data():
                 is_account=is_account, perm_dev=perm_dev, perm_leadership=perm_leadership,
                 perm_bans=perm_bans, perm_viewfits=perm_viewfits, version=version,
                 perm_comphistory=perm_comphistory, perm_res_mod=perm_mod_mail_resident,
-                perm_t_mod=perm_mod_mail_tbadge, perm_manager=perm_manager, header_insert=header_insert
+                perm_t_mod=perm_mod_mail_tbadge, perm_manager=perm_manager, header_insert=header_insert,
+                eve_proxy_js=cdn_eveimg_js, eve_cdn_webp=cdn_eveimg_webp
                 )
 
 def get_user_type():
@@ -328,6 +330,12 @@ def jinja2_waittime_filter(value):
     currentUTC = datetime.utcnow()
     waitedTime = currentUTC-value
     return str(int(math.floor(waitedTime.total_seconds()/60)))
+
+@app.context_processor
+def eve_image():
+    def _eve_image(path, suffix):
+        return cdn_eveimg.format(path, suffix)
+    return dict(eve_image=_eve_image)
 
 #@werkzeug.serving.run_with_reloader
 def runServer():
