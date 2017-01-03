@@ -1,5 +1,5 @@
 if (typeof _$ == 'undefined') {
-	function _$(elementId) { return document.getElementById(elementId); }
+	var _$ = function(elementId) { return document.getElementById(elementId); }
 }
 
 /**
@@ -106,7 +106,7 @@ function EnumProvider(config)
  * @constructor
  * @class EditableGrid
  */
-function EditableGrid(name, config) { if (name) this.init(name, config); }
+function EditableGrid(name, config, sortDownIndicator, sortUpIndicator) { if (name) this.init(name, config, sortDownIndicator, sortUpIndicator); }
 
 /**
  * Default properties
@@ -127,7 +127,7 @@ EditableGrid.prototype.smartColorsBar = ["#dc243c","#4040f6","#00f629","#efe100"
 EditableGrid.prototype.smartColorsPie = ["#FF0000","#00FF00","#0000FF","#FFD700","#FF00FF","#00FFFF","#800080"];
 EditableGrid.prototype.pageSize = 0;
 
-EditableGrid.prototype.init = function (name, config)
+EditableGrid.prototype.init = function (name, config, sortDownIndicator, sortUpIndicator)
 {
 	if (typeof name != "string" || (typeof config != "object" && typeof config != "undefined")) {
 		alert("The EditableGrid constructor takes two arguments:\n- name (string)\n- config (object)\n\nGot instead " + (typeof name) + " and " + (typeof config) + ".");
@@ -162,10 +162,18 @@ EditableGrid.prototype.init = function (name, config)
 	this.currentTableid = null;
 
 	if (this.enableSort) {
-		this.sortUpImage = new Image();
-		this.sortUpImage.src = this.baseUrl + "/images/bullet_arrow_up.png";
-		this.sortDownImage = new Image();
-		this.sortDownImage.src = this.baseUrl + "/images/bullet_arrow_down.png";
+		if (typeof sortUpIndicator == "undefined") {
+			this.sortUpImage = new Image();
+			this.sortUpImage.src = this.baseUrl + "/images/bullet_arrow_up.png";
+		} else {
+			this.sortUpImage = sortUpIndicator;
+		}
+		if (typeof sortDownIndicator == "undefined") {
+			this.sortDownImage = new Image();
+			this.sortDownImage.src = this.baseUrl + "/images/bullet_arrow_down.png";
+		} else {
+			this.sortDownImage = sortDownIndicator;
+		}
 	}
 };
 
@@ -195,56 +203,54 @@ EditableGrid.prototype.loadXML = function(url)
 	var sep = url.indexOf('?') >= 0 ? '&' : '?'; 
 	url += sep + Math.floor(Math.random() * 100000);
 
-	with (this) {
 
-		// IE
-		if (window.ActiveXObject) 
-		{
-			xmlDoc = new ActiveXObject("Microsoft.XMLDOM");
-			xmlDoc.onreadystatechange = function() {
-				if (xmlDoc.readyState == 4) {
-					processXML();
-					tableLoaded();
-				}
-			};
-			xmlDoc.load(url);
-		}
-
-		// Safari
-		else if (/*Browser.WebKit && */ window.XMLHttpRequest) 
-		{
-			xmlDoc = new XMLHttpRequest();
-			xmlDoc.onreadystatechange = function () {
-				if (this.readyState == 4) {
-					xmlDoc = this.responseXML;
-					if (!xmlDoc) { /* alert("Could not load XML from url '" + orig_url + "'"); */ return false; }
-					processXML();
-					tableLoaded();
-				}
-			};
-			xmlDoc.open("GET", url, true);
-			xmlDoc.send("");
-		}
-
-		// Firefox (and other browsers) 
-		else if (document.implementation && document.implementation.createDocument) 
-		{
-			xmlDoc = document.implementation.createDocument("", "", null);
-			xmlDoc.onload = function() {
-				processXML();
-				tableLoaded();
-			};
-			xmlDoc.load(url);
-		}
-
-		// should never happen
-		else { 
-			alert("Cannot load a XML url with this browser!"); 
-			return false;
-		}
-
-		return true;
+	// IE
+	if (window.ActiveXObject) 
+	{
+		this.xmlDoc = new ActiveXObject("Microsoft.XMLDOM");
+		this.xmlDoc.onreadystatechange = function() {
+			if (this.xmlDoc.readyState == 4) {
+				this.processXML();
+				this.tableLoaded();
+			}
+		};
+		this.xmlDoc.load(url);
 	}
+
+	// Safari
+	else if (/*Browser.WebKit && */ window.XMLHttpRequest) 
+	{
+		this.xmlDoc = new XMLHttpRequest();
+		this.xmlDoc.onreadystatechange = function () {
+			if (this.readyState == 4) {
+				this.xmlDoc = this.responseXML;
+				if (!this.xmlDoc) { /* alert("Could not load XML from url '" + orig_url + "'"); */ return false; }
+				this.processXML();
+				this.tableLoaded();
+			}
+		};
+		this.xmlDoc.open("GET", url, true);
+		this.xmlDoc.send("");
+	}
+
+	// Firefox (and other browsers) 
+	else if (document.implementation && document.implementation.createDocument) 
+	{
+		this.xmlDoc = document.implementation.createDocument("", "", null);
+		this.xmlDoc.onload = function() {
+			this.processXML();
+			this.tableLoaded();
+		};
+		this.xmlDoc.load(url);
+	}
+
+	// should never happen
+	else { 
+		alert("Cannot load a XML url with this browser!"); 
+		return false;
+	}
+
+	return true;
 };
 
 /**
@@ -275,98 +281,95 @@ EditableGrid.prototype.loadXMLFromString = function(xml)
  */
 EditableGrid.prototype.processXML = function()
 {
-	with (this) {
+	// clear model and pointer to current table
+	this.data = [];
+	this.dataUnfiltered = null;
+	this.table = null;
 
-		// clear model and pointer to current table
-		this.data = [];
-		this.dataUnfiltered = null;
-		this.table = null;
+	// load metadata (only one tag <metadata> --> metadata[0])
+	var metadata = this.xmlDoc.getElementsByTagName("metadata");
+	if (metadata && metadata.length >= 1) {
 
-		// load metadata (only one tag <metadata> --> metadata[0])
-		var metadata = xmlDoc.getElementsByTagName("metadata");
-		if (metadata && metadata.length >= 1) {
+		this.columns = [];
+		var columnDeclarations = metadata[0].getElementsByTagName("column");
+		for (var i = 0; i < columnDeclarations.length; i++) {
 
-			this.columns = [];
-			var columnDeclarations = metadata[0].getElementsByTagName("column");
-			for (var i = 0; i < columnDeclarations.length; i++) {
+			// get column type
+			var col = columnDeclarations[i];
+			var datatype = col.getAttribute("datatype");
 
-				// get column type
-				var col = columnDeclarations[i];
-				var datatype = col.getAttribute("datatype");
+			// get enumerated values if any
+			var optionValues = null;
+			var enumValues = col.getElementsByTagName("values");
+			if (enumValues.length > 0) {
+				optionValues = {};
 
-				// get enumerated values if any
-				var optionValues = null;
-				var enumValues = col.getElementsByTagName("values");
-				if (enumValues.length > 0) {
-					optionValues = {};
-
-					var enumGroups = enumValues[0].getElementsByTagName("group");
-					if (enumGroups.length > 0) {
-						for (var g = 0; g < enumGroups.length; g++) {
-							var groupOptionValues = {};
-							enumValues = enumGroups[g].getElementsByTagName("value");
-							for (var v = 0; v < enumValues.length; v++) {
-								groupOptionValues[enumValues[v].getAttribute("value")] = enumValues[v].firstChild ? enumValues[v].firstChild.nodeValue : "";
-							}
-							optionValues[enumGroups[g].getAttribute("label")] = groupOptionValues;
-						}
-					}
-					else {
-						enumValues = enumValues[0].getElementsByTagName("value");
+				var enumGroups = enumValues[0].getElementsByTagName("group");
+				if (enumGroups.length > 0) {
+					for (var g = 0; g < enumGroups.length; g++) {
+						var groupOptionValues = {};
+						enumValues = enumGroups[g].getElementsByTagName("value");
 						for (var v = 0; v < enumValues.length; v++) {
-							optionValues[enumValues[v].getAttribute("value")] = enumValues[v].firstChild ? enumValues[v].firstChild.nodeValue : "";
+							groupOptionValues[enumValues[v].getAttribute("value")] = enumValues[v].firstChild ? enumValues[v].firstChild.nodeValue : "";
 						}
+						optionValues[enumGroups[g].getAttribute("label")] = groupOptionValues;
 					}
 				}
-
-				// create new column           
-				columns.push(new Column({
-					name: col.getAttribute("name"),
-					label: (typeof col.getAttribute("label") == 'string' ? col.getAttribute("label") : col.getAttribute("name")),
-					datatype: (col.getAttribute("datatype") ? col.getAttribute("datatype") : "string"),
-					editable: col.getAttribute("editable") == "true",
-					bar: (col.getAttribute("bar") ? col.getAttribute("bar") == "true" : true),
-					optionValues: optionValues
-				}));
-			}
-
-			// process columns
-			processColumns();
-		}
-
-		// load content
-		var rows = xmlDoc.getElementsByTagName("row");
-		for (var i = 0; i < rows.length; i++) 
-		{
-			// get all defined cell values
-			var cellValues = {};
-			var cols = rows[i].getElementsByTagName("column");
-			for (var j = 0; j < cols.length; j++) {
-				var colname = cols[j].getAttribute("name");
-				if (!colname) {
-					if (j >= columns.length) alert("You defined too many columns for row " + (i+1));
-					else colname = columns[j].name; 
+				else {
+					enumValues = enumValues[0].getElementsByTagName("value");
+					for (var v = 0; v < enumValues.length; v++) {
+						optionValues[enumValues[v].getAttribute("value")] = enumValues[v].firstChild ? enumValues[v].firstChild.nodeValue : "";
+					}
 				}
-				cellValues[colname] = cols[j].firstChild ? cols[j].firstChild.nodeValue : "";
 			}
 
-			// for each row we keep the orginal index, the id and all other attributes that may have been set in the XML
-			var rowData = { visible: true, originalIndex: i, id: rows[i].getAttribute("id") ? rows[i].getAttribute("id") : "" };  
-			for (var attrIndex = 0; attrIndex < rows[i].attributes.length; attrIndex++) {
-				var node = rows[i].attributes.item(attrIndex);
-				if (node.nodeName != "id") rowData[node.nodeName] = node.nodeValue; 
-			}
-
-			// get column values for this rows
-			rowData.columns = [];
-			for (var c = 0; c < columns.length; c++) {
-				var cellValue = columns[c].name in cellValues ? cellValues[columns[c].name] : "";
-				rowData.columns.push(getTypedValue(c, cellValue));
-			}
-
-			// add row data in our model
-			data.push(rowData);
+			// create new column           
+			this.columns.push(new Column({
+				name: col.getAttribute("name"),
+				label: (typeof col.getAttribute("label") == 'string' ? col.getAttribute("label") : col.getAttribute("name")),
+				datatype: (col.getAttribute("datatype") ? col.getAttribute("datatype") : "string"),
+				editable: col.getAttribute("editable") == "true",
+				bar: (col.getAttribute("bar") ? col.getAttribute("bar") == "true" : true),
+				optionValues: optionValues
+			}));
 		}
+
+		// process columns
+		processColumns();
+	}
+
+	// load content
+	var rows = this.xmlDoc.getElementsByTagName("row");
+	for (var i = 0; i < rows.length; i++) 
+	{
+		// get all defined cell values
+		var cellValues = {};
+		var cols = rows[i].getElementsByTagName("column");
+		for (var j = 0; j < cols.length; j++) {
+			var colname = cols[j].getAttribute("name");
+			if (!colname) {
+				if (j >= columns.length) alert("You defined too many columns for row " + (i+1));
+				else colname = columns[j].name; 
+			}
+			cellValues[colname] = cols[j].firstChild ? cols[j].firstChild.nodeValue : "";
+		}
+
+		// for each row we keep the orginal index, the id and all other attributes that may have been set in the XML
+		var rowData = { visible: true, originalIndex: i, id: rows[i].getAttribute("id") ? rows[i].getAttribute("id") : "" };  
+		for (var attrIndex = 0; attrIndex < rows[i].attributes.length; attrIndex++) {
+			var node = rows[i].attributes.item(attrIndex);
+			if (node.nodeName != "id") rowData[node.nodeName] = node.nodeValue; 
+		}
+
+		// get column values for this rows
+		rowData.columns = [];
+		for (var c = 0; c < columns.length; c++) {
+			var cellValue = columns[c].name in cellValues ? cellValues[columns[c].name] : "";
+			rowData.columns.push(getTypedValue(c, cellValue));
+		}
+
+		// add row data in our model
+		this.data.push(rowData);
 	}
 
 	return true;
@@ -389,20 +392,17 @@ EditableGrid.prototype.loadJSON = function(url)
 		return false;
 	}
 
-	with (this) {
+	var ajaxRequest = new XMLHttpRequest();
+	ajaxRequest.onreadystatechange = function () {
+		if (this.readyState == 4) {
+			if (!this.responseText) { /* alert("Could not load JSON from url '" + orig_url + "'"); */ return false; }
+			if (!this.processJSON(this.responseText))  { alert("Invalid JSON data obtained from url '" + orig_url + "'"); return false; }
+			this.tableLoaded();
+		}
+	};
 
-		var ajaxRequest = new XMLHttpRequest();
-		ajaxRequest.onreadystatechange = function () {
-			if (this.readyState == 4) {
-				if (!this.responseText) { /* alert("Could not load JSON from url '" + orig_url + "'"); */ return false; }
-				if (!processJSON(this.responseText))  { alert("Invalid JSON data obtained from url '" + orig_url + "'"); return false; }
-				tableLoaded();
-			}
-		};
-
-		ajaxRequest.open("GET", url, true);
-		ajaxRequest.send("");
-	}
+	ajaxRequest.open("GET", url, true);
+	ajaxRequest.send("");
 
 	return true;
 };
@@ -1362,127 +1362,124 @@ EditableGrid.prototype.getCellY = function(oElement)
  */
 EditableGrid.prototype._rendergrid = function(containerid, className, tableid)
 {
-	with (this) {
+	// if we are already attached to an existing table, just update the cell contents
+	if (typeof this.table != "undefined" && this.table != null) {
 
-		// if we are already attached to an existing table, just update the cell contents
-		if (typeof table != "undefined" && table != null) {
+		var _data = this.dataUnfiltered == null ? this.data : this.dataUnfiltered; 
 
-			var _data = dataUnfiltered == null ? data : dataUnfiltered; 
+		// render headers
+		this._renderHeaders();
 
-			// render headers
-			_renderHeaders();
+		// render content
+		var rows = this.tBody.rows;
+		var skipped = 0;
+		var displayed = 0;
+		var rowIndex = 0;
 
-			// render content
-			var rows = tBody.rows;
-			var skipped = 0;
-			var displayed = 0;
-			var rowIndex = 0;
+		for (var i = 0; i < rows.length; i++) {
 
-			for (var i = 0; i < rows.length; i++) {
-
-				// filtering and pagination in attach mode means hiding rows
-				if (!_data[i].visible || (pageSize > 0 && displayed >= pageSize)) {
+			// filtering and pagination in attach mode means hiding rows
+			if (!_data[i].visible || (this.pageSize > 0 && displayed >= this.pageSize)) {
+				if (rows[i].style.display != 'none') {
+					rows[i].style.display = 'none';
+					rows[i].hidden_by_editablegrid = true;
+				}
+			}
+			else {
+				if (skipped < this.pageSize * this.currentPageIndex) {
+					skipped++; 
 					if (rows[i].style.display != 'none') {
 						rows[i].style.display = 'none';
 						rows[i].hidden_by_editablegrid = true;
 					}
 				}
 				else {
-					if (skipped < pageSize * currentPageIndex) {
-						skipped++; 
-						if (rows[i].style.display != 'none') {
-							rows[i].style.display = 'none';
-							rows[i].hidden_by_editablegrid = true;
-						}
+					displayed++;
+					var rowData = [];
+					var cols = rows[i].cells;
+					if (typeof rows[i].hidden_by_editablegrid != 'undefined' && rows[i].hidden_by_editablegrid) {
+						rows[i].style.display = '';
+						rows[i].hidden_by_editablegrid = false;
 					}
-					else {
-						displayed++;
-						var rowData = [];
-						var cols = rows[i].cells;
-						if (typeof rows[i].hidden_by_editablegrid != 'undefined' && rows[i].hidden_by_editablegrid) {
-							rows[i].style.display = '';
-							rows[i].hidden_by_editablegrid = false;
-						}
-						for (var j = 0; j < cols.length && j < columns.length; j++) 
-							if (columns[j].renderable) columns[j].cellRenderer._render(rowIndex, j, cols[j], getValueAt(rowIndex,j));
-					}
-					rowIndex++;
+					for (var j = 0; j < cols.length && j < this.columns.length; j++) 
+						if (this.columns[j].renderable) this.columns[j].cellRenderer._render(rowIndex, j, cols[j], this.getValueAt(rowIndex,j));
 				}
+				rowIndex++;
 			}
-
-			// attach handler on click or double click 
-			table.editablegrid = this;
-			if (doubleclick) table.ondblclick = function(e) { this.editablegrid.mouseClicked(e); };
-			else table.onclick = function(e) { this.editablegrid.mouseClicked(e); }; 
 		}
 
-		// we must render a whole new table
-		else {
-
-			if (!_$(containerid)) return alert("Unable to get element [" + containerid + "]");
-
-			currentContainerid = containerid;
-			currentClassName = className;
-			currentTableid = tableid;
-
-			var startRowIndex = 0;
-			var endRowIndex = getRowCount();
-
-			// paginate if required
-			if (pageSize > 0) {
-				startRowIndex = currentPageIndex * pageSize;
-				endRowIndex = Math.min(getRowCount(), startRowIndex + pageSize); 
-			}
-
-			// create editablegrid table and add it to our container 
-			this.table = document.createElement("table");
-			table.className = className || "editablegrid";          
-			if (typeof tableid != "undefined") table.id = tableid;
-			while (_$(containerid).hasChildNodes()) _$(containerid).removeChild(_$(containerid).firstChild);
-			_$(containerid).appendChild(table);
-
-			// create header
-			if (caption) {
-				var captionElement = document.createElement("CAPTION");
-				captionElement.innerHTML = this.caption;
-				table.appendChild(captionElement);
-			}
-
-			this.tHead = document.createElement("THEAD");
-			table.appendChild(tHead);
-			var trHeader = tHead.insertRow(0);
-			var columnCount = getColumnCount();
-			for (var c = 0; c < columnCount; c++) {
-				var headerCell = document.createElement("TH");
-				var td = trHeader.appendChild(headerCell);
-				columns[c].headerRenderer._render(-1, c, td, columns[c].label);
-			}
-
-			// create body and rows
-			this.tBody = document.createElement("TBODY");
-			table.appendChild(tBody);
-			var insertRowIndex = 0;
-			for (var i = startRowIndex; i < endRowIndex; i++) {
-				var tr = tBody.insertRow(insertRowIndex++);
-				tr.rowId = data[i]['id'];
-				tr.id = this._getRowDOMId(data[i]['id']);
-				for (j = 0; j < columnCount; j++) {
-
-					// create cell and render its content
-					var td = tr.insertCell(j);
-					columns[j].cellRenderer._render(i, j, td, getValueAt(i,j));
-				}
-			}
-
-			// attach handler on click or double click 
-			_$(containerid).editablegrid = this;
-			if (doubleclick) _$(containerid).ondblclick = function(e) { this.editablegrid.mouseClicked(e); };
-			else _$(containerid).onclick = function(e) { this.editablegrid.mouseClicked(e); }; 
-		}
-
-		// callback
-		tableRendered(containerid, className, tableid);
+		// attach handler on click or double click 
+		this.table.editablegrid = this;
+		if (this.doubleclick) this.table.ondblclick = function(e) { this.editablegrid.mouseClicked(e); };
+		else this.table.onclick = function(e) { this.editablegrid.mouseClicked(e); }; 
 	}
+
+	// we must render a whole new table
+	else {
+
+		if (!_$(containerid)) return alert("Unable to get element [" + containerid + "]");
+
+		this.currentContainerid = containerid;
+		this.currentClassName = className;
+		this.currentTableid = tableid;
+
+		var startRowIndex = 0;
+		var endRowIndex = this.getRowCount();
+
+		// paginate if required
+		if (this.pageSize > 0) {
+			startRowIndex = this.currentPageIndex * this.pageSize;
+			endRowIndex = Math.min(this.getRowCount(), startRowIndex + this.pageSize); 
+		}
+
+		// create editablegrid table and add it to our container 
+		this.table = document.createElement("table");
+		this.table.className = className || "editablegrid";          
+		if (typeof tableid != "undefined") this.table.id = tableid;
+		while (_$(containerid).hasChildNodes()) _$(containerid).removeChild(_$(containerid).firstChild);
+		_$(containerid).appendChild(table);
+
+		// create header
+		if (this.caption) {
+			var captionElement = document.createElement("CAPTION");
+			captionElement.innerHTML = this.caption;
+			this.table.appendChild(captionElement);
+		}
+
+		this.tHead = document.createElement("THEAD");
+		this.table.appendChild(tHead);
+		var trHeader = this.tHead.insertRow(0);
+		var columnCount = this.getColumnCount();
+		for (var c = 0; c < columnCount; c++) {
+			var headerCell = document.createElement("TH");
+			var td = trHeader.appendChild(headerCell);
+			this.columns[c].headerRenderer._render(-1, c, td, columns[c].label);
+		}
+
+		// create body and rows
+		this.tBody = document.createElement("TBODY");
+		this.table.appendChild(tBody);
+		var insertRowIndex = 0;
+		for (var i = startRowIndex; i < endRowIndex; i++) {
+			var tr = this.tBody.insertRow(insertRowIndex++);
+			tr.rowId = this.data[i]['id'];
+			tr.id = this._getRowDOMId(data[i]['id']);
+			for (j = 0; j < columnCount; j++) {
+
+				// create cell and render its content
+				var td = tr.insertCell(j);
+				this.columns[j].cellRenderer._render(i, j, td, this.getValueAt(i,j));
+			}
+		}
+
+		// attach handler on click or double click 
+		_$(containerid).editablegrid = this;
+		if (this.doubleclick) _$(containerid).ondblclick = function(e) { this.editablegrid.mouseClicked(e); };
+		else _$(containerid).onclick = function(e) { this.editablegrid.mouseClicked(e); }; 
+	}
+
+	// callback
+	this.tableRendered(containerid, className, tableid);
 };
 
 
@@ -1533,19 +1530,17 @@ EditableGrid.prototype.refreshGrid = function()
  */
 EditableGrid.prototype._renderHeaders = function() 
 {
-	with (this) {
-		var rows = tHead.rows;
+		var rows = this.tHead.rows;
 		for (var i = 0; i < 1 /*rows.length*/; i++) {
 			var rowData = [];
 			var cols = rows[i].cells;
 			var columnIndexInModel = 0;
-			for (var j = 0; j < cols.length && columnIndexInModel < columns.length; j++) {
-				columns[columnIndexInModel].headerRenderer._render(-1, columnIndexInModel, cols[j], columns[columnIndexInModel].label);
+			for (var j = 0; j < cols.length && columnIndexInModel < this.columns.length; j++) {
+				this.columns[columnIndexInModel].headerRenderer._render(-1, columnIndexInModel, cols[j], this.columns[columnIndexInModel].label);
 				var colspan = parseInt(cols[j].getAttribute("colspan"));
 				columnIndexInModel += colspan > 1 ? colspan : 1;
 			}
 		}
-	}
 };
 
 /**
@@ -1556,41 +1551,38 @@ EditableGrid.prototype._renderHeaders = function()
 EditableGrid.prototype.mouseClicked = function(e) 
 {
 	e = e || window.event;
-	with (this) {
+	// get row and column index from the clicked cell
+	var target = e.target || e.srcElement;
 
-		// get row and column index from the clicked cell
-		var target = e.target || e.srcElement;
+	// go up parents to find a cell or a link under the clicked position
+	while (target) if (target.tagName == "A" || target.tagName == "TD" || target.tagName == "TH") break; else target = target.parentNode;
+	if (!target || !target.parentNode || !target.parentNode.parentNode || (target.parentNode.parentNode.tagName != "TBODY" && target.parentNode.parentNode.tagName != "THEAD") || target.isEditing) return;
 
-		// go up parents to find a cell or a link under the clicked position
-		while (target) if (target.tagName == "A" || target.tagName == "TD" || target.tagName == "TH") break; else target = target.parentNode;
-		if (!target || !target.parentNode || !target.parentNode.parentNode || (target.parentNode.parentNode.tagName != "TBODY" && target.parentNode.parentNode.tagName != "THEAD") || target.isEditing) return;
+	// don't handle clicks on links
+	if (target.tagName == "A") return;
 
-		// don't handle clicks on links
-		if (target.tagName == "A") return;
+	// get cell position in table
+	var rowIndex = this.getRowIndex(target.parentNode);
+	var columnIndex = target.cellIndex;
 
-		// get cell position in table
-		var rowIndex = getRowIndex(target.parentNode);
-		var columnIndex = target.cellIndex;
+	var column = this.columns[columnIndex];
+	if (column) {
 
-		var column = columns[columnIndex];
-		if (column) {
+		// if another row has been selected: callback
+		if (rowIndex > -1 && rowIndex != this.lastSelectedRowIndex) {
+			this.rowSelected(this.lastSelectedRowIndex, rowIndex);				
+			this.lastSelectedRowIndex = rowIndex;
+		}
 
-			// if another row has been selected: callback
-			if (rowIndex > -1 && rowIndex != lastSelectedRowIndex) {
-				rowSelected(lastSelectedRowIndex, rowIndex);				
-				lastSelectedRowIndex = rowIndex;
+		// edit current cell value
+		if (!column.editable) { this.readonlyWarning(column); }
+		else {
+			if (rowIndex < 0) { 
+				if (column.headerEditor && this.isHeaderEditable(rowIndex, columnIndex)) 
+					column.headerEditor.edit(rowIndex, columnIndex, target, column.label);
 			}
-
-			// edit current cell value
-			if (!column.editable) { readonlyWarning(column); }
-			else {
-				if (rowIndex < 0) { 
-					if (column.headerEditor && isHeaderEditable(rowIndex, columnIndex)) 
-						column.headerEditor.edit(rowIndex, columnIndex, target, column.label);
-				}
-				else if (column.cellEditor && isEditable(rowIndex, columnIndex))
-					column.cellEditor.edit(rowIndex, columnIndex, target, getValueAt(rowIndex, columnIndex));
-			}
+			else if (column.cellEditor && this.isEditable(rowIndex, columnIndex))
+				column.cellEditor.edit(rowIndex, columnIndex, target, getValueAt(rowIndex, columnIndex));
 		}
 	}
 };
@@ -1602,71 +1594,68 @@ EditableGrid.prototype.mouseClicked = function(e)
  */
 EditableGrid.prototype.sort = function(columnIndexOrName, descending, backOnFirstPage)
 {
-	with (this) {
+	if (typeof columnIndexOrName  == 'undefined' && this.sortedColumnName === -1) {
 
-		if (typeof columnIndexOrName  == 'undefined' && sortedColumnName === -1) {
-
-			// avoid a double render, but still send the expected callback
-			tableSorted(-1, sortDescending);
-			return true;
-		}
-
-		if (typeof columnIndexOrName  == 'undefined') columnIndexOrName = sortedColumnName;
-		if (typeof descending  == 'undefined') descending = sortDescending;
-
-		localset('sortColumnIndexOrName', columnIndexOrName);
-		localset('sortDescending', descending);
-
-		var columnIndex = columnIndexOrName;
-		if (parseInt(columnIndex, 10) !== -1) {
-			columnIndex = this.getColumnIndex(columnIndexOrName);
-			if (columnIndex < 0) {
-				alert("[sort] Invalid column: " + columnIndexOrName);
-				return false;
-			}
-		}
-
-		if (!enableSort) {
-			tableSorted(columnIndex, descending);
-			return;
-		}
-
-		// work on unfiltered data
-		var filterActive = dataUnfiltered != null; 
-		if (filterActive) data = dataUnfiltered;
-
-		var type = columnIndex < 0 ? "" : getColumnType(columnIndex);
-		var row_array = [];
-		var rowCount = getRowCount();
-		for (var i = 0; i < rowCount - (ignoreLastRow ? 1 : 0); i++) row_array.push([columnIndex < 0 ? null : getDisplayValueAt(i, columnIndex), i, data[i].originalIndex]);
-		row_array.sort(columnIndex < 0 ? unsort :
-			type == "integer" || type == "double" ? sort_numeric :
-				type == "boolean" ? sort_boolean :
-					type == "date" ? sort_date :
-						sort_alpha);
-
-		if (descending) row_array = row_array.reverse();
-		if (ignoreLastRow) row_array.push([columnIndex < 0 ? null : getDisplayValueAt(rowCount - 1, columnIndex), rowCount - 1, data[rowCount - 1].originalIndex]);
-
-		// rebuild data using the new order
-		var _data = data;
-		data = [];
-		for (var i = 0; i < row_array.length; i++) data.push(_data[row_array[i][1]]);
-		delete row_array;
-
-		if (filterActive) {
-
-			// keep only visible rows in data
-			dataUnfiltered = data;
-			data = [];
-			for (var r = 0; r < rowCount; r++) if (dataUnfiltered[r].visible) data.push(dataUnfiltered[r]);
-		}
-
-		// refresh grid (back on first page if sort column has changed) and callback
-		if (backOnFirstPage) setPageIndex(0); else refreshGrid();
-		tableSorted(columnIndex, descending);
+		// avoid a double render, but still send the expected callback
+		this.tableSorted(-1, this.sortDescending);
 		return true;
 	}
+
+	if (typeof columnIndexOrName  == 'undefined') columnIndexOrName = this.sortedColumnName;
+	if (typeof descending  == 'undefined') descending = this.sortDescending;
+
+	this.localset('sortColumnIndexOrName', columnIndexOrName);
+	this.localset('sortDescending', descending);
+
+	var columnIndex = columnIndexOrName;
+	if (parseInt(columnIndex, 10) !== -1) {
+		columnIndex = this.getColumnIndex(columnIndexOrName);
+		if (columnIndex < 0) {
+			alert("[sort] Invalid column: " + columnIndexOrName);
+			return false;
+		}
+	}
+
+	if (!this.enableSort) {
+		this.tableSorted(columnIndex, descending);
+		return;
+	}
+
+	// work on unfiltered data
+	var filterActive = this.dataUnfiltered != null; 
+	if (filterActive) this.data = this.dataUnfiltered;
+
+	var type = columnIndex < 0 ? "" : this.getColumnType(columnIndex);
+	var row_array = [];
+	var rowCount = this.getRowCount();
+	for (var i = 0; i < rowCount - (this.ignoreLastRow ? 1 : 0); i++) row_array.push([columnIndex < 0 ? null : this.getDisplayValueAt(i, columnIndex), i, this.data[i].originalIndex]);
+	row_array.sort(columnIndex < 0 ? this.unsort :
+		this.type == "integer" || this.type == "double" ? this.sort_numeric :
+			this.type == "boolean" ? this.sort_boolean :
+				this.type == "date" ? this.sort_date :
+					this.sort_alpha);
+
+	if (descending) row_array = row_array.reverse();
+	if (this.ignoreLastRow) row_array.push([columnIndex < 0 ? null : this.getDisplayValueAt(rowCount - 1, columnIndex), rowCount - 1, this.data[rowCount - 1].originalIndex]);
+
+	// rebuild data using the new order
+	var _data = this.data;
+	this.data = [];
+	for (var i = 0; i < row_array.length; i++) this.data.push(_data[row_array[i][1]]);
+
+	if (this.filterActive) {
+
+		// keep only visible rows in data
+		this.dataUnfiltered = this.data;
+		this.data = [];
+		for (var r = 0; r < rowCount; r++) if (this.dataUnfiltered[r].visible) this.data.push(this.dataUnfiltered[r]);
+	}
+
+	// refresh grid (back on first page if sort column has changed) and callback
+	if (this.backOnFirstPage) this.setPageIndex(0); else this.refreshGrid();
+	this.tableSorted(columnIndex, descending);
+	return true;
+
 };
 
 
@@ -1676,55 +1665,52 @@ EditableGrid.prototype.sort = function(columnIndexOrName, descending, backOnFirs
  */
 EditableGrid.prototype.filter = function(filterString)
 {
-	with (this) {
-
-		if (typeof filterString != 'undefined') {
-			this.currentFilter = filterString;
-			this.localset('filter', filterString);
-		}
-
-		// un-filter if no or empty filter set
-		if (currentFilter == null || currentFilter == "") {
-			if (dataUnfiltered != null) {
-				data = dataUnfiltered;
-				dataUnfiltered = null;
-				for (var r = 0; r < getRowCount(); r++) data[r].visible = true;
-				setPageIndex(0);
-				tableFiltered();
-			}
-			return;
-		}		
-
-		var words = currentFilter.toLowerCase().split(" ");
-
-		// work on unfiltered data
-		if (dataUnfiltered != null) data = dataUnfiltered;
-
-		var rowCount = getRowCount();
-		var columnCount = getColumnCount();
-		for (var r = 0; r < rowCount; r++) {
-			data[r].visible = true;
-			var rowContent = ""; 
-			for (var c = 0; c < columnCount; c++) rowContent += getDisplayValueAt(r, c) + " ";
-
-			// if row contents does not match one word in the filter, hide the row
-			for (var i = 0; i < words.length; i++) {
-				if (rowContent.toLowerCase().indexOf(words[i]) < 0) {
-					data[r].visible = false;
-					break;
-				}
-			}
-		}
-
-		// keep only visible rows in data
-		dataUnfiltered = data;
-		data = [];
-		for (var r = 0; r < rowCount; r++) if (dataUnfiltered[r].visible) data.push(dataUnfiltered[r]);
-
-		// refresh grid (back on first page) and callback
-		setPageIndex(0);
-		tableFiltered();
+	if (typeof filterString != 'undefined') {
+		this.currentFilter = filterString;
+		this.localset('filter', filterString);
 	}
+
+	// un-filter if no or empty filter set
+	if (this.currentFilter == null || this.currentFilter == "") {
+		if (this.dataUnfiltered != null) {
+			this.data = this.dataUnfiltered;
+			this.dataUnfiltered = null;
+			for (var r = 0; r < this.getRowCount(); r++) this.data[r].visible = true;
+			this.setPageIndex(0);
+			this.tableFiltered();
+		}
+		return;
+	}		
+
+	var words = this.currentFilter.toLowerCase().split(" ");
+
+	// work on unfiltered data
+	if (this.dataUnfiltered != null) this.data = this.dataUnfiltered;
+
+	var rowCount = this.getRowCount();
+	var columnCount = this.getColumnCount();
+	for (var r = 0; r < rowCount; r++) {
+		this.data[r].visible = true;
+		var rowContent = ""; 
+		for (var c = 0; c < columnCount; c++) rowContent += this.getDisplayValueAt(r, c) + " ";
+
+		// if row contents does not match one word in the filter, hide the row
+		for (var i = 0; i < words.length; i++) {
+			if (rowContent.toLowerCase().indexOf(words[i]) < 0) {
+				this.data[r].visible = false;
+				break;
+			}
+		}
+	}
+
+	// keep only visible rows in data
+	this.dataUnfiltered = this.data;
+	this.data = [];
+	for (var r = 0; r < rowCount; r++) if (this.dataUnfiltered[r].visible) this.data.push(this.dataUnfiltered[r]);
+
+	// refresh grid (back on first page) and callback
+	this.setPageIndex(0);
+	this.tableFiltered();
 };
 
 /**
@@ -1835,13 +1821,18 @@ EditableGrid.prototype.getSlidingPageInterval = function(slidingWindowSize)
 	if (nbPages <= 1) return null;
 
 	var curPageIndex = this.getCurrentPageIndex();
-	var startPageIndex = Math.max(0, curPageIndex - (slidingWindowSize/2));
-	var endPageIndex = Math.min(nbPages, curPageIndex + (slidingWindowSize/2));
+	var startPageIndex = Math.max(0, curPageIndex - Math.floor(slidingWindowSize/2));
+	var endPageIndex = Math.min(nbPages, curPageIndex + Math.floor(slidingWindowSize/2));
 
 	if (endPageIndex - startPageIndex < slidingWindowSize) {
 		var diff = slidingWindowSize - (endPageIndex - startPageIndex);
-		startPageIndex = Math.max(0, startPageIndex - diff);
 		endPageIndex = Math.min(nbPages, endPageIndex + diff);
+		// are we still missing some window part?
+		if (endPageIndex - startPageIndex < slidingWindowSize) {
+			diff = slidingWindowSize - (endPageIndex - startPageIndex);
+			startPageIndex = Math.max(0, startPageIndex - diff);
+		}
+		
 	}
 
 	return { startPageIndex: startPageIndex, endPageIndex: endPageIndex };

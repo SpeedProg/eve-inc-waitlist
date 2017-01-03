@@ -156,9 +156,59 @@ waitlist.accounts = (function() {
 		sendMail(charId, topic, mail);
 	}
 	
+	function setUpTable() {
+		var editableGrid = new EditableGrid(
+			"Accounts",
+			{
+				enableSort: true,
+				pageSize: 10,
+				maxBars: 5
+			},
+			$.parseHTML('<i class="fa fa-arrow-down" aria-hidden="true"></i>')[0],
+			$.parseHTML('<i class="fa fa-arrow-up" aria-hidden="true"></i>')[0]);
+
+		editableGrid.load({
+			metadata: [
+				{
+					name: "Actions",
+					datatype: "html",
+					editable: false
+				}, {
+					name: "Account Name",
+					datatype: "string",
+					editable: false
+				}, {
+					name: "Roles",
+					datatype: "string",
+					editable: false
+				}, {
+					name: "Current Char",
+					datatype: "string",
+					editable: false
+				}, {
+					name: "Alts",
+					datatype: "string",
+					editable: false
+				}, {
+					name: "#",
+					datatype: "integer",
+					editable: false
+				}
+			]
+		});
+
+		editableGrid.attachToHTMLTable('acctable');
+		editableGrid.initializeGrid();
+		editableGrid.renderGrid();
+		$('#filter').on('keyup', function() {
+			editableGrid.filter($('#filter').val());
+		});
+	}
+	
 	function init() {
 		noclick();
 		setUpEventhandlers();
+		setUpTable();
 	}
 
 	$(document).ready(init);

@@ -4,6 +4,42 @@
 <meta charset="utf-8">
 <meta name="csrf-token" content="{{csrf_token()}}">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+{# function to resolve links for specific proxy #}
+<script type="text/javascript">
+var eve_image;
+(function createProxFunc() {
+	{% if eve_cdn_webp %}
+	var webPSupport = true;
+	{% else %}
+	var webPSupport = false;
+	{% endif %}
+	console.log("Prox Supports WebP: " + webPSupport);
+	if (webPSupport) {
+		var WebP = new Image();
+		WebP.onload = WebP.onerror = function() {
+			if (WebP.height === 1) {
+				console.log("Browser Supports WebP: True");
+				eve_image = function(path, suffix) {
+					// we just ignore the suffix and ask for webp
+					suffix = "webp"
+					return `{{eve_proxy_js}}`;
+				};
+			} else {
+				console.log("Browser Supports WebP: False");
+				eve_image = function(path, suffix) {
+					return `{{eve_proxy_js}}`;
+				}
+			}
+		};
+	
+		WebP.src = 'data:image/webp;base64,UklGRiQAAABXRUJQVlA4IBgAAAAwAQCdASoBAAEADMDOJaQAA3AA/uuuAAA=';
+	} else {
+		eve_image = function(path, suffix) {
+			return `{{eve_proxy_js}}`;
+		}
+	}
+})();
+</script>
 {% block head %}
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.5/css/bootstrap.min.css" integrity="sha384-AysaV+vQoT3kOAXZkl02PThvDr8HYKPZhNT5h/CXfBThSRXQ6jW5DO2ekP5ViFdi" crossorigin="anonymous">
 {% assets filters="cssmin", output="gen/setup.%(version)s.css", "css/base.css", "css/waitlist.css", "css/font.css" %}
@@ -60,7 +96,7 @@
 	</li>
 	{% if current_user.is_authenticated %}
 	<li class="nav-item">
-		<a class="nav-link" href="{{url_for('logout')}}"><img class="profile-img-32" src="https://imageserver.eveonline.com/Character/{{current_user.get_eve_id()}}_32.jpg"> Logout</a>
+		<a class="nav-link" href="{{url_for('logout')}}"><img class="profile-img-32" src="{{eve_image('Character/'+(current_user.get_eve_id()|string)+'_32', 'jpg')}}"> Logout</a>
 	</li>
 	{% endif %}
 	{% if is_on_wl and is_index %}
