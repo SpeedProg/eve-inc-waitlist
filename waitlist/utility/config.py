@@ -34,6 +34,8 @@ if  not os.path.isfile(os.path.join(".", "config", "config.cfg")):
     config.set("cdn", "cdn_domain", "")
     config.set("cdn", "cdn_assets", "False")
     config.set("cdn", "cdn_https", "False")
+    config.set("cdn", "eve_img_server", "https://imageserver.eveonline.com/{0}.{1}")
+    config.set("cdn", "eve_img_server_webp", "False")
 
     config.add_section("cookies")
     config.set("cookies", "secure_cookies", "False")
@@ -61,6 +63,9 @@ secure_cookies = config.get("cookies", "secure_cookies") == "True"
 cdn_https = config.get("cdn", "cdn_https") == "True"
 cdn_domain = config.get("cdn", "cdn_domain")
 cdn_assets = config.get("cdn", "cdn_assets") == "True"
+cdn_eveimg = config.get("cdn", "eve_img_server")
+cdn_eveimg_webp = config.get("cdn", "eve_img_server_webp") == "True"
+
 html_min = not debug_enabled
 assets_debug = debug_enabled
 sqlalchemy_pool_recycle = config.getint("database", "sqlalchemy_pool_recycle")
@@ -81,3 +86,4 @@ motd_vg = config.get("motd", "vg")
 
 scramble_names = config.get("security", "scramble_names") == "True"
 
+cdn_eveimg_js = cdn_eveimg.format("${ path }", "${ suffix }")
