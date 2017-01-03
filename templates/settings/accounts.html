@@ -22,9 +22,12 @@
 <script type="text/javascript" src="{{ ASSET_URL }}"></script>
 {% endassets %}
 
-<script type="text/javascript">
-
-</script>
+{% assets filters="babili", output="gen/editablegrid.%(version)s.js", "js/editablegrid/editablegrid.js", "js/editablegrid/editablegrid_utils.js", "js/editablegrid/editablegrid_renderers.js", "js/editablegrid/editablegrid_editors.js", "js/editablegrid/editablegrid_validators.js", "js/editablegrid/editablegrid_paginator.js" %}
+<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
+{% assets filters="babili", output="gen/acc-cc-list.%(version)s.js", "js/accounts/settings-accounts.js" %}
+<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
 {% endblock %}
 
 {% block content %}
@@ -41,16 +44,47 @@
 <div class="btn-group" role="group" aria-label="Account Actions">
 	<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal-account-create">New Account</button>
 </div>
-<table class="table">
+<div class="input-group">
+<span class="input-group-addon" id="filter-addon">Filter</span>
+<input class="form-control" type="text" id="filter"/>
+</div>
+<nav aria-label="Page navigation">
+	<ul class="pagination" id="paginator">
+		<li class="page-item">
+			<a class="page-link" href="#" aria-label="First">
+				<span aria-hidden="true"><i class="fa fa-angle-double-left"></i></span>
+				<span class="sr-only">First</span>
+			</a>
+		</li>
+		<li class="page-item">
+			<a class="page-link" href="#" aria-label="Previous">
+				<span aria-hidden="true"><i class="fa fa-angle-left"></i></span>
+				<span class="sr-only">Previous</span>
+			</a>
+		</li>
+		<li class="page-item">
+			<a class="page-link" href="#" aria-label="Next">
+				<span aria-hidden="true"><i class="fa fa-angle-right"></i></span>
+				<span class="sr-only">Next</span>
+			</a>
+		</li>
+		<li class="page-item">
+			<a class="page-link" href="#" aria-label="Next">
+				<span aria-hidden="true"><i class="fa fa-angle-double-right"></i></span>
+				<span class="sr-only">Last</span>
+			</a>
+		</li>
+	</ul>
+</nav>
+<table id="acctable" class="table">
 <thead>
 	<tr>
 		<th>Actions</th>
 		<th>Account Name</th>
 		<th>Roles</th>
 		<th>Current Char</th>
-		<th>Login Token</th>
-		<th>Associated Characters</th>
-		<th>Email</th>
+		<th>Alts</th>
+		{# <th>Email</th> #}
 		<th>#</th>
 	</tr>
 </thead>
@@ -76,9 +110,8 @@
 		<td id="acc-{{acc.id}}-name">{{ acc.username }}</td>
 		<td id="acc-{{acc.id}}-roles">{% for role in acc.roles %}{{role.name}}{% if not loop.last %}, {% endif %}{% endfor %}</td>
 		<td id="acc-{{acc.id}}-cchar">{{ acc.current_char_obj.eve_name }}</td>
-		<td><a class="noclick" href="/tokenauth?token={{acc.login_token|safe}}">Auth Link</a></td>
 		<td>{% for character in acc.characters %}{{character.eve_name}}{% if not loop.last %},{% endif %}{% endfor %}</td>
-		<td id="acc-{{acc.id}}-email">{% if acc.email is not none %}{{ acc.email }}{% endif %}</td>
+		{# <td id="acc-{{acc.id}}-email">{% if acc.email is not none %}{{ acc.email }}{% endif %}</td> #}
 		<td id="acc-{{acc.id}}-id">{{ acc.id }}</td>
 	</tr>
 	{% endfor %}

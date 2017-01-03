@@ -31,13 +31,34 @@ from waitlist.utility.settings.settings import sget_active_ts_id,\
     sset_active_ts_id, sget_resident_mail, sget_tbadge_mail, sget_resident_topic,\
     sget_tbadge_topic, sget_other_mail, sget_other_topic
 from waitlist.ts3.connection import change_connection
-from datetime import datetime
+from datetime import datetime, timedelta
 from waitlist.data.sse import StatusChangedSSE, sendServerSentEvent
 from waitlist.utility import config
 from waitlist.signal.signals import sendRolesChanged
 
 bp_settings = Blueprint('settings', __name__)
 logger = logging.getLogger(__name__)
+
+cache = {};
+
+def createCacheItem(data, expire_in_s):
+    return {'data': data, 'datetime': (datetime.utcnow() + timedelta(seconds=expire_in_s))}
+
+def hasCacheItem(key):
+    if not key in cache:
+        return False
+    
+    if cache[key]['datetime'] < datetime.utcnow():
+        return False
+    return True
+
+def getCacheItem(key):
+    if not key in cache:
+        return None
+    return cache[key]
+
+def addItemToCache(key, item):
+    cache[key] = item
 
 @bp_settings.route("/")
 @login_required
@@ -87,8 +108,29 @@ GROUP BY name
 ORDER BY COUNT(fitid) DESC
 LIMIT 15;
     '''
-    result = db.engine.execute(shipStatsQuery)
-    approvedFitsByFCResult = db.engine.execute(approvedFitsByFCQuery)
+    result = []
+    approvedFitsByFCResult = []
+    if hasCacheItem('shipStats'):
+        print("Getting shipStats from cache")
+        cacheItem = getCacheItem('shipStats')
+        result = cacheItem['data']
+    else:
+        print("Executing Query for shipstats")
+        db_result = db.engine.execute(shipStatsQuery)
+        for row in db_result:
+            result.append([str(row[0]), int(row[1])])
+        addItemToCache('shipStats', createCacheItem(result, 3600))
+
+    if hasCacheItem('approvedFits'):
+        print("Getting Aproved fit stats from cache")
+        cacheItem = getCacheItem('approvedFits')
+        approvedFitsByFCResult = cacheItem['data']
+    else:
+        print("Execiting approved fits query")
+        db_result = db.engine.execute(approvedFitsByFCQuery)
+        for row in db_result:
+            approvedFitsByFCResult.append([str(row[0]), int(row[1])])
+        addItemToCache('approvedFits', createCacheItem(result, 3600))
     return render_template('settings/overview.html', shipStats=result, fcStats=approvedFitsByFCResult)
 
 @bp_settings.route("/accounts", methods=["GET", "POST"])
