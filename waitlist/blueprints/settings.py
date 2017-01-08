@@ -929,7 +929,7 @@ def clear_waitlist(gid):
 
 @bp_settings.route("/accounts/import/accounts", methods=["POST"])
 @login_required
-@perm_officer.require(http_exception=401)
+@perm_leadership.require(http_exception=401)
 def accounts_import_accounts():
     f = request.files['file']
     if f and (f.filename.rsplit('.', 1)[1] == "bz2" or f.filename.rsplit('.', 1)[1] == "csv"):
