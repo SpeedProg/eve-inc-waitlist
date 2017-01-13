@@ -5,36 +5,9 @@ from sqlalchemy.orm import relationship
 from multiprocessing import Process, JoinableQueue
 base_path = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(base_path, 'lib'))
-from waitlist.storage.database import Base, Shipfit, InvType
+from waitlist.storage.database import Base, Shipfit, InvType, FitModule
 from waitlist.base import db, manager
 
-class FitModule(Base):
-    __tablename__ = 'fit_module'
-    fitID = Column(Integer, ForeignKey('split_fittings.id'), primary_key=True, nullable=False)
-    moduleID = Column(Integer, ForeignKey('invtypes.typeID'), primary_key=True, nullable=False)
-    amount = Column(Integer, default=1)
-    module = relationship('InvType')
-
-class SplitShipFit(Base):
-    """
-    Represents a single fit
-    """
-    __tablename__ = "split_fittings"
-    
-    id = Column(Integer, primary_key=True)
-    ship_type = Column(Integer, ForeignKey("invtypes.typeID"))
-    comment = Column(String(5000))
-    wl_type = Column(String(10))
-    created = Column(DateTime, default=datetime.utcnow)
-    
-    ship = relationship("InvType")
-    modules = relationship('FitModule')
-    
-    #def get_dna(self):
-    #    return "{0}:{1}".format(self.ship_type, self.modules)
-    
-    def __repr__(self):
-        return "<Shipfit id={0} ship_type={1} modules={2} comment={3} waitlist={4}>".format(self.id, self.ship_type, self.modules, self.comment, self.waitlist.id)
 
 if __name__ == '___main__':
     manager.run()
@@ -55,9 +28,8 @@ class ConvertConsumer(Process):
     def convert(self, offset, limit):
         fits = db.session.query(Shipfit).limit(limit).offset(offset).all()
         for fit in fits:
-            dbFit = SplitShipFit(id=fit.id, ship_type=fit.ship_type, comment=fit.comment, wl_type=fit.wl_type, created=fit.created)
-            dbFit.waitlist = fit.waitlist
-            if (fit.modules != None):
+            if (fit.modules != None and fit.modules != ''):
+                filtered_modules_string = ''
                 for moduleDefStr in fit.modules.split(':'):
                     if (moduleDefStr == ''):
                         continue
@@ -70,20 +42,30 @@ class ConvertConsumer(Process):
                         # lets check here if that module exists
                         moduleDefArr[0] = int(moduleDefArr[0])
                         moduleDefArr[1] = int(moduleDefArr[1])
+                        if moduleDefArr[1] > 2147483647 or moduleDefArr[1] < 0:
+                            moduleDefArr[1] = 2147483647
+                        
                         module = db.session.query(InvType).get(moduleDefArr[0])
                         if (module == None):
-                            print("No Module with ID=", module.typeID)
+                            print("No Module with ID=", str(moduleDefArr[0]))
+                            continue
+                        
                         dbModule = FitModule(moduleID=moduleDefArr[0], amount=moduleDefArr[1])
-                        dbFit.modules.append(dbModule)
+                        fit.moduleslist.append(dbModule)
+                        filtered_modules_string += str(moduleDefArr[0])+';'+str(moduleDefArr[1])+':'
                     except ValueError as e:
-                        print("Fit ID=", fit.id, " Module Def Str:", moduleDefStr)
+                        print("Fit ID=", str(fit.id), " Module Def Str:", moduleDefStr)
                         raise e
                     except IndexError as ie:
-                        print("Fit ID=", fit.id, " Module Def Str:", moduleDefStr)
+                        print("Fit ID=", str(fit.id), " Module Def Str:", moduleDefStr)
                         raise ie
-                    
-            
-            db.session.add(dbFit)
+                
+                if filtered_modules_string == '' or filtered_modules_string == '::':
+                    filtered_modules_string = ':'
+                else:
+                    filtered_modules_string += ':'
+                if fit.modules != filtered_modules_string:
+                    fit.modules = filtered_modules_string
         
         db.session.commit()
         db.session.close()
