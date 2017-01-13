@@ -5,7 +5,7 @@ from waitlist.data.perm import perm_management, perm_dev, perm_officer,\
 from flask_login import login_required, current_user
 from flask.globals import request
 from waitlist.storage.database import WaitlistEntry, Shipfit, Waitlist,\
-    Character, InvType, MarketGroup, HistoryEntry, WaitlistGroup
+    Character, InvType, MarketGroup, HistoryEntry, WaitlistGroup, FitModule
 import re
 from waitlist.storage.modules import resist_ships, logi_ships,\
     sniper_ships, t3c_ships, sniper_weapons, dps_weapons, dps_ships,\
@@ -249,6 +249,7 @@ def xup_submit():
             fit = Shipfit()
             fit.ship_type = 1##System >.>
             fit.wl_type = stype
+            fit.modules = ':'
             wl_entry.fittings.append(fit)
             if not _newEntryCreated:
                 _newFits.append(fit)
@@ -318,8 +319,11 @@ def xup_submit():
         
     
         for fit in string_fits:
-            parsed_fit = parseEft(fit)
-            fits.append(parsed_fit)
+            try:
+                dbfit = parseEft(fit)
+            except ValueError:
+                flask.abort(code=400, message="Invalid module amounts")
+            fits.append(dbfit)
     
     else:
         # parse chat links
@@ -334,6 +338,17 @@ def xup_submit():
                 fit = Shipfit()
                 fit.ship_type = ship_type
                 fit.modules = dna_fit
+                mod_map = create_mod_map(dna_fit)
+                for modid in mod_map:
+                    mod = mod_map[modid]
+                    
+                    # lets check the value actually exists
+                    module = db.session.query(InvType).get(mod[0])
+                    if (module == None):
+                        raise ValueError('No module with ID='+str(mod[0]))
+                    
+                    dbModule = FitModule(moduleID=mod[0], amount=mod[1])
+                    fit.moduleslist.append(dbModule)
                 fits.append(fit)
         
     fit_count = len(fits)
@@ -384,7 +399,10 @@ def xup_submit():
     
     # split his fits into types for the different waitlist_entries
     for fit in fits:
-        mod_map = create_mod_map(fit.modules)
+        try:
+            mod_map = create_mod_map(fit.modules)
+        except ValueError:
+            flask.abort(code=400, message="Invalid module amounts")
         # check that ship is an allowed ship
         
         # it is a logi put on logi wl

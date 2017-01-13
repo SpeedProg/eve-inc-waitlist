@@ -347,6 +347,8 @@ class Shipfit(Base):
     ship = relationship("InvType")
     waitlist = relationship("WaitlistEntry", secondary="waitlist_entry_fits", uselist=False)
     
+    moduleslist = relationship("FitModule", back_populates="fit")
+    
     def get_dna(self):
         return "{0}:{1}".format(self.ship_type, self.modules)
     
@@ -562,3 +564,11 @@ class RoleChangeEntry(Base):
     added = Column(Boolean, nullable=False)
     history_entry = relationship("RoleHistoryEntry", back_populates="role_changes")
     role = relationship('Role')
+
+class FitModule(Base):
+    __tablename__ = 'fit_module'
+    fitID = Column(Integer, ForeignKey('fittings.id'), primary_key=True, nullable=False)
+    moduleID = Column(Integer, ForeignKey('invtypes.typeID'), primary_key=True, nullable=False)
+    amount = Column(Integer, default=1)
+    module = relationship('InvType')
+    fit = relationship('Shipfit')
