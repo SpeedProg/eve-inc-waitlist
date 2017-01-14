@@ -19,7 +19,8 @@ def create_dna_string(mod_map):
     for mod_id in mod_map:
         mod = mod_map[mod_id]
         dna += str(mod[0]) + ";" + str(mod[1]) + ":"
-    
+    if dna == "": # if there is no module
+        return ":"
     return dna+":" # dna always needs to end with 2 colons
 
 # map looks like this mod_map = {mod_id:[mod_id,mod_count],...}
@@ -33,8 +34,10 @@ def create_mod_map(dna_string):
         mod_id = int(parts[0])
         if len(parts) > 1:
             mod_count = int(parts[1])
+            if mod_count > 2147483647 or mod_count < 0:
+                raise ValueError("Mod amount is out of range of signed int")
         else:
-            mod_count = 0
+            raise ValueError("Mod did not contain an amount")
         mod_map[mod_id] = [mod_id, mod_count]
     
     return mod_map
