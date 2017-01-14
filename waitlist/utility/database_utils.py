@@ -1,8 +1,9 @@
-from waitlist.storage.database import Shipfit
+from waitlist.storage.database import Shipfit, InvType, FitModule
 from waitlist.utility.eve_id_utils import get_item_id
 import logging
 import re
 from waitlist.utility.utils import create_dna_string
+from waitlist.base import db
 
 logger = logging.getLogger(__name__)
 
@@ -59,5 +60,21 @@ def parseEft(lines):
             
             mod_entry[1] += mod_amount
         
+        for modid in mod_map:
+            mod = mod_map[modid]
+            # lets set amounts to max signed int, because it is not really imporant
+            # some one was manually making those values up anyway
+            if mod[1] > 2147483647 or mod[1] < 0:
+                mod[1] = 2147483647
+            
+            # lets check the value actually exists
+            module = db.session.query(InvType).get(mod[0])
+            if (module == None):
+                raise ValueError('No module with ID='+str(mod[0]))
+            
+            dbModule = FitModule(moduleID=mod[0], amount=mod[1])
+            fit.moduleslist.append(dbModule)
+        
         fit.modules = create_dna_string(mod_map)
+
         return fit

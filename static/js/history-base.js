@@ -94,10 +94,14 @@ waitlist.history.base = (function() {
 	}
 	
 	function createFittingDOM(fit) {
+		var comment = "";
+		if (fit.comment !== null) {
+			comment = " " + $.parseHTML(fit.comment)[0].textContent;
+		}
 		if (fit.ship_type === 1) {
-			return $.parseHTML(`<a href="#" class="booby-link">${fit.shipName}</a>`);
+			return $.parseHTML(`<a href="#" class="booby-link">${fit.shipName}${comment}</a>`);
 		} else {
-			return $.parseHTML(`<a href="#" class="fit-link" data-dna="${fit.shipType+':'+fit.modules}">${fit.shipName}</a>`);
+			return $.parseHTML(`<a href="#" class="fit-link" data-dna="${fit.shipType+':'+fit.modules}">${fit.shipName}${comment}</a>`);
 		}
 	}
 	

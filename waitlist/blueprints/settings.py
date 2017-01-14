@@ -102,33 +102,80 @@ FROM (
      OR
      comp_history.action = 'comp_mv_xup_fit'
      )
-    AND DATEDIFF(NOW(),comp_history.TIME) < 30
+    AND DATEDIFF(NOW(),comp_history.TIME) < 7
 ) AS temp
 GROUP BY name
 ORDER BY COUNT(fitid) DESC
 LIMIT 15;
     '''
+    
+    shipStats1DayQuery = '''
+    SELECT shipType, COUNT(name)
+FROM (
+    SELECT DISTINCT invtypes.typeName AS shipType, characters.eve_name AS name
+    FROM fittings
+    JOIN invtypes ON fittings.ship_type = invtypes.typeID
+    JOIN comp_history_fits ON fittings.id = comp_history_fits.fitID
+    JOIN comp_history ON comp_history_fits.historyID = comp_history.historyID
+    JOIN characters ON comp_history.targetID = characters.id
+    WHERE
+     (
+     comp_history.action = 'comp_mv_xup_etr'
+     OR
+     comp_history.action = 'comp_mv_xup_fit'
+     )
+    AND TIMESTAMPDIFF(HOUR, comp_history.time, NOW()) < 24
+) AS temp
+GROUP BY shipType
+ORDER BY COUNT(name) DESC
+LIMIT 15;
+    '''
+    
+    shipStats15Days = getQueryResult('shipStats', shipStatsQuery, 2, 3600)
+    approvedFitsByFCResult = getQueryResult('approvedFits30Days', approvedFitsByFCQuery, 2, 3600)
+    shipStats1Day = getQueryResult('shipStats1Day', shipStats1DayQuery, 2, 3600)
+    
+    stats = [
+        createTableCellRow(
+            createTableCellData('Top 15 approved distinct Hull/Character combinations last 30 days', ['Hull', 'Amount'], shipStats15Days),
+            createTableCellData('15 Most Active Command Core Members over last 7days', ['Account Name', 'Amount'], approvedFitsByFCResult, [False, True])
+            ),
+        createTableCellRow(
+            createTableCellData('Top 15 approved distinct Hull/Character combination last 24 hours', ['Hull', 'Amount'], shipStats1Day),
+            createTableCellData('If you have ideas for other stats, use the feedback function.', [], [], [])
+            )
+        ]
+    
+    return render_template('settings/overview.html', stats=stats)
+
+def createTableCellRow(left, right):
+    return (left, right)
+
+def createTableCellData(desc, column_names, data, hide_rows=[]):
+    if len(data) >= 1 and len(data[0]) != len(column_names):
+        raise ValueError("len(column_names) != len(data[0])")
+    if len(hide_rows) == 0:
+        print("Generating default hiding list")
+        hide_rows = [False for _ in xrange(len(column_names))]
+    elif len(hide_rows) != len(column_names):
+        raise ValueError("When hide_rows is specified it needs to be of the same length as the defined columns")
+    
+    return (desc, column_names, data, hide_rows)
+
+def getQueryResult(name, query, columnCount, cacheTimeSeconds):
     result = []
-    approvedFitsByFCResult = []
-    if hasCacheItem('shipStats'):
-        cacheItem = getCacheItem('shipStats')
+    if hasCacheItem(name):
+        cacheItem = getCacheItem(name)
         result = cacheItem['data']
     else:
-        db_result = db.engine.execute(shipStatsQuery)
+        db_result = db.engine.execute(query)
         for row in db_result:
-            result.append([str(row[0]), int(row[1])])
-        addItemToCache('shipStats', createCacheItem(result, 3600))
-
-    if hasCacheItem('approvedFits'):
-        cacheItem = getCacheItem('approvedFits')
-        approvedFitsByFCResult = cacheItem['data']
-    else:
-        db_result = db.engine.execute(approvedFitsByFCQuery)
-        for row in db_result:
-            approvedFitsByFCResult.append([str(row[0]), int(row[1])])
-        addItemToCache('approvedFits', createCacheItem(approvedFitsByFCResult, 3600))
-    return render_template('settings/overview.html', shipStats=result, fcStats=approvedFitsByFCResult)
-
+            rowList = []
+            for idx in xrange(0, columnCount):
+                rowList.append(row[idx])
+            result.append(rowList)
+        addItemToCache(name, createCacheItem(result, cacheTimeSeconds))
+    return result
 @bp_settings.route("/accounts", methods=["GET", "POST"])
 @login_required
 @perm_accounts.require(http_exception=401)
@@ -882,7 +929,7 @@ def clear_waitlist(gid):
 
 @bp_settings.route("/accounts/import/accounts", methods=["POST"])
 @login_required
-@perm_officer.require(http_exception=401)
+@perm_leadership.require(http_exception=401)
 def accounts_import_accounts():
     f = request.files['file']
     if f and (f.filename.rsplit('.', 1)[1] == "bz2" or f.filename.rsplit('.', 1)[1] == "csv"):
