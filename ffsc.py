@@ -1,11 +1,8 @@
 import os, sys
-from sqlalchemy import Column, Integer, ForeignKey, String, DateTime
-from datetime import datetime
-from sqlalchemy.orm import relationship
 from multiprocessing import Process, JoinableQueue
 base_path = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(base_path, 'lib'))
-from waitlist.storage.database import Base, Shipfit, InvType, FitModule
+from waitlist.storage.database import Shipfit, InvType, FitModule
 from waitlist.base import db, manager
 
 
