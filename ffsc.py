@@ -84,3 +84,4 @@ if __name__ == '__main__':
     
     # send them all the signal to break
     for _ in range(6):
+        task_queue.put(None)
