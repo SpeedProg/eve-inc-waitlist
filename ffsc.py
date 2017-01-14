@@ -62,6 +62,7 @@ class ConvertConsumer(Process):
                 else:
                     filtered_modules_string += ':'
                 if fit.modules != filtered_modules_string:
+                    print("Correcting: ", fit.modules, " -> ", filtered_modules_string)
                     fit.modules = filtered_modules_string
         
         db.session.commit()
