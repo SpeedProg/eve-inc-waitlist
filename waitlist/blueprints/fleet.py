@@ -21,6 +21,8 @@ from datetime import datetime
 from datetime import timedelta
 import requests
 import base64
+import json
+from waitlist.utility.json.fleetdata import FleetMemberEncoder
 
 bp = Blueprint('fleet', __name__)
 logger = logging.getLogger(__name__)
@@ -244,8 +246,13 @@ def setup(fleet_id):
 def print_fleet(fleetid):
     cachedMembers = member_info.get_cache_data(fleetid)
     if (cachedMembers == None):
-        return "No cached info"
-    return str(cachedMembers)
+        crestFleet = db.session.query(CrestFleet).get(fleetid)
+        members = member_info.get_fleet_members(fleetid, crestFleet.comp)
+        if (members == None):
+            return "No cached or new info"
+        
+        return json.dumps(members, cls=FleetMemberEncoder)
+    return json.dumps(cachedMembers, cls=FleetMemberEncoder)
 
 @bp.route("/take", methods=['GET'])
 @login_required
