@@ -366,7 +366,7 @@ if __name__ == '__main__':
     waitlistlogger.addHandler(err_fh)
     waitlistlogger.addHandler(info_fh)
     waitlistlogger.addHandler(debug_fh)
-    waitlistlogger.setLevel(logging.DEBUG)
+    waitlistlogger.setLevel(logging.INFO)
 
     app.logger.addHandler(err_fh)
     app.logger.addHandler(info_fh)
