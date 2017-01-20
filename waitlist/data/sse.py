@@ -42,16 +42,16 @@ class Subscription(object):
         return self.options['shouldGetFits']
     
     def acceptsEvent(self, event):
-        logger.info("Should we accept "+event.__class__.__name__)
+        logger.debug("Should we accept "+event.__class__.__name__)
         if event.__class__ in self.events:
-            logger.info("Event is in configured events")
+            logger.debug("Event is in configured events")
             if event.accepts(self):
-                logger.info("Event should go to this subscription")
+                logger.debug("Event should go to this subscription")
                 return True
             else:
-                logger.info("Event should not go to this subscription")
+                logger.debug("Event should not go to this subscription")
         else:
-            logger.info("Event is not configured in this subscription")
+            logger.debug("Event is not configured in this subscription")
         return False
     
     def get(self):
@@ -91,7 +91,7 @@ class ServerSentEvent(object):
 
     def encode(self):
         if not self.data:
-            logger.info("No Data Set")
+            logger.debug("No Data Set")
             return ""
 
         lines = ["%s: %s" % (k, self.getValue(v)) 
@@ -168,10 +168,10 @@ class EntryAddedSSE(ServerSentEvent):
         self.jsonWOFits = ServerSentEvent.encode(self)
     
     def accepts(self, subscription):
-        logger.info("EntryAddedSSE")
-        logger.info("Should GetFit: "+str(subscription.getShouldGetFits()))
-        logger.info("UserIds "+str(subscription.getUserId())+"="+str(self.userId))
-        logger.info("IDs Same "+str(subscription.getUserId() == self.userId))
+        logger.debug("EntryAddedSSE")
+        logger.debug("Should GetFit: "+str(subscription.getShouldGetFits()))
+        logger.debug("UserIds "+str(subscription.getUserId())+"="+str(self.userId))
+        logger.debug("IDs Same "+str(subscription.getUserId() == self.userId))
         return subscription.getWaitlistGroupId() == self.groupId
     
     def encode(self, sub):
