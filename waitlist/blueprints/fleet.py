@@ -10,7 +10,7 @@ from waitlist.utility.config import crest_client_id, crest_client_secret
 from pycrest.eve import AuthedConnectionB
 from flask.helpers import url_for
 from flask.templating import render_template
-from flask.globals import request, session
+from flask.globals import request, session, current_app
 import re
 import flask
 from waitlist.utility.fleet import get_wings, member_info
@@ -250,9 +250,9 @@ def print_fleet(fleetid):
         members = member_info.get_fleet_members(fleetid, crestFleet.comp)
         if (members == None):
             return "No cached or new info"
-        
-        return json.dumps(members, cls=FleetMemberEncoder)
-    return json.dumps(cachedMembers, cls=FleetMemberEncoder)
+        cachedMembers = members
+    return current_app.response_class(json.dumps(cachedMembers,
+        indent=None if request.is_xhr else 2, cls=FleetMemberEncoder), mimetype='application/json')
 
 @bp.route("/take", methods=['GET'])
 @login_required

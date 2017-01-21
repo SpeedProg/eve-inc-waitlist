@@ -270,6 +270,12 @@ def logout():
 
     return render_template("logout.html")
 
+@app.route('/spy')
+@login_required
+@perm_dev.require(http_exception=404)
+def spy():
+    return render_template("settings/fleetspy/spy.html")
+
 @identity_loaded.connect_via(app)
 def on_identity_loaded(sender, identity):
     # Set the identity user object
