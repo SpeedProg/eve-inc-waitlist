@@ -718,7 +718,7 @@ waitlist.listdom = (function(){
 				}
 			}
 		} else {
-			statusDiv.html('This waitlist is currently closed however there might be <a href="/" id="status-link">anothers</a> open!');
+			statusDiv.html('This waitlist is currently closed however there might be <a href="/" id="status-link">another</a> open!');
 			$('#status-link').on('click', function (e) {
 				e.stopPropagation();
 			});
