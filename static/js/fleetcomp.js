@@ -13,6 +13,8 @@ waitlist.fleetcomp = (function() {
 
 	var showInfo = waitlist.IGBW.showInfo;
 
+	var lastInviteSent = [];
+	
 	/**
 	 * Sends out a notification
 	 * 
@@ -189,7 +191,14 @@ waitlist.fleetcomp = (function() {
 		var charId = target.attr('data-characterid');
 		var wlId = target.attr('data-wlId');
 		var groupId = target.attr('data-groupId');
-		invitePlayer(charId, wlId, groupId);
+		if (canSendInvite(charId)) {
+			invitePlayer(charId, wlId, groupId);
+		} else {
+			let charEntry = target.closest('li[id|="entry"]');
+			let username = charEntry.attr('data-username');
+			let waitTimeLeft = Math.ceil(getTimeToNextInvite(charId)/1000);
+			displayMessage(`You can not invite ${username} again, yet. Please wait ${waitTimeLeft} seconds.`, 'warning');
+		}
 	}
 
 	function removePlayerHandler(event) {
@@ -197,6 +206,30 @@ waitlist.fleetcomp = (function() {
 		var charId = target.attr('data-characterid');
 		var groupId = target.attr('data-groupId');
 		removePlayer(charId, groupId);
+	}
+	
+	
+	function getTimeToNextInvite(charID) {
+		const msBetweenInvites = 30000;
+		let lastTime = lastInviteSent[charID];
+		return msBetweenInvites - (new Date()-lastTime);
+	}
+	
+	/**
+	 * Checks if you are allowed to send an invite to this person,
+	 * you can only send one per 30s
+	 */
+	function canSendInvite(charID) {
+		if (charID in lastInviteSent) {
+			if (getTimeToNextInvite(charID) <= 0) {
+				lastInviteSent[charID] = new Date();
+				return true;
+			}
+			return false;
+		} else {
+			lastInviteSent[charID] = new Date();
+			return true;
+		}
 	}
 
 	function openCharInfoHandler(event) {
