@@ -35,6 +35,9 @@ from datetime import datetime, timedelta
 from waitlist.data.sse import StatusChangedSSE, sendServerSentEvent
 from waitlist.utility import config
 from waitlist.signal.signals import sendRolesChanged
+from waitlist.permissions import perm_manager
+from flask.wrappers import Response
+from sqlalchemy.orm import joinedload
 
 bp_settings = Blueprint('settings', __name__)
 logger = logging.getLogger(__name__)
@@ -1239,6 +1242,25 @@ def fleet_status_global_set():
         should_scrable = not (request.form.get('scramble', 'off') == 'off')
         config.scramble_names = should_scrable
     return "OK"
+
+@bp_settings.route('/accounts/downloadlist/cvs')
+@login_required
+@perm_manager.require('leadership')
+def accounts_download_csv():
+    def iter_accs(data):
+        for account in data:
+            for ci, char in enumerate(account.characters):
+                if ci > 0:
+                    yield ", " + char.eve_name
+                else:
+                    yield char.eve_name
+            yield '\n'
+
+    accounts = db.session.query(Account).options(joinedload('characters')).join(Account.roles).filter(((Role.name == WTMRoles.fc) | (Role.name == WTMRoles.lm)) & (Account.disabled == False)).order_by(Account.username).all()
+
+    response = Response(iter_accs(accounts), mimetype='text/csv')
+    response.headers['Content-Disposition'] = 'attachment; filename=accounts.csv'
+    return response
 
 '''
 @bp_settings.route("/api/account/", methods=["POST"])
