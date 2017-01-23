@@ -555,6 +555,8 @@ class RoleHistoryEntry(Base):
     note = Column(TEXT, nullable=True)
     time = Column(DateTime, default=datetime.utcnow, index=True)
     role_changes = relationship("RoleChangeEntry", back_populates="history_entry", order_by="desc(RoleChangeEntry.added)")
+    by = relationship('Account', foreign_keys=[byAccountID])
+    account = relationship('Account', foreign_keys=[accountID])
 
 class RoleChangeEntry(Base):
     __tablename__ = "role_changes"
