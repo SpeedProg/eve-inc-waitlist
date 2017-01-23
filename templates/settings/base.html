@@ -6,7 +6,7 @@
 {{ super() }}
 {% endblock %}
 
-{% block data %}
+{% block container_data %}
 {% set nav = [
 	('settings.overview', 'Overview', true),
 	('settings.fleet', 'Fleet Settings', perm_man.can()),
@@ -21,23 +21,25 @@
 	('feedback.settings', 'Feedback', perm_feedback.can()),
 	('settings.sde_settings', 'Static Data Import', perm_dev.can())
 ] -%}
-<div class="col-sm-3 col-md-2 sidebar" id="sidebar">
-	<ul class="nav nav-pills nav-stacked">
-	{% for endpoint, name, perm in nav %}
-	{% if perm %}
-	<li class="nav-item">
-		<a class="nav-link {% if request.endpoint == endpoint %}active{% endif %}" href="{{url_for(endpoint)}}">{{name}}</a>
-	</li>
-	{% endif %}
-	{% endfor %}
-	</ul>
-</div>
-<div class="col-sm-9 col-md-10 content" id="main">
-{% block raw_content %}
 <div class="row">
-{% block content %}<p> Please select something on the left side </p>{% endblock %}
+	<div class="col-sm-3 col-md-2 sidebar" id="sidebar">
+		<ul class="nav nav-pills nav-stacked">
+		{% for endpoint, name, perm in nav %}
+		{% if perm %}
+		<li class="nav-item">
+			<a class="nav-link {% if request.endpoint == endpoint %}active{% endif %}" href="{{url_for(endpoint)}}">{{name}}</a>
+		</li>
+		{% endif %}
+		{% endfor %}
+		</ul>
+	</div>
+	<div class="col-sm-9 col-md-10 content" id="main">
+	{% block raw_content %}
+	<div class="row">
+	{% block content %}<p> Please select something on the left side </p>{% endblock %}
+	</div>
+	{% endblock %}
 </div>
-{% endblock %}
 <div class="row" id="footer">
 &copy; Copyright 2016+ by <a href="char:91495852">Bruce Warhead</a>.
 </div>
