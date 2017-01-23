@@ -175,7 +175,7 @@ waitlist.accounts = (function() {
 					editable: false
 				}, {
 					name: "Account Name",
-					datatype: "string",
+					datatype: "html",
 					editable: false
 				}, {
 					name: "Roles",

@@ -56,7 +56,7 @@ from waitlist.blueprints.api.openwindow import bp as bp_openwindow
 from waitlist.blueprints.api.sse import bp as bp_sse
 from waitlist.blueprints.api.waitlist import bp as bp_waitlists
 from waitlist.blueprints.accounts.commandcore import bp as bp_commandcore
-
+from waitlist.blueprints.accounts.profile import bp as bp_profile
 # needs to he here so signal handler gets registered
 from waitlist.signal.handler import roles_changed
 
@@ -78,6 +78,7 @@ app.register_blueprint(bp_openwindow, url_prefix="/api/ui/openwindow")
 app.register_blueprint(bp_sse, url_prefix="/api/sse")
 app.register_blueprint(bp_waitlists, url_prefix="/api/public/waitlists")
 app.register_blueprint(bp_commandcore, url_prefix="/accounts/cc")
+app.register_blueprint(bp_profile, url_prefix="/accounts/profile")
 
 logger = logging.getLogger(__name__)
 

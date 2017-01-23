@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}Account - Profile - {{account.username}}{% endblock %}
+
+{% block head %}
+	{{super()}}
+{% endblock %}
+
+{% block data %}
+<h4>Profile of {{account.username}}</h4>
+<table class="table">
+	<thead>
+		<tr>
+			<th>#</th>
+			<th>Date Time</th>
+			<th>Noted By</th>
+			<th>Note</th>
+			<th>Role Changes</th>
+		</tr>
+	</thead>
+	<tbody>
+		{% if notes is not none %}
+		{% for note in notes %}
+		<tr>
+			<td>{{note.entryID}}</td>
+			<td>{{note.time}}</td>
+			<td>{{note.by.username}}</td>
+			<td>{{note.note}}</td>
+			<td>{% for rolechange in note.role_changes %}{%if rolechange.added%}+{% else %}-{% endif %}{{rolechange.role.displayName}}{%if not loop.last %}, {% endif %}{% endfor %}</td>
+		</tr>
+		{% endfor %}
+		{% endif %}
+	</tbody>
+</table>
+{% endblock %}
