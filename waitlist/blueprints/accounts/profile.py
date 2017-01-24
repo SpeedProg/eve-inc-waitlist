@@ -3,7 +3,7 @@ from flask.blueprints import Blueprint
 from waitlist.permissions import perm_manager
 from flask_login import login_required, current_user
 from waitlist.base import db
-from waitlist.storage.database import Account, RoleHistoryEntry
+from waitlist.storage.database import Account, AccountNote
 from flask.templating import render_template
 import flask
 from flask.globals import request
@@ -21,7 +21,7 @@ def profile(accountid):
         flask.abort(404, "Account not found!")
     notes = None
     if perm_manager.getPermission("officer").can():
-        notes = db.session.query(RoleHistoryEntry).filter(RoleHistoryEntry.accountID == accountid).all();
+        notes = db.session.query(AccountNote).filter(AccountNote.accountID == accountid).all();
     return render_template('account/profile.html', account=account, notes=notes)
 
 @bp.route("/byname/<path:username>", methods=["GET"])
@@ -33,7 +33,7 @@ def profile_by_name(username):
         flask.abort(404, "Account not found!")
     notes = None
     if perm_manager.getPermission('view_notes').can():
-        notes = db.session.query(RoleHistoryEntry).filter(RoleHistoryEntry.accountID == account.id).all();
+        notes = db.session.query(AccountNote).filter(AccountNote.accountID == account.id).all();
     return render_template('account/profile.html', account=account, notes=notes)
 
 @bp.route('/<int:accountid>/notes/add', methods=['POST'])
@@ -42,7 +42,7 @@ def profile_by_name(username):
 def notes_add(accountid):
     note = request.form['note']
     restriction_level = int(request.form['restriction_level'])
-    historyEntry = RoleHistoryEntry(accountID=accountid, byAccountID=current_user.id, note=note, restriction_level=restriction_level)
+    historyEntry = AccountNote(accountID=accountid, byAccountID=current_user.id, note=note, restriction_level=restriction_level)
     db.session.add(historyEntry)
     db.session.commit()
     return redirect(url_for('.profile', accountid=accountid))

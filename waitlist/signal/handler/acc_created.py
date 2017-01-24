@@ -1,12 +1,12 @@
-from waitlist.storage.database import RoleHistoryEntry, RoleChangeEntry#
+from waitlist.storage.database import RoleChangeEntry#
 from waitlist.base import db
-from waitlist.storage.database import Role
+from waitlist.storage.database import Role, AccountNote
 from sqlalchemy.sql.expression import or_
 from waitlist.signal.signals import account_created_sig
 
 @account_created_sig.connect
 def onAccountCreated(sender, accountID, createdByID, roles, note):
-    historyEntry = RoleHistoryEntry(accountID=accountID, byAccountID=createdByID, note=note)
+    historyEntry = AccountNote(accountID=accountID, byAccountID=createdByID, note=note)
     if len(roles) > 0:
         db_roles = db.session.query(Role).filter(or_(Role.name == name for name in roles)).all()
         for role in db_roles:
