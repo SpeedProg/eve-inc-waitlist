@@ -34,7 +34,7 @@ from waitlist.ts3.connection import change_connection
 from datetime import datetime, timedelta
 from waitlist.data.sse import StatusChangedSSE, sendServerSentEvent
 from waitlist.utility import config
-from waitlist.signal.signals import sendRolesChanged
+from waitlist.signal.signals import sendRolesChanged, sendAccountCreated
 from waitlist.permissions import perm_manager
 from flask.wrappers import Response
 from sqlalchemy.orm import joinedload
@@ -197,6 +197,8 @@ def accounts():
         char_name = request.form['default_char_name']
         char_name = char_name.strip()
         
+        note = request.form['change_note'].strip()
+        
         char_id = get_character_id_from_name(char_name)
         if char_id == 0:
             flash("This Character does not exist!")
@@ -229,17 +231,17 @@ def accounts():
             acc.current_char = char_id
             
             db.session.commit()
-    
+            sendAccountCreated(accounts, acc.id, current_user.id, acc_roles, 'Creating account. ' + note)
 
     roles = db.session.query(Role).order_by(Role.name).all();
-    accounts = db.session.query(Account).order_by(asc(Account.disabled)).order_by(Account.username).all()
+    accs = db.session.query(Account).order_by(asc(Account.disabled)).order_by(Account.username).all()
     mails = {
              'resident': [sget_resident_mail(), sget_resident_topic()],
              'tbadge': [sget_tbadge_mail(), sget_tbadge_topic()],
              'other': [sget_other_mail(), sget_other_topic()]
              }
 
-    return render_template("settings/accounts.html", roles=roles, accounts=accounts, mails=mails)
+    return render_template("settings/accounts.html", roles=roles, accounts=accs, mails=mails)
 
 @bp_settings.route('/fmangement')
 @login_required

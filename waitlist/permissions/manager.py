@@ -16,6 +16,9 @@ class PermissionManager():
         self.__addPermission('fullcommander', Permission(RoleNeed(WTMRoles.fc), RoleNeed(WTMRoles.lm)))
         self.__addPermission('commandcore', self.permissions['trainee'].union(self.permissions['fullcommander']))
         self.__addPermission('account_notes', self.permissions['officer'].union(self.permissions['leadership']))
+        self.__addPermission('view_profile', self.getPermission('council'))
+        self.__addPermission('add_notes', self.getPermission('council'))
+        self.__addPermission('view_notes', self.getPermission('council').union(self.getPermission('add_notes')))
 
     def __addPermission(self, name, perm):
         self.permissions[name] = self.permissions['admin'].union(perm)
