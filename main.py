@@ -58,7 +58,7 @@ from waitlist.blueprints.api.waitlist import bp as bp_waitlists
 from waitlist.blueprints.accounts.commandcore import bp as bp_commandcore
 from waitlist.blueprints.accounts.profile import bp as bp_profile
 # needs to he here so signal handler gets registered
-from waitlist.signal.handler import roles_changed
+from waitlist.signal.handler import acc_created, roles_changed
 
 app.register_blueprint(bp_waitlist)
 app.register_blueprint(bp_settings, url_prefix='/settings')
