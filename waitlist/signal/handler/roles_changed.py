@@ -1,4 +1,4 @@
-from waitlist.storage.database import RoleHistoryEntry, RoleChangeEntry#
+from waitlist.storage.database import AccountNote, RoleChangeEntry#
 from waitlist.base import db
 from waitlist.storage.database import Role
 from sqlalchemy.sql.expression import or_
@@ -8,7 +8,7 @@ from waitlist.signal.signals import roles_changed_sig
 def onRolesChanged(sender, toID, byID, added_roles, removed_roles, note):
     if (len(added_roles) <= 0 and len(removed_roles) <= 0 and note == ""):
         return
-    historyEntry = RoleHistoryEntry(accountID=toID, byAccountID=byID, note=note)
+    historyEntry = AccountNote(accountID=toID, byAccountID=byID, note=note)
     if len(added_roles) > 0:
         db_roles = db.session.query(Role).filter(or_(Role.name == name for name in added_roles)).all()
         for role in db_roles:

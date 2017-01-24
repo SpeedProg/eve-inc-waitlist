@@ -547,8 +547,8 @@ class Setting(Base):
     key = Column(String(20), primary_key=True)
     value = Column(TEXT)
 
-class RoleHistoryEntry(Base):
-    __tablename__ = "role_history"
+class AccountNote(Base):
+    __tablename__ = "account_notes"
     entryID = Column(Integer, primary_key=True)
     accountID = Column(Integer, ForeignKey('accounts.id'), nullable=False)
     byAccountID = Column(Integer, ForeignKey('accounts.id'), nullable=False)
@@ -556,17 +556,17 @@ class RoleHistoryEntry(Base):
     time = Column(DateTime, default=datetime.utcnow, index=True)
     restriction_level = Column(SmallInteger, default=50, nullable=False, server_default=text('50'))
     
-    role_changes = relationship("RoleChangeEntry", back_populates="history_entry", order_by="desc(RoleChangeEntry.added)")
+    role_changes = relationship("RoleChangeEntry", back_populates="note", order_by="desc(RoleChangeEntry.added)")
     by = relationship('Account', foreign_keys=[byAccountID])
     account = relationship('Account', foreign_keys=[accountID])
 
 class RoleChangeEntry(Base):
     __tablename__ = "role_changes"
     roleChangeID = Column(Integer, primary_key=True)
-    entryID = Column(Integer, ForeignKey('role_history.entryID', onupdate="CASCADE", ondelete="CASCADE"), nullable=False)
+    entryID = Column(Integer, ForeignKey('account_notes.entryID', onupdate="CASCADE", ondelete="CASCADE"), nullable=False)
     roleID = Column(Integer, ForeignKey('roles.id', onupdate="CASCADE", ondelete="CASCADE"), nullable=False)
     added = Column(Boolean, nullable=False)
-    history_entry = relationship("RoleHistoryEntry", back_populates="role_changes")
+    note = relationship("AccountNote", back_populates="role_changes")
     role = relationship('Role')
 
 class FitModule(Base):
