@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, String, SmallInteger, BIGINT, Boolean, DateTime, Index,\
-    sql, BigInteger
+    sql, BigInteger, text
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.sql.schema import Table, ForeignKey
 from sqlalchemy.dialects.mysql.base import LONGTEXT, TEXT
@@ -554,6 +554,8 @@ class RoleHistoryEntry(Base):
     byAccountID = Column(Integer, ForeignKey('accounts.id'), nullable=False)
     note = Column(TEXT, nullable=True)
     time = Column(DateTime, default=datetime.utcnow, index=True)
+    restriction_level = Column(SmallInteger, default=50, nullable=False, server_default=text('50'))
+    
     role_changes = relationship("RoleChangeEntry", back_populates="history_entry", order_by="desc(RoleChangeEntry.added)")
     by = relationship('Account', foreign_keys=[byAccountID])
     account = relationship('Account', foreign_keys=[accountID])
