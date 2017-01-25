@@ -52,8 +52,27 @@ fmanager = Table("fleetmanager",
                  Base.metadata,
                  Column("accountID", Integer, ForeignKey('accounts.id', ondelete="CASCADE")),
                  Column("groupID", Integer, ForeignKey('waitlist_groups.groupID', ondelete="CASCADE"))
-            )
+            )    
 
+token_scope = Table(
+    'TokenScope', Base.metadata,
+    Column('tokenID', Integer, ForeignKey('SSOToken.accountID'), primary_key=True),
+    Column('scopeID', Integer, ForeignKey('EveApiScope.scopeID'), primary_key=True)
+)
+
+class EveApiScope(Base):
+    __tablename__ = 'EveApiScope'
+    scopeID = Column(Integer, primary_key=True)
+    scopeName = Column(String(100), index=True)
+
+class SSOToken(Base):
+    __tablename__ = 'SSOToken'
+    accountID = Column(Integer, ForeignKey('accounts.id'), primary_key=True)
+    refresh_token = Column(String(128), default=None)
+    access_token = Column(String(128), default=None)
+    access_token_expires = Column(DateTime, default=datetime.utcnow)
+
+    scopes = relationship('EveApiScope', secondary='TokenScope')
 class Station(Base):
     __tablename__ = "station"
     stationID = Column(Integer, primary_key=True)
@@ -111,10 +130,11 @@ class Account(Base):
     email = Column(String(100), unique=True)
     login_token = Column(String(16), unique=True)
     disabled = Column(Boolean, default=False, server_default=sql.expression.false())
+    '''
     refresh_token = Column(String(128), default=None)
     access_token = Column(String(128), default=None)
     access_token_expires = Column(DateTime, default=datetime.utcnow)
-
+    '''
     roles = relationship('Role', secondary=roles,
                          backref=backref('account_roles'))
     characters = relationship('Character', secondary=linked_chars,
@@ -122,6 +142,8 @@ class Account(Base):
     current_char_obj = relationship('Character')
 
     fleet = relationship('CrestFleet', uselist=False, back_populates="comp")
+    
+    ssoToken = relationship('SSOToken', uselist=False)
     
     @property
     def lc_level(self):

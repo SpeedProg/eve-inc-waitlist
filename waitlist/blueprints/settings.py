@@ -401,9 +401,7 @@ def account_self_edit():
             db.session.flush()
             if acc.current_char != char_id:
                 # remove all the access tokens
-                acc.refresh_token = None
-                acc.access_token = None
-                acc.access_token_expires = datetime.utcnow()
+                acc.ssoToken = None
                 acc.current_char = char_id
     
     db.session.commit()
