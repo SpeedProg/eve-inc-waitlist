@@ -12,7 +12,7 @@ from waitlist.storage.database import Account, Role, Character,\
     WaitlistEntry, WaitlistGroup, Whitelist, TeamspeakDatum, Shipfit, InvType
 import flask
 from waitlist.data.eve_xml_api import get_character_id_from_name,\
-    eve_api_cache_char_ids
+    eve_api_cache_char_ids, get_char_info_for_character
 from werkzeug.utils import redirect, secure_filename
 from flask.helpers import url_for, flash
 from waitlist.utility.utils import get_random_token, get_info_from_ban
@@ -335,8 +335,10 @@ def account_edit():
             character = db.session.query(Character).filter(Character.id == char_id).first()
         
             if character is None:
+                # lets make sure we have the correct name (case)
+                char_info = get_char_info_for_character(char_id)
                 character = Character()
-                character.eve_name = char_name
+                character.eve_name = char_info.characterName
                 character.id = char_id
     
             # check if character is linked to this account
