@@ -11,7 +11,7 @@ from waitlist.utility.config import crest_client_id, crest_client_secret
 from pycrest.eve import AuthedConnectionB
 from flask.helpers import url_for
 from flask.templating import render_template
-from flask.globals import request, session
+from flask.globals import request, session, current_app
 import re
 import flask
 from waitlist.utility.fleet import get_wings, member_info
@@ -23,6 +23,8 @@ from datetime import timedelta
 import requests
 import base64
 from sqlalchemy import or_
+import json
+from waitlist.utility.json.fleetdata import FleetMemberEncoder
 
 bp = Blueprint('fleet', __name__)
 logger = logging.getLogger(__name__)
@@ -262,8 +264,13 @@ def setup(fleet_id):
 def print_fleet(fleetid):
     cachedMembers = member_info.get_cache_data(fleetid)
     if (cachedMembers == None):
-        return "No cached info"
-    return str(cachedMembers)
+        crestFleet = db.session.query(CrestFleet).get(fleetid)
+        members = member_info.get_fleet_members(fleetid, crestFleet.comp)
+        if (members == None):
+            return "No cached or new info"
+        cachedMembers = members
+    return current_app.response_class(json.dumps(cachedMembers,
+        indent=None if request.is_xhr else 2, cls=FleetMemberEncoder), mimetype='application/json')
 
 @bp.route("/take", methods=['GET'])
 @login_required
