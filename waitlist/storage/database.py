@@ -127,8 +127,6 @@ class Account(Base):
     id = Column(Integer, primary_key=True)
     current_char = Column(Integer, ForeignKey("characters.id"))
     username = Column(String(100), unique=True)# login name
-    password = Column(String(100))
-    email = Column(String(100), unique=True)
     login_token = Column(String(16), unique=True)
     disabled = Column(Boolean, default=False, server_default=sql.expression.false())
     had_welcome_mail = Column(Boolean, default=False, server_default=sql.expression.false())
@@ -185,10 +183,10 @@ class Account(Base):
         self.current_char_obj.poke_me = value
     
     # check if password matches
-    def password_match(self, pwd):
-        if bcrypt.hashpw(self.pwd, self.password) == self.password:
-            return True
-        return False
+    #def password_match(self, pwd):
+    #    if bcrypt.hashpw(self.pwd, self.password) == self.password:
+    #       return True
+    #   return False
     
     def token_match(self, token):
         if self.login_token == token:
@@ -204,8 +202,8 @@ class Account(Base):
     def get_id(self):
         return unicode("acc"+unicode(self.id))
     
-    def set_password(self, pwd):
-        self.password = bcrypt.hashpw(pwd, bcrypt.gensalt())
+    #def set_password(self, pwd):
+    #    self.password = bcrypt.hashpw(pwd, bcrypt.gensalt())
     
     def __repr__(self):
         return '<Account %r>' % (self.username)

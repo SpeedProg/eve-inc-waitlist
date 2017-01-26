@@ -185,14 +185,8 @@ def getQueryResult(name, query, columnCount, cacheTimeSeconds):
 def accounts():
     if request.method == "POST":
         acc_name = request.form['account_name']
-        acc_pw = request.form['account_pw']
-        if acc_pw == "":
-            acc_pw = None
 
         acc_roles = request.form.getlist('account_roles')
-        acc_email = request.form['account_email']
-        if acc_email == "":
-            acc_email = None
 
         char_name = request.form['default_char_name']
         char_name = char_name.strip()
@@ -205,10 +199,9 @@ def accounts():
         else:
             acc = Account()
             acc.username = acc_name
-            if acc_pw is not None:
-                acc.set_password(acc_pw.encode('utf-8'))
+
             acc.login_token = get_random_token(16)
-            acc.email = acc_email
+
             if len(acc_roles) > 0:
                 db_roles = db.session.query(Role).filter(or_(Role.name == name for name in acc_roles)).all()
                 for role in db_roles:
@@ -259,17 +252,10 @@ def account_edit():
     
     acc_id = int(request.form['account_id'])
     acc_name = request.form['account_name']
-    acc_pw = request.form['account_pw']
     
     note = request.form['change_note'].strip()
-    
-    if acc_pw == "":
-        acc_pw = None
 
     acc_roles = request.form.getlist('account_roles')
-    acc_email = request.form['account_email']
-    if acc_email == "":
-        acc_email = None
 
     char_name = request.form['default_char_name']
     char_name = char_name.strip()
@@ -282,11 +268,6 @@ def account_edit():
     
     if (acc.username != acc_name):
         acc.username = acc_name
-    if acc_pw is not None:
-        acc.set_password(acc_pw.encode('utf-8'))
-    #acc.login_token = get_random_token(64)
-    if acc_email is not None:
-        acc.email = acc_email
         
     # if there are roles, add new ones, remove the ones that aren't there
     if len(acc_roles) > 0:
@@ -358,13 +339,6 @@ def account_edit():
 @perm_settings.require(http_exception=401)
 def account_self_edit():
     acc_id = current_user.id
-    acc_pw = request.form['account_pw']
-    if acc_pw == "":
-        acc_pw = None
-
-    acc_email = request.form['account_email']
-    if acc_email == "":
-        acc_email = None
 
     char_name = request.form['default_char_name']
     char_name = char_name.strip()
@@ -374,12 +348,6 @@ def account_self_edit():
     acc = db.session.query(Account).filter(Account.id == acc_id).first();
     if acc == None:
         return flask.abort(400)
-
-    if acc_pw is not None:
-        acc.set_password(acc_pw.encode('utf-8'))
-    #acc.login_token = get_random_token(64)
-    if acc_email is not None:
-        acc.email = acc_email
 
     if char_name is not None:
         char_id = get_character_id_from_name(char_name)
