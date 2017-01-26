@@ -55,24 +55,25 @@ fmanager = Table("fleetmanager",
             )    
 
 token_scope = Table(
-    'TokenScope', Base.metadata,
-    Column('tokenID', Integer, ForeignKey('SSOToken.accountID'), primary_key=True),
-    Column('scopeID', Integer, ForeignKey('EveApiScope.scopeID'), primary_key=True)
+    'tokenscope', Base.metadata,
+    Column('tokenID', Integer, ForeignKey('ssotoken.accountID'), primary_key=True),
+    Column('scopeID', Integer, ForeignKey('eveapiscope.scopeID'), primary_key=True)
 )
 
 class EveApiScope(Base):
-    __tablename__ = 'EveApiScope'
+    __tablename__ = 'eveapiscope'
     scopeID = Column(Integer, primary_key=True)
     scopeName = Column(String(100), index=True)
 
 class SSOToken(Base):
-    __tablename__ = 'SSOToken'
+    __tablename__ = 'ssotoken'
     accountID = Column(Integer, ForeignKey('accounts.id'), primary_key=True)
     refresh_token = Column(String(128), default=None)
     access_token = Column(String(128), default=None)
     access_token_expires = Column(DateTime, default=datetime.utcnow)
 
-    scopes = relationship('EveApiScope', secondary='TokenScope')
+    scopes = relationship('EveApiScope', secondary='tokenscope')
+
 class Station(Base):
     __tablename__ = "station"
     stationID = Column(Integer, primary_key=True)
@@ -130,6 +131,7 @@ class Account(Base):
     email = Column(String(100), unique=True)
     login_token = Column(String(16), unique=True)
     disabled = Column(Boolean, default=False, server_default=sql.expression.false())
+    had_welcome_mail = Column(Boolean, default=False, server_default=sql.expression.false())
     '''
     refresh_token = Column(String(128), default=None)
     access_token = Column(String(128), default=None)

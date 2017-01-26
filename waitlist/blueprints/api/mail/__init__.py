@@ -12,6 +12,9 @@ from waitlist.blueprints.fleet import handle_token_update
 from werkzeug.utils import redirect
 from waitlist.blueprints.fc_sso import add_sso_handler, get_sso_redirect
 from datetime import date, datetime, timedelta
+from waitlist.storage.database import linked_chars, Account, AccountNote
+from sqlalchemy import or_
+from waitlist.base import db
 bp = Blueprint('api_mail', __name__)
 logger = logging.getLogger(__name__)
 
@@ -36,7 +39,20 @@ def send_esi_mail():
     body = request.form.get('mailBody')
     subject = request.form.get('mailSubject')
     recipients = json.loads(request.form.get('mailRecipients'))
+    target_chars = []
+    for rec in recipients:
+        if rec['recipient_type'] == 'character':
+            target_chars.append(rec['recipient_id'])
+    
     resp = sendMail(recipients, body, subject)
+    if resp.status == 201:
+        target_accs = db.session.query(Account).filter(or_(Account.current_char == charid for charid in target_chars)).all()
+        for acc in target_accs:
+            acc.had_welcome_mail = True
+            historyEntry = AccountNote(accountID=acc.id, byAccountID=current_user.id, note="Send mail to main character linked to this account with id="+str(acc.current_char)+" and name="+acc.current_char_obj.eve_name)
+            db.session.add(historyEntry)
+        db.session.commit()
+
     return make_response(str(resp.data) if resp.data is not None else '', resp.status)
 
 def handle_sso_cb(tokens):
