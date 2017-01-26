@@ -7,7 +7,11 @@
 <script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
+<meta name="fleet-spy" content="{{url_for('fleet.print_fleet', fleetid=-1)}}">
 <script type="text/javascript">
+function getMetaData (name) {
+	return $('meta[name="'+name+'"]').attr('content');
+}
 function handleData(data) {
 	var squadMap = [];
 	for(let charId in data) {
@@ -71,11 +75,13 @@ function handleData(data) {
 	
 	// now we have a map containing all squads (squadID, map<charID, char>) (that are maps that contain characters)
 	let headTr = $('#fleet-list-header-tr');
+	headTr.empty();
 	for(let idx in tableData[0]) {
 		let th = $.parseHTML(`<th>${tableData[0][idx]}</th>`);
 		headTr.append(th);
 	}
 	let body = $('#fleet-list-body');
+	body.empty();
 	for(let rowIdx=1; rowIdx < tableData.length; rowIdx++) {
 		let html = "<tr>";
 		for(let idx in tableData[rowIdx]) {
@@ -94,23 +100,47 @@ function handleData(data) {
 		body.append($.parseHTML(html));
 	}
 }
+
+function handleFleetSelected(event) {
+	var fleetid = event.target.value;
+	if (fleetid != 'None') {
+		$.get(getMetaData('fleet-spy').replace('-1', fleetid), function(data, status, xhr) {
+			handleData(data);
+		});
+	}
+} 
+
 $(document).ready(function() {
-	$.get("https://wl.warptome.net/fleet/pffleet/1023111303332", function(data, status, xhr) {
-		handleData(data);
-	});
+	$('#fleetSelect').on("change", handleFleetSelected);
+	// load initial fleet if the browser set a value
+	if ($('#fleetSelect').val() != 'None') {
+		$.get(getMetaData('fleet-spy').replace('-1', $('#fleetSelect').val()), function(data, status, xhr) {
+			handleData(data);
+		});
+	}
 });
 </script>
 </head>
 <body>
 <div class="container">
+<div class="row" id="controls">
+<div class="input-group">
+	<select class="form-control" id="fleetSelect">
+		<option selected value="None">Choose...</option>
+		{% for fleet in fleets %}
+		<option value="{{fleet.fleetID}}">{{fleet.comp.username}}</option>
+		{% endfor %}
+	</select>
+</div>
+</div>
 <div class="row" id="fleetlist-div">
 <table class="table">
-  <thead>
-    <tr id="fleet-list-header-tr">
-    </tr>
-  </thead>
-  <tbody id="fleet-list-body">
-  </tbody>
+	<thead>
+		<tr id="fleet-list-header-tr">
+		</tr>
+	</thead>
+	<tbody id="fleet-list-body">
+	</tbody>
 </table>
 </div>
 </div>
