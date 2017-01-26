@@ -88,6 +88,10 @@ waitlist.accounts = (function() {
 		var targetUsername = target.attr('data-accusername');
 		var targetUserType = target.attr('data-userType');
 		sendAuthMail(charId, token, senderUsername, targetUsername, targetUserType);
+		var charTr = target.closest('tr');
+		var accId = parseInt(charTr.attr('id').substring('account-'.length));
+		var needsMailTag = $(`#acc-${accId}-needsmail`, charTr);
+		needsMailTag.remove();
 	}
 	
 	
