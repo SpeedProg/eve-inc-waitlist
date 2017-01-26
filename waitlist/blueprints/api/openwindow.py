@@ -17,10 +17,11 @@ logger = logging.getLogger(__name__)
 @perm_management.require()
 def ownerdetails():
     eveId = int(request.form.get("characterID"))
+    # TODO: if ssoToken == None or not right scope
     data = {
-        'access_token': current_user.access_token,
-        'refresh_token': current_user.refresh_token,
-        'expires_in': current_user.access_token_expires
+        'access_token': current_user.ssoToken.access_token,
+        'refresh_token': current_user.ssoToken.refresh_token,
+        'expires_in': current_user.ssoToken.access_token_expires
         }
     
     # get own character id
@@ -92,10 +93,11 @@ def newmail():
     recipients = map(make_id_dict, request.form.get("mailRecipients").split(","))
     body = request.form.get('mailBody')
     subject = request.form.get('mailSubject')
+    # TODO: check if token == None or not right scope
     data = {
-        'access_token': current_user.access_token,
-        'refresh_token': current_user.refresh_token,
-        'expires_in': current_user.access_token_expires
+        'access_token': current_user.ssoToken.access_token,
+        'refresh_token': current_user.ssoToken.refresh_token,
+        'expires_in': current_user.ssoToken.access_token_expires
         }
     
     # get own character id
@@ -109,7 +111,7 @@ def newmail():
         'recipients': recipients
             }
         )
-    return make_response(resp.content, resp.status_code);
+    return make_response(resp.content, resp.status_code)
 
 def make_id_dict(_id):
     return {'id': int(_id)}

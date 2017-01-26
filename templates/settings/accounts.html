@@ -12,6 +12,8 @@
 <meta name="mail-other-topic" content="{{mails['other'][1]}}">
 <meta name="api-account-delete" content="{{url_for('settings.api_account_delete', acc_id='-1')}}">
 <meta name="api-account-disable" content="{{url_for('settings.account_disabled')}}">
+<meta name="api-esi-mail-send" content="{{url_for('api_mail.send_esi_mail')}}">
+<meta name="api-esi-mail-auth" content="{{url_for('api_mail.auth')}}">
 {{ super() }}
 
 {% assets filters="cssmin", output="gen/fileinput.%(version)s.css", "css/fileinput.css" %}
@@ -103,6 +105,7 @@
 			<td>
 			<button type="button" class="btn btn-sm btn-warning" data-type="{%if acc.disabled%}acc-enable{%else%}acc-disable{%endif%}" data-id="{{acc.id}}">{%if acc.disabled%}Enable{%else%}Disable{%endif%}</button>
 			<button type="button" class="btn btn-sm btn-secondary" data-action="editAccount" data-accId="{{acc.id}}">Edit</button>
+			{% if not acc.had_welcome_mail %}
 			{% set is_rbadge = ['1'] %}
 			{% set is_tbadge = ['1'] %}
 			{% for role in acc.roles %}
@@ -115,8 +118,9 @@
 			{% set is_rbadge = (is_rbadge|length > 1) %}
 			{% set is_tbadge = (is_tbadge|length > 1) %}
 			<button type="button" class="btn btn-sm btn-info" data-action="sendAuthMail" data-characterid="{{acc.current_char_obj.id}}" data-token="{{acc.login_token}}" data-username="{{current_user.username}}" data-accusername="{{acc.username}}" data-userType="{% if is_tbadge %}tbadge{%elif is_rbadge%}resident{%else%}other{%endif%}">Auth Mail</button>
+			{% endif %}
 			</td>
-			<td id="acc-{{acc.id}}-name"><a href="{{url_for('accounts_profile.profile_by_name', username=acc.username)}}" target="_blank">{{ acc.username }}</a></td>
+			<td id="acc-{{acc.id}}-name">{% if not acc.had_welcome_mail %}<span id="acc-{{acc.id}}-needsmail" class="tag tag-info">New</span>{% endif %}<a href="{{url_for('accounts_profile.profile_by_name', username=acc.username)}}" target="_blank">{{ acc.username }}</a></td>
 			<td id="acc-{{acc.id}}-roles">{% for role in acc.roles %}{{role.name}}{% if not loop.last %}, {% endif %}{% endfor %}</td>
 			<td id="acc-{{acc.id}}-cchar">{{ acc.current_char_obj.eve_name }}</td>
 			<td>{% for character in acc.characters %}{{character.eve_name}}{% if not loop.last %}, {% endif %}{% endfor %}</td>

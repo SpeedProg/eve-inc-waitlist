@@ -52,7 +52,27 @@ fmanager = Table("fleetmanager",
                  Base.metadata,
                  Column("accountID", Integer, ForeignKey('accounts.id', ondelete="CASCADE")),
                  Column("groupID", Integer, ForeignKey('waitlist_groups.groupID', ondelete="CASCADE"))
-            )
+            )    
+
+token_scope = Table(
+    'tokenscope', Base.metadata,
+    Column('tokenID', Integer, ForeignKey('ssotoken.accountID'), primary_key=True),
+    Column('scopeID', Integer, ForeignKey('eveapiscope.scopeID'), primary_key=True)
+)
+
+class EveApiScope(Base):
+    __tablename__ = 'eveapiscope'
+    scopeID = Column(Integer, primary_key=True)
+    scopeName = Column(String(100), index=True)
+
+class SSOToken(Base):
+    __tablename__ = 'ssotoken'
+    accountID = Column(Integer, ForeignKey('accounts.id'), primary_key=True)
+    refresh_token = Column(String(128), default=None)
+    access_token = Column(String(128), default=None)
+    access_token_expires = Column(DateTime, default=datetime.utcnow)
+
+    scopes = relationship('EveApiScope', secondary='tokenscope')
 
 class Station(Base):
     __tablename__ = "station"
@@ -111,10 +131,12 @@ class Account(Base):
     email = Column(String(100), unique=True)
     login_token = Column(String(16), unique=True)
     disabled = Column(Boolean, default=False, server_default=sql.expression.false())
+    had_welcome_mail = Column(Boolean, default=False, server_default=sql.expression.false())
+    '''
     refresh_token = Column(String(128), default=None)
     access_token = Column(String(128), default=None)
     access_token_expires = Column(DateTime, default=datetime.utcnow)
-
+    '''
     roles = relationship('Role', secondary=roles,
                          backref=backref('account_roles'))
     characters = relationship('Character', secondary=linked_chars,
@@ -122,6 +144,8 @@ class Account(Base):
     current_char_obj = relationship('Character')
 
     fleet = relationship('CrestFleet', uselist=False, back_populates="comp")
+    
+    ssoToken = relationship('SSOToken', uselist=False)
     
     @property
     def lc_level(self):

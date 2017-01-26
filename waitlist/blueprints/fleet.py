@@ -5,7 +5,8 @@ from waitlist.utility import fleet as fleetUtils
 from werkzeug.utils import redirect
 from flask_login import login_required, current_user
 from waitlist.base import db
-from waitlist.storage.database import CrestFleet, WaitlistGroup
+from waitlist.storage.database import CrestFleet, WaitlistGroup, SSOToken,\
+    EveApiScope
 from waitlist.utility.config import crest_client_id, crest_client_secret
 from pycrest.eve import AuthedConnectionB
 from flask.helpers import url_for
@@ -21,6 +22,7 @@ from datetime import datetime
 from datetime import timedelta
 import requests
 import base64
+from sqlalchemy import or_
 
 bp = Blueprint('fleet', __name__)
 logger = logging.getLogger(__name__)
@@ -50,13 +52,29 @@ def handle_token_update(code):
         'expires_in': (datetime.utcnow() + timedelta(seconds=exp_in))
         }
     connection = AuthedConnectionB(data, fleet_url, "https://login.eveonline.com/oauth", crest_client_id, crest_client_secret, create_token_cb(current_user.id))
-    charName = connection.whoami()['CharacterName']
+    
+    authInfo = connection.whoami()
+    charName = authInfo['CharacterName']
     if charName != current_user.get_eve_name():
         flask.abort(409, 'You did not grant authorization for the right character "'+current_user.get_eve_name()+'". Instead you granted it for "'+charName+'"')
 
-    current_user.refresh_token = re_token
-    current_user.access_token = acc_token
-    current_user.access_token_expires = datetime.utcnow() + timedelta(seconds=exp_in)
+    scopenames = authInfo['Scopes'].split(' ')
+    if (current_user.ssoToken == None):
+        ssoToken = SSOToken(refresh_token = re_token, access_token = acc_token, access_token_expires = datetime.utcnow() + timedelta(seconds=exp_in))
+        current_user.ssoToken = ssoToken
+        dbscopes = db.session.query(EveApiScope).filter(or_( EveApiScope.scopeName == name for name in scopenames ))
+        for dbscope in dbscopes:
+            current_user.ssoToken.scopes.append(dbscope)
+    else:
+        current_user.ssoToken.refresh_token = re_token
+        current_user.ssoToken.access_token = acc_token
+        current_user.ssoToken.access_token_expires = datetime.utcnow() + timedelta(seconds=exp_in)
+        for dbscope in current_user.ssoToken.scopes:
+            current_user.ssoToken.scopes.remove(dbscope)
+        dbscopes = db.session.query(EveApiScope).filter(or_( EveApiScope.scopeName == name for name in scopenames ))
+        for dbscope in dbscopes:
+            current_user.ssoToken.scopes.append(dbscope)
+            
     db.session.commit()
 
 @login_required

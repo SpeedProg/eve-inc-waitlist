@@ -81,7 +81,7 @@ class FleetConnectionCache():
             con = self._cache[account.id]
             # check it is actually the current fleet
             if con._endpoint == "https://crest-tq.eveonline.com/fleets/"+str(fleetID)+"/" :
-                con.update_tokens(account.refresh_token, account.access_token, account.access_token_expires)
+                con.update_tokens(account.ssoToken.refresh_token, account.account.ssoToken.access_token, account.account.ssoToken.access_token_expires)
                 return con
             else:
                 return self._add_connection(fleetID, account)
@@ -91,9 +91,9 @@ class FleetConnectionCache():
     def _add_connection(self, fleetID, account):
         fleet_url = "https://crest-tq.eveonline.com/fleets/"+str(fleetID)+"/"
         data = {
-            'access_token': account.access_token,
-            'refresh_token': account.refresh_token,
-            'expires_in': account.access_token_expires
+            'access_token': account.ssoToken.access_token,
+            'refresh_token': account.ssoToken.refresh_token,
+            'expires_in': account.ssoToken.access_token_expires
             }
         connection = AuthedConnectionB(data, fleet_url, "https://login.eveonline.com/oauth", crest_client_id, crest_client_secret, create_token_cb(account.id))
         self._cache[account.id] = connection
@@ -111,9 +111,9 @@ class FleetRoles():
 def setup(fleet_id, fleet_type):
     fleet_url = "https://crest-tq.eveonline.com/fleets/"+str(fleet_id)+"/"
     data = {
-            'access_token': current_user.access_token,
-            'refresh_token': current_user.refresh_token,
-            'expires_in': current_user.access_token_expires
+            'access_token': current_user.ssoToken.access_token,
+            'refresh_token': current_user.ssoToken.refresh_token,
+            'expires_in': current_user.ssoToken.access_token_expires
             }
     fleet = AuthedConnectionB(data, fleet_url, "https://login.eveonline.com/oauth", crest_client_id, crest_client_secret, create_token_cb(current_user.id))
     old_motd = fleet().motd
@@ -239,9 +239,9 @@ def get_wings(fleet_id):
     try:
         fleet_url = "https://crest-tq.eveonline.com/fleets/"+str(fleet_id)+"/"
         data = {
-                'access_token': current_user.access_token,
-                'refresh_token': current_user.refresh_token,
-                'expires_in': current_user.access_token_expires
+                'access_token': current_user.ssoToken.access_token,
+                'refresh_token': current_user.ssoToken.refresh_token,
+                'expires_in': current_user.ssoToken.access_token_expires
                 }
         fleet = AuthedConnectionB(data, fleet_url, "https://login.eveonline.com/oauth", crest_client_id, crest_client_secret, create_token_cb(current_user.id))
         return fleet().wings().items
@@ -253,9 +253,9 @@ def invite(user_id, squadIDList):
     fleet = current_user.fleet
     fleet_url = "https://crest-tq.eveonline.com/fleets/"+str(fleet.fleetID)+"/"
     data = {
-            'access_token': current_user.access_token,
-            'refresh_token': current_user.refresh_token,
-            'expires_in': current_user.access_token_expires
+            'access_token': current_user.ssoToken.access_token,
+            'refresh_token': current_user.ssoToken.refresh_token,
+            'expires_in': current_user.ssoToken.access_token_expires
             }
     try:
         fleet = AuthedConnectionB(data, fleet_url, "https://login.eveonline.com/oauth", crest_client_id, crest_client_secret, create_token_cb(current_user.id))
