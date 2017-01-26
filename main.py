@@ -26,7 +26,7 @@ from flask_login import login_required, current_user, login_user,\
     logout_user
 import logging
 from waitlist.storage.database import Account, WaitlistEntry,\
-    WaitlistGroup, TeamspeakDatum
+    WaitlistGroup, TeamspeakDatum, CrestFleet
 from flask_principal import RoleNeed, identity_changed, Identity, AnonymousIdentity,\
     identity_loaded, UserNeed
 from waitlist.data.perm import perm_management, perm_settings, perm_admin,\
@@ -274,7 +274,8 @@ def logout():
 @login_required
 @perm_dev.require(http_exception=404)
 def spy():
-    return render_template("settings/fleetspy/spy.html")
+    fleets = db.session.query(CrestFleet).filter((CrestFleet.comp != None) & (CrestFleet.group != None)).all()
+    return render_template("settings/fleetspy/spy.html", fleets=fleets)
 
 @identity_loaded.connect_via(app)
 def on_identity_loaded(sender, identity):
