@@ -12,6 +12,8 @@
 <meta name="mail-other-topic" content="{{mails['other'][1]}}">
 <meta name="api-account-delete" content="{{url_for('settings.api_account_delete', acc_id='-1')}}">
 <meta name="api-account-disable" content="{{url_for('settings.account_disabled')}}">
+<meta name="api-esi-mail-send" content="{{url_for('api_mail.send_esi_mail')}}">
+<meta name="api-esi-mail-auth" content="{{url_for('api_mail.auth')}}">
 {{ super() }}
 
 {% assets filters="cssmin", output="gen/fileinput.%(version)s.css", "css/fileinput.css" %}
