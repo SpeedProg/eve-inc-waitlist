@@ -220,8 +220,9 @@ def accounts():
             character = db.session.query(Character).filter(Character.id == char_id).first()
             
             if character is None:
+                char_info = get_char_info_for_character(char_id)
                 character = Character()
-                character.eve_name = char_name
+                character.eve_name = char_info.characterName
                 character.id = char_id
     
             acc.characters.append(character)
@@ -391,8 +392,10 @@ def account_self_edit():
             character = db.session.query(Character).filter(Character.id == char_id).first()
         
             if character is None:
+                # lets make sure we have the correct name (case)
+                char_info = get_char_info_for_character(char_id)
                 character = Character()
-                character.eve_name = char_name
+                character.eve_name = char_info.characterName
                 character.id = char_id
         
             # check if character is linked to this account
