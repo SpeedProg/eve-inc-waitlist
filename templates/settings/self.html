@@ -29,7 +29,6 @@
 	function editAccount(accountId) {
 		var name = $('#acc-' + accountId + "-name").text();
 		var roles = $('#acc-' + accountId + '-roles').text();
-		var email = $('#acc-' + accountId + '-email').text();
 		var default_char_name = $('#acc-' + accountId + '-cchar').text();
 		$('#acc-edit-name').val(name);
 		// this is more complicated
@@ -51,7 +50,6 @@
 				option.selected = false;
 			}
 		}
-		$('#acc-edit-email').val(email);
 		$('#acc-edit-cchar').val(default_char_name);
 		$('#acc-edit-id').val(accountId);
 		$('#modal-account-edit').modal('toggle');
@@ -74,14 +72,6 @@
 			<option value="{{role.name}}">{{role.name}}</option>
 			{% endfor %}
 		</select>
-	</fieldset>
-	<fieldset class="form-group">
-		<label for="acc-edit-pw">Password</label> <input type="password"
-			class="form-control" id="acc-edit-pw" name="account_pw">
-	</fieldset>
-	<fieldset class="form-group">
-		<label for="acc-edit-email">Email</label>
-		<input type="email"	class="form-control" id="acc-edit-email" name="account_email" value="{% if account.email is not none %}{{account.email}}{% endif %}">
 	</fieldset>
 	<fieldset class="form-group">
 		<label for="acc-edit-cchar">Default Character</label>

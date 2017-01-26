@@ -56,9 +56,13 @@
 <tbody id="account-table-body">
 	{% for acc in accounts %}
 	<tr id="account-{{acc.id}}"{% if acc.disabled %} class="table-warning"{% endif %}>
+		{% perm_manager.getPermission('view_profile').can() %}
+		<td id="acc-{{acc.id}}-name"><a href="{{url_for('accounts_profile.profile_by_name', username=acc.username)}}" target="_blank">{{ acc.username }}</a></td>
+		{% else %}
 		<td id="acc-{{acc.id}}-name">{{ acc.username }}</td>
+		{% endif %}
 		<td id="acc-{{acc.id}}-roles">{% for role in acc.roles %}{{role.displayName}}{% if not loop.last %}, {% endif %}{% endfor %}</td>
-		<td>{% for character in acc.characters %}{{character.eve_name}}{% if not loop.last %},{% endif %}{% endfor %}</td>
+		<td>{% for character in acc.characters %}{{character.eve_name}}{% if not loop.last %}, {% endif %}{% endfor %}</td>
 	</tr>
 	{% endfor %}
 </tbody>

@@ -5,12 +5,13 @@ from waitlist.utility import fleet as fleetUtils
 from werkzeug.utils import redirect
 from flask_login import login_required, current_user
 from waitlist.base import db
-from waitlist.storage.database import CrestFleet, WaitlistGroup
+from waitlist.storage.database import CrestFleet, WaitlistGroup, SSOToken,\
+    EveApiScope
 from waitlist.utility.config import crest_client_id, crest_client_secret
 from pycrest.eve import AuthedConnectionB
 from flask.helpers import url_for
 from flask.templating import render_template
-from flask.globals import request, session
+from flask.globals import request, session, current_app
 import re
 import flask
 from waitlist.utility.fleet import get_wings, member_info
@@ -21,6 +22,9 @@ from datetime import datetime
 from datetime import timedelta
 import requests
 import base64
+from sqlalchemy import or_
+import json
+from waitlist.utility.json.fleetdata import FleetMemberEncoder
 
 bp = Blueprint('fleet', __name__)
 logger = logging.getLogger(__name__)
@@ -50,13 +54,29 @@ def handle_token_update(code):
         'expires_in': (datetime.utcnow() + timedelta(seconds=exp_in))
         }
     connection = AuthedConnectionB(data, fleet_url, "https://login.eveonline.com/oauth", crest_client_id, crest_client_secret, create_token_cb(current_user.id))
-    charName = connection.whoami()['CharacterName']
+    
+    authInfo = connection.whoami()
+    charName = authInfo['CharacterName']
     if charName != current_user.get_eve_name():
         flask.abort(409, 'You did not grant authorization for the right character "'+current_user.get_eve_name()+'". Instead you granted it for "'+charName+'"')
 
-    current_user.refresh_token = re_token
-    current_user.access_token = acc_token
-    current_user.access_token_expires = datetime.utcnow() + timedelta(seconds=exp_in)
+    scopenames = authInfo['Scopes'].split(' ')
+    if (current_user.ssoToken == None):
+        ssoToken = SSOToken(refresh_token = re_token, access_token = acc_token, access_token_expires = datetime.utcnow() + timedelta(seconds=exp_in))
+        current_user.ssoToken = ssoToken
+        dbscopes = db.session.query(EveApiScope).filter(or_( EveApiScope.scopeName == name for name in scopenames ))
+        for dbscope in dbscopes:
+            current_user.ssoToken.scopes.append(dbscope)
+    else:
+        current_user.ssoToken.refresh_token = re_token
+        current_user.ssoToken.access_token = acc_token
+        current_user.ssoToken.access_token_expires = datetime.utcnow() + timedelta(seconds=exp_in)
+        for dbscope in current_user.ssoToken.scopes:
+            current_user.ssoToken.scopes.remove(dbscope)
+        dbscopes = db.session.query(EveApiScope).filter(or_( EveApiScope.scopeName == name for name in scopenames ))
+        for dbscope in dbscopes:
+            current_user.ssoToken.scopes.append(dbscope)
+            
     db.session.commit()
 
 @login_required
@@ -244,8 +264,13 @@ def setup(fleet_id):
 def print_fleet(fleetid):
     cachedMembers = member_info.get_cache_data(fleetid)
     if (cachedMembers == None):
-        return "No cached info"
-    return str(cachedMembers)
+        crestFleet = db.session.query(CrestFleet).get(fleetid)
+        members = member_info.get_fleet_members(fleetid, crestFleet.comp)
+        if (members == None):
+            return "No cached or new info"
+        cachedMembers = members
+    return current_app.response_class(json.dumps(cachedMembers,
+        indent=None if request.is_xhr else 2, cls=FleetMemberEncoder), mimetype='application/json')
 
 @bp.route("/take", methods=['GET'])
 @login_required
