@@ -11,7 +11,9 @@ waitlist.IGBW = (function() {
 
 	var urls = {
 		openwindow: waitlist.base.getMetaData('api-igui-openwindow-ownerdetails'),
-		newmail: waitlist.base.getMetaData('api-igui-openwindow-newmail')
+		newmail: waitlist.base.getMetaData('api-igui-openwindow-newmail'),
+		esi_mail_send: waitlist.base.getMetaData('api-esi-mail-send'),
+		esi_mail_auth: waitlist.base.getMetaData('api-esi-mail-auth')
 	};
 
 	/**
@@ -42,21 +44,29 @@ waitlist.IGBW = (function() {
 	/**
 	 * Opens a mailwindow either igbapi or crest
 	 * with the given topic, mail as body and charId as recipiant
-	 * @param charId Character Id of the recipiant
+	 * @param recipients = [{"recipient_id": ID, "recipient_type": "alliance|character|corporation|mailing_list"}]
 	 * @param subject Mails Subject
 	 * @param body Mails Body
 	 */
-	function sendMail(charId, subject, body) {
+	function sendMail(recipents, subject, body) {
+		/*
+		* mailRecipients => JSON String recipients=[{"recipient_id": ID, "recipient_type": "alliance|character|corporation|mailing_list"}]
+		* mailBody => String
+		* mailSubject => String
+		 */
 		$.post({
-			'url': urls.newmail,
+			'url': urls.esi_mail_send,
 			'data': {
 				'_csrf_token': waitlist.base.getMetaData('csrf-token'),
-				'mailRecipients': charId,
+				'mailRecipients': JSON.stringify(recipents),
 				'mailBody': body,
 				'mailSubject': subject
 			},
 			'error': function(data) {
 				var message = data.statusText;
+				if (data.status == 412) {
+					window.location = urls.esi_mail_auth;
+				}
 				if (typeof data.message !== 'undefined') {
 						message += ": " + data.message;
 				}

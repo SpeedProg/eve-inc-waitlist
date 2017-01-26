@@ -153,7 +153,9 @@ waitlist.accounts = (function() {
 		}
 		mail = mail.replace("$recv$", username).replace("$link$", link).replace("$sig$", sig);
 		topic = topic.replace("$recv$", username).replace("$link$", link).replace("$sig$", sig);
-		sendMail(charId, topic, mail);
+		//
+		// [{"recipient_id": ID, "recipient_type": "alliance|character|corporation|mailing_list"}]
+		sendMail([{"recipient_id": charId, "recipient_type": "character"}], topic, mail);
 	}
 	
 	function setUpTable() {

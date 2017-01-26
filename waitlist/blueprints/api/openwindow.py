@@ -111,7 +111,7 @@ def newmail():
         'recipients': recipients
             }
         )
-    return make_response(resp.content, resp.status_code);
+    return make_response(resp.content, resp.status_code)
 
 def make_id_dict(_id):
     return {'id': int(_id)}
