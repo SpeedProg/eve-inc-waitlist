@@ -31,12 +31,18 @@ def get_char_info_for_character(char_id):
         result = eve.EVE().character_info_from_id(char_id)
         corpId = result.result['corp']['id']
         corpName = result.result['corp']['name']
+        charName = result.result['name']
         expire = datetime.fromtimestamp(result.expires)
         char_info.id = char_id
         char_info.corporationID = corpId
         char_info.corporationName = corpName
+        char_info.characterName = charName
         char_info.expire = expire
         db.session.add(char_info)
+        db.session.commit()
+    elif char_info.characterName is None:
+        result = eve.EVE().character_info_from_id(char_id)
+        char_info.characterName = result.result['name']
         db.session.commit()
     else:
         now = datetime.now()
@@ -45,9 +51,11 @@ def get_char_info_for_character(char_id):
             result = eve.EVE().character_info_from_id(char_id)
             corpId = result.result['corp']['id']
             corpName = result.result['corp']['name']
+            charName = result.result['name']
             expire = datetime.fromtimestamp(result.expires)
             char_info.corporationID = corpId
             char_info.corporationName = corpName
+            char_id.characterName = charName
             char_info.expire = expire
             db.session.commit()
     

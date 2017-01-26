@@ -414,6 +414,7 @@ class APICacheCharacterID(Base):
 class APICacheCharacterInfo(Base):
     __tablename__ = "apicache_characterinfo"
     id = Column(Integer, primary_key=True)
+    characterName = Column(String(100))
     corporationID = Column(Integer, index=True)
     corporationName = Column(String(100))
     expire = Column(DateTime)
