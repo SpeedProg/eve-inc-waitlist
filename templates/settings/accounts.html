@@ -12,6 +12,8 @@
 <meta name="mail-other-topic" content="{{mails['other'][1]}}">
 <meta name="api-account-delete" content="{{url_for('settings.api_account_delete', acc_id='-1')}}">
 <meta name="api-account-disable" content="{{url_for('settings.account_disabled')}}">
+<meta name="api-esi-mail-send" content="{{url_for('api_mail.send_esi_mail')}}">
+<meta name="api-esi-mail-auth" content="{{url_for('api_mail.auth')}}">
 {{ super() }}
 
 {% assets filters="cssmin", output="gen/fileinput.%(version)s.css", "css/fileinput.css" %}
@@ -31,93 +33,104 @@
 {% endassets %}
 {% endblock %}
 
-{% block content %}
-<form action="{{url_for('settings.accounts_import_accounts')}}" method="POST" enctype=multipart/form-data class="form-inline">
-	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
-	<div class="form-group">
-		<label for="acc-file" class="custom-file">
- 			<input data-toggle="custom-file" data-target="#accounts" type="file" name="file" id="acc-file" class="custom-file-input">
-  			<span id="accounts" data-content="Choose file..." class="custom-file-name custom-file-control"></span>
-		</label>
+{% block raw_content %}
+<div class="row">
+	<form action="{{url_for('settings.accounts_import_accounts')}}" method="POST" enctype=multipart/form-data class="form-inline">
+		<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+		<div class="form-group">
+			<label for="acc-file" class="custom-file">
+	 			<input data-toggle="custom-file" data-target="#accounts" type="file" name="file" id="acc-file" class="custom-file-input">
+	  			<span id="accounts" data-content="Choose file..." class="custom-file-name custom-file-control"></span>
+			</label>
+		</div>
+		<button type="submit" class="btn btn-primary">Add Accounts</button>
+	</form>
+	<a href="{{url_for('settings.accounts_download_csv')}}" target="_blank">Download Full Commander List</a>
+</div>
+<div class="row">
+	<div class="btn-group" role="group" aria-label="Account Actions">
+		<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal-account-create">New Account</button>
 	</div>
-	<button type="submit" class="btn btn-primary">Add Accounts</button>
-</form>
-<div class="btn-group" role="group" aria-label="Account Actions">
-	<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal-account-create">New Account</button>
 </div>
-<div class="input-group">
-<span class="input-group-addon" id="filter-addon">Filter</span>
-<input class="form-control" type="text" id="filter"/>
+<div class="row">
+	<div class="input-group">
+		<span class="input-group-addon" id="filter-addon">Filter</span>
+		<input class="form-control" type="text" id="filter"/>
+	</div>
+	<nav aria-label="Page navigation">
+		<ul class="pagination" id="paginator">
+			<li class="page-item">
+				<a class="page-link" href="#" aria-label="First">
+					<span aria-hidden="true"><i class="fa fa-angle-double-left"></i></span>
+					<span class="sr-only">First</span>
+				</a>
+			</li>
+			<li class="page-item">
+				<a class="page-link" href="#" aria-label="Previous">
+					<span aria-hidden="true"><i class="fa fa-angle-left"></i></span>
+					<span class="sr-only">Previous</span>
+				</a>
+			</li>
+			<li class="page-item">
+				<a class="page-link" href="#" aria-label="Next">
+					<span aria-hidden="true"><i class="fa fa-angle-right"></i></span>
+					<span class="sr-only">Next</span>
+				</a>
+			</li>
+			<li class="page-item">
+				<a class="page-link" href="#" aria-label="Next">
+					<span aria-hidden="true"><i class="fa fa-angle-double-right"></i></span>
+					<span class="sr-only">Last</span>
+				</a>
+			</li>
+		</ul>
+	</nav>
 </div>
-<nav aria-label="Page navigation">
-	<ul class="pagination" id="paginator">
-		<li class="page-item">
-			<a class="page-link" href="#" aria-label="First">
-				<span aria-hidden="true"><i class="fa fa-angle-double-left"></i></span>
-				<span class="sr-only">First</span>
-			</a>
-		</li>
-		<li class="page-item">
-			<a class="page-link" href="#" aria-label="Previous">
-				<span aria-hidden="true"><i class="fa fa-angle-left"></i></span>
-				<span class="sr-only">Previous</span>
-			</a>
-		</li>
-		<li class="page-item">
-			<a class="page-link" href="#" aria-label="Next">
-				<span aria-hidden="true"><i class="fa fa-angle-right"></i></span>
-				<span class="sr-only">Next</span>
-			</a>
-		</li>
-		<li class="page-item">
-			<a class="page-link" href="#" aria-label="Next">
-				<span aria-hidden="true"><i class="fa fa-angle-double-right"></i></span>
-				<span class="sr-only">Last</span>
-			</a>
-		</li>
-	</ul>
-</nav>
-<table id="acctable" class="table">
-<thead>
-	<tr>
-		<th>Actions</th>
-		<th>Account Name</th>
-		<th>Roles</th>
-		<th>Current Char</th>
-		<th>Alts</th>
-		{# <th>Email</th> #}
-		<th>#</th>
-	</tr>
-</thead>
-<tbody id="account-table-body">
-	{% for acc in accounts %}
-	<tr id="account-{{acc.id}}"{% if acc.disabled %} class="table-warning"{% endif %}>
-		<td>
-		<button type="button" class="btn btn-sm btn-warning" data-type="{%if acc.disabled%}acc-enable{%else%}acc-disable{%endif%}" data-id="{{acc.id}}">{%if acc.disabled%}Enable{%else%}Disable{%endif%}</button>
-		<button type="button" class="btn btn-sm btn-secondary" data-action="editAccount" data-accId="{{acc.id}}">Edit</button>
-		{% set is_rbadge = ['1'] %}
-		{% set is_tbadge = ['1'] %}
-		{% for role in acc.roles %}
-			{% if role.name == "resident" %}
-				{% if is_rbadge.append('0') %}{%endif %}
-			{% elif role.name == "tbadge" %}
-				{% if is_tbadge.append('0') %}{%endif %}
+<div class="row">
+	<table id="acctable" class="table">
+	<thead>
+		<tr>
+			<th>Actions</th>
+			<th>Account Name</th>
+			<th>Roles</th>
+			<th>Current Char</th>
+			<th>Alts</th>
+			{# <th>Email</th> #}
+			<th>#</th>
+		</tr>
+	</thead>
+	<tbody id="account-table-body">
+		{% for acc in accounts %}
+		<tr id="account-{{acc.id}}"{% if acc.disabled %} class="table-warning"{% endif %}>
+			<td>
+			<button type="button" class="btn btn-sm btn-warning" data-type="{%if acc.disabled%}acc-enable{%else%}acc-disable{%endif%}" data-id="{{acc.id}}">{%if acc.disabled%}Enable{%else%}Disable{%endif%}</button>
+			<button type="button" class="btn btn-sm btn-secondary" data-action="editAccount" data-accId="{{acc.id}}">Edit</button>
+			{% if not acc.had_welcome_mail %}
+			{% set is_rbadge = ['1'] %}
+			{% set is_tbadge = ['1'] %}
+			{% for role in acc.roles %}
+				{% if role.name == "resident" %}
+					{% if is_rbadge.append('0') %}{%endif %}
+				{% elif role.name == "tbadge" %}
+					{% if is_tbadge.append('0') %}{%endif %}
+				{% endif %}
+			{% endfor %}
+			{% set is_rbadge = (is_rbadge|length > 1) %}
+			{% set is_tbadge = (is_tbadge|length > 1) %}
+			<button type="button" class="btn btn-sm btn-info" data-action="sendAuthMail" data-characterid="{{acc.current_char_obj.id}}" data-token="{{acc.login_token}}" data-username="{{current_user.username}}" data-accusername="{{acc.username}}" data-userType="{% if is_tbadge %}tbadge{%elif is_rbadge%}resident{%else%}other{%endif%}">Auth Mail</button>
 			{% endif %}
+			</td>
+			<td id="acc-{{acc.id}}-name">{% if not acc.had_welcome_mail %}<span id="acc-{{acc.id}}-needsmail" class="tag tag-info">New</span>{% endif %}<a href="{{url_for('accounts_profile.profile_by_name', username=acc.username)}}" target="_blank">{{ acc.username }}</a></td>
+			<td id="acc-{{acc.id}}-roles">{% for role in acc.roles %}{{role.name}}{% if not loop.last %}, {% endif %}{% endfor %}</td>
+			<td id="acc-{{acc.id}}-cchar">{{ acc.current_char_obj.eve_name }}</td>
+			<td>{% for character in acc.characters %}{{character.eve_name}}{% if not loop.last %}, {% endif %}{% endfor %}</td>
+			{# <td id="acc-{{acc.id}}-email">{% if acc.email is not none %}{{ acc.email }}{% endif %}</td> #}
+			<td id="acc-{{acc.id}}-id">{{ acc.id }}</td>
+		</tr>
 		{% endfor %}
-		{% set is_rbadge = (is_rbadge|length > 1) %}
-		{% set is_tbadge = (is_tbadge|length > 1) %}
-		<button type="button" class="btn btn-sm btn-info" data-action="sendAuthMail" data-characterid="{{acc.current_char_obj.id}}" data-token="{{acc.login_token}}" data-username="{{current_user.username}}" data-accusername="{{acc.username}}" data-userType="{% if is_tbadge %}tbadge{%elif is_rbadge%}resident{%else%}other{%endif%}">Auth Mail</button>
-		</td>
-		<td id="acc-{{acc.id}}-name">{{ acc.username }}</td>
-		<td id="acc-{{acc.id}}-roles">{% for role in acc.roles %}{{role.name}}{% if not loop.last %}, {% endif %}{% endfor %}</td>
-		<td id="acc-{{acc.id}}-cchar">{{ acc.current_char_obj.eve_name }}</td>
-		<td>{% for character in acc.characters %}{{character.eve_name}}{% if not loop.last %},{% endif %}{% endfor %}</td>
-		{# <td id="acc-{{acc.id}}-email">{% if acc.email is not none %}{{ acc.email }}{% endif %}</td> #}
-		<td id="acc-{{acc.id}}-id">{{ acc.id }}</td>
-	</tr>
-	{% endfor %}
-</tbody>
-</table>
+	</tbody>
+	</table>
+</div>
 <div class="modal fade" id="modal-account-create" tabindex="-1" role="dialog" aria-labelledby="label-account-create" aria-hidden="true">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
@@ -134,10 +147,6 @@
       		<label for="acc-name">Account Name</label>
       		<input type="text" class="form-control" id="acc-name" name="account_name">
       	</fieldset>
-      	<fieldset class="form-group">
-      		<label for="acc-pw">Password</label>
-      		<input type="password" class="form-control" id="acc-pw" name="account_pw">
-      	</fieldset>
       	<fieldset>
       		<label for="account-roles">Roles</label>
       		<select multiple="multiple" class="form-control" id="account-roles" name="account_roles">
@@ -147,13 +156,13 @@
       		</select>
       	</fieldset>
       	<fieldset class="form-group">
-      		<label for="acc-email">Email</label>
-      		<input type="email" class="form-control" id="acc-email" name="account_email">
-      	</fieldset>
-      	<fieldset class="form-group">
       		<label for="acc-defchar">Default Character Name</label>
       		<input type="text" class="form-control" id="acc-defchar" name="default_char_name">
       	</fieldset>
+      	<fieldset class="form-group">
+         <label for="acc-change-note">Add a Note</label>
+         <input class="form-control" id="acc-change-note" type="text" name="change_note" />
+        </fieldset>
       	<button id="account-create-submit" type="submit" class="btn btn-primary" hidden></button>
       </form>
       </div>
@@ -181,14 +190,6 @@
       	<fieldset class="form-group">
       		<label for="acc-edit-name">Account Name</label>
       		<input type="text" class="form-control" id="acc-edit-name" name="account_name">
-      	</fieldset>
-      	<fieldset class="form-group">
-      		<label for="acc-edit-pw">Password</label>
-      		<input type="password" class="form-control" id="acc-edit-pw" name="account_pw">
-      	</fieldset>
-      	<fieldset class="form-group">
-      		<label for="acc-edit-email">Email</label>
-      		<input type="email" class="form-control" id="acc-edit-email" name="account_email">
       	</fieldset>
       	<fieldset class="form-group">
       		<label for="acc-edit-cchar">Default Character</label>

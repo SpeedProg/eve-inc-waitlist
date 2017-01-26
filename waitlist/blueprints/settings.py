@@ -12,7 +12,7 @@ from waitlist.storage.database import Account, Role, Character,\
     WaitlistEntry, WaitlistGroup, Whitelist, TeamspeakDatum, Shipfit, InvType
 import flask
 from waitlist.data.eve_xml_api import get_character_id_from_name,\
-    eve_api_cache_char_ids
+    eve_api_cache_char_ids, get_char_info_for_character
 from werkzeug.utils import redirect, secure_filename
 from flask.helpers import url_for, flash
 from waitlist.utility.utils import get_random_token, get_info_from_ban
@@ -34,7 +34,10 @@ from waitlist.ts3.connection import change_connection
 from datetime import datetime, timedelta
 from waitlist.data.sse import StatusChangedSSE, sendServerSentEvent
 from waitlist.utility import config
-from waitlist.signal.signals import sendRolesChanged
+from waitlist.signal.signals import sendRolesChanged, sendAccountCreated
+from waitlist.permissions import perm_manager
+from flask.wrappers import Response
+from sqlalchemy.orm import joinedload
 
 bp_settings = Blueprint('settings', __name__)
 logger = logging.getLogger(__name__)
@@ -182,17 +185,13 @@ def getQueryResult(name, query, columnCount, cacheTimeSeconds):
 def accounts():
     if request.method == "POST":
         acc_name = request.form['account_name']
-        acc_pw = request.form['account_pw']
-        if acc_pw == "":
-            acc_pw = None
 
         acc_roles = request.form.getlist('account_roles')
-        acc_email = request.form['account_email']
-        if acc_email == "":
-            acc_email = None
 
         char_name = request.form['default_char_name']
         char_name = char_name.strip()
+        
+        note = request.form['change_note'].strip()
         
         char_id = get_character_id_from_name(char_name)
         if char_id == 0:
@@ -200,10 +199,9 @@ def accounts():
         else:
             acc = Account()
             acc.username = acc_name
-            if acc_pw is not None:
-                acc.set_password(acc_pw.encode('utf-8'))
+
             acc.login_token = get_random_token(16)
-            acc.email = acc_email
+
             if len(acc_roles) > 0:
                 db_roles = db.session.query(Role).filter(or_(Role.name == name for name in acc_roles)).all()
                 for role in db_roles:
@@ -215,8 +213,9 @@ def accounts():
             character = db.session.query(Character).filter(Character.id == char_id).first()
             
             if character is None:
+                char_info = get_char_info_for_character(char_id)
                 character = Character()
-                character.eve_name = char_name
+                character.eve_name = char_info.characterName
                 character.id = char_id
     
             acc.characters.append(character)
@@ -226,17 +225,17 @@ def accounts():
             acc.current_char = char_id
             
             db.session.commit()
-    
+            sendAccountCreated(accounts, acc.id, current_user.id, acc_roles, 'Creating account. ' + note)
 
     roles = db.session.query(Role).order_by(Role.name).all();
-    accounts = db.session.query(Account).order_by(asc(Account.disabled)).order_by(Account.username).all()
+    accs = db.session.query(Account).order_by(asc(Account.disabled)).order_by(Account.username).all()
     mails = {
              'resident': [sget_resident_mail(), sget_resident_topic()],
              'tbadge': [sget_tbadge_mail(), sget_tbadge_topic()],
              'other': [sget_other_mail(), sget_other_topic()]
              }
 
-    return render_template("settings/accounts.html", roles=roles, accounts=accounts, mails=mails)
+    return render_template("settings/accounts.html", roles=roles, accounts=accs, mails=mails)
 
 @bp_settings.route('/fmangement')
 @login_required
@@ -253,17 +252,10 @@ def account_edit():
     
     acc_id = int(request.form['account_id'])
     acc_name = request.form['account_name']
-    acc_pw = request.form['account_pw']
     
     note = request.form['change_note'].strip()
-    
-    if acc_pw == "":
-        acc_pw = None
 
     acc_roles = request.form.getlist('account_roles')
-    acc_email = request.form['account_email']
-    if acc_email == "":
-        acc_email = None
 
     char_name = request.form['default_char_name']
     char_name = char_name.strip()
@@ -276,11 +268,6 @@ def account_edit():
     
     if (acc.username != acc_name):
         acc.username = acc_name
-    if acc_pw is not None:
-        acc.set_password(acc_pw.encode('utf-8'))
-    #acc.login_token = get_random_token(64)
-    if acc_email is not None:
-        acc.email = acc_email
         
     # if there are roles, add new ones, remove the ones that aren't there
     if len(acc_roles) > 0:
@@ -330,8 +317,10 @@ def account_edit():
             character = db.session.query(Character).filter(Character.id == char_id).first()
         
             if character is None:
+                # lets make sure we have the correct name (case)
+                char_info = get_char_info_for_character(char_id)
                 character = Character()
-                character.eve_name = char_name
+                character.eve_name = char_info.characterName
                 character.id = char_id
     
             # check if character is linked to this account
@@ -350,13 +339,6 @@ def account_edit():
 @perm_settings.require(http_exception=401)
 def account_self_edit():
     acc_id = current_user.id
-    acc_pw = request.form['account_pw']
-    if acc_pw == "":
-        acc_pw = None
-
-    acc_email = request.form['account_email']
-    if acc_email == "":
-        acc_email = None
 
     char_name = request.form['default_char_name']
     char_name = char_name.strip()
@@ -366,12 +348,6 @@ def account_self_edit():
     acc = db.session.query(Account).filter(Account.id == acc_id).first();
     if acc == None:
         return flask.abort(400)
-
-    if acc_pw is not None:
-        acc.set_password(acc_pw.encode('utf-8'))
-    #acc.login_token = get_random_token(64)
-    if acc_email is not None:
-        acc.email = acc_email
 
     if char_name is not None:
         char_id = get_character_id_from_name(char_name)
@@ -384,8 +360,10 @@ def account_self_edit():
             character = db.session.query(Character).filter(Character.id == char_id).first()
         
             if character is None:
+                # lets make sure we have the correct name (case)
+                char_info = get_char_info_for_character(char_id)
                 character = Character()
-                character.eve_name = char_name
+                character.eve_name = char_info.characterName
                 character.id = char_id
         
             # check if character is linked to this account
@@ -396,9 +374,7 @@ def account_self_edit():
             db.session.flush()
             if acc.current_char != char_id:
                 # remove all the access tokens
-                acc.refresh_token = None
-                acc.access_token = None
-                acc.access_token_expires = datetime.utcnow()
+                acc.ssoToken = None
                 acc.current_char = char_id
     
     db.session.commit()
@@ -1239,6 +1215,25 @@ def fleet_status_global_set():
         should_scrable = not (request.form.get('scramble', 'off') == 'off')
         config.scramble_names = should_scrable
     return "OK"
+
+@bp_settings.route('/accounts/downloadlist/cvs')
+@login_required
+@perm_manager.require('leadership')
+def accounts_download_csv():
+    def iter_accs(data):
+        for account in data:
+            for ci, char in enumerate(account.characters):
+                if ci > 0:
+                    yield ", " + char.eve_name
+                else:
+                    yield char.eve_name
+            yield '\n'
+
+    accounts = db.session.query(Account).options(joinedload('characters')).join(Account.roles).filter(((Role.name == WTMRoles.fc) | (Role.name == WTMRoles.lm)) & (Account.disabled == False)).order_by(Account.username).all()
+
+    response = Response(iter_accs(accounts), mimetype='text/csv')
+    response.headers['Content-Disposition'] = 'attachment; filename=accounts.csv'
+    return response
 
 '''
 @bp_settings.route("/api/account/", methods=["POST"])

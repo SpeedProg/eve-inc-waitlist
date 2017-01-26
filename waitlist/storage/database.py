@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, String, SmallInteger, BIGINT, Boolean, DateTime, Index,\
-    sql, BigInteger
+    sql, BigInteger, text
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.sql.schema import Table, ForeignKey
 from sqlalchemy.dialects.mysql.base import LONGTEXT, TEXT
@@ -52,7 +52,27 @@ fmanager = Table("fleetmanager",
                  Base.metadata,
                  Column("accountID", Integer, ForeignKey('accounts.id', ondelete="CASCADE")),
                  Column("groupID", Integer, ForeignKey('waitlist_groups.groupID', ondelete="CASCADE"))
-            )
+            )    
+
+token_scope = Table(
+    'tokenscope', Base.metadata,
+    Column('tokenID', Integer, ForeignKey('ssotoken.accountID'), primary_key=True),
+    Column('scopeID', Integer, ForeignKey('eveapiscope.scopeID'), primary_key=True)
+)
+
+class EveApiScope(Base):
+    __tablename__ = 'eveapiscope'
+    scopeID = Column(Integer, primary_key=True)
+    scopeName = Column(String(100), index=True)
+
+class SSOToken(Base):
+    __tablename__ = 'ssotoken'
+    accountID = Column(Integer, ForeignKey('accounts.id'), primary_key=True)
+    refresh_token = Column(String(128), default=None)
+    access_token = Column(String(128), default=None)
+    access_token_expires = Column(DateTime, default=datetime.utcnow)
+
+    scopes = relationship('EveApiScope', secondary='tokenscope')
 
 class Station(Base):
     __tablename__ = "station"
@@ -107,14 +127,14 @@ class Account(Base):
     id = Column(Integer, primary_key=True)
     current_char = Column(Integer, ForeignKey("characters.id"))
     username = Column(String(100), unique=True)# login name
-    password = Column(String(100))
-    email = Column(String(100), unique=True)
     login_token = Column(String(16), unique=True)
     disabled = Column(Boolean, default=False, server_default=sql.expression.false())
+    had_welcome_mail = Column(Boolean, default=False, server_default=sql.expression.false())
+    '''
     refresh_token = Column(String(128), default=None)
     access_token = Column(String(128), default=None)
     access_token_expires = Column(DateTime, default=datetime.utcnow)
-
+    '''
     roles = relationship('Role', secondary=roles,
                          backref=backref('account_roles'))
     characters = relationship('Character', secondary=linked_chars,
@@ -122,6 +142,8 @@ class Account(Base):
     current_char_obj = relationship('Character')
 
     fleet = relationship('CrestFleet', uselist=False, back_populates="comp")
+    
+    ssoToken = relationship('SSOToken', uselist=False)
     
     @property
     def lc_level(self):
@@ -161,10 +183,10 @@ class Account(Base):
         self.current_char_obj.poke_me = value
     
     # check if password matches
-    def password_match(self, pwd):
-        if bcrypt.hashpw(self.pwd, self.password) == self.password:
-            return True
-        return False
+    #def password_match(self, pwd):
+    #    if bcrypt.hashpw(self.pwd, self.password) == self.password:
+    #       return True
+    #   return False
     
     def token_match(self, token):
         if self.login_token == token:
@@ -180,8 +202,8 @@ class Account(Base):
     def get_id(self):
         return unicode("acc"+unicode(self.id))
     
-    def set_password(self, pwd):
-        self.password = bcrypt.hashpw(pwd, bcrypt.gensalt())
+    #def set_password(self, pwd):
+    #    self.password = bcrypt.hashpw(pwd, bcrypt.gensalt())
     
     def __repr__(self):
         return '<Account %r>' % (self.username)
@@ -390,6 +412,7 @@ class APICacheCharacterID(Base):
 class APICacheCharacterInfo(Base):
     __tablename__ = "apicache_characterinfo"
     id = Column(Integer, primary_key=True)
+    characterName = Column(String(100))
     corporationID = Column(Integer, index=True)
     corporationName = Column(String(100))
     expire = Column(DateTime)
@@ -547,22 +570,26 @@ class Setting(Base):
     key = Column(String(20), primary_key=True)
     value = Column(TEXT)
 
-class RoleHistoryEntry(Base):
-    __tablename__ = "role_history"
+class AccountNote(Base):
+    __tablename__ = "account_notes"
     entryID = Column(Integer, primary_key=True)
     accountID = Column(Integer, ForeignKey('accounts.id'), nullable=False)
     byAccountID = Column(Integer, ForeignKey('accounts.id'), nullable=False)
     note = Column(TEXT, nullable=True)
     time = Column(DateTime, default=datetime.utcnow, index=True)
-    role_changes = relationship("RoleChangeEntry", back_populates="history_entry", order_by="desc(RoleChangeEntry.added)")
+    restriction_level = Column(SmallInteger, default=50, nullable=False, server_default=text('50'))
+    
+    role_changes = relationship("RoleChangeEntry", back_populates="note", order_by="desc(RoleChangeEntry.added)")
+    by = relationship('Account', foreign_keys=[byAccountID])
+    account = relationship('Account', foreign_keys=[accountID])
 
 class RoleChangeEntry(Base):
     __tablename__ = "role_changes"
     roleChangeID = Column(Integer, primary_key=True)
-    entryID = Column(Integer, ForeignKey('role_history.entryID', onupdate="CASCADE", ondelete="CASCADE"), nullable=False)
+    entryID = Column(Integer, ForeignKey('account_notes.entryID', onupdate="CASCADE", ondelete="CASCADE"), nullable=False)
     roleID = Column(Integer, ForeignKey('roles.id', onupdate="CASCADE", ondelete="CASCADE"), nullable=False)
     added = Column(Boolean, nullable=False)
-    history_entry = relationship("RoleHistoryEntry", back_populates="role_changes")
+    note = relationship("AccountNote", back_populates="role_changes")
     role = relationship('Role')
 
 class FitModule(Base):

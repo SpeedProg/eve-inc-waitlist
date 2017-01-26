@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block title %}Account - Profile - {{account.username}}{% endblock %}
+
+{% block head %}
+	{{super()}}
+{% endblock %}
+
+{% block container_data %}
+<div class="row">
+<h4>Profile of {{account.username}}</h4>
+	<div class="col-md-8">
+	<table class="table">
+		<thead>
+			<tr>
+				<th>#</th>
+				<th>Date Time</th>
+				<th>Noted By</th>
+				<th>Note</th>
+				<th>Role Changes</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% if notes is not none %}
+				{% for note in notes %}
+				{% if (note.restriction_level < 100 and perm_manager.getPermission('view_notes')) or (note.restriction_level < 200 and perm_manager.getPermission('council').can()) or (perm_manager.getPermission('leadership').can()) %}
+				<tr>
+					<td>{{note.entryID}}</td>
+					<td>{{note.time}}</td>
+					<td>{{note.by.username}}</td>
+					<td>{{note.note}}</td>
+					<td>{% for rolechange in note.role_changes %}{%if rolechange.added%}+{% else %}-{% endif %}{{rolechange.role.displayName}}{%if not loop.last %}, {% endif %}{% endfor %}</td>
+				</tr>
+				{% endif %}
+				{% endfor %}
+			{% endif %}
+		</tbody>
+	</table>
+	</div>
+	{% if perm_manager.getPermission('add_notes').can() %}
+	<div class="col-md-4">
+		<form id="form-add-note" action="{{url_for('accounts_profile.notes_add', accountid=account.id)}}" method="POST">
+			<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+			<div class="form-group">
+				<label for="restricion_level">View Restriction</label>
+				<select class="form-control" id="restricion_level" name="restriction_level">
+					<option value="50">Default</option>
+					{% if perm_manager.getPermission('council').can() %}
+					<option value="100">Council</option>
+					{% endif %}
+					{% if perm_manager.getPermission('leadership').can() %}
+					<option value="200">Leadership</option>
+					{% endif %}
+				</select>
+				<small id="restricion_level_desc" class="text-muted">Restrict who can see this message</small>
+			</div>
+			<fieldset class="form-group">
+				<label for="add-note-note">Note</label>
+				<textarea class="form-control" id="add-note-note" name="note" rows="3"></textarea>
+			</fieldset>
+			<button type="submit" class="btn btn-primary">Add Note</button>
+		</form>
+	</div>
+	{% endif %}
+</div>
+
+{% endblock %}

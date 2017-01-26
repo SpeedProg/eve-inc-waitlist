@@ -88,6 +88,10 @@ waitlist.accounts = (function() {
 		var targetUsername = target.attr('data-accusername');
 		var targetUserType = target.attr('data-userType');
 		sendAuthMail(charId, token, senderUsername, targetUsername, targetUserType);
+		var charTr = target.closest('tr');
+		var accId = parseInt(charTr.attr('id').substring('account-'.length));
+		var needsMailTag = $(`#acc-${accId}-needsmail`, charTr);
+		needsMailTag.remove();
 	}
 	
 	
@@ -102,7 +106,6 @@ waitlist.accounts = (function() {
 	function editAccount(accountId) {
 		var name = $('#acc-'+accountId+"-name").text();
 		var roles = $('#acc-'+accountId+'-roles').text();
-		var email = $('#acc-'+accountId+'-email').text();
 		var default_char_name = $('#acc-'+accountId+'-cchar').text();
 		$('#acc-edit-name').val(name);
 		// this is more complicated
@@ -125,7 +128,6 @@ waitlist.accounts = (function() {
 				option.selected = false;
 			}
 		}
-		$('#acc-edit-email').val(email);
 		$('#acc-edit-cchar').val(default_char_name);
 		$('#acc-edit-id').val(accountId);
 		$('#modal-account-edit').modal('toggle');
@@ -153,7 +155,9 @@ waitlist.accounts = (function() {
 		}
 		mail = mail.replace("$recv$", username).replace("$link$", link).replace("$sig$", sig);
 		topic = topic.replace("$recv$", username).replace("$link$", link).replace("$sig$", sig);
-		sendMail(charId, topic, mail);
+		//
+		// [{"recipient_id": ID, "recipient_type": "alliance|character|corporation|mailing_list"}]
+		sendMail([{"recipient_id": charId, "recipient_type": "character"}], topic, mail);
 	}
 	
 	function setUpTable() {
@@ -175,7 +179,7 @@ waitlist.accounts = (function() {
 					editable: false
 				}, {
 					name: "Account Name",
-					datatype: "string",
+					datatype: "html",
 					editable: false
 				}, {
 					name: "Roles",

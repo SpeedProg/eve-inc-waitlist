@@ -26,7 +26,7 @@ from flask_login import login_required, current_user, login_user,\
     logout_user
 import logging
 from waitlist.storage.database import Account, WaitlistEntry,\
-    WaitlistGroup, TeamspeakDatum
+    WaitlistGroup, TeamspeakDatum, CrestFleet
 from flask_principal import RoleNeed, identity_changed, Identity, AnonymousIdentity,\
     identity_loaded, UserNeed
 from waitlist.data.perm import perm_management, perm_settings, perm_admin,\
@@ -56,9 +56,10 @@ from waitlist.blueprints.api.openwindow import bp as bp_openwindow
 from waitlist.blueprints.api.sse import bp as bp_sse
 from waitlist.blueprints.api.waitlist import bp as bp_waitlists
 from waitlist.blueprints.accounts.commandcore import bp as bp_commandcore
-
+from waitlist.blueprints.accounts.profile import bp as bp_profile
+from waitlist.blueprints.api.mail import bp as bp_esi_mail
 # needs to he here so signal handler gets registered
-from waitlist.signal.handler import roles_changed
+from waitlist.signal.handler import acc_created, roles_changed
 
 app.register_blueprint(bp_waitlist)
 app.register_blueprint(bp_settings, url_prefix='/settings')
@@ -78,6 +79,8 @@ app.register_blueprint(bp_openwindow, url_prefix="/api/ui/openwindow")
 app.register_blueprint(bp_sse, url_prefix="/api/sse")
 app.register_blueprint(bp_waitlists, url_prefix="/api/public/waitlists")
 app.register_blueprint(bp_commandcore, url_prefix="/accounts/cc")
+app.register_blueprint(bp_profile, url_prefix="/accounts/profile")
+app.register_blueprint(bp_esi_mail, url_prefix="/api/esi/mail")
 
 logger = logging.getLogger(__name__)
 
@@ -269,6 +272,13 @@ def logout():
                           identity=AnonymousIdentity())
 
     return render_template("logout.html")
+
+@app.route('/spy')
+@login_required
+@perm_dev.require(http_exception=404)
+def spy():
+    fleets = db.session.query(CrestFleet).filter((CrestFleet.comp != None) & (CrestFleet.group != None)).all()
+    return render_template("settings/fleetspy/spy.html", fleets=fleets)
 
 @identity_loaded.connect_via(app)
 def on_identity_loaded(sender, identity):
