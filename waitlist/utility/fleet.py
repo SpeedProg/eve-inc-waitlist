@@ -152,7 +152,7 @@ def setup(fleet_id, fleet_type):
             if vg_motd is not None:
                 new_motd = vg_motd
         
-        fleet.put(fleet_url,json={'isFreeMove':True,'motd':new_motd.replace("$ts$", tsString)})
+        fleet.put(fleet_url,json={'isFreeMove':False,'motd':new_motd.replace("$ts$", tsString)})
 
     if wait_for_change:
         sleep(6)
