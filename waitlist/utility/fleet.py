@@ -21,34 +21,44 @@ logger = logging.getLogger(__name__)
 
 class FleetMemberInfo():
     def __init__(self):
-        self._lastupdate = {}
+        self._cached_until = {}
         self._lastmembers = {}
     
     def get_fleet_members(self, fleetID, account):
-        return self.get_data(fleetID, account)
+        return self._get_data(fleetID, account)
     
-    def _json_to_members(self, json):
+    def _to_members_map(self, response):
         data = {}
-        logger.debug("Got MemberList from CREST %s", str(json))
-        for member in json.items:
-            data[member.character.id] = member
+        logger.debug("Got MemberList from API %s", str(json))
+        for member in response:
+            data[member['character_id']] = member
         return data
     
-    def get_data(self, fleetID, account):
+    def _get_data(self, fleetID, account):
         utcnow = datetime.utcnow()
         if (self.is_expired(fleetID, utcnow)):
             logger.debug("Member Data Expired for %d and account %s", fleetID, account.username)
-            fleet = connection_cache.get_connection(fleetID, account)
-            logger.debug("%s Got Fleet Connection", account.username)
             try:
                 logger.debug("%s Requesting Fleet Member", account.username)
-                json = fleet().members()
+                data = get_members(fleetID)
+
+                if data['response'].status_code != 200:
+                    if 'error' in data['data']:
+                        logger.error("Failed to get Fleetmembers from API code[%d] msg[%s]", data['response'].status_code, data['data']['error'])
+                    else:
+                        logger.error("Failed to get Fleetmembers from API code[%d]", data['response'].status_code)
+                    
+                    if fleetID in self._lastmembers:
+                        return self._lastmembers[fleetID]
+                    else:
+                        return None
+
                 logger.debug("%s Got Fleet Members", account.username)
-                self.update_cache(fleetID, utcnow, self._json_to_members(json))
+                self.update_cache(fleetID, self._to_members_map(data.data), data.expires)
                 logger.debug("%s Successfully updated Fleet Members", account.username)
             except APIException as ex:
-                logger.error("%s Getting Fleet Members caused: %s", account.username,ex)
-                self.update_cache(fleetID, utcnow, {})
+                logger.error("%s Getting Fleet Members caused: %s", account.username, ex)
+                self.update_cache(fleetID, {}, datetime.utcnow())
         else:
             logger.debug("Cache hit for %d and account %s", fleetID, account.username)
         return self._lastmembers[fleetID]
@@ -59,47 +69,19 @@ class FleetMemberInfo():
         return None
     
     def is_expired(self, fleetID, utcnow):
-        if not fleetID in self._lastupdate:
+        if not fleetID in self._cached_until:
             return True
         else:
-            lastUpdated = self._lastupdate[fleetID]
-            if utcnow - lastUpdated < timedelta(seconds=5):
+            expires_at = self._cached_until[fleetID]
+            if utcnow < expires_at:
                 return False
             else:
                 return True
     
-    def update_cache(self, fleetID, utcnow, data):
+    def update_cache(self, fleetID, data, expires):
         self._lastmembers[fleetID] = data
-        self._lastupdate[fleetID] = utcnow
+        self._cached_until[fleetID] = expires
 
-class FleetConnectionCache():
-    def __init__(self):
-        self._cache = {}
-    
-    def get_connection(self, fleetID, account):
-        if account.id in self._cache:
-            con = self._cache[account.id]
-            # check it is actually the current fleet
-            if con._endpoint == "https://crest-tq.eveonline.com/fleets/"+str(fleetID)+"/" :
-                con.update_tokens(account.ssoToken.refresh_token, account.account.ssoToken.access_token, account.account.ssoToken.access_token_expires)
-                return con
-            else:
-                return self._add_connection(fleetID, account)
-        else:
-            return self._add_connection(fleetID, account)
-    
-    def _add_connection(self, fleetID, account):
-        fleet_url = "https://crest-tq.eveonline.com/fleets/"+str(fleetID)+"/"
-        data = {
-            'access_token': account.ssoToken.access_token,
-            'refresh_token': account.ssoToken.refresh_token,
-            'expires_in': account.ssoToken.access_token_expires
-            }
-        connection = AuthedConnectionB(data, fleet_url, "https://login.eveonline.com/oauth", crest_client_id, crest_client_secret, create_token_cb(account.id))
-        self._cache[account.id] = connection
-        return connection
-
-connection_cache = FleetConnectionCache()
 member_info = FleetMemberInfo()
 
 class FleetRoles():
