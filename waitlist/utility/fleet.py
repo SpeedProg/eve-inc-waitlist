@@ -318,7 +318,7 @@ def check_invite_and_remove_timer(charID, groupID, fleetID):
     
     # hold SSE till sending
     _events = []
-    logger.info("Checking invite for %d %d %d", charID, groupID, fleetID)
+    logger.info("Checking invite for charID[%d] groupID[%d] fleetID[%d] current_run[%d]", charID, groupID, fleetID, current_run)
     group = db.session.query(WaitlistGroup).get(groupID)
     crestFleet = db.session.query(CrestFleet).get(fleetID)
     if group is None or crestFleet is None or crestFleet.comp is None: # the fleet was deleted meanwhile or has no fleetcomp
@@ -372,8 +372,9 @@ def check_invite_and_remove_timer(charID, groupID, fleetID):
         # we are done delete timer entry
         check_timers.pop(timerID, None)
     else:
+        logger.info("Character %d %s not found in fleetmembers", charID, character.eve_name)
         if current_run == max_runs: # he reached his invite timeout
-            logger.info("Member %s not found in members", str(charID))
+            logger.info("Max Runs reached and Member %s not found in members", str(charID))
             for entry in waitlist_entries:
                 entry.inviteCount += 1
             hEntry = create_history_object(charID, HistoryEntry.EVENT_AUTO_CHECK_FAILED, None, None)
@@ -387,6 +388,7 @@ def check_invite_and_remove_timer(charID, groupID, fleetID):
             check_timers.pop(timerID, None)
         else:
             # we want to wait some more, set up new timer
+            logger.info('charID[%d] groupID[%d] fleetID[%d] %s was not in fleet this time, checking again in 20s', charID, groupID, fleetID, character.eve_name)
             t = Timer(20.0, check_invite_and_remove_timer, [charID, groupID, fleetID])
             t.start()
     
