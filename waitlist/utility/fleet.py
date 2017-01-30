@@ -81,7 +81,7 @@ class FleetConnectionCache():
             con = self._cache[account.id]
             # check it is actually the current fleet
             if con._endpoint == "https://crest-tq.eveonline.com/fleets/"+str(fleetID)+"/" :
-                con.update_tokens(account.ssoToken.refresh_token, account.account.ssoToken.access_token, account.account.ssoToken.access_token_expires)
+                con.update_tokens(account.ssoToken.refresh_token, account.ssoToken.access_token, account.ssoToken.access_token_expires)
                 return con
             else:
                 return self._add_connection(fleetID, account)
@@ -152,7 +152,7 @@ def setup(fleet_id, fleet_type):
             if vg_motd is not None:
                 new_motd = vg_motd
         
-        fleet.put(fleet_url,json={'isFreeMove':True,'motd':new_motd.replace("$ts$", tsString)})
+        fleet.put(fleet_url,json={'isFreeMove':False,'motd':new_motd.replace("$ts$", tsString)})
 
     if wait_for_change:
         sleep(6)
