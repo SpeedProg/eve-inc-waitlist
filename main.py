@@ -7,7 +7,6 @@ sys.path.append(os.path.join(base_path, 'lib'))
 from waitlist.permissions import perm_manager
 from waitlist.utility.settings.settings import sget_insert
 from waitlist.data.names import WTMRoles
-from pycrest.eve import EVE
 from waitlist.utility.settings import settings
 from waitlist.utility.config import crest_client_id, crest_client_secret, crest_return_url,\
     cdn_eveimg, cdn_eveimg_js, cdn_eveimg_webp

@@ -12,7 +12,7 @@ from waitlist.utility.settings.settings import sget_active_ts_id, sget_motd_hq,\
     sget_motd_vg
 from waitlist.data.sse import sendServerSentEvent, InviteMissedSSE,\
     EntryRemovedSSE
-from waitlist.utility.swagger.evefleet import get_members, EveFleetEndpoint
+from waitlist.utility.swagger.eve.fleet import EveFleetEndpoint
 
 logger = logging.getLogger(__name__)
 
@@ -25,37 +25,31 @@ class FleetMemberInfo():
         return self._get_data(fleetID, account)
     
     def _to_members_map(self, response):
+        # type: (FleetMembers) -> dict(int, FleetMember)
         data = {}
         logger.debug("Got MemberList from API %s", str(response))
-        for member in response:
-            data[member['character_id']] = member
+        for member in response.FleetMember():
+            data[member.characterID()] = member
         return data
     
     def _get_data(self, fleetID, account):
+        fleetApi = EveFleetEndpoint(fleetID)
         utcnow = datetime.utcnow()
-        if (self.is_expired(fleetID, utcnow)):
+        if (self._is_expired(fleetID, utcnow)):
             logger.debug("Member Data Expired for %d and account %s", fleetID, account.username)
             try:
                 logger.debug("%s Requesting Fleet Member", account.username)
-                data = get_members(fleetID)
-
-                if data['response'].status_code != 200:
-                    if 'error' in data['data']:
-                        logger.error("Failed to get Fleetmembers from API code[%d] msg[%s]", data['response'].status_code, data['data']['error'])
-                    else:
-                        logger.error("Failed to get Fleetmembers from API code[%d]", data['response'].status_code)
-                    
-                    if fleetID in self._lastmembers:
-                        return self._lastmembers[fleetID]
-                    else:
-                        return None
-
-                logger.debug("%s Got Fleet Members", account.username)
-                self.update_cache(fleetID, self._to_members_map(data.data), data.expires)
-                logger.debug("%s Successfully updated Fleet Members", account.username)
+                data = fleetApi.get_member()
+                if not data.is_error():
+                    logger.debug("%s Got Fleet Members", account.username)
+                    self._update_cache(fleetID, self._to_members_map(data.data), data.expires)
+                    logger.debug("%s Successfully updated Fleet Members", account.username)
+                else:
+                    logger.error("Failed to get Fleetmembers from API code[%d] msg[%s]", data.code(), data.error())
+                    return self.get_cache_data(fleetID)
             except Exception as ex:
                 logger.error("%s Getting Fleet Members caused: %s", account.username, ex)
-                self.update_cache(fleetID, {}, datetime.utcnow())
+                return self.get_cache_data(fleetID)
         else:
             logger.debug("Cache hit for %d and account %s", fleetID, account.username)
         return self._lastmembers[fleetID]
@@ -65,7 +59,7 @@ class FleetMemberInfo():
             return self._lastmembers[fleetID]
         return None
     
-    def is_expired(self, fleetID, utcnow):
+    def _is_expired(self, fleetID, utcnow):
         if not fleetID in self._cached_until:
             return True
         else:
@@ -75,17 +69,12 @@ class FleetMemberInfo():
             else:
                 return True
     
-    def update_cache(self, fleetID, data, expires):
-        self._lastmembers[fleetID] = data
-        self._cached_until[fleetID] = expires
+    def _update_cache(self, fleetID, members):
+        # type: (int, FleetMember)
+        self._lastmembers[fleetID] = self._to_members_map(members)
+        self._cached_until[fleetID] = members.expires()
 
 member_info = FleetMemberInfo()
-
-class FleetRoles():
-    SQUAD_COMMANDER = 'squadCommander'
-    SQUAD_MEMBER = 'squadMember'
-    WING_COMMANDER = 'wingCommander'
-    FLEET_COMMANDER = 'fleetCommander'
 
 def setup(fleet_id, fleet_type):
     fleetApi = EveFleetEndpoint(fleet_id)
