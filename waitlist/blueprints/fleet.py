@@ -268,7 +268,7 @@ def print_fleet(fleetid):
         members = member_info.get_fleet_members(fleetid, crestFleet.comp)
         if (members == None):
             return "No cached or new info"
-        cachedMembers = members
+        cachedMembers = members.FleetMember()
     return current_app.response_class(json.dumps(cachedMembers,
         indent=None if request.is_xhr else 2, cls=FleetMemberEncoder), mimetype='application/json')
 
