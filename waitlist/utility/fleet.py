@@ -1,5 +1,4 @@
 from flask_login import current_user
-from waitlist.utility.config import crest_client_id, crest_client_secret
 from time import sleep
 import logging
 from threading import Timer
@@ -8,14 +7,12 @@ from waitlist.storage.database import WaitlistGroup, CrestFleet, WaitlistEntry,\
     HistoryEntry, Character, TeamspeakDatum
 from datetime import datetime
 from waitlist.utility.history_utils import create_history_object
-from waitlist.utility.crest import create_token_cb
 from flask.helpers import url_for
 from waitlist.utility.settings.settings import sget_active_ts_id, sget_motd_hq,\
     sget_motd_vg
 from waitlist.data.sse import sendServerSentEvent, InviteMissedSSE,\
     EntryRemovedSSE
-from waitlist.utility.swagger.evefleet import get_members, get_fleet,\
-    EveFleetEndpoint
+from waitlist.utility.swagger.evefleet import get_members, EveFleetEndpoint
 
 logger = logging.getLogger(__name__)
 
@@ -218,46 +215,31 @@ def setup(fleet_id, fleet_type):
 def invite(user_id, squadIDList):
     fleet = current_user.fleet
     fleetApi = EveFleetEndpoint(fleet.fleetID)
-    try:
+    oldsquad = (0, 0)
+    for idx in xrange(len(squadIDList)):
+        squad = squadIDList[idx];
+        if squad[0] == oldsquad[0] and squad[1] == oldsquad[1]:
+            continue
+        logger.info("Invite %s to wingID %s and squadID %s", str(user_id), str(squad[0]), str(squad[1]))
 
-        oldsquad = (0, 0)
-        for idx in xrange(len(squadIDList)):
-            squad = squadIDList[idx];
-            if squad[0] == oldsquad[0] and squad[1] == oldsquad[1]:
+        try:
+            response = fleetApi.invite(user_id, 'squad_member', squad[1], squad[0])
+        except Exception as ex:
+            logger.error("Failed to Invite Member[%d] into squad[%d] wing[%d]", user_id, squad[0], squad[1])
+            raise ex
+        if response.is_error():
+            logger.info('Got code[%d] back from invite call', response.code())
+            if response.code() == 422:
                 continue
-            logger.info("Invite %s to wingID %s and squadID %s", str(user_id), str(squad[0]), str(squad[1]))
-    
-            try:
-                
-                resp = fleet().members.post(json={'role':'squadMember', 'wingID': squad[0], 'squadID': squad[1], 'character':{'href':'https://crest-tq.eveonline.com/characters/'+str(user_id)+'/'}})
-            except APIException as ex:
-                if ex.resp.status_code == 403:
-                    return {'status_code': ex.resp.status_code, 'text': ex.resp.json()['message']}
-                else:
-                    raise ex
-                
-            if resp.status_code == 403:
-                if resp.json()['key'] == "FleetTooManyMembersInSquad":
-                    continue
-                else:
-                    return {'status_code': resp.status_code, 'text': resp.json()['message']}
-            elif resp.status_code == 201:
-                return {'status_code': 201, 'text': resp.text}
+            elif response.code() == 404:
+                return {'status_code': 404, 'text': "You need to go to <a href='"+url_for('fc_sso.login_redirect')+"'>SSO Login</a> and relogin in!"}
             else:
-                return {'status_code': resp.status_code, 'text': resp.json()['message']}
-    except APIException as ex:
-        if ex.resp.status_code == 400:
-                return {'status_code': 400, 'text': "You need to go to <a href='"+url_for('fc_sso.login_redirect')+"'>SSO Login</a> and relogin in!"}
-        else:
-            try:
-                logger.error("CREST failed with %s : %s", str(ex.resp.status_code), ex.resp.json())
-                return {'status_code': ex.resp.status_code, 'text': ex.resp.json()['error_description']}
-            except ValueError:
-                logger.error("CREST failed with %s : %s", str(ex.resp.status_code), ex.resp.text)
-                return {'status_code': ex.resp.status_code, 'text': ex.resp.text}
-            
+                return {'status_code': response.code(), 'text': response.error()}
+
+        return {'status_code': response.code(), 'text': ''}
+
     logger.info("Failed to invite %d to a squad, because all squads are full!", user_id)
-    return {'status_code': 403, 'text': 'Failed to invite person a a squad, all squads are full!'}
+    return {'status_code': 403, 'text': 'Failed to invite person a squad, all squads are full!'}
 
 def spawn_invite_check(characterID, groupID, fleetID):
     timerID = (characterID, groupID, fleetID)

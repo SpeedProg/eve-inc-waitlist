@@ -283,4 +283,7 @@ class EveFleetEndpoint(object):
     
     def invite(self, characterID, role, squadID, wingID):
         # type: (int, str, int, int) -> dict(str, Any)
+        '''
+        'fleet_commander', 'wing_commander', 'squad_commander', 'squad_member'
+        '''
         return invite_member(self.__fleetID, characterID, role, squadID, wingID)
