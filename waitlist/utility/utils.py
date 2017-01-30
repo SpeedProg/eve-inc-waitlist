@@ -68,3 +68,11 @@ def get_info_from_ban(ban_line):
         reason = None
         admin = None
     return char_name, reason, admin
+
+def token_has_scopes(ssoToken, scopes):
+    for scope in ssoToken.scopes:
+        if scope.scopeName in scopes:
+            a.remove(scope.scopeName)
+    if len(scopes) <= 0:
+        return True
+    return False
