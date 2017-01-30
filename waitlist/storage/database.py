@@ -3,7 +3,6 @@ from sqlalchemy import Column, Integer, String, SmallInteger, BIGINT, Boolean, D
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.sql.schema import Table, ForeignKey
 from sqlalchemy.dialects.mysql.base import LONGTEXT, TEXT
-import bcrypt
 import logging
 from waitlist.base import db
 from datetime import datetime
@@ -56,8 +55,8 @@ fmanager = Table("fleetmanager",
 
 token_scope = Table(
     'tokenscope', Base.metadata,
-    Column('tokenID', Integer, ForeignKey('ssotoken.accountID'), primary_key=True),
-    Column('scopeID', Integer, ForeignKey('eveapiscope.scopeID'), primary_key=True)
+    Column('tokenID', Integer, ForeignKey('ssotoken.accountID', onupdate="CASCADE", ondelete="CASCADE"), primary_key=True),
+    Column('scopeID', Integer, ForeignKey('eveapiscope.scopeID', onupdate="CASCADE", ondelete="CASCADE"), primary_key=True)
 )
 
 class EveApiScope(Base):
@@ -67,7 +66,7 @@ class EveApiScope(Base):
 
 class SSOToken(Base):
     __tablename__ = 'ssotoken'
-    accountID = Column(Integer, ForeignKey('accounts.id'), primary_key=True)
+    accountID = Column(Integer, ForeignKey('accounts.id', onupdate="CASCADE", ondelete="CASCADE"), primary_key=True)
     refresh_token = Column(String(128), default=None)
     access_token = Column(String(128), default=None)
     access_token_expires = Column(DateTime, default=datetime.utcnow)
