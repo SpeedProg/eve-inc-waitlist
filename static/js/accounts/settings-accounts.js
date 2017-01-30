@@ -104,7 +104,7 @@ waitlist.accounts = (function() {
 	}
 
 	function editAccount(accountId) {
-		var name = $('#acc-'+accountId+"-name").text();
+		var name = $('#acc-'+accountId+"-name > a").text();
 		var roles = $('#acc-'+accountId+'-roles').text();
 		var default_char_name = $('#acc-'+accountId+'-cchar').text();
 		$('#acc-edit-name').val(name);
