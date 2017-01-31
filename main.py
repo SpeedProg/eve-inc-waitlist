@@ -2,15 +2,14 @@ from gevent import monkey; monkey.patch_all()
 # inject the lib folder before everything else
 import os
 import sys
+from waitlist.sso import authorize, whoAmI
 base_path = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(base_path, 'lib'))
 from waitlist.permissions import perm_manager
 from waitlist.utility.settings.settings import sget_insert
 from waitlist.data.names import WTMRoles
-from pycrest.eve import EVE
 from waitlist.utility.settings import settings
-from waitlist.utility.config import crest_client_id, crest_client_secret, crest_return_url,\
-    cdn_eveimg, cdn_eveimg_js, cdn_eveimg_webp
+from waitlist.utility.config import cdn_eveimg, cdn_eveimg_js, cdn_eveimg_webp
 from waitlist.data.version import version
 from waitlist.utility.eve_id_utils import get_account_from_db, get_char_from_db,\
     is_char_banned, get_character_by_id_and_name
@@ -306,9 +305,13 @@ def unauthorized_ogb():
     return get_sso_redirect('linelogin', '')
 
 def member_login_cb(code):
-    eve = EVE(client_id=crest_client_id, api_key=crest_client_secret, redirect_uri=crest_return_url)
-    con = eve.authorize(code)
-    authInfo = con.whoami()
+    #eve = EVE(client_id=crest_client_id, api_key=crest_client_secret, redirect_uri=crest_return_url)
+    #con = eve.authorize(code)
+    auth = authorize(code)
+    access_token = auth['access_token']
+    #refresh_token = auth['refresh_token']
+    #expires = datetime.fromtimestamp(time.time()+auth['expires_in'])
+    authInfo = whoAmI(access_token)
     charID = authInfo['CharacterID']
     charName = authInfo['CharacterName']
 
