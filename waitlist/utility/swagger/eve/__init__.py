@@ -15,7 +15,7 @@ class ESIResponse(object):
     def __init__(self, expires, status_code, error):
         # type: (expires) -> None
         self.__expires = expires
-        self.__status_code
+        self.__status_code = status_code
         self.__error = error
     
     def expires(self):
