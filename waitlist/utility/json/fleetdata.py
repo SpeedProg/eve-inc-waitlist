@@ -1,5 +1,8 @@
+from __future__ import absolute_import
 import json
-from waitlist.utility.swagger.eve.fleet.responses import FleetMember
+from waitlist.utility.swagger.eve.fleet.models import FleetMember
+
+
 class FleetMemberEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, FleetMember):
