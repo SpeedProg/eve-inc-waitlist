@@ -6,7 +6,7 @@ sys.path.append(os.path.join(base_path, 'lib'))
 from waitlist.storage.database import Account, Character, Role
 from waitlist.utility.utils import get_random_token
 from waitlist.data.perm import WTMRoles
-import evelink
+from waitlist.utility.swagger import character_info
 from waitlist.base import db
 if __name__ == '__main__':
     name = raw_input("Login Name:")
@@ -26,15 +26,13 @@ if __name__ == '__main__':
     
     char_name = "--"
     list_eveids = []
-    eve = evelink.eve.EVE()
     while char_name:
         char_name = raw_input("Enter Character to associate with this account:")
         char_name = char_name.strip()
         if not char_name:
             break
         
-        response = eve.character_id_from_name(char_name)
-        char_id = int(response.result)
+        char_id, char_name = character_info.characterid_from_name(char_name)
         character = Character()
         character.eve_name = char_name
         character.id = char_id
