@@ -7,12 +7,14 @@ from esipy.client import EsiClient
 from datetime import datetime
 from waitlist.utility.swagger import api
 
-#
-#recipients=[{
-#"recipient_id": 0,
-#"recipient_type": "character"
-#}]
-#
+################################
+# recipients=[{
+# "recipient_id": 0,
+# "recipient_type": "character"
+# }]
+################################
+
+
 def sendMail(recipients, body, subject):
     security = EsiSecurity(
         api,
@@ -22,16 +24,18 @@ def sendMail(recipients, body, subject):
     )
     security.update_token({
         'access_token': current_user.ssoToken.access_token,
-        'expires_in': (current_user.ssoToken.access_token_expires - datetime.utcnow()).total_seconds(),
+        'expires_in': (current_user.ssoToken.access_token_expires -
+                       datetime.utcnow()).total_seconds(),
         'refresh_token': current_user.ssoToken.refresh_token
     })
-    #security.auth(current_user.ssoToken.access_token)
+
     client = EsiClient(security)
-    
-    mail= {
+
+    mail = {
         "approved_cost": 0,
         "body": body,
         "recipients": recipients,
         "subject": subject
     }
-    return client.request(api.op['post_characters_character_id_mail'](character_id=current_user.current_char, mail=mail))
+    return client.request(api.op['post_characters_character_id_mail'](
+        character_id=current_user.current_char, mail=mail))
