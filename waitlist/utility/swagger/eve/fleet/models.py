@@ -1,4 +1,4 @@
-import dateutil
+from dateutil.parser import parse
 
 
 class FleetSettings(object):
@@ -55,8 +55,7 @@ class FleetMember(object):
     def __init__(self, member):
         # type: (FleetMember, dict(str, Any)) -> None
         self._data = member
-        self._data['join_time'] = dateutil.parser.parse(
-            self.__data['join_time'])
+        self._data['join_time'] = self._data['join_time'].v
 
     def characterID(self):
         # type: () -> int

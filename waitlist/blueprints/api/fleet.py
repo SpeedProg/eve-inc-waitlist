@@ -88,7 +88,7 @@ def invite_to_fleet():
     resp = flask.jsonify({'status': status['status_code'], 'message': status['text']})
     resp.status_code = status['status_code']
 
-    if resp.status_code != 201: # invite failed send no notifications
+    if resp.status_code != 204: # invite failed send no notifications
         logger.error("Invited %s by %s into %s failed", character.eve_name, current_user.username, squad_type)
         return resp
 
@@ -120,7 +120,7 @@ def invite_to_fleet():
     
     # set a timer for 1min and 6s that checks if the person accepted the invite
     logger.info("API Response for %s was %d", character.eve_name, resp.status_code)
-    if resp.status_code == 201:
+    if resp.status_code == 204:
         spawn_invite_check(characterID, groupID, fleet.fleetID)
     return resp
 

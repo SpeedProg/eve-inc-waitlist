@@ -72,7 +72,7 @@ def get_info_from_ban(ban_line):
 def token_has_scopes(ssoToken, scopes):
     for scope in ssoToken.scopes:
         if scope.scopeName in scopes:
-            a.remove(scope.scopeName)
+            scopes.remove(scope.scopeName)
     if len(scopes) <= 0:
         return True
     return False

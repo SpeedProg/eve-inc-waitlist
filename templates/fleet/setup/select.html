@@ -23,7 +23,7 @@
 	<select class="form-control" id="wl-logi" name="wl-logi">
 	{% for wing in wings %}
 		{% for squad in wing.squads() %}
-			<option name="wl-logi" value="{{wing.id()}};{{squad.id())}}"{% if 'logi' in assign and assign['logi'].id() == squad.id() %} selected{%endif%}>{{wing.name()}} - {{squad.name()}}</option>
+			<option name="wl-logi" value="{{wing.id()}};{{squad.id()}}"{% if 'logi' in assign and assign['logi'].id() == squad.id() %} selected{%endif%}>{{wing.name()}} - {{squad.name()}}</option>
 		{% endfor %}
 	{% endfor %}
 	</select>
@@ -52,7 +52,7 @@
 	<label for="wl-overflow">Overflow Squad</label>
 	<select class="form-control" id="wl-overflow" name="wl-overflow">
 	{% for wing in wings %}
-		{% for squad in wing.squadsList %}
+		{% for squad in wing.squads() %}
 		<option name="wl-overflow" value="{{wing.id()}};{{squad.id()}}"{% if 'overflow' in assign and assign['overflow'].id() == squad.id() %} selected{%endif%}>{{wing.name()}} - {{squad.name()}}</option>
 		{% endfor %}
 	{% endfor %}

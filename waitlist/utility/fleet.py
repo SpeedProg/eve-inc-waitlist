@@ -13,6 +13,8 @@ from waitlist.utility.settings.settings import sget_active_ts_id, sget_motd_hq,\
 from waitlist.data.sse import sendServerSentEvent, InviteMissedSSE,\
     EntryRemovedSSE
 from waitlist.utility.swagger.eve.fleet import EveFleetEndpoint
+import flask
+from waitlist.utility.swagger.eve import get_esi_client_for_account
 
 logger = logging.getLogger(__name__)
 
@@ -33,7 +35,7 @@ class FleetMemberInfo():
         return data
     
     def _get_data(self, fleetID, account):
-        fleetApi = EveFleetEndpoint(fleetID)
+        fleetApi = EveFleetEndpoint(fleetID, get_esi_client_for_account(account))
         utcnow = datetime.utcnow()
         if (self._is_expired(fleetID, utcnow)):
             logger.debug("Member Data Expired for %d and account %s", fleetID, account.username)
@@ -42,13 +44,13 @@ class FleetMemberInfo():
                 data = fleetApi.get_member()
                 if not data.is_error():
                     logger.debug("%s Got Fleet Members", account.username)
-                    self._update_cache(fleetID, self._to_members_map(data.data), data.expires)
+                    self._update_cache(fleetID, data)
                     logger.debug("%s Successfully updated Fleet Members", account.username)
                 else:
                     logger.error("Failed to get Fleetmembers from API code[%d] msg[%s]", data.code(), data.error())
                     return self.get_cache_data(fleetID)
             except Exception as ex:
-                logger.error("%s Getting Fleet Members caused: %s", account.username, ex)
+                logger.error("%s Getting Fleet Members caused: %s", account.username, ex, exc_info=True)
                 return self.get_cache_data(fleetID)
         else:
             logger.debug("Cache hit for %d and account %s", fleetID, account.username)
@@ -69,10 +71,10 @@ class FleetMemberInfo():
             else:
                 return True
     
-    def _update_cache(self, fleetID, members):
+    def _update_cache(self, fleetID, response):
         # type: (int, FleetMember)
-        self._lastmembers[fleetID] = self._to_members_map(members)
-        self._cached_until[fleetID] = members.expires()
+        self._lastmembers[fleetID] = self._to_members_map(response)
+        self._cached_until[fleetID] = response.expires()
 
 member_info = FleetMemberInfo()
 
@@ -80,7 +82,10 @@ def setup(fleet_id, fleet_type):
     # type: (int, str) -> boolean
     fleetApi = EveFleetEndpoint(fleet_id)
     fleet_settings = fleetApi.get_fleet_settings()
-
+    if fleet_settings.is_error():
+        logger.error("Failed to get Fleet Settings code[%d] msg[%s]",
+                     fleet_settings.code(), fleet_settings.error())
+        flask.abort(500)
     old_motd = fleet_settings.get_MOTD()
 
     wait_for_change = False
@@ -186,18 +191,18 @@ def setup(fleet_id, fleet_type):
         if logiSquad is not None and logiSquad.name() == "Squad 1":
             fleetApi.set_squad_name(logiSquad.id(), 'LOGI')
         if sniperSquad is not None and sniperSquad.name() == "Squad 2":
-            fleetApi.set_squad_name(sniperSquad.id(), 'LOGI')
-        if dpsSquad is not None and dpsSquad.name == "Squad 3":
+            fleetApi.set_squad_name(sniperSquad.id(), 'SNIPER')
+        if dpsSquad is not None and dpsSquad.name() == "Squad 3":
             fleetApi.set_squad_name(dpsSquad.id(), 'DPS')
-        if moreDpsSquad is not None and moreDpsSquad.name == "Squad 4":
+        if moreDpsSquad is not None and moreDpsSquad.name() == "Squad 4":
             fleetApi.set_squad_name(moreDpsSquad.id(), 'MORE DPS')
     elif fleet_type == "vg":
-        if logiSquad is not None and logiSquad.name == "Squad 1":
+        if logiSquad is not None and logiSquad.name() == "Squad 1":
             fleetApi.set_squad_name(logiSquad.id(), 'LOGI')
-        if sniperSquad is not None and sniperSquad.name == "Squad 2":
+        if sniperSquad is not None and sniperSquad.name() == "Squad 2":
             fleetApi.set_squad_name(sniperSquad.id(), 'DPS')
 
-    if wing2 is not None and len(wing2.squads()) > 0 and wing2.squad()[0].name().lower() != "tipping":
+    if wing2 is not None and len(wing2.squads()) > 0 and wing2.squads()[0].name().lower() != "tipping":
         fleetApi.set_squad_name(wing2.squads()[0].id(), 'Tipping')
     
     sleep(5)

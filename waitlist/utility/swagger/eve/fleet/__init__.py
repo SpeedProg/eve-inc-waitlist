@@ -5,22 +5,26 @@ from waitlist.utility.swagger.eve.fleet.responses import EveFleet, EveFleetWings
     WingCreated, EveFleetMembers, SquadCreated
 from waitlist.utility.swagger.eve.fleet.models import EveFleetWing,\
     EveFleetSquad, FleetSettings
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class EveFleetEndpoint(object):
-    def __init__(self, fleetID):
-        # type: (int) -> None
+    def __init__(self, fleetID, client=None):
+        # type: (int, EsiClient) -> None
         self.__fleetID = fleetID
+        self.__client = get_esi_client() if client is None else client
 
     def get_member(self):
         # type: (int) -> dict(str, Any)
-        client = get_esi_client()
-        response = client.request(api.op['get_fleets_fleet_id_members'](fleet_id=self.__fleetID))
-        if response.status_code == 200:
+        response = self.__client.request(api.op['get_fleets_fleet_id_members'](fleet_id=self.__fleetID))
+        logger.debug("Got ESI Response with status[%d]", response.status)
+        if response.status == 200:
             return EveFleetMembers(get_expire_time(response),
-                                   response.status_code,
+                                   response.status,
                                    None, response.data)
-        return EveFleetMembers(get_expire_time(response), response.status_code,
+        return EveFleetMembers(get_expire_time(response), response.status,
                                response.data['error'], None)
 
     def get_fleet_settings(self):
@@ -38,16 +42,15 @@ class EveFleetEndpoint(object):
             Fleet MOTD in CCP flavoured HTML
         }
         '''
-        client = get_esi_client()
-        response = client.request(api.op['get_fleets_fleet_id'](fleet_id=self.__fleetID))
-        if (response.status_code == 200):
-            return EveFleet(get_expire_time(response), response.status_code,
+        response = self.__client.request(api.op['get_fleets_fleet_id'](fleet_id=self.__fleetID))
+        if (response.status == 200):
+            return EveFleet(get_expire_time(response), response.status,
                             None,
                             response.data['is_free_move'],
                             response.data['is_registered'],
                             response.data['is_voice_enabled'],
                             response.data['motd'])
-        return EveFleet(get_expire_time(response), response.status_code,
+        return EveFleet(get_expire_time(response), response.status,
                         response.data['error'],
                         None, None,
                         None, None
@@ -56,23 +59,22 @@ class EveFleetEndpoint(object):
     def set_fleet_settings(self, is_free_move, motd):
         # type: (boolean, str) -> ESIResponse
         settings = FleetSettings(is_free_move, motd)
-        client = get_esi_client()
 
-        response = client.request(api.op['put_fleets_fleet_id_new_settings'](
+        response = self.__client.request(api.op['put_fleets_fleet_id'](
             fleet_id=self.__fleetID,
             new_settings=settings.get_esi_data()
             ))
-        if response.status_code == 204:
-            return ESIResponse(get_expire_time(response), response.status_code,
+        if response.status == 204:
+            return ESIResponse(get_expire_time(response), response.status,
                                None)
-        return ESIResponse(get_expire_time(response), response.status_code,
+        return ESIResponse(get_expire_time(response), response.status,
                            response.data['error'])
 
     def get_wings(self):
         # type: () -> EveFleetWings
         client = get_esi_client()
         response = client.request(api.op['get_fleets_fleet_id_wings'](fleet_id=self.__fleetID))
-        if response.status_code == 200:
+        if response.status == 200:
             wings = []
             for wing in response.data:
                 wingID = wing['id']
@@ -85,64 +87,60 @@ class EveFleetEndpoint(object):
                 wings.append(fleetWing)
 
             return EveFleetWings(get_expire_time(response),
-                                 response.status_code,
+                                 response.status,
                                  None, wings)
-        return EveFleetWings(get_expire_time(response), response.status_code,
+        return EveFleetWings(get_expire_time(response), response.status,
                              response.data['error'], None)
 
     def create_wing(self):
         # type: () -> WingCreated
-        client = get_esi_client()
-        response = client.request(api.op['post_fleets_fleet_id_wings'](fleet_id=self.__fleetID))
-        if response.status_code == 201:
-            return WingCreated(get_expire_time(response), response.status_code,
+        response = self.__client.request(api.op['post_fleets_fleet_id_wings'](fleet_id=self.__fleetID))
+        if response.status == 201:
+            return WingCreated(get_expire_time(response), response.status,
                                None,
                                response.data['wing_id']
                                )
-        return WingCreated(get_expire_time(response), response.status_code,
+        return WingCreated(get_expire_time(response), response.status,
                            response.data['error'])
 
     def set_wing_name(self, wingID, name):
         # type: (int, str) -> ESIResponse
-        client = get_esi_client()
         data = {'name': name}
-        response = client.request(
+        response = self.__client.request(
             api.op['put_fleets_fleet_id_wings_wing_id'](
                 fleet_id=self.__fleetID, wing_id=wingID, naming=data
             )
         )
 
-        if response.status_code == 204:
-            return ESIResponse(get_expire_time(response), response.status_code,
+        if response.status == 204:
+            return ESIResponse(get_expire_time(response), response.status,
                                None)
 
-        return ESIResponse(get_expire_time(response), response.status_code,
+        return ESIResponse(get_expire_time(response), response.status,
                            response.data['error'])
 
     def create_squad(self, wingID):
         # type: (int) -> SquadCreated
-        client = get_esi_client()
-        response = client.request(api.op['post_fleets_fleet_id_wings_wing_id_squads'](fleet_id=self.__fleetID, wing_id=wingID))
-        if response.status_code == 201:
+        response = self.__client.request(api.op['post_fleets_fleet_id_wings_wing_id_squads'](fleet_id=self.__fleetID, wing_id=wingID))
+        if response.status == 201:
             return SquadCreated(get_expire_time(response),
-                                response.status_code,
+                                response.status,
                                 None,
                                 wingID, response.data['squad_id']
                                 )
 
-        return SquadCreated(get_expire_time(response), response.status_code,
+        return SquadCreated(get_expire_time(response), response.status,
                             None, None, None)
 
     def set_squad_name(self, squadID, name):
         # type: (int, str) -> ESIResponse
-        client = get_esi_client()
-        response = client.request(api.op['put_fleets_fleet_id_squads_squad_id'](
+        response = self.__client.request(api.op['put_fleets_fleet_id_squads_squad_id'](
             fleet_id=self.__fleetID, squad_id=squadID, naming={'name': name}))
 
-        if response.status_code == 204:
-            return ESIResponse(get_expire_time(response), response.status_code,
+        if response.status == 204:
+            return ESIResponse(get_expire_time(response), response.status,
                                None)
-        return ESIResponse(get_expire_time(response), response.status_code,
+        return ESIResponse(get_expire_time(response), response.status,
                            response.data['error'])
 
     def invite(self, characterID, role, squadID, wingID):
@@ -150,7 +148,6 @@ class EveFleetEndpoint(object):
         '''
         'fleet_commander', 'wing_commander', 'squad_commander', 'squad_member'
         '''
-        client = get_esi_client()
         invite = {}
         invite['character_id'] = characterID
         invite['role'] = role
@@ -158,11 +155,11 @@ class EveFleetEndpoint(object):
             invite['squad_id'] = squadID
         if wingID is not None:
             invite['wing_id'] = wingID
-        response = client.request(api.op['post_fleets_fleet_id_members_invitation'](
+        response = self.__client.request(api.op['post_fleets_fleet_id_members'](
             fleet_id=self.__fleetID, invitation=invite))
 
-        if response.status_code == 204:
-            return ESIResponse(get_expire_time(response), response.status_code,
+        if response.status == 204:
+            return ESIResponse(get_expire_time(response), response.status,
                                None)
-        return ESIResponse(get_expire_time(response), response.status_code,
+        return ESIResponse(get_expire_time(response), response.status,
                            response.data['error'])
