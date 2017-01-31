@@ -3,15 +3,13 @@ from gevent import monkey; monkey.patch_all()
 import os
 import sys
 from waitlist.sso import authorize, whoAmI
-import time
 base_path = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(base_path, 'lib'))
 from waitlist.permissions import perm_manager
 from waitlist.utility.settings.settings import sget_insert
 from waitlist.data.names import WTMRoles
 from waitlist.utility.settings import settings
-from waitlist.utility.config import crest_client_id, crest_client_secret, crest_return_url,\
-    cdn_eveimg, cdn_eveimg_js, cdn_eveimg_webp
+from waitlist.utility.config import cdn_eveimg, cdn_eveimg_js, cdn_eveimg_webp
 from waitlist.data.version import version
 from waitlist.utility.eve_id_utils import get_account_from_db, get_char_from_db,\
     is_char_banned, get_character_by_id_and_name
