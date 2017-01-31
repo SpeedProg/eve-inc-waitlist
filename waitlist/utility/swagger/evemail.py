@@ -1,11 +1,11 @@
 # https://esi.tech.ccp.is/latest/swagger.json?datasource=tranquility
-from pyswagger import App
 from flask_login import current_user
 from esipy.security import EsiSecurity
 from waitlist.utility.config import crest_return_url, crest_client_id,\
     crest_client_secret
 from esipy.client import EsiClient
 from datetime import datetime
+from waitlist.utility.swagger import api
 
 #
 #recipients=[{
@@ -14,7 +14,6 @@ from datetime import datetime
 #}]
 #
 def sendMail(recipients, body, subject):
-    api = App._create_('https://esi.tech.ccp.is/latest/swagger.json?datasource=tranquility')
     security = EsiSecurity(
         api,
         crest_return_url,

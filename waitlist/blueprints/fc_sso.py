@@ -1,21 +1,13 @@
 from flask.blueprints import Blueprint
 import logging
-from flask_login import login_required, current_user
+from flask_login import login_required
 from waitlist.data.perm import perm_management
 from werkzeug.utils import redirect
 from flask.globals import request, session, _app_ctx_stack
 from flask_seasurf import randrange, _MAX_CSRF_KEY
 import hashlib
-import requests
-import base64
-from datetime import datetime, timedelta
-from waitlist.base import db
-from flask.helpers import url_for
 from urllib import urlencode
-from waitlist.utility.config import crest_return_url, crest_client_secret, crest_client_id
-from evelink import account
-from waitlist.utility.crest import create_token_cb
-from pycrest.eve import AuthedConnectionB
+from waitlist.utility.config import crest_return_url, crest_client_id
 import flask
 
 bp = Blueprint('fc_sso', __name__)

@@ -11,8 +11,7 @@ from waitlist.storage.database import Account, Role, Character,\
     linked_chars, Ban, Constellation, IncursionLayout, SolarSystem, Station,\
     WaitlistEntry, WaitlistGroup, Whitelist, TeamspeakDatum, Shipfit, InvType
 import flask
-from waitlist.data.eve_xml_api import get_character_id_from_name,\
-    eve_api_cache_char_ids, get_char_info_for_character
+from waitlist.data.eve_xml_api import get_character_id_from_name, get_char_info_for_character
 from werkzeug.utils import redirect, secure_filename
 from flask.helpers import url_for, flash
 from waitlist.utility.utils import get_random_token, get_info_from_ban
@@ -431,8 +430,6 @@ def bans_change():
         names_to_cache.append(ban_name)
         if ban_admin is not None:
             names_to_cache.append(ban_admin)
-    
-    eve_api_cache_char_ids(names_to_cache)
     
     if action == "ban":
         for target in targets:
@@ -971,8 +968,6 @@ def update_accounts_by_file(filename):
     for char_name in char_dict:
         chars_to_cache.append(char_name)
     
-    eve_api_cache_char_ids(chars_to_cache)
-    
     for main_name in main_dict:
         acc = db.session.query(Account).filter(Account.username == main_name).first()
         if acc is not None:
@@ -1050,8 +1045,6 @@ def whitelist_change():
         names_to_cache.append(wl_name)
         if wl_admin is not None:
             names_to_cache.append(wl_admin)
-    
-    eve_api_cache_char_ids(names_to_cache)
     
     if action == "whitelist":
         for target in targets:
