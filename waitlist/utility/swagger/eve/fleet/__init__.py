@@ -17,7 +17,7 @@ class EveFleetEndpoint(object):
         response = client.request(api.op['get_fleets_fleet_id_members'](fleet_id=self.__fleetID))
         if response.status_code == 200:
             return EveFleetMembers(get_expire_time(response), response.status_code, None, response.data)
-        return EveFleetMembers(get_expire_time(response), response.status_code, response.data['error'])
+        return EveFleetMembers(get_expire_time(response), response.status_code, response.data['error'], None)
     
     def get_fleet_settings(self):
         # type: () -> EveFleet
@@ -112,7 +112,7 @@ class EveFleetEndpoint(object):
     def set_squad_name(self, squadID, name):
         # type: (int, str) -> ESIResponse
         client = get_esi_client()
-        response = client.request(api.op['put_fleets_fleet_id_squads_squad_id'](fleet_id=self.__fleetID, squad_id=squadID))
+        response = client.request(api.op['put_fleets_fleet_id_squads_squad_id'](fleet_id=self.__fleetID, squad_id=squadID, naming={'name': name}))
         if response.status_code == 204:
             return ESIResponse(get_expire_time(response), response.status_code, None)
         return ESIResponse(get_expire_time(response), response.status_code, response.data['error'])
