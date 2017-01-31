@@ -7,6 +7,8 @@ from email._parseaddr import mktime_tz
 from pyswagger import Security
 from pyswagger.contrib.client.requests import Client
 import datetime
+from waitlist.utility.swagger.eve import get_esi_client, ESIResponse,\
+    get_expire_time
 # object = {'id':char_id, 'name': char_name, 'allianceID': alliance_id, 'allianceName': alliance_name, 'corporationID': corp_id, 'corporationName': corp_name, 'expire': expire}
 def get_affiliation_info(char_id):
     security = Security(
@@ -99,3 +101,13 @@ def get_character_info(char_id):
     expires = max(char_answer_expire, corp_answer_expire)
     ret = char_answer.data.update(corp_answer.data)
     return ret, datetime.datetime.fromtimestamp(expires)
+
+
+def open_information(target_id):
+    client = get_esi_client()
+
+    resp = client.request(api.op['post_ui_openwindow_information'](target_id=target_id))
+    if resp.status == 204:
+        return ESIResponse(get_expire_time(resp), resp.status, None)
+    return ESIResponse(get_expire_time(resp), resp.status,
+                       resp.data['error'])

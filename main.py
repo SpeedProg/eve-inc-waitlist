@@ -385,12 +385,6 @@ if __name__ == '__main__':
     app.logger.addHandler(info_fh)
     app.logger.addHandler(debug_fh)
     app.logger.setLevel(logging.INFO)
-
-    pycrest_logger = logging.getLogger("pycrest.eve")
-    pycrest_logger.addHandler(debug_fh)
-    pycrest_logger.addHandler(info_fh)
-    pycrest_logger.addHandler(err_fh)
-    pycrest_logger.setLevel(logging.DEBUG)
     
     #app.run(host="0.0.0.0", port=81, debug=True)
     runServer()

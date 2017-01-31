@@ -1,11 +1,14 @@
 from waitlist.utility.swagger.eve import ESIResponse
 from waitlist.utility.swagger.eve.fleet.models import FleetMember
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class EveFleetMembers(ESIResponse):
     def __init__(self, expires, status_code, error, data):
         # type: (datetime, int, str, List[dict(str, Any)]) -> None
-        super(ESIResponse).__init__(expires, status_code, error)
+        super(EveFleetMembers, self).__init__(expires, status_code, error)
 
         if data is not None:
             self.__setData(data)
@@ -16,6 +19,7 @@ class EveFleetMembers(ESIResponse):
         # type: (List[dict(str, Any)]) -> None
         self.__members = []
         for member in data:
+            logger.debug("Adding FleetMember with data[%s]", member)
             self.__members.append(FleetMember(member))
 
     def FleetMember(self):
@@ -27,7 +31,7 @@ class EveFleet(ESIResponse):
     def __init__(self, expires, status_code, error, is_free_move,
                  is_registered, is_voice_enabled, motd):
         # type: (datetime, boolean, boolean, boolean, str)
-        super(ESIResponse).__init__(expires, status_code, error)
+        super(EveFleet, self).__init__(expires, status_code, error)
         self.__is_free_move = is_free_move
         self.__is_registered = is_registered
         self.__is_voice_enabled = is_voice_enabled
@@ -53,8 +57,8 @@ class EveFleet(ESIResponse):
 class EveFleetWings(ESIResponse):
     def __init__(self, expires, status_code, error, wings):
         # type: (datetime, boolean, boolean, str, List[EveFleetWing]) -> None
+        super(EveFleetWings, self).__init__(expires, status_code, error)
         self.__wings = wings
-        super(ESIResponse).__init__(expires, status_code, error)
 
     def wings(self):
         # type: () -> List[EveFleetWing]
@@ -64,8 +68,8 @@ class EveFleetWings(ESIResponse):
 class WingCreated(ESIResponse):
     def __init__(self, expires, status_code, error, wingID):
         # type: (datetime, int, str, int) -> None
+        super(WingCreated, self).__init__(expires, status_code, error)
         self.__wingID = wingID
-        super(ESIResponse).__init__(expires, status_code, error)
 
     def wingID(self):
         # type: () -> int
@@ -75,9 +79,9 @@ class WingCreated(ESIResponse):
 class SquadCreated(ESIResponse):
     def __init__(self, expires, status_code, error, wingID, squadID):
         # type: (datetime, int, str, int, int) -> None
+        super(SquadCreated, self).__init__(expires, status_code, error)
         self.__wingID = wingID
         self.__squadID = squadID
-        super(ESIResponse).__init__(expires, status_code, error)
 
     def wingID(self):
         # type: () -> int

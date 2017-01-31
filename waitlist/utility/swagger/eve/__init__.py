@@ -9,8 +9,9 @@ from datetime import datetime
 
 def get_expire_time(response):
     # type: (Any) -> datetime
-    cacheTime = header_to_datetime(response.header['Expires'][0])
-    return header_to_datetime(cacheTime)
+    if 'Expires' in response.header:
+        return header_to_datetime(response.header['Expires'][0])
+    return datetime.utcnow()
 
 
 class ESIResponse(object):
@@ -31,8 +32,8 @@ class ESIResponse(object):
     def is_error(self):
         # type: () -> boolean
         if self.__error is None:
-            return True
-        return False
+            return False
+        return True
 
     def error(self):
         # type: () -> str
@@ -41,6 +42,11 @@ class ESIResponse(object):
 
 def get_esi_client():
     # type: () -> EsiClient
+    return get_esi_client_for_account(current_user)
+
+
+def get_esi_client_for_account(account):
+    # type: (Account) -> EsiClient
     security = EsiSecurity(
         api,
         crest_return_url,
@@ -48,10 +54,10 @@ def get_esi_client():
         crest_client_secret
     )
     security.update_token({
-        'access_token': current_user.ssoToken.access_token,
-        'expires_in': (current_user.ssoToken.access_token_expires -
+        'access_token': account.ssoToken.access_token,
+        'expires_in': (account.ssoToken.access_token_expires -
                        datetime.utcnow()).total_seconds(),
-        'refresh_token': current_user.ssoToken.refresh_token
+        'refresh_token': account.ssoToken.refresh_token
     })
     client = EsiClient(security)
     return client
