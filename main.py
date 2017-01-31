@@ -2,6 +2,8 @@ from gevent import monkey; monkey.patch_all()
 # inject the lib folder before everything else
 import os
 import sys
+from waitlist.sso import authorize, whoAmI
+import time
 base_path = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(base_path, 'lib'))
 from waitlist.permissions import perm_manager
@@ -305,9 +307,13 @@ def unauthorized_ogb():
     return get_sso_redirect('linelogin', '')
 
 def member_login_cb(code):
-    eve = EVE(client_id=crest_client_id, api_key=crest_client_secret, redirect_uri=crest_return_url)
-    con = eve.authorize(code)
-    authInfo = con.whoami()
+    #eve = EVE(client_id=crest_client_id, api_key=crest_client_secret, redirect_uri=crest_return_url)
+    #con = eve.authorize(code)
+    auth = authorize(code)
+    access_token = auth['access_token']
+    #refresh_token = auth['refresh_token']
+    #expires = datetime.fromtimestamp(time.time()+auth['expires_in'])
+    authInfo = whoAmI(access_token)
     charID = authInfo['CharacterID']
     charName = authInfo['CharacterName']
 
