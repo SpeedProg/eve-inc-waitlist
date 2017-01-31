@@ -77,6 +77,7 @@ class FleetMemberInfo():
 member_info = FleetMemberInfo()
 
 def setup(fleet_id, fleet_type):
+    # type: (int, str) -> boolean
     fleetApi = EveFleetEndpoint(fleet_id)
     fleet_settings = fleetApi.get_fleet_settings()
 
