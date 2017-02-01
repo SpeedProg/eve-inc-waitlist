@@ -598,3 +598,33 @@ class FitModule(Base):
     amount = Column(Integer, default=1)
     module = relationship('InvType')
     fit = relationship('Shipfit')
+
+class CalendarEventCategory(Base):
+    __tablename__: str = 'calendar_category'
+    categoryID: Column = Column(Integer, primary_key=True)
+    categoryName: Column = Column(String(50), index=True)
+
+calendar_organizer: Table = Table('calendar_organizer',
+                  Base.metadata,
+                  Column('accountID', Integer, ForeignKey('accounts.id', ondelete="CASCADE", onupdate='CASCADE')),
+                  Column('eventID', Integer, ForeignKey('calendar_event.eventID', ondelete="CASCADE", onupdate='CASCADE'))
+                  )
+
+calendar_backseat: Table = Table('calendar_backseat',
+                  Base.metadata,
+                  Column('accountID', Integer, ForeignKey('accounts.id', ondelete="CASCADE", onupdate='CASCADE')),
+                  Column('eventID', Integer, ForeignKey('calendar_event.eventID', ondelete="CASCADE", onupdate='CASCADE'))
+                  )
+
+class CalendarEvent(Base):
+    __tablename__: str = 'calendar_event'
+    eventID: Column = Column(Integer, primary_key=True)
+    eventTitle: Column = Column(TEXT)
+    eventDescription: Column = Column(TEXT)
+    eventCategoryID: Column = Column(Integer, ForeignKey('calendar_category.categoryID', onupdate='CASCADE'), index=True)
+    eventApproved: Column = Column(Boolean, index=True)
+    eventTime: Column = Column(DateTime, index=True)
+
+    eventCategory: relationship = relationship('CaldendarEventCategory')
+    organizers: relationship = relationship("Account", secondary="calendar_organizer")
+    backseats: relationship = relationship("Account", secondary="calendar_backseat")
