@@ -12,7 +12,7 @@ class LogMixin(object):
         return logging.getLogger(name)
 
 def get_random_token(length):
-    return unicode(''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(length)))
+    return str(''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(length)))
 
 def create_dna_string(mod_map):
     dna = ""

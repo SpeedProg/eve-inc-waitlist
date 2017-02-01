@@ -1,11 +1,11 @@
 import os
-import ConfigParser
 import base64
 from os import makedirs
+from configparser import SafeConfigParser
 
-if  not os.path.isfile(os.path.join(".", "config", "config.cfg")):
+if not os.path.isfile(os.path.join(".", "config", "config.cfg")):
     # create a preset file
-    config = ConfigParser.SafeConfigParser()
+    config = SafeConfigParser()
     config.add_section("database")
     config.set("database", "connection_uri", "mysql+mysqldb://user:password@localhost:3306/dbname")
     config.set("database", "sqlalchemy_pool_recycle", "7200")
@@ -53,7 +53,7 @@ if  not os.path.isfile(os.path.join(".", "config", "config.cfg")):
     with open(os.path.join(".", "config", "config.cfg"), "wb") as configfile:
         config.write(configfile)
 
-config = ConfigParser.SafeConfigParser()
+config = SafeConfigParser()
 config.read(os.path.join("config", "config.cfg"))
 
 debug_enabled = config.get("debug", "enabled") == "True"

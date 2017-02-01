@@ -1,9 +1,3 @@
-'''
-Created on 29.10.2016
-
-@author: SpeedProg
-'''
-from __future__ import absolute_import
 from waitlist.utility.json.waitlist import makeJsonFitting, makeJsonCharacter
 
 def makeJsonAccount(acc):
