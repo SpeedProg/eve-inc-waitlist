@@ -7,7 +7,7 @@ if (!waitlist) {
 
 waitlist.ticketsettings = (function (){
 	
-	var sendMail = waitlist.IGBW.sendMail;
+	var sendMail = waitlist.esi.ui.newmail;
 	var getMetaData = waitlist.base.getMetaData;
 	var displayMessage = waitlist.base.displayMessage;
 	
@@ -39,10 +39,15 @@ waitlist.ticketsettings = (function (){
 		var message = ticketElement.getMessage();
 		var charID = ticketElement.getCharacterId();
 		var charName = ticketElement.getCharacterName();
-		sendMail(charID, 
+		openMailToCharacter(charID,
 				"Answer to your Waitlist Feedback",
 				`Hello ${charName},\nWe read your ticket:\n<font size="10" color="#ffffcc00">${$("<div>").text(title).html()}\n\n${$("<div>").text(message).html()}</font>\n\nregards,\n`
 				);
+	}
+
+	function openMailToCharacter(charId, subject, body) {
+		// [{"recipient_id": ID, "recipient_type": "alliance|character|corporation|mailing_list"}]
+		sendMail([{"recipient_id": charId, "recipient_type": "character"}], subject, body);
 	}
 
 	function changeTicketStatus(ticketID, ticketStatus, successFunc) {

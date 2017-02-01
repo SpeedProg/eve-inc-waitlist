@@ -2,12 +2,12 @@ from typing import Dict, Any, List
 from  datetime import datetime
 class FleetSettings(object):
     def __init__(self, is_free_move: bool, motd: str) -> None:
-        # type: (boolean, str) -> None
+        # type: (bool, str) -> None
         self.__is_free_move: bool = is_free_move
         self.__motd: str = motd
 
-    def get_esi_data(self) -> Dict(str, Any):
-        data: Dict(str, Any) = {}
+    def get_esi_data(self) -> Dict[str, Any]:
+        data: Dict[str, Any] = {}
         if self.__is_free_move is not None:
             data['is_free_move'] = self.__is_free_move
         if self.__motd is not None:
@@ -51,7 +51,7 @@ class EveFleetWing(object):
 
 
 class FleetMember(object):
-    def __init__(self, member: Dict(str, Any)) -> None:
+    def __init__(self, member: Dict[str, Any]) -> None:
         self._data = member
         self._data['join_time'] = self._data['join_time'].v
 
