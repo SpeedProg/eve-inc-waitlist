@@ -48,6 +48,9 @@ if not os.path.isfile(os.path.join(".", "config", "config.cfg")):
     
     config.add_section("security")
     config.set("security", "scramble_names", "False")
+
+    config.add_section("disable")
+    config.set("disable", "teamspeak", "False")
     
     makedirs(os.path.join(".", "config"))
     with open(os.path.join(".", "config", "config.cfg"), "wb") as configfile:
@@ -85,5 +88,7 @@ motd_hq = config.get("motd", "hq")
 motd_vg = config.get("motd", "vg")
 
 scramble_names = config.get("security", "scramble_names") == "True"
+
+disable_teamspeak = config.get("disabale", "teamspeak") == "True"
 
 cdn_eveimg_js = cdn_eveimg.format("${ path }", "${ suffix }")
