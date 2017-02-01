@@ -1,6 +1,3 @@
-from dateutil.parser import parse
-
-
 class FleetSettings(object):
     def __init__(self, is_free_move, motd):
         # type: (boolean, str) -> None

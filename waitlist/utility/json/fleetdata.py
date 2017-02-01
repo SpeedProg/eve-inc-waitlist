@@ -1,4 +1,4 @@
-from __future__ import absolute_import
+
 import json
 from waitlist.utility.swagger.eve.fleet.models import FleetMember
 

@@ -211,7 +211,7 @@ def invite(user_id, squadIDList):
     fleet = current_user.fleet
     fleetApi = EveFleetEndpoint(fleet.fleetID)
     oldsquad = (0, 0)
-    for idx in xrange(len(squadIDList)):
+    for idx in range(len(squadIDList)):
         squad = squadIDList[idx];
         if squad[0] == oldsquad[0] and squad[1] == oldsquad[1]:
             continue

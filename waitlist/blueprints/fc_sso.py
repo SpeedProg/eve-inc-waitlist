@@ -6,9 +6,9 @@ from werkzeug.utils import redirect
 from flask.globals import request, session, _app_ctx_stack
 from flask_seasurf import randrange, _MAX_CSRF_KEY
 import hashlib
-from urllib import urlencode
 from waitlist.utility.config import crest_return_url, crest_client_id
 import flask
+from urllib.parse import urlencode
 
 bp = Blueprint('fc_sso', __name__)
 logger = logging.getLogger(__name__)
