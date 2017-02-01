@@ -89,6 +89,6 @@ motd_vg = config.get("motd", "vg")
 
 scramble_names = config.get("security", "scramble_names") == "True"
 
-disable_teamspeak = config.get("disabale", "teamspeak") == "True"
+disable_teamspeak = config.get("disable", "teamspeak") == "True"
 
 cdn_eveimg_js = cdn_eveimg.format("${ path }", "${ suffix }")
