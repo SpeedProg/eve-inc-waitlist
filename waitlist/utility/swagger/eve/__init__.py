@@ -1,5 +1,5 @@
 from esipy.security import EsiSecurity
-from waitlist.utility.swagger import api, header_to_datetime
+from waitlist.utility.swagger import header_to_datetime, get_api
 from waitlist.utility.config import crest_return_url, crest_client_id,\
     crest_client_secret
 from flask_login import current_user
@@ -41,15 +41,15 @@ class ESIResponse(object):
         return self.__error
 
 
-def get_esi_client() -> EsiClient:
+def get_esi_client(version: str) -> EsiClient:
     # type: () -> EsiClient
-    return get_esi_client_for_account(current_user)
+    return get_esi_client_for_account(current_user, version)
 
 
-def get_esi_client_for_account(account: Account) -> EsiClient:
+def get_esi_client_for_account(account: Account, version: str) -> EsiClient:
     # type: (Account) -> EsiClient
     security = EsiSecurity(
-        api,
+        get_api(version),
         crest_return_url,
         crest_client_id,
         crest_client_secret

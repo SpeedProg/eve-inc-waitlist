@@ -35,7 +35,7 @@ class FleetMemberInfo():
         return data
     
     def _get_data(self, fleetID, account):
-        fleetApi = EveFleetEndpoint(fleetID, get_esi_client_for_account(account))
+        fleetApi = EveFleetEndpoint(fleetID, get_esi_client_for_account(account, 'v1'))
         utcnow = datetime.utcnow()
         if (self._is_expired(fleetID, utcnow)):
             logger.debug("Member Data Expired for %d and account %s", fleetID, account.username)
