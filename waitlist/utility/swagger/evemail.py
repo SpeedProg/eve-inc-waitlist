@@ -6,6 +6,7 @@ from waitlist.utility.config import crest_return_url, crest_client_id,\
 from esipy.client import EsiClient
 from datetime import datetime
 from waitlist.utility.swagger import api
+from typing import Dict, List, Any
 
 ################################
 # recipients=[{
@@ -15,7 +16,7 @@ from waitlist.utility.swagger import api
 ################################
 
 
-def sendMail(recipients, body, subject):
+def sendMail(recipients: List[Dict(str, Any)], body: str, subject: str) -> Any:
     security = EsiSecurity(
         api,
         crest_return_url,

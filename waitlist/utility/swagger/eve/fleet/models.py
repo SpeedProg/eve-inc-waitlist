@@ -1,11 +1,13 @@
+from typing import Dict, Any, List
+from  datetime import datetime
 class FleetSettings(object):
-    def __init__(self, is_free_move, motd):
+    def __init__(self, is_free_move: bool, motd: str) -> None:
         # type: (boolean, str) -> None
-        self.__is_free_move = is_free_move
-        self.__motd = motd
+        self.__is_free_move: bool = is_free_move
+        self.__motd: str = motd
 
-    def get_esi_data(self):
-        data = {}
+    def get_esi_data(self) -> Dict(str, Any):
+        data: Dict(str, Any) = {}
         if self.__is_free_move is not None:
             data['is_free_move'] = self.__is_free_move
         if self.__motd is not None:
@@ -14,82 +16,81 @@ class FleetSettings(object):
 
 
 class EveFleetSquad(object):
-    def __init__(self, squadID, squadName):
+    def __init__(self, squadID: int, squadName: str) -> None:
         # type: (int, str) -> None
-        self.__squadID = squadID
-        self.__squadName = squadName
+        self.__squadID: int = squadID
+        self.__squadName: str = squadName
 
-    def id(self):
+    def id(self) -> int:
         # type: () -> int
         return self.__squadID
 
-    def name(self):
+    def name(self) -> str:
         # type: () -> str
         return self.__squadName
 
 
 class EveFleetWing(object):
-    def __init__(self, wingID, wingName, squads):
+    def __init__(self, wingID: int, wingName: str, squads: List[EveFleetSquad]):
         # type: (int, str, List[EveFleetSquad]) -> None
-        self.__id = wingID
-        self.__name = wingName
-        self.__squads = squads
+        self.__id: int = wingID
+        self.__name: str = wingName
+        self.__squads: List[EveFleetSquad] = squads
 
-    def squads(self):
+    def squads(self) -> List[EveFleetSquad]:
         # type: () -> List[EveFleetSquad]
         return self.__squads
 
-    def name(self):
+    def name(self) -> str:
         # type: () -> str
         return self.__name
 
-    def id(self):
+    def id(self) -> int:
         # type: () -> int
         return self.__id
 
 
 class FleetMember(object):
-    def __init__(self, member):
-        # type: (FleetMember, dict(str, Any)) -> None
+    def __init__(self, member: Dict(str, Any)) -> None:
         self._data = member
         self._data['join_time'] = self._data['join_time'].v
 
-    def characterID(self):
+    def characterID(self) -> int:
         # type: () -> int
         return self._data['character_id']
 
-    def joinDateTime(self):
+    def joinDateTime(self) -> datetime:
         # type: () -> datetime
         return self._data['join_time']
 
-    def role(self):
+    def role(self) -> str:
         # type: () -> str
         return self._data['role']
 
-    def roleName(self):
+    def roleName(self) -> str:
         # type: () -> str
         return self._data['role_name']
 
-    def shipTypeID(self):
+    def shipTypeID(self) -> int:
         # type: () -> int
         return self._data['ship_type_id']
 
-    def solarSystem(self):
+    def solarSystem(self) -> int:
         # type: () -> int
         return self._data['solar_system_id']
 
-    def squadID(self):
+    def squadID(self) -> int:
         # type: () -> int
         return self._data['squad_id']
 
-    def stationID(self):
+    def stationID(self) -> int:
         # type: () -> int
         return self._data['station_id']
 
-    def takesFleetWarp(self):
+    def takesFleetWarp(self) -> bool:
         # type: () -> boolean
         return self._data['takes_fleet_warp']
 
-    def wingID(self):
+    def wingID(self) -> int:
         # type: () -> int
         return self.__wing_id
