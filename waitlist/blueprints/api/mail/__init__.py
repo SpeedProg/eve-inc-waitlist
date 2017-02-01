@@ -66,3 +66,4 @@ def auth():
     return get_sso_redirect('mail', 'esi-mail.send_mail.v1')
 
 add_sso_handler('mail', handle_sso_cb)
+

@@ -12,7 +12,7 @@ from waitlist.utility.swagger.eve import get_esi_client, ESIResponse,\
 from typing import Dict, Any, Tuple
 from esipy.client import EsiClient
 # object = {'id':char_id, 'name': char_name, 'allianceID': alliance_id, 'allianceName': alliance_name, 'corporationID': corp_id, 'corporationName': corp_name, 'expire': expire}
-def get_affiliation_info(char_id: int) -> Dict(str, Any):
+def get_affiliation_info(char_id: int) -> Dict[str, Any]:
     security = Security(
         api,
     )
@@ -52,7 +52,7 @@ def get_affiliation_info(char_id: int) -> Dict(str, Any):
 '''
 @return charid, name
 '''
-def characterid_from_name(charName: str) -> Tuple(int, str):
+def characterid_from_name(charName: str) -> Tuple[int, str]:
     security = Security(
         api,
     )
@@ -68,7 +68,7 @@ def characterid_from_name(charName: str) -> Tuple(int, str):
     
     return char_id, char_name
 
-def get_character_info(char_id: int) -> Tuple(Dict(str, Any), datetime):
+def get_character_info(char_id: int) -> Tuple[Dict[str, Any], datetime.datetime]:
     security = Security(
         api,
     )

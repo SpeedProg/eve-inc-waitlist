@@ -8,8 +8,7 @@ logger = logging.getLogger(__name__)
 
 
 class EveFleetMembers(ESIResponse):
-    def __init__(self, expires: datetime, status_code: int, error: str, data: List[Dict(str, Any)]) -> None:
-        # type: (datetime, int, str, List[dict(str, Any)]) -> None
+    def __init__(self, expires: datetime, status_code: int, error: str, data: List[Dict[str, Any]]) -> None:
         super(EveFleetMembers, self).__init__(expires, status_code, error)
 
         if data is not None:
@@ -17,15 +16,13 @@ class EveFleetMembers(ESIResponse):
         else:
             self.__members: List[FleetMember] = []
 
-    def __setData(self, data: List[Dict(str, Any)]) -> None:
-        # type: (List[dict(str, Any)]) -> None
+    def __setData(self, data: List[Dict[str, Any]]) -> None:
         self.__members = []
         for member in data:
             logger.debug("Adding FleetMember with data[%s]", member)
             self.__members.append(FleetMember(member))
 
     def FleetMember(self) -> List[FleetMember]:
-        # type: () -> List[FleetMember]
         return self.__members
 
 
@@ -33,7 +30,6 @@ class EveFleet(ESIResponse):
     def __init__(self, expires: datetime, status_code: str, error: str,
                  is_free_move: bool, is_registered: bool,
                  is_voice_enabled: bool, motd: str) -> None:
-        # type: (datetime, boolean, boolean, boolean, str)
         super(EveFleet, self).__init__(expires, status_code, error)
         self.__is_free_move: bool = is_free_move
         self.__is_registered: bool = is_registered
@@ -64,14 +60,12 @@ class EveFleetWings(ESIResponse):
         super(EveFleetWings, self).__init__(expires, status_code, error)
         self.__wings: List[EveFleetWing] = wings
 
-    def wings(self) -> List[EveFleetWings]:
-        # type: () -> List[EveFleetWing]
+    def wings(self) -> List[EveFleetWing]:
         return self.__wings
 
 
 class WingCreated(ESIResponse):
     def __init__(self, expires: datetime, status_code: int, error: str, wingID: int) -> None:
-        # type: (datetime, int, str, int) -> None
         super(WingCreated, self).__init__(expires, status_code, error)
         self.__wingID: int = wingID
 
@@ -82,7 +76,6 @@ class WingCreated(ESIResponse):
 
 class SquadCreated(ESIResponse):
     def __init__(self, expires: datetime, status_code: int, error: str, wingID: int, squadID: int) -> None:
-        # type: (datetime, int, str, int, int) -> None
         super(SquadCreated, self).__init__(expires, status_code, error)
         self.__wingID: int = wingID
         self.__squadID: int = squadID
