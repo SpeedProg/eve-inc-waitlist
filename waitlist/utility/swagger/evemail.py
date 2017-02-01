@@ -1,11 +1,14 @@
 # https://esi.tech.ccp.is/latest/swagger.json?datasource=tranquility
 from flask_login import current_user
 from esipy.security import EsiSecurity
+from pyswagger import App
+
 from waitlist.utility.config import crest_return_url, crest_client_id,\
     crest_client_secret
 from esipy.client import EsiClient
 from datetime import datetime
-from waitlist.utility.swagger import api
+
+from waitlist.utility.swagger import get_api
 from waitlist.utility.swagger.eve import ESIResponse, get_expire_time
 from typing import Dict, List, Any, Sequence
 
@@ -19,6 +22,7 @@ from waitlist.utility.swagger.eve import get_esi_client
 
 
 def sendMail(recipients: List[Dict[str, Any]], body: str, subject: str) -> Any:
+    api: App = get_api('v1')
     security = EsiSecurity(
         api,
         crest_return_url,
@@ -76,8 +80,8 @@ def openMail(recipients: Sequence[int], body: str, subject: str, to_corp_or_alli
     if len(payload['recipients']) <= 0:
         payload['recipients'] = [0]
 
-    client = get_esi_client()
-    response = client.request(api.op['post_ui_openwindow_newmail'](new_mail=payload))
+    client = get_esi_client('v1')
+    response = client.request(client.security.app.op['post_ui_openwindow_newmail'](new_mail=payload))
     if response.status == 204:
         return ESIResponse(get_expire_time(response), response.status, None)
 
