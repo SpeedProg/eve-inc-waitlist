@@ -25,7 +25,7 @@ from flask_login import login_required, current_user, login_user,\
     logout_user
 import logging
 from waitlist.storage.database import Account, WaitlistEntry,\
-    WaitlistGroup, TeamspeakDatum, CrestFleet
+    WaitlistGroup, TeamspeakDatum, CrestFleet, CalendarEvent
 from flask_principal import RoleNeed, identity_changed, Identity, AnonymousIdentity,\
     identity_loaded, UserNeed
 from waitlist.data.perm import perm_management, perm_settings, perm_admin,\
@@ -58,6 +58,7 @@ from waitlist.blueprints.accounts.commandcore import bp as bp_commandcore
 from waitlist.blueprints.accounts.profile import bp as bp_profile
 from waitlist.blueprints.api.mail import bp as bp_esi_mail
 from waitlist.blueprints.api.ui import bp as bp_esi_ui
+from waitlist.blueprints.calendar.settings import bp as bp_calendar_settings
 # needs to he here so signal handler gets registered
 from waitlist.signal.handler import acc_created, roles_changed
 
@@ -82,6 +83,7 @@ app.register_blueprint(bp_commandcore, url_prefix="/accounts/cc")
 app.register_blueprint(bp_profile, url_prefix="/accounts/profile")
 app.register_blueprint(bp_esi_mail, url_prefix="/api/esi/mail")
 app.register_blueprint(bp_esi_ui, url_prefix="/api/esi/ui")
+app.register_blueprint(bp_calendar_settings, url_prefix="/settings/calendar")
 
 logger = logging.getLogger(__name__)
 
@@ -201,7 +203,9 @@ def index():
     if active_ts_setting_id is not None:
         active_ts_setting = db.session.query(TeamspeakDatum).get(active_ts_setting_id)
 
-    return render_template("index.html", lists=wlists, user=current_user, is_index=True, is_on_wl=is_on_wl(), newbro=new_bro, group=group, groups=activegroups, ts=active_ts_setting)
+    events = db.session.query(CalendarEvent).filter(CalendarEvent.eventTime > datetime.utcnow()).order_by(CalendarEvent.eventTime.asc()).limit(10).all()
+
+    return render_template("index.html", lists=wlists, user=current_user, is_index=True, is_on_wl=is_on_wl(), newbro=new_bro, group=group, groups=activegroups, ts=active_ts_setting, events=events)
 
 def is_on_wl():
     eveId = current_user.get_eve_id();
