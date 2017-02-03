@@ -267,7 +267,7 @@ def xup_submit():
                 sendServerSentEvent(event)
         
         flash("You were added as "+ship_type)
-        return redirect(url_for('index'))
+        return redirect(url_for('index')+"?groupId="+str(groupID))
     #### END SCRUFFY CODE
         
     logilvl = request.form['logi']
@@ -357,7 +357,7 @@ def xup_submit():
     
     if fit_count <= 0:
         flash("You submitted {0} fits to be check by a fleet comp before getting on the waitlist.".format(fit_count), "danger")
-        return redirect(url_for('index'))
+        return redirect(url_for('index')+"?groupId="+str(groupID))
 
     for fit in fits:
         if fit.ship_type in resist_ships:
