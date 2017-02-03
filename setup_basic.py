@@ -9,7 +9,7 @@ api_scopes = ['fleetRead', 'fleetWrite', 'remoteClientUI', 'esi-mail.send_mail.v
 
 def createRoles():
     for scope in api_scopes:
-        dbscope = db.session.query(scope).filter(EveApiScope.scopeName == scope).first()
+        dbscope = db.session.query(EveApiScope).filter(EveApiScope.scopeName == scope).first()
         if dbscope == None:
             dbscope = EveApiScope(scopeName=scope)
             db.session.add(dbscope)
