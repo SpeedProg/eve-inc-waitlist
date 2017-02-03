@@ -174,7 +174,15 @@ def getQueryResult(name, query, columnCount, cacheTimeSeconds):
     else:
         # we are going to return this
         cacheItem = getCacheItem(name)
-        result = cacheItem['data']
+        if cacheItem is None:
+            result = []
+            row = []
+            for idx in range(0, columnCount):
+                row.append('Calculation In Progress...')
+            result.append(row)
+        else:
+            result = cacheItem['data']
+
         # but trigger a recalculation in a greenlet
         def executeQuery(dataName, cc, qq, ct):
             db_result = db.engine.execute(qq)
