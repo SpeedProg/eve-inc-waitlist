@@ -1,92 +1,89 @@
 from waitlist.utility.swagger.eve import ESIResponse
-from waitlist.utility.swagger.eve.fleet.models import FleetMember
+from waitlist.utility.swagger.eve.fleet.models import FleetMember, EveFleetWing
 import logging
+from datetime import datetime
+from typing import List, Dict, Any
 
 logger = logging.getLogger(__name__)
 
 
 class EveFleetMembers(ESIResponse):
-    def __init__(self, expires, status_code, error, data):
-        # type: (datetime, int, str, List[dict(str, Any)]) -> None
+    def __init__(self, expires: datetime, status_code: int, error: str, data: List[Dict[str, Any]]) -> None:
         super(EveFleetMembers, self).__init__(expires, status_code, error)
 
         if data is not None:
             self.__setData(data)
         else:
-            self.__members = []
+            self.__members: List[FleetMember] = []
 
-    def __setData(self, data):
-        # type: (List[dict(str, Any)]) -> None
+    def __setData(self, data: List[Dict[str, Any]]) -> None:
         self.__members = []
         for member in data:
             logger.debug("Adding FleetMember with data[%s]", member)
             self.__members.append(FleetMember(member))
 
-    def FleetMember(self):
-        # type: () -> List[FleetMember]
+    def FleetMember(self) -> List[FleetMember]:
         return self.__members
 
 
 class EveFleet(ESIResponse):
-    def __init__(self, expires, status_code, error, is_free_move,
-                 is_registered, is_voice_enabled, motd):
-        # type: (datetime, boolean, boolean, boolean, str)
+    def __init__(self, expires: datetime, status_code: str, error: str,
+                 is_free_move: bool, is_registered: bool,
+                 is_voice_enabled: bool, motd: str) -> None:
         super(EveFleet, self).__init__(expires, status_code, error)
-        self.__is_free_move = is_free_move
-        self.__is_registered = is_registered
-        self.__is_voice_enabled = is_voice_enabled
-        self.__motd = motd
+        self.__is_free_move: bool = is_free_move
+        self.__is_registered: bool = is_registered
+        self.__is_voice_enabled: bool = is_voice_enabled
+        self.__motd: str = motd
 
-    def get_MOTD(self):
+    def get_MOTD(self) -> str:
         # type: () -> str
         return self.__motd
 
-    def get_freemove(self):
+    def get_freemove(self) -> bool:
         # type: () -> boolean
         return self.__is_free_move
 
-    def get_registered(self):
+    def get_registered(self) -> bool:
         # type: () -> boolean
         return self.__is_registered
 
-    def get_voice_enabled(self):
+    def get_voice_enabled(self) -> bool:
         # type: () -> boolean
         return self.__is_voice_enabled
 
 
 class EveFleetWings(ESIResponse):
-    def __init__(self, expires, status_code, error, wings):
+    def __init__(self, expires: datetime, status_code: int, error: str,
+                 wings: List[EveFleetWing]):
         # type: (datetime, boolean, boolean, str, List[EveFleetWing]) -> None
         super(EveFleetWings, self).__init__(expires, status_code, error)
-        self.__wings = wings
+        self.__wings: List[EveFleetWing] = wings
 
-    def wings(self):
-        # type: () -> List[EveFleetWing]
+    def wings(self) -> List[EveFleetWing]:
         return self.__wings
 
 
 class WingCreated(ESIResponse):
-    def __init__(self, expires, status_code, error, wingID):
-        # type: (datetime, int, str, int) -> None
+    def __init__(self, expires: datetime, status_code: int, error: str, wingID: int) -> None:
         super(WingCreated, self).__init__(expires, status_code, error)
-        self.__wingID = wingID
+        self.__wingID: int = wingID
 
-    def wingID(self):
+    def wingID(self) -> int:
         # type: () -> int
         return self.__wingID
 
 
 class SquadCreated(ESIResponse):
-    def __init__(self, expires, status_code, error, wingID, squadID):
-        # type: (datetime, int, str, int, int) -> None
+    def __init__(self, expires: datetime, status_code: int, error: str, wingID: int, squadID: int) -> None:
         super(SquadCreated, self).__init__(expires, status_code, error)
-        self.__wingID = wingID
-        self.__squadID = squadID
+        self.__wingID: int = wingID
+        self.__squadID: int = squadID
 
-    def wingID(self):
+    def wingID(self) -> int:
         # type: () -> int
         return self.__wingID
 
-    def squadID(self):
+    def squadID(self) -> int:
         # type: () -> int
         return self.__squadID

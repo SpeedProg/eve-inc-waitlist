@@ -199,7 +199,7 @@ class Account(Base):
         return True
     
     def get_id(self):
-        return unicode("acc"+unicode(self.id))
+        return str("acc"+str(self.id))
     
     #def set_password(self, pwd):
     #    self.password = bcrypt.hashpw(pwd, bcrypt.gensalt())
@@ -269,7 +269,7 @@ class Character(Base):
         return not self.banned
     
     def get_id(self):
-        return unicode("char"+unicode(self.id))
+        return str("char"+str(self.id))
     
     @property
     def poke_me(self):
