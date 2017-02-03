@@ -1,6 +1,8 @@
 from flask.blueprints import Blueprint
 import logging
 from flask_login import login_required, current_user
+from gevent import Greenlet
+
 from waitlist.data.perm import perm_admin, perm_settings, perm_officer,\
     perm_management, perm_accounts, perm_dev, perm_leadership,\
     perm_fleetlocation, perm_bans
@@ -170,14 +172,24 @@ def getQueryResult(name, query, columnCount, cacheTimeSeconds):
         cacheItem = getCacheItem(name)
         result = cacheItem['data']
     else:
-        db_result = db.engine.execute(query)
-        for row in db_result:
-            rowList = []
-            for idx in range(0, columnCount):
-                rowList.append(row[idx])
-            result.append(rowList)
-        addItemToCache(name, createCacheItem(result, cacheTimeSeconds))
+        # we are going to return this
+        cacheItem = getCacheItem(name)
+        result = cacheItem['data']
+        # but trigger a recalculation in a greenlet
+        def executeQuery(dataName, cc, qq, ct):
+            db_result = db.engine.execute(qq)
+            result_ = []
+            for row in db_result:
+                rowList = []
+                for idx in range(0, cc):
+                    rowList.append(row[idx])
+                result_.append(rowList)
+            addItemToCache(dataName, createCacheItem(result_, ct))
+            db.session.remove()
+
+        Greenlet.spawn(executeQuery, name, columnCount, query, cacheTimeSeconds)
     return result
+
 @bp_settings.route("/accounts", methods=["GET", "POST"])
 @login_required
 @perm_accounts.require(http_exception=401)
