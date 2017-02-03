@@ -75,8 +75,12 @@ class EveFleetEndpoint(object):
         if response.status == 204:
             return ESIResponse(get_expire_time(response), response.status,
                                None)
+
+        errorMsg: str = 'Unknown'
+        if response.data is not None:
+            errorMsg = response.data['error']
         return ESIResponse(get_expire_time(response), response.status,
-                           response.data['error'])
+                           errorMsg)
 
     def get_wings(self) -> EveFleetWings:
         # type: () -> EveFleetWings
