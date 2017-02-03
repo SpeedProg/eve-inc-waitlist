@@ -265,8 +265,8 @@ def xup_submit():
             for fit in _newFits:
                 event = FitAddedSSE(groupID, queue.id, wl_entry.id, fit, True, wl_entry.user)
                 sendServerSentEvent(event)
-        
-        flash("You were added as "+ship_type)
+
+        flash("You were added as "+ship_type, "success")
         return redirect(url_for('index')+"?groupId="+str(groupID))
     #### END SCRUFFY CODE
         
