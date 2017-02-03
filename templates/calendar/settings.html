@@ -1,0 +1,67 @@
+{% extends "settings/base.html" %}
+
+{% block title %}Settings - Calendar{% endblock %}
+
+{% block head %}
+{{ super() }}
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.15.1/moment.min.js" integrity="sha256-4PIvl58L9q7iwjT654TQJM+C/acEyoG738iL8B8nhXg=" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.42/css/bootstrap-datetimepicker.min.css" integrity="sha256-IihK1cRp3mOP+uJ2NIWC4NK60QT0nPwLDHyh1ekT5/w=" crossorigin="anonymous" />
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.42/js/bootstrap-datetimepicker.min.js" integrity="sha256-I8vGZkA2jL0PptxyJBvewDVqNXcgIhcgeqi+GD/aw34=" crossorigin="anonymous"></script>
+{% assets filters="babili", output="gen/calendar-settings.%(version)s.js", "js/base.js", "js/calendar/settings.js" %}
+<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
+{%  endblock %}
+{% block raw_content %}
+<div class="row">
+	<form method="POST" target="{{ url_for('calendar_settings.post_index') }}">
+		<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+		<div class="form-group">
+			<label for="eventCategory">Category</label>
+			<select class="form-control" id="eventCategory" name="categoryID">
+				{% for category in categories %}
+				<option value="{{ category.categoryID }}">{{ category.categoryName }}</option>
+				{% endfor %}
+			</select>
+		</div>
+		<div class="input-group form-group date" id="timepicker">
+			<label for="eventTime">When (UTC - EveTime)</label>
+			<div class="input-group date" id="timepicker">
+				<input id="eventTime" type="text" class="form-control" name="time" />
+				<span class="input-group-addon">
+					<span class="fa fa-calendar"></span>
+				</span>
+			</div>
+		</div>
+		<div>
+			<label for="eventBackseats">Backseats</label>
+			<select class="form-control" id="eventBackseats" name="backseats" multiple size="3">
+				{% for account in accounts %}
+				<option value="{{ account.id }}">{{ account.username }}</option>
+				{% endfor %}
+			</select>
+		</div>
+		<button type="submit" class="btn btn-primary">Submit Event</button>
+	</form>
+</div>
+<div class="row mt-2">
+	<table class="table">
+		<caption>Outstanding Events</caption>
+		<thead>
+		<th>Actions</th><th>Creator</th><th>Time</th><th>Title</th><th>Category</th>{# <th>Organizers</th> #}<th>Backseats</th>
+		</thead>
+		<tbody>
+		{% for event in events %}
+		<tr>
+			<td>{% if event.creator.id == current_user.id or perm_manager.getPermission('council').can() %}<button type="button" date-deletepath="{{ url_for('calendar_settings.delete_event_id', event_id=event.eventID) }}" data-eventid="{{ event.eventID }}" data-action="remove-event" class="btn btn-primary">Remove Event</button></form>{% endif %}</td>
+			<td>{{ event.creator.username }}</td>
+			<td>{{ event.eventTime }}</td>
+			<td>{{ event.eventTitle }}</td>
+			<td>{{ event.eventCategory.categoryName }}</td>
+			{# <td>{% for account in event.organizers %} {% if not loop.first %}, {% endif %} {{ account.current_char_obj.eve_name }} {% endfor %}</td> #}
+			<td>{% for account in event.backseats %} {% if not loop.first %}, {% endif %} {{ account.current_char_obj.eve_name }} {% endfor %}</td>
+		</tr>
+		{% endfor %}
+		</tbody>
+	</table>
+</div>
+{% endblock %}
