@@ -17,10 +17,10 @@ from esipy.client import EsiClient
 def get_affiliation_info(char_id: int) -> Dict[str, Any]:
 
     apiV4 = get_api('v4')
-    clientV4 = get_esi_client('v4')
+    clientV4 = get_esi_client('v4', True)
 
     apiV2 = get_api('v2')
-    clientV2 = get_esi_client('v2')
+    clientV2 = get_esi_client('v2', True)
 
     '''
 {

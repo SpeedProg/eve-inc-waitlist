@@ -41,13 +41,16 @@ class ESIResponse(object):
         return self.__error
 
 
-def get_esi_client(version: str) -> EsiClient:
+def get_esi_client(version: str, noauth: bool = False) -> EsiClient:
     # type: () -> EsiClient
-    return get_esi_client_for_account(current_user, version)
+    return get_esi_client_for_account(current_user, version, noauth)
 
 
-def get_esi_client_for_account(account: Account, version: str) -> EsiClient:
-    # type: (Account) -> EsiClient
+def get_esi_client_for_account(account: Account, version: str, noauth: bool = False) -> EsiClient:
+    api = get_api(version)
+    if noauth:
+        return EsiClient()
+
     security = EsiSecurity(
         get_api(version),
         crest_return_url,
@@ -60,5 +63,4 @@ def get_esi_client_for_account(account: Account, version: str) -> EsiClient:
                        datetime.utcnow()).total_seconds(),
         'refresh_token': account.ssoToken.refresh_token
     })
-    client = EsiClient(security)
-    return client
+    return EsiClient(security)
