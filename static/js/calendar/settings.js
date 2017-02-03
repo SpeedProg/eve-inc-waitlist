@@ -8,8 +8,10 @@ if (!waitlist.calendar) {
 }
 
 waitlist.calendar = (function() {
+	var displayMessage = waitlist.base.displayMessage;
+	var getMetaData = waitlist.base.getMetaData;
 	function init() {
-		$('#startpicker').datetimepicker({
+		$('#timepicker').datetimepicker({
 			icons: {
 				time: "fa fa-clock-o",
 				date: "fa fa-calendar",
@@ -23,7 +25,35 @@ waitlist.calendar = (function() {
 			},
 			format: "YYYY/MM/DD HH:mm"
 		});
+		setupEventHandler();
 	}
+
+	function removeEventHandler(event) {
+		var target = $(event.currentTarget);
+		var eventID = target.attr('data-eventid');
+		var urlpath = target.attr('date-deletepath');
+		var settings = {
+				async: true,
+				dataType: "text",
+				error: function() {
+					displayMessage("error", "Deleting event failed");
+				},
+				method: "DELETE",
+				success: function() {
+					displayMessage("success", "Event deleted");
+					target.closest("tr").remove();
+				},
+				headers: {
+					'X-CSRFToken': getMetaData('csrf-token')
+				}
+		};
+		$.ajax(urlpath, settings);
+	}
+
+	function setupEventHandler() {
+		$(document).on('click', '[data-action="remove-event"]', removeEventHandler);
+	}
+
 	$(document).ready(init);
 	return {};
 })();
