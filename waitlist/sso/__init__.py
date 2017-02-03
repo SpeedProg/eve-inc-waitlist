@@ -11,26 +11,15 @@ if PY3:  # pragma: no cover
     text_type = str
     binary_type = bytes
 else:  # pragma: no cover
-    string_types = basestring,
-    text_type = unicode
+    string_types = str,
+    text_type = str
 binary_type = str
-
-def text_(s, encoding='latin-1', errors='strict'):
-    if isinstance(s, binary_type):
-        return s.decode(encoding, errors)
-    return s
-
-
-def bytes_(s, encoding='latin-1', errors='strict'):
-    if isinstance(s, text_type):
-        return s.encode(encoding, errors)
-    return s
 
 def authorize(code):
     '''{'access_token', 'refresh_token', 'expires_in'}'''
     auth = base64.b64encode(
-                ("%s:%s" % (crest_client_id, crest_client_secret))
-            )
+                ("%s:%s" % (crest_client_id, crest_client_secret)).encode('utf-8', 'strict')
+            ).decode('utf-8', 'strict')
     headers = {"Authorization": "Basic %s" % auth}
     url = "https://login.eveonline.com/oauth/token"
     params = {

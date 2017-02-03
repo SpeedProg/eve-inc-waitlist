@@ -35,7 +35,7 @@ class FleetMemberInfo():
         return data
     
     def _get_data(self, fleetID, account):
-        fleetApi = EveFleetEndpoint(fleetID, get_esi_client_for_account(account))
+        fleetApi = EveFleetEndpoint(fleetID, get_esi_client_for_account(account, 'v1'))
         utcnow = datetime.utcnow()
         if (self._is_expired(fleetID, utcnow)):
             logger.debug("Member Data Expired for %d and account %s", fleetID, account.username)
@@ -211,7 +211,7 @@ def invite(user_id, squadIDList):
     fleet = current_user.fleet
     fleetApi = EveFleetEndpoint(fleet.fleetID)
     oldsquad = (0, 0)
-    for idx in xrange(len(squadIDList)):
+    for idx in range(len(squadIDList)):
         squad = squadIDList[idx];
         if squad[0] == oldsquad[0] and squad[1] == oldsquad[1]:
             continue

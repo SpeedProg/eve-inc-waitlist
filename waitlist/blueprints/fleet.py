@@ -14,7 +14,6 @@ from flask.globals import request, session, current_app
 import re
 import flask
 from waitlist.utility.fleet import member_info
-from waitlist.utility.crest import create_token_cb
 from waitlist.blueprints.fc_sso import get_sso_redirect, add_sso_handler
 from datetime import datetime
 from datetime import timedelta
@@ -128,7 +127,7 @@ def setup_step_url():
     return get_select_form(fleet_id)
 
 def get_select_form(fleet_id):
-    # (int) -> None
+    # type: (int) -> None
     fleetApi = EveFleetEndpoint(fleet_id)
     wings = fleetApi.get_wings()
     if wings.is_error():

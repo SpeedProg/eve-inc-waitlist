@@ -158,7 +158,7 @@ def createTableCellData(desc, column_names, data, hide_rows=[]):
         raise ValueError("len(column_names) != len(data[0])")
     if len(hide_rows) == 0:
         print("Generating default hiding list")
-        hide_rows = [False for _ in xrange(len(column_names))]
+        hide_rows = [False for _ in range(len(column_names))]
     elif len(hide_rows) != len(column_names):
         raise ValueError("When hide_rows is specified it needs to be of the same length as the defined columns")
     
@@ -173,7 +173,7 @@ def getQueryResult(name, query, columnCount, cacheTimeSeconds):
         db_result = db.engine.execute(query)
         for row in db_result:
             rowList = []
-            for idx in xrange(0, columnCount):
+            for idx in range(0, columnCount):
                 rowList.append(row[idx])
             result.append(rowList)
         addItemToCache(name, createCacheItem(result, cacheTimeSeconds))
