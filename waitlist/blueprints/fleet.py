@@ -22,7 +22,7 @@ import base64
 from sqlalchemy import or_
 import json
 from waitlist.utility.json.fleetdata import FleetMemberEncoder
-from waitlist.sso import whoAmI
+from waitlist.sso import whoAmI, authorize
 from waitlist.utility.swagger.eve.fleet import EveFleetEndpoint
 from waitlist.utility.utils import token_has_scopes
 
@@ -35,13 +35,7 @@ SSO cb handler
 '''
 @login_required
 def handle_token_update(code):
-    header = {'Authorization': 'Basic '+base64.b64encode(crest_client_id+":"+crest_client_secret),
-              'Content-Type': 'application/x-www-form-urlencoded',
-              'Host': 'login.eveonline.com'}
-    params = {'grant_type': 'authorization_code',
-              'code': code}
-    r = requests.post("https://login.eveonline.com/oauth/token", headers=header, params=params)
-    tokens = r.json()
+    tokens = authorize(code)
     re_token = tokens['refresh_token']
     acc_token = tokens['access_token']
     exp_in = int(tokens['expires_in'])
