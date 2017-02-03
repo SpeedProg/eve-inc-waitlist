@@ -20,6 +20,7 @@ class PermissionManager():
         self.__addPermission('add_notes', self.getPermission('council'))
         self.__addPermission('view_notes', self.getPermission('council').union(self.getPermission('add_notes')))
         self.__addPermission('send_mail', self.getPermission('council'))
+        self.__addPermission('calendar_event_see_all', self.getPermission('council'))
 
     def __addPermission(self, name, perm):
         self.permissions[name] = self.permissions['admin'].union(perm)

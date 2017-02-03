@@ -10,6 +10,7 @@
 {% set nav = [
 	('settings.overview', 'Overview', true),
 	('settings.fleet', 'Fleet Settings', perm_man.can()),
+	('calendar_settings.get_index', 'Events', perm_manager.getPermission('commandcore').can()),
 	('settings.teamspeak', 'TS Settings', perm_man.can()),
 	('settings.account_self', 'Own Settings', true),
 	('settings.accounts', 'Accounts', perm_accounts.can()),

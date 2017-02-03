@@ -605,6 +605,23 @@ class CalendarEventCategory(Base):
     categoryName: Column = Column(String(50), index=True)
     fixedTitle: Column = Column(String(200), nullable=True)
 
+class CalendarEvent(Base):
+    __tablename__: str = 'calendar_event'
+    eventID: Column = Column(Integer, primary_key=True)
+    eventCreatorID: Column = Column(Integer, ForeignKey('accounts.id', onupdate='CASCADE', ondelete='CASCADE'), index=True)
+    eventTitle: Column = Column(TEXT)
+    eventDescription: Column = Column(TEXT)
+    eventCategoryID: Column = Column(Integer, ForeignKey('calendar_category.categoryID', onupdate='CASCADE', ondelete='CASCADE'), index=True)
+    eventApproved: Column = Column(Boolean, index=True)
+    eventTime: Column = Column(DateTime, index=True)
+    approverID: Column = Column(Integer, ForeignKey('accounts.id', ondelete='CASCADE', onupdate='CASCADE'))
+
+    creator: relationship = relationship("Account", foreign_keys=[eventCreatorID])
+    eventCategory: relationship = relationship('CalendarEventCategory')
+    organizers: relationship = relationship("Account", secondary="calendar_organizer")
+    backseats: relationship = relationship("Account", secondary="calendar_backseat")
+    approver: relationship = relationship("Account", foreign_keys=[approverID])
+
 calendar_organizer: Table = Table('calendar_organizer',
                   Base.metadata,
                   Column('accountID', Integer, ForeignKey('accounts.id', ondelete="CASCADE", onupdate='CASCADE')),
@@ -616,22 +633,3 @@ calendar_backseat: Table = Table('calendar_backseat',
                   Column('accountID', Integer, ForeignKey('accounts.id', ondelete="CASCADE", onupdate='CASCADE')),
                   Column('eventID', Integer, ForeignKey('calendar_event.eventID', ondelete="CASCADE", onupdate='CASCADE'))
                   )
-
-class CalendarEvent(Base):
-    __tablename__: str = 'calendar_event'
-    eventID: Column = Column(Integer, primary_key=True)
-    eventCreatorID: Column(Integer, ForeignKey('accounts.id', onupdate='CASCADE', ondelete='CASCADE'), index=True)
-    eventTitle: Column = Column(TEXT)
-    eventDescription: Column = Column(TEXT)
-    eventCategoryID: Column = Column(Integer, ForeignKey('calendar_category.categoryID', onupdate='CASCADE'), index=True)
-    eventApproved: Column = Column(Boolean, index=True)
-    eventTime: Column = Column(DateTime, index=True)
-    approverID: Column = Column(Integer, ForeignKey('accounts.id', ondelete='CASCADE', onupdate='CASCADE'))
-
-    creator: relationship = relationship("Account", foreign_keys=[eventCreatorID])
-    eventCategory: relationship = relationship('CaldendarEventCategory')
-    organizers: relationship = relationship("Account", secondary="calendar_organizer")
-    backseats: relationship = relationship("Account", secondary="calendar_backseat")
-    approver: relationship = relationship("Account", foreign_keys=[approverID])
-
-
