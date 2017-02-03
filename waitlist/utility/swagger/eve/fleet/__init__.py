@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 class EveFleetEndpoint(object):
     def __init__(self, fleetID: int, client: EsiClient = None) -> None:
         self.__fleetID: int = fleetID
-        if EsiClient is None:
+        if client is None:
             self.__client: EsiClient = get_esi_client('v1')
             self.__api: App = self.__client.security.app
         else:
@@ -80,8 +80,7 @@ class EveFleetEndpoint(object):
 
     def get_wings(self) -> EveFleetWings:
         # type: () -> EveFleetWings
-        client = get_esi_client()
-        response = client.request(self.__api.op['get_fleets_fleet_id_wings'](fleet_id=self.__fleetID))
+        response = self.__client.request(self.__api.op['get_fleets_fleet_id_wings'](fleet_id=self.__fleetID))
         if response.status == 200:
             wings = []
             for wing in response.data:
