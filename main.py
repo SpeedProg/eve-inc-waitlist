@@ -1,4 +1,6 @@
-from gevent import monkey; monkey.patch_all()
+from gevent import monkey;
+monkey.patch_all()
+
 from waitlist.sso import authorize, whoAmI
 from waitlist.permissions import perm_manager
 from waitlist.utility.settings.settings import sget_insert
@@ -54,8 +56,12 @@ from waitlist.blueprints.accounts.profile import bp as bp_profile
 from waitlist.blueprints.api.mail import bp as bp_esi_mail
 from waitlist.blueprints.api.ui import bp as bp_esi_ui
 from waitlist.blueprints.calendar.settings import bp as bp_calendar_settings
+from waitlist.utility.swagger.patch import monkey_patch_pyswagger_requests_client
+
 # needs to he here so signal handler gets registered
 from waitlist.signal.handler import acc_created, roles_changed
+
+monkey_patch_pyswagger_requests_client()
 
 app.register_blueprint(bp_waitlist)
 app.register_blueprint(bp_settings, url_prefix='/settings')
