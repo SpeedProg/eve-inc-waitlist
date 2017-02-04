@@ -56,7 +56,7 @@
 <tbody id="account-table-body">
 	{% for acc in accounts %}
 	<tr id="account-{{acc.id}}"{% if acc.disabled %} class="table-warning"{% endif %}>
-		{% perm_manager.getPermission('view_profile').can() %}
+		{%if perm_manager.getPermission('view_profile').can() %}
 		<td id="acc-{{acc.id}}-name"><a href="{{url_for('accounts_profile.profile_by_name', username=acc.username)}}" target="_blank">{{ acc.username }}</a></td>
 		{% else %}
 		<td id="acc-{{acc.id}}-name">{{ acc.username }}</td>

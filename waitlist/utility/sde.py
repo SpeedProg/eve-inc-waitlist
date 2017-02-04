@@ -50,9 +50,9 @@ def update_invtypes(filepath):
                 if subatt_name == None:
                     subatt_name = ev.value
                 else:# we have the value
-                    if att_name == u'name' and subatt_name == u'en':
+                    if att_name == 'name' and subatt_name == 'en':
                         inv_type.typeName = ev.value
-                    elif att_name == u'description' and subatt_name == u'en':
+                    elif att_name == 'description' and subatt_name == 'en':
                         inv_type.description = ev.value
                     
                     subatt_name = None
@@ -99,7 +99,7 @@ def update_stations(filename):
                 if attKey == "stationName":
                     station.stationName = attValue
                 elif attKey == "stationID":
-                    station.stationID = long(attValue)
+                    station.stationID = int(attValue)
                 next_scalar_type = "key"
         elif isinstance(ev, MappingEndEvent):
             # write it

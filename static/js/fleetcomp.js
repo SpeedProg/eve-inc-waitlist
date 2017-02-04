@@ -62,7 +62,7 @@ waitlist.fleetcomp = (function() {
 					&& typeof data.responseJSON.message !== 'undefined') {
 					message += ": " + data.responseJSON.message;
 				}
-				displayMessage(message, "danger");
+				displayMessage(message, "danger", true);
 			},
 			'dataType': 'json'
 		});

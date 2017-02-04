@@ -1,4 +1,4 @@
-from __future__ import absolute_import
+
 from flask.views import MethodView
 from flask.blueprints import Blueprint
 import logging
@@ -12,7 +12,7 @@ import flask
 from flask_login import current_user
 from flask.globals import request
 from flask_limiter.util import get_ipaddr
-from urllib import urlencode
+from urllib.parse import urlencode
 
 bp = Blueprint('api_waitlists', __name__)
 logger = logging.getLogger(__name__)

@@ -199,7 +199,7 @@ class Account(Base):
         return True
     
     def get_id(self):
-        return unicode("acc"+unicode(self.id))
+        return str("acc"+str(self.id))
     
     #def set_password(self, pwd):
     #    self.password = bcrypt.hashpw(pwd, bcrypt.gensalt())
@@ -269,7 +269,7 @@ class Character(Base):
         return not self.banned
     
     def get_id(self):
-        return unicode("char"+unicode(self.id))
+        return str("char"+str(self.id))
     
     @property
     def poke_me(self):
@@ -598,3 +598,38 @@ class FitModule(Base):
     amount = Column(Integer, default=1)
     module = relationship('InvType')
     fit = relationship('Shipfit')
+
+class CalendarEventCategory(Base):
+    __tablename__: str = 'calendar_category'
+    categoryID: Column = Column(Integer, primary_key=True)
+    categoryName: Column = Column(String(50), index=True)
+    fixedTitle: Column = Column(String(200), nullable=True)
+
+class CalendarEvent(Base):
+    __tablename__: str = 'calendar_event'
+    eventID: Column = Column(Integer, primary_key=True)
+    eventCreatorID: Column = Column(Integer, ForeignKey('accounts.id', onupdate='CASCADE', ondelete='CASCADE'), index=True)
+    eventTitle: Column = Column(TEXT)
+    eventDescription: Column = Column(TEXT)
+    eventCategoryID: Column = Column(Integer, ForeignKey('calendar_category.categoryID', onupdate='CASCADE', ondelete='CASCADE'), index=True)
+    eventApproved: Column = Column(Boolean, index=True)
+    eventTime: Column = Column(DateTime, index=True)
+    approverID: Column = Column(Integer, ForeignKey('accounts.id', ondelete='CASCADE', onupdate='CASCADE'))
+
+    creator: relationship = relationship("Account", foreign_keys=[eventCreatorID])
+    eventCategory: relationship = relationship('CalendarEventCategory')
+    organizers: relationship = relationship("Account", secondary="calendar_organizer")
+    backseats: relationship = relationship("Account", secondary="calendar_backseat")
+    approver: relationship = relationship("Account", foreign_keys=[approverID])
+
+calendar_organizer: Table = Table('calendar_organizer',
+                  Base.metadata,
+                  Column('accountID', Integer, ForeignKey('accounts.id', ondelete="CASCADE", onupdate='CASCADE')),
+                  Column('eventID', Integer, ForeignKey('calendar_event.eventID', ondelete="CASCADE", onupdate='CASCADE'))
+                  )
+
+calendar_backseat: Table = Table('calendar_backseat',
+                  Base.metadata,
+                  Column('accountID', Integer, ForeignKey('accounts.id', ondelete="CASCADE", onupdate='CASCADE')),
+                  Column('eventID', Integer, ForeignKey('calendar_event.eventID', ondelete="CASCADE", onupdate='CASCADE'))
+                  )

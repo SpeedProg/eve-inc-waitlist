@@ -22,8 +22,8 @@
 	<label for="wl-logi">Logi Squad</label>
 	<select class="form-control" id="wl-logi" name="wl-logi">
 	{% for wing in wings %}
-		{% for squad in wing.squadsList %}
-			<option name="wl-logi" value="{{wing.id}};{{squad.id}}"{% if 'logi' in assign and assign['logi'].id == squad.id %} selected{%endif%}>{{wing.name}} - {{squad.name}}</option>
+		{% for squad in wing.squads() %}
+			<option name="wl-logi" value="{{wing.id()}};{{squad.id()}}"{% if 'logi' in assign and assign['logi'].id() == squad.id() %} selected{%endif%}>{{wing.name()}} - {{squad.name()}}</option>
 		{% endfor %}
 	{% endfor %}
 	</select>
@@ -32,8 +32,8 @@
 	<label for="wl-sniper">Sniper Squad</label>
 	<select class="form-control" id="wl-sniper" name="wl-sniper">
 	{% for wing in wings %}
-		{% for squad in wing.squadsList %}
-		<option name="wl-sniper" value="{{wing.id}};{{squad.id}}"{% if 'sniper' in assign and assign['sniper'].id == squad.id %} selected{%endif%}>{{wing.name}} - {{squad.name}}</option>
+		{% for squad in wing.squads() %}
+		<option name="wl-sniper" value="{{wing.id()}};{{squad.id()}}"{% if 'sniper' in assign and assign['sniper'].id() == squad.id() %} selected{%endif%}>{{wing.name()}} - {{squad.name()}}</option>
 		{% endfor %}
 	{% endfor %}
 	</select>
@@ -42,8 +42,8 @@
 	<label for="wl-dps">DPS Squad</label>
 	<select class="form-control" id="wl-dps" name="wl-dps">
 	{% for wing in wings %}
-		{% for squad in wing.squadsList %}
-		<option name="wl-dps" value="{{wing.id}};{{squad.id}}"{% if 'dps' in assign and assign['dps'].id == squad.id %} selected{%endif%}>{{wing.name}} - {{squad.name}}</option>
+		{% for squad in wing.squads() %}
+		<option name="wl-dps" value="{{wing.id()}};{{squad.id()}}"{% if 'dps' in assign and assign['dps'].id() == squad.id() %} selected{%endif%}>{{wing.name()}} - {{squad.name()}}</option>
 		{% endfor %}
 	{% endfor %}
 	</select>
@@ -52,8 +52,8 @@
 	<label for="wl-overflow">Overflow Squad</label>
 	<select class="form-control" id="wl-overflow" name="wl-overflow">
 	{% for wing in wings %}
-		{% for squad in wing.squadsList %}
-		<option name="wl-overflow" value="{{wing.id}};{{squad.id}}"{% if 'overflow' in assign and assign['overflow'].id == squad.id %} selected{%endif%}>{{wing.name}} - {{squad.name}}</option>
+		{% for squad in wing.squads() %}
+		<option name="wl-overflow" value="{{wing.id()}};{{squad.id()}}"{% if 'overflow' in assign and assign['overflow'].id() == squad.id() %} selected{%endif%}>{{wing.name()}} - {{squad.name()}}</option>
 		{% endfor %}
 	{% endfor %}
 	</select>

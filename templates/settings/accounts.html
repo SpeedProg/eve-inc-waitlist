@@ -3,7 +3,6 @@
 {% block title %}Settings - Accounts{% endblock %}
 
 {% block head %}
-<meta name="api-igui-openwindow-newmail" content="{{url_for('api_eve_openwindow.newmail')}}">
 <meta name="mail-resident-body" content="{{mails['resident'][0]}}">
 <meta name="mail-tbadge-body" content="{{mails['tbadge'][0]}}">
 <meta name="mail-other-body" content="{{mails['other'][0]}}">
@@ -34,7 +33,7 @@
 {% endblock %}
 
 {% block raw_content %}
-<div class="row">
+<div class="row mb-2">
 	<form action="{{url_for('settings.accounts_import_accounts')}}" method="POST" enctype=multipart/form-data class="form-inline">
 		<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 		<div class="form-group">
@@ -47,7 +46,7 @@
 	</form>
 	<a href="{{url_for('settings.accounts_download_csv')}}" target="_blank">Download Full Commander List</a>
 </div>
-<div class="row">
+<div class="row mb-2">
 	<div class="btn-group" role="group" aria-label="Account Actions">
 		<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal-account-create">New Account</button>
 	</div>
@@ -58,7 +57,7 @@
 		<input class="form-control" type="text" id="filter"/>
 	</div>
 	<nav aria-label="Page navigation">
-		<ul class="pagination" id="paginator">
+		<ul class="pagination mb-0" id="paginator">
 			<li class="page-item">
 				<a class="page-link" href="#" aria-label="First">
 					<span aria-hidden="true"><i class="fa fa-angle-double-left"></i></span>
