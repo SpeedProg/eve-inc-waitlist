@@ -1,10 +1,5 @@
 from gevent import monkey; monkey.patch_all()
-# inject the lib folder before everything else
-import os
-import sys
 from waitlist.sso import authorize, whoAmI
-base_path = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(os.path.join(base_path, 'lib'))
 from waitlist.permissions import perm_manager
 from waitlist.utility.settings.settings import sget_insert
 from waitlist.data.names import WTMRoles
