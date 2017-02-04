@@ -2,7 +2,6 @@ import requests
 import base64
 from waitlist.utility.config import crest_client_id, crest_client_secret
 import sys
-from nt import access
 
 PY3 = sys.version_info[0] == 3
 

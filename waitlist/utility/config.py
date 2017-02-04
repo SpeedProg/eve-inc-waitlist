@@ -11,7 +11,7 @@ if not os.path.isfile(os.path.join(".", "config", "config.cfg")):
     config.set("database", "sqlalchemy_pool_recycle", "7200")
     
     config.add_section("app")
-    config.set("app", "secret_key", base64.b64encode(os.urandom(24)))
+    config.set("app", "secret_key", base64.b64encode(os.urandom(24)).decode('utf-8', 'strict'))
     config.set("app", "server_port", "81")
     config.set("app", "server_bind", "0.0.0.0")
     
@@ -53,7 +53,7 @@ if not os.path.isfile(os.path.join(".", "config", "config.cfg")):
     config.set("disable", "teamspeak", "False")
     
     makedirs(os.path.join(".", "config"))
-    with open(os.path.join(".", "config", "config.cfg"), "wb") as configfile:
+    with open(os.path.join(".", "config", "config.cfg"), "w") as configfile:
         config.write(configfile)
 
 config = SafeConfigParser()
