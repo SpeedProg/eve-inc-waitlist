@@ -12,8 +12,10 @@ import datetime
 from waitlist.utility.swagger.eve import get_esi_client, ESIResponse,\
     get_expire_time
 from typing import Dict, Any, Tuple
-from esipy.client import EsiClient
 # object = {'id':char_id, 'name': char_name, 'allianceID': alliance_id, 'allianceName': alliance_name, 'corporationID': corp_id, 'corporationName': corp_name, 'expire': expire}
+from waitlist.utility.swagger.patch import EsiClient
+
+
 def get_affiliation_info(char_id: int) -> Dict[str, Any]:
 
     apiV4 = get_api('v4')
@@ -62,7 +64,7 @@ def characterid_from_name(charName: str) -> Tuple[int, str]:
     security = Security(
         apiV1,
     )
-    client = Client(security)
+    client = Client(security, timeout=10)
     search_answer = client.request(apiV1.op['get_search'](search=charName, categories=['character'], strict=True))
     # this character name doesn't exist
     if (not ('character' in search_answer.data)):
@@ -79,13 +81,13 @@ def get_character_info(char_id: int) -> Tuple[Dict[str, Any], datetime.datetime]
     security = Security(
         api_v4,
     )
-    client_v4 = Client(security)
+    client_v4 = Client(security, timeout=10)
 
     api_v2 = get_api('v2')
     security_v2 = Security(
         api_v2,
     )
-    client_v2 = Client(security_v2)
+    client_v2 = Client(security_v2, timeout=10)
     '''
 {
 "corporation_id": 98143274,

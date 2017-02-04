@@ -3,9 +3,9 @@ from waitlist.utility.swagger import header_to_datetime, get_api
 from waitlist.utility.config import crest_return_url, crest_client_id,\
     crest_client_secret
 from flask_login import current_user
-from esipy.client import EsiClient
 from datetime import datetime
 from waitlist.storage.database import Account
+from waitlist.utility.swagger.patch import EsiClient
 
 
 def get_expire_time(response) -> datetime:
@@ -42,14 +42,13 @@ class ESIResponse(object):
 
 
 def get_esi_client(version: str, noauth: bool = False) -> EsiClient:
-    # type: () -> EsiClient
     return get_esi_client_for_account(current_user, version, noauth)
 
 
 def get_esi_client_for_account(account: Account, version: str, noauth: bool = False) -> EsiClient:
     api = get_api(version)
     if noauth:
-        return EsiClient()
+        return EsiClient(timeout=10)
 
     security = EsiSecurity(
         get_api(version),
@@ -63,4 +62,4 @@ def get_esi_client_for_account(account: Account, version: str, noauth: bool = Fa
                        datetime.utcnow()).total_seconds(),
         'refresh_token': account.ssoToken.refresh_token
     })
-    return EsiClient(security)
+    return EsiClient(security, timeout=10)

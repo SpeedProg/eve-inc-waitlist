@@ -5,7 +5,6 @@ from pyswagger import App
 
 from waitlist.utility.config import crest_return_url, crest_client_id,\
     crest_client_secret
-from esipy.client import EsiClient
 from datetime import datetime
 
 from waitlist.utility.swagger import get_api
@@ -19,6 +18,7 @@ from typing import Dict, List, Any, Sequence
 # }]
 ################################
 from waitlist.utility.swagger.eve import get_esi_client
+from waitlist.utility.swagger.patch import EsiClient
 
 
 def sendMail(recipients: List[Dict[str, Any]], body: str, subject: str) -> Any:
@@ -36,7 +36,7 @@ def sendMail(recipients: List[Dict[str, Any]], body: str, subject: str) -> Any:
         'refresh_token': current_user.ssoToken.refresh_token
     })
 
-    client = EsiClient(security)
+    client = EsiClient(security, timeout=10)
 
     mail = {
         "approved_cost": 0,
