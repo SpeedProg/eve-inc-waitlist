@@ -43,7 +43,7 @@ block head %}
 {% endif %}
 {{ super() }}
 {% assets filters="babili", output="gen/setup.%(version)s.js", "js/base.js",
-"js/dropdown.js", "js/waitlist-dom.js", "js/wlsseupdate.js",
+"js/dropdown.js", "js/eveproxy.js", "js/waitlist-dom.js", "js/wlsseupdate.js",
 "js/dnasetup.js" %}
 <script type="text/javascript" src="{{ ASSET_URL }}"></script>
 {% endassets %}
