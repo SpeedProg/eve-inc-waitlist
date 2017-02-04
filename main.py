@@ -97,6 +97,11 @@ def inject_data():
     header_insert = sget_insert('header')
     if (header_insert is not None):
         header_insert = header_insert.replace("$type$", str(get_user_type()))
+    if (request.accept_mimetypes['image/webp'] == 1):
+        reqSupportsWebp = True
+    else:
+        reqSupportsWebp = False
+    eve_image_macro = eve_image(reqSupportsWebp)
     return dict(perm_admin=perm_admin, perm_settings=perm_settings,
                 perm_man=perm_management, perm_officer=perm_officer,
                 perm_accounts=perm_accounts, perm_feedback=perm_feedback,
@@ -104,8 +109,19 @@ def inject_data():
                 perm_bans=perm_bans, perm_viewfits=perm_viewfits, version=version,
                 perm_comphistory=perm_comphistory, perm_res_mod=perm_mod_mail_resident,
                 perm_t_mod=perm_mod_mail_tbadge, perm_manager=perm_manager, header_insert=header_insert,
-                eve_proxy_js=cdn_eveimg_js, eve_cdn_webp=cdn_eveimg_webp
+                eve_proxy_js=cdn_eveimg_js, eve_cdn_webp=cdn_eveimg_webp, browserSupportsWebp=reqSupportsWebp,
+                eve_image=eve_image_macro
                 )
+
+
+def eve_image(browserWebp):
+    if (browserWebp and cdn_eveimg_webp):
+        def _eve_image(path, suffix):
+            return cdn_eveimg.format(path, 'webp')
+    else:
+        def _eve_image(path, suffix):
+            return cdn_eveimg.format(path, suffix)
+    return _eve_image
 
 def get_user_type():
     #0=linemember,1=fc/t,2=lm/r,3=both
@@ -340,12 +356,6 @@ def jinja2_waittime_filter(value):
     currentUTC = datetime.utcnow()
     waitedTime = currentUTC-value
     return str(int(math.floor(waitedTime.total_seconds()/60)))
-
-@app.context_processor
-def eve_image():
-    def _eve_image(path, suffix):
-        return cdn_eveimg.format(path, suffix)
-    return dict(eve_image=_eve_image)
 
 #@werkzeug.serving.run_with_reloader
 def runServer():
