@@ -1,7 +1,7 @@
-from __future__ import absolute_import
+
 import gevent
 from flask.json import dumps
-from Queue import Queue
+from queue import Queue
 import logging
 from waitlist.utility.json import makeJsonFitting, makeJsonWLEntry
 from waitlist.utility.json import makeJsonConstellation,\
@@ -95,7 +95,7 @@ class ServerSentEvent(object):
             return ""
 
         lines = ["%s: %s" % (k, self.getValue(v)) 
-                 for k, v in self.desc_map.iteritems() if hasattr(self, v) and self.getValue(v)]
+                 for k, v in list(self.desc_map.items()) if hasattr(self, v) and self.getValue(v)]
         
         return "%s\n\n" % "\n".join(lines)
     

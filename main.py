@@ -2,15 +2,14 @@ from gevent import monkey; monkey.patch_all()
 # inject the lib folder before everything else
 import os
 import sys
+from waitlist.sso import authorize, whoAmI
 base_path = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(base_path, 'lib'))
 from waitlist.permissions import perm_manager
 from waitlist.utility.settings.settings import sget_insert
 from waitlist.data.names import WTMRoles
-from pycrest.eve import EVE
 from waitlist.utility.settings import settings
-from waitlist.utility.config import crest_client_id, crest_client_secret, crest_return_url,\
-    cdn_eveimg, cdn_eveimg_js, cdn_eveimg_webp
+from waitlist.utility.config import cdn_eveimg, cdn_eveimg_js, cdn_eveimg_webp
 from waitlist.data.version import version
 from waitlist.utility.eve_id_utils import get_account_from_db, get_char_from_db,\
     is_char_banned, get_character_by_id_and_name
@@ -26,7 +25,7 @@ from flask_login import login_required, current_user, login_user,\
     logout_user
 import logging
 from waitlist.storage.database import Account, WaitlistEntry,\
-    WaitlistGroup, TeamspeakDatum, CrestFleet
+    WaitlistGroup, TeamspeakDatum, CrestFleet, CalendarEvent
 from flask_principal import RoleNeed, identity_changed, Identity, AnonymousIdentity,\
     identity_loaded, UserNeed
 from waitlist.data.perm import perm_management, perm_settings, perm_admin,\
@@ -58,6 +57,8 @@ from waitlist.blueprints.api.waitlist import bp as bp_waitlists
 from waitlist.blueprints.accounts.commandcore import bp as bp_commandcore
 from waitlist.blueprints.accounts.profile import bp as bp_profile
 from waitlist.blueprints.api.mail import bp as bp_esi_mail
+from waitlist.blueprints.api.ui import bp as bp_esi_ui
+from waitlist.blueprints.calendar.settings import bp as bp_calendar_settings
 # needs to he here so signal handler gets registered
 from waitlist.signal.handler import acc_created, roles_changed
 
@@ -81,6 +82,8 @@ app.register_blueprint(bp_waitlists, url_prefix="/api/public/waitlists")
 app.register_blueprint(bp_commandcore, url_prefix="/accounts/cc")
 app.register_blueprint(bp_profile, url_prefix="/accounts/profile")
 app.register_blueprint(bp_esi_mail, url_prefix="/api/esi/mail")
+app.register_blueprint(bp_esi_ui, url_prefix="/api/esi/ui")
+app.register_blueprint(bp_calendar_settings, url_prefix="/settings/calendar")
 
 logger = logging.getLogger(__name__)
 
@@ -200,7 +203,9 @@ def index():
     if active_ts_setting_id is not None:
         active_ts_setting = db.session.query(TeamspeakDatum).get(active_ts_setting_id)
 
-    return render_template("index.html", lists=wlists, user=current_user, is_index=True, is_on_wl=is_on_wl(), newbro=new_bro, group=group, groups=activegroups, ts=active_ts_setting)
+    events = db.session.query(CalendarEvent).filter(CalendarEvent.eventTime > datetime.utcnow()).order_by(CalendarEvent.eventTime.asc()).limit(10).all()
+
+    return render_template("index.html", lists=wlists, user=current_user, is_index=True, is_on_wl=is_on_wl(), newbro=new_bro, group=group, groups=activegroups, ts=active_ts_setting, events=events)
 
 def is_on_wl():
     eveId = current_user.get_eve_id();
@@ -306,9 +311,13 @@ def unauthorized_ogb():
     return get_sso_redirect('linelogin', '')
 
 def member_login_cb(code):
-    eve = EVE(client_id=crest_client_id, api_key=crest_client_secret, redirect_uri=crest_return_url)
-    con = eve.authorize(code)
-    authInfo = con.whoami()
+    #eve = EVE(client_id=crest_client_id, api_key=crest_client_secret, redirect_uri=crest_return_url)
+    #con = eve.authorize(code)
+    auth = authorize(code)
+    access_token = auth['access_token']
+    #refresh_token = auth['refresh_token']
+    #expires = datetime.fromtimestamp(time.time()+auth['expires_in'])
+    authInfo = whoAmI(access_token)
     charID = authInfo['CharacterID']
     charName = authInfo['CharacterName']
 
@@ -382,12 +391,6 @@ if __name__ == '__main__':
     app.logger.addHandler(info_fh)
     app.logger.addHandler(debug_fh)
     app.logger.setLevel(logging.INFO)
-
-    pycrest_logger = logging.getLogger("pycrest.eve")
-    pycrest_logger.addHandler(debug_fh)
-    pycrest_logger.addHandler(info_fh)
-    pycrest_logger.addHandler(err_fh)
-    pycrest_logger.setLevel(logging.DEBUG)
     
     #app.run(host="0.0.0.0", port=81, debug=True)
     runServer()

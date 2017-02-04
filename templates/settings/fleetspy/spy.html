@@ -18,12 +18,12 @@ function handleData(data) {
 		console.log("creating squadMap ", charId);
 		let charObj = data[charId];
 		// if we have no map for the quad yet, create one
-		if (!(charObj.squadID in squadMap)) {
+		if (!(charObj['squad_id'] in squadMap)) {
 			console.log("Creating map for squad with id ", charObj.squadID);
-			squadMap[charObj.squadID]= {};
+			squadMap[charObj['squad_id']]= {};
 		}
 		// add the char to the squad
-		squadMap[charObj.squadID][charId] = charObj;
+		squadMap[charObj['squad_id']][charId] = charObj;
 	}
 	// now convert it to arrays:
 	var tableData = []; // [0] = th row
@@ -89,10 +89,10 @@ function handleData(data) {
 			if (data === null) {
 				html += "<td>-</td>";
 			} else {
-				let timeStr = data.joinTime + "Z";
+				let timeStr = data['join_time'] + "Z";
 				let timeObj = Date.parse(timeStr);
 				let minutes = Math.floor((((new Date()) - timeObj) / 1000)/60);
-				html += `<td>${data.ship.name} - ${data.character.name} - ${minutes}m</td>`;
+				html += `<td>${data['ship_type_id'] - ${data['character_id']} - ${minutes}m</td>`;
 			}
 		}
 		html += "</tr>";

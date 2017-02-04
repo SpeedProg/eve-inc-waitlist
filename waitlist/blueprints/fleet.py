@@ -8,16 +8,13 @@ from waitlist.base import db
 from waitlist.storage.database import CrestFleet, WaitlistGroup, SSOToken,\
     EveApiScope
 from waitlist.utility.config import crest_client_id, crest_client_secret
-from pycrest.eve import AuthedConnectionB
 from flask.helpers import url_for
 from flask.templating import render_template
 from flask.globals import request, session, current_app
 import re
 import flask
-from waitlist.utility.fleet import get_wings, member_info
-from waitlist.utility.crest import create_token_cb
+from waitlist.utility.fleet import member_info
 from waitlist.blueprints.fc_sso import get_sso_redirect, add_sso_handler
-from pycrest.errors import APIException
 from datetime import datetime
 from datetime import timedelta
 import requests
@@ -25,6 +22,9 @@ import base64
 from sqlalchemy import or_
 import json
 from waitlist.utility.json.fleetdata import FleetMemberEncoder
+from waitlist.sso import whoAmI, authorize
+from waitlist.utility.swagger.eve.fleet import EveFleetEndpoint
+from waitlist.utility.utils import token_has_scopes
 
 bp = Blueprint('fleet', __name__)
 logger = logging.getLogger(__name__)
@@ -35,27 +35,12 @@ SSO cb handler
 '''
 @login_required
 def handle_token_update(code):
-    header = {'Authorization': 'Basic '+base64.b64encode(crest_client_id+":"+crest_client_secret),
-              'Content-Type': 'application/x-www-form-urlencoded',
-              'Host': 'login.eveonline.com'}
-    params = {'grant_type': 'authorization_code',
-              'code': code}
-    r = requests.post("https://login.eveonline.com/oauth/token", headers=header, params=params)
-    tokens = r.json()
+    tokens = authorize(code)
     re_token = tokens['refresh_token']
     acc_token = tokens['access_token']
     exp_in = int(tokens['expires_in'])
     
-    # lets check it matches the current character
-    fleet_url = "https://crest-tq.eveonline.com/fleets/0/"
-    data = {
-        'access_token': acc_token,
-        'refresh_token':re_token,
-        'expires_in': (datetime.utcnow() + timedelta(seconds=exp_in))
-        }
-    connection = AuthedConnectionB(data, fleet_url, "https://login.eveonline.com/oauth", crest_client_id, crest_client_secret, create_token_cb(current_user.id))
-    
-    authInfo = connection.whoami()
+    authInfo = whoAmI(acc_token)
     charName = authInfo['CharacterName']
     if charName != current_user.get_eve_name():
         flask.abort(409, 'You did not grant authorization for the right character "'+current_user.get_eve_name()+'". Instead you granted it for "'+charName+'"')
@@ -131,25 +116,24 @@ def setup_step_url():
         flask.abort(400)
     
     if not skip_setup:
-        try:
-            fleetUtils.setup(fleet_id, fleet_type)
-        except APIException as ex:
-            flask.abort(409, "Failed to setup fleet. You may not own this fleet. " + str(ex))
+        fleetUtils.setup(fleet_id, fleet_type)
     
     return get_select_form(fleet_id)
 
 def get_select_form(fleet_id):
-    try:
-        wings = get_wings(fleet_id)
-    except APIException as ex:
-            flask.abort(409, "Failed to setup fleet. You may not own this fleet. " + str(ex))
+    # type: (int) -> None
+    fleetApi = EveFleetEndpoint(fleet_id)
+    wings = fleetApi.get_wings()
+    if wings.is_error():
+        logger.error("Could not get wings for fleetID[%d], maybe some ones tokes are wrong", fleet_id)
+        flask.abort(500)
+
     groups = db.session.query(WaitlistGroup).all()
     auto_assign = {}
-    
 
-    for wing in wings:
-        for squad in wing.squadsList:
-            lname = squad.name.lower()
+    for wing in wings.wings():
+        for squad in wing.squads():
+            lname = squad.name().lower()
             if "logi" in lname:
                 auto_assign['logi'] = squad
             elif "sniper" in lname:
@@ -158,7 +142,7 @@ def get_select_form(fleet_id):
                 auto_assign['dps'] = squad
             elif ("dps" in lname and "more" in lname) or "other" in lname:
                 auto_assign['overflow'] = squad
-    return render_template("/fleet/setup/select.html", wings=wings, fleet_id=fleet_id, groups=groups, assign=auto_assign)
+    return render_template("/fleet/setup/select.html", wings=wings.wings(), fleet_id=fleet_id, groups=groups, assign=auto_assign)
 
 def setup_step_select():
     logi_s = request.form.get('wl-logi')
@@ -268,7 +252,7 @@ def print_fleet(fleetid):
         members = member_info.get_fleet_members(fleetid, crestFleet.comp)
         if (members == None):
             return "No cached or new info"
-        cachedMembers = members
+        cachedMembers = members.FleetMember()
     return current_app.response_class(json.dumps(cachedMembers,
         indent=None if request.is_xhr else 2, cls=FleetMemberEncoder), mimetype='application/json')
 
@@ -295,15 +279,15 @@ def take_link():
 
     if fleet is None:
         session['fleet_id'] = fleet_id
-        return get_sso_redirect("setup", 'fleetRead fleetWrite remoteClientUI')
+        return get_sso_redirect("setup", 'esi-fleets.read_fleet.v1 esi-fleets.write_fleet.v1 esi-mail.send_mail.v1 esi-ui.open_window.v1')
     elif current_user.ssoToken is None or current_user.ssoToken.refresh_token is None:
         session['fleet_id'] = fleet_id
-        return get_sso_redirect("takeover", 'fleetRead fleetWrite remoteClientUI')
+        return get_sso_redirect("takeover", 'esi-fleets.read_fleet.v1 esi-fleets.write_fleet.v1 esi-mail.send_mail.v1 esi-ui.open_window.v1')
     else:
         # make sure the token we have has all the scopes we need!
-        if not token_has_scope(current_user.ssoToken, ['fleetRead', 'fleetWrite', 'remoteClientUI']):
+        if not token_has_scopes(current_user.ssoToken, ['esi-fleets.read_fleet.v1', 'esi-fleets.write_fleet.v1', 'esi-ui.open_window.v1']):
             session['fleet_id'] = fleet_id
-            return get_sso_redirect("takeover", 'fleetRead fleetWrite remoteClientUI')
+            return get_sso_redirect("takeover", 'esi-fleets.read_fleet.v1 esi-fleets.write_fleet.v1 esi-mail.send_mail.v1 esi-ui.open_window.v1')
         if fleet.compID != current_user.id:
             oldfleet = db.session.query(CrestFleet).filter((CrestFleet.compID == current_user.id)).first()
             if oldfleet != None:

@@ -45,7 +45,7 @@ def submit():
     
     db.session.commit()
     
-    flash(u"Thank You for your feedback!", "info")
+    flash("Thank You for your feedback!", "info")
 
     return flask.redirect(url_for('.index'))
     

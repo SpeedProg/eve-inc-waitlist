@@ -1,6 +1,8 @@
 from flask.blueprints import Blueprint
 import logging
 from flask_login import login_required, current_user
+from gevent import Greenlet
+
 from waitlist.data.perm import perm_admin, perm_settings, perm_officer,\
     perm_management, perm_accounts, perm_dev, perm_leadership,\
     perm_fleetlocation, perm_bans
@@ -11,8 +13,7 @@ from waitlist.storage.database import Account, Role, Character,\
     linked_chars, Ban, Constellation, IncursionLayout, SolarSystem, Station,\
     WaitlistEntry, WaitlistGroup, Whitelist, TeamspeakDatum, Shipfit, InvType
 import flask
-from waitlist.data.eve_xml_api import get_character_id_from_name,\
-    eve_api_cache_char_ids, get_char_info_for_character
+from waitlist.data.eve_xml_api import get_character_id_from_name, get_char_info_for_character
 from werkzeug.utils import redirect, secure_filename
 from flask.helpers import url_for, flash
 from waitlist.utility.utils import get_random_token, get_info_from_ban
@@ -159,7 +160,7 @@ def createTableCellData(desc, column_names, data, hide_rows=[]):
         raise ValueError("len(column_names) != len(data[0])")
     if len(hide_rows) == 0:
         print("Generating default hiding list")
-        hide_rows = [False for _ in xrange(len(column_names))]
+        hide_rows = [False for _ in range(len(column_names))]
     elif len(hide_rows) != len(column_names):
         raise ValueError("When hide_rows is specified it needs to be of the same length as the defined columns")
     
@@ -171,14 +172,32 @@ def getQueryResult(name, query, columnCount, cacheTimeSeconds):
         cacheItem = getCacheItem(name)
         result = cacheItem['data']
     else:
-        db_result = db.engine.execute(query)
-        for row in db_result:
-            rowList = []
-            for idx in xrange(0, columnCount):
-                rowList.append(row[idx])
-            result.append(rowList)
-        addItemToCache(name, createCacheItem(result, cacheTimeSeconds))
+        # we are going to return this
+        cacheItem = getCacheItem(name)
+        if cacheItem is None:
+            result = []
+            row = []
+            for idx in range(0, columnCount):
+                row.append('Calculation In Progress...')
+            result.append(row)
+        else:
+            result = cacheItem['data']
+
+        # but trigger a recalculation in a greenlet
+        def executeQuery(dataName, cc, qq, ct):
+            db_result = db.engine.execute(qq)
+            result_ = []
+            for row in db_result:
+                rowList = []
+                for idx in range(0, cc):
+                    rowList.append(row[idx])
+                result_.append(rowList)
+            addItemToCache(dataName, createCacheItem(result_, ct))
+            db.session.remove()
+
+        Greenlet.spawn(executeQuery, name, columnCount, query, cacheTimeSeconds)
     return result
+
 @bp_settings.route("/accounts", methods=["GET", "POST"])
 @login_required
 @perm_accounts.require(http_exception=401)
@@ -431,8 +450,6 @@ def bans_change():
         names_to_cache.append(ban_name)
         if ban_admin is not None:
             names_to_cache.append(ban_admin)
-    
-    eve_api_cache_char_ids(names_to_cache)
     
     if action == "ban":
         for target in targets:
@@ -971,8 +988,6 @@ def update_accounts_by_file(filename):
     for char_name in char_dict:
         chars_to_cache.append(char_name)
     
-    eve_api_cache_char_ids(chars_to_cache)
-    
     for main_name in main_dict:
         acc = db.session.query(Account).filter(Account.username == main_name).first()
         if acc is not None:
@@ -1050,8 +1065,6 @@ def whitelist_change():
         names_to_cache.append(wl_name)
         if wl_admin is not None:
             names_to_cache.append(wl_admin)
-    
-    eve_api_cache_char_ids(names_to_cache)
     
     if action == "whitelist":
         for target in targets:

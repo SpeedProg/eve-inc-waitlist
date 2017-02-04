@@ -1,4 +1,4 @@
-from __future__ import absolute_import
+
 from flask_login import login_required, current_user
 from waitlist.data.perm import perm_viewfits
 from flask.globals import request
