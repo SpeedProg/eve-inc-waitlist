@@ -27,7 +27,7 @@ def authorize(code):
             }
     res = requests.post(url, params=params, headers=headers)
     if res.status_code != 200:
-        raise Exception("Authentication Failed with %d", res.status_code)
+        raise Exception(f"Authentication Failed with { res.status_code }")
     
     return res.json()
 
