@@ -641,6 +641,7 @@ class TriviaQuestion(Base):
     questionText: Column = Column(String(1000))
     answerType: Column = Column(Enum('Integer','String', 'Custom'))
     answerConnection: Column = Column(Enum('AND', 'OR', 'NOT', 'NONE'))
+    inputPlaceholder: Column = Column(String(255))
 
     answers = relationship('TriviaAnswer')
 
