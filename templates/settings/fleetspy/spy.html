@@ -7,13 +7,59 @@
 <script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
+
+<script type="text/javascript" src="/static/js/swagger-client.min.js"></script>
+
 <meta name="fleet-spy" content="{{url_for('fleet.print_fleet', fleetid=-1)}}">
 <script type="text/javascript">
 function getMetaData (name) {
 	return $('meta[name="'+name+'"]').attr('content');
 }
+
+// holds the index database we are using
+var db;
+
+function setupDB() {
+// setup indexdb to cache charnames / ship types
+	var request = indexedDB.open("eve-api-cache", 2);
+// setup handler to ask user why it failed :>
+	request.onerror = function (event) {
+		alert("IndexDB is needed to cache character/ship information. Why didn't you allow my web app to use IndexedDB?!");
+	};
+// if we succeed opening it lets register a general error handler
+	request.onsuccess = function (event) {
+		db = event.target.result;
+		db.onerror = function (event) {
+			// Generic error handler for all errors targeted at this database's
+			// requests!
+			alert("Database error: " + event.target.errorCode);
+		};
+		// aright we are done, lets call the next code
+		initializeSite();
+	};
+// handler for setting up our object stores if this is the first time opening it
+	request.onupgradeneeded = function (event) {
+		var db = event.target.result;
+		console.log("Creating IndexDB ObjectStores");
+		// Create an objectStore for this database
+		var characterStore = db.createObjectStore("characters", {keyPath: "characterID"});
+		var shipsStore = db.createObjectStore("ships", {keyPath: "id"});
+		shipsStore.createIndex('id', 'id', { unique: true });
+	};
+}
+
+function initializeSite() {
+	$('#fleetSelect').on("change", handleFleetSelected);
+	// load initial fleet if the browser set a value
+	if ($('#fleetSelect').val() != 'None') {
+		$.get(getMetaData('fleet-spy').replace('-1', $('#fleetSelect').val()), function(data, status, xhr) {
+			handleData(data);
+		});
+	}
+}
+
 function handleData(data) {
-	var squadMap = [];
+	let squadMap = [];
 	for(let charId in data) {
 		console.log("creating squadMap ", charId);
 		let charObj = data[charId];
@@ -70,10 +116,11 @@ function handleData(data) {
 		tableData.push(rowArray);
 	}
 	console.log("Row Array ", tableData);
-	
-	
-	
-	// now we have a map containing all squads (squadID, map<charID, char>) (that are maps that contain characters)
+
+	renderTable(tableData);
+}
+
+function renderTable(tableData) {
 	let headTr = $('#fleet-list-header-tr');
 	headTr.empty();
 	for(let idx in tableData[0]) {
@@ -89,35 +136,206 @@ function handleData(data) {
 			if (data === null) {
 				html += "<td>-</td>";
 			} else {
-				let timeStr = data['join_time'] + "Z";
+				let timeStr = data['join_time'];
 				let timeObj = Date.parse(timeStr);
 				let minutes = Math.floor((((new Date()) - timeObj) / 1000)/60);
-				html += `<td>${data['ship_type_id'] - ${data['character_id']} - ${minutes}m</td>`;
+				// lets try and resolve the character id to a name
+				html += `<td data-charid="${data['character_id']}" data-shiptype="${data['ship_type_id']}">${data['ship_type_id']} - ${data['character_id']} - ${minutes}m</td>`;
 			}
 		}
 		html += "</tr>";
 		console.log("Adding row", html);
 		body.append($.parseHTML(html));
 	}
+
+		// build a shipID map
+		let shipIDs = {};
+		for(let rowIdx=1; rowIdx < tableData.length; rowIdx++) {
+			for(let idx in tableData[rowIdx]) {
+				if (!(tableData[rowIdx][idx]['ship_type_id'] in shipIDs)) {
+					shipIDs[tableData[rowIdx][idx]['ship_type_id']] = true;
+				}
+				requestCharacterIDTransformation(tableData[rowIdx][idx]['character_id']);
+			}
+		}
+		// make a array out of the ids
+		let shipIDArray = [];
+		for( let shipID in shipIDs) {
+			shipIDArray.push(shipID);
+		}
+		requestShipIDTransformations(shipIDArray);
+}
+
+function replaceCharacterID(charID, name) {
+		let node = $('td[data-charid="'+charID+'"]');
+		let text = node.text();
+		let parts = text.split(' - ', 3);
+		let newText = parts[0] + ' - ' + name + ' - ' + parts[2];
+		node.text(newText);
+}
+
+function requestShipIDTransformations(shipIDs) {
+	let results = [];
+	const notFoundIds = [];
+	const sortedIds = shipIDs.sort();
+	let index = db.transaction('ships', 'readonly').objectStore('ships').index('id');
+	let cursor = index.openCursor();
+
+	function doOutstandingIdRequest(ids) {
+		// there is none lets just do the replace
+		if (results.length > 0) {
+			replaceShipTypes(results);
+		}
+		if (notFoundIds.length > 0) {
+			const promis = getShipInfo(notFoundIds);
+			promis.then(function(value) {
+				for (let idx in value) {
+					const nameData = value[idx];
+					const shipStore = db.transaction('ships', 'readwrite').objectStore('ships');
+					shipStore.add(nameData).onsuccess = function (event) {
+						console.log('added ship');
+						console.log('event');
+					};
+				}
+				replaceShipTypes(value);
+			});
+		}
+	}
+
+	function replaceShipTypes(data) {
+		for (let idx in data) {
+			let node = $('td[data-shiptype="' + data[idx].id + '"]');
+			let text = node.text();
+			let parts = text.split(' - ', 3);
+			let newText = data[idx].name + ' - ' + parts[1] + ' - ' + parts[2];
+			node.text(newText);
+		}
+	}
+
+	cursor.onsuccess = function (event) {
+		let cursor = event.target.result;
+		if (cursor) {
+			let data = cursor.value;
+			while (sortedIds.length > 0 && data.id != sortedIds[0]) {
+				notFoundIds.push(sortedIds[0]);
+				sortedIds.shift();
+			}
+
+			// we have more
+			if (sortedIds.length > 0) {
+				// we found a value
+				results.push(cursor.value);
+				sortedIds.shift();
+
+				cursor.continue(sortedIds[0]);
+			} else {
+				// we are done w/o reaching the end of the cursor
+				doOutstandingIdRequest(notFoundIds);
+			}
+		} else {
+			// we are done by reaching the end of the cursor
+			for (let idx in sortedIds) {
+				notFoundIds.push(sortedIds[idx]);
+			}
+			doOutstandingIdRequest(notFoundIds);
+		}
+	}
+
+}
+
+function requestCharacterIDTransformation(charID) {
+	let objectStore = db.transaction('characters', 'readwrite').objectStore('characters');
+	let request = objectStore.get(charID);
+	request.onsuccess = function(event) {
+		if (!('result' in event.target) || event.target.result === undefined) {
+			const promis = getCharacterInfo(charID);
+			promis.then(function(value) {
+				const character = value;
+				character.characterID = charID;
+				const characterStore = db.transaction('characters', 'readwrite').objectStore('characters');
+				characterStore.add(character).onsuccess = function (event) {
+					console.log('added');
+					console.log('event');
+				};
+				replaceCharacterID(character.characterID, character.name);
+			});
+			return;
+		}
+		console.log(charID+' found in indexdb');
+		let charName = event.target.result.name;
+		let characterID = event.target.result.characterID;
+		replaceCharacterID(characterID, charName);
+	};
+
+	request.onerror = function (event) {
+		console.log('error getting '+charID+' from indexdb');
+	}
 }
 
 function handleFleetSelected(event) {
-	var fleetid = event.target.value;
+	const fleetid = event.target.value;
 	if (fleetid != 'None') {
 		$.get(getMetaData('fleet-spy').replace('-1', fleetid), function(data, status, xhr) {
 			handleData(data);
 		});
 	}
-} 
+}
+
+function getShipInfo(shipIDs) {
+	return new Promise(function (resolve, reject) {
+		window.clientv2.apis.Universe.post_universe_names({ids: shipIDs}, {responseContentType: 'application/json'},
+			function (success) {
+				console.log("success");
+				console.log(success);
+				resolve(success.obj);
+			},
+			function (error) {
+				console.log("Error");
+				console.log(error);
+				reject(error);
+			}
+		)
+	});
+}
+
+function getCharacterInfo(characterID) {
+	return new Promise(function (resolve, reject) {
+			window.clientv4.apis.Character.get_characters_character_id({character_id: characterID}, {responseContentType: 'application/json'},
+				function (success) {
+					console.log("success");
+					console.log(success);
+					resolve(success.obj);
+				},
+				function (error) {
+					console.log("Error");
+					console.log(error);
+					reject(error);
+				}
+			)
+	});
+}
 
 $(document).ready(function() {
-	$('#fleetSelect').on("change", handleFleetSelected);
-	// load initial fleet if the browser set a value
-	if ($('#fleetSelect').val() != 'None') {
-		$.get(getMetaData('fleet-spy').replace('-1', $('#fleetSelect').val()), function(data, status, xhr) {
-			handleData(data);
-		});
-	}
+	window.clientv4 = new SwaggerClient({
+		url: "https://esi.tech.ccp.is/v4/swagger.json",
+		success: function() {
+		},
+		error: function (event) {
+			console.log("SwaggerError");
+			console.log(event);
+		}
+	});
+	window.clientv2 = new SwaggerClient({
+		url: "https://esi.tech.ccp.is/v2/swagger.json",
+		success: function() {
+		},
+		error: function (event) {
+			console.log("SwaggerError");
+			console.log(event);
+		}
+	});
+
+	setupDB();
 });
 </script>
 </head>
