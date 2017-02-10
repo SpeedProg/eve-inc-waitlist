@@ -38,7 +38,9 @@ class PatchClient(BaseClient):
         if send_opt is None:
             send_opt = {}
 
-        self.__s = Session(kwargs)
+        self.timeout = kwargs.pop('timeout', 10)
+
+        self.__s = Session()
         self.__send_opt = send_opt
 
     def request(self, req_and_resp, opt=None):
@@ -79,7 +81,7 @@ class PatchClient(BaseClient):
             files=file_obj
         )
         rq = self.__s.prepare_request(rq)
-        rs = self.__s.send(rq, stream=True, **self.__send_opt)
+        rs = self.__s.send(rq, stream=True, timeout=self.timeout, **self.__send_opt)
 
         resp.apply_with(
             status=rs.status_code,
@@ -90,7 +92,7 @@ class PatchClient(BaseClient):
         return resp
 
 
-class EsiClient(EsiClientOrig):
+class EsiClient(BaseClient):
 
     __schemes__ = set(['https'])
 
@@ -110,7 +112,7 @@ class EsiClient(EsiClientOrig):
         :param cache: (optional) esipy.cache.BaseCache cache implementation.
         :param raw_body_only: (optional) default value [False] for all requests
         """
-        super(EsiClient, self).__init__(security)
+        super(EsiClient, self).__init__(security,)
 
         # lets get rid of all our kwargs
         headers = kwargs.pop('headers', {})
@@ -130,8 +132,10 @@ class EsiClient(EsiClientOrig):
         # store default raw_body_only in case user never want parsing
         self.raw_body_only = kwargs.pop('raw_body_only', False)
 
+        self.timeout = kwargs.pop('timeout', 10)
+
         self.security = security
-        self._session = Session(kwargs)
+        self._session = Session()
 
 
 
@@ -197,7 +201,8 @@ class EsiClient(EsiClientOrig):
             start_api_call = time.time()
             res = self._session.send(
                 prepared_request,
-                stream=True
+                stream=True,
+                timeout=self.timeout
             )
 
             # event for api call stats
