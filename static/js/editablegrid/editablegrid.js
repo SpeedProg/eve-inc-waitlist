@@ -1630,9 +1630,9 @@ EditableGrid.prototype.sort = function(columnIndexOrName, descending, backOnFirs
 	var rowCount = this.getRowCount();
 	for (var i = 0; i < rowCount - (this.ignoreLastRow ? 1 : 0); i++) row_array.push([columnIndex < 0 ? null : this.getDisplayValueAt(i, columnIndex), i, this.data[i].originalIndex]);
 	row_array.sort(columnIndex < 0 ? this.unsort :
-		this.type == "integer" || this.type == "double" ? this.sort_numeric :
-			this.type == "boolean" ? this.sort_boolean :
-				this.type == "date" ? this.sort_date :
+		type == "integer" || type == "double" ? this.sort_numeric :
+			type == "boolean" ? this.sort_boolean :
+				type == "date" ? this.sort_date :
 					this.sort_alpha);
 
 	if (descending) row_array = row_array.reverse();
