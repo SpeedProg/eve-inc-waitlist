@@ -35,7 +35,7 @@ from waitlist.ts3.connection import change_connection
 from datetime import datetime, timedelta
 from waitlist.data.sse import StatusChangedSSE, sendServerSentEvent
 from waitlist.utility import config
-from waitlist.signal.signals import sendRolesChanged, sendAccountCreated
+from waitlist.signal.signals import sendRolesChanged, sendAccountCreated, sendAccountStatusChange
 from waitlist.permissions import perm_manager
 from flask.wrappers import Response
 from sqlalchemy.orm import joinedload
@@ -414,6 +414,7 @@ def account_disabled():
     accid = int(request.form['id'])
     acc = db.session.query(Account).filter(Account.id == accid).first()
     status = request.form['disabled']
+    sendAccountStatusChange(acc.id, current_user.id, status)
     logger.info("%s sets account %s to %s", current_user.username, acc.username, status)
     if status == 'false':
         status = False

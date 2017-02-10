@@ -59,7 +59,7 @@ from waitlist.blueprints.calendar.settings import bp as bp_calendar_settings
 from waitlist.utility.swagger.patch import monkey_patch_pyswagger_requests_client
 
 # needs to he here so signal handler gets registered
-from waitlist.signal.handler import acc_created, roles_changed
+from waitlist.signal.handler import acc_created, roles_changed, account_status_change
 
 monkey_patch_pyswagger_requests_client()
 

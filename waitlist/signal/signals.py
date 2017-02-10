@@ -1,8 +1,9 @@
 from blinker.base import Namespace
 SIG_ROLES_EDITED = 'roles-edited'
 SIG_ACC_CREATED = 'acc-created'
+SIG_ACC_STATUS_CHANGE = 'acc-status-change'
 
-waitlist_bps = Namespace();
+waitlist_bps = Namespace()
 
 roles_changed_sig = waitlist_bps.signal(SIG_ROLES_EDITED, "Called when roles are changed on an account")
 def sendRolesChanged(sender, toID, byID, added_roles, removed_roles, note):
@@ -12,3 +13,7 @@ account_created_sig = waitlist_bps.signal(SIG_ACC_CREATED, 'Called when a new Wa
 def sendAccountCreated(sender, accountID, createdByID, roles, note):
     ''' roles is a string list of role names, not the role database objects '''
     account_created_sig.send(sender, accountID=accountID, createdByID=createdByID, roles=roles, note=note)
+
+account_status_change_sig = waitlist_bps.signal(SIG_ACC_STATUS_CHANGE, 'Called when an account is enabled or disabled')
+def sendAccountStatusChange(sender, accountID, createdByID):
+    account_status_change_sig.send(sender, accountID=accountID, byID=createdByID, disabled=True)
