@@ -1,10 +1,12 @@
+from typing import Dict
+
 from flask_login import current_user
 from time import sleep
 import logging
 from threading import Timer
 from waitlist.base import db
 from waitlist.storage.database import WaitlistGroup, CrestFleet, WaitlistEntry,\
-    HistoryEntry, Character, TeamspeakDatum
+    HistoryEntry, Character, TeamspeakDatum, Account
 from datetime import datetime
 from waitlist.utility.history_utils import create_history_object
 from flask.helpers import url_for
@@ -15,6 +17,8 @@ from waitlist.data.sse import sendServerSentEvent, InviteMissedSSE,\
 from waitlist.utility.swagger.eve.fleet import EveFleetEndpoint
 import flask
 from waitlist.utility.swagger.eve import get_esi_client_for_account
+from waitlist.utility.swagger.eve.fleet import EveFleetMembers
+from waitlist.utility.swagger.eve.fleet.models import FleetMember
 
 logger = logging.getLogger(__name__)
 
@@ -26,22 +30,21 @@ class FleetMemberInfo():
     def get_fleet_members(self, fleetID, account):
         return self._get_data(fleetID, account)
     
-    def _to_members_map(self, response):
-        # type: (FleetMembers) -> dict(int, FleetMember)
+    def _to_members_map(self, response: EveFleetMembers) -> Dict[int, FleetMember]:
         data = {}
         logger.debug("Got MemberList from API %s", str(response))
         for member in response.FleetMember():
             data[member.characterID()] = member
         return data
     
-    def _get_data(self, fleetID, account):
+    def _get_data(self, fleetID: int, account: Account) -> Dict[int, FleetMember]:
         fleetApi = EveFleetEndpoint(fleetID, get_esi_client_for_account(account, 'v1'))
         utcnow = datetime.utcnow()
         if (self._is_expired(fleetID, utcnow)):
             logger.debug("Member Data Expired for %d and account %s", fleetID, account.username)
             try:
                 logger.debug("%s Requesting Fleet Member", account.username)
-                data = fleetApi.get_member()
+                data: EveFleetMembers = fleetApi.get_member()
                 if not data.is_error():
                     logger.debug("%s Got Fleet Members", account.username)
                     self._update_cache(fleetID, data)
@@ -71,8 +74,7 @@ class FleetMemberInfo():
             else:
                 return True
     
-    def _update_cache(self, fleetID, response):
-        # type: (int, FleetMember)
+    def _update_cache(self, fleetID: int, response: EveFleetMembers):
         self._lastmembers[fleetID] = self._to_members_map(response)
         self._cached_until[fleetID] = response.expires()
 
