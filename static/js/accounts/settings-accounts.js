@@ -54,9 +54,9 @@ waitlist.accounts = (function() {
 		var source = $(event.currentTarget);
 		var id = Number(source.data('id'));
 		enableAccount(id, function() {
-			var row_id = "#account-"+id;
-			var row = $(row_id);
-			row.removeClass("table-warning");
+			const td_status_field_id = "#account-"+id+"-status";
+			const td = $(td_status_field_id);
+			td.text('Active')
 			source.attr("data-type", "acc-disable");
 			source.text("Disable");
 		});
@@ -66,9 +66,9 @@ waitlist.accounts = (function() {
 		var source = $(event.currentTarget);
 		var id = Number(source.data('id'));
 		disableAccount(id, function() {
-			var row_id = "#account-"+id;
-			var row = $(row_id);
-			row.addClass("table-warning");
+			const td_status_field_id = "#account-"+id+"-status";
+			const td = $(td_status_field_id);
+			td.text('Deactivated')
 			source.attr("data-type", "acc-enable");
 			source.text("Enable");
 		});
@@ -176,6 +176,10 @@ waitlist.accounts = (function() {
 				{
 					name: "Actions",
 					datatype: "html",
+					editable: false
+				}, {
+					name: "Status",
+					datatype: "string",
 					editable: false
 				}, {
 					name: "Account Name",
