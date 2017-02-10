@@ -1,3 +1,5 @@
+from typing import Dict
+
 from flask.blueprints import Blueprint
 import logging
 from waitlist.data.perm import perm_management, perm_dev
@@ -24,6 +26,7 @@ import json
 from waitlist.utility.json.fleetdata import FleetMemberEncoder
 from waitlist.sso import whoAmI, authorize
 from waitlist.utility.swagger.eve.fleet import EveFleetEndpoint
+from waitlist.utility.swagger.eve.fleet.models import FleetMember
 from waitlist.utility.utils import token_has_scopes
 
 bp = Blueprint('fleet', __name__)
@@ -249,10 +252,10 @@ def print_fleet(fleetid):
     cachedMembers = member_info.get_cache_data(fleetid)
     if (cachedMembers == None):
         crestFleet = db.session.query(CrestFleet).get(fleetid)
-        members = member_info.get_fleet_members(fleetid, crestFleet.comp)
+        members: Dict[int, FleetMember] = member_info.get_fleet_members(fleetid, crestFleet.comp)
         if (members == None):
             return "No cached or new info"
-        cachedMembers = members.FleetMember()
+        cachedMembers = members
     return current_app.response_class(json.dumps(cachedMembers,
         indent=None if request.is_xhr else 2, cls=FleetMemberEncoder), mimetype='application/json')
 
