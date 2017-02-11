@@ -60,18 +60,26 @@ def get_affiliation_info(char_id: int) -> Dict[str, Any]:
 @return charid, name
 '''
 def characterid_from_name(charName: str) -> Tuple[int, str]:
+    apiV4 = get_api('v4')
+    securityV4 = Security(
+        apiV4,
+    )
+    clientV4 = Client(securityV4, timeout=10)
+
     apiV1 = get_api('v1')
-    security = Security(
+    securityV1 = Security(
         apiV1,
     )
-    client = Client(security, timeout=10)
-    search_answer = client.request(apiV1.op['get_search'](search=charName, categories=['character'], strict=True))
+    clientV1 = Client(securityV1, timeout=10)
+
+    search_answer = clientV1.request(apiV1.op['get_search'](search=charName, categories=['character'], strict=True))
+
     # this character name doesn't exist
     if (not ('character' in search_answer.data)):
         return None, None
     char_id: int = int(search_answer.data['character'][0])
     
-    char_answer = client.request(apiV1.op['get_characters_character_id'](character_id=char_id))
+    char_answer = clientV4.request(apiV4.op['get_characters_character_id'](character_id=char_id))
     char_name: str = char_answer.data['name']
     
     return char_id, char_name
