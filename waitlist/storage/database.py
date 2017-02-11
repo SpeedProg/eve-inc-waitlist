@@ -1,5 +1,6 @@
 from sqlalchemy import Column, Integer, String, SmallInteger, BIGINT, Boolean, DateTime, Index,\
     sql, BigInteger, text
+from sqlalchemy import Enum
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.sql.schema import Table, ForeignKey
 from sqlalchemy.dialects.mysql.base import LONGTEXT, TEXT
@@ -641,3 +642,19 @@ class CCVote(Base):
     lmvoteID = Column(Integer, ForeignKey("accounts.id"))
     fcvoteID = Column(Integer, ForeignKey("accounts.id"))
     time = Column(DateTime, default=datetime.utcnow)
+
+class TriviaQuestion(Base):
+    __tablename__: str = 'trivia_question'
+    questionID: Column = Column(Integer, primary_key=True)
+    questionText: Column = Column(String(1000))
+    answerType: Column = Column(Enum('Integer','String', 'Custom'))
+    answerConnection: Column = Column(Enum('AND', 'OR', 'NOT', 'NONE'))
+    inputPlaceholder: Column = Column(String(255))
+
+    answers = relationship('TriviaAnswer')
+
+class TriviaAnswer(Base):
+    __tablename: str = 'trivia_answer'
+    answerID: Column = Column(Integer, primary_key=True)
+    questionID: Column = Column(Integer, ForeignKey('trivia_question.questionID'), primary_key=True)
+    answerText: Column = Column(String(1000))
