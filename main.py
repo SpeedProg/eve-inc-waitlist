@@ -111,7 +111,7 @@ def inject_data():
 
     if (header_insert is not None):
         header_insert = header_insert.replace("$type$", str(get_user_type()))
-    if (request.accept_mimetypes['image/webp'] == 1):
+    if 'image/webp' in request.headers.get('accept'):
         reqSupportsWebp = True
     else:
         reqSupportsWebp = False
