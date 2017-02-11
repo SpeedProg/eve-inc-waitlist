@@ -103,6 +103,12 @@ def inject_data():
     if hasattr(current_user, 'type'):
         is_account=(current_user.type == "account")
     header_insert = sget_insert('header')
+
+    currentTime = datetime.utcnow()
+    endTime = datetime(2016, 8, 7, 11, 0, 0)
+    startTime = datetime(2016, 7, 4, 11, 0, 0)
+    cc_vote_on = (currentTime < startTime and currentTime > endTime)
+
     if (header_insert is not None):
         header_insert = header_insert.replace("$type$", str(get_user_type()))
     if (request.accept_mimetypes['image/webp'] == 1):
