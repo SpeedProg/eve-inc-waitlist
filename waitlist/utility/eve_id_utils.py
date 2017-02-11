@@ -4,7 +4,6 @@ from waitlist.base import db
 import logging
 from waitlist.data.eve_xml_api import get_character_id_from_name,\
     get_affiliation
-from urllib2 import HTTPError
 
 logger = logging.getLogger(__name__)
 
