@@ -62,6 +62,8 @@ from waitlist.utility.swagger.patch import monkey_patch_pyswagger_requests_clien
 from waitlist.signal.handler import acc_created, roles_changed, account_status_change
 
 monkey_patch_pyswagger_requests_client()
+from waitlist.blueprints.cc_vote import bp as bp_ccvote
+from waitlist.blueprints.options.ccvote_results import bp as bp_ccvote_settings
 
 app.register_blueprint(bp_waitlist)
 app.register_blueprint(bp_settings, url_prefix='/settings')
@@ -85,6 +87,8 @@ app.register_blueprint(bp_profile, url_prefix="/accounts/profile")
 app.register_blueprint(bp_esi_mail, url_prefix="/api/esi/mail")
 app.register_blueprint(bp_esi_ui, url_prefix="/api/esi/ui")
 app.register_blueprint(bp_calendar_settings, url_prefix="/settings/calendar")
+app.register_blueprint(bp_ccvote, url_prefix="/ccvote")
+app.register_blueprint(bp_ccvote_settings, url_prefix="/settings/ccvote")
 
 logger = logging.getLogger(__name__)
 
@@ -114,7 +118,7 @@ def inject_data():
                 perm_comphistory=perm_comphistory, perm_res_mod=perm_mod_mail_resident,
                 perm_t_mod=perm_mod_mail_tbadge, perm_manager=perm_manager, header_insert=header_insert,
                 eve_proxy_js=cdn_eveimg_js, eve_cdn_webp=cdn_eveimg_webp, browserSupportsWebp=reqSupportsWebp,
-                eve_image=eve_image_macro
+                eve_image=eve_image_macro, ccvote_on=cc_vote_on
                 )
 
 

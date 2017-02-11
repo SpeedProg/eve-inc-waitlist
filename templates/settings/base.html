@@ -20,7 +20,8 @@
 	('settings_fmotds.index', 'Fleet MOTD', perm_leadership.can()),
 	('settings_inserts.index', 'Page Inserts', perm_manager.getPermission('inserts').can()),
 	('feedback.settings', 'Feedback', perm_feedback.can()),
-	('settings.sde_settings', 'Static Data Import', perm_dev.can())
+	('settings.sde_settings', 'Static Data Import', perm_dev.can()),
+	('settings_ccvote.index', 'CC Vote Results', perm_leadership.can())
 ] -%}
 <div class="row">
 	<div class="col-sm-3 col-md-2 sidebar" id="sidebar">
