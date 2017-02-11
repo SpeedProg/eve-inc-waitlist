@@ -6,11 +6,9 @@ from collections import namedtuple
 from datetime import datetime
 from email._parseaddr import parsedate
 
-from esipy import EsiClient as EsiClientOrig
 from esipy.cache import DictCache, BaseCache, DummyCache
 from esipy.events import api_call_stats
 from pyswagger.core import BaseClient
-import pyswagger
 from requests import Session, Request
 import six
 from requests.adapters import HTTPAdapter
@@ -274,4 +272,7 @@ class EsiClient(BaseClient):
         return (request.url, headers, path, query)
 
 def monkey_patch_pyswagger_requests_client():
+    import pyswagger.contrib.client.requests
     pyswagger.contrib.client.requests.Client = PatchClient
+    import esipy
+    esipy.EsiClient = EsiClient
