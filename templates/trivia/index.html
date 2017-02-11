@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block container_data %}
+	<form class="form">
+	{% for question in questions %}
+	<div class="form-group">
+	<label for="qinput-{{question.questionID}}">{{ question.questionText }}</label>
+	{% if question.answerType == 'Integer' %}
+	<input class="form-control" type="number" id="qinput-{{question.questionID}}"{% if question.inputPlaceholder is not none %} placeholder="{{ question.inputPlaceholder }}"{% endif %}>
+	{% else %}
+	<input class="form-control" type="text" id="qinput-{{question.questionID}}"{% if question.inputPlaceholder is not none %} placeholder="{{ question.inputPlaceholder }}"{% endif %}>
+	{% endif %}
+	</div>
+	{% endfor %}
+	<button type="submit" class="btn-primary">Submit Answers</button>
+	</form>
+{% endblock %}
