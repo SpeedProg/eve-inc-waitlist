@@ -51,7 +51,7 @@ fmanager = Table("fleetmanager",
                  Base.metadata,
                  Column("accountID", Integer, ForeignKey('accounts.id', ondelete="CASCADE")),
                  Column("groupID", Integer, ForeignKey('waitlist_groups.groupID', ondelete="CASCADE"))
-            )    
+            )
 
 token_scope = Table(
     'tokenscope', Base.metadata,
@@ -633,3 +633,11 @@ calendar_backseat: Table = Table('calendar_backseat',
                   Column('accountID', Integer, ForeignKey('accounts.id', ondelete="CASCADE", onupdate='CASCADE')),
                   Column('eventID', Integer, ForeignKey('calendar_event.eventID', ondelete="CASCADE", onupdate='CASCADE'))
                   )
+
+class CCVote(Base):
+    __tablename__ = "ccvote"
+    ccvoteID = Column(Integer, primary_key=True)
+    voterID = Column(Integer, ForeignKey("characters.id"))
+    lmvoteID = Column(Integer, ForeignKey("accounts.id"))
+    fcvoteID = Column(Integer, ForeignKey("accounts.id"))
+    time = Column(DateTime, default=datetime.utcnow)

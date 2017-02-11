@@ -4,6 +4,7 @@ from waitlist.base import db
 import logging
 from waitlist.data.eve_xml_api import get_character_id_from_name,\
     get_affiliation
+from urllib2 import HTTPError
 
 logger = logging.getLogger(__name__)
 
@@ -68,29 +69,32 @@ def get_character_by_name(eve_name):
     return get_character_by_id_and_name(eve_id, eve_name)
 
 def is_char_banned(char):
-    corp_id, alli_id = get_affiliation(char.get_eve_id())
-    # if he is on whitelist let him pass
-    
-    char_banned = char.banned
-    corp_banned = is_charid_banned(corp_id)
-    alli_banned = is_charid_banned(alli_id)
-    
-    if is_charid_whitelisted(char.get_eve_id()):
+    try:
+        corp_id, alli_id = get_affiliation(char.get_eve_id())
+            # if he is on whitelist let him pass
+        
+        char_banned = char.banned
+        corp_banned = is_charid_banned(corp_id)
+        alli_banned = is_charid_banned(alli_id)
+        
+        if is_charid_whitelisted(char.get_eve_id()):
+            return False, ""
+        
+        if char_banned:
+            return True, "Character"
+        
+        if is_charid_whitelisted(corp_id):
+                return False, ""
+        
+        if corp_banned:
+            return True, "Corporation"
+        
+        if is_charid_whitelisted(alli_id):
+                return False, ""
+        
+        if alli_banned:
+            return True, "Alliance"
+        
         return False, ""
-    
-    if char_banned:
-        return True, "Character"
-    
-    if is_charid_whitelisted(corp_id):
-            return False, ""
-    
-    if corp_banned:
-        return True, "Corporation"
-    
-    if is_charid_whitelisted(alli_id):
-            return False, ""
-    
-    if alli_banned:
-        return True, "Alliance"
-    
-    return False, ""
+    except HTTPError:
+        return False, ""

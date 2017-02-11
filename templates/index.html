@@ -90,6 +90,11 @@ include "xup-form.html" with context %} {% endif %}
 		</p>
 	</div>
 	{% endif %}
+  	{% if ccvote_on %}
+	<div class="alert alert-info fade in" role="alert">
+  		<p class="text-xs-center"><a href="/ccvote">Vote your favorite WTM Command Core Member HERE</a></p>
+  	</div>
+  	{% endif %}
 </div>
 <div class="row">
 	{% if group %}

@@ -1,0 +1,53 @@
+{% extends "settings/base.html" %}
+
+{% block title %}Settings - Fleet MOTD{% endblock %}
+
+{% block head %}
+{{ super() }}
+{% endblock head %}
+{% block content %}
+<div class="col-md-6">
+<h4>FC</h4>
+<table class="table">
+<thead><th>Username</th><th>Votes</th></thead>
+<tbody>
+{% for cc in fcs %}
+<tr><td>{{cc[0]}}</td><td>{{cc[1]}}</td></tr>
+{% endfor %}
+</tbody>
+</table>
+</div>
+<div class="col-md-6">
+<h4>LM</h4>
+<table class="table">
+<thead><th>Username</th><th>Votes</th></thead>
+<tbody>
+{% for cc in lms %}
+<tr><td>{{cc[0]}}</td><td>{{cc[1]}}</td></tr>
+{% endfor %}
+</tbody>
+</table>
+</div>
+<div class="col-md-6">
+<h4>Unique Voters for FC</h4>
+<table class="table">
+<thead><th>Username</th><th>Votes</th></thead>
+<tbody>
+{% for cc in ufcs %}
+<tr><td>{{cc[0]}}</td><td>{{cc[1]}}</td></tr>
+{% endfor %}
+</tbody>
+</table>
+</div>
+<div class="col-md-6">
+<h4>Unique Voters for LM</h4>
+<table class="table">
+<thead><th>Username</th><th>Votes</th></thead>
+<tbody>
+{% for cc in ulms %}
+<tr><td>{{cc[0]}}</td><td>{{cc[1]}}</td></tr>
+{% endfor %}
+</tbody>
+</table>
+</div>
+{% endblock content %}
