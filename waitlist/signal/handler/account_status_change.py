@@ -1,18 +1,15 @@
 from waitlist.signal.signals import account_status_change_sig
-from waitlist.storage.database import RoleChangeEntry#
-from waitlist.base import db
-from waitlist.storage.database import Role, AccountNote
-from sqlalchemy.sql.expression import or_
+from waitlist import db
+from waitlist.storage.database import AccountNote
+
 
 @account_status_change_sig.connect
-def addStatusChangeNote(sender, accountID, byID, disabled):
-
-    note = ''
+def add_status_change_note(_, account_id: int, by_id: int, disabled: bool):
     if disabled:
         note = 'Account Deactivated'
     else:
         note = 'Account Activated'
 
-    historyEntry = AccountNote(accountID=accountID, byAccountID=byID, note=note)
-    db.session.add(historyEntry)
+    history_entry = AccountNote(accountID=account_id, byAccountID=by_id, note=note)
+    db.session.add(history_entry)
     db.session.commit()

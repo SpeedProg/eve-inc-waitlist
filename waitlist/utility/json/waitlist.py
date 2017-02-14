@@ -1,116 +1,148 @@
-def makeJsonWLEntry(entry, excludeFits = False, includeFitsFrom = None, scramble_names = False, include_names_from = None):
-    return {
-            'id': entry.id,
-            'character': makeJsonCharacter(entry.user_data, scramble_names=scramble_names, include_names_from=include_names_from),
-            'fittings': makeJsonFittings(entry.fittings, excludeFits, includeFitsFrom, entry.user),
-            'time': entry.creation,
-            'missedInvites': entry.inviteCount
-            }
+from typing import Optional, Sequence
 
-def makeJsonWL(dbwl, excludeFits = False, includeFitsFrom = None, scramble_names=False, include_names_from = None):
+from waitlist.storage.database import Waitlist, Character, Shipfit, WaitlistGroup, SolarSystem, Constellation, Station
+
+Optionalcharids = Optional[Sequence[int]]
+
+
+def make_json_wl_entry(entry, exclude_fits: bool = False, include_fits_from: Optionalcharids = None,
+                       scramble_names: bool = False, include_names_from: Optionalcharids = None):
     return {
-            'id': dbwl.id,
-            'name': dbwl.name,
-            'entries': makeEntries(dbwl.entries, excludeFits, includeFitsFrom, scramble_names=scramble_names, include_names_from=include_names_from)
+        'id': entry.id,
+        'character': make_json_character(entry.user_data, scramble_names=scramble_names,
+                                         include_names_from=include_names_from),
+        'fittings': make_json_fittings(entry.fittings, exclude_fits, include_fits_from, entry.user),
+        'time': entry.creation,
+        'missedInvites': entry.inviteCount
     }
 
-def makeJsonCharacter(dbcharacter, scramble_names=False, include_names_from = None):
-    return {
-            'id': dbcharacter.get_eve_id() if not scramble_names or (include_names_from is not None and dbcharacter.get_eve_id() in include_names_from) else None,
-            'name': dbcharacter.get_eve_name() if not scramble_names or (include_names_from is not None and dbcharacter.get_eve_id() in include_names_from) else 'Name Hidden',
-            'newbro': dbcharacter.is_new()
-            }
 
-def makeJsonFitting(dbfitting):
+def make_json_wl(dbwl: Waitlist, exclude_fits: bool = False, include_fits_from: Optionalcharids = None,
+                 scramble_names: bool = False, include_names_from: Optionalcharids = None):
     return {
-            'id': dbfitting.id,
-            'shipType': dbfitting.ship_type,
-            'shipName': dbfitting.ship.typeName,
-            'modules': dbfitting.modules,
-            'comment': dbfitting.comment,
-#            'dna': dbfitting.get_dna(),
-            'wl_type': dbfitting.wl_type
-        }
+        'id': dbwl.id,
+        'name': dbwl.name,
+        'entries': make_entries(dbwl.entries, exclude_fits, include_fits_from, scramble_names=scramble_names,
+                                include_names_from=include_names_from)
+    }
 
-def makeJsonFittings(dbfittings, excludeFits = False, includeFitsFrom = None, charId = None):
+
+def make_json_character(dbcharacter: Character, scramble_names: bool = False,
+                        include_names_from: Optionalcharids = None):
+    return {
+        'id': dbcharacter.get_eve_id() if not scramble_names or (
+            include_names_from is not None and dbcharacter.get_eve_id() in include_names_from) else None,
+        'name': dbcharacter.get_eve_name() if not scramble_names or (
+            include_names_from is not None and dbcharacter.get_eve_id() in include_names_from) else 'Name Hidden',
+        'newbro': dbcharacter.is_new()
+    }
+
+
+def make_json_fitting(dbfitting: Shipfit):
+    return {
+        'id': dbfitting.id,
+        'shipType': dbfitting.ship_type,
+        'shipName': dbfitting.ship.typeName,
+        'modules': dbfitting.modules,
+        'comment': dbfitting.comment,
+        #            'dna': dbfitting.get_dna(),
+        'wl_type': dbfitting.wl_type
+    }
+
+
+def make_json_fittings(dbfittings, exclude_fits: bool = False, include_fits_from: Optionalcharids = None,
+                       char_id: Optional[int] = None):
     fittings = []
-    if (excludeFits and (includeFitsFrom == None or charId == None)):
+    if exclude_fits and (include_fits_from is None or char_id is None):
         return fittings
 
     for fit in dbfittings:
-        if (not excludeFits or (charId in includeFitsFrom)):
-            fittings.append(makeJsonFitting(fit))
+        if not exclude_fits or (char_id in include_fits_from):
+            fittings.append(make_json_fitting(fit))
 
     return fittings
 
-def makeEntries(dbentries, excludeFits = False, includeFitsFrom = None, scramble_names=False, include_names_from = None):
+
+def make_entries(dbentries, exclude_fits: bool = False, include_fits_from: Optionalcharids = None,
+                 scramble_names: bool = False, include_names_from: Optionalcharids = None):
     entries = []
     for entry in dbentries:
-        entries.append(makeJsonWLEntry(entry, excludeFits, includeFitsFrom, scramble_names, include_names_from=include_names_from))
+        entries.append(make_json_wl_entry(entry, exclude_fits, include_fits_from, scramble_names,
+                                          include_names_from=include_names_from))
     return entries
 
-def makeJsonGroups(groups):
-    return [makeJsonGroup(grp) for grp in groups]
 
-def makeJsonGroup(group):
+def make_json_groups(groups: Sequence[WaitlistGroup]):
+    return [make_json_group(grp) for grp in groups]
+
+
+def make_json_group(group: WaitlistGroup):
     return {
         'groupID': group.groupID,
         'groupName': group.groupName,
-        'groupDisplayName': group.displayName,#
+        'groupDisplayName': group.displayName,  #
         'influence': group.influence,
         'status': group.status,
         'enabled': group.enabled,
-        'fcs': makeJsonFCs(group.fcs),
-        'managers': makeJsonManagers(group),
-        'station': makeJsonStation(group.dockup),
-        'solarSystem': makeJsonSolarSystem(group.system),
-        'constellation': makeJsonConstellation(group.constellation),
+        'fcs': make_json_fcs(group.fcs),
+        'managers': make_json_managers(group),
+        'station': make_json_station(group.dockup),
+        'solarSystem': make_json_solar_system(group.system),
+        'constellation': make_json_constellation(group.constellation),
         'logiwlID': group.logiwlID,
         'dpswlID': group.dpswlID,
         'sniperwlID': group.sniperwlID,
         'otherwlID': group.otherwlID
-        }
+    }
 
-def makeJsonFCs(fcs):
-    return [makeJsonFC(fc) for fc in fcs]
 
-def makeJsonFC(fc):
-    return makeJsonCharacter(fc.current_char_obj)
+def make_json_fcs(fcs: Sequence[Character]):
+    return [make_json_fc(fc) for fc in fcs]
 
-def makeJsonManagers(group):
+
+def make_json_fc(fc: Character):
+    return make_json_character(fc.current_char_obj)
+
+
+def make_json_managers(group: WaitlistGroup):
     if len(group.fleets) > 0:
-        return [makeJsonCharacter(fleet.comp) for fleet in group.fleets]
+        return [make_json_character(fleet.comp) for fleet in group.fleets]
     else:
-        return [makeJsonCharacter(manager.current_char_obj) for manager in group.manager]
+        return [make_json_character(manager.current_char_obj) for manager in group.manager]
 
-def makeJsonSolarSystem(system):
+
+def make_json_solar_system(system: SolarSystem):
     if system is None:
         return None
     return {
         'solarSystemID': system.solarSystemID,
         'solarSystemName': system.solarSystemName
-        }
+    }
 
-def makeJsonConstellation(constellation):
+
+def make_json_constellation(constellation: Constellation):
     if constellation is None:
         return None
     return {
         'constellationID': constellation.constellationID,
         'constellationName': constellation.constellationName
-        }
+    }
 
-def makeJsonStation(station):
+
+def make_json_station(station: Station):
     if station is None:
         return None
     return {
-        'stationID': station.stationID,
+        'stationID': station.station_id,
         'stationName': station.stationName
-        }
+    }
 
-def makeJsonWaitlistsBaseData(waitlists):
-    return [makeJsonWaitlistBaseData(l) for l in waitlists]
 
-def makeJsonWaitlistBaseData(waitlist):
+def make_json_waitlists_base_data(waitlists: Sequence[Waitlist]):
+    return [make_json_waitlist_base_data(l) for l in waitlists]
+
+
+def make_json_waitlist_base_data(waitlist: Waitlist):
     return {
         'id': waitlist.id,
         'name': waitlist.name,

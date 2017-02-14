@@ -1,15 +1,12 @@
 import logging
 from datetime import datetime
 
-import flask
 import math
-from flask import current_app
-from flask import render_template
-from flask_login import current_user, login_manager, login_required, logout_user
-from flask_principal import Identity, identity_changed, AnonymousIdentity, UserNeed, RoleNeed, identity_loaded
+from flask_login import current_user, login_manager
+from flask_principal import Identity, UserNeed, RoleNeed, identity_loaded
 from sqlalchemy.exc import StatementError
 
-from waitlist.base import principals, app, db
+from waitlist import principals, app, db
 from waitlist.blueprints.fc_sso import get_sso_redirect
 from waitlist.storage.database import Account
 from waitlist.utility.account import force_logout
@@ -60,7 +57,7 @@ def get_user_from_db(unicode_id):
 
 
 @identity_loaded.connect_via(app)
-def on_identity_loaded(sender, identity):
+def on_identity_loaded(_, identity):
     # Set the identity user object
     identity.user = current_user
     # Add the UserNeed to the identity
@@ -84,8 +81,9 @@ def unauthorized_ogb():
     """
     return get_sso_redirect('linelogin', '')
 
+
 @app.template_filter('waittime')
 def jinja2_waittime_filter(value):
-    currentUTC = datetime.utcnow()
-    waitedTime = currentUTC-value
-    return str(int(math.floor(waitedTime.total_seconds()/60)))
+    current_utc = datetime.utcnow()
+    waited_time = current_utc - value
+    return str(int(math.floor(waited_time.total_seconds()/60)))

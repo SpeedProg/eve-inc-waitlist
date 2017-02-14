@@ -11,14 +11,16 @@ from waitlist.utility.settings.settings import sget_resident_mail,\
 from flask.globals import request
 from flask.helpers import flash, url_for
 from werkzeug.utils import redirect
-from waitlist.base import app
+from waitlist import app
 
 bp = Blueprint('settings_mail', __name__)
 logger = logging.getLogger(__name__)
 
+
 @app.context_processor
 def inject_data():
     return dict()
+
 
 @bp.route("/")
 @login_required
@@ -29,7 +31,8 @@ def index():
          'tbadge': [sget_tbadge_mail(), sget_tbadge_topic()],
          'other': [sget_other_mail(), sget_other_topic()]
          }
-    return render_template("/settings/mail/index.html", mails=mails)
+    return render_template("settings/mail/index.html", mails=mails)
+
 
 @bp.route("/change/<string:type_>", methods=["POST"])
 @login_required
