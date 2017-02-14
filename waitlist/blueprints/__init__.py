@@ -14,7 +14,7 @@ from flask_login import login_required, current_user, login_user
 
 from waitlist.utility import config
 
-from waitlist.base import app, db
+from waitlist import app, db
 from waitlist.storage.database import WaitlistGroup, TeamspeakDatum, CalendarEvent, WaitlistEntry, Account
 from waitlist.utility.settings import settings
 
@@ -22,8 +22,8 @@ logger = logging.getLogger(__name__)
 
 
 def is_on_wl():
-    eveId = current_user.get_eve_id()
-    entry = db.session.query(WaitlistEntry).filter(WaitlistEntry.user == eveId).first()
+    eve_id = current_user.get_eve_id()
+    entry = db.session.query(WaitlistEntry).filter(WaitlistEntry.user == eve_id).first()
     return entry is not None
 
 
@@ -34,20 +34,20 @@ def index():
         group_id = int(request.args.get('groupId'))
         group = db.session.query(WaitlistGroup).get(group_id)
     else:
-        group = db.session.query(WaitlistGroup).filter(WaitlistGroup.enabled == True).order_by(
+        group = db.session.query(WaitlistGroup).filter(WaitlistGroup.enabled is True).order_by(
             WaitlistGroup.odering).first()
 
-    if group == None:
+    if group is None:
         return render_template("index.html", is_index=True)
 
     new_bro = True
     if current_user.type == "character":
-        if current_user.newbro == None:
+        if current_user.newbro is None:
             new_bro = True
         else:
             new_bro = current_user.newbro
     elif current_user.type == "account":
-        if current_user.current_char_obj.newbro == None:
+        if current_user.current_char_obj.newbro is None:
             new_bro = True
         else:
             new_bro = current_user.current_char_obj.newbro
@@ -63,10 +63,10 @@ def index():
     wlists.append(logi_wl)
     wlists.append(dps_wl)
     wlists.append(sniper_wl)
-    if (other_wl is not None):
+    if other_wl is not None:
         wlists.append(other_wl)
 
-    activegroups = db.session.query(WaitlistGroup).filter(WaitlistGroup.enabled == True).all()
+    activegroups = db.session.query(WaitlistGroup).filter(WaitlistGroup.enabled is True).all()
     active_ts_setting_id = settings.sget_active_ts_id()
     active_ts_setting = None
     if active_ts_setting_id is not None:
@@ -110,7 +110,6 @@ def login_token():
                           identity=Identity(user.id))
 
     return redirect(url_for('index'), code=303)
-
 
 
 @app.route('/logout')

@@ -1,12 +1,14 @@
 
-class WaitlistNames():
+
+class WaitlistNames:
     logi = "logi"
     dps = "dps"
     sniper = "sniper"
     xup_queue = "queue"
     other = "other"
-    
-class WTMRoles():
+
+
+class WTMRoles:
     admin = "admin"
     officer = "officer"
     fc = "fc"
@@ -26,9 +28,7 @@ class WTMRoles():
     mod_mail_tbadge = "mod_mail_tbadge"
     send_mail_tbadge = "send_mail_tbadge"
     send_mail_resident = "send_mail_resident"
-    
-    
-    
+
     dnames = dict([
         (admin, "Admin"),
         (officer, "Officer"),
@@ -47,7 +47,8 @@ class WTMRoles():
     
     @staticmethod
     def get_role_list():
-        return [WTMRoles.admin, WTMRoles.officer, WTMRoles.fc, WTMRoles.lm, WTMRoles.tbadge, WTMRoles.resident, WTMRoles.dev, WTMRoles.leadership,
+        return [WTMRoles.admin, WTMRoles.officer, WTMRoles.fc, WTMRoles.lm, WTMRoles.tbadge, WTMRoles.resident,
+                WTMRoles.dev, WTMRoles.leadership,
                 WTMRoles.mod_mail_resident, WTMRoles.mod_mail_tbadge,
                 WTMRoles.ct, WTMRoles.clt, WTMRoles.af, WTMRoles.tct, WTMRoles.tclt
                 ]
@@ -57,7 +58,7 @@ class WTMRoles():
         try:
             return WTMRoles.dnames[name]
         except KeyError:
-            return name;
-    
+            return name
+
 
 DEFAULT_PREFIX = "default"

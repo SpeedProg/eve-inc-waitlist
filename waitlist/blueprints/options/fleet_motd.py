@@ -11,19 +11,23 @@ from werkzeug.utils import redirect
 bp = Blueprint('settings_fmotds', __name__)
 logger = logging.getLogger(__name__)
 
-def getPermission():
+
+def get_permission():
     return perm_leadership
 
-perm = getPermission()
+perm = get_permission()
+
 
 @bp.route("/")
 @login_required
 @perm.require()
 def index():
-    motds={'hq':sget_motd_hq(),
-           'vg':sget_motd_vg()
-           }
-    return render_template("/settings/fleet_motd/index.html", motds=motds)
+    motds = {
+        'hq': sget_motd_hq(),
+        'vg': sget_motd_vg()
+        }
+    return render_template("settings/fleet_motd/index.html", motds=motds)
+
 
 @bp.route("/change/<string:type_>", methods=["POST"])
 @login_required

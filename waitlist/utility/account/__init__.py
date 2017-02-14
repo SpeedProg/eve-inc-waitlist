@@ -7,7 +7,7 @@ from waitlist.data.names import WTMRoles
 
 
 def get_user_type():
-    #0=linemember,1=fc/t,2=lm/r,3=both
+    # 0=linemember,1=fc/t,2=lm/r,3=both
     val = -1
     if current_user.is_authenticated:
         val = 0
@@ -15,19 +15,20 @@ def get_user_type():
             is_lm = False
             is_fc = False
             for role in current_user.roles:
-                if (role.name == WTMRoles.fc or role.name == WTMRoles.tbadge):
+                if role.name == WTMRoles.fc or role.name == WTMRoles.tbadge:
                     is_fc = True
-                    if (is_lm):
+                    if is_lm:
                         break
-                elif (role.name == WTMRoles.lm or role.name == WTMRoles.resident):
+                elif role.name == WTMRoles.lm or role.name == WTMRoles.resident:
                     is_lm = True
-                    if (is_fc):
+                    if is_fc:
                         break
             if is_fc:
                 val += 1
             if is_lm:
                 val += 2
     return val
+
 
 def force_logout():
     logout_user()

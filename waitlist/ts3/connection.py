@@ -4,29 +4,30 @@ import logging
 from waitlist.utility import config
 from waitlist.utility.settings.settings import sget_active_ts_id
 from waitlist.storage.database import TeamspeakDatum
-from waitlist.base import db
+from waitlist import db
 from time import sleep
 
 logger = logging.getLogger(__name__)
+
 
 def make_connection():
     if config.disable_teamspeak:
         return None
 
-    teamspeakID = sget_active_ts_id()
-    if teamspeakID is None:
+    teamspeak_id = sget_active_ts_id()
+    if teamspeak_id is None:
         return None
     
-    teamspeak = db.session.query(TeamspeakDatum).get(teamspeakID)
-    try :
+    teamspeak = db.session.query(TeamspeakDatum).get(teamspeak_id)
+    try:
         con = TS3Connection(teamspeak.host, teamspeak.port)
         con.login(client_login_name=teamspeak.queryName, client_login_password=teamspeak.queryPassword)
         con.use(sid=teamspeak.serverID)
         con.clientupdate(CLIENT_NICKNAME=teamspeak.clientName)
-        try :
-            con.clientmove(0, teamspeak.channelID)
+        try:
+            con.clientmove(cid=teamspeak.channelID, clid=0)
         except TS3QueryError as ex:
-            if ex.resp.error['msg'] == "already member of channel" :
+            if ex.resp.error['msg'] == "already member of channel":
                 pass
             else:
                 logger.error("Failed to connect to T3Query %s", ex.resp.error['msg'])
@@ -41,6 +42,7 @@ def make_connection():
 
 conn = make_connection()
 
+
 def change_connection():
     if config.disable_teamspeak:
         return
@@ -49,14 +51,16 @@ def change_connection():
         conn.quit()
     conn = make_connection()
 
-def handle_dc(func, *args, **kwargs):
+
+def handle_dc(func, **kwargs):
     if config.disable_teamspeak:
         return
-    def func_wrapper(*args, **kwargs):
+
+    def func_wrapper(*argsw, **kwargsw):
         global conn
         if conn is not None:
             try:
-                func(*args, **kwargs)
+                func(*argsw, **kwargsw)
             except TS3QueryError as error:
                 logger.error("TS3 Query Error: %s", str(error))
             except Exception as ex:
@@ -69,11 +73,12 @@ def handle_dc(func, *args, **kwargs):
                             conn = ncon
                     else:
                         conn = ncon
-                    func(*args, **kwargs)
+                    func(*argsw, **kwargs)
         else:
             conn = make_connection()
             logger.error("No TS Connection")
     return func_wrapper
+
 
 @handle_dc
 def send_poke(name, msg):
@@ -101,8 +106,9 @@ def send_poke(name, msg):
             if resp['client_nickname'] == "*"+name:
                 conn.clientpoke(msg, resp['clid'])
 
+
 @handle_dc
-def move_to_safety_channel(name, channelID):
+def move_to_safety_channel(name: str, channel_id: int) -> None:
     if config.disable_teamspeak:
         return
     try:
@@ -124,7 +130,7 @@ def move_to_safety_channel(name, channelID):
         for resp in response:
             if resp['client_nickname'] == "*"+name:
                 client = resp
-    if client is None: # we didn't find a user
+    if client is None:  # we didn't find a user
         return
-    conn.clientmove(resp['clid'], channelID)
+    conn.clientmove(clid=client['clid'], cid=channel_id)
     return

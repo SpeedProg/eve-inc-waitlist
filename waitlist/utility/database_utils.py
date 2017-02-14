@@ -3,11 +3,12 @@ from waitlist.utility.eve_id_utils import get_item_id
 import logging
 import re
 from waitlist.utility.utils import create_dna_string
-from waitlist.base import db
+from waitlist import db
 
 logger = logging.getLogger(__name__)
 
-def parseEft(lines):
+
+def parse_eft(lines):
         fit = Shipfit()
         # take [Vindicator, VeniVindiVG] remove the [] and split at ,
         info = lines[0][1:-1].split(",", 1)
@@ -19,8 +20,6 @@ def parseEft(lines):
 
         mod_map = {}
         for i in range(1, len(lines)):
-            mod_name = None
-            mod_amount = None
 
             line = lines[i].strip()
             if not line:
@@ -48,18 +47,18 @@ def parseEft(lines):
                 mod_amount = int(mod_info[1])
             
             mod_id = get_item_id(mod_name)
-            if mod_id == -1: # items was not in database
+            if mod_id == -1:  # items was not in database
                     continue
             
             if mod_id in mod_map:
                 mod_entry = mod_map[mod_id]
-            else: # if the module is not in the map create it
+            else:  # if the module is not in the map create it
                 
                 mod_entry = [mod_id, 0]
                 mod_map[mod_id] = mod_entry
             
             mod_entry[1] += mod_amount
-        
+
         for modid in mod_map:
             mod = mod_map[modid]
             # lets set amounts to max signed int, because it is not really imporant
@@ -69,11 +68,11 @@ def parseEft(lines):
             
             # lets check the value actually exists
             module = db.session.query(InvType).get(mod[0])
-            if (module == None):
+            if module is None:
                 raise ValueError('No module with ID='+str(mod[0]))
             
-            dbModule = FitModule(moduleID=mod[0], amount=mod[1])
-            fit.moduleslist.append(dbModule)
+            db_module = FitModule(moduleID=mod[0], amount=mod[1])
+            fit.moduleslist.append(db_module)
         
         fit.modules = create_dna_string(mod_map)
 
