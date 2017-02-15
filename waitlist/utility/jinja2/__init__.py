@@ -6,6 +6,7 @@ from flask_login import current_user
 from waitlist import app
 from waitlist.data import version
 from waitlist.permissions import perm_manager
+from waitlist.utility import config
 from waitlist.utility.account import get_user_type
 from waitlist.utility.config import cdn_eveimg, cdn_eveimg_webp, cdn_eveimg_js
 from waitlist.utility.settings import sget_insert
@@ -53,5 +54,6 @@ def inject_data():
                 perm_comphistory=perm_comphistory, perm_res_mod=perm_mod_mail_resident,
                 perm_t_mod=perm_mod_mail_tbadge, perm_manager=perm_manager, header_insert=header_insert,
                 eve_proxy_js=cdn_eveimg_js, eve_cdn_webp=cdn_eveimg_webp, browserSupportsWebp=req_supports_webp,
-                eve_image=eve_image_macro, ccvote_on=cc_vote_on
+                eve_image=eve_image_macro, ccvote_on=cc_vote_on,
+                influence_link=config.influence_link
                 )
