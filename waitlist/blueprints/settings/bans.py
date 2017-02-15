@@ -19,7 +19,7 @@ bp = Blueprint('bans', __name__)
 logger = logging.getLogger(__name__)
 
 
-@bp.route("/bans", methods=["GET"])
+@bp.route("/", methods=["GET"])
 @login_required
 @perm_bans.require(http_exception=401)
 def bans():
