@@ -7,8 +7,7 @@ import logging
 from logging.handlers import TimedRotatingFileHandler
 from waitlist.blueprints.feedback import feedback
 from gevent.pywsgi import WSGIServer
-from waitlist.base import app
-from waitlist.blueprints.settings import bp_settings
+from waitlist import app
 from waitlist.blueprints.fittings import bp_waitlist
 from waitlist.blueprints.fc_sso import bp as fc_sso_bp
 from waitlist.blueprints.fleet import bp as fleet_bp
@@ -33,11 +32,13 @@ from waitlist.blueprints.cc_vote import bp as bp_ccvote
 from waitlist.blueprints.settings.ccvote_results import bp as bp_ccvote_settings
 from waitlist.blueprints.fleetview import bp as bp_fleetview
 
+from waitlist.blueprints.settings import accounts, bans, fleet_motd, fleetoptions, inserts, mail, overview,\
+    staticdataimport, teamspeak
+
 # needs to he here so signal handler gets registered
 from waitlist.signal.handler import acc_created, roles_changed, account_status_change
 
 app.register_blueprint(bp_waitlist)
-app.register_blueprint(bp_settings, url_prefix='/settings')
 app.register_blueprint(feedback, url_prefix="/feedback")
 app.register_blueprint(fc_sso_bp, url_prefix="/fc_sso")
 app.register_blueprint(fleet_bp, url_prefix="/fleet")
@@ -61,6 +62,17 @@ app.register_blueprint(bp_calendar_settings, url_prefix="/settings/calendar")
 app.register_blueprint(bp_ccvote, url_prefix="/ccvote")
 app.register_blueprint(bp_ccvote_settings, url_prefix="/settings/ccvote")
 app.register_blueprint(bp_fleetview, url_prefix="/fleetview")
+
+# settings blueprints
+app.register_blueprint(accounts.bp, url_prefix='/settings/accounts')
+app.register_blueprint(bans.bp, url_prefix='/settings/bans')
+app.register_blueprint(fleet_motd.bp, url_prefix='/settings/motd')
+app.register_blueprint(fleetoptions.bp, url_prefix='/settings/fleet')
+app.register_blueprint(inserts.bp, url_prefix='/settings/inserts')
+app.register_blueprint(mail.bp, url_prefix='/settings/mail')
+app.register_blueprint(overview.bp, url_prefix='/settings')
+app.register_blueprint(staticdataimport.bp, url_prefix='/settings/sde')
+app.register_blueprint(teamspeak.bp, url_prefix='/settings/teamspeak')
 
 logger = logging.getLogger(__name__)
 
