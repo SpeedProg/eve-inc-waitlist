@@ -303,19 +303,17 @@ def take_link():
 
     if fleet is None:
         session['fleet_id'] = fleet_id
-        return get_sso_redirect("setup", 'esi-fleets.read_fleet.v1 esi-fleets.write_fleet.v1'
-                                         ' esi-mail.send_mail.v1 esi-ui.open_window.v1')
+        return get_sso_redirect("setup", 'esi-fleets.read_fleet.v1 esi-fleets.write_fleet.v1 esi-ui.open_window.v1')
     elif current_user.ssoToken is None or current_user.ssoToken.refresh_token is None:
         session['fleet_id'] = fleet_id
-        return get_sso_redirect("takeover", 'esi-fleets.read_fleet.v1 esi-fleets.write_fleet.v1'
-                                            ' esi-mail.send_mail.v1 esi-ui.open_window.v1')
+        return get_sso_redirect("takeover", 'esi-fleets.read_fleet.v1 esi-fleets.write_fleet.v1 esi-ui.open_window.v1')
     else:
         # make sure the token we have has all the scopes we need!
         if not token_has_scopes(current_user.ssoToken,
                                 ['esi-fleets.read_fleet.v1', 'esi-fleets.write_fleet.v1', 'esi-ui.open_window.v1']):
             session['fleet_id'] = fleet_id
             return get_sso_redirect("takeover", 'esi-fleets.read_fleet.v1 esi-fleets.write_fleet.v1'
-                                                ' esi-mail.send_mail.v1 esi-ui.open_window.v1')
+                                                ' esi-ui.open_window.v1')
         if fleet.compID != current_user.id:
             oldfleet = db.session.query(CrestFleet).filter((CrestFleet.compID == current_user.id)).first()
             if oldfleet is not None:
