@@ -8,7 +8,7 @@
 
 {% block content %}
 	{% if perm_man.can() %}
-		<form action="{{url_for('settings.teamspeak_change')}}" method="POST" class="form-inline">
+		<form action="{{url_for('teamspeak.teamspeak_change')}}" method="POST" class="form-inline">
 			<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 			<input type="hidden" name="action" value="set">
 			<select class="c-select" name="teamspeakID">
@@ -26,7 +26,7 @@
 		</form>
 	{% endif %}
 	{% if perm_leadership.can() %}
-			<form action="{{url_for('settings.teamspeak_change')}}" method="POST" class="form-inline">
+			<form action="{{url_for('teamspeak.teamspeak_change')}}" method="POST" class="form-inline">
 			<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 			<input type="hidden" name="action" value="remove">
 			<select class="c-select" name="teamspeakID">
@@ -42,7 +42,7 @@
 			</select>
 			<button class="btn btn-primary" type="submit">Remove TS</button>
 		</form>
-		<form action="{{url_for('settings.teamspeak_change')}}" method="POST">
+		<form action="{{url_for('teamspeak.teamspeak_change')}}" method="POST">
 			<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 			<input type="hidden" name="action" value="add">
 			<div class="form-group">

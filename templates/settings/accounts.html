@@ -9,8 +9,8 @@
 <meta name="mail-resident-topic" content="{{mails['resident'][1]}}">
 <meta name="mail-tbadge-topic" content="{{mails['tbadge'][1]}}">
 <meta name="mail-other-topic" content="{{mails['other'][1]}}">
-<meta name="api-account-delete" content="{{url_for('settings.api_account_delete', acc_id='-1')}}">
-<meta name="api-account-disable" content="{{url_for('settings.account_disabled')}}">
+<meta name="api-account-delete" content="{{url_for('accounts.api_account_delete', acc_id='-1')}}">
+<meta name="api-account-disable" content="{{url_for('accounts.account_disabled')}}">
 <meta name="api-esi-mail-send" content="{{url_for('api_mail.send_esi_mail')}}">
 <meta name="api-esi-mail-auth" content="{{url_for('api_mail.auth')}}">
 {{ super() }}
@@ -34,7 +34,7 @@
 
 {% block raw_content %}
 <div class="row mb-2">
-	<form action="{{url_for('settings.accounts_import_accounts')}}" method="POST" enctype=multipart/form-data class="form-inline">
+	<form action="{{url_for('accounts.accounts_import_accounts')}}" method="POST" enctype=multipart/form-data class="form-inline">
 		<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 		<div class="form-group">
 			<label for="acc-file" class="custom-file">
@@ -44,7 +44,7 @@
 		</div>
 		<button type="submit" class="btn btn-primary">Add Accounts</button>
 	</form>
-	<a href="{{url_for('settings.accounts_download_csv')}}" target="_blank">Download Full Commander List</a>
+	<a href="{{url_for('accounts.accounts_download_csv')}}" target="_blank">Download Full Commander List</a>
 </div>
 <div class="row mb-2">
 	<div class="btn-group" role="group" aria-label="Account Actions">
@@ -185,7 +185,7 @@
         <h4 class="modal-title" id="label-account-edit">Edit Account</h4>
       </div>
       <div class="modal-body">
-      <form id="form-account-edit" action="{{url_for('settings.account_edit')}}" method="POST">
+      <form id="form-account-edit" action="{{url_for('accounts.account_edit')}}" method="POST">
 		<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
       	<input id="acc-edit-id" type="hidden" value="" name="account_id">
       	<fieldset class="form-group">

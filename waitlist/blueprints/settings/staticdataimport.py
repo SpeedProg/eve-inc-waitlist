@@ -16,7 +16,7 @@ from waitlist.data.perm import perm_dev
 from waitlist import app
 from waitlist.utility import sde
 
-bp = Blueprint('accounts', __name__)
+bp = Blueprint('sde', __name__)
 logger = logging.getLogger(__name__)
 
 

@@ -8,20 +8,19 @@
 
 {% block container_data %}
 {% set nav = [
-	('settings.overview', 'Overview', true),
-	('settings.fleet', 'Fleet Settings', perm_man.can()),
+	('settings_overview.overview', 'Overview', true),
+	('fleetoptions.fleet', 'Fleet Settings', perm_man.can()),
 	('calendar_settings.get_index', 'Events', perm_manager.getPermission('commandcore').can()),
-	('settings.teamspeak', 'TS Settings', perm_man.can()),
-	('settings.account_self', 'Own Settings', true),
-	('settings.accounts', 'Accounts', perm_accounts.can()),
-	('settings.bans', 'Bans', perm_bans.can()),
-	('settings.whitelist', 'Whitelist', perm_bans.can()),
+	('teamspeak.teamspeak', 'TS Settings', perm_man.can()),
+	('accounts.account_self', 'Own Settings', true),
+	('accounts.accounts', 'Accounts', perm_accounts.can()),
+	('bans.bans', 'Bans', perm_bans.can()),
+	('bans.whitelist', 'Whitelist', perm_bans.can()),
 	('settings_mail.index', 'IG Mail Settings', (perm_res_mod.can() or perm_t_mod.can() or perm_leadership.can())),
 	('settings_fmotds.index', 'Fleet MOTD', perm_leadership.can()),
 	('settings_inserts.index', 'Page Inserts', perm_manager.getPermission('inserts').can()),
 	('feedback.settings', 'Feedback', perm_feedback.can()),
-	('settings.sde_settings', 'Static Data Import', perm_dev.can()),
-	('settings_ccvote.index', 'CC Vote Results', perm_leadership.can())
+	('sde.sde_settings', 'Static Data Import', perm_dev.can())
 ] -%}
 <div class="row">
 	<div class="col-sm-3 col-md-2 sidebar" id="sidebar">
