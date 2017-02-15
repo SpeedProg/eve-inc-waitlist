@@ -1,4 +1,7 @@
+import csv
 import logging
+import os
+from bz2 import BZ2File
 from typing import Union
 
 from flask import Blueprint
@@ -10,15 +13,21 @@ from flask import request
 from flask import url_for
 from flask.ext.login import current_user
 from flask.ext.login import login_required
+from os import path
 from pyswagger.contrib.client import flask
 from sqlalchemy import asc
 from sqlalchemy import or_
+from sqlalchemy.orm import joinedload
+from werkzeug.utils import secure_filename
 
-from waitlist import db
+from waitlist import db, app
 from waitlist.data.eve_xml_api import get_character_id_from_name, get_char_info_for_character
-from waitlist.data.perm import perm_accounts, perm_settings, perm_admin
+from waitlist.data.names import WTMRoles
+from waitlist.data.perm import perm_accounts, perm_settings, perm_admin, perm_leadership
+from waitlist.permissions import perm_manager
 from waitlist.signal.signals import send_account_created, send_roles_changed, send_account_status_change
 from waitlist.storage.database import Account, Character, Role, linked_chars
+from waitlist.utility.eve_id_utils import get_character_by_name
 from waitlist.utility.settings.settings import sget_resident_mail, sget_tbadge_mail, sget_other_mail, sget_other_topic, \
     sget_tbadge_topic, sget_resident_topic
 from waitlist.utility.utils import get_random_token
@@ -258,3 +267,145 @@ def api_account_delete(acc_id: int) -> Response:
     db.session.query(Account).filter(Account.id == acc_id).delete()
     db.session.commit()
     return flask.jsonify(status="OK")
+
+
+@bp.route("/accounts/import/accounts", methods=["POST"])
+@login_required
+@perm_leadership.require(http_exception=401)
+def accounts_import_accounts():
+    f = request.files['file']
+    if f and (f.filename.rsplit('.', 1)[1] == "bz2" or f.filename.rsplit('.', 1)[1] == "csv"):
+        filename = secure_filename(f.filename)
+        dest_name = path.join(app.config['UPLOAD_FOLDER'], filename)
+        if path.isfile(dest_name):
+            os.remove(dest_name)
+        f.save(dest_name)
+        # start the update
+        update_accounts_by_file(dest_name)
+        flash("Accounts were updated!", "success")
+
+    return redirect(url_for('.accounts'))
+
+
+def update_accounts_by_file(filename):
+    key_name = "FC Chat Pull"
+    key_main = "Main's Name"
+    key_roles = "Current Status"
+    if not path.isfile(filename):
+        return
+
+    if filename.rsplit('.', 1)[1] == "csv":
+        f = open(filename, 'r')
+    elif filename.rsplit('.', 1)[1] == "bz2":
+        f = BZ2File(filename)
+    else:
+        return
+
+    reader = csv.DictReader(f, delimiter="\t", quotechar='\\')
+
+    # batch cache all chars beforehand so we don't hit api limits
+    chars_to_cache = []
+    char_dict = {}
+    main_dict = {}
+    for row in reader:
+        pull_name = row[key_name].strip()
+        main_name = row[key_main].strip()
+        sheet_roles = row[key_roles].strip().split(",")
+        wl_roles = [convert_role_names(x.strip()) for x in sheet_roles]
+        if pull_name not in char_dict:
+            char_dict[pull_name] = None
+        if main_name not in char_dict:
+            char_dict[main_name] = None
+
+        if main_name not in main_dict:
+            main_dict[main_name] = {'main': None, 'alts': [], 'roles': wl_roles}
+        else:
+            main = main_dict[main_name]
+            for wl_role in wl_roles:
+                if wl_role not in main['roles']:
+                    if wl_role == WTMRoles.tbadge and WTMRoles.fc in main['roles']:
+                        continue
+                    if wl_role == WTMRoles.resident and WTMRoles.lm in main['roles']:
+                        continue
+                    main['roles'].append(wl_role)
+
+        if main_name == pull_name:
+            main_dict[main_name]['main'] = pull_name
+        else:
+            main_dict[main_name]['alts'].append(pull_name)
+
+    for char_name in char_dict:
+        chars_to_cache.append(char_name)
+
+    for main_name in main_dict:
+        acc = db.session.query(Account).filter(Account.username == main_name).first()
+        if acc is not None:
+            continue
+
+        acc_pw = None
+        acc_email = None
+        main = main_dict[main_name]
+        acc_roles = main['roles']
+
+        main_char = get_character_by_name(main['main'])
+        if main_char is None:
+            flash("Failed to get Character for Name " + main['main'], "danger")
+            continue
+
+        acc = Account()
+        acc.username = main_name
+        if acc_pw is not None:
+            acc.set_password(acc_pw.encode('utf-8'))
+        acc.login_token = get_random_token(16)
+        acc.email = acc_email
+        if len(acc_roles) > 0:
+            db_roles = db.session.query(Role).filter(or_(Role.name == name for name in acc_roles)).all()
+            for role in db_roles:
+                acc.roles.append(role)
+
+        db.session.add(acc)
+
+        acc.characters.append(main_char)
+
+        for alt in main['alts']:
+            # find out if there is a character like that in the database
+            character = get_character_by_name(alt)
+            if character is None:
+                flash("Failed to get character for alt with name " + alt, "danger")
+            else:
+                acc.characters.append(character)
+
+                db.session.flush()
+
+        acc.current_char = main_char.get_eve_id()
+
+    db.session.commit()
+    f.close()
+
+
+def convert_role_names(sheet_name):
+    convert_obj = {'FC': WTMRoles.fc, 'RES': WTMRoles.resident,
+                   'LM': WTMRoles.lm, 'TRA': WTMRoles.tbadge}
+    return convert_obj[sheet_name]
+
+
+@bp.route('/accounts/downloadlist/cvs')
+@login_required
+@perm_manager.require('leadership')
+def accounts_download_csv() -> Response:
+    def iter_accs(data):
+        for account in data:
+            for ci, char in enumerate(account.characters):
+                if ci > 0:
+                    yield ", " + char.eve_name
+                else:
+                    yield char.eve_name
+            yield '\n'
+
+    accs = db.session.query(Account).options(joinedload('characters')).join(Account.roles).filter(
+        ((Role.name == WTMRoles.fc) | (Role.name == WTMRoles.lm)) & (Account.disabled is False)).order_by(
+        Account.username).all()
+
+    response = Response(iter_accs(accs), mimetype='text/csv')
+    response.headers['Content-Disposition'] = 'attachment; filename=accounts.csv'
+    return response

@@ -1,12 +1,11 @@
 import logging
 from datetime import datetime
 
-from flask import Response
+from flask import Response, jsonify
 from flask import flash
 from flask import redirect
 from flask import request
 from flask import url_for
-
 from waitlist.data.sse import StatusChangedSSE
 from waitlist.data.sse import send_server_sent_event
 from waitlist.utility import config
@@ -16,7 +15,8 @@ from flask.ext.login import current_user, login_required
 
 from waitlist import db
 from waitlist.data.perm import perm_management, perm_leadership, perm_officer, perm_fleetlocation
-from waitlist.storage.database import WaitlistGroup, Account, IncursionLayout
+from waitlist.storage.database import WaitlistGroup, Account, IncursionLayout, Station, SolarSystem, Constellation, \
+    WaitlistEntry, Role
 from waitlist.utility.eve_id_utils import get_constellation, get_system, get_station
 
 bp = Blueprint('fleetoptions', __name__)
@@ -238,3 +238,77 @@ def fleet_location_set(gid):
     db.session.commit()
 
     return redirect(url_for(".fleet"), code=303)
+
+
+@bp.route("/fleet/query/constellations", methods=["GET"])
+@login_required
+@perm_management.require(http_exception=401)
+def fleet_query_constellations():
+    term = request.args['term']
+    constellations = db.session.query(Constellation).filter(Constellation.constellationName.like(term + "%")).all()
+    const_list = []
+    for const in constellations:
+        const_list.append({'conID': const.constellationID, 'conName': const.constellationName})
+    return jsonify(result=const_list)
+
+
+@bp.route("/fleet/query/systems", methods=["GET"])
+@login_required
+@perm_management.require(http_exception=401)
+def fleet_query_systems():
+    term = request.args['term']
+    systems = db.session.query(SolarSystem).filter(SolarSystem.solarSystemName.like(term + "%")).all()
+    system_list = []
+    for item in systems:
+        system_list.append({'sysID': item.solarSystemID, 'sysName': item.solarSystemName})
+    return jsonify(result=system_list)
+
+
+@bp.route("/fleet/query/stations", methods=["GET"])
+@login_required
+@perm_management.require(http_exception=401)
+def fleet_query_stations():
+    term = request.args['term']
+    stations = db.session.query(Station).filter(Station.stationName.like(term + "%")).all()
+    station_list = []
+    for item in stations:
+        station_list.append({'statID': item.station_id, 'statName': item.stationName})
+    return jsonify(result=station_list)
+
+
+@bp.route("/fleet/clear/<int:gid>", methods=["POST"])
+@login_required
+@perm_management.require(http_exception=401)
+def clear_waitlist(gid):
+    group = db.session.query(WaitlistGroup).get(gid)
+    logger.info("%s cleared waitlist %s", current_user.username, group.displayName)
+    if group.otherlist is None:
+        db.session.query(WaitlistEntry).filter(
+            (WaitlistEntry.waitlist_id == group.xupwlID)
+            | (WaitlistEntry.waitlist_id == group.logiwlID)
+            | (WaitlistEntry.waitlist_id == group.dpswlID)
+            | (WaitlistEntry.waitlist_id == group.sniperwlID)
+        ).delete()
+    else:
+        db.session.query(WaitlistEntry).filter(
+            (WaitlistEntry.waitlist_id == group.xupwlID)
+            | (WaitlistEntry.waitlist_id == group.logiwlID)
+            | (WaitlistEntry.waitlist_id == group.dpswlID)
+            | (WaitlistEntry.waitlist_id == group.sniperwlID)
+            | (WaitlistEntry.waitlist_id == group.otherwlID)
+        ).delete()
+
+    db.session.commit()
+    flash("Waitlists were cleared!", "danger")
+    return redirect(url_for('.fleet'))
+
+
+@bp.route("/fleet/status/set/", methods=["POST"])
+@login_required
+@perm_management.require(http_exception=401)
+def fleet_status_global_set() -> str:
+    action = request.form['action']
+    if action == "set_name_scramble":
+        should_scrable = not (request.form.get('scramble', 'off') == 'off')
+        config.scramble_names = should_scrable
+    return "OK"
