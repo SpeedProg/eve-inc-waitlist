@@ -23,7 +23,7 @@ def update_invtypes(filepath: str):
         return
 
     if filename.rsplit('.', 1)[1] == "yaml":
-        f = open(filename, 'r')
+        f = open(filename, 'rb')
     elif filename.rsplit('.', 1)[1] == "bz2":
         f = BZ2File(filename)
     else:
