@@ -15,12 +15,12 @@ from waitlist.blueprints.fleet import bp as fleet_bp
 from waitlist.blueprints.api.fleet import bp as api_fleet_bp
 from waitlist.blueprints.api.fittings import bp as api_wl_bp
 from waitlist.blueprints.api.teamspeak import bp as api_ts3_bp
-from waitlist.blueprints.options.mail import bp as settings_mail_bp
-from waitlist.blueprints.options.fleet_motd import bp as fmotd_bp
+from waitlist.blueprints.settings.mail import bp as settings_mail_bp
+from waitlist.blueprints.settings.fleet_motd import bp as fmotd_bp
 from waitlist.blueprints.reform import bp as bp_fleet_reform
 from waitlist.blueprints.history.comphistory import bp as bp_comphistory_search
 from waitlist.blueprints.api.history import bp as bp_api_history
-from waitlist.blueprints.options.inserts import bp as bp_inserts
+from waitlist.blueprints.settings.inserts import bp as bp_inserts
 from waitlist.blueprints.api.openwindow import bp as bp_openwindow
 from waitlist.blueprints.api.sse import bp as bp_sse
 from waitlist.blueprints.api.waitlist import bp as bp_waitlists
@@ -30,7 +30,7 @@ from waitlist.blueprints.api.mail import bp as bp_esi_mail
 from waitlist.blueprints.api.ui import bp as bp_esi_ui
 from waitlist.blueprints.calendar.settings import bp as bp_calendar_settings
 from waitlist.blueprints.cc_vote import bp as bp_ccvote
-from waitlist.blueprints.options.ccvote_results import bp as bp_ccvote_settings
+from waitlist.blueprints.settings.ccvote_results import bp as bp_ccvote_settings
 from waitlist.blueprints.fleetview import bp as bp_fleetview
 
 # needs to he here so signal handler gets registered
