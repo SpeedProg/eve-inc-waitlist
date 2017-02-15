@@ -9,7 +9,7 @@
 {% block content %}
 <div class="btn-group" role="group" aria-label="Add Whitelist Actionbar">
 	{% if perm_leadership.can() %}
-	<form class="form-inline" name="banform" action="{{url_for('settings.whitelist_change')}}" method="post">
+	<form class="form-inline" name="banform" action="{{url_for('bans.whitelist_change')}}" method="post">
 		<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 		<input name="change" value="whitelist" hidden>
 		<div class="form-group">
@@ -24,7 +24,7 @@
 	</form>
 	{% endif %}
 	{% if perm_officer.can() and not perm_leadership.can() %}
-	<form class="form-inline" name="banform" action="{{url_for('settings.whitelist_change_single')}}" method="post">
+	<form class="form-inline" name="banform" action="{{url_for('bans.whitelist_change_single')}}" method="post">
 		<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 		<input type="hidden" name="change" value="ban">
 		<div class="form-group">
@@ -57,7 +57,7 @@
 		<td id="ban-{{ban.id}}-reason">{{ ban.reason }}</td>
 		<td id="ban-{{ban.id}}-by">{{ ban.admin.eve_name }}</td>
 		<td>
-		<form name="unbanform" action="{{url_for('settings.whitelist_unlist')}}" method="post">
+		<form name="unbanform" action="{{url_for('bans.whitelist_unlist')}}" method="post">
 		<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 		<input name="target" value="{{ban.character.eve_name}}" hidden>
 		<button type="submit" class="btn btn-sm btn-warning">Unwhitelist</button>
