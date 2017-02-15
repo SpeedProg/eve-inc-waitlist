@@ -49,7 +49,7 @@ def get_affiliation_info(char_id: int) -> Dict[str, Any]:
         alliance_id = int(corp_answer.data['alliance_id'])
         all_answer = client_v2.request(api_v2.op['get_alliances_alliance_id'](alliance_id=alliance_id))
         alliance_name = all_answer.data['alliance_name']
-        all_answer_expire = mktime_tz(eut.parsedate_tz(all_answer.header['Expires'][0]))
+        all_answer_expire = get_expire_time(all_answer)
         expires = max(expires, all_answer_expire)
 
     return {'id': char_id, 'name': char_name, 'allianceID': alliance_id, 'allianceName': alliance_name,
@@ -120,10 +120,10 @@ def get_character_info(char_id: int) -> Tuple[Dict[str, Any], datetime.datetime]
     '''
     char_answer = client_v4.request(api_v4.op['get_characters_character_id'](character_id=char_id))
     corp_id = int(char_answer.data['corporation_id'])
-    char_answer_expire = mktime_tz(eut.parsedate_tz(char_answer.header['Expires'][0]))
+    char_answer_expire = get_expire_time(char_answer)
 
     corp_answer = client_v2.request(api_v2.op['get_corporations_corporation_id'](corporation_id=corp_id))
-    corp_answer_expire = mktime_tz(eut.parsedate_tz(corp_answer.header['Expires'][0]))
+    corp_answer_expire = get_expire_time(corp_answer)
     expires = max(char_answer_expire, corp_answer_expire)
     ret = char_answer.data.update(corp_answer.data)
     return ret, datetime.datetime.fromtimestamp(expires)

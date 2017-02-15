@@ -17,7 +17,7 @@ from flask.wrappers import Response
 from waitlist.utility.eve_id_utils import get_character_by_name
 from flask.helpers import make_response
 from waitlist.ts3.connection import move_to_safety_channel
-from waitlist.utility.settings.settings import sget_active_ts_id
+from waitlist.utility.settings import sget_active_ts_id
 
 bp = Blueprint('api_fleet', __name__)
 logger = logging.getLogger(__name__)

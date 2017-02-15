@@ -817,9 +817,11 @@ def xup_index():
         else:
             new_bro = current_user.current_char_obj.newbro
 
-    defaultgroup = db.session.query(WaitlistGroup).filter(WaitlistGroup.enabled is True) \
+    # noinspection PyPep8
+    defaultgroup = db.session.query(WaitlistGroup).filter(WaitlistGroup.enabled == True) \
         .order_by(WaitlistGroup.odering).first()
-    activegroups = db.session.query(WaitlistGroup).filter(WaitlistGroup.enabled is True).all()
+    # noinspection PyPep8
+    activegroups = db.session.query(WaitlistGroup).filter(WaitlistGroup.enabled == True).all()
     return render_template("xup.html", newbro=new_bro, group=defaultgroup, groups=activegroups)
 
 
@@ -838,9 +840,11 @@ def xup_update(fit_id: int):
         else:
             new_bro = current_user.current_char_obj.newbro
 
-    defaultgroup = db.session.query(WaitlistGroup).filter(WaitlistGroup.enabled is True) \
+    # noinspection PyPep8
+    defaultgroup = db.session.query(WaitlistGroup).filter(WaitlistGroup.enabled == True) \
         .order_by(WaitlistGroup.odering).first()
-    activegroups = db.session.query(WaitlistGroup).filter(WaitlistGroup.enabled is True).all()
+    # noinspection PyPep8
+    activegroups = db.session.query(WaitlistGroup).filter(WaitlistGroup.enabled == True).all()
     return render_template("xup.html", newbro=new_bro, group=defaultgroup,
                            groups=activegroups, update=True, oldFitID=fit_id)
 

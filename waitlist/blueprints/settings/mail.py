@@ -4,7 +4,7 @@ from flask_login import login_required
 from waitlist.data.perm import perm_access_mod_mail, perm_mod_mail_resident,\
     perm_mod_mail_tbadge, perm_leadership
 from flask.templating import render_template
-from waitlist.utility.settings.settings import sget_resident_mail,\
+from waitlist.utility.settings import sget_resident_mail,\
     sget_tbadge_mail, sset_tbadge_mail, sset_resident_mail, sset_resident_topic,\
     sset_tbadge_topic, sset_other_mail, sset_other_topic, sget_tbadge_topic,\
     sget_other_mail, sget_resident_topic, sget_other_topic

@@ -1,7 +1,7 @@
 from flask import Response
 from flask_login import login_required
 from flask.templating import render_template
-from waitlist.utility.settings.settings import sget_insert, sset_insert
+from waitlist.utility.settings import sget_insert, sset_insert
 from flask.blueprints import Blueprint
 import logging
 from flask.globals import request

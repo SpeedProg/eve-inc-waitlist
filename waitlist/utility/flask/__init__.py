@@ -2,11 +2,11 @@ import logging
 from datetime import datetime
 
 import math
-from flask_login import current_user, login_manager
+from flask_login import current_user
 from flask_principal import Identity, UserNeed, RoleNeed, identity_loaded
 from sqlalchemy.exc import StatementError
 
-from waitlist import principals, app, db
+from waitlist import principals, app, db, login_manager
 from waitlist.blueprints.fc_sso import get_sso_redirect
 from waitlist.storage.database import Account
 from waitlist.utility.account import force_logout
@@ -57,7 +57,7 @@ def get_user_from_db(unicode_id):
 
 
 @identity_loaded.connect_via(app)
-def on_identity_loaded(_, identity):
+def on_identity_loaded(sender, identity):
     # Set the identity user object
     identity.user = current_user
     # Add the UserNeed to the identity

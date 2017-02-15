@@ -33,7 +33,7 @@ def get_ratekey_func_with_arguments(arglist):
 
 class WaitlistGroupsAPI(MethodView):
     decorators = [
-        limiter.limit("1/minute", key_func=get_ratekey_func_with_arguments(['groupID']),
+        limiter.limit("1/minute", key_func=get_ratekey_func_with_arguments(['group_id']),
                       exempt_when=lambda: current_user.is_authenticated),
         limiter.limit("5/minute", exempt_when=lambda: current_user.is_authenticated)
     ]
@@ -52,7 +52,7 @@ class WaitlistGroupsAPI(MethodView):
 
 class WaitlistBaseDataAPI(MethodView):
     decorators = [
-        limiter.limit("1/minute", key_func=get_ratekey_func_with_arguments(['waitlistID']),
+        limiter.limit("1/minute", key_func=get_ratekey_func_with_arguments(['waitlist_id']),
                       exempt_when=lambda: current_user.is_authenticated),
         limiter.limit("5/minute", exempt_when=lambda: current_user.is_authenticated)
     ]
@@ -73,8 +73,8 @@ class WaitlistBaseDataAPI(MethodView):
 groups_view = WaitlistGroupsAPI.as_view('groups')
 waitlist_base_view = WaitlistBaseDataAPI.as_view('wlbasedata')
 
-bp.add_url_rule(rule='/groups/', defaults={'groupID': None}, view_func=groups_view, methods=['GET'])
-bp.add_url_rule(rule='/groups/<int:groupID>', view_func=groups_view, methods=['GET'])
+bp.add_url_rule(rule='/groups/', defaults={'group_id': None}, view_func=groups_view, methods=['GET'])
+bp.add_url_rule(rule='/groups/<int:group_id>', view_func=groups_view, methods=['GET'])
 
-bp.add_url_rule(rule='/waitlists/', defaults={'waitlistID': None}, view_func=waitlist_base_view, methods=['GET'])
-bp.add_url_rule(rule='/waitlists/<int:waitlistID>', view_func=waitlist_base_view, methods=['GET'])
+bp.add_url_rule(rule='/waitlists/', defaults={'waitlist_id': None}, view_func=waitlist_base_view, methods=['GET'])
+bp.add_url_rule(rule='/waitlists/<int:waitlist_id>', view_func=waitlist_base_view, methods=['GET'])

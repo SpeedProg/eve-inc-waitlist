@@ -14,5 +14,6 @@ logger = logging.getLogger(__name__)
 @login_required
 @perm_manager.require('commandcore')
 def accounts():
-    accs = db.session.query(Account).filter(Account.disabled is False).order_by(Account.username).all()
+    # noinspection PyPep8
+    accs = db.session.query(Account).filter(Account.disabled == False).order_by(Account.username).all()
     return render_template("waitlist/tools/commandcore_list.html", accounts=accs)

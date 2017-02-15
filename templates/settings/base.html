@@ -10,7 +10,7 @@
 {% set nav = [
 	('settings_overview.overview', 'Overview', true),
 	('fleetoptions.fleet', 'Fleet Settings', perm_man.can()),
-	('calendar_settings.get_index', 'Events', perm_manager.getPermission('commandcore').can()),
+	('calendar_settings.get_index', 'Events', perm_manager.get_permission('commandcore').can()),
 	('teamspeak.teamspeak', 'TS Settings', perm_man.can()),
 	('accounts.account_self', 'Own Settings', true),
 	('accounts.accounts', 'Accounts', perm_accounts.can()),
@@ -18,7 +18,7 @@
 	('bans.whitelist', 'Whitelist', perm_bans.can()),
 	('settings_mail.index', 'IG Mail Settings', (perm_res_mod.can() or perm_t_mod.can() or perm_leadership.can())),
 	('settings_fmotds.index', 'Fleet MOTD', perm_leadership.can()),
-	('settings_inserts.index', 'Page Inserts', perm_manager.getPermission('inserts').can()),
+	('settings_inserts.index', 'Page Inserts', perm_manager.get_permission('inserts').can()),
 	('feedback.settings', 'Feedback', perm_feedback.can()),
 	('sde.sde_settings', 'Static Data Import', perm_dev.can())
 ] -%}

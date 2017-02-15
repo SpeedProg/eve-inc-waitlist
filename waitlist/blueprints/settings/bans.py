@@ -174,6 +174,7 @@ def bans_unban_single():
 
     return redirect(url_for(".bans"))
 
+
 @bp.route("/whitelist", methods=["GET"])
 @login_required
 @perm_bans.require(http_exception=401)

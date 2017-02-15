@@ -9,6 +9,7 @@ class PermissionManager:
     
     def __load_permissions(self):
         self.permissions['admin'] = Permission(RoleNeed(WTMRoles.admin))
+        self.__add_permission('dev', Permission(RoleNeed(WTMRoles.dev)))
         self.__add_permission('leadership', Permission(RoleNeed(WTMRoles.leadership)))
         self.__add_permission('officer', Permission(RoleNeed(WTMRoles.officer)))
         self.__add_permission('council', self.get_permission('leadership').union(self.get_permission('officer')))
@@ -23,6 +24,7 @@ class PermissionManager:
         self.__add_permission('view_notes', self.get_permission('council').union(self.get_permission('add_notes')))
         self.__add_permission('send_mail', self.get_permission('council'))
         self.__add_permission('calendar_event_see_all', self.get_permission('council'))
+        self.__add_permission('fleetview', self.get_permission('dev'))
 
     def __add_permission(self, name, perm):
         self.permissions[name] = self.permissions['admin'].union(perm)

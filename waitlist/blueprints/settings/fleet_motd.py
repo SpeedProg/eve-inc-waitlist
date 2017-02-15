@@ -1,7 +1,7 @@
 from flask_login import login_required
 from waitlist.data.perm import perm_leadership
 from flask.templating import render_template
-from waitlist.utility.settings.settings import sget_motd_hq, sget_motd_vg,\
+from waitlist.utility.settings import sget_motd_hq, sget_motd_vg,\
     sset_motd_hq, sset_motd_vg
 from flask.blueprints import Blueprint
 import logging

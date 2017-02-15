@@ -10,7 +10,7 @@ from waitlist.storage.database import WaitlistGroup, CrestFleet, WaitlistEntry,\
 from datetime import datetime
 from waitlist.utility.history_utils import create_history_object
 from flask.helpers import url_for
-from waitlist.utility.settings.settings import sget_active_ts_id, sget_motd_hq,\
+from waitlist.utility.settings import sget_active_ts_id, sget_motd_hq,\
     sget_motd_vg
 from waitlist.data.sse import send_server_sent_event, InviteMissedSSE,\
     EntryRemovedSSE

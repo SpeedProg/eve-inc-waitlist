@@ -6,23 +6,23 @@ from flask import redirect
 from flask import render_template
 from flask import request
 from flask import url_for
-from flask.ext.login import login_required
+from flask_login import login_required
 
 from waitlist import db
 from waitlist.data.perm import perm_management, perm_leadership
 from waitlist.storage.database import TeamspeakDatum
 from waitlist.ts3.connection import change_connection
-from waitlist.utility.settings import settings
-from waitlist.utility.settings.settings import sget_active_ts_id, sset_active_ts_id
+from waitlist.utility.settings import sget_active_ts_id, sset_active_ts_id
 
 bp = Blueprint('teamspeak', __name__)
 logger = logging.getLogger(__name__)
+
 
 @bp.route("/ts", methods=["GET"])
 @login_required
 @perm_management.require()
 def teamspeak():
-    active_ts_setting_id = settings.sget_active_ts_id()
+    active_ts_setting_id = sget_active_ts_id()
     active_ts_setting = None
     if active_ts_setting_id is not None:
         active_ts_setting = db.session.query(TeamspeakDatum).get(active_ts_setting_id)
