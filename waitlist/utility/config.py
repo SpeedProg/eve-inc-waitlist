@@ -51,6 +51,9 @@ if not os.path.isfile(os.path.join(".", "config", "config.cfg")):
 
     config.add_section("disable")
     config.set("disable", "teamspeak", "False")
+
+    config.add_section("pageinfo")
+    config.set("pageinfo", "influence_link", "#")
     
     makedirs(os.path.join(".", "config"))
     with open(os.path.join(".", "config", "config.cfg"), "w") as configfile:
@@ -90,5 +93,7 @@ motd_vg = config.get("motd", "vg")
 scramble_names = config.get("security", "scramble_names") == "True"
 
 disable_teamspeak = config.get("disable", "teamspeak") == "True"
+
+influence_link = config.get("pageinfo", "influence_link")
 
 cdn_eveimg_js = cdn_eveimg.format("${ path }", "${ suffix }")
