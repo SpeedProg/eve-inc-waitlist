@@ -133,7 +133,7 @@ def make_json_station(station: Station):
     if station is None:
         return None
     return {
-        'stationID': station.station_id,
+        'stationID': station.stationID,
         'stationName': station.stationName
     }
 
