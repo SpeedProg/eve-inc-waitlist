@@ -4,6 +4,7 @@ import os
 from bz2 import BZ2File
 from typing import Union
 
+import flask
 from flask import Blueprint
 from flask import Response
 from flask import flash
@@ -11,8 +12,7 @@ from flask import redirect
 from flask import render_template
 from flask import request
 from flask import url_for
-from flask.ext.login import current_user
-from flask.ext.login import login_required
+from flask_login import login_required, current_user
 from os import path
 from pyswagger.contrib.client import flask
 from sqlalchemy import asc
@@ -28,7 +28,7 @@ from waitlist.permissions import perm_manager
 from waitlist.signal.signals import send_account_created, send_roles_changed, send_account_status_change
 from waitlist.storage.database import Account, Character, Role, linked_chars
 from waitlist.utility.eve_id_utils import get_character_by_name
-from waitlist.utility.settings.settings import sget_resident_mail, sget_tbadge_mail, sget_other_mail, sget_other_topic, \
+from waitlist.utility.settings import sget_resident_mail, sget_tbadge_mail, sget_other_mail, sget_other_topic, \
     sget_tbadge_topic, sget_resident_topic
 from waitlist.utility.utils import get_random_token
 
@@ -245,7 +245,7 @@ def account_self():
 @login_required
 @perm_accounts.require(http_exception=401)
 def account_disabled():
-    accid:int  = int(request.form['id'])
+    accid: int = int(request.form['id'])
     acc: Account = db.session.query(Account).filter(Account.id == accid).first()
     status: Union(str, bool) = request.form['disabled']
     send_account_status_change(acc.id, current_user.id, status)
@@ -402,8 +402,9 @@ def accounts_download_csv() -> Response:
                     yield char.eve_name
             yield '\n'
 
+    # noinspection PyPep8
     accs = db.session.query(Account).options(joinedload('characters')).join(Account.roles).filter(
-        ((Role.name == WTMRoles.fc) | (Role.name == WTMRoles.lm)) & (Account.disabled is False)).order_by(
+        ((Role.name == WTMRoles.fc) | (Role.name == WTMRoles.lm)) & (Account.disabled == False)).order_by(
         Account.username).all()
 
     response = Response(iter_accs(accs), mimetype='text/csv')

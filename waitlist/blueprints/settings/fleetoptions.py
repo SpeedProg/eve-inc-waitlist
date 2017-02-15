@@ -11,12 +11,12 @@ from waitlist.data.sse import send_server_sent_event
 from waitlist.utility import config
 from flask import Blueprint
 from flask import render_template
-from flask.ext.login import current_user, login_required
+from flask_login import current_user, login_required
 
 from waitlist import db
 from waitlist.data.perm import perm_management, perm_leadership, perm_officer, perm_fleetlocation
 from waitlist.storage.database import WaitlistGroup, Account, IncursionLayout, Station, SolarSystem, Constellation, \
-    WaitlistEntry, Role
+    WaitlistEntry
 from waitlist.utility.eve_id_utils import get_constellation, get_system, get_station
 
 bp = Blueprint('fleetoptions', __name__)
@@ -140,6 +140,7 @@ def fleet_status_set(gid: int) -> Response:
     send_server_sent_event(event)
 
     return redirect(url_for(".fleet"), code=303)
+
 
 @bp.route("/fleet/location/set/<int:gid>", methods=["POST"])
 @login_required

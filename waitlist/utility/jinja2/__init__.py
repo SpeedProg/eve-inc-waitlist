@@ -1,14 +1,14 @@
 from datetime import datetime
 
 from flask import request
-from flask.ext.login import current_user
+from flask_login import current_user
 
 from waitlist import app
 from waitlist.data import version
 from waitlist.permissions import perm_manager
 from waitlist.utility.account import get_user_type
 from waitlist.utility.config import cdn_eveimg, cdn_eveimg_webp, cdn_eveimg_js
-from waitlist.utility.settings.settings import sget_insert
+from waitlist.utility.settings import sget_insert
 from waitlist.data.perm import perm_management, perm_settings, perm_admin,\
     perm_officer, perm_accounts, perm_feedback, perm_dev, perm_leadership,\
     perm_bans, perm_viewfits, perm_comphistory, perm_mod_mail_resident,\

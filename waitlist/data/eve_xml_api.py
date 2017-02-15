@@ -76,7 +76,7 @@ def get_affiliation(char_id: int) -> Tuple[int, int]:
         aff.corporationName = aff_info['corporationName']
         aff.allianceID = aff_info['allianceID']
         aff.allianceName = aff_info['allianceName']
-        aff.expire = datetime.fromtimestamp(aff_info['expire'])
+        aff.expire = aff_info['expire']
         db.session.add(aff)
         db.session.commit()
     else:
@@ -88,6 +88,6 @@ def get_affiliation(char_id: int) -> Tuple[int, int]:
             aff.corporationName = aff_info['corporationName']
             aff.allianceID = aff_info['allianceID']
             aff.allianceName = aff_info['allianceName']
-            aff.expire = datetime.fromtimestamp(aff_info['expire'])
+            aff.expire = aff_info['expire']
             db.session.commit()
     return aff.corporationID, aff.allianceID

@@ -24,7 +24,8 @@ logger = logging.getLogger(__name__)
 @login_required
 @perm_manager.require('commandcore')
 def get_index():
-    accounts: Sequence[Account] = db.session.query(Account).filter(Account.disabled is False).all()
+    # noinspection PyPep8
+    accounts: Sequence[Account] = db.session.query(Account).filter(Account.disabled == False).all()
 
     event_query = db.session.query(CalendarEvent).filter(CalendarEvent.eventTime > datetime.utcnow())
     if not perm_manager.get_permission('calendar_event_see_all').can():

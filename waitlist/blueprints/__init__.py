@@ -8,15 +8,14 @@ from flask import redirect
 from flask import render_template
 from flask import request
 from flask import url_for
-from flask.ext.login import logout_user
 from flask_principal import identity_changed, Identity, AnonymousIdentity
-from flask_login import login_required, current_user, login_user
+from flask_login import login_required, current_user, login_user, logout_user
 
 from waitlist.utility import config
 
 from waitlist import app, db
 from waitlist.storage.database import WaitlistGroup, TeamspeakDatum, CalendarEvent, WaitlistEntry, Account
-from waitlist.utility.settings import settings
+from waitlist.utility.settings import sget_active_ts_id
 
 logger = logging.getLogger(__name__)
 
@@ -34,7 +33,8 @@ def index():
         group_id = int(request.args.get('groupId'))
         group = db.session.query(WaitlistGroup).get(group_id)
     else:
-        group = db.session.query(WaitlistGroup).filter(WaitlistGroup.enabled is True).order_by(
+        # noinspection PyPep8
+        group = db.session.query(WaitlistGroup).filter(WaitlistGroup.enabled == True).order_by(
             WaitlistGroup.odering).first()
 
     if group is None:
@@ -66,8 +66,9 @@ def index():
     if other_wl is not None:
         wlists.append(other_wl)
 
-    activegroups = db.session.query(WaitlistGroup).filter(WaitlistGroup.enabled is True).all()
-    active_ts_setting_id = settings.sget_active_ts_id()
+    # noinspection PyPep8
+    activegroups = db.session.query(WaitlistGroup).filter(WaitlistGroup.enabled == True).all()
+    active_ts_setting_id = sget_active_ts_id()
     active_ts_setting = None
     if active_ts_setting_id is not None:
         active_ts_setting = db.session.query(TeamspeakDatum).get(active_ts_setting_id)

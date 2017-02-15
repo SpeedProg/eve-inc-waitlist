@@ -1,6 +1,6 @@
 import logging
 from datetime import datetime, timedelta
-from typing import Any, Dict, Union
+from typing import Any, Dict
 
 from flask import Blueprint
 from flask import render_template

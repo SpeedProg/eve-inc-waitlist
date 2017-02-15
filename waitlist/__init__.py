@@ -1,3 +1,5 @@
+from json import JSONEncoder
+
 from flask import Flask
 from flask_cdn import CDN
 from flask_sqlalchemy import SQLAlchemy
@@ -7,6 +9,7 @@ from os import path
 from flask_migrate import Migrate, MigrateCommand
 from flask_script import Manager
 from flask_seasurf import SeaSurf
+
 from waitlist.utility import config
 from waitlist.utility.babili import BabiliFilter
 from flask_htmlmin import HTMLMIN
@@ -14,8 +17,6 @@ from flask_assets import Environment
 from webassets.filter import register_filter
 from flask_limiter.extension import Limiter
 from flask_limiter.util import get_ipaddr
-
-from waitlist.utility.flask.json import MiniJSONEncoder
 
 app = Flask(import_name=__name__, static_url_path="/static",
             static_folder="../static", template_folder=path.join("..", "templates"))
@@ -72,6 +73,12 @@ HTMLMIN(app)
 # init assets environment
 assets = Environment(app)
 register_filter(BabiliFilter)
+
+
+class MiniJSONEncoder(JSONEncoder):
+    """Minify JSON output."""
+    item_separator = ','
+    key_separator = ':'
 
 app.json_encoder = MiniJSONEncoder
 

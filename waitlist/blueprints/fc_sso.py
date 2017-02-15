@@ -2,6 +2,7 @@ from flask import Response
 from flask.blueprints import Blueprint
 import logging
 from flask_login import login_required
+
 from waitlist.data.perm import perm_management
 from werkzeug.utils import redirect
 from flask.globals import request, session, _app_ctx_stack
@@ -10,6 +11,8 @@ import hashlib
 from waitlist.utility.config import crest_return_url, crest_client_id
 import flask
 from urllib.parse import urlencode
+
+from waitlist.utility.login import member_login_cb
 
 bp = Blueprint('fc_sso', __name__)
 logger = logging.getLogger(__name__)
@@ -71,3 +74,5 @@ def get_sso_token() -> str:
 def generate_token():
     salt = str(randrange(0, 2 << 63)).encode('utf-8')
     return hashlib.sha1(salt).hexdigest()
+
+add_sso_handler('linelogin', member_login_cb)

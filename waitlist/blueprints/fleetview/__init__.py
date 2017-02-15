@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 @bp.route("/")
 @login_required
-@perm_manager.require('dev')
+@perm_manager.require('fleetview')
 def index():
     fleets = db.session.query(CrestFleet).filter((CrestFleet.comp is not None) & (CrestFleet.group is not None)).all()
     return render_template("settings/fleetspy/spy.html", fleets=fleets)

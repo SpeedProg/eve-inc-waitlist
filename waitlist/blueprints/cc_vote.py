@@ -30,12 +30,14 @@ def index():
                     " please log out and use the linemember auth.")
     if has_voted_today(current_user.get_eve_id()):
         flask.abort(403, "You already voted during this Eve-Day, you can vote again after Downtime!")
+    # noinspection PyPep8
     active_fc_accounts = db.session.query(Account).join(Account.roles).filter(
         ((Role.name == WTMRoles.fc) | (Role.name == WTMRoles.tbadge))
-        & (Account.disabled is False)).order_by(asc(Account.username)).all()
+        & (Account.disabled == False)).order_by(asc(Account.username)).all()
+    # noinspection PyPep8
     active_lm_accounts = db.session.query(Account).join(Account.roles).filter(
         ((Role.name == WTMRoles.lm) | (Role.name == WTMRoles.resident))
-        & (Account.disabled is False)).order_by(asc(Account.username)).all()
+        & (Account.disabled == False)).order_by(asc(Account.username)).all()
     return render_template("waitlist/ccvote.html", fcs=active_fc_accounts, lms=active_lm_accounts)
 
 
