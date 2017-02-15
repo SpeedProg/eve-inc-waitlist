@@ -32,7 +32,7 @@ def remove_handler(key: str):
 @login_required
 @perm_management.require(http_exception=401)
 def login_redirect() -> Response:
-    return get_sso_redirect("setup", 'fleetRead fleetWrite')
+    return get_sso_redirect("setup", 'esi-ui.open_window.v1 esi-fleets.read_fleet.v1 esi-fleets.write_fleet.v1')
 
 
 def get_sso_redirect(action, scopes) -> Response:
