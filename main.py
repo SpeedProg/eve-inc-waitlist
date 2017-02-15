@@ -9,7 +9,7 @@ from waitlist.blueprints.feedback import feedback
 from gevent.pywsgi import WSGIServer
 from waitlist import app
 from waitlist.blueprints.fittings import bp_waitlist
-from waitlist.blueprints.fc_sso import bp as fc_sso_bp
+from waitlist.blueprints.fc_sso import bp as fc_sso_bp, add_sso_handler
 from waitlist.blueprints.fleet import bp as fleet_bp
 from waitlist.blueprints.api.fleet import bp as api_fleet_bp
 from waitlist.blueprints.api.fittings import bp as api_wl_bp
