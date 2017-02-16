@@ -8,6 +8,7 @@ class WaitlistNames:
     other = "other"
 
 
+'''
 class WTMRoles:
     admin = "admin"
     officer = "officer"
@@ -59,6 +60,6 @@ class WTMRoles:
             return WTMRoles.dnames[name]
         except KeyError:
             return name
-
+'''
 
 DEFAULT_PREFIX = "default"
