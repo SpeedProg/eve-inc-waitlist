@@ -10,13 +10,13 @@ from flask import url_for
 from waitlist.blueprints.settings import add_menu_entry
 from waitlist.data.sse import StatusChangedSSE
 from waitlist.data.sse import send_server_sent_event
+from waitlist.permissions import perm_manager
 from waitlist.utility import config
 from flask import Blueprint
 from flask import render_template
 from flask_login import current_user, login_required
 
 from waitlist import db
-from waitlist.data.perm import perm_management, perm_leadership, perm_officer, perm_fleetlocation
 from waitlist.storage.database import WaitlistGroup, Account, IncursionLayout, Station, SolarSystem, Constellation, \
     WaitlistEntry
 from waitlist.utility.eve_id_utils import get_constellation, get_system, get_station
@@ -24,6 +24,14 @@ from waitlist.utility.eve_id_utils import get_constellation, get_system, get_sta
 bp = Blueprint('fleetoptions', __name__)
 logger = logging.getLogger(__name__)
 
+
+perm_manager.define_permission('fleet_management')
+perm_manager.define_permission('fleet_custom_status')
+perm_manager.define_permission('fleet_location_edit')
+
+perm_management = perm_manager.get_permission('fleet_management')
+perm_custom_status = perm_manager.get_permission('fleet_custom_status')
+perm_fleetlocation_edit = perm_manager.get_permission('fleet_location_edit')
 
 @bp.route('/')
 @login_required
@@ -60,7 +68,7 @@ def fleet_status_set(gid: int) -> Response:
             logger.info("Influence setting of grp %s was changed to %s by %s", group.groupID, influence,
                         current_user.username)
 
-        if perm_leadership.can() or perm_officer.can():
+        if perm_custom_status.can():
             group.status = text
             logger.info("Status was set to %s by %s", group.status, current_user.username)
             flash("Status was set to " + text + ", xup is " + xup_text, "success")
@@ -146,7 +154,7 @@ def fleet_status_set(gid: int) -> Response:
 
 @bp.route("/fleet/location/set/<int:gid>", methods=["POST"])
 @login_required
-@perm_fleetlocation.require(http_exception=401)
+@perm_fleetlocation_edit.require(http_exception=401)
 def fleet_location_set(gid):
     group = db.session.query(WaitlistGroup).get(gid)
     action = request.form['action']

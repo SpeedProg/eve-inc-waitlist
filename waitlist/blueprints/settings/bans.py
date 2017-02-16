@@ -11,7 +11,7 @@ from sqlalchemy import asc
 from waitlist import db
 from waitlist.blueprints.settings import add_menu_entry
 from waitlist.data.eve_xml_api import get_character_id_from_name
-from waitlist.data.perm import perm_bans, perm_leadership
+from waitlist.permissions import perm_manager
 from waitlist.storage.database import Ban, Whitelist, Character
 from waitlist.utility.eve_id_utils import get_character_by_name
 from waitlist.utility.utils import get_info_from_ban
@@ -20,9 +20,17 @@ bp = Blueprint('bans', __name__)
 logger = logging.getLogger(__name__)
 
 
+perm_manager.define_permission('bans_edit')
+perm_manager.define_permission('bans_edit_multiple')
+perm_manager.define_permission('bans_custom_name')
+perm_manager.define_permission('bans_custom_reason')
+
+perm_custom_name = perm_manager.get_permission('bans_custom_name')
+perm_custom_reason = perm_manager.get_permission('bans_custom_reason')
+
 @bp.route("/", methods=["GET"])
 @login_required
-@perm_bans.require(http_exception=401)
+@perm_manager.require('bans_edit')
 def bans():
     db_bans = db.session.query(Ban).order_by(asc(Ban.name)).all()
     return render_template("settings/bans.html", bans=db_bans)
@@ -30,7 +38,7 @@ def bans():
 
 @bp.route("/bans_change", methods=["POST"])
 @login_required
-@perm_leadership.require(http_exception=401)
+@perm_manager.require('bans_edit_multiple')
 def bans_change():
     action = request.form['change']  # ban, unban
     target = request.form['target']  # name of target
@@ -105,7 +113,7 @@ def bans_change():
 
 @bp.route("/bans_change_single", methods=["POST"])
 @login_required
-@perm_bans.require(http_exception=401)
+@perm_manager.require('bans_edit')
 def bans_change_single():
     action = request.form['change']  # ban, unban
     target = request.form['target']  # name of target
@@ -159,7 +167,7 @@ def bans_change_single():
 
 @bp.route("/bans_unban", methods=["POST"])
 @login_required
-@perm_bans.require(http_exception=401)
+@perm_manager.require('bans_edit')
 def bans_unban_single():
     target = request.form['target']  # name of target
     target = target.strip()
@@ -178,7 +186,7 @@ def bans_unban_single():
 
 @bp.route("/whitelist", methods=["GET"])
 @login_required
-@perm_bans.require(http_exception=401)
+@perm_manager.require('bans_edit')
 def whitelist():
     whitelistings = db.session.query(Whitelist).join(Character, (Whitelist.characterID == Character.id)).order_by(
         asc(Character.eve_name)).all()
@@ -187,7 +195,7 @@ def whitelist():
 
 @bp.route("/whitelist_change", methods=["POST"])
 @login_required
-@perm_leadership.require(http_exception=401)
+@perm_manager.require('bans_edit_multiple')
 def whitelist_change():
     action: str = request.form['change']  # whitelist, unwhitelist
     target: str = request.form['target']  # name of target
@@ -208,7 +216,7 @@ def whitelist_change():
 
     if action == "whitelist":
         for target in targets:
-            whitelist_by_name(target, True, reason)
+            whitelist_by_name(target, reason)
 
     elif action == "unwhitelist":
         for target in targets:
@@ -222,15 +230,15 @@ def whitelist_change():
 '''
 
 
-def whitelist_by_name(whitelist_info, leadership=False, reason=""):
+def whitelist_by_name(whitelist_info, reason=""):
     target = whitelist_info.strip()
 
     wl_name, wl_reason, wl_admin = get_info_from_ban(target)
 
-    if wl_reason is None or not leadership:
+    if wl_reason is None or not perm_custom_reason.can():
         wl_reason = reason
 
-    if wl_admin is None or not leadership:
+    if wl_admin is None or not perm_custom_name.can():
         wl_admin = current_user.get_eve_name()
 
     logger.info("Whitelisting %s for %s by %s as %s.", wl_name, wl_reason, wl_admin, current_user.username)
@@ -275,7 +283,7 @@ def unwhitelist_by_name(char_name):
 
 @bp.route("/whitelist_change_single", methods=["POST"])
 @login_required
-@perm_bans.require(http_exception=401)
+@perm_manager.require('bans_edit')
 def whitelist_change_single():
     action = request.form['change']  # whitelist, unwhitelist
     target = request.form['target']  # name of target
@@ -284,7 +292,7 @@ def whitelist_change_single():
 
     if action == "whitelist":
         reason = request.form['reason']  # reason for ban
-        whitelist_by_name(target, perm_leadership.can(), reason)
+        whitelist_by_name(target, reason)
     elif action == "unwhitelist":
         unwhitelist_by_name(target)
 
@@ -293,7 +301,7 @@ def whitelist_change_single():
 
 @bp.route("/whitelist_unlist", methods=["POST"])
 @login_required
-@perm_bans.require(http_exception=401)
+@perm_manager.require('bans_edit')
 def whitelist_unlist():
     target = request.form['target']  # name of target
     target = target.strip()
@@ -301,5 +309,5 @@ def whitelist_unlist():
 
     return redirect(url_for(".whitelist"))
 
-add_menu_entry('bans.bans', 'Bans', perm_bans.can)
-add_menu_entry('bans.whitelist', 'Whitelist', perm_bans.can)
+add_menu_entry('bans.bans', 'Bans', perm_manager.get_permission('bans_edit').can)
+add_menu_entry('bans.whitelist', 'Whitelist', perm_manager.get_permission('bans_edit').can)

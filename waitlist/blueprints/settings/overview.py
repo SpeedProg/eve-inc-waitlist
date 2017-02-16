@@ -9,10 +9,15 @@ from gevent import Greenlet
 
 from waitlist import db
 from waitlist.blueprints.settings import add_menu_entry
-from waitlist.data.perm import perm_settings
+from waitlist.permissions import perm_manager
 
 bp = Blueprint('settings_overview', __name__)
 logger = logging.getLogger(__name__)
+
+
+perm_manager.define_permission('settings_access')
+
+perm_access = perm_manager.get_permission('settings_access')
 
 
 class StatCache(object):
@@ -40,7 +45,7 @@ __cache = StatCache()
 
 @bp.route("/")
 @login_required
-@perm_settings.require(http_exception=401)
+@perm_access.require(http_exception=401)
 def overview():
     ship_stats_query = '''
 SELECT shipType, COUNT(name)

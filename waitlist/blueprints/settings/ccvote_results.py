@@ -1,8 +1,9 @@
 from flask.blueprints import Blueprint
 import logging
 from flask_login import login_required
-from waitlist.data.perm import perm_leadership
 from flask.templating import render_template
+
+from waitlist.permissions import perm_manager
 from waitlist.storage.database import CCVote, Account
 from waitlist import db
 from sqlalchemy.sql.functions import func
@@ -10,10 +11,11 @@ from sqlalchemy.sql.functions import func
 bp = Blueprint('settings_ccvote', __name__)
 logger = logging.getLogger(__name__)
 
+perm_manager.define_permission('ccvot_viewresults')
 
 @bp.route("/")
 @login_required
-@perm_leadership.require()
+@perm_manager.require('ccvote_viewresults')
 def index():
     fc_results = db.session.query(Account.username, func.count('*')).join(
         CCVote, Account.id == CCVote.fcvoteID

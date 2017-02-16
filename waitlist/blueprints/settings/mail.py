@@ -3,9 +3,9 @@ from flask.blueprints import Blueprint
 from flask_login import login_required
 
 from waitlist.blueprints.settings import add_menu_entry
-from waitlist.data.perm import perm_access_mod_mail, perm_mod_mail_resident,\
-    perm_mod_mail_tbadge, perm_leadership
 from flask.templating import render_template
+
+from waitlist.permissions import perm_manager
 from waitlist.utility.settings import sget_resident_mail,\
     sget_tbadge_mail, sset_tbadge_mail, sset_resident_mail, sset_resident_topic,\
     sset_tbadge_topic, sset_other_mail, sset_other_topic, sget_tbadge_topic,\
@@ -19,6 +19,9 @@ bp = Blueprint('settings_mail', __name__)
 logger = logging.getLogger(__name__)
 
 
+perm_manager.define_permission('welcome_mail_edit')
+perm_edit = perm_manager.get_permission('welcome_mail_edit')
+
 @app.context_processor
 def inject_data():
     return dict()
@@ -26,7 +29,7 @@ def inject_data():
 
 @bp.route("/")
 @login_required
-@perm_access_mod_mail.require()
+@perm_edit.require()
 def index():
     mails = {
          'resident': [sget_resident_mail(), sget_resident_topic()],
@@ -38,21 +41,21 @@ def index():
 
 @bp.route("/change/<string:type_>", methods=["POST"])
 @login_required
-@perm_access_mod_mail.require()
+@perm_edit.require()
 def change(type_):
-    if type_ == "tbadge" and perm_mod_mail_tbadge.can():
+    if type_ == "tbadge":
         mail = request.form.get('mail')
         topic = request.form.get('topic')
         sset_tbadge_mail(mail)
         sset_tbadge_topic(topic)
         flash("T-Badge mail set!")
-    elif type_ == "resident" and perm_mod_mail_resident.can():
+    elif type_ == "resident":
         mail = request.form.get('mail')
         topic = request.form.get('topic')
         sset_resident_mail(mail)
         sset_resident_topic(topic)
         flash("Resident mail set!")
-    elif type_ == "default" and perm_leadership.can():
+    elif type_ == "default":
         mail = request.form.get('mail')
         topic = request.form.get('topic')
         sset_other_mail(mail)
@@ -60,5 +63,4 @@ def change(type_):
         flash("Other mail set!")
     return redirect(url_for('settings_mail.index'))
 
-add_menu_entry('settings_mail.index', 'IG Mail Settings', lambda: perm_mod_mail_resident.can()
-               or perm_mod_mail_tbadge.can() or perm_leadership.can())
+add_menu_entry('settings_mail.index', 'IG Mail Settings', lambda: perm_edit.can())

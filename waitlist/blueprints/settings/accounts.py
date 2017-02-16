@@ -1,7 +1,4 @@
-import csv
 import logging
-import os
-from bz2 import BZ2File
 from typing import Union
 
 import flask
@@ -13,21 +10,17 @@ from flask import render_template
 from flask import request
 from flask import url_for
 from flask_login import login_required, current_user
-from os import path
 from pyswagger.contrib.client import flask
 from sqlalchemy import asc
 from sqlalchemy import or_
 from sqlalchemy.orm import joinedload
-from werkzeug.utils import secure_filename
 
 from waitlist import db, app
 from waitlist.blueprints.settings import add_menu_entry
 from waitlist.data.eve_xml_api import get_character_id_from_name, get_char_info_for_character
-from waitlist.data.perm import perm_accounts, perm_settings, perm_admin, perm_leadership
 from waitlist.permissions import perm_manager
 from waitlist.signal.signals import send_account_created, send_roles_changed, send_account_status_change
 from waitlist.storage.database import Account, Character, Role, linked_chars
-from waitlist.utility.eve_id_utils import get_character_by_name
 from waitlist.utility.settings import sget_resident_mail, sget_tbadge_mail, sget_other_mail, sget_other_topic, \
     sget_tbadge_topic, sget_resident_topic
 from waitlist.utility.utils import get_random_token
@@ -36,9 +29,16 @@ bp = Blueprint('accounts', __name__)
 logger = logging.getLogger(__name__)
 
 
+perm_manager.define_permission('include_in_accountlist')
+perm_manager.define_permission('accounts_edit')
+perm_manager.define_permission('settings_access')
+perm_manager.define_permission('admin')
+perm_manager.define_permission('accounts_download_list')
+
+
 @bp.route("/", methods=["GET", "POST"])
 @login_required
-@perm_accounts.require(http_exception=401)
+@perm_manager.require('accounts_edit')
 def accounts():
     if request.method == "POST":
         acc_name = request.form['account_name']
@@ -97,7 +97,7 @@ def accounts():
 
 @bp.route("/edit", methods=["POST"])
 @login_required
-@perm_accounts.require(http_exception=401)
+@perm_manager.require('accounts_edit')
 def account_edit():
     acc_id = int(request.form['account_id'])
     acc_name = request.form['account_name']
@@ -186,7 +186,7 @@ def account_edit():
 
 @bp.route("/self_edit", methods=["POST"])
 @login_required
-@perm_settings.require(http_exception=401)
+@perm_manager.require('settings_access')
 def account_self_edit():
     acc_id = current_user.id
 
@@ -235,7 +235,7 @@ def account_self_edit():
 
 @bp.route("/self", methods=["GET"])
 @login_required
-@perm_settings.require(http_exception=401)
+@perm_manager.require('settings_access')
 def account_self():
     acc = db.session.query(Account).filter(Account.id == current_user.id).first()
     return render_template("settings/self.html", account=acc)
@@ -243,7 +243,7 @@ def account_self():
 
 @bp.route("/api/account/disabled", methods=['POST'])
 @login_required
-@perm_accounts.require(http_exception=401)
+@perm_manager.require('settings_access')
 def account_disabled():
     accid: int = int(request.form['id'])
     acc: Account = db.session.query(Account).filter(Account.id == accid).first()
@@ -262,7 +262,7 @@ def account_disabled():
 
 @bp.route("/api/account/<int:acc_id>", methods=["DELETE"])
 @login_required
-@perm_admin.require(http_exception=401)
+@perm_manager.require('admin')
 def api_account_delete(acc_id: int) -> Response:
     db.session.query(Account).filter(Account.id == acc_id).delete()
     db.session.commit()
@@ -271,7 +271,7 @@ def api_account_delete(acc_id: int) -> Response:
 
 @bp.route('/accounts/downloadlist/cvs')
 @login_required
-@perm_manager.require('leadership')
+@perm_manager.require('accounts_download_list')
 def accounts_download_csv() -> Response:
     def iter_accs(data):
         for account in data:
@@ -298,7 +298,5 @@ def accounts_download_csv() -> Response:
     response.headers['Content-Disposition'] = 'attachment; filename=accounts.csv'
     return response
 
-perm_manager.define_permission('include_in_accountlist')
-
-add_menu_entry('accounts.accounts', 'Accounts', perm_accounts.can)
+add_menu_entry('accounts.accounts', 'Accounts', perm_manager.get_permission('accounts_edit').can)
 add_menu_entry('accounts.account_self', 'Own Settings', lambda: True)
