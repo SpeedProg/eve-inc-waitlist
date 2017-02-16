@@ -8,10 +8,12 @@ def header_to_datetime(header) -> datetime:
     return datetime.fromtimestamp(mktime_tz(parsedate_tz(header)))
 
 apis = {}
+
+
 def get_api(version: str) -> App:
     if version in apis:
         return apis[version]
 
-    api = App._create_('https://esi.tech.ccp.is/'+version+'/swagger.json')
+    api = App.create('https://esi.tech.ccp.is/'+version+'/swagger.json')
     apis[version] = api
     return apis[version]

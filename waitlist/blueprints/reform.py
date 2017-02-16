@@ -7,6 +7,7 @@ from flask.templating import render_template
 bp = Blueprint('fleet_reform', __name__)
 logger = logging.getLogger(__name__)
 
+
 @bp.route("/")
 @login_required
 @perm_management.require()

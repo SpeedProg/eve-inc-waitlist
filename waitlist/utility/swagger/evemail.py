@@ -21,7 +21,7 @@ from waitlist.utility.swagger.eve import get_esi_client
 from waitlist.utility.swagger.patch import EsiClient
 
 
-def sendMail(recipients: List[Dict[str, Any]], body: str, subject: str) -> Any:
+def send_mail(recipients: List[Dict[str, Any]], body: str, subject: str) -> Any:
     api: App = get_api('v1')
     security = EsiSecurity(
         api,
@@ -47,7 +47,9 @@ def sendMail(recipients: List[Dict[str, Any]], body: str, subject: str) -> Any:
     return client.request(api.op['post_characters_character_id_mail'](
         character_id=current_user.current_char, mail=mail))
 
-def openMail(recipients: Sequence[int], body: str, subject: str, to_corp_or_alliance_id: int = None, to_mailing_list_id: int = None) -> ESIResponse:
+
+def open_mail(recipients: Sequence[int], body: str, subject: str, to_corp_or_alliance_id: int = None,
+              to_mailing_list_id: int = None) -> ESIResponse:
     """
     {
         "body": "string",

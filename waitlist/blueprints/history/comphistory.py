@@ -6,6 +6,7 @@ from flask.templating import render_template
 bp = Blueprint('comp_history_search', __name__)
 logger = logging.getLogger(__name__)
 
+
 @bp.route("/", methods=['GET'])
 @login_required
 @perm_manager.require('history_search')

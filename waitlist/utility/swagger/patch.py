@@ -20,11 +20,13 @@ Most of this code is the code from pyswagger.contrib.client.requests
 only **kwargs was added
 This client is to patch the pyswagger client
 '''
+
+
 class PatchClient(BaseClient):
     """ Client implementation based on requests
     """
 
-    __schemes__ = set(['http', 'https'])
+    __schemes__ = {'http', 'https'}
 
     def __init__(self, auth=None, send_opt=None, **kwargs):
         """ constructor
@@ -53,9 +55,9 @@ class PatchClient(BaseClient):
         req.prepare(scheme=self.prepare_schemes(req), handle_files=False)
         req._patch(opt)
 
-
         # prepare for uploaded files
         file_obj = []
+
         def append(name, obj):
             f = obj.data or open(obj.filename, 'rb')
             if 'Content-Type' in obj.header:
@@ -92,7 +94,7 @@ class PatchClient(BaseClient):
 
 class EsiClient(BaseClient):
 
-    __schemes__ = set(['https'])
+    __schemes__ = {'https'}
 
     __image_server__ = {
         'singularity': 'https://image.testeveonline.com/',
@@ -135,8 +137,6 @@ class EsiClient(BaseClient):
         self.security = security
         self._session = Session()
 
-
-
         # check for specified headers and update session.headers
 
         if 'User-Agent' not in headers:
@@ -152,9 +152,7 @@ class EsiClient(BaseClient):
             self._session.mount('http://', transport_adapter)
             self._session.mount('https://', transport_adapter)
 
-
-
-    def request(self, req_and_resp, raw_body_only=None, opt={}):
+    def request(self, req_and_resp, raw_body_only=None, opt=None):
         """ Take a request_and_response object from pyswagger.App and
         check auth, token, headers, prepare the actual request and fill the
         response
@@ -168,6 +166,9 @@ class EsiClient(BaseClient):
         :param opt: options, see pyswagger/blob/master/pyswagger/io.py#L144
         :return: the final response.
         """
+
+        if opt is None:
+            opt = {}
         # required because of inheritance
         request, response = super(EsiClient, self).request(req_and_resp, opt)
 
@@ -265,11 +266,13 @@ class EsiClient(BaseClient):
             cache_timeout,
         )
 
-    def __make_cache_key(self, request):
+    @classmethod
+    def __make_cache_key(cls, request):
         headers = frozenset(request._p['header'].items())
         path = frozenset(request._p['path'].items())
         query = frozenset(request._p['query'])
-        return (request.url, headers, path, query)
+        return request.url, headers, path, query
+
 
 def monkey_patch_pyswagger_requests_client():
     import pyswagger.contrib.client.requests
