@@ -1,4 +1,6 @@
 from flask_login import login_required
+
+from waitlist.blueprints.settings import add_menu_entry
 from waitlist.data.perm import perm_leadership
 from flask.templating import render_template
 from waitlist.utility.settings import sget_motd_hq, sget_motd_vg,\
@@ -42,3 +44,5 @@ def change(type_):
         sset_motd_vg(motd)
         flash("VG MOTD Saved")
     return redirect(url_for('settings_fmotds.index'))
+
+add_menu_entry('settings_fmotds.index', 'Fleet MOTD', perm_leadership.can)

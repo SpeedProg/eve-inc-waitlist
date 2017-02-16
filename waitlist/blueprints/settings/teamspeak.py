@@ -9,6 +9,7 @@ from flask import url_for
 from flask_login import login_required
 
 from waitlist import db
+from waitlist.blueprints.settings import add_menu_entry
 from waitlist.data.perm import perm_management, perm_leadership
 from waitlist.storage.database import TeamspeakDatum
 from waitlist.ts3.connection import change_connection
@@ -82,3 +83,5 @@ def teamspeak_change():
         flask.abort(400)
 
     return redirect(url_for("settings.teamspeak"))
+
+add_menu_entry('teamspeak.teamspeak', 'TS Settings', perm_management.can)

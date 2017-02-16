@@ -21,6 +21,7 @@ from sqlalchemy.orm import joinedload
 from werkzeug.utils import secure_filename
 
 from waitlist import db, app
+from waitlist.blueprints.settings import add_menu_entry
 from waitlist.data.eve_xml_api import get_character_id_from_name, get_char_info_for_character
 from waitlist.data.names import WTMRoles
 from waitlist.data.perm import perm_accounts, perm_settings, perm_admin, perm_leadership
@@ -410,3 +411,6 @@ def accounts_download_csv() -> Response:
     response = Response(iter_accs(accs), mimetype='text/csv')
     response.headers['Content-Disposition'] = 'attachment; filename=accounts.csv'
     return response
+
+add_menu_entry('accounts.accounts','Accounts', perm_accounts.can)
+add_menu_entry('accounts.account_self', 'Own Settings', lambda : True)

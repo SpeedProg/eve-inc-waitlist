@@ -5,6 +5,8 @@ from flask_login import login_required, current_user
 from flask.templating import render_template
 from flask.globals import request
 from flask.helpers import flash, url_for, make_response
+
+from waitlist.blueprints.settings import add_menu_entry
 from waitlist.storage.database import Ticket
 from waitlist import db
 import flask
@@ -72,3 +74,5 @@ def change_status() -> Response:
     ticket.state = new_status
     db.session.commit()
     return make_response("OK")
+
+add_menu_entry('feedback.settings', 'Feedback', perm_feedback.can)

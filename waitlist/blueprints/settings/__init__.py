@@ -1,0 +1,19 @@
+from typing import Callable, Tuple, List
+
+from waitlist import app
+
+__settings_menu: List[Tuple[str, str, Callable[[], bool]]] = []
+
+
+def __get__menu_entry_key(entry: Tuple[str, str,  Callable[[], bool]]):
+    return entry[1]
+
+
+def add_menu_entry(url: str, name: str, permissionCallable: Callable[[], bool]):
+    __settings_menu.append((url, name, permissionCallable))
+    __settings_menu.sort(key=__get__menu_entry_key)
+
+
+@app.context_processor
+def inject_menu():
+    return dict(settings_menu=__settings_menu)
