@@ -183,4 +183,4 @@ def __get_query_result(name, query, column_count, cache_time_seconds):
         Greenlet.spawn(execute_query, name, column_count, query, cache_time_seconds)
     return result
 
-add_menu_entry('settings_overview.overview', 'Overview', lambda : True)
+add_menu_entry('settings_overview.overview', 'Overview', lambda: True)
