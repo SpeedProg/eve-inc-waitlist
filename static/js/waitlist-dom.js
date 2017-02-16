@@ -711,7 +711,8 @@ waitlist.listdom = (function(){
 			if (groupStatus.status) {
 				statusDiv.text(groupStatus.status+' ');
 				if (groupStatus.influence) {
-					statusDiv.append($(`<a id='influence-link' class=".no-collapse" href="https://forums.warptome.net/influence-guide" target="_blank">Fit for Influence</a>`));
+					let influenceLink = getMetaData('influence-link');
+					statusDiv.append($(`<a id='influence-link' class=".no-collapse" href="${influenceLink}" target="_blank">Fit for Influence</a>`));
 					$('#influence-link').on('click', function (e) {
 						e.stopPropagation();
 					});

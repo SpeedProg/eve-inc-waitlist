@@ -4,13 +4,14 @@ import logging
 from waitlist.permissions import perm_manager
 from flask_login import login_required
 from flask.globals import request
-from waitlist.base import db
+from waitlist import db
 from waitlist.storage.database import HistoryEntry, Character, Account
 from flask import jsonify
-from waitlist.utility.json import makeHistoryJson
+from waitlist.utility.json import make_history_json
 from datetime import datetime
 bp = Blueprint('api_history', __name__)
 logger = logging.getLogger(__name__)
+
 
 @bp.route('/comp', methods=['GET'])
 @login_required
@@ -29,7 +30,7 @@ def get_comp_history():
             if condition is None:
                 condition = (Account.username.contains(a))
             else:
-                condition = ((condition) | (Account.username.contains(a)))
+                condition = (condition | (Account.username.contains(a)))
         if condition is not None:
             query = query.join(HistoryEntry.source).filter(condition)
     
@@ -40,7 +41,7 @@ def get_comp_history():
             if condition is None:
                 condition = (Character.eve_name.contains(a))
             else:
-                condition = ((condition) | (Character.eve_name.contains(a)))
+                condition = (condition | (Character.eve_name.contains(a)))
         if condition is not None:
             query = query.join(HistoryEntry.target).filter(condition)
     
@@ -56,10 +57,10 @@ def get_comp_history():
             if condition is None:
                 condition = (HistoryEntry.action == a)
             else:
-                condition = ((condition) | (HistoryEntry.action == a))
+                condition = (condition | (HistoryEntry.action == a))
         if condition is not None:
             query = query.filter(condition)
-    hEntries = query.all()
-    historyObj = makeHistoryJson(hEntries)
-    jsonResp = jsonify(historyObj)
-    return jsonResp
+    h_entries = query.all()
+    history_obj = make_history_json(h_entries)
+    json_resp = jsonify(history_obj)
+    return json_resp

@@ -7,6 +7,7 @@ from flask import jsonify
 bp = Blueprint('api_ts3', __name__)
 logger = logging.getLogger(__name__)
 
+
 @bp.route("/test_poke")
 @login_required
 def test_poke():
