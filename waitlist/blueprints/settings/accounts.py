@@ -23,7 +23,6 @@ from werkzeug.utils import secure_filename
 from waitlist import db, app
 from waitlist.blueprints.settings import add_menu_entry
 from waitlist.data.eve_xml_api import get_character_id_from_name, get_char_info_for_character
-from waitlist.data.names import WTMRoles
 from waitlist.data.perm import perm_accounts, perm_settings, perm_admin, perm_leadership
 from waitlist.permissions import perm_manager
 from waitlist.signal.signals import send_account_created, send_roles_changed, send_account_status_change
@@ -283,14 +282,23 @@ def accounts_download_csv() -> Response:
                     yield char.eve_name
             yield '\n'
 
+    permission = perm_manager.get_permission('include_in_accountlist')
+    role_check = (Account.disabled == False)
+    for role_need in permission.needs:
+        if role_need.method != 'role':
+            continue
+        role_check &= Role.name == role_need.value
+
     # noinspection PyPep8
     accs = db.session.query(Account).options(joinedload('characters')).join(Account.roles).filter(
-        ((Role.name == WTMRoles.fc) | (Role.name == WTMRoles.lm)) & (Account.disabled == False)).order_by(
+        role_check ).order_by(
         Account.username).all()
 
     response = Response(iter_accs(accs), mimetype='text/csv')
     response.headers['Content-Disposition'] = 'attachment; filename=accounts.csv'
     return response
+
+perm_manager.define_permission('include_in_accountlist')
 
 add_menu_entry('accounts.accounts', 'Accounts', perm_accounts.can)
 add_menu_entry('accounts.account_self', 'Own Settings', lambda: True)
