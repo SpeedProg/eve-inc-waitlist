@@ -1,6 +1,8 @@
 from flask import Response
 from flask_login import login_required
 from flask.templating import render_template
+
+from waitlist.blueprints.settings import add_menu_entry
 from waitlist.utility.settings import sget_insert, sset_insert
 from flask.blueprints import Blueprint
 import logging
@@ -30,3 +32,5 @@ def change(type_) -> Response:
         sset_insert('header', content)
         flash("Header Insert Saved")
     return redirect(url_for('settings_inserts.index'))
+
+add_menu_entry('settings_inserts.index', 'Page Inserts', perm_manager.get_permission('inserts').can)

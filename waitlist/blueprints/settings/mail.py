@@ -1,6 +1,8 @@
 import logging
 from flask.blueprints import Blueprint
 from flask_login import login_required
+
+from waitlist.blueprints.settings import add_menu_entry
 from waitlist.data.perm import perm_access_mod_mail, perm_mod_mail_resident,\
     perm_mod_mail_tbadge, perm_leadership
 from flask.templating import render_template
@@ -57,3 +59,5 @@ def change(type_):
         sset_other_topic(topic)
         flash("Other mail set!")
     return redirect(url_for('settings_mail.index'))
+
+add_menu_entry('settings_mail.index', 'IG Mail Settings', lambda : perm_mod_mail_resident.can() or perm_mod_mail_tbadge.can() or perm_leadership.can())

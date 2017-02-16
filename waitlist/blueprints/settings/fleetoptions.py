@@ -6,6 +6,8 @@ from flask import flash
 from flask import redirect
 from flask import request
 from flask import url_for
+
+from waitlist.blueprints.settings import add_menu_entry
 from waitlist.data.sse import StatusChangedSSE
 from waitlist.data.sse import send_server_sent_event
 from waitlist.utility import config
@@ -313,3 +315,5 @@ def fleet_status_global_set() -> str:
         should_scrable = not (request.form.get('scramble', 'off') == 'off')
         config.scramble_names = should_scrable
     return "OK"
+
+add_menu_entry('fleetoptions.fleet', 'Fleet Settings', perm_management.can)

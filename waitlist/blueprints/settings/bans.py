@@ -9,6 +9,7 @@ from flask_login import current_user, login_required
 from sqlalchemy import asc
 
 from waitlist import db
+from waitlist.blueprints.settings import add_menu_entry
 from waitlist.data.eve_xml_api import get_character_id_from_name
 from waitlist.data.perm import perm_bans, perm_leadership
 from waitlist.storage.database import Ban, Whitelist, Character
@@ -299,3 +300,6 @@ def whitelist_unlist():
     unwhitelist_by_name(target)
 
     return redirect(url_for(".whitelist"))
+
+add_menu_entry('bans.bans', 'Bans', perm_bans.can)
+add_menu_entry('bans.whitelist', 'Whitelist', perm_bans.can)

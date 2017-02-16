@@ -12,6 +12,7 @@ from os import path
 
 from werkzeug.utils import secure_filename, redirect
 
+from waitlist.blueprints.settings import add_menu_entry
 from waitlist.data.perm import perm_dev
 from waitlist import app
 from waitlist.utility import sde
@@ -108,3 +109,5 @@ def update_layouts():
 @perm_dev.require(http_exception=401)
 def sde_settings():
     return render_template("settings/sde.html")
+
+add_menu_entry('sde.sde_settings', 'Static Data Import', perm_dev.can)

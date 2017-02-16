@@ -7,30 +7,16 @@
 {% endblock %}
 
 {% block container_data %}
-{% set nav = [
-	('settings_overview.overview', 'Overview', true),
-	('fleetoptions.fleet', 'Fleet Settings', perm_man.can()),
-	('calendar_settings.get_index', 'Events', perm_manager.get_permission('commandcore').can()),
-	('teamspeak.teamspeak', 'TS Settings', perm_man.can()),
-	('accounts.account_self', 'Own Settings', true),
-	('accounts.accounts', 'Accounts', perm_accounts.can()),
-	('bans.bans', 'Bans', perm_bans.can()),
-	('bans.whitelist', 'Whitelist', perm_bans.can()),
-	('settings_mail.index', 'IG Mail Settings', (perm_res_mod.can() or perm_t_mod.can() or perm_leadership.can())),
-	('settings_fmotds.index', 'Fleet MOTD', perm_leadership.can()),
-	('settings_inserts.index', 'Page Inserts', perm_manager.get_permission('inserts').can()),
-	('feedback.settings', 'Feedback', perm_feedback.can()),
-	('sde.sde_settings', 'Static Data Import', perm_dev.can())
-] -%}
 <div class="row">
 	<div class="col-sm-3 col-md-2 sidebar" id="sidebar">
 		<ul class="nav nav-pills nav-stacked">
-		{% for endpoint, name, perm in nav %}
-		{% if perm %}
+		<li class="nav-item">
+			<a class="nav-link {% if request.endpoint == 'settings_overview.overview' %}active{% endif %}" href="{{url_for('settings_overview.overview')}}">Overview</a>
+		</li>
+		{% for endpoint, name, perm in settings_menu if (not endpoint == 'settings_overview.overview' and perm()) %}
 		<li class="nav-item">
 			<a class="nav-link {% if request.endpoint == endpoint %}active{% endif %}" href="{{url_for(endpoint)}}">{{name}}</a>
 		</li>
-		{% endif %}
 		{% endfor %}
 		</ul>
 	</div>

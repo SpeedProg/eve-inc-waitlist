@@ -8,6 +8,7 @@ from flask_login import login_required
 from gevent import Greenlet
 
 from waitlist import db
+from waitlist.blueprints.settings import add_menu_entry
 from waitlist.data.perm import perm_settings
 
 bp = Blueprint('settings_overview', __name__)
@@ -181,3 +182,5 @@ def __get_query_result(name, query, column_count, cache_time_seconds):
 
         Greenlet.spawn(execute_query, name, column_count, query, cache_time_seconds)
     return result
+
+add_menu_entry('settings_overview.overview', 'Overview', lambda : True)
