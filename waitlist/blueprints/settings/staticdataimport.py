@@ -13,17 +13,21 @@ from os import path
 from werkzeug.utils import secure_filename, redirect
 
 from waitlist.blueprints.settings import add_menu_entry
-from waitlist.data.perm import perm_dev
 from waitlist import app
+from waitlist.permissions import perm_manager
 from waitlist.utility import sde
 
 bp = Blueprint('sde', __name__)
 logger = logging.getLogger(__name__)
 
 
+perm_manager.define_permission('static_data_import')
+
+perm_access = perm_manager.get_permission('static_data_import')
+
 @bp.route("/sde/update/typeids", methods=["POST"])
 @login_required
-@perm_dev.require(http_exception=401)
+@perm_access.require(http_exception=401)
 def update_type_ids():
     f = request.files['file']
     if f and (f.filename.rsplit('.', 1)[1] == "bz2" or f.filename.rsplit('.', 1)[1] == "yaml"):
@@ -41,7 +45,7 @@ def update_type_ids():
 
 @bp.route("/sde/update/map", methods=["POST"])
 @login_required
-@perm_dev.require(http_exception=401)
+@perm_access.require(http_exception=401)
 def update_map():
     f = request.files['file']
     file_ext = f.filename.rsplit('.', 1)[1]
@@ -70,7 +74,7 @@ def update_map():
 
 @bp.route("/sde/update/stations", methods=["POST"])
 @login_required
-@perm_dev.require(http_exception=401)
+@perm_access.require(http_exception=401)
 def update_stations():
     f = request.files['file']
     if f and (f.filename.rsplit('.', 1)[1] == "bz2" or f.filename.rsplit('.', 1)[1] == "yaml"):
@@ -88,7 +92,7 @@ def update_stations():
 
 @bp.route("/sde/update/layouts", methods=["POST"])
 @login_required
-@perm_dev.require(http_exception=401)
+@perm_access.require(http_exception=401)
 def update_layouts():
     f = request.files['file']
     if f and (f.filename.rsplit('.', 1)[1] == "bz2" or f.filename.rsplit('.', 1)[1] == "csv"):
@@ -106,7 +110,7 @@ def update_layouts():
 
 @bp.route("/sde")
 @login_required
-@perm_dev.require(http_exception=401)
+@perm_access.require(http_exception=401)
 def sde_settings():
     return render_template("settings/sde.html")
 

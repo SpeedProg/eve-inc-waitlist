@@ -10,7 +10,7 @@ from flask_login import login_required
 
 from waitlist import db
 from waitlist.blueprints.settings import add_menu_entry
-from waitlist.data.perm import perm_management, perm_leadership
+from waitlist.permissions import perm_manager
 from waitlist.storage.database import TeamspeakDatum
 from waitlist.ts3.connection import change_connection
 from waitlist.utility.settings import sget_active_ts_id, sset_active_ts_id
@@ -19,9 +19,17 @@ bp = Blueprint('teamspeak', __name__)
 logger = logging.getLogger(__name__)
 
 
+perm_manager.define_permission('teamspeak_change')
+perm_manager.define_permission('teamspeak_view')
+perm_manager.define_permission('teamspeak_edit')
+
+perm_change_server = perm_manager.get_permission('teamspeak_change').union(perm_manager.get_permission('teamspeak_edit'))
+perm_view_server = perm_change_server
+perm_edit_server = perm_manager.get_permission('teamspeak_edit')
+
 @bp.route("/ts", methods=["GET"])
 @login_required
-@perm_management.require()
+@perm_view_server.require()
 def teamspeak():
     active_ts_setting_id = sget_active_ts_id()
     active_ts_setting = None
@@ -35,10 +43,10 @@ def teamspeak():
 
 @bp.route("/ts", methods=["POST"])
 @login_required
-@perm_management.require()
+@perm_change_server.require()
 def teamspeak_change():
     action = request.form['action']  # add/remove, set
-    if action == "add" and perm_leadership.can():
+    if action == "add" and perm_edit_server.can():
         display_name = request.form['displayName']
         host = request.form['internalHost']
         port = int(request.form['internalPort'])
@@ -65,7 +73,7 @@ def teamspeak_change():
         )
         db.session.add(ts)
         db.session.commit()
-    elif action == "remove" and perm_leadership.can():
+    elif action == "remove" and perm_edit_server.can():
         teamspeak_id = int(request.form['teamspeakID'])
         db.session.query(TeamspeakDatum).filter(TeamspeakDatum.teamspeakID == teamspeak_id).delete()
         active_id = sget_active_ts_id()
@@ -84,4 +92,4 @@ def teamspeak_change():
 
     return redirect(url_for("settings.teamspeak"))
 
-add_menu_entry('teamspeak.teamspeak', 'TS Settings', perm_management.can)
+add_menu_entry('teamspeak.teamspeak', 'TS Settings', perm_view_server.can)
