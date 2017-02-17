@@ -65,7 +65,7 @@ def post_esi_openwindow_newmail():
 
 def handle_sso_cb(tokens):
     handle_token_update(tokens)
-    return redirect(url_for('feedback.index'))
+    return redirect(url_for('feedback.settings'))
 
 
 @bp.route('/auth', methods=['GET'])
