@@ -1,9 +1,10 @@
-import string,random
+import string
+import random
 import logging
 import re
-from flask.globals import request
 
 logger = logging.getLogger(__name__)
+
 
 class LogMixin(object):
     @property
@@ -11,17 +12,20 @@ class LogMixin(object):
         name = '.'.join([__name__, self.__class__.__name__])
         return logging.getLogger(name)
 
+
 def get_random_token(length):
     return str(''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(length)))
+
 
 def create_dna_string(mod_map):
     dna = ""
     for mod_id in mod_map:
         mod = mod_map[mod_id]
         dna += str(mod[0]) + ";" + str(mod[1]) + ":"
-    if dna == "": # if there is no module
+    if dna == "":  # if there is no module
         return ":"
-    return dna+":" # dna always needs to end with 2 colons
+    return dna+":"  # dna always needs to end with 2 colons
+
 
 # map looks like this mod_map = {mod_id:[mod_id,mod_count],...}
 def create_mod_map(dna_string):
@@ -42,6 +46,7 @@ def create_mod_map(dna_string):
     
     return mod_map
 
+
 def get_fit_format(line):
     # [Vindicator, VeniVindiVG]
     if re.match("\[.*,.*\]", line):
@@ -56,6 +61,7 @@ def get_character(user):
     else:
         return user
 
+
 def get_info_from_ban(ban_line):
     pos_name_end = ban_line.find(" - Reason:\"")
     if pos_name_end != -1:
@@ -69,8 +75,9 @@ def get_info_from_ban(ban_line):
         admin = None
     return char_name, reason, admin
 
-def token_has_scopes(ssoToken, scopes):
-    for scope in ssoToken.scopes:
+
+def token_has_scopes(sso_token, scopes):
+    for scope in sso_token.scopes:
         if scope.scopeName in scopes:
             scopes.remove(scope.scopeName)
     if len(scopes) <= 0:

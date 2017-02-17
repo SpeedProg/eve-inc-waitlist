@@ -1,76 +1,90 @@
-{% extends "base.html" %} {% block title %}Overview{% endblock %} {%
-block head %}
-<meta name="url-self-remove-all"
-	content="{{url_for('fittings.self_remove_all')}}">
+{% extends "base.html" %} {% block title %}Overview{% endblock %}
+{% block head %}
+<meta name="url-self-remove-all" content="{{url_for('fittings.self_remove_all')}}">
 <meta name="user-id" content="{{ current_user.get_eve_id() }}">
-<meta name="wl-names"
-	content="{% for wl in lists %}{{wl.name|e}}{% if not loop.last %},{% endif %}{% endfor %}">
+<meta name="wl-names" content="{% for wl in lists %}{{wl.name|e}}{% if not loop.last %},{% endif %}{% endfor %}">
 <meta name="api-ts-test" content="{{url_for('api_ts3.test_poke')}}">
 <meta name="api-sse" content="{{url_for('api_sse.events')}}">
-<meta name="api-waitlists"
-	content="{{url_for('api_fittings.waitlist')}}">
-<meta name="api-fit-update"
-	content="{{url_for('fittings.xup_update', fitID=-1)}}">
-<meta name="api-waitlists-groups" content="{{url_for('api_waitlists.groups', groupID=-1)}}">
+<meta name="api-waitlists" content="{{url_for('api_fittings.waitlist')}}">
+<meta name="api-fit-update" content="{{url_for('fittings.xup_update', fit_id=-1)}}">
+<meta name="api-waitlists-groups" content="{{url_for('api_waitlists.groups', group_id=-1)}}">
+<meta name="influence-link" content="{{ influence_link }}">
 <link rel="preconnect" href="https://crest-tq.eveonline.com/">
+
 {% if perm_viewfits.can() %}
 <link rel="preconnect" href="https://quiescens.duckdns.org">
 <meta name="can-view-fits" content="True">
-{% endif %} {% if group %}
+{% endif %}
+
+{% if group %}
 <meta name="wl-group-id" content="{{group.groupID}}">
-{% endif %} {% if is_on_wl %}
-<meta name="audio"
-	content="{{url_for('static', filename='gong-sound.mp3')}}">
-{% endif %} {% if perm_man.can() %} {# URLs for fleetcomp js #}
+{% endif %}
+
+{% if is_on_wl %}
+<meta name="audio" content="{{url_for('static', filename='gong-sound.mp3')}}">
+{% endif %}
+
+{% if perm_man.can() %} {# URLs for fleetcomp js #}
 <meta name="can-fleetcomp" content="True">
-<meta name="api-send-notification"
-	content="{{url_for('api_fittings.send_notification', playerID=-1)}}">
-<meta name="api-wls-remove-player"
-	content="{{url_for('fittings.api_wls_remove_player')}}">
-<meta name="api-wl-remove-entry"
-	content="{{url_for('fittings.api_wl_remove_entry')}}">
-<meta name="api-move-entry-to-wls"
-	content="{{url_for('fittings.move_to_waitlists')}}">
-<meta name="api-approve-fit"
-	content="{{url_for('fittings.api_move_fit_to_waitlist')}}">
-<meta name="api-send-invite"
-	content="{{url_for('api_fleet.invite_to_fleet')}}">
-<meta name="api-igui-openwindow-ownerdetails"
-	content="{{url_for('api_eve_openwindow.ownerdetails')}}">
-<meta name="api-movetosafety"
-	content="{{url_for('api_fleet.move_fleetmembers_to_safety')}}">
+<meta name="api-send-notification" content="{{url_for('api_fittings.send_notification', player_id=-1)}}">
+<meta name="api-wls-remove-player" content="{{url_for('fittings.api_wls_remove_player')}}">
+<meta name="api-wl-remove-entry" content="{{url_for('fittings.api_wl_remove_entry')}}">
+<meta name="api-move-entry-to-wls" content="{{url_for('fittings.move_to_waitlists')}}">
+<meta name="api-approve-fit" content="{{url_for('fittings.api_move_fit_to_waitlist')}}">
+<meta name="api-send-invite" content="{{url_for('api_fleet.invite_to_fleet')}}">
+<meta name="api-igui-openwindow-ownerdetails" content="{{url_for('api_eve_openwindow.ownerdetails')}}">
+<meta name="api-movetosafety" content="{{url_for('api_fleet.move_fleetmembers_to_safety')}}">
 <meta name="api-fail-approve" content="{{url_for('api_fittings.unchecked_approve')}}">
 {% endif %}
+
 {{ super() }}
+
 {% assets filters="babili", output="gen/setup.%(version)s.js", "js/base.js",
 "js/dropdown.js", "js/eveproxy.js", "js/waitlist-dom.js", "js/wlsseupdate.js",
 "js/dnasetup.js" %}
 <script type="text/javascript" src="{{ ASSET_URL }}"></script>
 {% endassets %}
 
-{% if group and group.enabled %}
-{% if perm_man.can() %} {% assets filters="babili",
-output="gen/comp.%(version)s.js", "js/eve-igb-wrapper.js",
-"js/fleetcomp.js" %}
-<script type="text/javascript" src="{{ ASSET_URL }}" defer></script>
-{% endassets %} {% endif %} {% if is_on_wl %} {% assets
-filters="babili", output="gen/wlinteract.%(version)s.js", "js/ts3.js",
-"js/gong.js", "js/waitlist.js" %}
-<script type="text/javascript" src="{{ ASSET_URL }}" defer></script>
-{% endassets %} {% endif %} {% if perm_viewfits.can() %}
-<script type="text/javascript"
-	src="https://quiescens.duckdns.org/wl/wtm.js" defer async></script>
-{% endif %} {% endif %} {% assets filters="babili",
-output="gen/eve-ui.%(version)s.js", "js/fitlink.js",
-"js/eve-ui-config.js" %}
-<script type="text/javascript" src="{{ ASSET_URL }}" defer async></script>
-{% endassets %} {% if group and (not is_on_wl) and (not (perm_man.can()
-or perm_viewfits.can())) and group.enabled %} {% include "xup-form.js"
-%} {% endif %} {% endblock %} {% block container_data %} {# show there
-form only if he is not on waitlist, not fleetcomp or has permission to
-view fits and xups are enabled #} {% if group and (not is_on_wl) and
-(not (perm_man.can() or perm_viewfits.can())) and group.enabled %} {%
-include "xup-form.html" with context %} {% endif %}
+	{% if group and group.enabled %}
+		{% if perm_man.can() %}
+			{% assets filters="babili",
+					output="gen/comp.%(version)s.js", "js/eve-igb-wrapper.js",
+					"js/fleetcomp.js" %}
+
+			<script type="text/javascript" src="{{ ASSET_URL }}" defer></script>
+			{% endassets %}
+		{% endif %}
+
+		{% if group and (not is_on_wl) and (not (perm_man.can() or perm_viewfits.can())) and group.enabled %}
+			{% include "xup-form.js" %}
+		{% endif %}
+
+		{% if is_on_wl %}
+			{% assets filters="babili", output="gen/wlinteract.%(version)s.js", "js/ts3.js",
+				"js/gong.js", "js/waitlist.js" %}
+				<script type="text/javascript" src="{{ ASSET_URL }}" defer></script>
+			{% endassets %}
+		{% endif %}
+
+		{% if perm_viewfits.can() %}
+			<script type="text/javascript"
+				src="https://quiescens.duckdns.org/wl/wtm.js" defer async></script>
+		{% endif %}
+	{% endif %}
+	{% assets filters="babili",
+		output="gen/eve-ui.%(version)s.js", "js/fitlink.js",
+		"js/eve-ui-config.js" %}
+		<script type="text/javascript" src="{{ ASSET_URL }}" defer async></script>
+	{% endassets %}
+{% endblock %}
+
+{% block container_data %}
+	{# show there
+	form only if he is not on waitlist, not fleetcomp or has permission to
+	view fits and xups are enabled #}
+	{% if group and (not is_on_wl) and (not (perm_man.can() or perm_viewfits.can())) and group.enabled %}
+		{% include "xup-form.html" with context %}
+	{% endif %}
 <div class="row">
 	{# Show a message if you have comp permissions but you are not fleet
 	comp of a fleet #} {% if perm_man.can() and current_user.fleet is none
@@ -78,7 +92,7 @@ include "xup-form.html" with context %} {% endif %}
 	<div class="alert alert-info fade in" role="alert">
 		<p class="text-xs-center">
 			You are not associated with any fleet, you can change this in <a
-				href="{{url_for('settings.fleet')}}">Fleet Settings</a>
+				href="{{url_for('fleetoptions.fleet')}}">Fleet Settings</a>
 		</p>
 	</div>
 	{% endif %} {% if ts and is_on_wl %}
@@ -90,6 +104,11 @@ include "xup-form.html" with context %} {% endif %}
 		</p>
 	</div>
 	{% endif %}
+  	{% if ccvote_on %}
+	<div class="alert alert-info fade in" role="alert">
+  		<p class="text-xs-center"><a href="/ccvote">Vote your favorite WTM Command Core Member HERE</a></p>
+  	</div>
+  	{% endif %}
 </div>
 <div class="row">
 	{% if group %}
