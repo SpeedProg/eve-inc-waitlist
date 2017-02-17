@@ -25,6 +25,7 @@ perm_manager.define_permission('static_data_import')
 
 perm_access = perm_manager.get_permission('static_data_import')
 
+
 @bp.route("/sde/update/typeids", methods=["POST"])
 @login_required
 @perm_access.require(http_exception=401)

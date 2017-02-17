@@ -33,6 +33,7 @@ perm_management = perm_manager.get_permission('fleet_management')
 perm_custom_status = perm_manager.get_permission('fleet_custom_status')
 perm_fleetlocation_edit = perm_manager.get_permission('fleet_location_edit')
 
+
 @bp.route('/')
 @login_required
 @perm_management.require(http_exception=401)

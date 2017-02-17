@@ -13,6 +13,7 @@ logger = logging.getLogger(__name__)
 
 perm_manager.define_permission('ccvot_viewresults')
 
+
 @bp.route("/")
 @login_required
 @perm_manager.require('ccvote_viewresults')

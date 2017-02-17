@@ -16,6 +16,7 @@ logger = logging.getLogger(__name__)
 
 perm_manager.define_permission('inserts_edit')
 
+
 @bp.route("/")
 @login_required
 @perm_manager.require('inserts_edit')

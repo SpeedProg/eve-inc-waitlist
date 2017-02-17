@@ -23,9 +23,11 @@ perm_manager.define_permission('teamspeak_change')
 perm_manager.define_permission('teamspeak_view')
 perm_manager.define_permission('teamspeak_edit')
 
-perm_change_server = perm_manager.get_permission('teamspeak_change').union(perm_manager.get_permission('teamspeak_edit'))
+perm_change_server = perm_manager.get_permission('teamspeak_change')\
+    .union(perm_manager.get_permission('teamspeak_edit'))
 perm_view_server = perm_change_server
 perm_edit_server = perm_manager.get_permission('teamspeak_edit')
+
 
 @bp.route("/ts", methods=["GET"])
 @login_required

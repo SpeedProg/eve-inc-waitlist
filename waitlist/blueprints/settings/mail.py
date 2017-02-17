@@ -22,6 +22,7 @@ logger = logging.getLogger(__name__)
 perm_manager.define_permission('welcome_mail_edit')
 perm_edit = perm_manager.get_permission('welcome_mail_edit')
 
+
 @app.context_processor
 def inject_data():
     return dict()
