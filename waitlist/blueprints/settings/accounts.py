@@ -412,5 +412,5 @@ def accounts_download_csv() -> Response:
     response.headers['Content-Disposition'] = 'attachment; filename=accounts.csv'
     return response
 
-add_menu_entry('accounts.accounts','Accounts', perm_accounts.can)
-add_menu_entry('accounts.account_self', 'Own Settings', lambda : True)
+add_menu_entry('accounts.accounts', 'Accounts', perm_accounts.can)
+add_menu_entry('accounts.account_self', 'Own Settings', lambda: True)
