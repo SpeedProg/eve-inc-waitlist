@@ -129,13 +129,12 @@ def setup_step_url():
     return get_select_form(fleet_id)
 
 
-def get_select_form(fleet_id):
-    # type: (int) -> None
+def get_select_form(fleet_id: int) -> None:
     fleet_api = EveFleetEndpoint(fleet_id)
     wings = fleet_api.get_wings()
     if wings.is_error():
-        logger.error("Could not get wings for fleetID[%d], maybe some ones tokes are wrong", fleet_id)
-        flask.abort(500)
+        logger.error(f"Could not get wings for fleet_id[{fleet_id}], maybe some ones tokens are wrong. {wings.error()}")
+        flask.abort(wings.code(), wings.error())
 
     groups = db.session.query(WaitlistGroup).all()
     auto_assign = {}
