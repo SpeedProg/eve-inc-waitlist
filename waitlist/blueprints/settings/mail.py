@@ -60,4 +60,5 @@ def change(type_):
         flash("Other mail set!")
     return redirect(url_for('settings_mail.index'))
 
-add_menu_entry('settings_mail.index', 'IG Mail Settings', lambda : perm_mod_mail_resident.can() or perm_mod_mail_tbadge.can() or perm_leadership.can())
+add_menu_entry('settings_mail.index', 'IG Mail Settings',
+               lambda: perm_mod_mail_resident.can() or perm_mod_mail_tbadge.can() or perm_leadership.can())
