@@ -82,7 +82,7 @@ class MiniJSONEncoder(JSONEncoder):
     key_separator = ':'
     def default(self, obj):
         if isinstance(obj, datetime):
-            return obj.isoformat()
+            return obj.isoformat()+"Z"
         # Let the base class default method raise the TypeError
         return JSONEncoder.default(self, obj)
 
