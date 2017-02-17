@@ -701,7 +701,7 @@ class Trivia(Base):
     createdByID: Column = Column(Integer, ForeignKey('accounts.id'))
 
     createdBy = relationship('Account')
-    questions = relationship('TriviaQuestions', backref('trivia'))
+    questions = relationship('TriviaQuestion', back_populates='trivia')
 
 
 class TriviaQuestion(Base):
@@ -713,7 +713,7 @@ class TriviaQuestion(Base):
     answerConnection: Column = Column(Enum('AND', 'OR', 'NOT', 'NONE'))
     inputPlaceholder: Column = Column(String(255))
 
-    trivia = relationship('Trivia')
+    trivia = relationship('Trivia', back_populates='questions')
     answers = relationship('TriviaAnswer')
 
 
@@ -733,7 +733,7 @@ class TriviaSubmission(Base):
 
     account = relationship('Account')
     character = relationship('Character')
-    answers = relationship('TriviaSubmissionAnswer', backref('submission'))
+    answers = relationship('TriviaSubmissionAnswer', back_populates='submission')
 
 
 class TriviaSubmissionAnswer(Base):
@@ -742,5 +742,5 @@ class TriviaSubmissionAnswer(Base):
     questionID: Column = Column(Integer, ForeignKey('trivia_question.questionID'), primary_key=True)
     answerText: Column = Column(String(5000))
 
-    submission = relationship('TriviaSubmission')
+    submission = relationship('TriviaSubmission', back_populates='answers')
     question = relationship('TriviaQuestion')
