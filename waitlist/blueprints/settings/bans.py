@@ -28,6 +28,7 @@ perm_manager.define_permission('bans_custom_reason')
 perm_custom_name = perm_manager.get_permission('bans_custom_name')
 perm_custom_reason = perm_manager.get_permission('bans_custom_reason')
 
+
 @bp.route("/", methods=["GET"])
 @login_required
 @perm_manager.require('bans_edit')

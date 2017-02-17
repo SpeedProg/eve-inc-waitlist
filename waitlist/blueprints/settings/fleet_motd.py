@@ -18,6 +18,7 @@ logger = logging.getLogger(__name__)
 
 perm_manager.define_permission('change_fleet_motd')
 
+
 def get_permission():
     return perm_manager.get_permission('change_fleet_motd')
 
