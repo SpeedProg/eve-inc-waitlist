@@ -72,9 +72,7 @@ def process_submission(trivia_id: int) -> Optional[Response]:
         submission.submittorAccountID = current_user.id
 
     for name in request.form:
-        print(f'form {name} {request.form[name]}')
         if name.startswith(QUESTION_PREFIX):
-            print(f'prefix {QUESTION_PREFIX} met')
             try:
                 add_answer_to_database(submission, get_question_id_from_name(name), request.form[name])
             except ValueError:
