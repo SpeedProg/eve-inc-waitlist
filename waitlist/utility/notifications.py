@@ -7,7 +7,7 @@ from waitlist.utility.history_utils import create_history_object
 from flask_login import current_user
 from waitlist.ts3.connection import send_poke
 from ts3.query import TS3QueryError
-
+from waitlist.utility import config
 logger = logging.getLogger(__name__)
 
 
@@ -32,7 +32,7 @@ def send_notification(player_id: int, waitlist_id: int, message: str = "You are 
     # publish(event)
 
     character = db.session.query(Character).filter(Character.id == player_id).first()
-    if character.poke_me:  # only poke if he didn't disable it
+    if not config.disable_teamspeak and character.poke_me:  # only poke if he didn't disable it
         try:
             message = message.format(waitlist.name)
             send_poke(character.eve_name, message)
