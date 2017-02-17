@@ -72,6 +72,6 @@ def handle_sso_cb(tokens):
 @login_required
 @perm_manager.require('commandcore')
 def auth():
-    return get_sso_redirect('esi-ui-newmail', 'esi-ui.open_window.v1')
+    return get_sso_redirect('esi_ui', 'esi-ui.open_window.v1')
 
-add_sso_handler('esi-ui-newmail', handle_sso_cb)
+add_sso_handler('esi_ui', handle_sso_cb)
