@@ -7,7 +7,7 @@
 {% endblock %}
 
 {% block data %}
-<form action="{{url_for('fleet.change_type_submit', fleetID=fleetID)}}" method="post">
+<form action="{{url_for('fleet.change_type_submit', fleet_id=fleetID)}}" method="post">
 <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 <fieldset class="form-group">
 	<label for="fleet-group">Waitlist Type</label>
