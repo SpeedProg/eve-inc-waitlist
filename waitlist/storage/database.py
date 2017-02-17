@@ -699,6 +699,7 @@ class Trivia(Base):
     __tablename__: str = 'trivia'
     triviaID: Column = Column(Integer, primary_key=True)
     createdByID: Column = Column(Integer, ForeignKey('accounts.id'))
+    description: Column = Column(String(5000))
 
     createdBy = relationship('Account')
     questions = relationship('TriviaQuestion', back_populates='trivia')
