@@ -695,19 +695,52 @@ class CCVote(Base):
     time = Column(DateTime, default=datetime.utcnow)
 
 
+class Trivia(Base):
+    __tablename__: str = 'trivia'
+    triviaID: Column = Column(Integer, primary_key=True)
+    createdByID: Column = Column(Integer, ForeignKey('accounts.id'))
+
+    createdBy = relationship('Account')
+    questions = relationship('TriviaQuestions', backref('trivia'))
+
+
 class TriviaQuestion(Base):
     __tablename__: str = 'trivia_question'
     questionID: Column = Column(Integer, primary_key=True)
+    triviaID: Column = Column(Integer, ForeignKey('trivia.triviaID'), primary_key=True)
     questionText: Column = Column(String(1000))
     answerType: Column = Column(Enum('Integer', 'String', 'Custom'))
     answerConnection: Column = Column(Enum('AND', 'OR', 'NOT', 'NONE'))
     inputPlaceholder: Column = Column(String(255))
 
+    trivia = relationship('Trivia')
     answers = relationship('TriviaAnswer')
 
 
 class TriviaAnswer(Base):
-    __tablename: str = 'trivia_answer'
+    __tablename__: str = 'trivia_answer'
     answerID: Column = Column(Integer, primary_key=True)
     questionID: Column = Column(Integer, ForeignKey('trivia_question.questionID'), primary_key=True)
     answerText: Column = Column(String(1000))
+
+
+class TriviaSubmission(Base):
+    __tablename__: str = 'trivia_submission'
+    submissionID: Column = Column(Integer, primary_key=True)
+    triviaID: Column = Column(Integer, ForeignKey('trivia.triviaID'))
+    submittorID: Column = Column(Integer, ForeignKey('characters.id'), nullable=True)
+    submittorAccountID: Column = Column(Integer, ForeignKey('accounts.id'), nullable=True)
+
+    account = relationship('Account')
+    character = relationship('Character')
+    answers = relationship('TriviaSubmissionAnswer', backref('submission'))
+
+
+class TriviaSubmissionAnswer(Base):
+    __tablename__: str = 'trivia_submission_answer'
+    submissionID: Column = Column(Integer, ForeignKey('trivia_submission.submissionID'), primary_key=True)
+    questionID: Column = Column(Integer, ForeignKey('trivia_question.questionID'), primary_key=True)
+    answerText: Column = Column(String(5000))
+
+    submission = relationship('TriviaSubmission')
+    question = relationship('TriviaQuestion')
