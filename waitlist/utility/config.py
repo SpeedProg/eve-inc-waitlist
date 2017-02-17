@@ -1,11 +1,11 @@
 import os
 import base64
 from os import makedirs
-from configparser import SafeConfigParser
+from configparser import ConfigParser
 
 if not os.path.isfile(os.path.join(".", "config", "config.cfg")):
     # create a preset file
-    config = SafeConfigParser()
+    config = ConfigParser()
     config.add_section("database")
     config.set("database", "connection_uri", "mysql+mysqldb://user:password@localhost:3306/dbname")
     config.set("database", "sqlalchemy_pool_recycle", "7200")
@@ -51,12 +51,15 @@ if not os.path.isfile(os.path.join(".", "config", "config.cfg")):
 
     config.add_section("disable")
     config.set("disable", "teamspeak", "False")
+
+    config.add_section("pageinfo")
+    config.set("pageinfo", "influence_link", "#")
     
     makedirs(os.path.join(".", "config"))
     with open(os.path.join(".", "config", "config.cfg"), "w") as configfile:
         config.write(configfile)
 
-config = SafeConfigParser()
+config = ConfigParser()
 config.read(os.path.join("config", "config.cfg"))
 
 debug_enabled = config.get("debug", "enabled") == "True"
@@ -90,5 +93,7 @@ motd_vg = config.get("motd", "vg")
 scramble_names = config.get("security", "scramble_names") == "True"
 
 disable_teamspeak = config.get("disable", "teamspeak") == "True"
+
+influence_link = config.get("pageinfo", "influence_link")
 
 cdn_eveimg_js = cdn_eveimg.format("${ path }", "${ suffix }")

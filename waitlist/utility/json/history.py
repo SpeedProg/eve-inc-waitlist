@@ -1,20 +1,24 @@
-from waitlist.utility.json.waitlist import makeJsonFitting, makeJsonCharacter
+from waitlist.utility.json.waitlist import make_json_fitting, make_json_character
 
-def makeJsonAccount(acc):
+
+def make_json_account(acc):
     return {'id': acc.id,
-            'character': makeJsonCharacter(acc.current_char_obj),
+            'character': make_json_character(acc.current_char_obj),
             'username': acc.username,
-    }
+            }
 
-def makeHistoryJson(entries):
-    return {'history': [makeHistoryEntryJson(entry) for entry in entries]}
 
-def makeHistoryEntryJson(entry):
-    return {'historyID': entry.historyID,
-    'action': entry.action,
-    'time': entry.time,
-    'exref': entry.exref,
-    'fittings': [makeJsonFitting(fit) for fit in entry.fittings],
-    'source': None if entry.source is None else makeJsonAccount(entry.source),
-    'target': makeJsonCharacter(entry.target)
+def make_history_json(entries):
+    return {'history': [make_history_entry_json(entry) for entry in entries]}
+
+
+def make_history_entry_json(entry):
+    return {
+        'historyID': entry.historyID,
+        'action': entry.action,
+        'time': entry.time,
+        'exref': entry.exref,
+        'fittings': [make_json_fitting(fit) for fit in entry.fittings],
+        'source': None if entry.source is None else make_json_account(entry.source),
+        'target': make_json_character(entry.target)
     }

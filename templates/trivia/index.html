@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block container_data %}
+	<p>This trivia runs from {{ trivia.fromTime }} to {{ trivia.toTime }}</p>
+	<p>{{ trivia.description }}</p>
+	<form class="form" method="post" target="{{ url_for('trivia_submission.process_submission', trivia_id=trivia.triviaID) }}">
+	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+	{% for question in trivia.questions %}
+	<div class="form-group">
+		<label for="qinput-{{question.questionID}}">{{ question.questionText }}</label>
+		{% if question.answerType == 'Integer' %}
+		<input class="form-control" type="number" id="qinput-{{question.questionID}}" name="qinput-{{question.questionID}}"{% if question.inputPlaceholder is not none %} placeholder="{{ question.inputPlaceholder }}"{% endif %}>
+		{% else %}
+		<input class="form-control" type="text" id="qinput-{{question.questionID}}" name="qinput-{{question.questionID}}"{% if question.inputPlaceholder is not none %} placeholder="{{ question.inputPlaceholder }}"{% endif %}>
+		{% endif %}
+	</div>
+	{% endfor %}
+	<button type="submit" class="btn btn-primary">Submit Answers</button>
+	</form>
+{% endblock %}

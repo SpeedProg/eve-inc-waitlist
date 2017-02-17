@@ -4,7 +4,7 @@
 
 {% block head %}
 {{ super() }}
-<meta name="api-fleet-remove" content="{{url_for('api_fleet.removeFleet', fleetID=-1)}}"/>
+<meta name="api-fleet-remove" content="{{url_for('api_fleet.remove_fleet', fleet_id=-1)}}"/>
 <meta name="api-movetosafety" content="{{url_for('api_fleet.move_fleetmembers_to_safety')}}">
 {% assets filters="cssmin", output="gen/fleetsettings-typeahead.%(version)s.css", "css/typeaheadjs.css", "css/settings-fleet.css" %}
     <link rel="stylesheet" href="{{ ASSET_URL }}">
@@ -13,10 +13,10 @@
 <script type="text/javascript" src="{{ ASSET_URL }}"></script>
 {% endassets %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.11.1/typeahead.bundle.min.js" integrity="sha256-RWiU4omUU7tQ2M3wmRQNW9UL50MB4CucbRPCbsQv+X0=" crossorigin="anonymous"></script>
-<meta name="api-global-fleet" content="{{url_for('settings.fleet_status_global_set')}}">
-<meta name="settings.fleet_query_stations" content="{{url_for('settings.fleet_query_stations')}}">
-<meta name="settings.fleet_query_systems" content="{{url_for('settings.fleet_query_systems')}}">
-<meta name="settings.fleet_query_constellations" content="{{url_for('settings.fleet_query_constellations')}}">
+<meta name="api-global-fleet" content="{{url_for('fleetoptions.fleet_status_global_set')}}">
+<meta name="settings.fleet_query_stations" content="{{url_for('fleetoptions.fleet_query_stations')}}">
+<meta name="settings.fleet_query_systems" content="{{url_for('fleetoptions.fleet_query_systems')}}">
+<meta name="settings.fleet_query_constellations" content="{{url_for('fleetoptions.fleet_query_constellations')}}">
 {% endblock %}
 
 {% block content %}
@@ -31,7 +31,7 @@
 	</div>
 </div>
 {% for group in groups %}
-<form id="clearwaitlistform-{{group.groupID}}" action="{{url_for('settings.clear_waitlist', gid=group.groupID)}}" method="post" class="form-inline hidden">
+<form id="clearwaitlistform-{{group.groupID}}" action="{{url_for('fleetoptions.clear_waitlist', gid=group.groupID)}}" method="post" class="form-inline hidden">
 <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 </form>
 <button data-toggle="modal" data-target="#remove-diag" data-type="clearWaitlist" class="btn btn-sm btn-danger" data-id="{{group.groupID}}">Clear Waitlists!</button>
@@ -46,7 +46,7 @@
     <tr>
     	<th scope="row">Status</th>
     	<td colspan="2">
-    	<form action="{{url_for('settings.fleet_status_set', gid=group.groupID)}}" method="post" class="form-inline">
+    	<form action="{{url_for('fleetoptions.fleet_status_set', gid=group.groupID)}}" method="post" class="form-inline">
     		<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
     		<input type="hidden" name="action" value="status">
     		{% if perm_officer.can() or perm_leadership.can() %}
@@ -70,7 +70,7 @@
     	<td>
     	{% for fc in group.fcs %}
     	<a href="char:{{fc.get_eve_id()}}">{{fc.get_eve_name()}}</a>
-    	<form action="{{url_for('settings.fleet_status_set', gid=group.groupID)}}" method="post" class="form-inline" style="display:inline;">
+    	<form action="{{url_for('fleetoptions.fleet_status_set', gid=group.groupID)}}" method="post" class="form-inline" style="display:inline;">
     	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
     	<input type="hidden" name="action" value="fc-remove">
     	<input type="hidden" name="accountID" value="{{fc.id}}">
@@ -79,7 +79,7 @@
     	{% endfor %}
     	</td>
     	<td>
-    	<form action="{{url_for('settings.fleet_status_set', gid=group.groupID)}}" method="post" class="form-inline">
+    	<form action="{{url_for('fleetoptions.fleet_status_set', gid=group.groupID)}}" method="post" class="form-inline">
     	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
     	<input type="hidden" name="action" value="fc">
     	<button type="submit" class="btn btn-sm btn-primary">Add Self</button>
@@ -91,7 +91,7 @@
     	<td>
     	{% for manager in group.manager %}
     	<a href="char:{{manager.get_eve_id()}}">{{manager.get_eve_name()}}</a>
-    	<form action="{{url_for('settings.fleet_status_set', gid=group.groupID)}}" method="post" class="form-inline" style="display:inline;">
+    	<form action="{{url_for('fleetoptions.fleet_status_set', gid=group.groupID)}}" method="post" class="form-inline" style="display:inline;">
     	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
     	<input type="hidden" name="action" value="manager-remove">
     	<input type="hidden" name="accountID" value="{{manager.id}}">
@@ -100,7 +100,7 @@
     	{% endfor %}
     	</td>
     	<td>
-    	<form action="{{url_for('settings.fleet_status_set', gid=group.groupID)}}" method="post" class="form-inline">
+    	<form action="{{url_for('fleetoptions.fleet_status_set', gid=group.groupID)}}" method="post" class="form-inline">
     	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
     	<input type="hidden" name="action" value="manager">
     	<!-- <input type="text" name="name" value="{{user.get_eve_name()}}"> -->
@@ -113,7 +113,7 @@
     	<th scope="row">Constellation</th>
     	<td>{% if group.constellation is not none %}<a href="#">{{group.constellation.constellationName}}</a>{% else %}Not Set{% endif %}</td>
     	<td>
-    	<form action="{{url_for('settings.fleet_location_set', gid=group.groupID)}}" method="post" class="form-inline">
+    	<form action="{{url_for('fleetoptions.fleet_location_set', gid=group.groupID)}}" method="post" class="form-inline">
     	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
     	<input type="hidden" name="action" value="constellation">
     	<input id="con-typeahead-{{group.groupID}}" class="form-control form-control-sm typeahead con-typeahead" type="text" name="name">
@@ -125,7 +125,7 @@
     	<th scope="row">Dockup</th>
     	<td>{% if group.dockup is not none %}<a href="#">{{group.dockup.stationName}}</a>{% else %}Not Set{% endif %}</td>
     	<td>
-    	<form action="{{url_for('settings.fleet_location_set', gid=group.groupID)}}" method="post" class="form-inline">
+    	<form action="{{url_for('fleetoptions.fleet_location_set', gid=group.groupID)}}" method="post" class="form-inline">
     	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
     	<input type="hidden" name="action" value="dock">
     	<input id="dock-typeahead-{{group.groupID}}" class="form-control form-control-sm typeahead dock-typeahead" type="text" name="name">
@@ -137,7 +137,7 @@
     	<th scope="row">System</th>
     	<td>{% if group.system is not none %}<a href="#">{{group.system.solarSystemName}}</a>{% else %}Not Set{% endif %}</td>
     	<td>
-    	<form action="{{url_for('settings.fleet_location_set', gid=group.groupID)}}" method="post" class="form-inline">
+    	<form action="{{url_for('fleetoptions.fleet_location_set', gid=group.groupID)}}" method="post" class="form-inline">
     	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
     	<input type="hidden" name="action" value="system">
     	<input id="hq-typeahead-{{group.groupID}}" class="form-control form-control-sm typeahead hq-typeahead" type="text" name="name">
@@ -151,7 +151,7 @@
     <td colspan="2">
     {% for backseat in group.backseats %}
     	<a href=char:{{backseat.current_char_obj.get_eve_id()}}">{{backseat.current_char_obj.get_eve_name()}}</a>
-    	<form action="{{url_for('settings.fleet_status_set', gid=group.groupID)}}" method="post" class="form-inline" style="display:inline;">
+    	<form action="{{url_for('fleetoptions.fleet_status_set', gid=group.groupID)}}" method="post" class="form-inline" style="display:inline;">
     	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
     	<input type="hidden" name="action" value="remove-backseat">
     	<input type="hidden" name="accountID" value="{{backseat.id}}">
@@ -159,7 +159,7 @@
     	</form>
 		{% if not loop.last %} - {% endif %}
     {% endfor %}
-    	<form action="{{url_for('settings.fleet_status_set', gid=group.groupID)}}" method="post" class="form-inline" style="display:inline;">
+    	<form action="{{url_for('fleetoptions.fleet_status_set', gid=group.groupID)}}" method="post" class="form-inline" style="display:inline;">
     	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
     	<input type="hidden" name="action" value="add-backseat">
     	<button type="submit" class="btn btn-sm btn-primary">Add Self</button>
@@ -183,8 +183,8 @@
         <td>{% if fleet.comp %}<a href="javascript:IGBW.showInfo(1377, {{fleet.comp.get_eve_id()}});">{{fleet.comp.get_eve_name()}}</a>{% else %}{{None}}{% endif %}</td>
         <td>
         	<button class="btn btn-danger btn-sm" data-type="remove-fleet" data-id="{{fleet.fleetID}}">Remove</button>
-        	<a href="{{url_for('fleet.change_type', fleetID=fleet.fleetID)}}" class="btn btn-sm btn-warning">Change Fleet Type</a>
-        	<a href="{{url_for('fleet.change_setup', fleetID=fleet.fleetID)}}" class="btn btn-sm btn-danger">Change Squads</a>
+        	<a href="{{url_for('fleet.change_type', fleet_id=fleet.fleetID)}}" class="btn btn-sm btn-warning">Change Fleet Type</a>
+        	<a href="{{url_for('fleet.change_setup', fleet_id=fleet.fleetID)}}" class="btn btn-sm btn-danger">Change Squads</a>
         	<button data-action="moveToSafety" data-fleetId="{{fleet.fleetID}}" class="btn btn-sm btn-danger">Safety</button>
         </td>
     </tr>

@@ -24,7 +24,7 @@
 	{% endif %}
 </div>
 <div class="row mb-2">
-<form class="form-inline" action="{{url_for('settings.update_type_ids')}}" method="post" enctype="multipart/form-data">
+<form class="form-inline" action="{{url_for('sde.update_type_ids')}}" method="post" enctype="multipart/form-data">
 	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 	<div class="form-group">
 		<label class="form-control-label" for="typeid-file">typeIDs.yaml</label>
@@ -37,7 +37,7 @@
 </form>
 </div>
 <div class="row mb-2">
-<form class="form-inline" action="{{url_for('settings.update_map')}}" method="post" enctype="multipart/form-data">
+<form class="form-inline" action="{{url_for('sde.update_map')}}" method="post" enctype="multipart/form-data">
 	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 	<div class="form-group">
 		<label class="form-control-label" for="universe-file">universeDataDx.db</label>
@@ -50,7 +50,7 @@
 </form>
 </div>
 <div class="row mb-2">
-<form class="form-inline" action="{{url_for('settings.update_stations')}}" method="post" enctype="multipart/form-data">
+<form class="form-inline" action="{{url_for('sde.update_stations')}}" method="post" enctype="multipart/form-data">
 	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 	<div class="form-group">
 		<label class="form-control-label" for="station-file">staStations.yaml</label>
@@ -63,7 +63,7 @@
 </form>
 </div>
 <div class="row mb-2">
-<form class="form-inline" action="{{url_for('settings.update_layouts')}}" method="post" enctype="multipart/form-data">
+<form class="form-inline" action="{{url_for('sde.update_layouts')}}" method="post" enctype="multipart/form-data">
 	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 	<div class="form-group">
 		<label class="form-control-label" for="layout-file">layout.csv</label>
