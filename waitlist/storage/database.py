@@ -2,7 +2,7 @@ from sqlalchemy import Column, Integer, String, SmallInteger, BIGINT, Boolean, D
     sql, BigInteger, text
 from sqlalchemy import Enum
 from sqlalchemy.orm import relationship, backref
-from sqlalchemy.sql.schema import Table, ForeignKey
+from sqlalchemy.sql.schema import Table, ForeignKey, CheckConstraint
 from sqlalchemy.dialects.mysql.base import LONGTEXT, TEXT
 import logging
 from waitlist import db
@@ -697,9 +697,14 @@ class CCVote(Base):
 
 class Trivia(Base):
     __tablename__: str = 'trivia'
+    __table_args__ = (
+        CheckConstraint('toTime > fromTime'),
+    )
     triviaID: Column = Column(Integer, primary_key=True)
     createdByID: Column = Column(Integer, ForeignKey('accounts.id'))
     description: Column = Column(String(5000))
+    fromTime: Column = Column(DateTime)
+    toTime: Column = Column(DateTime)
 
     createdBy = relationship('Account')
     questions = relationship('TriviaQuestion', back_populates='trivia')

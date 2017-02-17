@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% block container_data %}
+	<p>This trivia runs from {{ trivia.fromTime }} to {{ trivia.toTime }}</p>
 	<p>{{ trivia.description }}</p>
 	<form class="form" method="post" target="{{ url_for('trivia_submission.process_submission', trivia_id=trivia.triviaID) }}">
 	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">

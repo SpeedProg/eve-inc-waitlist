@@ -1,4 +1,5 @@
 import logging
+from datetime import datetime
 from typing import Optional
 
 import flask
@@ -20,8 +21,16 @@ bp = Blueprint('trivia_submission', __name__)
 
 @bp.route('/<int:trivia_id>', methods=['GET'])
 @login_required
-def show_input_form(trivia_id):
+def show_input_form(trivia_id: int):
     trivia = db.session.query(Trivia).get(trivia_id)
+    if trivia is None:
+        flask.abort(404, 'This trivia does not exist')
+    timenow = datetime.utcnow()
+    if trivia.toTime < timenow:
+        flask.abort(410, f'This trivia is over, it ended at {trivia.toTime} and it is {timenow}')
+    if trivia.fromTime > timenow:
+        flask.abort(428 ,f'This trivia did not start yet, it starts at {trivia.fromTime} and it is {timenow}')
+
     return render_template('trivia/index.html', trivia=trivia)
 
 
@@ -35,7 +44,13 @@ def process_submission(trivia_id: int) -> Optional[Response]:
     # one per account and character
     trivia = db.session.query(Trivia).get(trivia_id)
     if trivia is None:
-        flask.abort('This trivia does not exist')
+        flask.abort(404, 'This trivia does not exist')
+    timenow = datetime.utcnow()
+    if trivia.toTime < timenow:
+        flask.abort(410, f'This trivia is over, it ended at {trivia.toTime} and it is {timenow}')
+    if trivia.fromTime > timenow:
+        flask.abort(428 ,f'This trivia did not start yet, it starts at {trivia.fromTime} and it is {timenow}')
+
 
     # lets see if we find a submisson by this character or account
     if current_user.type == "account":
