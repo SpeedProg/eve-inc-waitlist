@@ -4,7 +4,7 @@ base_path = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(base_path, 'lib'))
 from typing import List
 
-from waitlist.base import db
+from waitlist import db
 from waitlist.storage.database import EveApiScope
 
 api_scopes: List[str] = ['esi-ui.open_window.v1', 'esi-fleets.read_fleet.v1', 'esi-fleets.write_fleet.v1', 'esi-mail.send_mail.v1']
