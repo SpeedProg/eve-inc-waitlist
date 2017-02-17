@@ -52,7 +52,7 @@
 		<tbody>
 		{% for event in events %}
 		<tr>
-			<td>{% if event.creator.id == current_user.id or perm_manager.get_permission('council').can() %}<button type="button" date-deletepath="{{ url_for('calendar_settings.delete_event_id', event_id=event.eventID) }}" data-eventid="{{ event.eventID }}" data-action="remove-event" class="btn btn-primary">Remove Event</button></form>{% endif %}</td>
+			<td>{% if event.creator.id == current_user.id or perm_manager.get_permission('council').can() %}<button type="button" date-deletepath="{{ url_for('calendar_settings.delete_event_id', event_id=event.eventID) }}" data-eventid="{{ event.eventID }}" data-action="remove-event" class="btn btn-primary">Remove Event</button>{% endif %}</td>
 			<td>{{ event.creator.username }}</td>
 			<td>{{ event.eventTime }}</td>
 			<td>{{ event.eventTitle }}</td>
