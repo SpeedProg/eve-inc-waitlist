@@ -709,7 +709,7 @@ class TriviaQuestion(Base):
     questionID: Column = Column(Integer, primary_key=True)
     triviaID: Column = Column(Integer, ForeignKey('trivia.triviaID'), primary_key=True)
     questionText: Column = Column(String(1000))
-    answerType: Column = Column(Enum('Integer', 'String', 'Custom'))
+    answerType: Column = Column(String(255))
     answerConnection: Column = Column(Enum('AND', 'OR', 'NOT', 'NONE'))
     inputPlaceholder: Column = Column(String(255))
 
