@@ -343,7 +343,7 @@ def takeover_sso_cb():
         with open("set_history.log", "a+") as f:
             f.write('{} - {} is taking a fleet on CREST\n'.format(datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S"),
                                                                   fleet.comp.username))
-    return redirect(url_for('settings.fleet'))
+    return redirect(url_for('fleetoptions.fleet'))
 
 
 @bp.route("/<int:fleet_id>/change-type", methods=['GET'])
