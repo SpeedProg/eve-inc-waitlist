@@ -1,16 +1,16 @@
 import logging
 
 import flask
-from flask import Blueprint
 from flask import render_template
 from flask import request
 from flask.ext.login import current_user
 from flask.ext.login import login_required
 
 from waitlist import db
+from waitlist.blueprints.trivia import bp
 from waitlist.storage.database import TriviaSubmission, Trivia, TriviaSubmissionAnswer
 
-bp = Blueprint('trivia', __name__)
+
 logger = logging.getLogger(__name__)
 
 
