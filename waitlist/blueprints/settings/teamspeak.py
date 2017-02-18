@@ -82,6 +82,6 @@ def teamspeak_change():
     else:
         flask.abort(400)
 
-    return redirect(url_for("settings.teamspeak"))
+    return redirect(url_for("teamspeak.teamspeak"))
 
 add_menu_entry('teamspeak.teamspeak', 'TS Settings', perm_management.can)
