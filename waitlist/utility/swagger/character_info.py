@@ -6,6 +6,8 @@ from pyswagger import App
 from waitlist.utility.swagger import get_api
 from pyswagger import Security
 import datetime
+
+from waitlist.utility.swagger.eve import character
 from waitlist.utility.swagger.eve import get_esi_client, ESIResponse,\
     get_expire_time
 from typing import Dict, Any, Tuple, Optional
@@ -13,9 +15,6 @@ from waitlist.utility.swagger.patch import EsiClient, PatchClient as Client
 
 
 def get_affiliation_info(char_id: int) -> Dict[str, Any]:
-
-    api_v4 = get_api('v4')
-    client_v4 = get_esi_client('v4', True)
 
     api_v2 = get_api('v2')
     client_v2 = get_esi_client('v2', True)
@@ -33,10 +32,10 @@ def get_affiliation_info(char_id: int) -> Dict[str, Any]:
 "security_status": 5.000946212150391
 }
     '''
-    char_answer = client_v4.request(api_v4.op['get_characters_character_id'](character_id=char_id))
-    char_name = char_answer.data['name']
-    corp_id = int(char_answer.data['corporation_id'])
-    char_answer_expire = get_expire_time(char_answer)
+    char_data = character.get_character_info(char_id)
+    char_name = char_data.get_name()
+    corp_id = char_data.get_corp_id()
+    char_answer_expire = char_data.expires()
 
     corp_answer = client_v2.request(api_v2.op['get_corporations_corporation_id'](corporation_id=corp_id))
     corp_answer_expire = get_expire_time(corp_answer)
@@ -46,6 +45,7 @@ def get_affiliation_info(char_id: int) -> Dict[str, Any]:
     expires = max(char_answer_expire, corp_answer_expire)
     if 'alliance_id' in corp_answer.data:
         alliance_id = int(corp_answer.data['alliance_id'])
+        all_answer = client_v2.request(api_v2.op['get_alliances_alliance_id'](alliance_id=alliance_id))
         all_answer = client_v2.request(api_v2.op['get_alliances_alliance_id'](alliance_id=alliance_id))
         alliance_name = all_answer.data['alliance_name']
         all_answer_expire = get_expire_time(all_answer)
