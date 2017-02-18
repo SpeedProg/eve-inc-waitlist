@@ -4,7 +4,7 @@ from flask import request
 from flask_login import current_user
 
 from waitlist import app
-from waitlist.data import version
+from waitlist.data.version import version
 from waitlist.permissions import perm_manager
 from waitlist.utility import config
 from waitlist.utility.account import get_user_type
