@@ -703,6 +703,7 @@ class Trivia(Base):
     triviaID: Column = Column(Integer, primary_key=True)
     createdByID: Column = Column(Integer, ForeignKey('accounts.id'))
     description: Column = Column(String(5000))
+    alertText: Column = Column(String(1000))
     fromTime: Column = Column(DateTime)
     toTime: Column = Column(DateTime)
 
