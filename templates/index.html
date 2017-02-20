@@ -86,6 +86,11 @@
 		{% include "xup-form.html" with context %}
 	{% endif %}
 <div class="row">
+	{% for trivia in trivias %}
+	<div class="alert alert-warning fade in" role="alert">
+  		<p class="text-xs-center">{{ trivia.alertText|replace('{link}', url_for('trivia_submission.show_input_form', trivia.triviaID))|safe }}</p>
+  	</div>
+	{% endfor %}
 	{# Show a message if you have comp permissions but you are not fleet
 	comp of a fleet #} {% if perm_man.can() and current_user.fleet is none
 	%}
