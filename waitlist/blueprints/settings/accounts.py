@@ -249,7 +249,7 @@ def account_disabled():
     accid: int = int(request.form['id'])
     acc: Account = db.session.query(Account).filter(Account.id == accid).first()
     status: Union(str, bool) = request.form['disabled']
-    send_account_status_change(acc.id, current_user.id, status)
+    send_account_status_change(account_disabled, acc.id, current_user.id, status)
     logger.info("%s sets account %s to %s", current_user.username, acc.username, status)
     if status == 'false':
         status = False
