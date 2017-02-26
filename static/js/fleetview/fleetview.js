@@ -214,10 +214,11 @@ waitlist.fleetview = (function(){
 			let cursor = event.target.result;
 			if (cursor) {
 				let data = cursor.value;
+				if (sortedIds.length > 0 && data.id < sortedIds[0]) {
+					cursor.continue(sortedIds[0]);
+					return;
+				}
 				while (sortedIds.length > 0 && data.id != sortedIds[0]) {
-					if (data.id < sortedIds[0]) {
-						cursor.continue(sortedIds[0]);
-					}
 					notFoundIds.push(sortedIds[0]);
 					sortedIds.shift();
 				}
@@ -229,6 +230,8 @@ waitlist.fleetview = (function(){
 					sortedIds.shift();
 					if (sortedIds.length > 0) {
 						cursor.continue(sortedIds[0]);
+					} else {
+						doOutstandingIdRequest(notFoundIds);
 					}
 				} else {
 					// we are done w/o reaching the end of the cursor
@@ -242,7 +245,6 @@ waitlist.fleetview = (function(){
 				doOutstandingIdRequest(notFoundIds);
 			}
 		}
-
 	}
 
 	function requestCharacterIDTransformation(charID) {
