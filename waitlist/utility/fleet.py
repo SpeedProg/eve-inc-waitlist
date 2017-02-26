@@ -1,4 +1,4 @@
-from typing import Dict, Sequence, Tuple
+from typing import Dict, Sequence, Tuple, Optional
 
 from flask_login import current_user
 from time import sleep
@@ -83,7 +83,7 @@ class FleetMemberInfo:
 member_info = FleetMemberInfo()
 
 
-def setup(fleet_id: int, fleet_type: str) -> bool:
+def setup(fleet_id: int, fleet_type: str) -> Optional[Tuple[Optional[int], Optional[int], Optional[int], Optional[int]]]:
     fleet_api = EveFleetEndpoint(fleet_id)
     fleet_settings = fleet_api.get_fleet_settings()
     if fleet_settings.is_error():
@@ -144,7 +144,7 @@ def setup(fleet_id: int, fleet_type: str) -> bool:
             wing2 = wing
     
     if wing1 is None or wing2 is None:
-        return False
+        return None
     
     if wing1.name().lower() != "on grid":
         wait_for_change = True
@@ -176,7 +176,7 @@ def setup(fleet_id: int, fleet_type: str) -> bool:
             wing2 = wing
     
     if wing1 is None or wing2 is None:
-        return False
+        return None
     
     logi_squad = sniper_squad = dps_squad = more_dps_squad = None
 
@@ -209,6 +209,7 @@ def setup(fleet_id: int, fleet_type: str) -> bool:
         fleet_api.set_squad_name(wing2.squads()[0].id(), 'Tipping')
     
     sleep(5)
+    return logi_squad, sniper_squad, dps_squad, more_dps_squad
 
 
 def invite(user_id: int, squad_id_list: Sequence[Tuple[int, int]]):
