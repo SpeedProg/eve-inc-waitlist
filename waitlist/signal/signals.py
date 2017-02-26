@@ -20,5 +20,5 @@ def send_account_created(sender, account_id, created_by_id, roles, note):
     account_created_sig.send(sender, account_id=account_id, created_by_id=created_by_id, roles=roles, note=note)
 
 
-def send_account_status_change(sender, account_id, created_by_id):
-    account_status_change_sig.send(sender, account_id=account_id, by_id=created_by_id, disabled=True)
+def send_account_status_change(sender, account_id, created_by_id, disabled):
+    account_status_change_sig.send(sender, account_id=account_id, by_id=created_by_id, disabled=disabled)
