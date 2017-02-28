@@ -202,11 +202,14 @@ waitlist.fleetview = (function(){
 
 		function replaceShipTypes(data) {
 			data.forEach(function (element) {
-				let node = $('td[data-shiptype="' + element.id + '"]');
-				let text = node.text();
-				let parts = text.split(' - ', 3);
-				let newText = element.name + ' - ' + parts[1] + ' - ' + parts[2];
-				node.text(newText);
+				let nodes = $('td[data-shiptype="' + element.id + '"]');
+				nodes.each(function(idx, n){
+					let node = $(n);
+					let text = node.text();
+					let parts = text.split(' - ', 3);
+					let newText = element.name + ' - ' + parts[1] + ' - ' + parts[2];
+					node.text(newText);
+				});
 			});
 		}
 
