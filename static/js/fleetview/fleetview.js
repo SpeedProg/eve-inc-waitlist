@@ -55,7 +55,7 @@ waitlist.fleetview = (function(){
 			let charObj = data[charId];
 			// if we have no map for the quad yet, create one
 			if (!(charObj['squad_id'] in squadMap)) {
-				console.log("Creating map for squad with id ", charObj.squadID);
+				console.log("Creating map for squad with id ", charObj['squad_id']);
 				squadMap[charObj['squad_id']]= {};
 			}
 			// add the char to the squad
