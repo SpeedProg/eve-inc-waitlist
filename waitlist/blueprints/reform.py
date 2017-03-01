@@ -1,15 +1,21 @@
 from flask.blueprints import Blueprint
 import logging
 from flask_login import login_required
-from waitlist.data.perm import perm_management
 from flask.templating import render_template
+
+from waitlist.permissions import perm_manager
 
 bp = Blueprint('fleet_reform', __name__)
 logger = logging.getLogger(__name__)
 
 
+perm_manager.define_permission('fleet_manage')
+
+perm_fleet_manage = perm_manager.get_permission('fleet_manage')
+
+
 @bp.route("/")
 @login_required
-@perm_management.require()
+@perm_fleet_manage.require()
 def index():
     return render_template("fleet/reform/index.html")

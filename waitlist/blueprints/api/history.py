@@ -13,9 +13,12 @@ bp = Blueprint('api_history', __name__)
 logger = logging.getLogger(__name__)
 
 
+perm_manager.define_permission('comphistory_search')
+
+
 @bp.route('/comp', methods=['GET'])
 @login_required
-@perm_manager.require('history_search')
+@perm_manager.require('comphistory_search')
 def get_comp_history():
     f_acc_names = request.args.get('accs')
     f_char_names = request.args.get('chars')

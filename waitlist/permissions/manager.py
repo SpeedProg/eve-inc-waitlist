@@ -1,4 +1,6 @@
-from flask_principal import RoleNeed, Permission
+from typing import Dict
+
+from flask_principal import RoleNeed, Permission, IdentityContext
 
 
 class StaticRoles(object):
@@ -7,32 +9,37 @@ class StaticRoles(object):
 
 class PermissionManager(object):
 
-    def __init__(self):
-        self.__permissions = {}
-        self.__definitions = {}
+    def __init__(self) -> None:
+        self.__permissions: Dict[str, Permission] = {}
+        self.__definitions: Dict[str, bool] = {}
         self.__load_permissions()
     
-    def __load_permissions(self):
+    def __load_permissions(self) -> None:
+        self.__permissions[StaticRoles.ADMIN] = Permission(RoleNeed(StaticRoles.ADMIN))
         pass
 
-    def __add_permission(self, name, perm):
-        self.__permissions[name] = self.__permissions['admin'].union(perm)
+    def __add_permission(self, name: str, perm: Permission) -> None:
+        self.__permissions[name] = self.__permissions[StaticRoles.ADMIN].union(perm)
 
-    def get_permission(self, perm):
-        if perm in self.__definitions:
-            if perm in self.__permissions:
-                return self.__permissions[perm]
+    def get_permission(self, name: str) -> Permission:
+        if name in self.__definitions:
+            if name in self.__permissions:
+                return self.__permissions[name]
             else:
                 return Permission(RoleNeed(StaticRoles.ADMIN))
         else:
-            raise ValueError(f'Permission [${ perm }] is not defined!')
+            raise ValueError(f'Permission [{ name }] is not defined!')
     
-    def require(self, perm):
-        return self.__permissions[perm].require()
+    def require(self, name: str) -> IdentityContext:
+        if name in self.__permissions:
+            return self.__permissions[name].require()
+        return self.__permissions[StaticRoles.ADMIN].require()
 
-    def define_permission(self, name):
-        self.__definitions[name] = True
+    def define_permission(self, name: str) -> None:
+        if name not in self.__definitions:
+            self.__definitions[name] = True
+            print(name)
 
-    def get_definitions(self):
+    def get_definitions(self) -> Dict[str, bool]:
         return self.__definitions
 

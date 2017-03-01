@@ -3,11 +3,12 @@ from flask.blueprints import Blueprint
 import logging
 from flask_login import login_required
 
-from waitlist.data.perm import perm_management
 from werkzeug.utils import redirect
 from flask.globals import request, session, _app_ctx_stack
 from flask_seasurf import randrange
 import hashlib
+
+from waitlist.permissions import perm_manager
 from waitlist.utility.config import crest_return_url, crest_client_id
 import flask
 from urllib.parse import urlencode
@@ -16,6 +17,10 @@ from waitlist.utility.login import member_login_cb
 
 bp = Blueprint('fc_sso', __name__)
 logger = logging.getLogger(__name__)
+
+perm_manager.define_permission('fleet_manage')
+
+perm_fleet_manage = perm_manager.get_permission('fleet_manage')
 
 sso_handler = {}
 
@@ -30,7 +35,7 @@ def remove_handler(key: str):
 
 @bp.route("/login")
 @login_required
-@perm_management.require(http_exception=401)
+@perm_fleet_manage.require(http_exception=401)
 def login_redirect() -> Response:
     return get_sso_redirect("setup", 'esi-ui.open_window.v1 esi-fleets.read_fleet.v1 esi-fleets.write_fleet.v1')
 

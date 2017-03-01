@@ -22,8 +22,10 @@ logger = logging.getLogger(__name__)
 
 
 perm_manager.define_permission('static_data_import')
+perm_manager.define_permission('developer')
 
 perm_access = perm_manager.get_permission('static_data_import')
+perm_developer = perm_manager.get_permission('developer')
 
 
 @bp.route("/sde/update/typeids", methods=["POST"])
@@ -115,4 +117,4 @@ def update_layouts():
 def sde_settings():
     return render_template("settings/sde.html")
 
-add_menu_entry('sde.sde_settings', 'Static Data Import', perm_dev.can)
+add_menu_entry('sde.sde_settings', 'Static Data Import', perm_developer.can)

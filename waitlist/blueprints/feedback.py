@@ -7,16 +7,23 @@ from flask.globals import request
 from flask.helpers import flash, url_for, make_response
 
 from waitlist.blueprints.settings import add_menu_entry
+from waitlist.permissions import perm_manager
 from waitlist.storage.database import Ticket
 from waitlist import db
 import flask
-from waitlist.data.perm import perm_feedback
 from datetime import datetime, timedelta
 from sqlalchemy.sql.expression import desc
 
 logger = logging.getLogger(__name__)
 
 feedback = Blueprint('feedback', __name__)
+
+
+perm_manager.define_permission('feedback_view')
+perm_manager.define_permission('feedback_edit')
+
+perm_view = perm_manager.get_permission('feedback_view')
+perm_edit = perm_manager.get_permission('feedback_edit')
 
 
 @feedback.route("/", methods=["GET"])
@@ -56,7 +63,7 @@ def submit() -> Response:
 
 
 @feedback.route("/settings", methods=["GET"])
-@perm_feedback.require(http_exception=401)
+@perm_view.require(http_exception=401)
 def settings() -> Response:
     # only give tickets that are not "closed" and not older then 90 days
     time_90days_ago = datetime.utcnow() - timedelta(90)
@@ -66,7 +73,7 @@ def settings() -> Response:
 
 
 @feedback.route("/settings", methods=["POST"])
-@perm_feedback.require(http_exception=401)
+@perm_edit.require(http_exception=401)
 def change_status() -> Response:
     ticket_id = int(request.form.get('ticketID'))
     new_status = request.form.get('ticketStatus')
@@ -75,4 +82,4 @@ def change_status() -> Response:
     db.session.commit()
     return make_response("OK")
 
-add_menu_entry('feedback.settings', 'Feedback', perm_feedback.can)
+add_menu_entry('feedback.settings', 'Feedback', perm_view.can)
