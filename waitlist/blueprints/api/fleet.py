@@ -3,7 +3,8 @@ import logging
 from flask_login import login_required, current_user
 import flask
 from flask.globals import request
-from waitlist.data.perm import perm_management
+
+from waitlist.permissions import perm_manager
 from waitlist.storage.database import CrestFleet, Waitlist, \
     Character, WaitlistEntry, HistoryEntry, HistoryExtInvite, \
     TeamspeakDatum
@@ -22,10 +23,14 @@ from waitlist.utility.settings import sget_active_ts_id
 bp = Blueprint('api_fleet', __name__)
 logger = logging.getLogger(__name__)
 
+perm_manager.define_permission('fleet_manage')
+
+perm_fleet_manage = perm_manager.get_permission('fleet_manage')
+
 
 @bp.route("/<int:fleet_id>/", methods=["DELETE"])
 @login_required
-@perm_management.require(http_exception=401)
+@perm_fleet_manage.require(http_exception=401)
 def remove_fleet(fleet_id: int):
     logger.info("%s deletes crest fleet %i", current_user.username, fleet_id)
     db.session.query(CrestFleet).filter(CrestFleet.fleetID == fleet_id).delete()
@@ -35,7 +40,7 @@ def remove_fleet(fleet_id: int):
 
 @bp.route("/fleet/actions/invite/<string:name>", methods=['POST'])
 @login_required
-@perm_management.require()
+@perm_fleet_manage.require()
 def fleet_actions_invite(name: str):
     character = get_character_by_name(name)
     fleet = current_user.fleet
@@ -51,7 +56,7 @@ def fleet_actions_invite(name: str):
 
 @bp.route("/fleet/members/", methods=['POST'])
 @login_required
-@perm_management.require(http_exception=401)
+@perm_fleet_manage.require(http_exception=401)
 def invite_to_fleet():
     character_id = int(request.form.get('charID'))
     waitlist_id = int(request.form.get('waitlistID'))
@@ -151,7 +156,7 @@ def dumpclean(obj):
 
 @bp.route("/fleet/movetosafety/", methods=['POST'])
 @login_required
-@perm_management.require(http_exception=401)
+@perm_fleet_manage.require(http_exception=401)
 def move_fleetmembers_to_safety():
     fleet_id = int(request.form.get('fleetID'))
     crest_fleet = db.session.query(CrestFleet).get(fleet_id)

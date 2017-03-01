@@ -1,6 +1,4 @@
-
 from flask_login import login_required, current_user
-from waitlist.data.perm import perm_viewfits
 from flask.globals import request
 from flask.blueprints import Blueprint
 import logging
@@ -10,8 +8,14 @@ from waitlist.data.sse import FitAddedSSE, EntryAddedSSE, EntryRemovedSSE,\
     InviteMissedSSE, StatusChangedSSE
 from flask.wrappers import Response
 
+from waitlist.permissions import perm_manager
+
 bp = Blueprint('api_sse', __name__)
 logger = logging.getLogger(__name__)
+
+perm_manager.define_permission('fits_view')
+
+perm_fits_view = perm_manager.get_permission('fits_view')
 
 
 def event_gen(sub: Subscription):
@@ -60,7 +64,7 @@ def events():
         event_list += [GongSSE]
     
     # is the subscriber allowed to see fits?
-    options['shouldGetFits'] = perm_viewfits.can()
+    options['shouldGetFits'] = perm_fits_view.can()
         
     if len(event_list) <= 0:
         flask.abort("No valid eventgroups specified")

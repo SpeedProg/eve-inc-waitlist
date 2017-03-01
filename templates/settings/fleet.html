@@ -49,7 +49,7 @@
     	<form action="{{url_for('fleetoptions.fleet_status_set', gid=group.groupID)}}" method="post" class="form-inline">
     		<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
     		<input type="hidden" name="action" value="status">
-    		{% if perm_officer.can() or perm_leadership.can() %}
+    		{% if perm_manager.get_permission('fleet_custom_status').can() %}
     		<input type="text" name="status" value="{{group.status}}" class="form-control form-control-sm">
     		{% else %}
     		<select class="form-control form-control-sm c-select" id="status-{{group.groupID}}" name="status" required>
@@ -108,7 +108,7 @@
     	</form>
     	</td>
     </tr>
-    {% if perm_officer.can() or perm_leadership.can() %}
+    {% if perm_manager.get_permission('fleet_location_edit').can() %}
     <tr>
     	<th scope="row">Constellation</th>
     	<td>{% if group.constellation is not none %}<a href="#">{{group.constellation.constellationName}}</a>{% else %}Not Set{% endif %}</td>

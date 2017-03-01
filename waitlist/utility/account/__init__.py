@@ -1,7 +1,7 @@
 import flask
 from flask import current_app
 from flask_principal import identity_changed, AnonymousIdentity
-from flask_login import current_user, logout_user
+from flask_login import logout_user
 
 
 def force_logout():

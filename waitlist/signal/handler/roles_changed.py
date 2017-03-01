@@ -1,11 +1,16 @@
 from typing import Iterable, Sequence
 
+from waitlist.permissions import perm_manager
 from waitlist.storage.database import AccountNote, RoleChangeEntry
 from waitlist import db
 from waitlist.storage.database import Role, Account
 from sqlalchemy.sql.expression import or_
 from waitlist.signal.signals import roles_changed_sig
-from waitlist.data.names import WTMRoles
+
+
+perm_manager.define_permission('trainee')
+
+perm_trainee = perm_manager.get_permission('trainee')
 
 
 # noinspection PyUnusedLocal
@@ -34,7 +39,10 @@ def on_roles_changed(sender, to_id: int, by_id: int, added_roles: Sequence[str],
 # noinspection PyUnusedLocal
 @roles_changed_sig.connect
 def on_roles_changed_check_welcome_mail(sender, to_id: int, by_id: int, added_roles: Iterable[str],
-                                        removed_roles: Iterable[str], note: str):
-    if WTMRoles.tbadge in added_roles or WTMRoles.resident in added_roles:
-        acc = db.session.query(Account).get(to_id)
-        acc.had_welcome_mail = False
+                                        removed_roles: Iterable[str], note: str) -> None:
+    for role in added_roles:
+        for need in perm_trainee.needs:
+            if role == need.value:
+                acc = db.session.query(Account).get(to_id)
+                acc.had_welcome_mail = False
+                return

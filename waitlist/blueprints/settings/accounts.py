@@ -15,7 +15,7 @@ from sqlalchemy import asc
 from sqlalchemy import or_
 from sqlalchemy.orm import joinedload
 
-from waitlist import db, app
+from waitlist import db
 from waitlist.blueprints.settings import add_menu_entry
 from waitlist.data.eve_xml_api import get_character_id_from_name, get_char_info_for_character
 from waitlist.permissions import perm_manager

@@ -11,12 +11,12 @@ from sqlalchemy.sql.functions import func
 bp = Blueprint('settings_ccvote', __name__)
 logger = logging.getLogger(__name__)
 
-perm_manager.define_permission('ccvot_viewresults')
+perm_manager.define_permission('ccvot_result_view')
 
 
 @bp.route("/")
 @login_required
-@perm_manager.require('ccvote_viewresults')
+@perm_manager.require('ccvot_result_view')
 def index():
     fc_results = db.session.query(Account.username, func.count('*')).join(
         CCVote, Account.id == CCVote.fcvoteID
