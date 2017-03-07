@@ -285,8 +285,11 @@ waitlist.listdom = (function(){
 	 * Creat html entity of a fit
 	 * 
 	 * @param fit fit object as received from the api
-	 * @param pass if it is the x-up list, so we can add approve button,
-	 *            defaults to false
+	 * @param wlId id of the waitlist this fit is in
+	 * @param entryId id of the entry this fit belongs to
+	 * @param queue if the entry is in the initial queue or one of the other lists
+	 * @param username character name the entry belongs to
+	 * @param userId character id the entry belongs to
 	 * @returns {HTMLElement} the fit's DOM
 	 */
 	function createFitDOM(fit, wlId, entryId, queue, username, userId) {
