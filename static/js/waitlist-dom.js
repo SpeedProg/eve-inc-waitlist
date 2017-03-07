@@ -311,18 +311,26 @@ waitlist.listdom = (function(){
 			}
 		}
 		// button group
-        var buttonRowHTML = '<div class="btn-group btn-group-mini">'+approveButton+fitButtons+'</div>';
+		var buttonRowHTML = '<div class="btn-group btn-group-mini">'+approveButton+fitButtons+'</div>';
 
 		// if fit has a comment add it
 		if (fit.comment !== null) {
-			commentHTML = '<small> '+fit.comment+'</small>';
+			commentHTML = `<div id="fit-${wlID}-${entryId}-${fit.id}-comment"><small>${fit.comment}</small></div>`;
 		}
-        // text html with ship name and comment
-        var textHTML = '<div class="wel-text-row-32-2">'+fit.shipName+commentHTML+'</div>';
+		// text html with ship name and comment
+		var textHTML = '<div class="wel-text-row-32-2">'+fit.shipName+commentHTML+'</div>';
 
-        var fitDOM = $('<li class="list-group-item" id="fit-'+wlId+"-"+entryId+"-"+fit.id+'" data-type="'+getTagFromJsonFit(fit)+'" role="button"></li>');
-		// lets check if it is the dummy fit
-        var baseHTML = isDummy ? '<div class="booby-link" ></div>' : '<div class="fit-link" data-title="'+username+'" data-dna="'+fit.shipType+':'+fit.modules+'" data-type="'+fit.wl_type+'"></div>';
+		var fitDOM = $('<li class="list-group-item" id="fit-'+wlId+"-"+entryId+"-"+fit.id+'" data-type="'+getTagFromJsonFit(fit)+'" role="button"></li>');
+
+		// lets extract caldari bs lvl from comments
+		let skillsData = '';
+		let caldariBsLvelRex = /<b>Cal BS: ([012345])<\/b>/;
+		let bsResult = caldariBsLvelRex.match(fit.comment);
+		if (bsResult !== null) {
+			skillsData = `3338:${bsResult[1]}`;
+		}
+		// lets check if it is the dummy fit, and create the html accordingly
+		var baseHTML = isDummy ? '<div class="booby-link" ></div>' : `<div class="fit-link" data-title="'+username+'" data-skills="${skillsData}" data-dna="${fit.shipType}:${fit.modules}" data-type="${fit.wl_type}"></div>`;
 		fitDOM.append($(baseHTML)
 					.append($('<div class="wel-header-32"></div>')
 						.append('<img class="img-32" src="'+eve_image('Render/'+fit.shipType+'_32', 'png')+'">')
