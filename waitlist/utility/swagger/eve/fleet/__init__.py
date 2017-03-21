@@ -164,7 +164,7 @@ class EveFleetEndpoint(object):
             return ESIResponse(get_expire_time(response), response.status,
                                None)
         msg = ''
-        if response.date is not None and 'error' in response.data:
+        if response.data is not None and 'error' in response.data:
             msg = response.data['error']
         logger.info(f'Invite request failed with status[{response.status}] and msg[{msg}].')
 
