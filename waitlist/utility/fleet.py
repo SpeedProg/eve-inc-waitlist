@@ -229,7 +229,7 @@ def invite(user_id: int, squad_id_list: Sequence[Tuple[int, int]]):
             raise ex
         if response.is_error():
             logger.info('Got code[%d] back from invite call', response.code())
-            if response.code() == 422:
+            if response.code() == 422 or response.code() == 420:
                 continue
             elif response.code() == 404:
                 return {'status_code': 404, 'text': "You need to go to <a href='" + url_for('fc_sso.login_redirect') +
