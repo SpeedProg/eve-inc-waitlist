@@ -1,11 +1,11 @@
 # inject the lib folder before everything else
+from waitlist import db
+from waitlist.permissions.manager import StaticRoles
 from waitlist.utility.swagger.patch import monkey_patch_pyswagger_requests_client
 
 monkey_patch_pyswagger_requests_client()
 from waitlist.storage.database import Account, Character, Role
 from waitlist.utility.utils import get_random_token
-from waitlist.data.perm import WTMRoles
-from waitlist.base import db
 from waitlist.utility.swagger import character_info
 if __name__ == '__main__':
     name = input("Login Name:")
@@ -14,7 +14,7 @@ if __name__ == '__main__':
     acc.username = name
     acc.login_token = get_random_token(16)
     print("Account created")
-    admin_role = db.session.query(Role).filter(Role.name == WTMRoles.admin).first()
+    admin_role = db.session.query(Role).filter(Role.name == StaticRoles.ADMIN).first()
     acc.roles.append(admin_role)
     db.session.add(acc)
     print(acc.login_token)
@@ -38,6 +38,7 @@ if __name__ == '__main__':
     db.session.commit()
     
     is_valid = False
+    char_id = None
     while not is_valid:
         char_id = int(input("Enter charid to set as active char out of "+", ".join([str(i) for i in list_eveids])+":"))
     

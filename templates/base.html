@@ -43,9 +43,11 @@
 			{% if perm_manager.get_permission('fleet_manage').can() %}
 			<a class="dropdown-item" href="{{url_for('fleet_reform.index')}}">Reform</a>
 			{% endif %}
+			{% if perm_manager.get_permission('comphistory_view').can() %}
 			<a class="dropdown-item" href="{{url_for('fittings.history_default')}}">Comp History</a>
+			{% endif %}
 			<a class="dropdown-item" href="{{url_for('accounts_cc.accounts')}}">Command Core List</a>
-			{% if perm_manager.get_permission('history_search').can() %}
+			{% if perm_manager.get_permission('comphistory_search').can() %}
 			<div class="dropdown-divider"></div>
 			<a class="dropdown-item" href="{{url_for('comp_history_search.index')}}">Comp History Search</a>
 			{% endif %}

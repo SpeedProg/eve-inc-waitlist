@@ -17,12 +17,12 @@
 	{% set perms = perm_manager.get_permissions() %}
 	<div class="row">
 		<div class="col-md-12">
-			<table>
+			<table class="table table-hover table-sm table-responsive">
 				<thead>
 				<tr>
 				<th>Permission</th>
-				{% for role in roles  %}
-					<th>{{ role.name }}</th>
+				{% for role in roles if role.name != 'admin'  %}
+					<th>{{ role.displayName }}</th>
 				{% endfor %}
 				</tr>
 				</thead>
@@ -30,8 +30,8 @@
 				{% for perm_name in perms %}
 					<tr>
 					<th scope="row">{{ perm_name }}</th>
-					{% for role in roles %}
-					<td><input data-action="changePermission" data-perm-name="{{ perm_name }}" data-role-name="{{ role.name }}" class="form-check-input" type="checkbox" value="" {% if perms[perm_name].has_role(role.name) %}checked{% endif %}></td>
+					{% for role in roles if role.name != 'admin' %}
+					<td><input data-action="changePermission" data-perm-name="{{ perm_name }}" data-role-name="{{ role.name }}" type="checkbox" value="" {% if perms[perm_name].has_role(role.name) %}checked{% endif %}></td>
 					{% endfor %}
 					</tr>
 				{% endfor %}
