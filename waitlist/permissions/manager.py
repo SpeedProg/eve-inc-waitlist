@@ -1,9 +1,12 @@
 from typing import Dict, Sequence
 
+import logging
 from flask_principal import RoleNeed, Permission, IdentityContext
 
 from waitlist import db
 from waitlist.storage.database import Permission as DBPermission, Role
+
+logger = logging.getLogger(__name__)
 
 
 class StaticRoles(object):
@@ -11,6 +14,9 @@ class StaticRoles(object):
 
 
 class AddPermission(Permission):
+
+    def __init__(self, *args):
+        super(AddPermission, self).__init__(*args)
 
     def add_role(self, name):
         self.needs.add(RoleNeed(name))
@@ -24,6 +30,15 @@ class AddPermission(Permission):
             if need.value == name:
                 self.needs.remove(need)
 
+    def union(self, other):
+        """Create a new permission with the requirements of the union of this
+        and other.
+
+        :param other: The other permission
+        """
+        p = AddPermission(*self.needs.union(other.needs))
+        p.excludes.update(self.excludes.union(other.excludes))
+        return p
 
 
 class PermissionManager(object):
@@ -39,19 +54,19 @@ class PermissionManager(object):
         for permission in permissions:
             perm = AddPermission()
             for role in permission.roles_needed:
-                perm.addNeed(role.name)
+                perm.add_role(role.name)
 
             self.__add_permission(permission.name, perm)
 
     def __add_permission(self, name: str, perm: AddPermission) -> None:
         self.__permissions[name] = self.__permissions[StaticRoles.ADMIN].union(perm)
 
-    def get_permission(self, name: str) -> Permission:
+    def get_permission(self, name: str) -> AddPermission:
         if name in self.__definitions:
             if name in self.__permissions:
                 return self.__permissions[name]
             else:
-                return Permission(RoleNeed(StaticRoles.ADMIN))
+                return AddPermission(RoleNeed(StaticRoles.ADMIN))
         else:
             raise ValueError(f'Permission [{ name }] is not defined!')
 
@@ -59,8 +74,8 @@ class PermissionManager(object):
         return db.session.query(Role).all()
 
     def get_permissions(self):
-        return self.__permissions[:]
-    
+        return self.__permissions
+
     def require(self, name: str) -> IdentityContext:
         if name in self.__permissions:
             return self.__permissions[name].require()
@@ -115,7 +130,3 @@ class PermissionManager(object):
 
         dbperm.roles_needed.remove(dbrole)
         db.session.commit()
-
-
-
-

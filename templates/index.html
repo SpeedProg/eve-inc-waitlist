@@ -24,7 +24,7 @@
 <meta name="audio" content="{{url_for('static', filename='gong-sound.mp3')}}">
 {% endif %}
 
-{% if perm_manager.get_permission('feet_manage').can() %} {# URLs for fleetcomp js #}
+{% if perm_manager.get_permission('fleet_manage').can() %} {# URLs for fleetcomp js #}
 <meta name="can-fleetcomp" content="True">
 <meta name="api-send-notification" content="{{url_for('api_fittings.send_notification', player_id=-1)}}">
 <meta name="api-wls-remove-player" content="{{url_for('fittings.api_wls_remove_player')}}">
