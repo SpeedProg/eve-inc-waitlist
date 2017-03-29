@@ -15,6 +15,10 @@ class AddPermission(Permission):
     def add_role(self, name):
         self.needs.add(RoleNeed(name))
 
+    def has_role(self, name):
+        rneed = RoleNeed(name)
+        return rneed in self.needs
+
     def remove_role(self, name):
         for need in self.needs:
             if need.value == name:
@@ -50,6 +54,9 @@ class PermissionManager(object):
                 return Permission(RoleNeed(StaticRoles.ADMIN))
         else:
             raise ValueError(f'Permission [{ name }] is not defined!')
+
+    def get_roles(self):
+        return db.session.query(Role).all()
 
     def get_permissions(self):
         return self.__permissions[:]
