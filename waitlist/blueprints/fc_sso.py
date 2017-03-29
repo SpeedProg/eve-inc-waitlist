@@ -57,10 +57,11 @@ def login_cb():
     code = request.args.get('code')
     state = request.args.get('state')
 
-    handle_key = state.split('-', 2)[0]
+    handle_key = state.split('-', 1)[0]
     handler = sso_handler.get(handle_key)
     if handler is None:
-        flask.abort(400)
+        logger.error(f'No handler for sso return handle_key[{handle_key}] found. State[{state}]')
+        flask.abort(400, 'No Handler for this sso return found!')
     else:
         return handler(code)
 

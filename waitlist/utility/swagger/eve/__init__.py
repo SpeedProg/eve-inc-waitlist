@@ -29,7 +29,7 @@ class ESIResponse(object):
         return self.__status_code
 
     def is_error(self) -> bool:
-        if self.__error is None or self.__error == '':
+        if self.__error is None:
             return False
         return True
 

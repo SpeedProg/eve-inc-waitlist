@@ -65,13 +65,13 @@ def post_esi_openwindow_newmail():
 
 def handle_sso_cb(tokens):
     handle_token_update(tokens)
-    return redirect(url_for('feedback.index'))
+    return redirect(url_for('feedback.settings'))
 
 
 @bp.route('/auth', methods=['GET'])
 @login_required
 @perm_manager.require('commandcore')
 def auth():
-    return get_sso_redirect('esi-ui-newmail', 'esi-ui.open_window.v1')
+    return get_sso_redirect('esi_ui', 'esi-ui.open_window.v1')
 
-add_sso_handler('esi-ui-newmail', handle_sso_cb)
+add_sso_handler('esi_ui', handle_sso_cb)

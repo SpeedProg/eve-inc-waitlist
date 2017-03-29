@@ -1,3 +1,4 @@
+from datetime import datetime
 from json import JSONEncoder
 
 from flask import Flask
@@ -79,6 +80,11 @@ class MiniJSONEncoder(JSONEncoder):
     """Minify JSON output."""
     item_separator = ','
     key_separator = ':'
+    def default(self, obj):
+        if isinstance(obj, datetime):
+            return obj.isoformat()+"Z"
+        # Let the base class default method raise the TypeError
+        return JSONEncoder.default(self, obj)
 
 app.json_encoder = MiniJSONEncoder
 

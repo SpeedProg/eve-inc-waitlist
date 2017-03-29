@@ -183,8 +183,8 @@
         <td>{% if fleet.comp %}<a href="javascript:IGBW.showInfo(1377, {{fleet.comp.get_eve_id()}});">{{fleet.comp.get_eve_name()}}</a>{% else %}{{None}}{% endif %}</td>
         <td>
         	<button class="btn btn-danger btn-sm" data-type="remove-fleet" data-id="{{fleet.fleetID}}">Remove</button>
-        	<a href="{{url_for('fleet.change_type', fleetID=fleet.fleetID)}}" class="btn btn-sm btn-warning">Change Fleet Type</a>
-        	<a href="{{url_for('fleet.change_setup', fleetID=fleet.fleetID)}}" class="btn btn-sm btn-danger">Change Squads</a>
+        	<a href="{{url_for('fleet.change_type', fleet_id=fleet.fleetID)}}" class="btn btn-sm btn-warning">Change Fleet Type</a>
+        	<a href="{{url_for('fleet.change_setup', fleet_id=fleet.fleetID)}}" class="btn btn-sm btn-danger">Change Squads</a>
         	<button data-action="moveToSafety" data-fleetId="{{fleet.fleetID}}" class="btn btn-sm btn-danger">Safety</button>
         </td>
     </tr>

@@ -87,11 +87,11 @@ def teamspeak_change():
         teamspeak_id = int(request.form['teamspeakID'])
         active_id = sget_active_ts_id()
         sset_active_ts_id(teamspeak_id)
-        if active_id is None or active_id != teamspeak_id:
+        if active_id is None:
             change_connection()
     else:
         flask.abort(400)
 
-    return redirect(url_for("settings.teamspeak"))
+    return redirect(url_for("teamspeak.teamspeak"))
 
 add_menu_entry('teamspeak.teamspeak', 'TS Settings', perm_view_server.can)

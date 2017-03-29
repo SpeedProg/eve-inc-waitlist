@@ -1,3 +1,4 @@
+from flask import json
 from flask.blueprints import Blueprint
 import logging
 from flask_login import login_required, current_user
@@ -24,6 +25,7 @@ import flask
 from sqlalchemy.sql.expression import desc
 from waitlist.utility.database_utils import parse_eft
 from waitlist.utility.history_utils import create_history_object
+from waitlist.blueprints.api import fittings as fit_api
 
 bp_waitlist = Blueprint('fittings', __name__)
 logger = logging.getLogger(__name__)
@@ -883,7 +885,9 @@ def xup_update_submit():
 @login_required
 @perm_dev.require(http_exception=401)
 def debug():
-    return "Currently %d subscriptions" % len(subscriptions)
+    output = f"Currently {len(subscriptions)} subscriptions."
+    output += json.dumps(fit_api.access_duration_track)
+    return output
 
 
 @bp_waitlist.route("/history/")

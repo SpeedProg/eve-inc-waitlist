@@ -41,7 +41,7 @@ waitlist.esi.ui = (function() {
 			'error': function(data) {
 				var message = data.statusText;
 				if (data.status === 412) {
-					window.location = urls.esi_mail_auth;
+					window.location = urls.esi_ui_auth;
 				}
 				if (typeof data.message !== 'undefined') {
 						message += ": " + data.message;

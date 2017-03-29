@@ -131,30 +131,41 @@ def account_edit():
                 del roles_new[role.name]  # remove because it is already in the db
             else:
                 # remove the roles because it not submitted anymore
+                # only remove admin if current user is an admin
+                if role.name == WTMRoles.admin and not perm_manager.get_permission('admin').can():
+                    continue
                 roles_to_remove.append(role)  # mark for removal
 
         for role in roles_to_remove:
             acc.roles.remove(role)
+
+        # if it is not an admin remove admin role from new roles
+        if not perm_manager.get_permission('admin').can():
+           if 'admin' in roles_new:
+               del roles_new['admin']
 
         # add remaining roles
         if len(roles_new) > 0:
             new_db_roles = db.session.query(Role).filter(or_(Role.name == name for name in roles_new))
             for role in new_db_roles:
                 acc.roles.append(role)
-
-        send_roles_changed(account_edit, acc.id, current_user.id, [x for x in roles_new],
+        if len(roles_new) > 0 or len(roles_to_remove) >0:
+            send_roles_changed(account_edit, acc.id, current_user.id, [x for x in roles_new],
                            [x.name for x in roles_to_remove], note)
     else:
         # make sure all roles are removed
         roles_to_remove = []
         for role in acc.roles:
+            # only remove admin if current user is an admin
+            if role.name == WTMRoles.admin and not perm_manager.get_permission('admin').can():
+                continue
             roles_to_remove.append(role)
 
-        for role in roles_to_remove:
-            acc.roles.remove(role)
-        db.session.flush()
-
-        send_roles_changed(account_edit, acc.id, current_user.id, [x.name for x in roles_to_remove], [], note)
+        if len(roles_to_remove) > 0:
+            for role in roles_to_remove:
+                acc.roles.remove(role)
+            db.session.flush()
+            send_roles_changed(account_edit, acc.id, current_user.id, [x.name for x in roles_to_remove], [], note)
 
     if char_name is not None:
         char_id = get_character_id_from_name(char_name)
@@ -248,7 +259,7 @@ def account_disabled():
     accid: int = int(request.form['id'])
     acc: Account = db.session.query(Account).filter(Account.id == accid).first()
     status: Union(str, bool) = request.form['disabled']
-    send_account_status_change(acc.id, current_user.id, status)
+    send_account_status_change(account_disabled, acc.id, current_user.id, status)
     logger.info("%s sets account %s to %s", current_user.username, acc.username, status)
     if status == 'false':
         status = False

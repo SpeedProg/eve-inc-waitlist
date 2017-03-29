@@ -34,6 +34,7 @@ from waitlist.blueprints.fleetview import bp as bp_fleetview
 
 from waitlist.blueprints.settings import accounts, bans, fleet_motd, fleetoptions, inserts, mail, overview,\
     staticdataimport, teamspeak, permissions
+from waitlist.blueprints import trivia
 
 # needs to he here so signal handler gets registered
 from waitlist.signal.handler import acc_created, roles_changed, account_status_change
@@ -62,6 +63,7 @@ app.register_blueprint(bp_calendar_settings, url_prefix="/settings/calendar")
 app.register_blueprint(bp_ccvote, url_prefix="/ccvote")
 app.register_blueprint(bp_ccvote_settings, url_prefix="/settings/ccvote")
 app.register_blueprint(bp_fleetview, url_prefix="/fleetview")
+app.register_blueprint(trivia.submission.bp, url_prefix="/trivia")
 
 # settings blueprints
 app.register_blueprint(accounts.bp, url_prefix='/settings/accounts')
