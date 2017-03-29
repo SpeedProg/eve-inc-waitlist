@@ -1,0 +1,43 @@
+{% extends "settings/base.html" %}
+
+{% block title %}Settings - Permissions{% endblock %}
+
+{% block head %}
+
+{{ super() }}
+
+{% endblock %}
+
+{% block raw_content %}
+
+		<!-- Make a table down wards permissions and to the right roles
+		 unticking and ticking instantly triggers a ajax call that changes it
+		 -->
+	{% set roles = perm_manager.get_roles() %}
+	{% set perms = perm_manager.get_permissions() %}
+	<div class="row">
+		<div class="col-md-12">
+			<table>
+				<thead>
+				<tr>
+				<th>Permission</th>
+				{% for role in roles  %}
+					<th>{{ role.name }}</th>
+				{% endfor %}
+				</tr>
+				</thead>
+				<tbody>
+				{% for perm_name in perms %}
+					<tr>
+					<th scope="row">{{ perm_name }}</th>
+					{% for role in roles %}
+					<td><input data-action="changePermission" data-perm-name="{{ perm_name }}" data-role-name="{{ role.name }}" class="form-check-input" type="checkbox" value="" {% if perms[perm_name].has_role(role.name) %}checked{% endif %}></td>
+					{% endfor %}
+					</tr>
+				{% endfor %}
+				</tbody>
+			</table>
+		</div>
+	</div>
+
+{% endblock %}
