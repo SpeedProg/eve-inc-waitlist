@@ -141,8 +141,8 @@ def get_select_form(fleet_id: int) -> Any:
     fleet_api = EveFleetEndpoint(fleet_id)
     wings = fleet_api.get_wings()
     if wings.is_error():
-        logger.error("Could not get wings for fleetID[%d], maybe some ones tokes are wrong", fleet_id)
-        flask.abort(500)
+        logger.error(f"Could not get wings for fleet_id[{fleet_id}], maybe some ones tokens are wrong. {wings.error()}")
+        flask.abort(wings.code(), wings.error())
 
     groups = db.session.query(WaitlistGroup).all()
     auto_assign = {}
@@ -330,7 +330,7 @@ def take_link():
             with open("set_history.log", "a+") as f:
                 f.write('{} - {} is taking a fleet on CREST\n'.format(datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S"),
                                                                       fleet.comp.username))
-    return redirect(url_for('settings.fleet'))
+    return redirect(url_for('fleetoptions.fleet'))
 
 
 @bp.route('/take_sso', methods=['GET'])
@@ -351,7 +351,7 @@ def takeover_sso_cb():
         with open("set_history.log", "a+") as f:
             f.write('{} - {} is taking a fleet on CREST\n'.format(datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S"),
                                                                   fleet.comp.username))
-    return redirect(url_for('settings.fleet'))
+    return redirect(url_for('fleetoptions.fleet'))
 
 
 @bp.route("/<int:fleet_id>/change-type", methods=['GET'])
@@ -373,4 +373,4 @@ def change_type_submit(fleet_id: int) -> Any:
 
     fleet.groupID = fleet_group
     db.session.commit()
-    return redirect(url_for("settings.fleet"))
+    return redirect(url_for("fleetoptions.fleet"))

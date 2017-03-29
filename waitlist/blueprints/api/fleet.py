@@ -174,7 +174,10 @@ def move_fleetmembers_to_safety():
     # get the safety fleet channel id
     member = member_info.get_fleet_members(fleet_id, crest_fleet.comp)
     for charID in member:
-        charname: str = member[charID].character.name
+        char_id: int = member[charID].character_id()
+        char = db.session.query(Character).get(char_id)
+        if char is None:
+            continue
         safety_channel_id: int = teamspeak.safetyChannelID
-        move_to_safety_channel(charname, safety_channel_id)
+        move_to_safety_channel(char.eve_name, safety_channel_id)
     return make_response("OK", 200)

@@ -11,14 +11,14 @@ account_status_change_sig = waitlist_bps.signal(SIG_ACC_STATUS_CHANGE, 'Called w
 
 
 def send_roles_changed(sender, to_id, by_id, added_roles, removed_roles, note):
-    roles_changed_sig.send(sender, toID=to_id, byID=by_id, added_roles=added_roles,
+    roles_changed_sig.send(sender, to_id=to_id, by_id=by_id, added_roles=added_roles,
                            removed_roles=removed_roles, note=note)
 
 
 def send_account_created(sender, account_id, created_by_id, roles, note):
     """ roles is a string list of role names, not the role database objects """
-    account_created_sig.send(sender, accountID=account_id, createdByID=created_by_id, roles=roles, note=note)
+    account_created_sig.send(sender, account_id=account_id, created_by_id=created_by_id, roles=roles, note=note)
 
 
-def send_account_status_change(sender, account_id, created_by_id):
-    account_status_change_sig.send(sender, accountID=account_id, byID=created_by_id, disabled=True)
+def send_account_status_change(sender, account_id, created_by_id, disabled):
+    account_status_change_sig.send(sender, account_id=account_id, by_id=created_by_id, disabled=disabled)
