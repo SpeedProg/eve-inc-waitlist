@@ -9,9 +9,9 @@ bp = Blueprint('fleet_reform', __name__)
 logger = logging.getLogger(__name__)
 
 
-perm_manager.define_permission('fleet_manage')
+perm_manager.define_permission('fleet_management')
 
-perm_fleet_manage = perm_manager.get_permission('fleet_manage')
+perm_fleet_manage = perm_manager.get_permission('fleet_management')
 
 
 @bp.route("/")

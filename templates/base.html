@@ -40,7 +40,7 @@
 	<li class="nav-item dropdown">
 		<a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Tools</a>
 		<div class="dropdown-menu">
-			{% if perm_manager.get_permission('fleet_manage').can() %}
+			{% if perm_manager.get_permission('fleet_management').can() %}
 			<a class="dropdown-item" href="{{url_for('fleet_reform.index')}}">Reform</a>
 			{% endif %}
 			{% if perm_manager.get_permission('comphistory_view').can() %}
