@@ -315,7 +315,7 @@ waitlist.listdom = (function(){
 
 		// if fit has a comment add it
 		if (fit.comment !== null) {
-			commentHTML = `<div id="fit-${wlID}-${entryId}-${fit.id}-comment"><small>${fit.comment}</small></div>`;
+			commentHTML = `<div id="fit-${wlId}-${entryId}-${fit.id}-comment"><small>${fit.comment}</small></div>`;
 		}
 		// text html with ship name and comment
 		var textHTML = '<div class="wel-text-row-32-2">'+fit.shipName+commentHTML+'</div>';
