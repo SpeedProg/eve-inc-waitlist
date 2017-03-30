@@ -32,10 +32,10 @@ bp = Blueprint('fleet', __name__)
 logger = logging.getLogger(__name__)
 
 
-perm_manager.define_permission('fleet_manage')
+perm_manager.define_permission('fleet_management')
 perm_manager.define_permission('developer')
 
-fleets_manage = perm_manager.get_permission('fleet_manage')
+fleets_manage = perm_manager.get_permission('fleet_management')
 perm_dev = perm_manager.get_permission('developer')
 
 

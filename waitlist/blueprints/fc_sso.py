@@ -18,9 +18,9 @@ from waitlist.utility.login import member_login_cb
 bp = Blueprint('fc_sso', __name__)
 logger = logging.getLogger(__name__)
 
-perm_manager.define_permission('fleet_manage')
+perm_manager.define_permission('fleet_management')
 
-perm_fleet_manage = perm_manager.get_permission('fleet_manage')
+perm_fleet_manage = perm_manager.get_permission('fleet_management')
 
 sso_handler = {}
 
