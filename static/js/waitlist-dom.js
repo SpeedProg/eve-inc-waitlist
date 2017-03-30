@@ -325,7 +325,7 @@ waitlist.listdom = (function(){
 		// lets extract caldari bs lvl from comments
 		let skillsData = '';
 		let caldariBsLvelRex = /<b>Cal BS: ([012345])<\/b>/;
-		let bsResult = caldariBsLvelRex.test(fit.comment);
+		let bsResult = caldariBsLvelRex.exec(fit.comment);
 		if (bsResult !== null) {
 			skillsData = `3338:${bsResult[1]}`;
 		}
