@@ -305,8 +305,6 @@ class Role(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String(50), unique=True)
     displayName = Column(String(150), unique=False)
-    # if this = 1 and some one has this role, he can not login by igb header
-    is_restrictive = Column(Integer)
 
     def __repr__(self):
         return "<Role %r>" % self.name

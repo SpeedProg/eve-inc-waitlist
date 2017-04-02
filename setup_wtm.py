@@ -8,11 +8,10 @@ from waitlist.data.names import WaitlistNames, WTMRoles
 from waitlist.base import db
 
 
-def get_role(name, restrictive=True):
+def get_role(name):
     r = Role()
     r.name = name
     r.displayName = WTMRoles.get_display_name(name)
-    r.is_restrictive = restrictive
     return r
 
 def createRoles():
