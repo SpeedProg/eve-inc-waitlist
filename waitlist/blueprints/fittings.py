@@ -577,14 +577,9 @@ def move_to_waitlists():
     #    if there is a wl entry take the waitlist entry timestamp (a random one since they should all have the same)
 
     new_entry_timedate = entry.creation
-    if logi_entry is not None:
-        new_entry_timedate = logi_entry.creation
-    elif sniper_entry is not None:
-        new_entry_timedate = sniper_entry.creation
-    elif dps_entry is not None:
-        new_entry_timedate = dps_entry.creation
-    elif other_entry is not None:
-        new_entry_timedate = other_entry.creation
+    for entry in waitlist_entries:
+        if entry.creation < new_entry_timedate:
+            creation_time = entry.creation
 
     # sort fittings by ship type
     logi = []
@@ -762,13 +757,24 @@ def api_move_fit_to_waitlist():
         else:
             waitlist = group.dpslist
 
+    # lets see if he already has a entry
+    waitlist_entries = db.session.query(WaitlistEntry).join(Waitlist, WaitlistEntry.waitlist_id == Waitlist.id) \
+        .join(WaitlistGroup, Waitlist.groupID == WaitlistGroup.groupID) \
+        .filter((WaitlistEntry.user == entry.user) & (WaitlistGroup.groupID == group.groupID)).all()
+
+    creation_time = entry.creation
+
+    for entry in waitlist_entries:
+        if entry.creation < creation_time:
+            creation_time = entry.creation
+
     wl_entry = db.session.query(WaitlistEntry).join(Waitlist) \
         .filter((WaitlistEntry.user == entry.user) & (Waitlist.id == waitlist.id)).first()
     new_entry = False
     # if it doesn't exist create it
     if wl_entry is None:
         wl_entry = WaitlistEntry()
-        wl_entry.creation = entry.creation
+        wl_entry.creation = creation_time
         wl_entry.user = entry.user
         new_entry = True
 
