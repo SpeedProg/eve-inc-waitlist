@@ -760,13 +760,24 @@ def api_move_fit_to_waitlist():
         else:
             waitlist = group.dpslist
 
+    # lets see if he already has a entry
+    waitlist_entries = db.session.query(WaitlistEntry).join(Waitlist, WaitlistEntry.waitlist_id == Waitlist.id) \
+        .join(WaitlistGroup, Waitlist.groupID == WaitlistGroup.groupID) \
+        .filter((WaitlistEntry.user == entry.user) & (WaitlistGroup.groupID == group.groupID)).all()
+
+    creation_time = entry.creation
+
+    for entry in waitlist_entries:
+        if entry.creation < creation_time:
+            creation_time = entry.creation
+
     wl_entry = db.session.query(WaitlistEntry).join(Waitlist) \
         .filter((WaitlistEntry.user == entry.user) & (Waitlist.id == waitlist.id)).first()
     new_entry = False
     # if it doesn't exist create it
     if wl_entry is None:
         wl_entry = WaitlistEntry()
-        wl_entry.creation = entry.creation
+        wl_entry.creation = creation_time
         wl_entry.user = entry.user
         new_entry = True
 
