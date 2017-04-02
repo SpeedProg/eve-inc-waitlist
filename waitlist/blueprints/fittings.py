@@ -575,14 +575,9 @@ def move_to_waitlists():
     #    if there is a wl entry take the waitlist entry timestamp (a random one since they should all have the same)
 
     new_entry_timedate = entry.creation
-    if logi_entry is not None:
-        new_entry_timedate = logi_entry.creation
-    elif sniper_entry is not None:
-        new_entry_timedate = sniper_entry.creation
-    elif dps_entry is not None:
-        new_entry_timedate = dps_entry.creation
-    elif other_entry is not None:
-        new_entry_timedate = other_entry.creation
+    for entry in waitlist_entries:
+        if entry.creation < new_entry_timedate:
+            creation_time = entry.creation
 
     # sort fittings by ship type
     logi = []
