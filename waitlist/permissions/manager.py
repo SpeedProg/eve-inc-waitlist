@@ -12,6 +12,8 @@ logger = logging.getLogger(__name__)
 class StaticRoles(object):
     ADMIN = 'admin'
 
+class StaticPermissions(object):
+    ADMIN = 'admin'
 
 class AddPermission(Permission):
 
@@ -26,9 +28,13 @@ class AddPermission(Permission):
         return rneed in self.needs
 
     def remove_role(self, name):
+        role: RoleNeed = None
         for need in self.needs:
             if need.value == name:
-                self.needs.remove(need)
+                role = need
+                break
+
+        self.needs.remove(role)
 
     def union(self, other):
         """Create a new permission with the requirements of the union of this
@@ -49,8 +55,40 @@ class PermissionManager(object):
         self.__load_permissions()
     
     def __load_permissions(self) -> None:
-        self.__permissions[StaticRoles.ADMIN] = AddPermission(RoleNeed(StaticRoles.ADMIN))
-        permissions: Sequence[DBPermission] = db.session.query(DBPermission).all()
+        # make sure admin role exists
+        if not PermissionManager.role_exists(StaticRoles.ADMIN):
+            r = Role(name=StaticRoles.ADMIN, display_name=StaticRoles.ADMIN, is_restrictive=1)
+            db.session.add(r)
+            db.session.commit()
+
+        # load admin perm first
+        self.__permissions[StaticPermissions.ADMIN] = AddPermission()
+        admin_perm: DBPermission = db.session.query(DBPermission).filter(
+            DBPermission.name == StaticPermissions.ADMIN).first()
+        if admin_perm is None:
+            db_perm: DBPermission = DBPermission(name=StaticPermissions.ADMIN)
+            admin_role: Role = db.session.query(Role).filter(Role.name == StaticRoles.ADMIN).first()
+            db_perm.roles_needed.append(admin_role)
+            db.session.add(db_perm)
+            db.session.commit()
+            admin_perm: DBPermission = db.session.query(DBPermission).filter(
+                DBPermission.name == StaticPermissions.ADMIN).first()
+        else:
+            # make sure the admin role is in there
+            has_admin_role = False
+            for role_need in admin_perm.roles_needed:
+                if role_need.name == StaticRoles.ADMIN:
+                    has_admin_role = True
+                    break
+            if not has_admin_role:
+                admin_role: Role = db.session.query(Role).filter(Role.name == StaticRoles.ADMIN).first()
+                admin_perm.roles_needed.append(admin_role)
+                db.session.commit()
+
+        for role in admin_perm.roles_needed:
+            self.__permissions[StaticPermissions.ADMIN].add_role(role.name)
+
+        permissions: Sequence[DBPermission] = db.session.query(DBPermission).filter(DBPermission.name != StaticPermissions.ADMIN).all()
         for permission in permissions:
             perm = AddPermission()
             for role in permission.roles_needed:
@@ -70,8 +108,24 @@ class PermissionManager(object):
         else:
             raise ValueError(f'Permission [{ name }] is not defined!')
 
-    def get_roles(self):
+    @staticmethod
+    def get_roles():
         return db.session.query(Role).all()
+
+    @staticmethod
+    def role_exists(name: str) -> bool:
+        return db.session.query(Role).filter(Role.name == name).first() is not None
+
+    @staticmethod
+    def add_role(name: str, display_name: str):
+        # lets check if this role exists
+        if PermissionManager.role_exists(name):
+            print("Role {name} already exists")
+            return
+
+        role = Role(name=name, displayName=display_name, is_restrictive=0)
+        db.session.add(role)
+        db.session.commit()
 
     def get_permissions(self):
         return self.__permissions
@@ -113,8 +167,12 @@ class PermissionManager(object):
             # add it to our cache too
             self.__permissions[perm_name].add_role(dbrole.name)
             db.session.commit()
+            # the admin permission was unioned with all other permissions, if it changes we need to reload them all
+            if perm_name == StaticPermissions.ADMIN:
+                self.__permissions: Dict[str, AddPermission] = {}
+                self.__load_permissions()
 
-    def remove_role_from_permission(self, perm_name, role_name):
+    def remove_role_from_permission(self, perm_name: str, role_name: str) -> None:
         if not perm_name in self.__definitions:
             return
 
@@ -130,3 +188,8 @@ class PermissionManager(object):
 
         dbperm.roles_needed.remove(dbrole)
         db.session.commit()
+
+        # the admin permission was unioned with all other permissions, if it changes we need to reload them all
+        if perm_name == StaticPermissions.ADMIN:
+            self.__permissions: Dict[str, AddPermission] = {}
+            self.__load_permissions()
