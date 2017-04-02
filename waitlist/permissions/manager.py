@@ -57,7 +57,7 @@ class PermissionManager(object):
     def __load_permissions(self) -> None:
         # make sure admin role exists
         if not PermissionManager.role_exists(StaticRoles.ADMIN):
-            r = Role(name=StaticRoles.ADMIN, display_name=StaticRoles.ADMIN, is_restrictive=1)
+            r = Role(name=StaticRoles.ADMIN, display_name=StaticRoles.ADMIN)
             db.session.add(r)
             db.session.commit()
 
