@@ -6,7 +6,7 @@ from flask import request
 from flask_login import login_required
 
 from waitlist.permissions import perm_manager
-from waitlist.permissions.manager import StaticRoles, StaticPermissions
+from waitlist.permissions.manager import StaticPermissions
 
 bp = Blueprint('api_permission', __name__)
 logger = logging.getLogger(__name__)

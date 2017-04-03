@@ -10,7 +10,7 @@ from flask_login import login_required, current_user
 
 from waitlist.blueprints.settings import add_menu_entry
 from waitlist.permissions import perm_manager
-from waitlist.permissions.manager import StaticRoles, StaticPermissions
+from waitlist.permissions.manager import StaticPermissions
 from waitlist.signal.signals import send_roles_added
 
 bp = Blueprint('settings_permissions', __name__)

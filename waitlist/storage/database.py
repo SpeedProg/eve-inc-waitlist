@@ -311,9 +311,10 @@ class Role(Base):
 
 
 permission_roles = Table('permission_roles', Base.metadata,
-    Column('permission', Integer, ForeignKey('permissions.id')),
-    Column('role', Integer, ForeignKey('roles.id'))
-)
+                         Column('permission', Integer, ForeignKey('permissions.id')),
+                         Column('role', Integer, ForeignKey('roles.id'))
+                         )
+
 
 class Permission(Base):
     """
@@ -324,7 +325,7 @@ class Permission(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String(150), unique=True)
 
-    roles_needed = relationship("Role",  secondary=permission_roles)
+    roles_needed = relationship("Role", secondary=permission_roles)
 
     def __repr__(self):
         return f'<Permission id={self.id} name={self.name}'

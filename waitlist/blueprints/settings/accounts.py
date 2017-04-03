@@ -19,6 +19,7 @@ from waitlist import db
 from waitlist.blueprints.settings import add_menu_entry
 from waitlist.data.eve_xml_api import get_character_id_from_name, get_char_info_for_character
 from waitlist.permissions import perm_manager
+from waitlist.permissions.manager import StaticPermissions, StaticRoles
 from waitlist.signal.signals import send_account_created, send_roles_changed, send_account_status_change
 from waitlist.storage.database import Account, Character, Role, linked_chars
 from waitlist.utility.settings import sget_resident_mail, sget_tbadge_mail, sget_other_mail, sget_other_topic, \
@@ -132,7 +133,7 @@ def account_edit():
             else:
                 # remove the roles because it not submitted anymore
                 # only remove admin if current user is an admin
-                if role.name == WTMRoles.admin and not perm_manager.get_permission('admin').can():
+                if role.name == StaticRoles.ADMIN and not perm_manager.get_permission(StaticPermissions.ADMIN).can():
                     continue
                 roles_to_remove.append(role)  # mark for removal
 
@@ -141,23 +142,23 @@ def account_edit():
 
         # if it is not an admin remove admin role from new roles
         if not perm_manager.get_permission('admin').can():
-           if 'admin' in roles_new:
-               del roles_new['admin']
+            if 'admin' in roles_new:
+                del roles_new['admin']
 
         # add remaining roles
         if len(roles_new) > 0:
             new_db_roles = db.session.query(Role).filter(or_(Role.name == name for name in roles_new))
             for role in new_db_roles:
                 acc.roles.append(role)
-        if len(roles_new) > 0 or len(roles_to_remove) >0:
+        if len(roles_new) > 0 or len(roles_to_remove) > 0:
             send_roles_changed(account_edit, acc.id, current_user.id, [x for x in roles_new],
-                           [x.name for x in roles_to_remove], note)
+                               [x.name for x in roles_to_remove], note)
     else:
         # make sure all roles are removed
         roles_to_remove = []
         for role in acc.roles:
             # only remove admin if current user is an admin
-            if role.name == WTMRoles.admin and not perm_manager.get_permission('admin').can():
+            if role.name == StaticRoles.ADMIN and not perm_manager.get_permission(StaticPermissions.ADMIN).can():
                 continue
             roles_to_remove.append(role)
 
@@ -294,7 +295,7 @@ def accounts_download_csv() -> Response:
             yield '\n'
 
     permission = perm_manager.get_permission('include_in_accountlist')
-    role_check = (Account.disabled == False)
+    role_check = not Account.disabled
     for role_need in permission.needs:
         if role_need.method != 'role':
             continue

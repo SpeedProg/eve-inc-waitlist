@@ -16,6 +16,7 @@ class StaticRoles(object):
 class StaticPermissions(object):
     ADMIN = 'admin_tools'
 
+
 class AddPermission(Permission):
 
     def __init__(self, *args):
@@ -89,7 +90,8 @@ class PermissionManager(object):
         for role in admin_perm.roles_needed:
             self.__permissions[StaticPermissions.ADMIN].add_role(role.name)
 
-        permissions: Sequence[DBPermission] = db.session.query(DBPermission).filter(DBPermission.name != StaticPermissions.ADMIN).all()
+        permissions: Sequence[DBPermission] = db.session.query(DBPermission)\
+            .filter(DBPermission.name != StaticPermissions.ADMIN).all()
         for permission in permissions:
             perm = AddPermission()
             for role in permission.roles_needed:
@@ -140,7 +142,7 @@ class PermissionManager(object):
         if name not in self.__definitions:
             self.__definitions[name] = True
             # if it is not in datebase add it
-            if db.session.query(DBPermission).filter(DBPermission.name == name).first() == None:
+            if db.session.query(DBPermission).filter(DBPermission.name == name).first() is None:
                 perm = DBPermission(name=name)
                 db.session.add(perm)
                 db.session.commit()
@@ -149,7 +151,7 @@ class PermissionManager(object):
         return self.__definitions
 
     def add_role_to_permission(self, perm_name, role_name):
-        if not perm_name in self.__definitions:
+        if perm_name not in self.__definitions:
             return
 
         perm: DBPermission = db.session.query(DBPermission).filter(DBPermission.name == perm_name).first()
@@ -174,7 +176,7 @@ class PermissionManager(object):
                 self.__load_permissions()
 
     def remove_role_from_permission(self, perm_name: str, role_name: str) -> None:
-        if not perm_name in self.__definitions:
+        if perm_name not in self.__definitions:
             return
 
         self.__permissions[perm_name].remove_role(role_name)
