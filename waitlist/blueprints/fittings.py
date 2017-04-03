@@ -762,9 +762,9 @@ def api_move_fit_to_waitlist():
 
     creation_time = entry.creation
 
-    for entry in waitlist_entries:
-        if entry.creation < creation_time:
-            creation_time = entry.creation
+    for centry in waitlist_entries:
+        if centry.creation < creation_time:
+            creation_time = centry.creation
 
     wl_entry = db.session.query(WaitlistEntry).join(Waitlist) \
         .filter((WaitlistEntry.user == entry.user) & (Waitlist.id == waitlist.id)).first()
