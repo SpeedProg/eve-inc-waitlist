@@ -33,10 +33,10 @@ logger = logging.getLogger(__name__)
 
 
 perm_manager.define_permission('fleet_management')
-perm_manager.define_permission('developer')
+perm_manager.define_permission('developer_tools')
 
 fleets_manage = perm_manager.get_permission('fleet_management')
-perm_dev = perm_manager.get_permission('developer')
+perm_dev = perm_manager.get_permission('developer_tools')
 
 
 @login_required
