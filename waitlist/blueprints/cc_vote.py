@@ -9,7 +9,6 @@ from werkzeug.utils import redirect
 from flask.helpers import url_for
 from waitlist import db
 from waitlist.storage.database import Account, CCVote, Role
-from waitlist.data.names import WTMRoles
 from sqlalchemy.sql.expression import asc
 
 bp = Blueprint('cc_vote', __name__)
@@ -32,11 +31,11 @@ def index():
         flask.abort(403, "You already voted during this Eve-Day, you can vote again after Downtime!")
     # noinspection PyPep8
     active_fc_accounts = db.session.query(Account).join(Account.roles).filter(
-        ((Role.name == WTMRoles.fc) | (Role.name == WTMRoles.tbadge))
+        ((Role.name == 'fc') | (Role.name == 'tbadge'))
         & (Account.disabled == False)).order_by(asc(Account.username)).all()
     # noinspection PyPep8
     active_lm_accounts = db.session.query(Account).join(Account.roles).filter(
-        ((Role.name == WTMRoles.lm) | (Role.name == WTMRoles.resident))
+        ((Role.name == 'lm') | (Role.name == 'rbadge'))
         & (Account.disabled == False)).order_by(asc(Account.username)).all()
     return render_template("waitlist/ccvote.html", fcs=active_fc_accounts, lms=active_lm_accounts)
 
@@ -79,7 +78,7 @@ def is_fc(account_id):
         return True
     account = db.session.query(Account).filter(Account.id == account_id).one()
     for role in account.roles:
-        if role.name == WTMRoles.fc or role.name == WTMRoles.tbadge:
+        if role.name == 'fc' or role.name == 'tbadge':
             return True
     return False
 
@@ -89,7 +88,7 @@ def is_lm(account_id):
         return True
     account = db.session.query(Account).filter(Account.id == account_id).one()
     for role in account.roles:
-        if role.name == WTMRoles.lm or role.name == WTMRoles.resident:
+        if role.name == 'lm' or role.name == 'rbadge':
             return True
     return False
 

@@ -13,6 +13,12 @@ bp = Blueprint('accounts_profile', __name__)
 logger = logging.getLogger(__name__)
 
 
+perm_manager.define_permission('view_notes_high')
+perm_manager.define_permission('view_notes_low')
+perm_manager.define_permission('view_notes_med')
+perm_manager.define_permission('view_notes_all')
+
+
 @bp.route("/<int:accountid>", methods=["GET"])
 @login_required
 @perm_manager.require('view_profile')

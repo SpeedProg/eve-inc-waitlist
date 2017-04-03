@@ -1,8 +1,9 @@
 from flask_login import login_required
 
 from waitlist.blueprints.settings import add_menu_entry
-from waitlist.data.perm import perm_leadership
 from flask.templating import render_template
+
+from waitlist.permissions import perm_manager
 from waitlist.utility.settings import sget_motd_hq, sget_motd_vg,\
     sset_motd_hq, sset_motd_vg
 from flask.blueprints import Blueprint
@@ -14,8 +15,11 @@ bp = Blueprint('settings_fmotds', __name__)
 logger = logging.getLogger(__name__)
 
 
+perm_manager.define_permission('change_fleet_motd')
+
+
 def get_permission():
-    return perm_leadership
+    return perm_manager.get_permission('change_fleet_motd')
 
 perm = get_permission()
 
@@ -45,4 +49,4 @@ def change(type_):
         flash("VG MOTD Saved")
     return redirect(url_for('settings_fmotds.index'))
 
-add_menu_entry('settings_fmotds.index', 'Fleet MOTD', perm_leadership.can)
+add_menu_entry('settings_fmotds.index', 'Fleet MOTD', perm.can)

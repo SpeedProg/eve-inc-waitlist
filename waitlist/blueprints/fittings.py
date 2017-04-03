@@ -1,10 +1,10 @@
 from flask import json
 from flask.blueprints import Blueprint
 import logging
-from waitlist.data.perm import perm_management, perm_dev, perm_officer, \
-    perm_leadership, perm_comphistory
 from flask_login import login_required, current_user
 from flask.globals import request
+
+from waitlist.permissions import perm_manager
 from waitlist.storage.database import WaitlistEntry, Shipfit, Waitlist, \
     Character, InvType, MarketGroup, HistoryEntry, WaitlistGroup, FitModule
 import re
@@ -31,9 +31,24 @@ bp_waitlist = Blueprint('fittings', __name__)
 logger = logging.getLogger(__name__)
 
 
+perm_manager.define_permission('fleet_management')
+perm_manager.define_permission('fits_approve')
+perm_manager.define_permission('developer_tools')
+perm_manager.define_permission('comphistory_view')
+perm_manager.define_permission('comphistory_unlimited')
+
+
+perm_fleet_manage = perm_manager.get_permission('fleet_management')
+
+perm_dev = perm_manager.get_permission('developer_tools')
+
+perm_comp_view = perm_manager.get_permission('comphistory_view')
+perm_comp_unlimited = perm_manager.get_permission('comphistory_unlimited')
+
+
 @bp_waitlist.route("/api/wl/remove/", methods=['POST'])
 @login_required
-@perm_management.require(http_exception=401)
+@perm_fleet_manage.require(http_exception=401)
 def api_wls_remove_player():
     # sse events
     _events = []
@@ -98,7 +113,7 @@ def api_wls_remove_player():
 
 @bp_waitlist.route("/api/wl/entries/remove/", methods=['POST'])
 @login_required
-@perm_management.require(http_exception=401)
+@perm_fleet_manage.require(http_exception=401)
 def api_wl_remove_entry():
     entry_id = int(request.form['entryId'])
     entry = db.session.query(WaitlistEntry).get(entry_id)
@@ -530,7 +545,7 @@ def xup_submit():
 
 @bp_waitlist.route("/move_to_waitlist", methods=["POST"])
 @login_required
-@perm_management.require(http_exception=401)
+@perm_fleet_manage.require(http_exception=401)
 def move_to_waitlists():
     """
     Move a whole entry to a the corresponding waitlists
@@ -729,7 +744,7 @@ def move_to_waitlists():
 
 @bp_waitlist.route("/move_fit_to_waitlist", methods=["POST"])
 @login_required
-@perm_management.require(http_exception=401)
+@perm_fleet_manage.require(http_exception=401)
 def api_move_fit_to_waitlist():
     fit_id = int(request.form['fit_id'])
     fit = db.session.query(Shipfit).filter(Shipfit.id == fit_id).first()
@@ -883,19 +898,19 @@ def debug():
 
 @bp_waitlist.route("/history/")
 @login_required
-@perm_comphistory.require(http_exception=401)
+@perm_comp_view.require(http_exception=401)
 def history_default():
     return render_template("waitlist/history.html")
 
 
 @bp_waitlist.route("/history/<int:min_mins>/<int:max_mins>")
 @login_required
-@perm_comphistory.require(http_exception=401)
+@perm_comp_view.require(http_exception=401)
 def history(min_mins: int, max_mins: int):
     if max_mins <= min_mins:
         return render_template("waitlist/history_cut.html", history=[])
     # only officer and leadership can go back more then 4h
-    if max_mins > 240 and not (perm_officer.can() or perm_leadership.can()):
+    if max_mins > 240 and not (perm_comp_unlimited.can()):
         redirect(url_for("fittings.history", min_mins=min_mins, max_mins=240))
 
     tnow: datetime = datetime.utcnow()

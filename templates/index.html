@@ -11,7 +11,7 @@
 <meta name="influence-link" content="{{ influence_link }}">
 <link rel="preconnect" href="https://crest-tq.eveonline.com/">
 
-{% if perm_viewfits.can() %}
+{% if perm_manager.get_permission('fits_view').can() %}
 <link rel="preconnect" href="https://quiescens.duckdns.org">
 <meta name="can-view-fits" content="True">
 {% endif %}
@@ -24,7 +24,7 @@
 <meta name="audio" content="{{url_for('static', filename='gong-sound.mp3')}}">
 {% endif %}
 
-{% if perm_man.can() %} {# URLs for fleetcomp js #}
+{% if perm_manager.get_permission('fleet_management').can() %} {# URLs for fleetcomp js #}
 <meta name="can-fleetcomp" content="True">
 <meta name="api-send-notification" content="{{url_for('api_fittings.send_notification', player_id=-1)}}">
 <meta name="api-wls-remove-player" content="{{url_for('fittings.api_wls_remove_player')}}">
@@ -46,7 +46,7 @@
 {% endassets %}
 
 	{% if group and group.enabled %}
-		{% if perm_man.can() %}
+		{% if perm_manager.get_permission('fleet_management').can() %}
 			{% assets filters="babili",
 					output="gen/comp.%(version)s.js", "js/eve-igb-wrapper.js",
 					"js/fleetcomp.js" %}
@@ -55,7 +55,7 @@
 			{% endassets %}
 		{% endif %}
 
-		{% if group and (not is_on_wl) and (not (perm_man.can() or perm_viewfits.can())) and group.enabled %}
+		{% if group and (not is_on_wl) and (not (perm_manager.get_permission('fleet_management').can() or perm_manager.get_permission('fits_view').can())) and group.enabled %}
 			{% include "xup-form.js" %}
 		{% endif %}
 
@@ -66,7 +66,7 @@
 			{% endassets %}
 		{% endif %}
 
-		{% if perm_viewfits.can() %}
+		{% if perm_manager.get_permission('fits_view').can() %}
 			<script type="text/javascript"
 				src="https://quiescens.duckdns.org/wl/wtm.js" defer async></script>
 		{% endif %}
@@ -82,7 +82,7 @@
 	{# show there
 	form only if he is not on waitlist, not fleetcomp or has permission to
 	view fits and xups are enabled #}
-	{% if group and (not is_on_wl) and (not (perm_man.can() or perm_viewfits.can())) and group.enabled %}
+	{% if group and (not is_on_wl) and (not (perm_manager.get_permission('fleet_management').can() or perm_manager.get_permission('fits_view').can())) and group.enabled %}
 		{% include "xup-form.html" with context %}
 	{% endif %}
 <div class="row">
@@ -92,7 +92,7 @@
   	</div>
 	{% endfor %}
 	{# Show a message if you have comp permissions but you are not fleet
-	comp of a fleet #} {% if perm_man.can() and current_user.fleet is none
+	comp of a fleet #} {% if perm_manager.get_permission('fleet_management').can() and current_user.fleet is none
 	%}
 	<div class="alert alert-info fade in" role="alert">
 		<p class="text-xs-center">
@@ -224,7 +224,7 @@
 							data-parent="#wl-{{ wlist.id }}-tog"
 							data-target="#wl-fits-{{ wlist.id }}" aria-expanded="true"
 							aria-controls="wl-fits-{{ wlist.id }}" role="button"> {{
-							wlist.displayTitle|e }}{% if perm_man.can() %}<span
+							wlist.displayTitle|e }}{% if perm_manager.get_permission('fleet_management').can() %}<span
 							id="wl-count-{{ wlist.id }}"
 							class="tag tag-pill tag-default float-xs-left">0</span>{% endif
 							%}<i class="fa fa-minus-square float-xs-right"
