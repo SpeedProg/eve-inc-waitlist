@@ -22,10 +22,10 @@ logger = logging.getLogger(__name__)
 
 
 perm_manager.define_permission('static_data_import')
-perm_manager.define_permission('developer')
+perm_manager.define_permission('developer_tools')
 
 perm_access = perm_manager.get_permission('static_data_import')
-perm_developer = perm_manager.get_permission('developer')
+perm_developer = perm_manager.get_permission('developer_tools')
 
 
 @bp.route("/sde/update/typeids", methods=["POST"])

@@ -33,14 +33,14 @@ logger = logging.getLogger(__name__)
 
 perm_manager.define_permission('fleet_management')
 perm_manager.define_permission('fits_approve')
-perm_manager.define_permission('developer')
+perm_manager.define_permission('developer_tools')
 perm_manager.define_permission('comphistory_view')
 perm_manager.define_permission('comphistory_unlimited')
 
 
 perm_fleet_manage = perm_manager.get_permission('fleet_management')
 
-perm_dev = perm_manager.get_permission('developer')
+perm_dev = perm_manager.get_permission('developer_tools')
 
 perm_comp_view = perm_manager.get_permission('comphistory_view')
 perm_comp_unlimited = perm_manager.get_permission('comphistory_unlimited')
