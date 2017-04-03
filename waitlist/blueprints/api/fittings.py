@@ -21,23 +21,23 @@ logger = logging.getLogger(__name__)
 access_duration_track: Dict[int, Tuple[datetime, datetime]] = {}
 
 
-def get_access_duration(id: int, limit: timedelta, access_now: datetime) -> timedelta:
+def get_access_duration(user_id: int, limit: timedelta, access_now: datetime) -> timedelta:
     """
-    :param id: user id used for tracking the access duration
+    :param user_id: user id used for tracking the access duration
     :param limit: if this amount of time is between request, expire access time
     :param access_now: the datetime to use to measure this access
     :return: the amount of time some one accessed this
     """
-    if id in access_duration_track:
-        first_access, last_access = access_duration_track[id]
-        if (access_now - last_access) > limit: # reset
-            access_duration_track[id] = (access_now, access_now)
+    if user_id in access_duration_track:
+        first_access, last_access = access_duration_track[user_id]
+        if (access_now - last_access) > limit:  # reset
+            access_duration_track[user_id] = (access_now, access_now)
             return timedelta(minutes=0)
         else:
-            access_duration_track[id] = (first_access, access_now)
+            access_duration_track[user_id] = (first_access, access_now)
             return access_now - first_access
     else:
-        access_duration_track[id] = (access_now, access_now)
+        access_duration_track[user_id] = (access_now, access_now)
         return timedelta(minutes=0)
 
 
@@ -115,9 +115,11 @@ def history_since():
 
     # do access tracking here
     if get_access_duration(current_user.id, timedelta(hours=6), datetime.utcnow()) > timedelta(days=4):
-        logger.error(f"User {current_user.username} is requesting fits since over 4days, without a break of at least 6h")
+        logger.error(f"User {current_user.username}"
+                     f" is requesting fits since over 4days, without a break of at least 6h")
 
     return jsonify(make_history_json(new_history_entries))
+
 
 @bp.route("/fittings/unchecked_approve", methods=["POST"])
 @login_required

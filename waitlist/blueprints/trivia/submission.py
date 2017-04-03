@@ -29,7 +29,7 @@ def show_input_form(trivia_id: int):
     if trivia.toTime < timenow:
         flask.abort(410, f'This trivia is over, it ended at {trivia.toTime} and it is {timenow}')
     if trivia.fromTime > timenow:
-        flask.abort(428 ,f'This trivia did not start yet, it starts at {trivia.fromTime} and it is {timenow}')
+        flask.abort(428, f'This trivia did not start yet, it starts at {trivia.fromTime} and it is {timenow}')
 
     return render_template('trivia/index.html', trivia=trivia)
 
@@ -49,12 +49,12 @@ def process_submission(trivia_id: int) -> Optional[Response]:
     if trivia.toTime < timenow:
         flask.abort(410, f'This trivia is over, it ended at {trivia.toTime} and it is {timenow}')
     if trivia.fromTime > timenow:
-        flask.abort(428 ,f'This trivia did not start yet, it starts at {trivia.fromTime} and it is {timenow}')
-
+        flask.abort(428, f'This trivia did not start yet, it starts at {trivia.fromTime} and it is {timenow}')
 
     # lets see if we find a submisson by this character or account
     if current_user.type == "account":
-        filter_criteria = ((TriviaSubmission.submittorAccountID == current_user.id) | (TriviaSubmission.submittorID == current_user.get_eve_id()))
+        filter_criteria = ((TriviaSubmission.submittorAccountID == current_user.id)
+                           | (TriviaSubmission.submittorID == current_user.get_eve_id()))
     else:
         filter_criteria = (TriviaSubmission.submittorID == current_user.get_eve_id())
 

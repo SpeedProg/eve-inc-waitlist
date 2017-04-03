@@ -14,7 +14,8 @@ perm_trainee = perm_manager.get_permission('trainee')
 
 # noinspection PyUnusedLocal
 @roles_changed_sig.connect
-def on_roles_changed(sender, to_id: int, by_id: int, added_roles: Sequence[str], removed_roles: Sequence[str], note: str) -> None:
+def on_roles_changed(sender, to_id: int, by_id: int, added_roles: Sequence[str],
+                     removed_roles: Sequence[str], note: str) -> None:
     if len(added_roles) <= 0 and len(removed_roles) <= 0 and note == "":
         return
     history_entry = AccountNote(accountID=to_id, byAccountID=by_id, note=note)
@@ -54,6 +55,7 @@ def on_roles_added(sender, by_id: int, role_name: str, role_display_name: str) -
         return
 
     note: AccountNote = AccountNote(accountID=by_id, byAccountID=by_id,
-                                    note=f'Added role with name{role_name} and displayName {role_display_name}', restriction_level=1000)
+                                    note=f'Added role with name{role_name} and displayName {role_display_name}',
+                                    restriction_level=1000)
     db.session.add(note)
     db.session.commit()

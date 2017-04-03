@@ -80,6 +80,7 @@ class MiniJSONEncoder(JSONEncoder):
     """Minify JSON output."""
     item_separator = ','
     key_separator = ':'
+
     def default(self, obj):
         if isinstance(obj, datetime):
             return obj.isoformat()+"Z"
