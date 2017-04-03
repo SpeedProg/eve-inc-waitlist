@@ -14,7 +14,7 @@ class StaticRoles(object):
 
 
 class StaticPermissions(object):
-    ADMIN = 'admin'
+    ADMIN = 'admin_tools'
 
 class AddPermission(Permission):
 
