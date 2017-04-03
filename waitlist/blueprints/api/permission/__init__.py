@@ -6,17 +6,17 @@ from flask import request
 from flask_login import login_required
 
 from waitlist.permissions import perm_manager
-from waitlist.permissions.manager import StaticRoles
+from waitlist.permissions.manager import StaticRoles, StaticPermissions
 
 bp = Blueprint('api_permission', __name__)
 logger = logging.getLogger(__name__)
 
-perm_manager.define_permission(StaticRoles.ADMIN)
+perm_manager.define_permission(StaticPermissions.ADMIN)
 
 
 @bp.route('/change', methods=['POST'])
 @login_required
-@perm_manager.require(StaticRoles.ADMIN)
+@perm_manager.require(StaticPermissions.ADMIN)
 def change():
     perm_name: str = request.form.get('perm_name', None)
     role_name: str = request.form.get('role_name', None)

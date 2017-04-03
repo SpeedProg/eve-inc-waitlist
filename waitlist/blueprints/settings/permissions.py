@@ -16,19 +16,19 @@ from waitlist.signal.signals import send_roles_added
 bp = Blueprint('settings_permissions', __name__)
 logger = logging.getLogger(__name__)
 
-perm_manager.define_permission(StaticRoles.ADMIN)
+perm_manager.define_permission(StaticPermissions.ADMIN)
 
 
 @bp.route("/", methods=['GET'])
 @login_required
-@perm_manager.require(StaticRoles.ADMIN)
+@perm_manager.require(StaticPermissions.ADMIN)
 def view_permissions() -> Response:
     return render_template('settings/permissions/config.html')
 
 
 @bp.route("/add_role", methods=['POST'])
 @login_required
-@perm_manager.require(StaticRoles.ADMIN)
+@perm_manager.require(StaticPermissions.ADMIN)
 def add_role() -> Response:
     role_name: str = request.form['role_name']
     role_display_name: str = request.form['role_display_name']

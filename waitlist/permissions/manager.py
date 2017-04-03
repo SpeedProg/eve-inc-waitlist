@@ -12,6 +12,7 @@ logger = logging.getLogger(__name__)
 class StaticRoles(object):
     ADMIN = 'admin'
 
+
 class StaticPermissions(object):
     ADMIN = 'admin'
 
@@ -97,7 +98,7 @@ class PermissionManager(object):
             self.__add_permission(permission.name, perm)
 
     def __add_permission(self, name: str, perm: AddPermission) -> None:
-        self.__permissions[name] = self.__permissions[StaticRoles.ADMIN].union(perm)
+        self.__permissions[name] = self.__permissions[StaticPermissions.ADMIN].union(perm)
 
     def get_permission(self, name: str) -> AddPermission:
         if name in self.__definitions:
@@ -133,7 +134,7 @@ class PermissionManager(object):
     def require(self, name: str) -> IdentityContext:
         if name in self.__permissions:
             return self.__permissions[name].require()
-        return self.__permissions[StaticRoles.ADMIN].require()
+        return self.__permissions[StaticPermissions.ADMIN].require()
 
     def define_permission(self, name: str) -> None:
         if name not in self.__definitions:
