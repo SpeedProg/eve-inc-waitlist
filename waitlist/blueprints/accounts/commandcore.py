@@ -9,6 +9,8 @@ from flask.templating import render_template
 bp = Blueprint('accounts_cc', __name__)
 logger = logging.getLogger(__name__)
 
+perm_manager.define_permission('commandcore')
+
 
 @bp.route("/", methods=["GET"])
 @login_required

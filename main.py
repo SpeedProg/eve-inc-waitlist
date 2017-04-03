@@ -33,8 +33,9 @@ from waitlist.blueprints.settings.ccvote_results import bp as bp_ccvote_settings
 from waitlist.blueprints.fleetview import bp as bp_fleetview
 
 from waitlist.blueprints.settings import accounts, bans, fleet_motd, fleetoptions, inserts, mail, overview,\
-    staticdataimport, teamspeak
+    staticdataimport, teamspeak, permissions
 from waitlist.blueprints import trivia
+from waitlist.blueprints.api import permission
 
 # needs to he here so signal handler gets registered
 from waitlist.signal.handler import acc_created, roles_changed, account_status_change
@@ -75,6 +76,8 @@ app.register_blueprint(mail.bp, url_prefix='/settings/mail')
 app.register_blueprint(overview.bp, url_prefix='/settings')
 app.register_blueprint(staticdataimport.bp, url_prefix='/settings/sde')
 app.register_blueprint(teamspeak.bp, url_prefix='/settings/teamspeak')
+app.register_blueprint(permissions.bp, url_prefix='/settings/permissions')
+app.register_blueprint(permission.bp, url_prefix='/api/permission')
 
 logger = logging.getLogger(__name__)
 

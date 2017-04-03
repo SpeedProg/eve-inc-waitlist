@@ -1,9 +1,10 @@
-from typing import Dict
+from typing import Dict, Optional, Any
 
 from flask import Response
 from flask.blueprints import Blueprint
 import logging
-from waitlist.data.perm import perm_management, perm_dev
+
+from waitlist.permissions import perm_manager
 from waitlist.utility import fleet as fleet_utils
 from werkzeug.utils import redirect
 from flask_login import login_required, current_user
@@ -29,6 +30,13 @@ from waitlist.utility.utils import token_has_scopes
 
 bp = Blueprint('fleet', __name__)
 logger = logging.getLogger(__name__)
+
+
+perm_manager.define_permission('fleet_management')
+perm_manager.define_permission('developer_tools')
+
+fleets_manage = perm_manager.get_permission('fleet_management')
+perm_dev = perm_manager.get_permission('developer_tools')
 
 
 @login_required
@@ -69,14 +77,14 @@ def handle_token_update(code):
 
 
 @login_required
-@perm_management.require(http_exception=401)
+@fleets_manage.require(http_exception=401)
 def handle_setup_start_sso_cb(tokens):
     handle_token_update(tokens)
     return redirect(url_for("fleet.setup_start"))
 
 
 @login_required
-@perm_management.require(http_exception=401)
+@fleets_manage.require(http_exception=401)
 def handle_takeover_sso_cb(tokens):
     handle_token_update(tokens)
     return redirect(url_for('fleet.takeover_sso_cb'))
@@ -97,8 +105,8 @@ Steps:
 
 @bp.route("/setup/<string:step>", methods=['POST'])
 @login_required
-@perm_management.require(http_exception=401)
-def setup_steps(step):
+@fleets_manage.require(http_exception=401)
+def setup_steps(step: str) -> Any:
     if step == 'url':
         return setup_step_url()
     elif step == "select":
@@ -129,7 +137,7 @@ def setup_step_url():
     return get_select_form(fleet_id)
 
 
-def get_select_form(fleet_id: int) -> None:
+def get_select_form(fleet_id: int) -> Any:
     fleet_api = EveFleetEndpoint(fleet_id)
     wings = fleet_api.get_wings()
     if wings.is_error():
@@ -154,7 +162,7 @@ def get_select_form(fleet_id: int) -> None:
                            groups=groups, assign=auto_assign)
 
 
-def setup_step_select():
+def setup_step_select() -> Optional[Response]:
     logi_s = request.form.get('wl-logi')
     sniper_s = request.form.get('wl-sniper')
     dps_s = request.form.get('wl-dps')
@@ -220,14 +228,14 @@ def setup_step_select():
 
 @bp.route("/setup/change_squads/<fleet_id>", methods=["GET"])
 @login_required
-@perm_management.require()
+@fleets_manage.require()
 def change_setup(fleet_id):
     return get_select_form(fleet_id)
 
 
 @bp.route("/setup/", methods=['GET'])
 @login_required
-@perm_management.require(http_exception=401)
+@fleets_manage.require(http_exception=401)
 def setup_start():
     fleet_id = session['fleet_id']
     return render_template("fleet/setup/fleet_url.html", fleetID=fleet_id)
@@ -235,8 +243,8 @@ def setup_start():
 
 @bp.route("/setup/<int:fleet_id>", methods=['GET'])
 @login_required
-@perm_management.require(http_exception=401)
-def setup(fleet_id):
+@fleets_manage.require(http_exception=401)
+def setup(fleet_id: int) -> Response:
     (logiID, sniperID, dpsID, moreDpsID) = fleet_utils.setup(fleet_id, 'hq')
     fleet = db.session.query(CrestFleet).get(fleet_id)
     if fleet is None:
@@ -280,14 +288,14 @@ def print_fleet(fleetid: int) -> Response:
 
 @bp.route("/take", methods=['GET'])
 @login_required
-@perm_management.require(http_exception=401)
+@fleets_manage.require(http_exception=401)
 def take_form():
     return render_template("fleet/takeover/link-form.html")
 
 
 @bp.route("/take", methods=["POST"])
 @login_required
-@perm_management.require()
+@fleets_manage.require()
 def take_link():
     link = request.form.get('fleet-link')
     fleet_id_search = re.search('https://crest-tq.eveonline.com/fleets/(\d+)/', link, re.IGNORECASE)
@@ -327,7 +335,7 @@ def take_link():
 
 @bp.route('/take_sso', methods=['GET'])
 @login_required
-@perm_management.require()
+@fleets_manage.require()
 def takeover_sso_cb():
     if not ('fleet_id' in session):
         flask.abort(400)
@@ -348,16 +356,16 @@ def takeover_sso_cb():
 
 @bp.route("/<int:fleet_id>/change-type", methods=['GET'])
 @login_required
-@perm_management.require()
-def change_type(fleet_id):
+@fleets_manage.require()
+def change_type(fleet_id: int) -> Any:
     groups = db.session.query(WaitlistGroup).all()
     return render_template("fleet/takeover/change-group-form.html", fleetID=fleet_id, groups=groups)
 
 
 @bp.route("/<int:fleet_id>/change-type", methods=['POST'])
 @login_required
-@perm_management.require()
-def change_type_submit(fleet_id):
+@fleets_manage.require()
+def change_type_submit(fleet_id: int) -> Any:
     fleet_group = int(request.form.get('fleet-group'))
     fleet = db.session.query(CrestFleet).get(fleet_id)
     if fleet is None:

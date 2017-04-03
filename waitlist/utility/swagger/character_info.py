@@ -4,7 +4,6 @@
 from pyswagger import App
 
 from waitlist.utility.swagger import get_api
-import email.utils as eut
 from pyswagger import Security
 import datetime
 from waitlist.utility.swagger.eve import get_esi_client, ESIResponse,\

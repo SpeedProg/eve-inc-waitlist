@@ -83,7 +83,8 @@ class FleetMemberInfo:
 member_info = FleetMemberInfo()
 
 
-def setup(fleet_id: int, fleet_type: str) -> Optional[Tuple[Optional[int], Optional[int], Optional[int], Optional[int]]]:
+def setup(fleet_id: int, fleet_type: str)\
+        -> Optional[Tuple[Optional[int], Optional[int], Optional[int], Optional[int]]]:
     fleet_api = EveFleetEndpoint(fleet_id)
     fleet_settings = fleet_api.get_fleet_settings()
     if fleet_settings.is_error():

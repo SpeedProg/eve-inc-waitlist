@@ -6,7 +6,7 @@
 {{ super() }}
 {% endblock head %}
 {% block content %}
-{% if perm_leadership.can() %}
+{% if perm_manager.get_permission('welcome_mail_edit').can() %}
 <h4>Default Mail</h4>
 <form method="post" action="{{url_for('settings_mail.change', type_='default')}}">
 <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
@@ -29,7 +29,7 @@ $sig$<br>
 <button type="submit" class="btn btn-primary">Save</button>
 </form>
 {% endif %}
-{% if perm_t_mod.can() %}
+{% if perm_manager.get_permission('welcome_mail_edit').can() %}
 <h4>T-Badge Mail</h4>
 <form method="post" action="{{url_for('settings_mail.change', type_='tbadge')}}">
 <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
@@ -52,7 +52,7 @@ $sig$<br>
 <button type="submit" class="btn btn-primary">Save</button>
 </form>
 {% endif %}
-{% if perm_res_mod.can() %}
+{% if perm_manager.get_permission('welcome_mail_edit').can() %}
 <h4>Resident Mail</h4>
 <form method="post" action="{{url_for('settings_mail.change', type_='resident')}}">
 <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
@@ -74,7 +74,5 @@ $sig$<br>
 </samp>
 <button type="submit" class="btn btn-primary">Save</button>
 </form>
-{% endif %}
-{% if perm_res_mod.can() %}
 {% endif %}
 {% endblock content %}

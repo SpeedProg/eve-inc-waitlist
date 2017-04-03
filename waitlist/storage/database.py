@@ -305,11 +305,30 @@ class Role(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String(50), unique=True)
     displayName = Column(String(150), unique=False)
-    # if this = 1 and some one has this role, he can not login by igb header
-    is_restrictive = Column(Integer)
 
     def __repr__(self):
         return "<Role %r>" % self.name
+
+
+permission_roles = Table('permission_roles', Base.metadata,
+                         Column('permission', Integer, ForeignKey('permissions.id')),
+                         Column('role', Integer, ForeignKey('roles.id'))
+                         )
+
+
+class Permission(Base):
+    """
+    Represents a permission like, view_fits, or bans_edit....
+    """
+    __tablename__ = 'permissions'
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String(150), unique=True)
+
+    roles_needed = relationship("Role", secondary=permission_roles)
+
+    def __repr__(self):
+        return f'<Permission id={self.id} name={self.name}'
 
 
 class Waitlist(Base):

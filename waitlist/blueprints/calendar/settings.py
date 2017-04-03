@@ -19,6 +19,8 @@ from waitlist.storage.database import Account, CalendarEvent, CalendarEventCateg
 bp = Blueprint('calendar_settings', __name__)
 logger = logging.getLogger(__name__)
 
+perm_manager.define_permission('calendar_event_see_all')
+
 
 @bp.route("/", methods=['GET'])
 @login_required
