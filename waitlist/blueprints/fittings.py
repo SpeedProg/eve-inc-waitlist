@@ -5,25 +5,17 @@ from flask_login import login_required, current_user
 from flask.globals import request
 
 from waitlist.permissions import perm_manager
-from waitlist.storage.database import WaitlistEntry, Shipfit, Waitlist, \
-    Character, InvType, MarketGroup, HistoryEntry, WaitlistGroup, FitModule
-import re
-from waitlist.storage.modules import resist_ships, logi_ships, \
-    sniper_ships, t3c_ships, sniper_weapons, dps_weapons, dps_ships, \
-    weapongroups
+from waitlist.storage.database import WaitlistEntry, Shipfit, Waitlist, HistoryEntry, WaitlistGroup
 from waitlist.data.names import WaitlistNames
 from werkzeug.utils import redirect
-from flask.helpers import url_for, flash
+from flask.helpers import url_for
 from flask.templating import render_template
 from datetime import datetime, timedelta
-from waitlist.utility.utils import get_fit_format, create_mod_map, \
-    get_character
 from waitlist import db
 from waitlist.data.sse import subscriptions, EntryAddedSSE, \
     send_server_sent_event, FitAddedSSE, FitRemovedSSE, EntryRemovedSSE
 import flask
 from sqlalchemy.sql.expression import desc
-from waitlist.utility.database_utils import parse_eft
 from waitlist.utility.history_utils import create_history_object
 from waitlist.blueprints.api import fittings as fit_api
 

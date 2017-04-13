@@ -1,13 +1,12 @@
 import os, sys
 from multiprocessing import Process, JoinableQueue
-base_path = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(os.path.join(base_path, 'lib'))
 from waitlist.storage.database import Shipfit, InvType, FitModule
-from waitlist.base import db, manager
+from waitlist import db, manager
 
 
 if __name__ == '___main__':
     manager.run()
+
 
 class ConvertConsumer(Process):
     def __init__(self, tasks, name):
@@ -20,19 +19,20 @@ class ConvertConsumer(Process):
             work = self.__tasks.get()
             if work is None:
                 break
-            self.convert(work[0], work[1])
-    
-    def convert(self, offset, limit):
+            ConvertConsumer.convert(work[0], work[1])
+
+    @staticmethod
+    def convert(offset, limit):
         fits = db.session.query(Shipfit).limit(limit).offset(offset).all()
         for fit in fits:
-            if (fit.modules != None and fit.modules != ''):
+            if fit.modules is not None and fit.modules != '':
                 filtered_modules_string = ''
                 for moduleDefStr in fit.modules.split(':'):
-                    if (moduleDefStr == ''):
+                    if moduleDefStr == '':
                         continue
                     try:
                         moduleDefArr = moduleDefStr.split(';')
-                        if (len(moduleDefArr) != 2):
+                        if len(moduleDefArr) != 2:
                             print("Skipping Module Fit ID=", fit.id, " Module Def Str:", moduleDefStr)
                             continue
                         
@@ -43,7 +43,7 @@ class ConvertConsumer(Process):
                             moduleDefArr[1] = 2147483647
                         
                         module = db.session.query(InvType).get(moduleDefArr[0])
-                        if (module == None):
+                        if module is None:
                             print("No Module with ID=", str(moduleDefArr[0]))
                             continue
                         
@@ -79,7 +79,7 @@ if __name__ == '__main__':
     
     numberOfFits = db.session.query(Shipfit).count()
     stepSize = 1000
-    for s in xrange(0, numberOfFits, stepSize):
+    for s in range(0, numberOfFits, stepSize):
         task_queue.put((s, stepSize))
     
     # send them all the signal to break
