@@ -41,12 +41,6 @@ class ESIResponse(object):
         self.__status_code: int = status_code
         self.__error: str = error
 
-    @staticmethod
-    def parse_datetime(datetime_string: str):
-        dt = datetime.strptime(datetime_string, '%Y-%m-%dT%H:%M:%SZ')
-        dt.replace(tzinfo=timezone.utc)
-        return dt
-
     def expires(self) -> datetime:
         return self.__expires
 

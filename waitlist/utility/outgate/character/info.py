@@ -1,11 +1,19 @@
 from datetime import datetime
 from typing import Optional, Tuple
 
-from storage.database import APICacheCharacterInfo
-from utility.swagger.eve.character import CharacterEndpoint
-from utility.swagger.eve.search import SearchEndpoint
+from waitlist.storage.database import APICacheCharacterInfo
+from waitlist.utility.swagger.eve.character import CharacterEndpoint, CharacterInfo
+from waitlist.utility.swagger.eve.search import SearchEndpoint
 from waitlist import db
 from waitlist.utility.outgate import corporation
+
+
+def set_from_character_info(self: APICacheCharacterInfo, info: CharacterInfo) -> None:
+    self.characterName = info.get_name()
+    self.corporationID = info.get_corp_id()
+    self.characterBirthday = info.get_birthday()
+    self.raceID = info.get_race_id()
+    self.expire = info.expires()
 
 
 def get_character_info(char_id: int) -> APICacheCharacterInfo:
@@ -16,13 +24,13 @@ def get_character_info(char_id: int) -> APICacheCharacterInfo:
         char_cache = APICacheCharacterInfo()
         char_ep = CharacterEndpoint()
         char_info = char_ep.get_character_info(char_id)
-        char_cache.set_from_character_info(char_info)
+        set_from_character_info(char_cache, char_info)
         db.session.add(char_cache)
         db.session.commit()
     elif char_cache.characterName is None:
         char_ep = CharacterEndpoint()
         char_info = char_ep.get_character_info(char_id)
-        char_cache.set_from_character_info(char_info)
+        set_from_character_info(char_cache, char_info)
         db.session.commit()
     else:
         now = datetime.now()
@@ -30,7 +38,7 @@ def get_character_info(char_id: int) -> APICacheCharacterInfo:
             # expired, update it
             char_ep = CharacterEndpoint()
             char_info = char_ep.get_character_info(char_id)
-            char_cache.set_from_character_info(char_info)
+            set_from_character_info(char_cache, char_info)
             db.session.commit()
 
     return char_cache
@@ -42,12 +50,12 @@ def get_character_info_by_name(name: str) -> Optional[APICacheCharacterInfo]:
     :param name: character name to get the info for
     :return: APICacheCharacterInfo of the character or None if no character with this name can be found
     """
-    character = db.session.query(APICacheCharacterInfo).filter(APICacheCharacterInfo.name == name).first()
+    character = db.session.query(APICacheCharacterInfo).filter(APICacheCharacterInfo.characterName == name).first()
 
     if character is None:
         search_ep = SearchEndpoint()
         search_info = search_ep.public_search(name, ['character'])
-        if search_info is None:
+        if search_info is None or len(search_info.character_ids()) < 1:
             return None
         return get_character_info(search_info.character_ids()[0])
     else:

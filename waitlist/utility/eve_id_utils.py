@@ -1,6 +1,6 @@
 from typing import Optional, Tuple
 
-from utility import outgate
+from waitlist.utility import outgate
 from waitlist.storage.database import Constellation, SolarSystem, Station,\
     InvType, Account, Character, Ban, Whitelist
 from waitlist import db

@@ -1,4 +1,3 @@
-import os, sys
 from multiprocessing import Process, JoinableQueue
 from waitlist.storage.database import Shipfit, InvType, FitModule
 from waitlist import db, manager

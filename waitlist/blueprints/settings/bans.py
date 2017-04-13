@@ -8,7 +8,7 @@ from flask import url_for
 from flask_login import current_user, login_required
 from sqlalchemy import asc
 
-from utility import outgate
+from waitlist.utility import outgate
 from waitlist import db
 from waitlist.blueprints.settings import add_menu_entry
 from waitlist.permissions import perm_manager
@@ -71,26 +71,25 @@ def bans_change():
                 ban_admin = current_user.get_eve_name()
 
             logger.info("Banning %s for %s by %s as %s.", ban_name, ban_reason, ban_admin, current_user.username)
-            ban_char = get_character_by_name(ban_name)
+            ban_id = outgate.character.get_char_corp_all_id_by_name(ban_name)
             admin_char = get_character_by_name(ban_admin)
-            if ban_char is None:
+            if ban_id is None:
                 logger.error("Did not find ban target %s", ban_name)
                 flash("Could not find Character " + ban_name, "danger")
                 continue
 
-            eve_id = ban_char.get_eve_id()
             admin_id = admin_char.get_eve_id()
 
-            if eve_id is None or admin_id is None:
+            if ban_id is None or admin_id is None:
                 logger.error("Failed to correctly parse: %", target)
                 flash("Failed to correctly parse " + target, "danger")
                 continue
 
             # check if ban already there
-            if db.session.query(Ban).filter(Ban.id == eve_id).count() == 0:
+            if db.session.query(Ban).filter(Ban.id == ban_id).count() == 0:
                 # ban him
                 new_ban = Ban()
-                new_ban.id = eve_id
+                new_ban.id = ban_id
                 new_ban.name = ban_name
                 new_ban.reason = ban_reason
                 new_ban.admin = admin_id

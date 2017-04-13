@@ -3,9 +3,9 @@ from flask_login import login_required, current_user
 
 import logging
 
-from data.sse import FitRemovedSSE, EntryRemovedSSE, send_server_sent_event
-from storage.database import Shipfit, WaitlistEntry, HistoryEntry
-from utility.history_utils import create_history_object
+from waitlist.data.sse import FitRemovedSSE, EntryRemovedSSE, send_server_sent_event
+from waitlist.storage.database import Shipfit, WaitlistEntry, HistoryEntry
+from waitlist.utility.history_utils import create_history_object
 from waitlist import db
 from . import bp
 

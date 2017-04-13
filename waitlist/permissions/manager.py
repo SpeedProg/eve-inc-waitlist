@@ -59,7 +59,7 @@ class PermissionManager(object):
     def __load_permissions(self) -> None:
         # make sure admin role exists
         if not PermissionManager.role_exists(StaticRoles.ADMIN):
-            r = Role(name=StaticRoles.ADMIN, display_name=StaticRoles.ADMIN)
+            r = Role(name=StaticRoles.ADMIN, displayName=StaticRoles.ADMIN)
             db.session.add(r)
             db.session.commit()
 
@@ -126,7 +126,7 @@ class PermissionManager(object):
             print("Role {name} already exists")
             return
 
-        role = Role(name=name, displayName=display_name, is_restrictive=0)
+        role = Role(name=name, displayName=display_name)
         db.session.add(role)
         db.session.commit()
 

@@ -1,11 +1,19 @@
 import logging
 from datetime import datetime
 
-from storage.database import APICacheAllianceInfo
-from utility.swagger.eve.alliance import AllianceEndpoint
+from waitlist.storage.database import APICacheAllianceInfo
+from waitlist.utility.swagger.eve.alliance import AllianceEndpoint, AllianceInfo
 from waitlist import db
 
 logger = logging.getLogger(__name__)
+
+
+def set_from_alliance_info(self: APICacheAllianceInfo, info: AllianceInfo):
+    self.allianceName = info.get_alliance_name()
+    self.dateFounded = info.get_date_founded()
+    self.executorCorpID = info.get_executor_corp_id()
+    self.ticker = info.get_ticker()
+    self.expire = info.expires()
 
 
 def get_alliance_info(alliance_id: int) -> APICacheAllianceInfo:
@@ -20,13 +28,13 @@ def get_alliance_info(alliance_id: int) -> APICacheAllianceInfo:
             # this should never happen
             logger.error(f'No Alliance with id {alliance_id} exists!')
 
-        all_cache.set_from_alliance_info(all_info)
+        set_from_alliance_info(all_cache, all_info)
         db.session.add(all_cache)
         db.session.commit()
     elif all_cache.characterName is None:
         all_ep = AllianceEndpoint()
         all_info = all_ep.get_alliance_info(alliance_id)
-        all_cache.set_from_alliance_info(all_info)
+        set_from_alliance_info(all_cache, all_info)
         db.session.commit()
     else:
         now = datetime.now()
@@ -34,7 +42,7 @@ def get_alliance_info(alliance_id: int) -> APICacheAllianceInfo:
             # expired, update it
             all_ep = AllianceEndpoint()
             all_info = all_ep.get_alliance_info(alliance_id)
-            all_cache.set_from_alliance_info(all_info)
+            set_from_alliance_info(all_cache, all_info)
             db.session.commit()
 
     return all_cache
