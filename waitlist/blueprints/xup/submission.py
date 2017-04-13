@@ -1,20 +1,20 @@
 import logging
 from datetime import datetime
-from flask import Blueprint, request, flash, redirect, url_for, render_template
+from flask import request, flash, redirect, url_for, render_template
 from flask_login import current_user, login_required
 
 import re
 from pyswagger.contrib.client import flask
 
-from blueprints.api.fittings.self import self_remove_fit
-from data.names import WaitlistNames
-from data.sse import EntryAddedSSE, send_server_sent_event, FitAddedSSE
-from storage.database import WaitlistGroup, WaitlistEntry, Shipfit, InvType, FitModule, MarketGroup, HistoryEntry
-from storage.modules import resist_ships, logi_ships, sniper_ships, sniper_weapons, dps_weapons, weapongroups, \
+from waitlist.blueprints.api.fittings.self import self_remove_fit
+from waitlist.data.names import WaitlistNames
+from waitlist.data.sse import EntryAddedSSE, send_server_sent_event, FitAddedSSE
+from waitlist.storage.database import WaitlistGroup, WaitlistEntry, Shipfit, InvType, FitModule, MarketGroup, HistoryEntry
+from waitlist.storage.modules import resist_ships, logi_ships, sniper_ships, sniper_weapons, dps_weapons, weapongroups, \
     dps_ships, t3c_ships
-from utility.database_utils import parse_eft
-from utility.history_utils import create_history_object
-from utility.utils import get_character, get_fit_format, create_mod_map
+from waitlist.utility.database_utils import parse_eft
+from waitlist.utility.history_utils import create_history_object
+from waitlist.utility.utils import get_character, get_fit_format, create_mod_map
 from waitlist import db
 from . import bp
 

@@ -28,9 +28,11 @@ if __name__ == '__main__':
             break
         
         char_id, char_name = character_info.characterid_from_name(char_name)
-        character = Character()
-        character.eve_name = char_name
-        character.id = char_id
+        character: Character = db.session.query(Character).get(char_id)
+        if character is None:
+            character = Character()
+            character.eve_name = char_name
+            character.id = char_id
         print("Added "+character.__repr__())
         list_eveids.append(char_id)
         acc.characters.append(character)

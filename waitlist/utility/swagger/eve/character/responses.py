@@ -1,5 +1,6 @@
 import logging
 from datetime import datetime, timezone
+from pyswagger.primitives import Datetime
 from typing import Optional, Union, Dict
 
 from waitlist.utility.swagger.eve import ESIResponse
@@ -9,16 +10,12 @@ logger = logging.getLogger(__name__)
 
 class CharacterInfo(ESIResponse):
     def __init__(self, expires: datetime, status_code: int, error: Optional[str],
-                 data: Optional[Dict[str, Union[str, int]]]) -> None:
-        super(CharacterInfo).__init__(expires, status_code, error)
-        self.data: Optional[Dict[str, Union[str, int, datetime]]] = data
-        if self.data is not None and 'birthday' in self.data:
-            dt = datetime.strptime(self.data['birthday'], '%Y-%m-%dT%H:%M:%SZ')
-            dt.replace(tzinfo=timezone.utc)
-            self.data['birthday'] = ESIResponse.parse_datetime(data['birthday'])
+                 data: Optional[Dict[str, Union[str, int, Datetime]]]) -> None:
+        super().__init__(expires, status_code, error)
+        self.data: Optional[Dict[str, Union[str, int, Datetime]]] = data
 
     def get_birthday(self) -> datetime:
-        return self.data['birthday']
+        return self.data['birthday'].v
 
     def get_corp_id(self) -> int:
         return self.data['corporation_id']

@@ -3,9 +3,9 @@
 """
 from pyswagger import App
 
-from utility.swagger.eve.alliance import AllianceEndpoint
-from utility.swagger.eve.character import CharacterEndpoint, CharacterInfo
-from utility.swagger.eve.corporation import CorporationEndpoint
+from waitlist.utility.swagger.eve.alliance import AllianceEndpoint
+from waitlist.utility.swagger.eve.character import CharacterEndpoint, CharacterInfo
+from waitlist.utility.swagger.eve.corporation import CorporationEndpoint
 from waitlist.utility.swagger import get_api
 from pyswagger import Security
 import datetime

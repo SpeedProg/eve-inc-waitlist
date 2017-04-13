@@ -3,7 +3,7 @@ from esipy import EsiClient
 
 from requests.packages.urllib3.exceptions import ReadTimeoutError
 
-from utility.swagger.eve.corporation.responses import CorporationInfo
+from waitlist.utility.swagger.eve.corporation.responses import CorporationInfo
 from waitlist.utility.swagger.eve import get_esi_client, get_expire_time, make_error_response, ESIEndpoint
 
 logger = logging.getLogger(__name__)

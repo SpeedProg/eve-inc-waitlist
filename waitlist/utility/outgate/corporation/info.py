@@ -1,11 +1,25 @@
 import logging
 from datetime import datetime
 
-from storage.database import APICacheCorporationInfo
-from utility.swagger.eve.corporation import CorporationEndpoint
+from waitlist.storage.database import APICacheCorporationInfo
+from waitlist.utility.swagger.eve.corporation import CorporationEndpoint, CorporationInfo
 from waitlist import db
 
 logger = logging.getLogger(__name__)
+
+
+def set_from_corp_info(self: APICacheCorporationInfo, info: CorporationInfo):
+    self.name = info.get_corporation_name()
+    self.allianceID = info.get_alliance_id()
+    self.ceoID = info.get_ceo_id()
+    self.description = info.get_corporation_description()
+    self.creatorID = info.get_creator_id()
+    self.memberCount = info.get_member_count()
+    self.taxRate = info.get_tax_rate()
+    self.ticker = info.get_ticker()
+    self.url = info.get_url()
+    self.creationDate = info.get_creation_date()
+    self.expire = info.expires()
 
 
 def get_corp_info(corp_id: int) -> APICacheCorporationInfo:
@@ -20,13 +34,13 @@ def get_corp_info(corp_id: int) -> APICacheCorporationInfo:
             # this should never happen
             logger.error(f'No Corp with id {corp_id} exists!')
 
-        corp_cache.set_from_corp_info(corp_info)
+        set_from_corp_info(corp_cache, corp_info)
         db.session.add(corp_cache)
         db.session.commit()
     elif corp_cache.characterName is None:
         corp_ep = CorporationEndpoint()
         corp_info = corp_ep.get_corporation_info(corp_id)
-        corp_cache.set_from_corp_info(corp_info)
+        set_from_corp_info(corp_cache, corp_info)
         db.session.commit()
     else:
         now = datetime.now()
@@ -34,7 +48,7 @@ def get_corp_info(corp_id: int) -> APICacheCorporationInfo:
             # expired, update it
             corp_ep = CorporationEndpoint()
             corp_info = corp_ep.get_corporation_info(corp_id)
-            corp_cache.set_from_corp_info(corp_info)
+            set_from_corp_info(corp_cache, corp_info)
             db.session.commit()
 
     return corp_cache
