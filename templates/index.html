@@ -1,14 +1,15 @@
 {% extends "base.html" %} {% block title %}Overview{% endblock %}
 {% block head %}
-<meta name="url-self-remove-all" content="{{url_for('fittings.self_remove_all')}}">
+<meta name="url-self-remove-all" content="{{url_for('api_fittings.self_remove_all')}}">
 <meta name="user-id" content="{{ current_user.get_eve_id() }}">
 <meta name="wl-names" content="{% for wl in lists %}{{wl.name|e}}{% if not loop.last %},{% endif %}{% endfor %}">
 <meta name="api-ts-test" content="{{url_for('api_ts3.test_poke')}}">
 <meta name="api-sse" content="{{url_for('api_sse.events')}}">
 <meta name="api-waitlists" content="{{url_for('api_fittings.waitlist')}}">
-<meta name="api-fit-update" content="{{url_for('fittings.xup_update', fit_id=-1)}}">
+<meta name="api-fit-update" content="{{url_for('xup.update', fit_id=-1)}}">
 <meta name="api-waitlists-groups" content="{{url_for('api_waitlists.groups', group_id=-1)}}">
 <meta name="influence-link" content="{{ influence_link }}">
+<meta name="api-remove-own-fit" content="{{ url_for('api_fittings.self_remove_fit', fitid=-1) }}">
 <link rel="preconnect" href="https://crest-tq.eveonline.com/">
 
 {% if perm_manager.get_permission('fits_view').can() %}
@@ -27,8 +28,8 @@
 {% if perm_manager.get_permission('fleet_management').can() %} {# URLs for fleetcomp js #}
 <meta name="can-fleetcomp" content="True">
 <meta name="api-send-notification" content="{{url_for('api_fittings.send_notification', player_id=-1)}}">
-<meta name="api-wls-remove-player" content="{{url_for('fittings.api_wls_remove_player')}}">
-<meta name="api-wl-remove-entry" content="{{url_for('fittings.api_wl_remove_entry')}}">
+<meta name="api-wls-remove-player" content="{{url_for('api_fittings.api_wls_remove_player')}}">
+<meta name="api-wl-remove-entry" content="{{url_for('api_fittings.wl_remove_entry')}}">
 <meta name="api-move-entry-to-wls" content="{{url_for('fittings.move_to_waitlists')}}">
 <meta name="api-approve-fit" content="{{url_for('fittings.api_move_fit_to_waitlist')}}">
 <meta name="api-send-invite" content="{{url_for('api_fleet.invite_to_fleet')}}">

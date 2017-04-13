@@ -36,7 +36,8 @@ from waitlist.blueprints.settings import accounts, bans, fleet_motd, fleetoption
     staticdataimport, teamspeak, permissions
 from waitlist.blueprints import trivia
 from waitlist.blueprints.api import permission
-
+from waitlist.blueprints.api import fittings
+from waitlist.blueprints import xup
 # needs to he here so signal handler gets registered
 from waitlist.signal.handler import acc_created, roles_changed, account_status_change
 
@@ -78,6 +79,9 @@ app.register_blueprint(staticdataimport.bp, url_prefix='/settings/sde')
 app.register_blueprint(teamspeak.bp, url_prefix='/settings/teamspeak')
 app.register_blueprint(permissions.bp, url_prefix='/settings/permissions')
 app.register_blueprint(permission.bp, url_prefix='/api/permission')
+app.register_blueprint(fittings.bp, url_prefix='/api/fittings')
+app.register_blueprint(xup.bp, url_prefix='/xup')
+
 
 logger = logging.getLogger(__name__)
 

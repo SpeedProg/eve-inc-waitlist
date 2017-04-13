@@ -1,6 +1,5 @@
 from typing import Dict, Tuple
 
-from flask.blueprints import Blueprint
 import logging
 from flask_login import login_required, current_user
 from waitlist.permissions import perm_manager
@@ -13,7 +12,8 @@ from flask.json import jsonify
 from datetime import datetime, timedelta
 import flask
 from waitlist.utility import config
-bp = Blueprint('api_fittings', __name__)
+from . import bp
+
 logger = logging.getLogger(__name__)
 
 # Dict that maps charids to tuple of (dt_first_access, dt_last_access)

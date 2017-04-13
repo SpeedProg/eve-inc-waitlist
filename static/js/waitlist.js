@@ -41,15 +41,15 @@ waitlist.linemember = (function() {
 		var target = $(event.currentTarget);
 		var fitId = Number(target.attr('data-fit'));
 		event.stopPropagation();
-		var settings = {
+		var options = {
 			dataType: "text",
 			headers: {
 				'X-CSRFToken': getMetaData('csrf-token')
 			},
 			method: 'DELETE',
-			url: "/api/self/fittings/remove/" + fitId
+			url: settings.self_fit_remove_url.replace('-1', fitId)
 		};
-		$.ajax(settings);
+		$.ajax(options);
 	}
 
 	function updateFit(event) {
@@ -76,6 +76,7 @@ waitlist.linemember = (function() {
 
 	function init() {
 		settings.fit_update_url = getMetaData('api-fit-update');
+		settings.self_fit_remove_url = getMetaData('api-remove-own-fit')
 
 		// setup handler for the leave waitlist button
 		$('body').on('click', '[data-action="removeSelfFromWaitlists"]',

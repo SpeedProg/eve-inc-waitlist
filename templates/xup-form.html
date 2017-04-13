@@ -2,10 +2,10 @@
 <a href="https://i.imgur.com/6KvLvt8.gif" target="_blank">FC, WHAT DO?</a>
 {% if group is not none %}
 {% if update %}
-<form action="{{url_for('fittings.xup_update_submit')}}" method="post">
+<form action="{{url_for('xup.update_submit')}}" method="post">
 <input type="hidden" name="old-fit-id" value="{{oldFitID}}">
 {% else %}
-<form action="{{url_for('fittings.xup_submit')}}" method="post">
+<form action="{{url_for('xup.submit')}}" method="post">
 {% endif %}
 <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 <fieldset class="form-group bg-danger">
