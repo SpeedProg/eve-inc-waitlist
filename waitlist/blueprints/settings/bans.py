@@ -8,9 +8,9 @@ from flask import url_for
 from flask_login import current_user, login_required
 from sqlalchemy import asc
 
+from utility import outgate
 from waitlist import db
 from waitlist.blueprints.settings import add_menu_entry
-from waitlist.data.eve_xml_api import get_character_id_from_name
 from waitlist.permissions import perm_manager
 from waitlist.storage.database import Ban, Whitelist, Character
 from waitlist.utility.eve_id_utils import get_character_by_name
@@ -100,9 +100,9 @@ def bans_change():
         for target in targets:
             target = target.strip()
             logger.info("%s is unbanning %s", current_user.username, target)
-            eve_id = get_character_id_from_name(target)
-            if eve_id == 0:
-                flash("Character " + target + " does not exist!")
+            eve_id = outgate.character.get_char_corp_all_id_by_name(target)
+            if eve_id is None:
+                flash("Character/Corp/Alliance " + target + " does not exist!")
             else:
                 # check that there is a ban
                 if db.session.query(Ban).filter(Ban.id == eve_id).count() > 0:
@@ -154,9 +154,9 @@ def bans_change_single():
             db.session.commit()
     elif action == "unban":
         logger.info("%s is unbanning %s", current_user.username, target)
-        eve_id = get_character_id_from_name(target)
-        if eve_id == 0:
-            flash("Character " + target + " does not exist!")
+        eve_id = outgate.character.get_char_corp_all_id_by_name(target)
+        if eve_id is None:
+            flash("Character/Corp/Alliance " + target + " does not exist!")
         else:
             # check that there is a ban
             if db.session.query(Ban).filter(Ban.id == eve_id).count() > 0:
@@ -173,9 +173,9 @@ def bans_unban_single():
     target = request.form['target']  # name of target
     target = target.strip()
     logger.info("%s is unbanning %s", current_user.username, target)
-    eve_id = get_character_id_from_name(target)
-    if eve_id == 0:
-        flash("Character " + target + " does not exist!")
+    eve_id = outgate.character.get_char_corp_all_id_by_name(target)
+    if eve_id is None:
+        flash("Character/Corp/Alliance " + target + " does not exist!")
     else:
         # check that there is a ban
         if db.session.query(Ban).filter(Ban.id == eve_id).count() > 0:
@@ -272,9 +272,9 @@ def whitelist_by_name(whitelist_info, reason=""):
 def unwhitelist_by_name(char_name):
     target = char_name.strip()
     logger.info("%s is unwhitelisting %s", current_user.username, target)
-    eve_id = get_character_id_from_name(target)
-    if eve_id == 0:
-        flash("Character " + target + " does not exist!")
+    eve_id = outgate.character.get_char_corp_all_id_by_name(target)
+    if eve_id is None:
+        flash("Character/Corp/Alliance " + target + " does not exist!")
     else:
         # check that there is a ban
         if db.session.query(Whitelist).filter(Whitelist.characterID == eve_id).count() > 0:
