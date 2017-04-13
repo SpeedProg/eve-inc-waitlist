@@ -17,14 +17,15 @@ from sqlalchemy.orm import joinedload
 
 from waitlist import db
 from waitlist.blueprints.settings import add_menu_entry
-from waitlist.data.eve_xml_api import get_character_id_from_name, get_char_info_for_character
 from waitlist.permissions import perm_manager
 from waitlist.permissions.manager import StaticPermissions, StaticRoles
 from waitlist.signal.signals import send_account_created, send_roles_changed, send_account_status_change
-from waitlist.storage.database import Account, Character, Role, linked_chars
+from waitlist.storage.database import Account, Character, Role, linked_chars, APICacheCharacterInfo
 from waitlist.utility.settings import sget_resident_mail, sget_tbadge_mail, sget_other_mail, sget_other_topic, \
     sget_tbadge_topic, sget_resident_topic
 from waitlist.utility.utils import get_random_token
+
+from waitlist.utility import outgate
 
 bp = Blueprint('accounts', __name__)
 logger = logging.getLogger(__name__)
@@ -51,10 +52,11 @@ def accounts():
 
         note = request.form['change_note'].strip()
 
-        char_id = get_character_id_from_name(char_name)
-        if char_id == 0:
-            flash("This Character does not exist!")
+        char_info = outgate.character.get_info_by_name(char_name)
+        if char_info is None:
+            flash(f"A Character named {char_name} does not exist!")
         else:
+            char_id = char_info.id
             acc = Account()
             acc.username = acc_name
 
@@ -71,7 +73,7 @@ def accounts():
             character = db.session.query(Character).filter(Character.id == char_id).first()
 
             if character is None:
-                char_info = get_char_info_for_character(char_id)
+                char_info: APICacheCharacterInfo = outgate.character.get_info(char_id)
                 character = Character()
                 character.eve_name = char_info.characterName
                 character.id = char_id
@@ -169,16 +171,17 @@ def account_edit():
             send_roles_changed(account_edit, acc.id, current_user.id, [x.name for x in roles_to_remove], [], note)
 
     if char_name is not None:
-        char_id = get_character_id_from_name(char_name)
-        if char_id == 0:
-            flash("Character " + char_name + " does not exist!")
+        char_info = outgate.character.get_info_by_name(char_name)
+        if char_info is None:
+            flash(f"Character with name {char_name} could not be found!")
         else:
+            char_id = char_info.id
             # find out if there is a character like that in the database
             character = db.session.query(Character).filter(Character.id == char_id).first()
 
             if character is None:
                 # lets make sure we have the correct name (case)
-                char_info = get_char_info_for_character(char_id)
+                char_info: APICacheCharacterInfo = outgate.character.get_info(char_id)
                 character = Character()
                 character.eve_name = char_info.characterName
                 character.id = char_id
@@ -212,18 +215,18 @@ def account_self_edit():
         return flask.abort(400)
 
     if char_name is not None:
-        char_id = get_character_id_from_name(char_name)
+        char_info = outgate.character.get_info_by_name(char_name)
 
-        if char_id == 0:
-            flash("Character " + char_name + " does not exist!")
+        if char_info is None:
+            flash("Character with name {char_name} could not be found!")
         else:
-
+            char_id = char_info.id
             # find out if there is a character like that in the database
             character = db.session.query(Character).filter(Character.id == char_id).first()
 
             if character is None:
                 # lets make sure we have the correct name (case)
-                char_info = get_char_info_for_character(char_id)
+                char_info: APICacheCharacterInfo = outgate.character.get_info(char_id)
                 character = Character()
                 character.eve_name = char_info.characterName
                 character.id = char_id

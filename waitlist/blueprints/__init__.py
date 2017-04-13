@@ -78,7 +78,7 @@ def index():
         CalendarEvent.eventTime.asc()).limit(10).all()
 
     trivias: Optional[Sequence[Trivia]] = db.session.query(Trivia)\
-        .filter((Trivia.fromTime <= datetime.utcnow()) & Trivia.toTime > datetime.utcnow()).all()
+        .filter((Trivia.fromTime <= datetime.utcnow()) & (Trivia.toTime > datetime.utcnow())).all()
     if trivias is None:
         trivias = []
 

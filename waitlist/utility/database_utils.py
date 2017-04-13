@@ -67,8 +67,8 @@ def parse_eft(lines):
                 mod[1] = 2147483647
             
             # lets check the value actually exists
-            module = db.session.query(InvType).get(mod[0])
-            if module is None:
+            inv_type = db.session.query(InvType).get(mod[0])
+            if inv_type is None:
                 raise ValueError('No module with ID='+str(mod[0]))
             
             db_module = FitModule(moduleID=mod[0], amount=mod[1])

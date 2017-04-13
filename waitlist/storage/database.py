@@ -1,10 +1,14 @@
 from sqlalchemy import Column, Integer, String, SmallInteger, BIGINT, Boolean, DateTime, Index, \
-    sql, BigInteger, text
+    sql, BigInteger, text, Float
 from sqlalchemy import Enum
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.sql.schema import Table, ForeignKey, CheckConstraint
 from sqlalchemy.dialects.mysql.base import LONGTEXT, TEXT
 import logging
+
+from utility.swagger.eve.alliance import AllianceInfo
+from utility.swagger.eve.character import CharacterInfo
+from utility.swagger.eve.corporation import CorporationInfo
 from waitlist import db
 from datetime import datetime
 from waitlist.utility.utils import get_random_token
@@ -441,22 +445,21 @@ class WaitlistEntry(Base):
         return "<WaitlistEntry %r>" % self.id
 
 
-class APICacheCharacterID(Base):
-    """
-    Maps Character Names and IDs
-    """
-    __tablename__ = "apicache_characterid"
-    id = Column(Integer, primary_key=True)
-    name = Column(String(100))
-
-
 class APICacheCharacterInfo(Base):
     __tablename__ = "apicache_characterinfo"
     id = Column(Integer, primary_key=True)
     characterName = Column(String(100))
     corporationID = Column(Integer, index=True)
-    corporationName = Column(String(100))
+    characterBirthday = Column(DateTime, nullable=False)
+    raceID = Column(Integer)
     expire = Column(DateTime)
+
+    def set_from_character_info(self, info: CharacterInfo) -> None:
+        self.characterName = info.get_name()
+        self.corporationID = info.get_corp_id()
+        self.characterBirthday = info.get_birthday()
+        self.raceID = info.get_race_id()
+        self.expire = info.expires()
 
 
 class APICacheCorporationInfo(Base):
@@ -464,8 +467,28 @@ class APICacheCorporationInfo(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String(100), index=True)
     allianceID = Column(Integer, index=True)
-    allianceName = Column(String(100), index=True)
+    ceoID = Column(Integer)
+    description = Column(String(30000))
+    creatorID = Column(Integer)
+    memberCount = Column(Integer)
+    taxRate = Column(Float)
+    ticker = Column(String(10))
+    url = Column(String(500))
+    creationDate = Column(DateTime)
     expire = Column(DateTime)
+
+    def set_from_corp_info(self, info: CorporationInfo):
+        self.name = info.get_corporation_name()
+        self.allianceID = info.get_alliance_id()
+        self.ceoID = info.get_ceo_id()
+        self.description = info.get_corporation_description()
+        self.creatorID = info.get_creator_id()
+        self.memberCount = info.get_member_count()
+        self.taxRate = info.get_tax_rate()
+        self.ticker = info.get_ticker()
+        self.url = info.get_url()
+        self.creationDate = info.get_creation_date()
+        self.expire = info.expires()
 
 
 class APICacheCharacterAffiliation(Base):
@@ -477,6 +500,23 @@ class APICacheCharacterAffiliation(Base):
     allianceID = Column(Integer, index=True)
     allianceName = Column(String(100), index=True)
     expire = Column(DateTime)
+
+
+class APICacheAllianceInfo(Base):
+    __tablename__ = 'apicache_allianceinfo'
+    id = Column(Integer, primary_key=True)
+    allianceName = Column(String(100), index=True)
+    dateFounded = Column(DateTime)
+    executorCorpID = Column(Integer, index=True)
+    ticker = Column(String(10))
+    expire = Column(DateTime)
+
+    def set_from_alliance_info(self, info: AllianceInfo):
+        self.allianceName = info.get_alliance_name()
+        self.dateFounded = info.get_date_founded()
+        self.executorCorpID = info.get_executor_corp_id()
+        self.ticker = info.get_ticker()
+        self.expire = info.expires()
 
 
 class Ban(Base):
