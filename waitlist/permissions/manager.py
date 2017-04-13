@@ -120,7 +120,7 @@ class PermissionManager(object):
         return db.session.query(Role).filter(Role.name == name).first() is not None
 
     @staticmethod
-    def add_role(name: str, display_name: str):
+    def add_role(name: str, display_name: str) -> None:
         # lets check if this role exists
         if PermissionManager.role_exists(name):
             print("Role {name} already exists")
@@ -130,7 +130,7 @@ class PermissionManager(object):
         db.session.add(role)
         db.session.commit()
 
-    def get_permissions(self):
+    def get_permissions(self) -> Dict[str, AddPermission]:
         return self.__permissions
 
     def require(self, name: str) -> IdentityContext:
@@ -150,7 +150,7 @@ class PermissionManager(object):
     def get_definitions(self) -> Dict[str, bool]:
         return self.__definitions
 
-    def add_role_to_permission(self, perm_name, role_name):
+    def add_role_to_permission(self, perm_name: str, role_name: str) -> None:
         if perm_name not in self.__definitions:
             return
 

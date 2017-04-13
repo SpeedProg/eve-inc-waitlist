@@ -352,7 +352,7 @@ def xup_submit():
                 dbfit = parse_eft(fit)
                 fits.append(dbfit)
             except ValueError:
-                flask.abort(code=400, message="Invalid module amounts")
+                flask.abort(400, message="Invalid module amounts")
 
     else:
         # parse chat links
@@ -370,8 +370,8 @@ def xup_submit():
                     mod = mod_map[modid]
 
                     # lets check the value actually exists
-                    module = db.session.query(InvType).get(mod[0])
-                    if module is None:
+                    inv_type = db.session.query(InvType).get(mod[0])
+                    if inv_type is None:
                         raise ValueError('No module with ID=' + str(mod[0]))
 
                     db_module = FitModule(moduleID=mod[0], amount=mod[1])
@@ -429,7 +429,7 @@ def xup_submit():
         try:
             mod_map = create_mod_map(fit.modules)
         except ValueError:
-            flask.abort(code=400, message="Invalid module amounts")
+            flask.abort(400, message="Invalid module amounts")
         # check that ship is an allowed ship
 
         # it is a logi put on logi wl
@@ -592,9 +592,9 @@ def move_to_waitlists():
     #    if there is a wl entry take the waitlist entry timestamp (a random one since they should all have the same)
 
     new_entry_timedate = entry.creation
-    for entry in waitlist_entries:
-        if entry.creation < new_entry_timedate:
-            creation_time = entry.creation
+    for entry_t in waitlist_entries:
+        if entry_t.creation < new_entry_timedate:
+            new_entry_timedate = entry_t.creation
 
     # sort fittings by ship type
     logi = []
