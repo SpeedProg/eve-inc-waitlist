@@ -99,6 +99,7 @@ info_fh = None
 access_fh = None
 debug_fh  = None
 
+
 #@werkzeug.serving.run_with_reloader
 def runServer():
     wsgi_logger = logging.getLogger("gevent.pywsgi.WSGIServer")
@@ -114,7 +115,8 @@ if __name__ == '__main__':
     access_fh = TimedRotatingFileHandler(filename=config.access_log, when="midnight", interval=1, utc=True)
     debug_fh = TimedRotatingFileHandler(filename=config.debug_log, when="midnight", interval=1, utc=True)
 
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(pathname)s - %(funcName)s - %(lineno)d - %(message)s')
+    formatter = logging\
+        .Formatter('%(asctime)s - %(name)s - %(levelname)s - %(pathname)s - %(funcName)s - %(lineno)d - %(message)s')
     err_fh.setFormatter(formatter)
     info_fh.setFormatter(formatter)
     access_fh.setFormatter(formatter)
@@ -135,5 +137,5 @@ if __name__ == '__main__':
     app.logger.addHandler(debug_fh)
     app.logger.setLevel(logging.INFO)
     
-    #app.run(host="0.0.0.0", port=81, debug=True)
+    # app.run(host="0.0.0.0", port=81, debug=True)
     runServer()
