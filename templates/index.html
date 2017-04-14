@@ -193,15 +193,15 @@
 		{% if events|length > 0 %}
 		<div id="events" class="card mb-0">
 			<div data-toggle="collapse" data-target="#events-body" class="card-header" id="status-heading" role="button">
-				<div class="h5 mb-0" >Events<i id="events-tog-icon" class="fa float-xs-right fa-plus-square"></i></div>
+				<div class="h5 mb-0" >Events{%if events|length > 1%}<i id="events-tog-icon" class="fa float-xs-right fa-plus-square"></i>{% endif %}</div>
 			</div>
 			<div class="alert alert-info" role="alert">
-				<p class="text-sm-left mb-0">{{ events[0].eventTime }} : <a href="#" data-toggle="popover" data-placement="top" data-content="{{events[0].eventDescription}}">{{ events[0].eventTitle }}</a> by {{ events[0].creator.username }}</p>
+				<p class="text-sm-left mb-0">{{ events[0].eventTime }} : <a href="#" data-toggle="popover" data-placement="top" data-trigger="hover" data-content="{{events[0].eventDescription}}">{{ events[0].eventTitle }}</a> by {{ events[0].creator.username }}</p>
 			</div>
 			<div id="events-body" class="collapse" data-tog-icon="#events-tog-icon">
 				{% for event in events %}
 					{% if not loop.first %}
-						<div class="alert alert-info" role="alert"><p class="text-sm-left mb-0">{{ event.eventTime }} : <a href="#" data-toggle="popover" data-placement="top" data-content="{{event.eventDescription}}">{{ event.eventTitle }}</a> by {{ event.creator.username }}</p></div>
+						<div class="alert alert-info" role="alert"><p class="text-sm-left mb-0">{{ event.eventTime }} : <a href="#" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="{{event.eventDescription}}">{{ event.eventTitle }}</a> by {{ event.creator.username }}</p></div>
 					{% endif %}
 				{% endfor %}
 			</div>
