@@ -7,7 +7,7 @@ if (!waitlist.calendar) {
 	waitlist.calendar = {};
 }
 
-waitlist.calendar = (function() {
+waitlist.calendar.settings = (function() {
 	var displayMessage = waitlist.base.displayMessage;
 	var getMetaData = waitlist.base.getMetaData;
 	function init() {
