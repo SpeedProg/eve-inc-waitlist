@@ -25,6 +25,10 @@ waitlist.history.historysearch = (function() {
 		$.getJSON(getMetaData('api-history-search'), data, function(data) {
 			var hbody = $('#historybody');
 			hbody.empty();
+			if (data.history.length <= 0) {
+				 hbody.append('<td cospan="5">No Results Found</td>');
+				 return;
+			}
 			for (var i = 0; i < data.history.length; i++) {
 				var hEntryDOM = createHistoryEntryDOM(data.history[i]);
 				hbody.trigger("hentry-adding", hEntryDOM);
