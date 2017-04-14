@@ -675,6 +675,7 @@ class CalendarEventCategory(Base):
     categoryID: Column = Column(Integer, primary_key=True)
     categoryName: Column = Column(String(50), index=True)
     fixedTitle: Column = Column(String(200), nullable=True)
+    fixedDescription: Column = Column(TEXT, nullable=True)
 
 
 class CalendarEvent(Base):

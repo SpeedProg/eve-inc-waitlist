@@ -1,7 +1,7 @@
 import logging
 import string
 from datetime import datetime
-from typing import List, Sequence
+from typing import List, Sequence, Optional
 
 from flask import Blueprint
 from flask import make_response
@@ -58,8 +58,12 @@ def post_index():
 
     category: CalendarEventCategory = db.session.query(CalendarEventCategory).get(category_id)
 
+    desc: Optional[str] = category.fixedDescription
+    if desc is None:
+        desc = ''
+
     event = CalendarEvent(eventCreatorID=current_user.id,
-                          eventTitle=category.fixedTitle, eventDescription='',
+                          eventTitle=category.fixedTitle, eventDescription=desc,
                           eventCategoryID=category.categoryID, eventApproved=True,
                           eventTime=event_time)
 
@@ -78,7 +82,6 @@ def post_index():
 @perm_manager.require('commandcore')
 def delete_event_id(event_id):
     # if they are council they can delete everything
-    print("Delete Event")
     event = db.session.query(CalendarEvent).get(event_id)
     if perm_manager.get_permission('council').can():
         logger.info("%s with id %d is deleting event Title[%s] by Account[%s, %d]", current_user.username,
