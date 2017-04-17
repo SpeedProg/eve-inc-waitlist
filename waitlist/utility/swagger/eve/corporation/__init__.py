@@ -18,7 +18,7 @@ class CorporationEndpoint(ESIEndpoint):
     def get_corporation_info(self, corp_id: int) -> CorporationInfo:
         # check the endpoints we need are in there
         if not (ESIEndpoint.is_endpoint_available(self._api('v3'), 'get_corporations_corporation_id')):
-            self.__try_reload_api('v3')
+            self._try_reload_api('v3')
 
         try:
             resp = self.esi_client.request(self._api('v3')

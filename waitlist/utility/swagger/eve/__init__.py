@@ -31,7 +31,7 @@ class ESIEndpoint(object):
     def is_endpoint_available(api: App, endpoint_name: str) -> bool:
         return endpoint_name in api.op
 
-    def __try_reload_api(self, version: str):
+    def _try_reload_api(self, version: str):
         self.__dict__['api_' + version] = get_api(version)
 
 
