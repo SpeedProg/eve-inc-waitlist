@@ -24,6 +24,7 @@ def get_character_info(char_id: int) -> APICacheCharacterInfo:
         char_cache = APICacheCharacterInfo()
         char_ep = CharacterEndpoint()
         char_info = char_ep.get_character_info(char_id)
+        char_cache.id = char_id
         set_from_character_info(char_cache, char_info)
         db.session.add(char_cache)
         db.session.commit()
