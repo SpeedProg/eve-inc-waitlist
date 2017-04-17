@@ -1,9 +1,7 @@
+from typing import Dict, Tuple
 
-from flask.blueprints import Blueprint
 import logging
 from flask_login import login_required, current_user
-from waitlist.data.perm import perm_management, perm_comphistory, perm_officer,\
-    perm_leadership, perm_viewfits
 from waitlist.permissions import perm_manager
 from flask.globals import request
 from waitlist.utility.notifications import send_notification as send_notifiaction_to_player
@@ -14,13 +12,54 @@ from flask.json import jsonify
 from datetime import datetime, timedelta
 import flask
 from waitlist.utility import config
-bp = Blueprint('api_fittings', __name__)
+from . import bp
+
 logger = logging.getLogger(__name__)
+
+# Dict that maps charids to tuple of (dt_first_access, dt_last_access)
+#
+access_duration_track: Dict[int, Tuple[datetime, datetime]] = {}
+
+
+def get_access_duration(user_id: int, limit: timedelta, access_now: datetime) -> timedelta:
+    """
+    :param user_id: user id used for tracking the access duration
+    :param limit: if this amount of time is between request, expire access time
+    :param access_now: the datetime to use to measure this access
+    :return: the amount of time some one accessed this
+    """
+    if user_id in access_duration_track:
+        first_access, last_access = access_duration_track[user_id]
+        if (access_now - last_access) > limit:  # reset
+            access_duration_track[user_id] = (access_now, access_now)
+            return timedelta(minutes=0)
+        else:
+            access_duration_track[user_id] = (first_access, access_now)
+            return access_now - first_access
+    else:
+        access_duration_track[user_id] = (access_now, access_now)
+        return timedelta(minutes=0)
+
+
+perm_manager.define_permission('notification_send')
+perm_manager.define_permission('comphistory_view')
+perm_manager.define_permission('comphistory_unlimited')
+perm_manager.define_permission('trainee')
+perm_manager.define_permission('fits_approve')
+perm_manager.define_permission('fits_view')
+
+
+perm_notify_send = perm_manager.get_permission('notification_send')
+perm_comp_view = perm_manager.get_permission('comphistory_view')
+perm_comp_unlimited = perm_manager.get_permission('comphistory_unlimited')
+perm_trainee = perm_manager.get_permission('trainee')
+perm_approve = perm_manager.get_permission('fits_approve')
+perm_fits_view = perm_manager.get_permission('fits_view')
 
 
 @bp.route("/player/<int:player_id>/notification", methods=["POST"])
 @login_required
-@perm_management.require(http_exception=401)
+@perm_notify_send.require(http_exception=401)
 def send_notification(player_id):
     waitlist_id = int(request.form['waitlistID'])
     send_notifiaction_to_player(player_id, waitlist_id, "The FC is looking for you")
@@ -43,7 +82,7 @@ def waitlist():
         waitlists.append(group.otherlist)
     
     # is the requester allowed to see fits?
-    exclude_fits = not perm_viewfits.can()
+    exclude_fits = not perm_fits_view.can()
     include_fits_from = [current_user.get_eve_id()]
     for wl in waitlists:
         jsonwls.append(make_json_wl(wl, exclude_fits, include_fits_from,
@@ -54,7 +93,7 @@ def waitlist():
 
 @bp.route("/history/since", methods=["GET"])
 @login_required
-@perm_comphistory.require(http_exception=401)
+@perm_comp_view.require(http_exception=401)
 def history_since():
     laststamp = int(request.args.get('last'))
     logger.info("last=%s", str(laststamp))
@@ -62,8 +101,8 @@ def history_since():
     logger.info("Looking for %s", str(since))
     tnow = datetime.utcnow()
 
-    if not (perm_officer.can() or perm_leadership.can()):
-        if perm_manager.get_permission('trainee').can():
+    if not perm_comp_unlimited.can():
+        if perm_trainee.can():
             max_time = timedelta(minutes=30)
             if tnow - since > max_time:
                 since = tnow - max_time
@@ -73,13 +112,18 @@ def history_since():
                 since = tnow - max_time
 
     new_history_entries = db.session.query(HistoryEntry).filter(HistoryEntry.time > since).all()
-    
+
+    # do access tracking here
+    if get_access_duration(current_user.id, timedelta(hours=6), datetime.utcnow()) > timedelta(days=4):
+        logger.error(f"User {current_user.username}"
+                     f" is requesting fits since over 4days, without a break of at least 6h")
+
     return jsonify(make_history_json(new_history_entries))
 
 
 @bp.route("/fittings/unchecked_approve", methods=["POST"])
 @login_required
-@perm_comphistory.require(http_exception=401)
+@perm_approve.require(http_exception=401)
 def unchecked_approve():
     with open('unchecked_approve.log', 'a+') as f:
         f.write(current_user.username + " tried to approve a fit/entry without checking fits\n")

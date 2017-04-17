@@ -34,16 +34,6 @@
 
 {% block raw_content %}
 <div class="row mb-2">
-	<form action="{{url_for('accounts.accounts_import_accounts')}}" method="POST" enctype=multipart/form-data class="form-inline">
-		<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
-		<div class="form-group">
-			<label for="acc-file" class="custom-file">
-	 			<input data-toggle="custom-file" data-target="#accounts" type="file" name="file" id="acc-file" class="custom-file-input">
-	  			<span id="accounts" data-content="Choose file..." class="custom-file-name custom-file-control"></span>
-			</label>
-		</div>
-		<button type="submit" class="btn btn-primary">Add Accounts</button>
-	</form>
 	<a href="{{url_for('accounts.accounts_download_csv')}}" target="_blank">Download Full Commander List</a>
 </div>
 <div class="row mb-2">

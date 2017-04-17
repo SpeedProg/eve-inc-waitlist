@@ -55,7 +55,7 @@ waitlist.fleetview = (function(){
 			let charObj = data[charId];
 			// if we have no map for the quad yet, create one
 			if (!(charObj['squad_id'] in squadMap)) {
-				console.log("Creating map for squad with id ", charObj.squadID);
+				console.log("Creating map for squad with id ", charObj['squad_id']);
 				squadMap[charObj['squad_id']]= {};
 			}
 			// add the char to the squad
@@ -76,7 +76,7 @@ waitlist.fleetview = (function(){
 		const squadsArray = [];
 		// convert the squads to array
 		for (let idx in columnArray) {
-			console.log("Going over Squad ", idx)
+			console.log("Going over Squad ", idx);
 			let squadID = columnArray[idx];
 			console.log("SquadID", squadID);
 			let squad = [];
@@ -94,7 +94,7 @@ waitlist.fleetview = (function(){
 		}
 		console.log("MaxLength ", maxLength);
 		for(let s=0; s<maxLength; s++) {
-			console.log("s ", s)
+			console.log("s ", s);
 			const rowArray = [];
 			for(let sidx=0; sidx < columnCount; sidx++) {
 				if (squadsArray[sidx].length > s) {
@@ -142,6 +142,9 @@ waitlist.fleetview = (function(){
 		let shipIDs = {};
 		for(let rowIdx=1; rowIdx < tableData.length; rowIdx++) {
 			tableData[rowIdx].forEach(function (element) {
+				if (element == null) {
+					return;
+				}
 				if (!(element['ship_type_id'] in shipIDs)) {
 					shipIDs[element['ship_type_id']] = true;
 				}
@@ -151,7 +154,7 @@ waitlist.fleetview = (function(){
 		// make a array out of the ids
 		let shipIDArray = [];
 		for( let shipID in shipIDs) {
-			shipIDArray.push(shipID);
+			shipIDArray.push(Number(shipID));
 		}
 		requestShipIDTransformations(shipIDArray);
 	}
@@ -167,7 +170,12 @@ waitlist.fleetview = (function(){
 	function requestShipIDTransformations(shipIDs) {
 		let results = [];
 		const notFoundIds = [];
-		const sortedIds = shipIDs.sort();
+		function cmp(a, b) {
+			if (a < b) { return -1;}
+			if (a > b) { return 1;}
+			return 0;
+		}
+		const sortedIds = shipIDs.sort(cmp);
 		let index = db.transaction('ships', 'readonly').objectStore('ships').index('id');
 		let cursor = index.openCursor();
 
@@ -194,11 +202,14 @@ waitlist.fleetview = (function(){
 
 		function replaceShipTypes(data) {
 			data.forEach(function (element) {
-				let node = $('td[data-shiptype="' + element.id + '"]');
-				let text = node.text();
-				let parts = text.split(' - ', 3);
-				let newText = elment.name + ' - ' + parts[1] + ' - ' + parts[2];
-				node.text(newText);
+				let nodes = $('td[data-shiptype="' + element.id + '"]');
+				nodes.each(function(idx, n){
+					let node = $(n);
+					let text = node.text();
+					let parts = text.split(' - ', 3);
+					let newText = element.name + ' - ' + parts[1] + ' - ' + parts[2];
+					node.text(newText);
+				});
 			});
 		}
 
@@ -206,6 +217,10 @@ waitlist.fleetview = (function(){
 			let cursor = event.target.result;
 			if (cursor) {
 				let data = cursor.value;
+				if (sortedIds.length > 0 && data.id < sortedIds[0]) {
+					cursor.continue(sortedIds[0]);
+					return;
+				}
 				while (sortedIds.length > 0 && data.id != sortedIds[0]) {
 					notFoundIds.push(sortedIds[0]);
 					sortedIds.shift();
@@ -216,8 +231,11 @@ waitlist.fleetview = (function(){
 					// we found a value
 					results.push(cursor.value);
 					sortedIds.shift();
-
-					cursor.continue(sortedIds[0]);
+					if (sortedIds.length > 0) {
+						cursor.continue(sortedIds[0]);
+					} else {
+						doOutstandingIdRequest(notFoundIds);
+					}
 				} else {
 					// we are done w/o reaching the end of the cursor
 					doOutstandingIdRequest(notFoundIds);
@@ -230,7 +248,6 @@ waitlist.fleetview = (function(){
 				doOutstandingIdRequest(notFoundIds);
 			}
 		}
-
 	}
 
 	function requestCharacterIDTransformation(charID) {

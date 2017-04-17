@@ -7,7 +7,7 @@
 {% endblock %}
 
 {% block content %}
-	{% if perm_man.can() %}
+	{% if perm_manager.get_permission('teamspeak_change').can() %}
 		<form action="{{url_for('teamspeak.teamspeak_change')}}" method="POST" class="form-inline">
 			<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 			<input type="hidden" name="action" value="set">
@@ -25,7 +25,7 @@
 			<button class="btn btn-primary" type="submit">Change TS</button>
 		</form>
 	{% endif %}
-	{% if perm_leadership.can() %}
+	{% if perm_manager.get_permission('teamspeak_edit').can() %}
 			<form action="{{url_for('teamspeak.teamspeak_change')}}" method="POST" class="form-inline">
 			<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 			<input type="hidden" name="action" value="remove">

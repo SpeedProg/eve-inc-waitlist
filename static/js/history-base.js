@@ -95,13 +95,21 @@ waitlist.history.base = (function() {
 	
 	function createFittingDOM(fit) {
 		var comment = "";
+		let skillsData = "";
 		if (fit.comment !== null) {
 			comment = " " + $.parseHTML(fit.comment)[0].textContent;
+
+			// lets extract caldari bs lvl from comments
+			let caldariBsLvelRex = /<b>Cal BS: ([012345])<\/b>/;
+			let bsResult = caldariBsLvelRex.exec(fit.comment);
+			if (bsResult !== null) {
+				skillsData = `3338:${bsResult[1]}`;
+			}
 		}
 		if (fit.ship_type === 1) {
 			return $.parseHTML(`<a href="#" class="booby-link">${fit.shipName}${comment}</a>`);
 		} else {
-			return $.parseHTML(`<a href="#" class="fit-link" data-dna="${fit.shipType+':'+fit.modules}">${fit.shipName}${comment}</a>`);
+			return $.parseHTML(`<a href="#" class="fit-link" data-skills="${skillsData}" data-dna="${fit.shipType+':'+fit.modules}">${fit.shipName}${comment}</a>`);
 		}
 	}
 	

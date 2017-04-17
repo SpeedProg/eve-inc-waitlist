@@ -1,11 +1,10 @@
 from typing import Optional, Tuple
 
+from waitlist.utility import outgate
 from waitlist.storage.database import Constellation, SolarSystem, Station,\
     InvType, Account, Character, Ban, Whitelist
 from waitlist import db
 import logging
-from waitlist.data.eve_xml_api import get_character_id_from_name,\
-    get_affiliation
 
 logger = logging.getLogger(__name__)
 
@@ -73,15 +72,15 @@ def is_charid_whitelisted(character_id: int) -> bool:
 
 
 def get_character_by_name(eve_name: str) -> Optional[Character]:
-    eve_id = get_character_id_from_name(eve_name)
-    if eve_id == 0:
+    eve_info = outgate.character.get_info_by_name(eve_name)
+    if eve_info is None:
         return None
-    return get_character_by_id_and_name(eve_id, eve_name)
+    return get_character_by_id_and_name(eve_info.id, eve_name)
 
 
 def is_char_banned(char: Character) -> Tuple[bool, str]:
     try:
-        corp_id, alli_id = get_affiliation(char.get_eve_id())
+        corp_id, alli_id = outgate.character.get_affiliations(char.get_eve_id())
         # if he is on whitelist let him pass
         
         char_banned = char.banned

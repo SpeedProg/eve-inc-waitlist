@@ -8,7 +8,7 @@
 
 {% block content %}
 <div class="btn-group" role="group" aria-label="Add Whitelist Actionbar">
-	{% if perm_leadership.can() %}
+	{% if perm_manager.get_permission('bans_edit_multiple').can() %}
 	<form class="form-inline" name="banform" action="{{url_for('bans.whitelist_change')}}" method="post">
 		<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 		<input name="change" value="whitelist" hidden>
@@ -23,7 +23,7 @@
 		<button type="submit" class="btn btn-danger">Whitelist</button>
 	</form>
 	{% endif %}
-	{% if perm_officer.can() and not perm_leadership.can() %}
+	{% if perm_manager.get_permission('bans_edit').can() and not perm_manager.get_permission('bans_edit_multiple').can() %}
 	<form class="form-inline" name="banform" action="{{url_for('bans.whitelist_change_single')}}" method="post">
 		<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 		<input type="hidden" name="change" value="ban">
