@@ -20,6 +20,7 @@ bp = Blueprint('calendar_settings', __name__)
 logger = logging.getLogger(__name__)
 
 perm_manager.define_permission('calendar_event_see_all')
+perm_manager.define_permission('calendar_event_delete_other')
 
 
 @bp.route("/", methods=['GET'])
@@ -83,7 +84,7 @@ def post_index():
 def delete_event_id(event_id):
     # if they are council they can delete everything
     event = db.session.query(CalendarEvent).get(event_id)
-    if perm_manager.get_permission('council').can():
+    if perm_manager.get_permission('calendar_event_delete_other').can():
         logger.info("%s with id %d is deleting event Title[%s] by Account[%s, %d]", current_user.username,
                     current_user.id, event.eventTitle, event.creator.username, event.creator.id)
         db.session.delete(event)

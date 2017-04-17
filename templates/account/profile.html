@@ -37,7 +37,7 @@
 		</tbody>
 	</table>
 	</div>
-	{% if perm_manager.get_permission('add_notes').can() %}
+	{% if perm_manager.get_permission('profile_notes_add').can() %}
 	<div class="col-md-4">
 		<form id="form-add-note" action="{{url_for('accounts_profile.notes_add', accountid=account.id)}}" method="POST">
 			<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
@@ -45,10 +45,10 @@
 				<label for="restricion_level">View Restriction</label>
 				<select class="form-control" id="restricion_level" name="restriction_level">
 					<option value="50">Default</option>
-					{% if perm_manager.get_permission('council').can() %}
+					{% if perm_manager.get_permission('view_notes_med').can() %}
 					<option value="100">Council</option>
 					{% endif %}
-					{% if perm_manager.get_permission('leadership').can() %}
+					{% if perm_manager.get_permission('view_notes_high').can() %}
 					<option value="200">Leadership</option>
 					{% endif %}
 				</select>
