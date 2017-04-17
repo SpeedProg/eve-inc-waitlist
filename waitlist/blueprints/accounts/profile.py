@@ -12,7 +12,8 @@ from flask.helpers import url_for
 bp = Blueprint('accounts_profile', __name__)
 logger = logging.getLogger(__name__)
 
-
+perm_manager.define_permission('view_profile')
+perm_manager.define_permission('profile_notes_add')
 perm_manager.define_permission('view_notes_high')
 perm_manager.define_permission('view_notes_low')
 perm_manager.define_permission('view_notes_med')
@@ -47,7 +48,7 @@ def profile_by_name(username):
 
 @bp.route('/<int:accountid>/notes/add', methods=['POST'])
 @login_required
-@perm_manager.require('add_notes')
+@perm_manager.require('profile_notes_add')
 def notes_add(accountid):
     note = request.form['note']
     restriction_level = int(request.form['restriction_level'])
