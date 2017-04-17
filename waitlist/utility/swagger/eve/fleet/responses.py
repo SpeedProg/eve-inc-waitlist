@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 class EveFleetMembers(ESIResponse):
     def __init__(self, expires: datetime, status_code: int, error: Optional[str],
                  data: Optional[List[Dict[str, Any]]]) -> None:
-        super(EveFleetMembers, self).__init__(expires, status_code, error)
+        super().__init__(expires, status_code, error)
 
         if data is not None:
             self.__set_data(data)

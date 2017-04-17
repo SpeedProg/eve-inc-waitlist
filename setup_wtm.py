@@ -8,11 +8,10 @@ from waitlist.data.names import WaitlistNames, WTMRoles
 from waitlist.base import db
 
 
-def get_role(name, restrictive=True):
+def get_role(name):
     r = Role()
     r.name = name
     r.displayName = WTMRoles.get_display_name(name)
-    r.is_restrictive = restrictive
     return r
 
 def createRoles():
@@ -52,7 +51,7 @@ def createVGWaitlistGroup():
     
 def createWaitlistGroup(groupName, displayName):
     # lets check if this group exists
-    if db.session.query(WaitlistGroup).filter(WaitlistGroup.groupName == groupName).first() != None:
+    if db.session.query(WaitlistGroup).filter(WaitlistGroup.groupName == groupName).first() is not None:
         print("Found Group ", groupName)
         return None
     xuplist = Waitlist(name=WaitlistNames.xup_queue, displayTitle="X-UP")
@@ -84,4 +83,3 @@ if __name__ == '__main__':
     createAssaultWaitlistGroup()
     createVGWaitlistGroup()
     db.session.commit()
-    pass

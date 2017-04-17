@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Sequence, Optional
 
 import flask
 import logging
@@ -14,7 +15,7 @@ from flask_login import login_required, current_user, login_user, logout_user
 from waitlist.utility import config
 
 from waitlist import app, db
-from waitlist.storage.database import WaitlistGroup, TeamspeakDatum, CalendarEvent, WaitlistEntry, Account
+from waitlist.storage.database import WaitlistGroup, TeamspeakDatum, CalendarEvent, WaitlistEntry, Account, Trivia
 from waitlist.utility.settings import sget_active_ts_id
 
 logger = logging.getLogger(__name__)
@@ -76,8 +77,14 @@ def index():
     events = db.session.query(CalendarEvent).filter(CalendarEvent.eventTime > datetime.utcnow()).order_by(
         CalendarEvent.eventTime.asc()).limit(10).all()
 
+    trivias: Optional[Sequence[Trivia]] = db.session.query(Trivia)\
+        .filter((Trivia.fromTime <= datetime.utcnow()) & (Trivia.toTime > datetime.utcnow())).all()
+    if trivias is None:
+        trivias = []
+
     return render_template("index.html", lists=wlists, user=current_user, is_index=True, is_on_wl=is_on_wl(),
-                           newbro=new_bro, group=group, groups=activegroups, ts=active_ts_setting, events=events)
+                           newbro=new_bro, group=group, groups=activegroups, ts=active_ts_setting, events=events,
+                           trivias=trivias)
 
 
 @app.route("/help", methods=["GET"])

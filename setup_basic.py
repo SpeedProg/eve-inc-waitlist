@@ -13,7 +13,7 @@ api_scopes: List[str] = ['esi-ui.open_window.v1', 'esi-fleets.read_fleet.v1', 'e
 def create_roles():
     for scope in api_scopes:
         dbscope = db.session.query(EveApiScope).filter(EveApiScope.scopeName == scope).first()
-        if dbscope == None:
+        if dbscope is None:
             dbscope = EveApiScope(scopeName=scope)
             db.session.add(dbscope)
 

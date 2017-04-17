@@ -1,10 +1,11 @@
 from sqlalchemy import Column, Integer, String, SmallInteger, BIGINT, Boolean, DateTime, Index, \
-    sql, BigInteger, text
+    sql, BigInteger, text, Float
 from sqlalchemy import Enum
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.sql.schema import Table, ForeignKey, CheckConstraint
 from sqlalchemy.dialects.mysql.base import LONGTEXT, TEXT
 import logging
+
 from waitlist import db
 from datetime import datetime
 from waitlist.utility.utils import get_random_token
@@ -305,11 +306,30 @@ class Role(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String(50), unique=True)
     displayName = Column(String(150), unique=False)
-    # if this = 1 and some one has this role, he can not login by igb header
-    is_restrictive = Column(Integer)
 
     def __repr__(self):
         return "<Role %r>" % self.name
+
+
+permission_roles = Table('permission_roles', Base.metadata,
+                         Column('permission', Integer, ForeignKey('permissions.id')),
+                         Column('role', Integer, ForeignKey('roles.id'))
+                         )
+
+
+class Permission(Base):
+    """
+    Represents a permission like, view_fits, or bans_edit....
+    """
+    __tablename__ = 'permissions'
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String(150), unique=True)
+
+    roles_needed = relationship("Role", secondary=permission_roles)
+
+    def __repr__(self):
+        return f'<Permission id={self.id} name={self.name}'
 
 
 class Waitlist(Base):
@@ -422,21 +442,13 @@ class WaitlistEntry(Base):
         return "<WaitlistEntry %r>" % self.id
 
 
-class APICacheCharacterID(Base):
-    """
-    Maps Character Names and IDs
-    """
-    __tablename__ = "apicache_characterid"
-    id = Column(Integer, primary_key=True)
-    name = Column(String(100))
-
-
 class APICacheCharacterInfo(Base):
     __tablename__ = "apicache_characterinfo"
     id = Column(Integer, primary_key=True)
     characterName = Column(String(100))
     corporationID = Column(Integer, index=True)
-    corporationName = Column(String(100))
+    characterBirthday = Column(DateTime, nullable=False)
+    raceID = Column(Integer)
     expire = Column(DateTime)
 
 
@@ -445,7 +457,14 @@ class APICacheCorporationInfo(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String(100), index=True)
     allianceID = Column(Integer, index=True)
-    allianceName = Column(String(100), index=True)
+    ceoID = Column(Integer)
+    description = Column(LONGTEXT)
+    creatorID = Column(Integer)
+    memberCount = Column(Integer)
+    taxRate = Column(Float)
+    ticker = Column(String(10))
+    url = Column(String(500))
+    creationDate = Column(DateTime)
     expire = Column(DateTime)
 
 
@@ -457,6 +476,16 @@ class APICacheCharacterAffiliation(Base):
     corporationName = Column(String(100), index=True)
     allianceID = Column(Integer, index=True)
     allianceName = Column(String(100), index=True)
+    expire = Column(DateTime)
+
+
+class APICacheAllianceInfo(Base):
+    __tablename__ = 'apicache_allianceinfo'
+    id = Column(Integer, primary_key=True)
+    allianceName = Column(String(100), index=True)
+    dateFounded = Column(DateTime)
+    executorCorpID = Column(Integer, index=True)
+    ticker = Column(String(10))
     expire = Column(DateTime)
 
 
@@ -646,6 +675,7 @@ class CalendarEventCategory(Base):
     categoryID: Column = Column(Integer, primary_key=True)
     categoryName: Column = Column(String(50), index=True)
     fixedTitle: Column = Column(String(200), nullable=True)
+    fixedDescription: Column = Column(TEXT, nullable=True)
 
 
 class CalendarEvent(Base):
@@ -703,6 +733,7 @@ class Trivia(Base):
     triviaID: Column = Column(Integer, primary_key=True)
     createdByID: Column = Column(Integer, ForeignKey('accounts.id'))
     description: Column = Column(String(5000))
+    alertText: Column = Column(String(1000))
     fromTime: Column = Column(DateTime)
     toTime: Column = Column(DateTime)
 

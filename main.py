@@ -9,7 +9,7 @@ from waitlist.blueprints.feedback import feedback
 from gevent.pywsgi import WSGIServer
 from waitlist import app
 from waitlist.blueprints.fittings import bp_waitlist
-from waitlist.blueprints.fc_sso import bp as fc_sso_bp, add_sso_handler
+from waitlist.blueprints.fc_sso import bp as fc_sso_bp
 from waitlist.blueprints.fleet import bp as fleet_bp
 from waitlist.blueprints.api.fleet import bp as api_fleet_bp
 from waitlist.blueprints.api.fittings import bp as api_wl_bp
@@ -33,9 +33,11 @@ from waitlist.blueprints.settings.ccvote_results import bp as bp_ccvote_settings
 from waitlist.blueprints.fleetview import bp as bp_fleetview
 
 from waitlist.blueprints.settings import accounts, bans, fleet_motd, fleetoptions, inserts, mail, overview,\
-    staticdataimport, teamspeak
+    staticdataimport, teamspeak, permissions
 from waitlist.blueprints import trivia
-
+from waitlist.blueprints.api import permission
+from waitlist.blueprints.api import fittings
+from waitlist.blueprints import xup
 # needs to he here so signal handler gets registered
 from waitlist.signal.handler import acc_created, roles_changed, account_status_change
 
@@ -75,6 +77,11 @@ app.register_blueprint(mail.bp, url_prefix='/settings/mail')
 app.register_blueprint(overview.bp, url_prefix='/settings')
 app.register_blueprint(staticdataimport.bp, url_prefix='/settings/sde')
 app.register_blueprint(teamspeak.bp, url_prefix='/settings/teamspeak')
+app.register_blueprint(permissions.bp, url_prefix='/settings/permissions')
+app.register_blueprint(permission.bp, url_prefix='/api/permission')
+app.register_blueprint(fittings.bp, url_prefix='/api/fittings')
+app.register_blueprint(xup.bp, url_prefix='/xup')
+
 
 logger = logging.getLogger(__name__)
 
@@ -92,6 +99,7 @@ info_fh = None
 access_fh = None
 debug_fh  = None
 
+
 #@werkzeug.serving.run_with_reloader
 def runServer():
     wsgi_logger = logging.getLogger("gevent.pywsgi.WSGIServer")
@@ -107,7 +115,8 @@ if __name__ == '__main__':
     access_fh = TimedRotatingFileHandler(filename=config.access_log, when="midnight", interval=1, utc=True)
     debug_fh = TimedRotatingFileHandler(filename=config.debug_log, when="midnight", interval=1, utc=True)
 
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(pathname)s - %(funcName)s - %(lineno)d - %(message)s')
+    formatter = logging\
+        .Formatter('%(asctime)s - %(name)s - %(levelname)s - %(pathname)s - %(funcName)s - %(lineno)d - %(message)s')
     err_fh.setFormatter(formatter)
     info_fh.setFormatter(formatter)
     access_fh.setFormatter(formatter)
@@ -128,5 +137,5 @@ if __name__ == '__main__':
     app.logger.addHandler(debug_fh)
     app.logger.setLevel(logging.INFO)
     
-    #app.run(host="0.0.0.0", port=81, debug=True)
+    # app.run(host="0.0.0.0", port=81, debug=True)
     runServer()
