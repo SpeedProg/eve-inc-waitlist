@@ -168,7 +168,7 @@ def account_edit():
             for role in roles_to_remove:
                 acc.roles.remove(role)
             db.session.flush()
-            send_roles_changed(account_edit, acc.id, current_user.id, [x.name for x in roles_to_remove], [], note)
+            send_roles_changed(account_edit, acc.id, current_user.id, [], [x.name for x in roles_to_remove], note)
 
     if char_name is not None:
         char_info = outgate.character.get_info_by_name(char_name)
