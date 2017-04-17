@@ -24,7 +24,7 @@
 	</form>
 	{% endif %}
 	{% if perm_manager.get_permission('bans_edit').can() and not perm_manager.get_permission('bans_edit_multiple') %}
-	<form class="form-inline" name="banform" action="{{url_for('accounts.bans_change_single')}}" method="post">
+	<form class="form-inline" name="banform" action="{{url_for('bans.bans_change_single')}}" method="post">
 		<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 		<input type="hidden" name="change" value="ban">
 		<div class="form-group">
