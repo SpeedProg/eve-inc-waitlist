@@ -18,6 +18,7 @@ perm_manager.define_permission('view_notes_high')
 perm_manager.define_permission('view_notes_low')
 perm_manager.define_permission('view_notes_med')
 perm_manager.define_permission('view_notes_all')
+perm_manager.define_permission('view_notes')
 
 
 @bp.route("/<int:accountid>", methods=["GET"])
