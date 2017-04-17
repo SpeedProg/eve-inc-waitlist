@@ -18,7 +18,7 @@ class AllianceEndpoint(ESIEndpoint):
     def get_alliance_info(self, all_id: int) -> AllianceInfo:
         # check the endpoints we need are in there
         if not (ESIEndpoint.is_endpoint_available(self._api('v2'), 'get_alliances_alliance_id')):
-            self.__try_reload_api('v2')
+            self._try_reload_api('v2')
 
         try:
             resp = self.esi_client.request(self._api('v2').op['get_alliances_alliance_id'](alliance_id=all_id))
