@@ -93,7 +93,7 @@ def send_poke(name, msg):
     found = False
     for resp in response:
         if resp['client_nickname'] == name:
-            conn.clientpoke(msg, clid=resp['clid'], msg=msg)
+            conn.clientpoke(clid=resp['clid'], msg=msg)
             found = True
     # deaf people put a * in front
     if not found:
