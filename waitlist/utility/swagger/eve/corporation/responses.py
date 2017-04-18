@@ -43,5 +43,6 @@ class CorporationInfo(ESIResponse):
     def get_url(self) -> str:
         return self.data['url']
 
-    def get_creation_date(self) -> datetime:
-        return self.data['creation_date'].v
+    def get_creation_date(self) -> Optional[datetime]:
+        return self.data['creation_date'].v if 'creation_date' in self.data else None
+
