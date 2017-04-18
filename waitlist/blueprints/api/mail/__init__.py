@@ -61,7 +61,7 @@ def send_esi_mail():
 
 def handle_sso_cb(tokens):
     handle_token_update(tokens)
-    return redirect(url_for('settings.accounts'))
+    return redirect(url_for('accounts.accounts'))
 
 
 @bp.route('/auth', methods=['GET'])
