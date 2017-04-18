@@ -1,7 +1,7 @@
 from pyswagger import App
 
 from waitlist.utility.swagger.eve import get_esi_client, ESIResponse, \
-    get_expire_time
+    get_expire_time, make_error_response
 from waitlist.utility.swagger.eve.fleet.responses import EveFleet, EveFleetWings, \
     WingCreated, EveFleetMembers, SquadCreated
 from waitlist.utility.swagger.eve.fleet.models import EveFleetWing, \
@@ -30,8 +30,7 @@ class EveFleetEndpoint(object):
             return EveFleetMembers(get_expire_time(response),
                                    response.status,
                                    None, response.data)
-        return EveFleetMembers(get_expire_time(response), response.status,
-                               response.data['error'], None)
+        return make_error_response(response)
 
     def get_fleet_settings(self) -> EveFleet:
         # type: () -> EveFleet
@@ -56,11 +55,7 @@ class EveFleetEndpoint(object):
                             response.data['is_registered'],
                             response.data['is_voice_enabled'],
                             response.data['motd'])
-        return EveFleet(get_expire_time(response), response.status,
-                        response.data['error'],
-                        None, None,
-                        None, None
-                        )
+        return make_error_response(response)
 
     def set_fleet_settings(self, is_free_move: bool, motd: str) -> ESIResponse:
         settings = FleetSettings(is_free_move, motd)
@@ -73,11 +68,7 @@ class EveFleetEndpoint(object):
             return ESIResponse(get_expire_time(response), response.status,
                                None)
 
-        error_msg: str = 'Unknown'
-        if response.data is not None:
-            error_msg = response.data['error']
-        return ESIResponse(get_expire_time(response), response.status,
-                           error_msg)
+        return make_error_response(response)
 
     def get_wings(self) -> EveFleetWings:
         response = self.__client.request(self.__api.op['get_fleets_fleet_id_wings'](fleet_id=self.__fleetID))
@@ -96,8 +87,7 @@ class EveFleetEndpoint(object):
             return EveFleetWings(get_expire_time(response),
                                  response.status,
                                  None, wings)
-        return EveFleetWings(get_expire_time(response), response.status,
-                             response.data['error'], None)
+        return make_error_response(response)
 
     def create_wing(self) -> WingCreated:
         response = self.__client.request(self.__api.op['post_fleets_fleet_id_wings'](fleet_id=self.__fleetID))
@@ -106,8 +96,7 @@ class EveFleetEndpoint(object):
                                None,
                                response.data['wing_id']
                                )
-        return WingCreated(get_expire_time(response), response.status,
-                           response.data['error'])
+        return make_error_response(response)
 
     def set_wing_name(self, wing_id: int, name: str) -> ESIResponse:
         # type: (int, str) -> ESIResponse
@@ -122,8 +111,7 @@ class EveFleetEndpoint(object):
             return ESIResponse(get_expire_time(response), response.status,
                                None)
 
-        return ESIResponse(get_expire_time(response), response.status,
-                           response.data['error'])
+        return make_error_response(response)
 
     def create_squad(self, wing_id: int) -> SquadCreated:
         response = self.__client.request(self.__api.op['post_fleets_fleet_id_wings_wing_id_squads']
@@ -145,8 +133,7 @@ class EveFleetEndpoint(object):
         if response.status == 204:
             return ESIResponse(get_expire_time(response), response.status,
                                None)
-        return ESIResponse(get_expire_time(response), response.status,
-                           response.data['error'])
+        return make_error_response(response)
 
     def invite(self, character_id: int, role: str, squad_id: int, wing_id: int) -> ESIResponse:
         """
@@ -163,9 +150,4 @@ class EveFleetEndpoint(object):
         if response.status == 204:
             return ESIResponse(get_expire_time(response), response.status,
                                None)
-        msg = ''
-        if response.data is not None and 'error' in response.data:
-            msg = response.data['error']
-        logger.info(f'Invite request failed with status[{response.status}] and msg[{msg}].')
-
-        return ESIResponse(get_expire_time(response), response.status, msg)
+        return make_error_response(response)

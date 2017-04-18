@@ -1,3 +1,4 @@
+import logging
 from pyswagger import App
 from typing import Any, Optional
 
@@ -10,6 +11,7 @@ from datetime import datetime, timezone
 from waitlist.storage.database import Account
 from waitlist.utility.swagger.patch import EsiClient
 
+logger = logging.getLogger(__name__)
 
 def get_expire_time(response: Any) -> datetime:
     if 'Expires' in response.header:
@@ -57,7 +59,14 @@ class ESIResponse(object):
 
 
 def make_error_response(resp: Any):
-    msg = resp.data['error'] if 'error' in resp.data else 'No error data send'
+    if resp.status == 420:  # monolith error
+        if resp.data is not None and 'error' in resp.data:
+            msg = resp.data['error']
+        else:
+            msg = f'Unknown Monolith error {resp.data}'
+    else:
+        msg = resp.data['error'] if resp.data is not None and 'error' in resp.data else 'No error data send'
+    logger.error(f'ESI responded with status {resp.status} and msg {msg}')
     return ESIResponse(get_expire_time(resp), resp.status, msg)
 
 
