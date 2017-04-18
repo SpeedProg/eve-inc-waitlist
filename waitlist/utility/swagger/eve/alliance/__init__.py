@@ -25,6 +25,7 @@ class AllianceEndpoint(ESIEndpoint):
             if resp.status == 200:
                 return AllianceInfo(get_expire_time(resp), resp.status, None, resp.data)
             else:
+                logger.error(f'Failed to get alliance info for id={all_id}')
                 return make_error_response(resp)
 
         except ReadTimeoutError as e:

@@ -25,6 +25,7 @@ class CharacterEndpoint(ESIEndpoint):
             if resp.status == 200:
                 return CharacterInfo(get_expire_time(resp), resp.status, None, resp.data)
             else:
+                logger.error(f'Got error requesting info for character={char_id}')
                 return make_error_response(resp)
 
         except ReadTimeoutError as e:
