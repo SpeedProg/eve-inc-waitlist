@@ -26,6 +26,7 @@ class CorporationEndpoint(ESIEndpoint):
             if resp.status == 200:
                 return CorporationInfo(get_expire_time(resp), resp.status, None, resp.data)
             else:
+                logger.error(f'Failed to get corp info for id={corp_id}')
                 return make_error_response(resp)
 
         except ReadTimeoutError as e:
