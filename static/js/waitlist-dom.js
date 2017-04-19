@@ -330,7 +330,7 @@ waitlist.listdom = (function(){
 			skillsData = `3338:${bsResult[1]}`;
 		}
 		// lets check if it is the dummy fit, and create the html accordingly
-		var baseHTML = isDummy ? '<div class="booby-link" ></div>' : `<div class="fit-link" data-title="'+username+'" data-skills="${skillsData}" data-dna="${fit.shipType}:${fit.modules}" data-type="${fit.wl_type}"></div>`;
+		var baseHTML = isDummy ? '<div class="booby-link" ></div>' : `<div class="fit-link" data-title="${username}" data-skills="${skillsData}" data-dna="${fit.shipType}:${fit.modules}" data-type="${fit.wl_type}"></div>`;
 		fitDOM.append($(baseHTML)
 					.append($('<div class="wel-header-32"></div>')
 						.append('<img class="img-32" src="'+eve_image('Render/'+fit.shipType+'_32', 'png')+'">')
