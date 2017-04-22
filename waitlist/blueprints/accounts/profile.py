@@ -14,9 +14,9 @@ logger = logging.getLogger(__name__)
 
 perm_manager.define_permission('view_profile')
 perm_manager.define_permission('profile_notes_add')
-perm_manager.define_permission('view_notes_high')
-perm_manager.define_permission('view_notes_low')
-perm_manager.define_permission('view_notes_med')
+perm_manager.define_permission('view_notes_high')  # >= 500
+perm_manager.define_permission('view_notes_low')  # < 100
+perm_manager.define_permission('view_notes_med')  # < 200
 perm_manager.define_permission('view_notes_all')
 perm_manager.define_permission('view_notes')
 
@@ -29,8 +29,21 @@ def profile(accountid):
     if account is None:
         flask.abort(404, "Account not found!")
     notes = None
-    if perm_manager.get_permission("officer").can():
-        notes = db.session.query(AccountNote).filter(AccountNote.accountID == accountid).all()
+    max_restriction_level = 0
+    if perm_manager.get_permission('view_notes_low').can():
+        max_restriction_level = 100
+    if perm_manager.get_permission('view_notes_med').can():
+        max_restriction_level = 200
+    if perm_manager.get_permission('view_notes_high').can():
+        max_restriction_level = 500
+
+    criterion = (AccountNote.accountID == accountid)
+
+    if not perm_manager.get_permission("view_notes_all").can():
+        criterion = criterion & (AccountNote.restriction_level < max_restriction_level)
+
+    notes = db.session.query(AccountNote).filter(criterion).all()
+
     return render_template('account/profile.html', account=account, notes=notes)
 
 
