@@ -141,7 +141,7 @@ def setup(fleet_id: int, fleet_type: str)\
     for wing in fleet_api.get_wings().wings():
         if wing.name() == "Wing 1" or wing.name().lower() == "on grid":
             wing1 = wing
-        elif wing.name() == "Wing 2" or wing.name().lower() == "tipping":
+        elif wing.name() == "Wing 2" or wing.name().lower() == "off grid":
             wing2 = wing
     
     if wing1 is None or wing2 is None:
@@ -158,8 +158,8 @@ def setup(fleet_id: int, fleet_type: str)\
             wait_for_change = True
             fleet_api.create_squad(wing1.id())
 
-    if wing2.name().lower() != "tipping":
-        fleet_api.set_wing_name(wing2.id(), 'Tipping')
+    if wing2.name().lower() != "óff grid":
+        fleet_api.set_wing_name(wing2.id(), 'OFF GRID')
 
     num_squads = len(wing2.squads())
     if num_squads < 1:
@@ -173,7 +173,7 @@ def setup(fleet_id: int, fleet_type: str)\
     for wing in wings.wings():
         if wing.name().lower() == "on grid":
             wing1 = wing
-        elif wing.name().lower() == "tipping":
+        elif wing.name().lower() == "off grid":
             wing2 = wing
     
     if wing1 is None or wing2 is None:
@@ -206,8 +206,8 @@ def setup(fleet_id: int, fleet_type: str)\
         if sniper_squad is not None and sniper_squad.name() == "Squad 2":
             fleet_api.set_squad_name(sniper_squad.id(), 'DPS')
 
-    if wing2 is not None and len(wing2.squads()) > 0 and wing2.squads()[0].name().lower() != "tipping":
-        fleet_api.set_squad_name(wing2.squads()[0].id(), 'Tipping')
+    if wing2 is not None and len(wing2.squads()) > 0 and wing2.squads()[0].name().lower() != "off grid":
+        fleet_api.set_squad_name(wing2.squads()[0].id(), 'OFF GRID')
     
     sleep(5)
     return logi_squad, sniper_squad, dps_squad, more_dps_squad
