@@ -16,6 +16,7 @@ from waitlist import db
 bp = Blueprint('api_mail', __name__)
 logger = logging.getLogger(__name__)
 
+perm_manager.define_permission('send_mail')
 
 @bp.route('/', methods=['POST'])
 @login_required
