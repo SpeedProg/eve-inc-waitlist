@@ -138,6 +138,9 @@ def setup_step_url():
 
 
 def get_select_form(fleet_id: int) -> Any:
+    if current_user.ssoToken is None:
+        return Response('You have no api token associated with your account, please take over the fleet again.',
+                        status=412)
     fleet_api = EveFleetEndpoint(fleet_id)
     wings = fleet_api.get_wings()
     if wings.is_error():
