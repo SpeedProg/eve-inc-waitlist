@@ -36,7 +36,7 @@ def send_mail(recipients: List[Dict[str, Any]], body: str, subject: str) -> Any:
         'refresh_token': current_user.ssoToken.refresh_token
     })
 
-    client = EsiClient(security, timeout=10)
+    client = get_esi_client('v1', False)
 
     mail = {
         "approved_cost": 0,
