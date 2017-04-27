@@ -1,3 +1,4 @@
+import json
 import logging
 from pyswagger import App
 from typing import Any, Optional
@@ -53,6 +54,15 @@ class ESIResponse(object):
         if self.__error is None:
             return False
         return True
+
+    def is_monolith_error(self):
+        if self.is_error():
+            if self.__status_code == 420 and 'error_label:' in self.__error:
+                return True
+        return False
+
+    def get_monolith_error(self):
+        return json.loads(self.__error)
 
     def error(self) -> Optional[str]:
         return self.__error
