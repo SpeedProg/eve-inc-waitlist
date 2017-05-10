@@ -314,7 +314,7 @@ def check_invite_and_remove_timer(char_id: int, group_id: int, fleet_id: int):
         # check if there is an other waitlist
         if group.otherwlID is not None:
             entry = db.session.query(WaitlistEntry)\
-                .filter((WaitlistEntry.user == char_id) & (WaitlistEntry.waitlist_id == group.otherwlID)).on_or_none()
+                .filter((WaitlistEntry.user == char_id) & (WaitlistEntry.waitlist_id == group.otherwlID)).one_or_none()
             if entry is not None:
                 fittings.extend(entry.fittings)
         
