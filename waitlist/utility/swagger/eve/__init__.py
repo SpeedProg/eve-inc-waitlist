@@ -1,3 +1,4 @@
+import ast
 import json
 import logging
 from pyswagger import App
@@ -57,12 +58,15 @@ class ESIResponse(object):
 
     def is_monolith_error(self):
         if self.is_error():
-            if self.__status_code == 420 and 'error_label:' in self.__error:
-                return True
+            if self.__status_code == 420:
+                if 'error_label' in self.__error:
+                    return True
+                else:
+                    logger.error(f"Unknown Monolith error format: {self.__error}")
         return False
 
     def get_monolith_error(self):
-        return json.loads(self.__error)
+        return ast.literal_eval(self.__error)
 
     def error(self) -> Optional[str]:
         return self.__error
@@ -70,7 +74,10 @@ class ESIResponse(object):
 
 def make_error_response(resp: Any):
     if resp.status == 420:  # monolith error
-        if resp.data is not None and 'error' in resp.data:
+        if resp.data is None:
+            data = json.loads(resp.raw.decode("utf-8"))
+            msg = data['error'] if data is not None and 'error' in data else 'No error data send'
+        elif resp.data is not None and 'error' in resp.data:
             msg = resp.data['error']
         else:
             msg = f'Unknown Monolith error {resp.data}'
