@@ -101,10 +101,7 @@ class EsiClient(BaseClient):
         'tranquility': 'https://imageserver.eveonline.com/',
     }
 
-    def __init__(
-            self,
-            security=None,
-            **kwargs):
+    def __init__(self, security=None, **kwargs):
         """ Init the ESI client object
         :param security: (optional) the security object [default: None]
         :param headers: (optional) additional headers we want to add
@@ -112,7 +109,7 @@ class EsiClient(BaseClient):
         :param cache: (optional) esipy.cache.BaseCache cache implementation.
         :param raw_body_only: (optional) default value [False] for all requests
         """
-        super(EsiClient, self).__init__(security,)
+        super(EsiClient, self).__init__(security)
 
         # lets get rid of all our kwargs
         headers = kwargs.pop('headers', {})
@@ -176,7 +173,7 @@ class EsiClient(BaseClient):
         cache_key = self.__make_cache_key(request)
         cached_response = self.cache.get(cache_key, None)
 
-        if cached_response is not None:
+        if request.method == "GET" and cached_response is not None:
             res = cached_response
 
         else:
@@ -212,7 +209,7 @@ class EsiClient(BaseClient):
                 message=res.content if res.status_code != 200 else None
             )
 
-            if res.status_code == 200:
+            if request.method == "GET" and res.status_code == 200:
                 self.__cache_response(cache_key, res)
 
         if raw_body_only is None:
@@ -271,7 +268,9 @@ class EsiClient(BaseClient):
         headers = frozenset(request._p['header'].items())
         path = frozenset(request._p['path'].items())
         query = frozenset(request._p['query'])
-        return request.url, headers, path, query
+        body = frozenset(request._p['body'])
+        method = request.method
+        return request.url, method, headers, path, query, body
 
 
 def monkey_patch_pyswagger_requests_client():
