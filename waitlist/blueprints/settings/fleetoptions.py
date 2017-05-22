@@ -284,7 +284,7 @@ def fleet_query_stations():
     stations = db.session.query(Station).filter(Station.stationName.like(term + "%")).all()
     station_list = []
     for item in stations:
-        station_list.append({'statID': item.station_id, 'statName': item.stationName})
+        station_list.append({'statID': item.stationID, 'statName': item.stationName})
     return jsonify(result=station_list)
 
 
