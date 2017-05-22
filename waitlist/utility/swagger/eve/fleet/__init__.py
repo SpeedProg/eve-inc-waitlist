@@ -59,12 +59,14 @@ class EveFleetEndpoint(object):
 
     def set_fleet_settings(self, is_free_move: bool, motd: str) -> ESIResponse:
         settings = FleetSettings(is_free_move, motd)
-
-        response = self.__client.request(self.__api.op['put_fleets_fleet_id'](
+        logger.info(f"Changing Fleetsetting to for fleet={self.__fleetID} to {settings.get_esi_data()}")
+        request = self.__api.op['put_fleets_fleet_id'](
             fleet_id=self.__fleetID,
             new_settings=settings.get_esi_data()
-        ))
+        )
+        response = self.__client.request(request)
         if response.status == 204:
+            logger.info("Got 204 back")
             return ESIResponse(get_expire_time(response), response.status,
                                None)
 
