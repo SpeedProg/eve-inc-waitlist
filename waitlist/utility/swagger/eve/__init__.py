@@ -93,7 +93,7 @@ def get_esi_client(version: str, noauth: bool = False) -> EsiClient:
 
 def get_esi_client_for_account(account: Account, version: str, noauth: bool = False) -> EsiClient:
     if noauth:
-        return EsiClient(timeout=10, headers={'User-Agent': 'Bruce Warhead WTMWaitlist'})
+        return EsiClient(timeout=10, headers={'User-Agent': 'Bruce Warhead WTMWaitlist/1.0.0'})
 
     security = EsiSecurity(
         get_api(version),
@@ -107,4 +107,4 @@ def get_esi_client_for_account(account: Account, version: str, noauth: bool = Fa
                        datetime.utcnow()).total_seconds(),
         'refresh_token': account.ssoToken.refresh_token
     })
-    return EsiClient(security, timeout=10, headers={'User-Agent': 'Bruce Warhead WTMWaitlist'})
+    return EsiClient(security, timeout=10, headers={'User-Agent': 'Bruce Warhead WTMWaitlist/1.0.0'})
