@@ -5,7 +5,8 @@
 {% block head %}
 {{ super() }}
 {% endblock head %}
-{% block content %}
+{% block raw_content %}
+<div class="row flex-column">
 {% if perm_manager.get_permission('welcome_mail_edit').can() %}
 <h4>Default Mail</h4>
 <form method="post" action="{{url_for('settings_mail.change', type_='default')}}">
@@ -75,4 +76,5 @@ $sig$<br>
 <button type="submit" class="btn btn-primary">Save</button>
 </form>
 {% endif %}
-{% endblock content %}
+</div>
+{% endblock raw_content %}

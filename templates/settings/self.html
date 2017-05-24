@@ -58,8 +58,7 @@
 {% endblock %}
 
 {% block content %}
-<form id="form-account-edit"
-	action="{{url_for('accounts.account_self_edit')}}" method="POST">
+<form class="w-100" id="form-account-edit" action="{{url_for('accounts.account_self_edit')}}" method="POST">
 	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 	<fieldset class="form-group">
 		<label for="acc-edit-name">Account Name</label>

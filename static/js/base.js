@@ -14,9 +14,9 @@ waitlist.base = (function(){
 				<button type="button" class="close" data-dismiss="alert" aria-label="Close">
 				<span aria-hidden="true">&times;</span>
 				</button>
-				<p class="text-xs-center"></p>
+				<p class="text-center"></p>
 				</div>`));
-		var textContainer = $('.text-xs-center', alertHTML);
+		var textContainer = $('.text-center', alertHTML);
 		if (typeof id !== "undefined") {
 			alertHTML.attr("id", id);
 		}

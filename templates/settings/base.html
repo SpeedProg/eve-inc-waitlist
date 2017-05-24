@@ -9,7 +9,7 @@
 {% block container_data %}
 <div class="row">
 	<div class="col-sm-3 col-md-2 sidebar" id="sidebar">
-		<ul class="nav nav-pills nav-stacked">
+		<ul class="nav nav-pills flex-column">
 		<li class="nav-item">
 			<a class="nav-link {% if request.endpoint == 'settings_overview.overview' %}active{% endif %}" href="{{url_for('settings_overview.overview')}}">Overview</a>
 		</li>
@@ -22,7 +22,7 @@
 	</div>
 	<div class="col-sm-9 col-md-10 content" id="main">
 	{% block raw_content %}
-	<div class="row">
+	<div class="row flex-column">
 	{% block content %}<p> Please select something on the left side </p>{% endblock %}
 	</div>
 	{% endblock %}

@@ -19,180 +19,184 @@
 <meta name="settings.fleet_query_constellations" content="{{url_for('fleetoptions.fleet_query_constellations')}}">
 {% endblock %}
 
-{% block content %}
-<div class="form-group pretty-dd">
-	<input type="checkbox" name="scramble" id="scramble-cbx" {% if scramble %}checked{% endif %}/>
-	<div class="btn-group">
-		<label for="scramble-cbx" class="btn btn-sm btn-info">
-			<span><i class="fa fa-check"></i></span>
-			<span><i class="fa fa-times"></i></span>
-		</label>
-		<label for="scramble-cbx" class="btn btn-sm btn-danger">Hide Names</label>
+{% block raw_content %}
+	<div class="row">
+		<div class="form-group pretty-dd">
+			<input type="checkbox" name="scramble" id="scramble-cbx" {% if scramble %}checked{% endif %}/>
+			<div class="btn-group">
+				<label for="scramble-cbx" class="btn btn-sm btn-info">
+					<span><i class="fa fa-check"></i></span>
+					<span><i class="fa fa-times"></i></span>
+				</label>
+				<label for="scramble-cbx" class="btn btn-sm btn-danger">Hide Names</label>
+			</div>
+		</div>
 	</div>
-</div>
 {% for group in groups %}
-<form id="clearwaitlistform-{{group.groupID}}" action="{{url_for('fleetoptions.clear_waitlist', gid=group.groupID)}}" method="post" class="form-inline hidden">
-<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
-</form>
-<button data-toggle="modal" data-target="#remove-diag" data-type="clearWaitlist" class="btn btn-sm btn-danger" data-id="{{group.groupID}}">Clear Waitlists!</button>
-<div class="card">
-  <div class="card-block"> 
-    <table class="table table-sm">
-    <tbody>
-    <tr>
-    <th scope="row">Display Name</th>
-    <td colspan="2">{{group.displayName}}</td>
-    </tr>
-    <tr>
-    	<th scope="row">Status</th>
-    	<td colspan="2">
-    	<form action="{{url_for('fleetoptions.fleet_status_set', gid=group.groupID)}}" method="post" class="form-inline">
-    		<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
-    		<input type="hidden" name="action" value="status">
-    		{% if perm_manager.get_permission('fleet_custom_status').can() %}
-    		<input type="text" name="status" value="{{group.status}}" class="form-control form-control-sm">
-    		{% else %}
-    		<select class="form-control form-control-sm c-select" id="status-{{group.groupID}}" name="status" required>
-				<option value="">Please Select</option>
-				<option value="Down"{% if group.status == "Down" %} selected{% endif %}>Down</option>
-				<option value="Forming"{% if group.status == "Forming" %} selected{% endif %}>Forming</option>
-				<option value="Running"{% if group.status == "Running" %} selected{% endif %}>Running</option>
-			</select>
-    		{% endif %}
-    		<label><input class="form-control form-control-sm" name="xup" type="checkbox" {% if group.enabled %}checked{% endif %}> X-UP Open</label>
-    		<label><input class="form-control form-control-sm" name="influence" type="checkbox" {% if group.influence %}checked{% endif %}> Influence</label>
-    		<button type="submit" class="btn btn-sm btn-primary">Set</button>
-    	</form>
-    	</td>
-    </tr>
-    <tr>
-    	<th scope="row">FC</th>
-    	<td>
-    	{% for fc in group.fcs %}
-    	<a href="char:{{fc.get_eve_id()}}">{{fc.get_eve_name()}}</a>
-    	<form action="{{url_for('fleetoptions.fleet_status_set', gid=group.groupID)}}" method="post" class="form-inline" style="display:inline;">
-    	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
-    	<input type="hidden" name="action" value="fc-remove">
-    	<input type="hidden" name="accountID" value="{{fc.id}}">
-    	<button type="submit" class="btn btn-mini btn-danger"><i class="fa fa-times" aria-hidden="true"></i></button>
-    	</form>
-    	{% endfor %}
-    	</td>
-    	<td>
-    	<form action="{{url_for('fleetoptions.fleet_status_set', gid=group.groupID)}}" method="post" class="form-inline">
-    	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
-    	<input type="hidden" name="action" value="fc">
-    	<button type="submit" class="btn btn-sm btn-primary">Add Self</button>
-    	</form>
-    	</td>
-    </tr>
-    <tr>
-    	<th scope="row">Fleet Manager</th>
-    	<td>
-    	{% for manager in group.manager %}
-    	<a href="char:{{manager.get_eve_id()}}">{{manager.get_eve_name()}}</a>
-    	<form action="{{url_for('fleetoptions.fleet_status_set', gid=group.groupID)}}" method="post" class="form-inline" style="display:inline;">
-    	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
-    	<input type="hidden" name="action" value="manager-remove">
-    	<input type="hidden" name="accountID" value="{{manager.id}}">
-    	<button type="submit" class="btn btn-mini btn-danger"><i class="fa fa-times" aria-hidden="true"></i></button>
-    	</form>
-    	{% endfor %}
-    	</td>
-    	<td>
-    	<form action="{{url_for('fleetoptions.fleet_status_set', gid=group.groupID)}}" method="post" class="form-inline">
-    	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
-    	<input type="hidden" name="action" value="manager">
-    	<!-- <input type="text" name="name" value="{{user.get_eve_name()}}"> -->
-    	<button type="submit" class="btn btn-sm btn-primary">Add Self</button>
-    	</form>
-    	</td>
-    </tr>
-    {% if perm_manager.get_permission('fleet_location_edit').can() %}
-    <tr>
-    	<th scope="row">Constellation</th>
-    	<td>{% if group.constellation is not none %}<a href="#">{{group.constellation.constellationName}}</a>{% else %}Not Set{% endif %}</td>
-    	<td>
-    	<form action="{{url_for('fleetoptions.fleet_location_set', gid=group.groupID)}}" method="post" class="form-inline">
-    	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
-    	<input type="hidden" name="action" value="constellation">
-    	<input id="con-typeahead-{{group.groupID}}" class="form-control form-control-sm typeahead con-typeahead" type="text" name="name">
-    	<button type="submit" class="btn btn-sm btn-primary">Set</button>
-    	</form>
-    	</td>
-    </tr>
-    <tr>
-    	<th scope="row">Dockup</th>
-    	<td>{% if group.dockup is not none %}<a href="#">{{group.dockup.stationName}}</a>{% else %}Not Set{% endif %}</td>
-    	<td>
-    	<form action="{{url_for('fleetoptions.fleet_location_set', gid=group.groupID)}}" method="post" class="form-inline">
-    	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
-    	<input type="hidden" name="action" value="dock">
-    	<input id="dock-typeahead-{{group.groupID}}" class="form-control form-control-sm typeahead dock-typeahead" type="text" name="name">
-    	<button type="submit" class="btn btn-sm btn-primary">Set</button>
-    	</form>
-    	</td>
-    </tr>
-    <tr>
-    	<th scope="row">System</th>
-    	<td>{% if group.system is not none %}<a href="#">{{group.system.solarSystemName}}</a>{% else %}Not Set{% endif %}</td>
-    	<td>
-    	<form action="{{url_for('fleetoptions.fleet_location_set', gid=group.groupID)}}" method="post" class="form-inline">
-    	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
-    	<input type="hidden" name="action" value="system">
-    	<input id="hq-typeahead-{{group.groupID}}" class="form-control form-control-sm typeahead hq-typeahead" type="text" name="name">
-    	<button type="submit" class="btn btn-sm btn-primary">Set</button>
-    	</form>
-    	</td>
-    </tr>
-    {% endif %}
-    <tr>
-    <th scope="row">Backseats:</th>
-    <td colspan="2">
-    {% for backseat in group.backseats %}
-    	<a href=char:{{backseat.current_char_obj.get_eve_id()}}">{{backseat.current_char_obj.get_eve_name()}}</a>
-    	<form action="{{url_for('fleetoptions.fleet_status_set', gid=group.groupID)}}" method="post" class="form-inline" style="display:inline;">
-    	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
-    	<input type="hidden" name="action" value="remove-backseat">
-    	<input type="hidden" name="accountID" value="{{backseat.id}}">
-    	<button type="submit" class="btn btn-mini btn-danger"><i class="fa fa-times" aria-hidden="true"></i></button>
-    	</form>
-		{% if not loop.last %} - {% endif %}
-    {% endfor %}
-    	<form action="{{url_for('fleetoptions.fleet_status_set', gid=group.groupID)}}" method="post" class="form-inline" style="display:inline;">
-    	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
-    	<input type="hidden" name="action" value="add-backseat">
-    	<button type="submit" class="btn btn-sm btn-primary">Add Self</button>
-    	</form>
-    </td>
-    </tr>
-    <tr>
-    	<th scope="row">Register for Fleet</th>
-    	<td colspan="2">
-			<form>
-			<a href="{{url_for('fleet.take_form')}}" class="btn btn-sm btn-primary">Take over a Fleet</a>
-			</form>
-    	</td>
-    </tr>
-    <tr>
-    <th>Fleet ID</th><th>Current Fleet Comp</th><th>Actions</th>
-    </tr>
-    {% for fleet in group.fleets %}
-    <tr id="fleet-{{fleet.fleetID}}">
-        <td>{{fleet.fleetID}}</td>
-        <td>{% if fleet.comp %}<a href="javascript:IGBW.showInfo(1377, {{fleet.comp.get_eve_id()}});">{{fleet.comp.get_eve_name()}}</a>{% else %}{{None}}{% endif %}</td>
-        <td>
-        	<button class="btn btn-danger btn-sm" data-type="remove-fleet" data-id="{{fleet.fleetID}}">Remove</button>
-        	<a href="{{url_for('fleet.change_type', fleet_id=fleet.fleetID)}}" class="btn btn-sm btn-warning">Change Fleet Type</a>
-        	<a href="{{url_for('fleet.change_setup', fleet_id=fleet.fleetID)}}" class="btn btn-sm btn-danger">Change Squads</a>
-        	<button data-action="moveToSafety" data-fleetId="{{fleet.fleetID}}" class="btn btn-sm btn-danger">Safety</button>
-        </td>
-    </tr>
-    {% endfor %}
-    </tbody>
-    </table>
-  </div>
-</div>
+	<div class="row flex-column bp-3">
+		<form class="form-inline hidden" id="clearwaitlistform-{{group.groupID}}" action="{{url_for('fleetoptions.clear_waitlist', gid=group.groupID)}}" method="post">
+		<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+		</form>
+		<button data-toggle="modal" data-target="#remove-diag" data-type="clearWaitlist" class="btn btn-sm btn-danger" data-id="{{group.groupID}}">Clear This Groups lists!</button>
+		<div class="card">
+		  <div class="card-block">
+			<table class="table table-sm">
+			<tbody>
+			<tr>
+			<th scope="row">Display Name</th>
+			<td colspan="2">{{group.displayName}}</td>
+			</tr>
+			<tr>
+				<th scope="row">Status</th>
+				<td colspan="2">
+				<form action="{{url_for('fleetoptions.fleet_status_set', gid=group.groupID)}}" method="post" class="form-inline">
+					<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+					<input type="hidden" name="action" value="status">
+					{% if perm_manager.get_permission('fleet_custom_status').can() %}
+					<input type="text" name="status" value="{{group.status}}" class="form-control form-control-sm">
+					{% else %}
+					<select class="form-control form-control-sm c-select" id="status-{{group.groupID}}" name="status" required>
+						<option value="">Please Select</option>
+						<option value="Down"{% if group.status == "Down" %} selected{% endif %}>Down</option>
+						<option value="Forming"{% if group.status == "Forming" %} selected{% endif %}>Forming</option>
+						<option value="Running"{% if group.status == "Running" %} selected{% endif %}>Running</option>
+					</select>
+					{% endif %}
+					<label><input class="form-control form-control-sm" name="xup" type="checkbox" {% if group.enabled %}checked{% endif %}> X-UP Open</label>
+					<label><input class="form-control form-control-sm" name="influence" type="checkbox" {% if group.influence %}checked{% endif %}> Influence</label>
+					<button type="submit" class="btn btn-sm btn-primary">Set</button>
+				</form>
+				</td>
+			</tr>
+			<tr>
+				<th scope="row">FC</th>
+				<td>
+				{% for fc in group.fcs %}
+				<a href="char:{{fc.get_eve_id()}}">{{fc.get_eve_name()}}</a>
+				<form action="{{url_for('fleetoptions.fleet_status_set', gid=group.groupID)}}" method="post" class="form-inline" style="display:inline;">
+				<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+				<input type="hidden" name="action" value="fc-remove">
+				<input type="hidden" name="accountID" value="{{fc.id}}">
+				<button type="submit" class="btn btn-mini btn-danger"><i class="fa fa-times" aria-hidden="true"></i></button>
+				</form>
+				{% endfor %}
+				</td>
+				<td>
+				<form action="{{url_for('fleetoptions.fleet_status_set', gid=group.groupID)}}" method="post" class="form-inline">
+				<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+				<input type="hidden" name="action" value="fc">
+				<button type="submit" class="btn btn-sm btn-primary">Add Self</button>
+				</form>
+				</td>
+			</tr>
+			<tr>
+				<th scope="row">Fleet Manager</th>
+				<td>
+				{% for manager in group.manager %}
+				<a href="char:{{manager.get_eve_id()}}">{{manager.get_eve_name()}}</a>
+				<form action="{{url_for('fleetoptions.fleet_status_set', gid=group.groupID)}}" method="post" class="form-inline" style="display:inline;">
+				<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+				<input type="hidden" name="action" value="manager-remove">
+				<input type="hidden" name="accountID" value="{{manager.id}}">
+				<button type="submit" class="btn btn-mini btn-danger"><i class="fa fa-times" aria-hidden="true"></i></button>
+				</form>
+				{% endfor %}
+				</td>
+				<td>
+				<form action="{{url_for('fleetoptions.fleet_status_set', gid=group.groupID)}}" method="post" class="form-inline">
+				<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+				<input type="hidden" name="action" value="manager">
+				<!-- <input type="text" name="name" value="{{user.get_eve_name()}}"> -->
+				<button type="submit" class="btn btn-sm btn-primary">Add Self</button>
+				</form>
+				</td>
+			</tr>
+			{% if perm_manager.get_permission('fleet_location_edit').can() %}
+			<tr>
+				<th scope="row">Constellation</th>
+				<td>{% if group.constellation is not none %}<a href="#">{{group.constellation.constellationName}}</a>{% else %}Not Set{% endif %}</td>
+				<td>
+				<form action="{{url_for('fleetoptions.fleet_location_set', gid=group.groupID)}}" method="post" class="form-inline">
+				<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+				<input type="hidden" name="action" value="constellation">
+				<input id="con-typeahead-{{group.groupID}}" class="form-control form-control-sm typeahead con-typeahead" type="text" name="name">
+				<button type="submit" class="btn btn-sm btn-primary">Set</button>
+				</form>
+				</td>
+			</tr>
+			<tr>
+				<th scope="row">Dockup</th>
+				<td>{% if group.dockup is not none %}<a href="#">{{group.dockup.stationName}}</a>{% else %}Not Set{% endif %}</td>
+				<td>
+				<form action="{{url_for('fleetoptions.fleet_location_set', gid=group.groupID)}}" method="post" class="form-inline">
+				<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+				<input type="hidden" name="action" value="dock">
+				<input id="dock-typeahead-{{group.groupID}}" class="form-control form-control-sm typeahead dock-typeahead" type="text" name="name">
+				<button type="submit" class="btn btn-sm btn-primary">Set</button>
+				</form>
+				</td>
+			</tr>
+			<tr>
+				<th scope="row">System</th>
+				<td>{% if group.system is not none %}<a href="#">{{group.system.solarSystemName}}</a>{% else %}Not Set{% endif %}</td>
+				<td>
+				<form action="{{url_for('fleetoptions.fleet_location_set', gid=group.groupID)}}" method="post" class="form-inline">
+				<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+				<input type="hidden" name="action" value="system">
+				<input id="hq-typeahead-{{group.groupID}}" class="form-control form-control-sm typeahead hq-typeahead" type="text" name="name">
+				<button type="submit" class="btn btn-sm btn-primary">Set</button>
+				</form>
+				</td>
+			</tr>
+			{% endif %}
+			<tr>
+			<th scope="row">Backseats:</th>
+			<td colspan="2">
+			{% for backseat in group.backseats %}
+				<a href=char:{{backseat.current_char_obj.get_eve_id()}}">{{backseat.current_char_obj.get_eve_name()}}</a>
+				<form action="{{url_for('fleetoptions.fleet_status_set', gid=group.groupID)}}" method="post" class="form-inline" style="display:inline;">
+				<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+				<input type="hidden" name="action" value="remove-backseat">
+				<input type="hidden" name="accountID" value="{{backseat.id}}">
+				<button type="submit" class="btn btn-mini btn-danger"><i class="fa fa-times" aria-hidden="true"></i></button>
+				</form>
+				{% if not loop.last %} - {% endif %}
+			{% endfor %}
+				<form action="{{url_for('fleetoptions.fleet_status_set', gid=group.groupID)}}" method="post" class="form-inline" style="display:inline;">
+				<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+				<input type="hidden" name="action" value="add-backseat">
+				<button type="submit" class="btn btn-sm btn-primary">Add Self</button>
+				</form>
+			</td>
+			</tr>
+			<tr>
+				<th scope="row">Register for Fleet</th>
+				<td colspan="2">
+					<form>
+					<a href="{{url_for('fleet.take_form')}}" class="btn btn-sm btn-primary">Take over a Fleet</a>
+					</form>
+				</td>
+			</tr>
+			<tr>
+			<th>Fleet ID</th><th>Current Fleet Comp</th><th>Actions</th>
+			</tr>
+			{% for fleet in group.fleets %}
+			<tr id="fleet-{{fleet.fleetID}}">
+				<td>{{fleet.fleetID}}</td>
+				<td>{% if fleet.comp %}<a href="javascript:IGBW.showInfo(1377, {{fleet.comp.get_eve_id()}});">{{fleet.comp.get_eve_name()}}</a>{% else %}{{None}}{% endif %}</td>
+				<td>
+					<button class="btn btn-danger btn-sm" data-type="remove-fleet" data-id="{{fleet.fleetID}}">Remove</button>
+					<a href="{{url_for('fleet.change_type', fleet_id=fleet.fleetID)}}" class="btn btn-sm btn-warning">Change Fleet Type</a>
+					<a href="{{url_for('fleet.change_setup', fleet_id=fleet.fleetID)}}" class="btn btn-sm btn-danger">Change Squads</a>
+					<button data-action="moveToSafety" data-fleetId="{{fleet.fleetID}}" class="btn btn-sm btn-danger">Safety</button>
+				</td>
+			</tr>
+			{% endfor %}
+			</tbody>
+			</table>
+		  </div>
+		</div>
+	</div>
 {% endfor %}
 <div class="modal fade bd-example-modal-sm" id="remove-diag" tabindex="-1" role="dialog" aria-labelledby="remove-diag-label" aria-hidden="true">
   <div class="modal-dialog modal-sm">
