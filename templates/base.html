@@ -8,13 +8,15 @@
 <meta name="eve-image-server-webp" content="{{eve_cdn_webp}}">
 <meta name="browser-webp" content="{{browserSupportsWebp}}">
 {% block head %}
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.5/css/bootstrap.min.css" integrity="sha384-AysaV+vQoT3kOAXZkl02PThvDr8HYKPZhNT5h/CXfBThSRXQ6jW5DO2ekP5ViFdi" crossorigin="anonymous">
 {% assets filters="cssmin", output="gen/setup.%(version)s.css", "css/base.css", "css/waitlist.css", "css/font.css" %}
 <link rel="stylesheet" href="{{ ASSET_URL }}">
 {% endassets %}
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.3.7/js/tether.min.js" integrity="sha256-/5pHDZh2fv1eZImyfiThtB5Ag4LqDjyittT7fLjdT/8=" crossorigin="anonymous"></script>
-<script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.5/js/bootstrap.min.js" integrity="sha384-BLiI7JTZm+JWlgKa0M0kGRpJbF2J8q+qreVrKBC47e3K6BW78kGLrCkeRX6I9RoK" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
+{% assets filters="babili", output="gen/themes.%(version)s.js", "js/themes/themes.js" %}
+<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
 <title>{% block title %}{% endblock %}</title>
 {% endblock %}
 {% if header_insert is not none %}
@@ -22,92 +24,95 @@
 {% endif %}
 </head>
 <body>
-	<nav class="navbar bg-faded">
+	<nav class="navbar navbar-toggleable-sm bg-faded">
 	{% block menu %}
-<a class="navbar-brand" href="/#">WarpToMe WL</a>
-  <button class="navbar-toggler hidden-sm-up" type="button" data-toggle="collapse" data-target="#mainNavbar">
-	  &#9776;
-  </button>
-  <div class="collapse navbar-toggleable-xs" id="mainNavbar">
-<ul class="nav navbar-nav">
-	<li class="nav-item">
-	<a class="nav-link" href="{{url_for('index')}}">Home</a>
-	</li>
-	<li class="nav-item">
-	<a class="nav-link btn btn-success btn-sm" href="{{url_for('xup.index')}}">X-UP</a>
-	</li>
-	{% if perm_manager.get_permission('commandcore').can() %}
-	<li class="nav-item dropdown">
-		<a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Tools</a>
-		<div class="dropdown-menu">
-			{% if perm_manager.get_permission('fleet_management').can() %}
-			<a class="dropdown-item" href="{{url_for('fleet_reform.index')}}">Reform</a>
-			{% endif %}
-			{% if perm_manager.get_permission('comphistory_view').can() %}
-			<a class="dropdown-item" href="{{url_for('fittings.history_default')}}">Comp History</a>
-			{% endif %}
-			<a class="dropdown-item" href="{{url_for('accounts_cc.accounts')}}">Command Core List</a>
-			{% if perm_manager.get_permission('comphistory_search').can() %}
-			<div class="dropdown-divider"></div>
-			<a class="dropdown-item" href="{{url_for('comp_history_search.index')}}">Comp History Search</a>
-			{% endif %}
-    	</div>
-	</li>
-	{% endif %}
-
-	{% if perm_manager.get_permission('settings_access').can() %}
-	<li class="nav-item">
-	<a class="nav-link" href="{{url_for('settings_overview.overview')}}">Settings</a>
-	</li>
-	{% endif %}
-	<li class="nav-item">
-	<a class="nav-link" href="{{url_for('site_help')}}">Help</a>
-	</li>
-	{% if current_user.is_authenticated %}
-	<li class="nav-item">
-		<a class="nav-link" href="{{url_for('logout')}}"><img class="profile-img-32" src="{{eve_image('Character/'+(current_user.get_eve_id()|string)+'_32', 'jpg')}}"> Logout</a>
-	</li>
-	{% endif %}
-	{% if is_on_wl and is_index %}
-	<li class="nav-item float-xs-right wlb">
-		<button type="button" class="nav-link btn btn-danger btn-sm" data-action="removeSelfFromWaitlists">Leave Waitlists</button>
-	</li>
-	<li id="gong" class="nav-item float-xs-right wlb">
-		<div class="form-group pretty-dd">
-            <input type="checkbox" name="gongbutton" id="gongbutton"/>
-            <div class="btn-group">
-                <label for="gongbutton" class="btn btn-sm btn-info">
-                    <span><i class="fa fa-check"></i></span>
-                    <span><i class="fa fa-times"></i></span>
-                </label>
-                <label for="gongbutton" class="btn btn-sm btn-danger">
-					Browser Notifications
-                </label>
-            </div>
-        </div>
-	</li>
-	<li class="nav-item float-xs-right wlb">
-		<button type="button" class="btn btn-danger btn-sm" data-action="test-poke">Test TS Poke</button>
-	</li>
-	{% endif %}
-</ul>
-</div>
+		<button class="navbar-toggler navbar-toggler-right my-1" type="button" data-toggle="collapse" data-target="#mainNavbar">
+			&#9776;
+  		</button>
+		<a class="navbar-brand" href="/#">WarpToMe WL</a>
+		<div class="collapse navbar-collapse" id="mainNavbar">
+			<ul class="navbar-nav justify-content-start mr-auto">
+				<li class="nav-item">
+					<a class="nav-link" href="{{url_for('index')}}">Home</a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link btn btn-success btn-sm" href="{{url_for('xup.index')}}">X-UP</a>
+				</li>
+				{% if perm_manager.get_permission('commandcore').can() %}
+				<li class="nav-item dropdown">
+					<a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Tools</a>
+					<div class="dropdown-menu">
+						{% if perm_manager.get_permission('fleet_management').can() %}
+						<a class="dropdown-item" href="{{url_for('fleet_reform.index')}}">Reform</a>
+						{% endif %}
+						{% if perm_manager.get_permission('comphistory_view').can() %}
+						<a class="dropdown-item" href="{{url_for('fittings.history_default')}}">Comp History</a>
+						{% endif %}
+						<a class="dropdown-item" href="{{url_for('accounts_cc.accounts')}}">Command Core List</a>
+						{% if perm_manager.get_permission('comphistory_search').can() %}
+						<div class="dropdown-divider"></div>
+						<a class="dropdown-item" href="{{url_for('comp_history_search.index')}}">Comp History Search</a>
+						{% endif %}
+					</div>
+				</li>
+				{% endif %}
+				{% if perm_manager.get_permission('settings_access').can() %}
+				<li class="nav-item">
+					<a class="nav-link" href="{{url_for('settings_overview.overview')}}">Settings</a>
+				</li>
+				{% endif %}
+				<li class="nav-item">
+					<a class="nav-link" href="{{url_for('site_help')}}">Help</a>
+				</li>
+				{% if current_user.is_authenticated %}
+				<li class="nav-item">
+					<a class="nav-link" href="{{url_for('logout')}}"><img class="profile-img-32" src="{{eve_image('Character/'+(current_user.get_eve_id()|string)+'_32', 'jpg')}}"> Logout</a>
+				</li>
+				{% endif %}
+			</ul>
+			<ul class="navbar-nav justify-content-end">
+				{% if is_on_wl and is_index %}
+				<li id="gong" class="nav-item wlb">
+					<div class="form-group pretty-dd">
+						<input type="checkbox" name="gongbutton" id="gongbutton"/>
+						<div class="btn-group">
+							<label for="gongbutton" class="btn btn-sm btn-info">
+								<span><i class="fa fa-check"></i></span>
+								<span><i class="fa fa-times"></i></span>
+							</label>
+							<label for="gongbutton" class="btn btn-sm btn-danger">
+								Browser Notifications
+							</label>
+						</div>
+					</div>
+				</li>
+				<li class="nav-item wlb">
+					<button type="button" class="btn btn-danger btn-sm" data-action="test-poke">Test TS Poke</button>
+				</li>
+				<li class="nav-item ml-2 wlb">
+					<button type="button" class="btn btn-danger btn-sm" data-action="removeSelfFromWaitlists">Leave Waitlists</button>
+				</li>
+				{% endif %}
+			</ul>
+		</div>
 	{% endblock %}
 	</nav>
+	{%  block alert_base %}
 	<div id="alert-area-base">
 	{% with messages = get_flashed_messages(with_categories=true) %}
   		{% if messages %}
   		{% for category, message in messages %}
-  		<div class="alert alert-{{category}} alert-dismissible fade in" role="alert">
+  		<div class="alert alert-{{category}} alert-dismissible" role="alert">
   			<button type="button" class="close" data-dismiss="alert" aria-label="Close">
     			<span aria-hidden="true">&times;</span>
   			</button>
-  			<p class="text-xs-center">{{message}}</p>
+  			<p class="text-center">{{message}}</p>
   		</div>
   		{% endfor %}
   		{% endif %}
 	{% endwith %}
 	</div>
+	{% endblock alert_base %}
 	<div id="content" class="container-fluid">
 		{% block container_data %}
 		<div class="row" id="data">{% block data %}{% endblock %}</div>
@@ -115,8 +120,18 @@
 	</div>
 	{% block footer %}
 	<footer class="footer container-fluid">
-		&copy; Copyright 2016+ by <a href="char:91495852">Bruce Warhead ISK Donations are appreciated</a> v{{version}}.<br/>
+		<row class="row justify-content-left">
+		<div class="col-10">&copy; Copyright 2016+ by <a href="char:91495852">Bruce Warhead ISK Donations are appreciated</a> v{{version}}.<br/>
 		EVE Online and the EVE logo are the registered trademarks of CCP hf. All rights are reserved worldwide. All other trademarks are the property of their respective owners. EVE Online, the EVE logo, EVE and all associated logos and designs are the intellectual property of CCP hf. All artwork, screenshots, characters, vehicles, storylines, world facts or other recognizable features of the intellectual property relating to these trademarks are likewise the intellectual property of CCP hf. CCP hf. has granted permission to Bruce Warhead to use EVE Online and all associated logos and designs for promotional and information purposes on its website but does not endorse, and is not in any way affiliated with, Bruce Warhead. CCP is in no way responsible for the content on or functioning of this website, nor can it be liable for any damage arising from the use of this website.
+		</div>
+		<select id="theme-selector" class="col-2 h-25 custom-select">
+			<option value="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css"
+					data-type="remote"
+					data-integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ"
+					data-crossorigin="anonymouse">Generic</option>
+			<option value="bootstrap_purple_001.css" data-type="local">Purple</option>
+		</select>
+		</row>
 	</footer>
 	{% endblock %}
 </body>
