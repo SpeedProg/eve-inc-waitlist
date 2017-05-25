@@ -1,5 +1,6 @@
 'use strict';
-
+// this code is directly included into the base.html because the css element needs to be included during the first pass
+// otherwise people will see a unstyled page flash
 if (!waitlist) {
 	var waitlist = {};
 }
@@ -8,7 +9,12 @@ waitlist.themes = (function() {
 	let settings = {
 		'id': 'theme-css',
 		'base_path': "/static/css/",
-		'setting_key_prefix': 'themes-'
+		'setting_key_prefix': 'themes-',
+		'def_type': 'local',
+		'def_file': 'bootstrap_purple_001.css',
+		'def_integrity': null,
+		'def_crossorigin': null
+
 	};
 	// file_name = null == standard file
 	function setTheme(file_name, type, integrity, crossorigin) {
@@ -26,15 +32,17 @@ waitlist.themes = (function() {
 		}
 
 		let new_element = false;
-		let theme_element = $('#' + settings.id);
+		let theme_element = document.getElementById(settings.id);
 		// we got none yet
-		if (theme_element.length <= 0) {
+		if (theme_element === null) {
 			// add one
-			theme_element = $($.parseHTML(`<link rel="stylesheet" href="" id="${settings.id}">`));
+			let parser = new DOMParser();
+			let htmlPart = parser.parseFromString('<html><body><link rel="stylesheet" href="" id="'+settings.id+'"></body></html>', "text/html");
+			theme_element = htmlPart.getElementById(settings.id);
 			new_element = true;
 		}
 
-		let pure_element = theme_element[0];
+		let pure_element = theme_element;
 
 		// lets check if we have a local or remote theme
 		if (type === 'remote' && integrity !== null && (!pure_element.hasAttribute('integrity')
@@ -56,7 +64,12 @@ waitlist.themes = (function() {
 		let href = type === "remote" ? file_name : settings.base_path+file_name;
 		pure_element.setAttribute('href', href);
 		if (new_element) {
-			$("head").prepend(theme_element);
+
+			document.write(pure_element.outerHTML);
+			//let headElement = document.getElementsByTagName("head")[0];
+			//let themLoaderElement = document.getElementById("themeloader");
+			//themLoaderElement.insertAdjacentHTML("afterend", pure_element.outerHTML)
+			//headElement.insertAfter(pure_element, themLoaderElement);
 		}
 	}
 
@@ -74,16 +87,15 @@ waitlist.themes = (function() {
 		let type = localStorage.getItem(settings.setting_key_prefix+"type");
 		let integrity = localStorage.getItem(settings.setting_key_prefix+"integrity");
 		let crossorigin = localStorage.getItem(settings.setting_key_prefix+"crossorigin");
-		if (file === null) {
-			$(document).ready(initThemeAfterPageReady);
-			// nothing stored get the selector and the first option element
-			return;
+		document.addEventListener('DOMContentLoaded', function () {
+			setSelectionAfterPageReady(file);
+		});
+		if (file === null || file === "null") {
+			// set the default theme
+			setTheme(settings.def_file, settings.def_type, settings.def_integrity, settings.def_crossorigin)
 		} else {
-			$(document).ready(function () {
-				setSelectionAfterPageReady(file);
-			});
+			setTheme(file, type, integrity, crossorigin);
 		}
-		setTheme(file, type, integrity, crossorigin);
 	}
 
 	function initThemeAfterPageReady() {
@@ -111,8 +123,7 @@ waitlist.themes = (function() {
 		selector.on("change", selectionChangeHandler);
 	}
 	setCurrentTheme();
-	$(document).ready(init);
-
+	document.addEventListener('DOMContentLoaded', init);
 	// nothing to export
 	return {};
 })();

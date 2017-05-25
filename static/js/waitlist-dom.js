@@ -197,11 +197,12 @@ waitlist.listdom = (function(){
 	 */
 	function createEntryDOM(wlId, entry, groupID, isQueue) {
 		let entryDOM = $(`<li class="list-group-item" data-username="${entry.character.name}" id="entry-${wlId}-${entry.id}"></li>`);
-		entryDOM.append(createHeaderDOM(wlId, entry, groupID, isQueue));
+		let headerDOM = createHeaderDOM(wlId, entry, groupID, isQueue);
+		entryDOM.append(headerDOM);
 		let collapsLayer = $($.parseHTML(`<div id="fittings-${entry.id}-col" class="collapse"></div>`));
 		let fittlistDOM = $(`<ul aria-expanded="true" class="list-group list-group-flush" id="fittings-${entry.id}"></ul>`);
 		collapsLayer.append(fittlistDOM);
-		entryDOM.append(collapsLayer);
+		headerDOM.append(collapsLayer);
 		for (let fit of entry.fittings) {
 			fittlistDOM.append(createFitDOM(fit, wlId, entry.id, isQueue, entry.character.name, entry.character.id));
 		}
