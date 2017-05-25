@@ -28,9 +28,18 @@
 	{% endblock %}
 	</div>
 </div>
-<footer class="row" id="footer">
-&copy; Copyright 2016+ by <a href="char:91495852">Bruce Warhead</a>.
-</footer>
+<footer class="row justify-content-left">
+	<div class="col-10">
+		&copy; Copyright 2016+ by <a href="char:91495852">Bruce Warhead</a>.
+	</div>
+	<select id="theme-selector" class="col-2 h-25 custom-select">
+		<option value="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css"
+				data-type="remote"
+				data-integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ"
+				data-crossorigin="anonymouse">Generic</option>
+		<option value="bootstrap_purple_001.css" data-type="local">Purple</option>
+	</select>
+</footer >
 {% endblock %}
 
 {% block footer %}{% endblock %}
