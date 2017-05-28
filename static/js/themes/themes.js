@@ -109,12 +109,25 @@ waitlist.themes = (function() {
 	}
 
 	function setSelectionAfterPageReady(file) {
-		let selector = $('#theme-selector')[0];
+		let selector = document.getElementById('theme-selector');
 		for(let idx=0; idx < selector.length; idx++) {
 			if (selector[idx].getAttribute('value') === file) {
 				selector[idx].selected = true;
 			}
 		}
+
+		if (!found) {
+			if (selector.options.length > 0) {
+				selector[0].selected = true;
+				let target_option = selector[0];
+				let url = target_option.value;
+				let type = target_option.getAttribute('data-type');
+				let integrity = target_option.hasAttribute('data-integrity') ? target_option.getAttribute('data-integrity') : null;
+				let crossorigin = target_option.hasAttribute('data-crossorigin') ? target_option.getAttribute('data-crossorigin') : null;
+				setTheme(url, type, integrity, crossorigin); //
+			}
+		}
+
 	}
 
 	// apply our current theme and set handlers
