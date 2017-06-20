@@ -1,0 +1,95 @@
+// Bootstrap overrides
+//
+// Copy variables from `_variables.scss` to this file to override default values
+// without modifying source files.
+$white:  #fff !default;
+$black:  #000 !default;
+$red:    #d9534f !default;
+$orange: #f0ad4e !default;
+$yellow: #ffd500 !default;
+$green:  #5cb85c !default;
+$blue:   #0275d8 !default;
+$teal:   #5bc0de !default;
+$pink:   #ff5b77 !default;
+$purple: #613d7c !default;
+
+// Create grayscale
+$gray-dark:                 #292b2c !default;
+$gray:                      #464a4c !default;
+$gray-light:                #636c72 !default;
+$gray-lighter:              #eceeef !default;
+$gray-lightest:             #f7f7f9 !default;
+
+$brand-primary:             #882D60 !default;
+$brand-success:             #A6005E !default;
+$brand-info:                #764B8E !default;
+$brand-warning:             #f0ad4e !default;
+$brand-danger:              $red !default;
+//$brand-inverse:             $gray-dark !default;
+
+$brand-color: #AA5585 !default;
+
+
+$state-info-bg:            $brand-info !default;
+$state-info-text:                #260339 !default;
+
+$body-bg:    #661141 !default;
+$card-cap-bg:              darken($body-bg, 5%) !default;
+$card-bg:                  $body-bg !default;
+$list-group-bg:            #E60046 !default;
+
+$body-color: #1DD600 !default;
+$link-color:            #FFE700 !default;//#AA5585 !default;
+$border: #AA5585;
+$list-group-border-color:       $border !default;
+
+
+$dropdown-bg:                    $body-bg !default;
+$dropdown-link-color:            $link-color !default;
+$dropdown-link-hover-bg:         $link-color !default;
+$dropdown-link-hover-color:      $body-bg !default;
+$dropdown-border-color:          $border !default;
+$dropdown-divider-bg:            darken($border, 10%) !default;
+
+
+
+$input-bg:  #440026;
+$input-color:                    #AA5585 !default;
+$input-border-color:             $border !default;
+$input-bg-disabled:              $gray !default;
+
+$nav-tabs-border-color:          $border !default;
+$nav-disabled-link-color:       #032436 !default;
+$btn-link-disabled-color:        #2D882D !default;
+
+$nav-disabled-link-hover-color: #2D882D !default;
+$nav-pills-active-link-color: $body-bg !default;
+
+
+
+$pagination-color:                     $link-color !default;
+$pagination-bg:                        #CD88AF !default;
+$pagination-hover-bg:                  lighten($pagination-bg, 5%) !default;
+$pagination-active-color:              $white !default;
+$pagination-border-color:       $border !default;
+$pagination-disabled-color:            $white !default;
+$pagination-disabled-bg:               $gray-light !default;
+
+
+
+
+$card-link-hover-color:    #fff !default;
+$list-group-bg:                 #fff !default;
+$list-group-border-color:       #ddd !default;
+
+$nav-tabs-active-link-hover-color: $brand-primary;
+
+$custom-select-bg:            $body-bg !default;
+$input-group-addon-bg:           #3D1255 !default;
+$btn-primary-color:              $brand-color !default;
+
+$custom-file-color:         $brand-color !default;
+$custom-file-bg:            #882D60 !default;
+.navbar-toggler {
+ color: #FFE700;
+}
