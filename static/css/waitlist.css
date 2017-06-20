@@ -13,17 +13,17 @@
 	height: 50%;
 	font-size: 12px;
 }
-#row-waitlists {
+#waitlists {
     padding-top: 0.4rem;
 }
-.tag {
+.badge {
     padding-top: 0.2em;
     padding-bottom: 0.2em;
 }
 .alert-info {
     margin-bottom: 0.2em;
 }
-p.text-xs-center {
+p.text-center {
     margin-bottom: 0rem;
 }
 .btn-group-mini > .btn, .btn-mini {

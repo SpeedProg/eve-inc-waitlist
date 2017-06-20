@@ -86,7 +86,8 @@ waitlist.history.historysearch = (function() {
 				clear: 'fa fa-trash',
 				close: 'fa fa-times'
 			},
-			format: "YYYY/MM/DD HH:mm"
+			format: "YYYY/MM/DD HH:mm",
+			sideBySide: true
 		});
 		$('#endpicker').datetimepicker({
 			useCurrent: false,
@@ -101,7 +102,8 @@ waitlist.history.historysearch = (function() {
 				clear: 'fa fa-trash',
 				close: 'fa fa-times'
 			},
-			format: "YYYY/MM/DD HH:mm"
+			format: "YYYY/MM/DD HH:mm",
+			sideBySide: true
 		});
 		$("#startpicker").on("dp.change", function(e) {
 			$('#endpicker').data("DateTimePicker").minDate(e.date);

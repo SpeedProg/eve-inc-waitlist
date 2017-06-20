@@ -23,7 +23,8 @@ waitlist.calendar.settings = (function() {
 				clear: 'fa fa-trash',
 				close: 'fa fa-times'
 			},
-			format: "YYYY/MM/DD HH:mm"
+			format: "YYYY/MM/DD HH:mm",
+			sideBySide: true
 		});
 		setupEventHandler();
 	}
