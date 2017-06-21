@@ -172,7 +172,7 @@ waitlist.themes = (function() {
 					<a class="nav-link" href="{{url_for('index')}}">Home</a>
 				</li>
 				<li class="nav-item">
-					<a class="nav-link btn btn-success btn-sm" href="{{url_for('xup.index')}}">X-UP</a>
+					<a class="nav-link bg-success" href="{{url_for('xup.index')}}">X-UP</a>
 				</li>
 				{% if perm_manager.get_permission('commandcore').can() %}
 				<li class="nav-item dropdown">
@@ -209,24 +209,24 @@ waitlist.themes = (function() {
 			<ul class="navbar-nav justify-content-end">
 				{% if is_on_wl and is_index %}
 				<li id="gong" class="nav-item wlb">
-					<div class="form-group pretty-dd">
+					<div class="mr-2 form-group pretty-dd">
 						<input type="checkbox" name="gongbutton" id="gongbutton"/>
 						<div class="btn-group">
-							<label for="gongbutton" class="btn btn-sm btn-info">
+							<label for="gongbutton" class="nav-link btn btn-sm btn-info">
 								<span><i class="fa fa-check"></i></span>
 								<span><i class="fa fa-times"></i></span>
 							</label>
-							<label for="gongbutton" class="btn btn-sm btn-danger">
+							<label for="gongbutton" class="nav-link btn btn-sm btn-danger">
 								Browser Notifications
 							</label>
 						</div>
 					</div>
 				</li>
 				<li class="nav-item wlb mr-2">
-					<button type="button" class="btn btn-danger btn-sm" data-action="test-poke">Test TS Poke</button>
+					<button type="button" class="nav-link btn btn-danger btn-sm" data-action="test-poke">Test TS Poke</button>
 				</li>
 				<li class="nav-item wlb">
-					<button type="button" class="btn btn-danger btn-sm" data-action="removeSelfFromWaitlists">Leave Waitlists</button>
+					<button type="button" class="nav-link btn btn-danger btn-sm" data-action="removeSelfFromWaitlists">Leave Waitlists</button>
 				</li>
 				{% endif %}
 			</ul>
