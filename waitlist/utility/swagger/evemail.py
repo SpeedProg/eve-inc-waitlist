@@ -8,7 +8,7 @@ from waitlist.utility.config import crest_return_url, crest_client_id,\
 from datetime import datetime
 
 from waitlist.utility.swagger import get_api
-from waitlist.utility.swagger.eve import ESIResponse, get_expire_time
+from waitlist.utility.swagger.eve import ESIResponse, get_expire_time, make_error_response
 from typing import Dict, List, Any, Sequence
 
 ################################
@@ -36,7 +36,7 @@ def send_mail(recipients: List[Dict[str, Any]], body: str, subject: str) -> Any:
         'refresh_token': current_user.ssoToken.refresh_token
     })
 
-    client = EsiClient(security, timeout=10)
+    client = get_esi_client('v1', False)
 
     mail = {
         "approved_cost": 0,
@@ -87,4 +87,4 @@ def open_mail(recipients: Sequence[int], body: str, subject: str, to_corp_or_all
     if response.status == 204:
         return ESIResponse(get_expire_time(response), response.status, None)
 
-    return ESIResponse(get_expire_time(response), response.status, response.data['error'])
+    return make_error_response(response)

@@ -109,10 +109,6 @@ waitlist.sse = (function() {
 		}
 	}
 
-	function noSSE() {
-		displayMessage('We have had to disable <strong>features</strong> please consider upgrading your<a href="http://caniuse.com/#feat=eventsource"> browser', 'danger', true);
-	}
-
 	function getSSE(events, groupId) {
 		var url = getMetaData('api-sse')+"?events="+encodeURIComponent(events);
 		if (typeof groupId !== "undefined") {
@@ -172,11 +168,8 @@ waitlist.sse = (function() {
 		settings.can_manage = getMetaData('can-fleetcomp') === "True";
 		if (window.EventSource) {
 			connectSSE();
-			loadWaitlist();
-		} else {
-			noSSE();
-			loadWaitlist();
 		}
+		loadWaitlist();
 	}
 	
 	

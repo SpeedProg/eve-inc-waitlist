@@ -3,6 +3,8 @@ from flask.blueprints import Blueprint
 from flask_login import login_required, current_user
 from flask.globals import request
 import flask
+
+from waitlist.utility.swagger.eve import make_error_response, ESIResponse
 from waitlist.utility.swagger.evemail import send_mail
 from flask.helpers import make_response, url_for
 import json
@@ -16,6 +18,7 @@ from waitlist import db
 bp = Blueprint('api_mail', __name__)
 logger = logging.getLogger(__name__)
 
+perm_manager.define_permission('send_mail')
 
 @bp.route('/', methods=['POST'])
 @login_required
@@ -55,13 +58,17 @@ def send_esi_mail():
                                              + acc.current_char_obj.eve_name)
             db.session.add(history_entry)
         db.session.commit()
+    else:
+        esi_resp: ESIResponse = make_error_response(resp)
+        if esi_resp.is_monolith_error():
+            return make_response(esi_resp.get_monolith_error()['error_label'], resp.status)
 
     return make_response(str(resp.data) if resp.data is not None else '', resp.status)
 
 
 def handle_sso_cb(tokens):
     handle_token_update(tokens)
-    return redirect(url_for('settings.accounts'))
+    return redirect(url_for('accounts.accounts'))
 
 
 @bp.route('/auth', methods=['GET'])

@@ -168,7 +168,7 @@ def account_edit():
             for role in roles_to_remove:
                 acc.roles.remove(role)
             db.session.flush()
-            send_roles_changed(account_edit, acc.id, current_user.id, [x.name for x in roles_to_remove], [], note)
+            send_roles_changed(account_edit, acc.id, current_user.id, [], [x.name for x in roles_to_remove], note)
 
     if char_name is not None:
         char_info = outgate.character.get_info_by_name(char_name)
@@ -298,15 +298,21 @@ def accounts_download_csv() -> Response:
             yield '\n'
 
     permission = perm_manager.get_permission('include_in_accountlist')
-    role_check = not Account.disabled
+    include_check = (Account.disabled == False)
+    role_check = None
     for role_need in permission.needs:
         if role_need.method != 'role':
             continue
-        role_check &= Role.name == role_need.value
+        if role_check is None:
+            role_check = (Role.name == role_need.value)
+        else:
+            role_check = role_check | (Role.name == role_need.value)
+
+    include_check = (include_check & role_check)
 
     # noinspection PyPep8
     accs = db.session.query(Account).options(joinedload('characters')).join(Account.roles).filter(
-        role_check ).order_by(
+        include_check ).order_by(
         Account.username).all()
 
     response = Response(iter_accs(accs), mimetype='text/csv')

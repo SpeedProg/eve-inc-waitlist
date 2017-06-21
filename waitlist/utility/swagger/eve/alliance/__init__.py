@@ -18,15 +18,14 @@ class AllianceEndpoint(ESIEndpoint):
     def get_alliance_info(self, all_id: int) -> AllianceInfo:
         # check the endpoints we need are in there
         if not (ESIEndpoint.is_endpoint_available(self._api('v2'), 'get_alliances_alliance_id')):
-            self.__try_reload_api('v2')
+            self._try_reload_api('v2')
 
         try:
             resp = self.esi_client.request(self._api('v2').op['get_alliances_alliance_id'](alliance_id=all_id))
             if resp.status == 200:
                 return AllianceInfo(get_expire_time(resp), resp.status, None, resp.data)
             else:
-                msg = resp.data['error'] if 'error' in resp.data else 'No error data send'
-                logger.error(f'get_alliance_info ESI responded with status {resp.status} and msg {msg}')
+                logger.error(f'Failed to get alliance info for id={all_id}')
                 return make_error_response(resp)
 
         except ReadTimeoutError as e:

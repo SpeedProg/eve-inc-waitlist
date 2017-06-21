@@ -20,8 +20,8 @@ class AllianceInfo(ESIResponse):
     def get_date_founded(self) -> datetime:
         return self.data['date_founded'].v
 
-    def get_executor_corp_id(self) -> int:
-        return self.data['executor_corp']
+    def get_executor_corp_id(self) -> Optional[int]:
+        return self.data['executor_corp'] if 'executor_corp' in self.data else None
 
     def get_ticker(self) -> str:
         return self.data['ticker']

@@ -1,33 +1,14 @@
 # inject the lib folder before everything else
 import os
 import sys
+
+from waitlist import db
+from waitlist.data.names import WaitlistNames
+
 base_path = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(base_path, 'lib'))
 from waitlist.storage.database import Role, Waitlist, WaitlistGroup
-from waitlist.data.names import WaitlistNames, WTMRoles
-from waitlist.base import db
 
-
-def get_role(name):
-    r = Role()
-    r.name = name
-    r.displayName = WTMRoles.get_display_name(name)
-    return r
-
-def createRoles():
-    role_list = WTMRoles.get_role_list()
-
-    existing_roles = db.session.query(Role).all()
-
-    for role_name in role_list:
-        exists = False
-        for dbrole in existing_roles:
-            if dbrole.name == role_name:
-                exists = True
-                print("Found roles ", role_name)
-                break
-        if not exists:
-            db.session.add(get_role(role_name))
 
 def createDefaultWaitlistGroup():
     group = createWaitlistGroup("default", "HQ (Default)")
@@ -78,7 +59,6 @@ def createWaitlistGroup(groupName, displayName):
     return group
 
 if __name__ == '__main__':
-    createRoles()
     createDefaultWaitlistGroup()
     createAssaultWaitlistGroup()
     createVGWaitlistGroup()

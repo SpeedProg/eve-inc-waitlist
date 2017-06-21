@@ -1,3 +1,6 @@
+import ast
+import json
+import logging
 from pyswagger import App
 from typing import Any, Optional
 
@@ -10,6 +13,7 @@ from datetime import datetime, timezone
 from waitlist.storage.database import Account
 from waitlist.utility.swagger.patch import EsiClient
 
+logger = logging.getLogger(__name__)
 
 def get_expire_time(response: Any) -> datetime:
     if 'Expires' in response.header:
@@ -31,7 +35,7 @@ class ESIEndpoint(object):
     def is_endpoint_available(api: App, endpoint_name: str) -> bool:
         return endpoint_name in api.op
 
-    def __try_reload_api(self, version: str):
+    def _try_reload_api(self, version: str):
         self.__dict__['api_' + version] = get_api(version)
 
 
@@ -52,12 +56,34 @@ class ESIResponse(object):
             return False
         return True
 
+    def is_monolith_error(self):
+        if self.is_error():
+            if self.__status_code == 420:
+                if 'error_label' in self.__error:
+                    return True
+                else:
+                    logger.error(f"Unknown Monolith error format: {self.__error}")
+        return False
+
+    def get_monolith_error(self):
+        return ast.literal_eval(self.__error)
+
     def error(self) -> Optional[str]:
         return self.__error
 
 
 def make_error_response(resp: Any):
-    msg = resp.data['error'] if 'error' in resp.data else 'No error data send'
+    if resp.status == 420:  # monolith error
+        if resp.data is None:
+            data = json.loads(resp.raw.decode("utf-8"))
+            msg = data['error'] if data is not None and 'error' in data else 'No error data send'
+        elif resp.data is not None and 'error' in resp.data:
+            msg = resp.data['error']
+        else:
+            msg = f'Unknown Monolith error {resp.data}'
+    else:
+        msg = resp.data['error'] if resp.data is not None and 'error' in resp.data else 'No error data send'
+    logger.error(f'ESI responded with status {resp.status} and msg {msg}')
     return ESIResponse(get_expire_time(resp), resp.status, msg)
 
 
@@ -67,7 +93,7 @@ def get_esi_client(version: str, noauth: bool = False) -> EsiClient:
 
 def get_esi_client_for_account(account: Account, version: str, noauth: bool = False) -> EsiClient:
     if noauth:
-        return EsiClient(timeout=10)
+        return EsiClient(timeout=10, headers={'User-Agent': 'Bruce Warhead WTMWaitlist/1.0.0'})
 
     security = EsiSecurity(
         get_api(version),
@@ -81,4 +107,4 @@ def get_esi_client_for_account(account: Account, version: str, noauth: bool = Fa
                        datetime.utcnow()).total_seconds(),
         'refresh_token': account.ssoToken.refresh_token
     })
-    return EsiClient(security, timeout=10)
+    return EsiClient(security, timeout=10, headers={'User-Agent': 'Bruce Warhead WTMWaitlist/1.0.0'})

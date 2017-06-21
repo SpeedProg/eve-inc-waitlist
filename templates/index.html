@@ -79,31 +79,51 @@
 	{% endassets %}
 {% endblock %}
 
+{% block alert_base %}{% endblock %}
+
 {% block container_data %}
+	<div class="row flex-column">
+	<div id="alert-area-base">
+	{% with messages = get_flashed_messages(with_categories=true) %}
+  		{% if messages %}
+  		{% for category, message in messages %}
+
+  		<div class="alert alert-{{category}} alert-dismissible" role="alert">
+  			<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+    			<span aria-hidden="true">&times;</span>
+  			</button>
+  			<p class="text-center">{{message}}</p>
+  		</div>
+  		{% endfor %}
+  		{% endif %}
+	{% endwith %}
+	</div>
+	</div>
 	{# show there
 	form only if he is not on waitlist, not fleetcomp or has permission to
 	view fits and xups are enabled #}
 	{% if group and (not is_on_wl) and (not (perm_manager.get_permission('fleet_management').can() or perm_manager.get_permission('fits_view').can())) and group.enabled %}
 		{% include "xup-form.html" with context %}
 	{% endif %}
-<div class="row">
+	<div class="row flex-column">
 	{% for trivia in trivias %}
-	<div class="alert alert-warning fade in" role="alert">
-  		<p class="text-xs-center">{{ trivia.alertText|replace('{link}', url_for('trivia_submission.show_input_form', trivia.triviaID))|safe }}</p>
+	<div class="alert alert-warning" role="alert">
+  		<p class="text-center">{{ trivia.alertText|replace('{link}', url_for('trivia_submission.show_input_form', trivia.triviaID))|safe }}</p>
   	</div>
 	{% endfor %}
 	{# Show a message if you have comp permissions but you are not fleet
-	comp of a fleet #} {% if perm_manager.get_permission('fleet_management').can() and current_user.fleet is none
-	%}
-	<div class="alert alert-info fade in" role="alert">
-		<p class="text-xs-center">
+	comp of a fleet #}
+	{% if perm_manager.get_permission('fleet_management').can() and current_user.fleet is none%}
+	<div class="alert alert-info" role="alert">
+		<p class="text-center">
 			You are not associated with any fleet, you can change this in <a
 				href="{{url_for('fleetoptions.fleet')}}">Fleet Settings</a>
 		</p>
 	</div>
-	{% endif %} {% if ts and is_on_wl %}
+	{% endif %}
+	{% if ts and is_on_wl %}
 	<div class="alert alert-info" role="alert">
-		<p class="text-xs-center">
+		<p class="text-center">
 			Please join Teamspeak, your character name must match <b>exactly</b>
 			(case sensitive)<br>TS3 Server: {{ts.displayHost}}{% if
 			ts.displayPort != 9987 %}:{{ts.displayPort}}{% endif %}
@@ -111,8 +131,8 @@
 	</div>
 	{% endif %}
   	{% if ccvote_on %}
-	<div class="alert alert-info fade in" role="alert">
-  		<p class="text-xs-center"><a href="/ccvote">Vote your favorite WTM Command Core Member HERE</a></p>
+	<div class="alert alert-info" role="alert">
+  		<p class="text-center"><a href="/ccvote">Vote your favorite WTM Command Core Member HERE</a></p>
   	</div>
   	{% endif %}
 </div>
@@ -193,15 +213,15 @@
 		{% if events|length > 0 %}
 		<div id="events" class="card mb-0">
 			<div data-toggle="collapse" data-target="#events-body" class="card-header" id="status-heading" role="button">
-				<div class="h5 mb-0" >Events{%if events|length > 1%}<i id="events-tog-icon" class="fa float-xs-right fa-plus-square"></i>{% endif %}</div>
+				<div class="h5 mb-0" >Events{%if events|length > 1%}<i id="events-tog-icon" class="fa float-right fa-plus-square"></i>{% endif %}</div>
 			</div>
-			<div class="alert alert-info" role="alert">
+			<div class="alert alert-info mb-0" role="alert">
 				<p class="text-sm-left mb-0">{{ events[0].eventTime }} : <a href="#" data-toggle="popover" data-placement="top" data-trigger="hover" data-content="{{events[0].eventDescription}}">{{ events[0].eventTitle }}</a> by {{ events[0].creator.username }}</p>
 			</div>
 			<div id="events-body" class="collapse" data-tog-icon="#events-tog-icon">
 				{% for event in events %}
 					{% if not loop.first %}
-						<div class="alert alert-info" role="alert"><p class="text-sm-left mb-0">{{ event.eventTime }} : <a href="#" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="{{event.eventDescription}}">{{ event.eventTitle }}</a> by {{ event.creator.username }}</p></div>
+						<div class="alert alert-info mb-0" role="alert"><p class="text-sm-left mb-0">{{ event.eventTime }} : <a href="#" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="{{event.eventDescription}}">{{ event.eventTitle }}</a> by {{ event.creator.username }}</p></div>
 					{% endif %}
 				{% endfor %}
 			</div>
@@ -215,32 +235,30 @@
 		</div>
 	</div>
 </div>
-<div class="row" id="row-waitlists">
-	<div id="waitlists">
-		{% for wlist in lists %}
-		<div class="col-sm-3" id="wl-{{ wlist.id }}">
-			<div class="panel panel-default">
-				<div class="panel-heading" id="wl-heading-{{ wlist.id }}">
-					<h4 class="panel-title">
-						<a class="list-group-item text-uppercase" data-toggle="collapse"
-							data-parent="#wl-{{ wlist.id }}-tog"
-							data-target="#wl-fits-{{ wlist.id }}" aria-expanded="true"
-							aria-controls="wl-fits-{{ wlist.id }}" role="button"> {{
-							wlist.displayTitle|e }}{% if perm_manager.get_permission('fleet_management').can() %}<span
-							id="wl-count-{{ wlist.id }}"
-							class="tag tag-pill tag-default float-xs-left">0</span>{% endif
-							%}<i class="fa fa-minus-square float-xs-right"
-							id="wl-{{ wlist.id }}-tog-icon"></i>
-						</a>
-					</h4>
-				</div>
-				<ol data-tog-icon="#wl-{{ wlist.id }}-tog-icon"
-					class="list-group collapse in" id="wl-fits-{{ wlist.id }}"
-					aria-labelledby="wl-heading-{{ wlist.id }}"></ol>
+<div class="row" id="waitlists">
+	{% for wlist in lists %}
+	<div class="col-sm-3" id="wl-{{ wlist.id }}">
+		<div class="panel panel-default">
+			<div class="panel-heading" id="wl-heading-{{ wlist.id }}">
+				<h4 class="panel-title">
+					<a class="list-group-item text-uppercase d-flex flex-row justify-content-start" data-toggle="collapse"
+						data-parent="#wl-{{ wlist.id }}-tog"
+						data-target="#wl-fits-col-{{ wlist.id }}" aria-expanded="true"
+						aria-controls="wl-fits-{{ wlist.id }}" role="button">
+					{% if perm_manager.get_permission('fleet_management').can() %}
+					<span id="wl-count-{{ wlist.id }}" class="badge badge-pill badge-default">0</span>
+					{% endif %}
+					{{wlist.displayTitle|e }}
+					<i class="ml-auto fa fa-minus-square float-right" id="wl-{{ wlist.id }}-tog-icon"></i>
+					</a>
+				</h4>
+			</div>
+			<div data-tog-icon="#wl-{{ wlist.id }}-tog-icon" class="collapse show" id="wl-fits-col-{{ wlist.id }}" >
+				<ol class="list-group" id="wl-fits-{{ wlist.id }}" aria-labelledby="wl-heading-{{ wlist.id }}"></ol>
 			</div>
 		</div>
-		{% endfor %}
 	</div>
+	{% endfor %}
 	{% else %}
 	<p>All Waitlists are closed!</p>
 	{% endif %}

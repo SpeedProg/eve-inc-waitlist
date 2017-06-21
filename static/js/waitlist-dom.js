@@ -33,7 +33,7 @@ waitlist.listdom = (function(){
 		default:
 			type = "default";
 		}
-		return $.parseHTML(`<span class="tag tag-${type}">${name}</span>`);
+		return $.parseHTML(`<span class="badge badge-${type}">${name}</span>`);
 	}
 	
 	/**
@@ -105,7 +105,7 @@ waitlist.listdom = (function(){
 		// if the current user can view fits and or it is this character and
 		// this entry is a rookie
 		if ((settings.can_view_fits || entry.character.id === settings.user_id) && entry.character.newbro) {
-			newBroTag = ' <span class="tag tag-info">New</span>';
+			newBroTag = ' <span class="badge badge-info">New</span>';
 		}
 		var cTime = new Date(Date.now());
 		var xupTime = new Date(Date.parse(entry.time));
@@ -157,7 +157,7 @@ waitlist.listdom = (function(){
 			}
 		}
 		var buttonHTML = "";
-		const dropdownButton = `<button type="button" data-toggle="collapse" data-target="#fittings-${entry.id}" class="btn btn-primary"><span class="fitdd">Fits</span></button>`;
+		const dropdownButton = `<button type="button" data-toggle="collapse" data-target="#fittings-${entry.id}-col" class="btn btn-primary"><span class="fitdd">Fits</span></button>`;
 		if (settings.can_manage) { // fleet comp
 			var button1, button4, convoButton = "";
 			const notificationButton = `<button type="button" class="btn btn-success" data-action="sendNotification" data-characterid="${entry.character.id}" data-wlId="${wlid}"><i class="fa fa-bell-o"></i></button>`;
@@ -196,10 +196,13 @@ waitlist.listdom = (function(){
 	 * @returns {HTMLElement} DOM of an entry
 	 */
 	function createEntryDOM(wlId, entry, groupID, isQueue) {
-		var entryDOM = $(`<li class="list-group-item" data-username="${entry.character.name}" id="entry-${wlId}-${entry.id}"></li>`);
-		entryDOM.append(createHeaderDOM(wlId, entry, groupID, isQueue));
-		var fittlistDOM = $(`<ul aria-expanded="true" class="list-group list-group-flush collapse" id="fittings-${entry.id}"></ul>`);
-		entryDOM.append(fittlistDOM);
+		let entryDOM = $(`<li class="list-group-item" data-username="${entry.character.name}" id="entry-${wlId}-${entry.id}"></li>`);
+		let headerDOM = createHeaderDOM(wlId, entry, groupID, isQueue);
+		entryDOM.append(headerDOM);
+		let collapsLayer = $($.parseHTML(`<div id="fittings-${entry.id}-col" class="collapse"></div>`));
+		let fittlistDOM = $(`<ul aria-expanded="true" class="list-group list-group-flush" id="fittings-${entry.id}"></ul>`);
+		collapsLayer.append(fittlistDOM);
+		headerDOM.append(collapsLayer);
 		for (let fit of entry.fittings) {
 			fittlistDOM.append(createFitDOM(fit, wlId, entry.id, isQueue, entry.character.name, entry.character.id));
 		}
@@ -330,7 +333,7 @@ waitlist.listdom = (function(){
 			skillsData = `3338:${bsResult[1]}`;
 		}
 		// lets check if it is the dummy fit, and create the html accordingly
-		var baseHTML = isDummy ? '<div class="booby-link" ></div>' : `<div class="fit-link" data-title="'+username+'" data-skills="${skillsData}" data-dna="${fit.shipType}:${fit.modules}" data-type="${fit.wl_type}"></div>`;
+		var baseHTML = isDummy ? '<div class="booby-link" ></div>' : `<div class="fit-link" data-title="${username}" data-skills="${skillsData}" data-dna="${fit.shipType}:${fit.modules}" data-type="${fit.wl_type}"></div>`;
 		fitDOM.append($(baseHTML)
 					.append($('<div class="wel-header-32"></div>')
 						.append('<img class="img-32" src="'+eve_image('Render/'+fit.shipType+'_32', 'png')+'">')
@@ -735,7 +738,7 @@ waitlist.listdom = (function(){
 				e.stopPropagation();
 			});
 		}
-		statusDiv.append($('<i id="status-tog-icon" class="fa fa-plus-square float-xs-right"></i>'));
+		statusDiv.append($('<i id="status-tog-icon" class="fa fa-plus-square float-right"></i>'));
 		
 	}
 	
