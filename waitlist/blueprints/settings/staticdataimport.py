@@ -117,4 +117,4 @@ def update_layouts():
 def sde_settings():
     return render_template("settings/sde.html")
 
-add_menu_entry('sde.sde_settings', 'Static Data Import', perm_developer.can)
+add_menu_entry('sde.sde_settings', 'Static Data Import', perm_access.can)

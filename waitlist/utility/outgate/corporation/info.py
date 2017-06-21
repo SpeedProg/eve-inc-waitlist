@@ -1,7 +1,10 @@
 import logging
 from datetime import datetime
+from typing import Optional, Callable, Any, Sequence, Dict
 
 from waitlist.storage.database import APICacheCorporationInfo
+from waitlist.utility.outgate.exceptions import ESIException, check_esi_response
+from waitlist.utility.swagger.eve import ESIResponse
 from waitlist.utility.swagger.eve.corporation import CorporationEndpoint, CorporationInfo
 from waitlist import db
 
@@ -22,24 +25,21 @@ def set_from_corp_info(self: APICacheCorporationInfo, info: CorporationInfo):
     self.expire = info.expires()
 
 
-def get_corp_info(corp_id: int) -> APICacheCorporationInfo:
+def get_corp_info(corp_id: int, *args) -> APICacheCorporationInfo:
     corp_cache: APICacheCorporationInfo = db.session.query(APICacheCorporationInfo) \
         .filter(APICacheCorporationInfo.id == corp_id).first()
 
     if corp_cache is None:
         corp_cache = APICacheCorporationInfo()
         corp_ep = CorporationEndpoint()
-        corp_info = corp_ep.get_corporation_info(corp_id)
-        if corp_info is None:
-            # this should never happen
-            logger.error(f'No Corp with id {corp_id} exists!')
+        corp_info: CorporationInfo = check_esi_response(corp_ep.get_corporation_info(corp_id), get_corp_info, args)
 
         set_from_corp_info(corp_cache, corp_info)
         db.session.add(corp_cache)
         db.session.commit()
     elif corp_cache.characterName is None:
         corp_ep = CorporationEndpoint()
-        corp_info = corp_ep.get_corporation_info(corp_id)
+        corp_info: CorporationInfo = check_esi_response(corp_ep.get_corporation_info(corp_id), get_corp_info, args)
         set_from_corp_info(corp_cache, corp_info)
         db.session.commit()
     else:
@@ -47,7 +47,10 @@ def get_corp_info(corp_id: int) -> APICacheCorporationInfo:
         if corp_cache.expire is None or corp_cache.expire < now:
             # expired, update it
             corp_ep = CorporationEndpoint()
-            corp_info = corp_ep.get_corporation_info(corp_id)
+            try:
+                corp_info: CorporationInfo = check_esi_response(corp_ep.get_corporation_info(corp_id), get_corp_info, args)
+            except ESIException:
+                return corp_cache
             set_from_corp_info(corp_cache, corp_info)
             db.session.commit()
 

@@ -47,6 +47,7 @@ perm_manager.define_permission('comphistory_unlimited')
 perm_manager.define_permission('trainee')
 perm_manager.define_permission('fits_approve')
 perm_manager.define_permission('fits_view')
+perm_manager.define_permission('comphistory_view_240')
 
 
 perm_notify_send = perm_manager.get_permission('notification_send')
@@ -102,12 +103,12 @@ def history_since():
     tnow = datetime.utcnow()
 
     if not perm_comp_unlimited.can():
-        if perm_trainee.can():
-            max_time = timedelta(minutes=30)
+        if perm_manager.get_permission('comphistory_view_240').can():
+            max_time = timedelta(minutes=240)
             if tnow - since > max_time:
                 since = tnow - max_time
         else:
-            max_time = timedelta(minutes=240)
+            max_time = timedelta(minutes=30)
             if tnow - since > max_time:
                 since = tnow - max_time
 

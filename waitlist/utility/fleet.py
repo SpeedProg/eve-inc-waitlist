@@ -141,7 +141,7 @@ def setup(fleet_id: int, fleet_type: str)\
     for wing in fleet_api.get_wings().wings():
         if wing.name() == "Wing 1" or wing.name().lower() == "on grid":
             wing1 = wing
-        elif wing.name() == "Wing 2" or wing.name().lower() == "tipping":
+        elif wing.name() == "Wing 2" or wing.name().lower() == "off grid":
             wing2 = wing
     
     if wing1 is None or wing2 is None:
@@ -158,8 +158,8 @@ def setup(fleet_id: int, fleet_type: str)\
             wait_for_change = True
             fleet_api.create_squad(wing1.id())
 
-    if wing2.name().lower() != "tipping":
-        fleet_api.set_wing_name(wing2.id(), 'Tipping')
+    if wing2.name().lower() != "óff grid":
+        fleet_api.set_wing_name(wing2.id(), 'OFF GRID')
 
     num_squads = len(wing2.squads())
     if num_squads < 1:
@@ -173,7 +173,7 @@ def setup(fleet_id: int, fleet_type: str)\
     for wing in wings.wings():
         if wing.name().lower() == "on grid":
             wing1 = wing
-        elif wing.name().lower() == "tipping":
+        elif wing.name().lower() == "off grid":
             wing2 = wing
     
     if wing1 is None or wing2 is None:
@@ -206,8 +206,8 @@ def setup(fleet_id: int, fleet_type: str)\
         if sniper_squad is not None and sniper_squad.name() == "Squad 2":
             fleet_api.set_squad_name(sniper_squad.id(), 'DPS')
 
-    if wing2 is not None and len(wing2.squads()) > 0 and wing2.squads()[0].name().lower() != "tipping":
-        fleet_api.set_squad_name(wing2.squads()[0].id(), 'Tipping')
+    if wing2 is not None and len(wing2.squads()) > 0 and wing2.squads()[0].name().lower() != "off grid":
+        fleet_api.set_squad_name(wing2.squads()[0].id(), 'OFF GRID')
     
     sleep(5)
     return logi_squad, sniper_squad, dps_squad, more_dps_squad
@@ -230,8 +230,25 @@ def invite(user_id: int, squad_id_list: Sequence[Tuple[int, int]]):
             raise ex
         if response.is_error():
             logger.info('Got code[%d] back from invite call', response.code())
-            if response.code() == 422 or response.code() == 420:
-                continue
+            if response.is_monolith_error():
+                mono_error = response.get_monolith_error()
+                if mono_error['error_label'] == 'FleetTooManyMembersInSquad':
+                    logger.info(f'Failed to invites because there are to many people in this squad'
+                                f' {mono_error["error_dict"]["num"]} ... trying next one')
+                    continue
+                elif mono_error['error_label'] == 'FleetCandidateOffline':
+                    logger.info('Failed invite because target player is offline.')
+                    return {'status_code': 420, 'text': 'They player you tried to invite was offline.'}
+                elif mono_error['error_label'] == 'ContactOwnerUnreachable':
+                    logger.info(f'Failed to invite {mono_error["error_dict"]["name"]}'
+                                f' because he has the invitee blocked')
+                    return {'status_code': 420, 'text': f'Could not invite {mono_error["error_dict"]["name"]}'
+                                                        f' because he has you blocked or is otherwise unreachable.'}
+                else:
+                    logger.error(f'Failed invite because of monolith error {response.error()}')
+                    return {'status_code': 420, 'text': f'Failed invite because of unhandled Monolith error '
+                                                        f'{response.error()} please report this to the waitlist '
+                                                        f'maintainer with the monolith message.'}
             elif response.code() == 404:
                 return {'status_code': 404, 'text': "You need to go to <a href='" + url_for('fc_sso.login_redirect') +
                                                     "'>SSO Login</a> and relogin in!"}
@@ -297,7 +314,7 @@ def check_invite_and_remove_timer(char_id: int, group_id: int, fleet_id: int):
         # check if there is an other waitlist
         if group.otherwlID is not None:
             entry = db.session.query(WaitlistEntry)\
-                .filter((WaitlistEntry.user == char_id) & (WaitlistEntry.waitlist_id == group.otherwlID)).on_or_none()
+                .filter((WaitlistEntry.user == char_id) & (WaitlistEntry.waitlist_id == group.otherwlID)).one_or_none()
             if entry is not None:
                 fittings.extend(entry.fittings)
         

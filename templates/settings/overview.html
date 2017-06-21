@@ -2,14 +2,14 @@
 
 {% block title %}Settings - Overview{% endblock %}
 
-{% block content %}
+{% block raw_content %}
 
 {% for s_row in stats %}
 	<div class="row">
 	
 	{% for table in s_row %}
 	{# (desc, column_names, data, hide_rows) #}
-	<div class="col-sm-6">
+	<div class="col-6">
 		<table class="table table-sm">
 			<caption>{{table.0}}</caption>
 			<thead>

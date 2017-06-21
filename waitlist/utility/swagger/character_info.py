@@ -11,7 +11,7 @@ from pyswagger import Security
 import datetime
 
 from waitlist.utility.swagger.eve import get_esi_client, ESIResponse,\
-    get_expire_time
+    get_expire_time, make_error_response
 from typing import Dict, Any, Tuple, Optional
 from waitlist.utility.swagger.patch import EsiClient, PatchClient as Client
 
@@ -79,5 +79,4 @@ def open_information(target_id: int) -> ESIResponse:
     resp = client.request(api_v1.op['post_ui_openwindow_information'](target_id=target_id))
     if resp.status == 204:
         return ESIResponse(get_expire_time(resp), resp.status, None)
-    return ESIResponse(get_expire_time(resp), resp.status,
-                       resp.data['error'])
+    return make_error_response(resp)
