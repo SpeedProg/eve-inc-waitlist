@@ -170,6 +170,16 @@
 			</td>
 			</tr>
 			<tr>
+				<th scope="row" title="Check in to report your own in fleet activity, no need to use if backseat/fleetcomp/fc">In Fleet Activity (LM/FC)</th>
+				<td>
+					<form action="{{url_for('fleetoptions.fleet_status_set', gid=group.groupID)}}" method="post" class="form-inline" style="display:inline;">
+						<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+						<input type="hidden" name="action" value="check-in">
+						<button type="submit" class="btn btn-sm btn-primary">Check In</button>
+					</form>
+				</td>
+			</tr>
+			<tr>
 				<th scope="row">Register for Fleet</th>
 				<td colspan="2">
 					<form>
