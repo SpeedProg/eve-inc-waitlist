@@ -20,6 +20,7 @@ from waitlist import db
 from waitlist.storage.database import WaitlistGroup, Account, IncursionLayout, Station, SolarSystem, Constellation, \
     WaitlistEntry
 from waitlist.utility.eve_id_utils import get_constellation, get_system, get_station
+from waitlist.utility.fleet import member_info
 
 bp = Blueprint('fleetoptions', __name__)
 logger = logging.getLogger(__name__)
@@ -144,6 +145,17 @@ def fleet_status_set(gid: int) -> Response:
             group.backseats.remove(account)
         except ValueError:
             pass
+
+    elif action == "check-in":
+        # check if in a fleet
+        if member_info.is_member_in_fleet(current_user.get_eve_id()):
+            postfix = "was found in fleet"
+        else:
+            postfix = "was not found in fleet"
+
+        with open("set_history.log", "a+") as f:
+            f.write(f'{current_user.username} checked in for activity, {postfix}')
+        flash(f"Your activity report has been submitted {current_user.username}", "success")
 
     db.session.commit()
 
