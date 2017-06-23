@@ -181,3 +181,7 @@ $badge-link-hover-color:      $gray-lightest !default;
   background: $gray;
   color: $gray-lightest !important;
 }
+
+#wl_hover table {
+  background: $gray-dark !important;
+}
