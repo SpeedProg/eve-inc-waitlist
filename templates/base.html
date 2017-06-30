@@ -151,10 +151,10 @@ waitlist.themes = (function() {
 {% if header_insert is not none %}
 {{header_insert|safe}}
 {% endif %}
-<script type>
+<script type="text/javascript">
 	$(function () {
-		if (window.EventSource) {
-			displayMessage('We have had to disable <strong>features</strong> please consider upgrading your<a href="http://caniuse.com/#feat=eventsource"> browser', 'danger', true);
+		if (!window.EventSource) {
+			waitlist.base.displayMessage('We have had to disable <strong>features</strong> please consider upgrading your<a href="http://caniuse.com/#feat=eventsource"> browser', 'danger', true);
 		}
 	});
 </script>
