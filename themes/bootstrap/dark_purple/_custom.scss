@@ -108,7 +108,7 @@ $card-spacer-y:            .75rem !default;
 $card-border-width:        1px !default;
 $card-border-color:        $gray-lighter !default;
 $card-cap-bg:              $gray !default;
-$card-bg:                  $body-bg !default;
+$card-bg:                  $gray-light !default;
 
 $card-link-hover-color:    $gray-light !default;
 
@@ -165,6 +165,28 @@ $badge-danger-bg:             $brand-danger !default;
 
 $badge-color:                 $gray-lightest !default;
 $badge-link-hover-color:      $gray-lightest !default;
+
+// Popovers
+
+$popover-inner-padding:               1px !default;
+$popover-bg:                          $gray-light !default;
+$popover-max-width:                   276px !default;
+$popover-border-color:                rgba($black,.2) !default;
+$popover-box-shadow:                  0 5px 10px rgba($black,.2) !default;
+
+$popover-title-bg:                    darken($popover-bg, 3%) !default;
+$popover-title-padding-x:             14px !default;
+$popover-title-padding-y:             8px !default;
+
+$popover-content-padding-x:           14px !default;
+$popover-content-padding-y:           9px !default;
+
+$popover-arrow-width:                 10px !default;
+$popover-arrow-color:                 $popover-bg !default;
+
+$popover-arrow-outer-width:           ($popover-arrow-width + 1px) !default;
+$popover-arrow-outer-color:           fade-in($popover-border-color, .05) !default;
+
 
 // wl extensions
 // we need the !importants here to override default fitting plugin styling
