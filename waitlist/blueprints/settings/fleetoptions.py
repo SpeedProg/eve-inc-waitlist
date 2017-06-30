@@ -29,6 +29,8 @@ logger = logging.getLogger(__name__)
 perm_manager.define_permission('fleet_management')
 perm_manager.define_permission('fleet_custom_status')
 perm_manager.define_permission('fleet_location_edit')
+perm_manager.define_permission('fleet_custom_display_name')
+perm_manager.define_permission('fleet_custom_display_name_all')
 
 perm_management = perm_manager.get_permission('fleet_management')
 perm_custom_status = perm_manager.get_permission('fleet_custom_status')
@@ -156,6 +158,35 @@ def fleet_status_set(gid: int) -> Response:
         with open("set_history.log", "a+") as f:
             f.write(f'{current_user.username} checked in for activity, {postfix}')
         flash(f"Your activity report has been submitted {current_user.username}", "success")
+
+    elif action == "change_display_name":
+        # if we have no permissions to set a custom name, we are done
+        if not perm_manager.get_permission('fleet_custom_display_name').can():
+            flash(f"{current_user.username} has no permissions to set a custom display name for a waitlist!")
+            return redirect(url_for(".fleet"), code=303)
+
+        perm_manager.define_permission()
+        # TODO: this should be configurable and also set the dropdown options
+        unrestricted_display_names = ["Headquater", "Assault", "Vanguard"]
+        display_name = request.form.get("display_name", None)
+
+        # if we are not given a valid new custom name we are done
+        if display_name is None:
+            flash(f"No valid new display name given (given was None)")
+            return redirect(url_for(".fleet"), code=303)
+
+        # it is not a unresticted name and we do not have the power to set abitrary names, then we are done
+        if not ((display_name in unrestricted_display_names) or
+                    perm_manager.get_permission('fleet_custom_display_name_all').can()):
+            flash(f"You gave no unrestricted display name and do not have the power to set abitrary names!")
+            return redirect(url_for(".fleet"), code=303)
+
+        # we checked that we are allowed to do this, let do it and logg it
+        group.displayName = display_name
+        logging.info(f"{current_user.username} set the displayName of group with id={group.groupID} to {display_name}")
+
+
+
 
     db.session.commit()
 
