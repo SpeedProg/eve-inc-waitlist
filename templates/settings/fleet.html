@@ -65,7 +65,8 @@
 			</tr>
 			<tr>
 				<th scope="row">Status</th>
-				<td colspan="2">
+				<td>{{group.status}}</td>
+				<td>
 				<form action="{{url_for('fleetoptions.fleet_status_set', gid=group.groupID)}}" method="post" class="form-inline">
 					<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 					<input type="hidden" name="action" value="status">
