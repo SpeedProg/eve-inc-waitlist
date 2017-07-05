@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Optional, Tuple
 
-from waitlist.storage.database import APICacheCharacterInfo
+from waitlist.storage.database import APICacheCharacterInfo, APICacheCorporationInfo
 from waitlist.utility.outgate.exceptions import check_esi_response
 from waitlist.utility.swagger.eve.character import CharacterEndpoint, CharacterInfo
 from waitlist.utility.swagger.eve.search import SearchEndpoint, SearchResponse
@@ -93,7 +93,7 @@ def get_char_affiliations(char_id: int, *args) -> Tuple[int, int]:
     :param char_id: characters id
     :return: a Tuple[CorpID, AllianceID], alliance could ne None
     """
-    char_info = get_character_info(char_id)
-    corp_info: corporation.get_info(char_info.corporationID)
+    char_info: APICacheCharacterInfo = get_character_info(char_id)
+    corp_info: APICacheCorporationInfo = corporation.get_info(char_info.corporationID)
     return corp_info.id, corp_info.allianceID
 
