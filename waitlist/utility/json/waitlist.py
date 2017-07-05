@@ -146,5 +146,6 @@ def make_json_waitlist_base_data(waitlist: Waitlist):
     return {
         'id': waitlist.id,
         'name': waitlist.name,
+        'groupID': waitlist.groupID,
         'entryCount': len(waitlist.entries)
     }
