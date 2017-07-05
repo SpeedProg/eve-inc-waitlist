@@ -165,7 +165,6 @@ def fleet_status_set(gid: int) -> Response:
             flash(f"{current_user.username} has no permissions to set a custom display name for a waitlist!")
             return redirect(url_for(".fleet"), code=303)
 
-        perm_manager.define_permission()
         # TODO: this should be configurable and also set the dropdown options
         unrestricted_display_names = ["Headquater", "Assault", "Vanguard"]
         display_name = request.form.get("display_name", None)
