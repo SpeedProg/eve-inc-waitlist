@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block title %}Alarm{% endblock %}
+
+{% block head %}
+	<meta name="api-waitlists" content="{{url_for('api_waitlists.waitlist_base_view')}}">
+	<meta name="api-groups" content="{{url_for('api_waitlists.groups_view')}}">
+{{ super() }}
+{% endblock head %}
+
+{% block container_data %}
+	<div class="row">
+	<div id="out"></div>
+	</div>
+{% endblock container_data %}
