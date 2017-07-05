@@ -1,4 +1,4 @@
-from typing import Dict, Sequence, Tuple, Optional
+from typing import Dict, Sequence, Tuple, Optional, List, KeysView
 
 from flask_login import current_user
 from time import sleep
@@ -7,7 +7,7 @@ from threading import Timer
 from waitlist import db
 from waitlist.storage.database import WaitlistGroup, CrestFleet, WaitlistEntry,\
     HistoryEntry, Character, TeamspeakDatum, Account
-from datetime import datetime
+from datetime import datetime, timedelta
 from waitlist.utility.history_utils import create_history_object
 from flask.helpers import url_for
 from waitlist.utility.settings import sget_active_ts_id, sget_motd_hq,\
@@ -16,7 +16,7 @@ from waitlist.data.sse import send_server_sent_event, InviteMissedSSE,\
     EntryRemovedSSE
 from waitlist.utility.swagger.eve.fleet import EveFleetEndpoint
 import flask
-from waitlist.utility.swagger.eve import get_esi_client_for_account
+from waitlist.utility.swagger.eve import get_esi_client_for_account, ESIResponse
 from waitlist.utility.swagger.eve.fleet import EveFleetMembers
 from waitlist.utility.swagger.eve.fleet.models import FleetMember
 
@@ -25,11 +25,46 @@ logger = logging.getLogger(__name__)
 
 class FleetMemberInfo:
     def __init__(self):
-        self._cached_until = {}
-        self._lastmembers = {}
+        self._cached_until: Dict[int, datetime] = {}
+        self._lastmembers: Dict[int, FleetMember] = {}
     
     def get_fleet_members(self, fleet_id, account):
         return self._get_data(fleet_id, account)
+
+    def get_fleet_ids(self) -> KeysView:
+        self._clean_old_fleets()
+        return self._lastmembers.keys()
+
+    def is_member_in_fleet(self, character_id: int) -> bool:
+        for fleet_id in self.get_fleet_ids():
+            db_fleet: CrestFleet = db.session.query(CrestFleet).get(fleet_id)
+            members: Dict[int, FleetMember] = self.get_fleet_members(fleet_id, db_fleet.comp)
+            if character_id in members:
+                return True
+
+        return False
+
+    def _clean_old_fleets(self):
+        tnow = datetime.utcnow()
+
+        remove_ids: List[int] = []
+        for fleet_id in self._lastmembers.keys():
+            db_fleet: CrestFleet = db.session.query(CrestFleet).get(fleet_id)
+            if db_fleet is None or db_fleet.comp is None:
+                remove_ids.append(fleet_id)
+                continue
+
+            if tnow - self._cached_until[fleet_id] < timedelta(minutes=5):
+                continue
+
+            fleet_api = EveFleetEndpoint(fleet_id, get_esi_client_for_account(db_fleet.comp, 'v1'))
+            resp: ESIResponse = fleet_api.get_member()
+            if resp.is_error():
+                remove_ids.append(fleet_id)
+
+        for fleet_id in remove_ids:
+            del self._lastmembers[fleet_id]
+            del self._cached_until[fleet_id]
 
     @classmethod
     def _to_members_map(cls, response: EveFleetMembers) -> Dict[int, FleetMember]:

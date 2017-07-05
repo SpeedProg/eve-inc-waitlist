@@ -43,12 +43,30 @@
 			<table class="table table-sm">
 			<tbody>
 			<tr>
-			<th scope="row">Display Name</th>
-			<td colspan="2">{{group.displayName}}</td>
+				<th scope="row">Display Name</th>
+				<td>{{group.displayName}}</td>
+				<td>
+					<form action="{{url_for('fleetoptions.fleet_status_set', gid=group.groupID)}}" method="post" class="form-inline">
+						<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+						<input type="hidden" name="action" value="change_display_name">
+						{% if perm_manager.get_permission('fleet_custom_status').can() %}
+						<input title="What is this waiting list for? pvp fleet?" type="text" name="display_name" value="{{group.displayName}}" class="form-control form-control-sm">
+						{% else %}
+						<select class="form-control form-control-sm c-select" id="displayname-{{group.groupID}}" name="display_name" required>
+							<option value="">Please Select</option>
+							<option value="Headquarter"{% if group.displayName == "Headquater" %} selected{% endif %}>Headquarter</option>
+							<option value="Assault"{% if group.displayName == "Assault" %} selected{% endif %}>Assault</option>
+							<option value="Vanguard"{% if group.displayName == "Vanguard" %} selected{% endif %}>Vanguard</option>
+						</select>
+						{% endif %}
+						<button type="submit" class="btn btn-sm btn-primary">Change Display Name</button>
+					</form>
+				</td>
 			</tr>
 			<tr>
 				<th scope="row">Status</th>
-				<td colspan="2">
+				<td>{{group.status}}</td>
+				<td>
 				<form action="{{url_for('fleetoptions.fleet_status_set', gid=group.groupID)}}" method="post" class="form-inline">
 					<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 					<input type="hidden" name="action" value="status">
@@ -168,6 +186,16 @@
 				<button type="submit" class="btn btn-sm btn-primary">Add Self</button>
 				</form>
 			</td>
+			</tr>
+			<tr>
+				<th scope="row" title="Check in to report your own in fleet activity, no need to use if backseat/fleetcomp/fc">In Fleet Activity (LM/FC)</th>
+				<td>
+					<form action="{{url_for('fleetoptions.fleet_status_set', gid=group.groupID)}}" method="post" class="form-inline" style="display:inline;">
+						<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+						<input type="hidden" name="action" value="check-in">
+						<button type="submit" class="btn btn-sm btn-primary">Check In</button>
+					</form>
+				</td>
 			</tr>
 			<tr>
 				<th scope="row">Register for Fleet</th>

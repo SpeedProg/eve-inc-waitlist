@@ -11,7 +11,7 @@ waitlist.themes = (function() {
 		'base_path': "/static/css/",
 		'setting_key_prefix': 'themes-',
 		'def_type': 'local',
-		'def_file': 'bootstrap_purple_001.css',
+		'def_file': 'bootstrap_dark_purple_001.css',
 		'def_integrity': null,
 		'def_crossorigin': null
 
@@ -110,13 +110,17 @@ waitlist.themes = (function() {
 
 	function setSelectionAfterPageReady(file) {
 		let selector = document.getElementById('theme-selector');
+		let foundTheme = false;
 		for(let idx=0; idx < selector.length; idx++) {
 			if (selector[idx].getAttribute('value') === file) {
 				selector[idx].selected = true;
+				foundTheme = true;
+				break;
 			}
 		}
 
-		if (!found) {
+
+		if (!foundTheme) {
 			if (selector.options.length > 0) {
 				selector[0].selected = true;
 				let target_option = selector[0];

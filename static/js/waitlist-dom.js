@@ -110,7 +110,7 @@ waitlist.listdom = (function(){
 		var cTime = new Date(Date.now());
 		var xupTime = new Date(Date.parse(entry.time));
 		var waitTimeMinutes = Math.max(0, Math.floor((cTime - xupTime)/60000));
-		var header = $('<div></div>');
+		var header = $('<div class="w-100"></div>');
 		var oldInvites = "";
 		// we can view fits or this is our entry and the entry is not in a queue
 		// display missed invites if there are any, but at least create the
@@ -314,7 +314,11 @@ waitlist.listdom = (function(){
 			}
 		}
 		// button group
-		var buttonRowHTML = '<div class="btn-group btn-group-mini">'+approveButton+fitButtons+'</div>';
+
+		let buttonRowHTML = '';
+		if ((approveButton+fitButtons) !== '') {
+			buttonRowHTML = '<div class="btn-group btn-group-mini">' + approveButton + fitButtons + '</div>';
+		}
 
 		// if fit has a comment add it
 		if (fit.comment !== null) {
@@ -333,11 +337,15 @@ waitlist.listdom = (function(){
 			skillsData = `3338:${bsResult[1]}`;
 		}
 		// lets check if it is the dummy fit, and create the html accordingly
-		var baseHTML = isDummy ? '<div class="booby-link" ></div>' : `<div class="fit-link" data-title="${username}" data-skills="${skillsData}" data-dna="${fit.shipType}:${fit.modules}" data-type="${fit.wl_type}"></div>`;
+		var baseHTML = isDummy ? '<div class="booby-link w-100" ></div>' : `<div class="fit-link w-100" data-title="${username}" data-skills="${skillsData}" data-dna="${fit.shipType}:${fit.modules}" data-type="${fit.wl_type}"></div>`;
+		let fitContainer = $('<div class="wel-header-32"></div>');
+		fitContainer.append('<img class="img-32" src="'+eve_image('Render/'+fit.shipType+'_32', 'png')+'">')
+		if ((textHTML+buttonRowHTML) !== "") {
+			fitContainer.append('<div class="wel-container-32">'+textHTML+buttonRowHTML+'</div>');
+		}
+
 		fitDOM.append($(baseHTML)
-					.append($('<div class="wel-header-32"></div>')
-						.append('<img class="img-32" src="'+eve_image('Render/'+fit.shipType+'_32', 'png')+'">')
-						.append('<div class="wel-container-32">'+textHTML+buttonRowHTML+'</div>'))
+					.append(fitContainer)
 					);
         return fitDOM;
 	}
