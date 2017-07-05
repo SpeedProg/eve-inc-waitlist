@@ -23,7 +23,7 @@ class EveFleetEndpoint(object):
             self.__client: EsiClient = client
             self.__api: App = self.__client.security.app
 
-    def get_member(self) -> EveFleetMembers:
+    def get_member(self) -> ESIResponse:
         response = self.__client.request(self.__api.op['get_fleets_fleet_id_members'](fleet_id=self.__fleetID))
         logger.debug("Got ESI Response with status[%d]", response.status)
         if response.status == 200:

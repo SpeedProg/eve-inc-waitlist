@@ -72,7 +72,7 @@ class ESIResponse(object):
         return self.__error
 
 
-def make_error_response(resp: Any):
+def make_error_response(resp: Any) -> ESIResponse:
     if resp.status == 420:  # monolith error
         if resp.data is None:
             data = json.loads(resp.raw.decode("utf-8"))

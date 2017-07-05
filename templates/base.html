@@ -22,7 +22,7 @@ waitlist.themes = (function() {
 		'base_path': "/static/css/",
 		'setting_key_prefix': 'themes-',
 		'def_type': 'local',
-		'def_file': 'bootstrap_purple_001.css',
+		'def_file': 'bootstrap_dark_purple_001.css',
 		'def_integrity': null,
 		'def_crossorigin': null
 
@@ -120,12 +120,29 @@ waitlist.themes = (function() {
 	}
 
 	function setSelectionAfterPageReady(file) {
-		let selector = $('#theme-selector')[0];
+		let selector = document.getElementById('theme-selector');
+		let foundTheme = false;
 		for(let idx=0; idx < selector.length; idx++) {
 			if (selector[idx].getAttribute('value') === file) {
 				selector[idx].selected = true;
+				foundTheme = true;
+				break;
 			}
 		}
+
+
+		if (!foundTheme) {
+			if (selector.options.length > 0) {
+				selector[0].selected = true;
+				let target_option = selector[0];
+				let url = target_option.value;
+				let type = target_option.getAttribute('data-type');
+				let integrity = target_option.hasAttribute('data-integrity') ? target_option.getAttribute('data-integrity') : null;
+				let crossorigin = target_option.hasAttribute('data-crossorigin') ? target_option.getAttribute('data-crossorigin') : null;
+				setTheme(url, type, integrity, crossorigin); //
+			}
+		}
+
 	}
 
 	// apply our current theme and set handlers
@@ -151,10 +168,10 @@ waitlist.themes = (function() {
 {% if header_insert is not none %}
 {{header_insert|safe}}
 {% endif %}
-<script type>
+<script type="text/javascript">
 	$(function () {
-		if (window.EventSource) {
-			displayMessage('We have had to disable <strong>features</strong> please consider upgrading your<a href="http://caniuse.com/#feat=eventsource"> browser', 'danger', true);
+		if (!window.EventSource) {
+			waitlist.base.displayMessage('We have had to disable <strong>features</strong> please consider upgrading your<a href="http://caniuse.com/#feat=eventsource"> browser', 'danger', true);
 		}
 	});
 </script>
@@ -172,7 +189,7 @@ waitlist.themes = (function() {
 					<a class="nav-link" href="{{url_for('index')}}">Home</a>
 				</li>
 				<li class="nav-item">
-					<a class="nav-link btn btn-success btn-sm" href="{{url_for('xup.index')}}">X-UP</a>
+					<a class="nav-link bg-success" href="{{url_for('xup.index')}}">X-UP</a>
 				</li>
 				{% if perm_manager.get_permission('commandcore').can() %}
 				<li class="nav-item dropdown">
@@ -209,24 +226,24 @@ waitlist.themes = (function() {
 			<ul class="navbar-nav justify-content-end">
 				{% if is_on_wl and is_index %}
 				<li id="gong" class="nav-item wlb">
-					<div class="form-group pretty-dd">
+					<div class="mr-2 form-group pretty-dd">
 						<input type="checkbox" name="gongbutton" id="gongbutton"/>
 						<div class="btn-group">
-							<label for="gongbutton" class="btn btn-sm btn-info">
+							<label for="gongbutton" class="nav-link btn btn-sm btn-info">
 								<span><i class="fa fa-check"></i></span>
 								<span><i class="fa fa-times"></i></span>
 							</label>
-							<label for="gongbutton" class="btn btn-sm btn-danger">
+							<label for="gongbutton" class="nav-link btn btn-sm btn-danger">
 								Browser Notifications
 							</label>
 						</div>
 					</div>
 				</li>
 				<li class="nav-item wlb mr-2">
-					<button type="button" class="btn btn-danger btn-sm" data-action="test-poke">Test TS Poke</button>
+					<button type="button" class="nav-link btn btn-danger btn-sm" data-action="test-poke">Test TS Poke</button>
 				</li>
 				<li class="nav-item wlb">
-					<button type="button" class="btn btn-danger btn-sm" data-action="removeSelfFromWaitlists">Leave Waitlists</button>
+					<button type="button" class="nav-link btn btn-danger btn-sm" data-action="removeSelfFromWaitlists">Leave Waitlists</button>
 				</li>
 				{% endif %}
 			</ul>
@@ -261,6 +278,8 @@ waitlist.themes = (function() {
 		EVE Online and the EVE logo are the registered trademarks of CCP hf. All rights are reserved worldwide. All other trademarks are the property of their respective owners. EVE Online, the EVE logo, EVE and all associated logos and designs are the intellectual property of CCP hf. All artwork, screenshots, characters, vehicles, storylines, world facts or other recognizable features of the intellectual property relating to these trademarks are likewise the intellectual property of CCP hf. CCP hf. has granted permission to Bruce Warhead to use EVE Online and all associated logos and designs for promotional and information purposes on its website but does not endorse, and is not in any way affiliated with, Bruce Warhead. CCP is in no way responsible for the content on or functioning of this website, nor can it be liable for any damage arising from the use of this website.
 		</div>
 		<select id="theme-selector" class="col-2 h-25 custom-select">
+			<option value="bootstrap_dark_purple_001.css" data-type="local">Dark Purple</option>
+			<option value="bootstrap_dark_001.css" data-type="local">Dark</option>
 			<option value="bootstrap_purple_001.css" data-type="local">Purple</option>
 			<option value="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css"
 					data-type="remote"
