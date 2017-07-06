@@ -92,7 +92,8 @@ def make_json_group(group: WaitlistGroup):
         'logiwlID': group.logiwlID,
         'dpswlID': group.dpswlID,
         'sniperwlID': group.sniperwlID,
-        'otherwlID': group.otherwlID
+        'otherwlID': group.otherwlID,
+        'xupwlID': group.xupwlID
     }
 
 
