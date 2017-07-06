@@ -38,6 +38,7 @@ from waitlist.blueprints import trivia
 from waitlist.blueprints.api import permission
 from waitlist.blueprints.api import fittings
 from waitlist.blueprints import xup
+from waitlist.blueprints import notification
 # needs to he here so signal handler gets registered
 from waitlist.signal.handler import acc_created, roles_changed, account_status_change
 
@@ -82,6 +83,10 @@ app.register_blueprint(permission.bp, url_prefix='/api/permission')
 app.register_blueprint(fittings.bp, url_prefix='/api/fittings')
 app.register_blueprint(xup.bp, url_prefix='/xup')
 
+
+# notification
+
+app.register_blueprint(notification.bp, url_prefix="/notification")
 
 logger = logging.getLogger(__name__)
 

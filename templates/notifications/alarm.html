@@ -3,13 +3,53 @@
 {% block title %}Alarm{% endblock %}
 
 {% block head %}
-	<meta name="api-waitlists" content="{{url_for('api_waitlists.waitlist_base_view')}}">
-	<meta name="api-groups" content="{{url_for('api_waitlists.groups_view')}}">
+	<meta name="api-waitlists" content="{{url_for('api_waitlists.wlbasedata')}}">
+	<meta name="api-groups" content="{{url_for('api_waitlists.groups')}}">
 {{ super() }}
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/expr-eval/1.0.1/bundle.min.js" integrity="sha256-R6r1M1yfa1MKl+m/J4ieun+1bZKH2KBNVEyTEsF4kNA=" crossorigin="anonymous"></script>
+	{% assets filters="babili", output="gen/alarm.%(version)s.js", "js/base.js", "js/notification/alarm.js" %}
+	<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+	{% endassets %}
 {% endblock head %}
 
 {% block container_data %}
 	<div class="row">
-	<div id="out"></div>
+		<div class="col-12">
+			<audio id="alarm" src="{{url_for('static', filename='gong-sound.mp3')}}" class="mx-auto" controls loop></audio>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-6">
+			<table class="table" id="wl-stats">
+				<thead>
+					<tr>
+						<th>WL Group</th><th>Open</th><th>xup</th><th>logi</th><th>dps</th><th>sniper</th><th>other</th>
+					</tr>
+				</thead>
+				<tbody id="wl-stats-body">
+				</tbody>
+			</table>
+		</div>
+	<div class="col-6">
+		<div class="row">
+			<div class="form-group">
+				<label for="expr-target-select">Expression Target</label>
+				<select id="expr-target-select" class="custom-select" aria-describedby="expr-target-addon">
+				</select>
+  				<span class="input-group-btn">
+					<button id="expr-target-add" class="btn btn-secondary" type="button">Add</button>
+				</span>
+			</div>
+		</div>
+		<div class="row">
+			<table class="table">#
+				<thead>
+				<th>Target</th><th>Expression</th><th>Enabled</th>
+				</thead>
+				<tbody id="alarm-expr-body">
+				</tbody>
+			</table>
+		</div>
+	</div>
 	</div>
 {% endblock container_data %}
