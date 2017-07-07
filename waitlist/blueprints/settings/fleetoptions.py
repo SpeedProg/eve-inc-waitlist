@@ -166,7 +166,7 @@ def fleet_status_set(gid: int) -> Response:
             return redirect(url_for(".fleet"), code=303)
 
         # TODO: this should be configurable and also set the dropdown options
-        unrestricted_display_names = ["Headquater", "Assault", "Vanguard"]
+        unrestricted_display_names = ["Headquarter", "Assault", "Vanguard"]
         display_name = request.form.get("display_name", None)
 
         # if we are not given a valid new custom name we are done
