@@ -32,7 +32,7 @@ waitlist.linemember = (function() {
 				'X-CSRFToken': getMetaData('csrf-token')
 			},
 			method: 'DELETE',
-			url: "/api/self/wlentry/remove/" + entryId
+			url: "/api/fittings/self/entry/" + entryId
 		};
 		$.ajax(settings);
 	}
