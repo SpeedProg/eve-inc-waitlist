@@ -2,7 +2,7 @@ from datetime import datetime
 
 from flask import request
 from flask_login import current_user
-from typing import Callable
+from typing import Callable, Dict, Any
 
 from waitlist import app
 from waitlist.data.version import version
@@ -24,7 +24,7 @@ def eve_image(browser_webp: bool) -> Callable[[str, str], str]:
 
 # set if it is the igb
 @app.context_processor
-def inject_data():
+def inject_data() -> Dict[str, Any]:
     is_account = False
     if hasattr(current_user, 'type'):
         is_account = (current_user.type == "account")
