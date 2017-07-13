@@ -82,7 +82,7 @@ def open_mail(recipients: Sequence[int], body: str, subject: str, to_corp_or_all
     if len(payload['recipients']) <= 0:
         payload['recipients'] = [0]
 
-    client = get_esi_client('v1')
+    client = get_esi_client()
     response = client.request(client.security.app.op['post_ui_openwindow_newmail'](new_mail=payload))
     if response.status == 204:
         return ESIResponse(get_expire_time(response), response.status, None)
