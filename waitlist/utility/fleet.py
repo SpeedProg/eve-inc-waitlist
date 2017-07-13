@@ -57,7 +57,7 @@ class FleetMemberInfo:
             if tnow - self._cached_until[fleet_id] < timedelta(minutes=5):
                 continue
 
-            fleet_api = EveFleetEndpoint(fleet_id, get_esi_client_for_account(db_fleet.comp, 'v1'))
+            fleet_api = EveFleetEndpoint(fleet_id, get_esi_client_for_account(db_fleet.comp))
             resp: ESIResponse = fleet_api.get_member()
             if resp.is_error():
                 remove_ids.append(fleet_id)

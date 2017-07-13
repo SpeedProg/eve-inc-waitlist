@@ -28,7 +28,7 @@ def profile(accountid):
     account = db.session.query(Account).get(accountid)
     if account is None:
         flask.abort(404, "Account not found!")
-    notes = None
+
     max_restriction_level = 0
     if perm_manager.get_permission('view_notes_low').can():
         max_restriction_level = 100

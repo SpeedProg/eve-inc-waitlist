@@ -47,13 +47,13 @@ def characterid_from_name(char_name: str) -> Tuple[Optional[int], Optional[str]]
     """
     @return charid, name
     """
-    api_v4 = get_api('v4')
+    api_v4 = get_api()
     security_v4 = Security(
         api_v4,
     )
     client_v4 = Client(security_v4, timeout=10)
 
-    api_v1 = get_api('v1')
+    api_v1 = get_api()
     security_v1 = Security(
         api_v1,
     )
@@ -73,8 +73,8 @@ def characterid_from_name(char_name: str) -> Tuple[Optional[int], Optional[str]]
 
 
 def open_information(target_id: int) -> ESIResponse:
-    api_v1: App = get_api('v1')
-    client: EsiClient = get_esi_client('v1')
+    api_v1: App = get_api()
+    client: EsiClient = get_esi_client()
 
     resp = client.request(api_v1.op['post_ui_openwindow_information'](target_id=target_id))
     if resp.status == 204:

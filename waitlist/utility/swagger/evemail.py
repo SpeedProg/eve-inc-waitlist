@@ -22,7 +22,7 @@ from waitlist.utility.swagger.patch import EsiClient
 
 
 def send_mail(recipients: List[Dict[str, Any]], body: str, subject: str) -> Any:
-    api: App = get_api('v1')
+    api: App = get_api()
     security = EsiSecurity(
         api,
         crest_return_url,
@@ -36,7 +36,7 @@ def send_mail(recipients: List[Dict[str, Any]], body: str, subject: str) -> Any:
         'refresh_token': current_user.ssoToken.refresh_token
     })
 
-    client = get_esi_client('v1', False)
+    client = get_esi_client(False)
 
     mail = {
         "approved_cost": 0,
