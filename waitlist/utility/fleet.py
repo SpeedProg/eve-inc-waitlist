@@ -75,7 +75,7 @@ class FleetMemberInfo:
         return data
     
     def _get_data(self, fleet_id: int, account: Account) -> Dict[int, FleetMember]:
-        fleet_api = EveFleetEndpoint(fleet_id, get_esi_client_for_account(account, 'v1'))
+        fleet_api = EveFleetEndpoint(fleet_id, get_esi_client_for_account(account))
         utcnow = datetime.utcnow()
         if self._is_expired(fleet_id, utcnow):
             logger.debug("Member Data Expired for %d and account %s", fleet_id, account.username)
@@ -297,9 +297,13 @@ def invite(user_id: int, squad_id_list: Sequence[Tuple[int, int]]):
 
 
 def spawn_invite_check(character_id, group_id, fleet_id):
+    logger.info(f"Spawning invite check for character_id={character_id} group_id={group_id}"
+                f" and fleet_id={fleet_id}")
     timer_id = (character_id, group_id, fleet_id)
     if timer_id in check_timers:  # this invite check is already running
+        logger.info(f"There is already an invite check running for {timer_id}")
         return
+    logger.info(f"Starting timer for {timer_id}")
     check_timers[timer_id] = 0
     t = Timer(20.0, check_invite_and_remove_timer, [character_id, group_id, fleet_id])
     t.start()
@@ -308,96 +312,102 @@ check_timers: Dict[Tuple[int, int, int], int] = dict()
 
 
 def check_invite_and_remove_timer(char_id: int, group_id: int, fleet_id: int):
-    max_runs: int = 4
-    current_run: int = 1
-    timer_id = (char_id, group_id, fleet_id)
-    if timer_id in check_timers:
-        current_run = check_timers[timer_id]+1
-    
-    check_timers[timer_id] = current_run
-    
-    # hold SSE till sending
-    _events = []
-    logger.info("Checking invite for charID[%d] groupID[%d] fleetID[%d] current_run[%d]",
-                char_id, group_id, fleet_id, current_run)
-    group = db.session.query(WaitlistGroup).get(group_id)
-    crest_fleet = db.session.query(CrestFleet).get(fleet_id)
-    # the fleet was deleted meanwhile or has no fleetcomp
-    if group is None or crest_fleet is None or crest_fleet.comp is None:
-        if group is None:
-            logger.error("On Invitecheck group is None")
-        if crest_fleet is None:
-            logger.error("On Invitecheck crestFleet is None")
-        elif crest_fleet.comp is None:
-            logger.error("On Invitecheck FleetComp is None")
-        db.session.remove()
-        return
-    member = member_info.get_fleet_members(fleet_id, crest_fleet.comp)
-    character = db.session.query(Character).filter(Character.id == char_id).first()
-    waitlist_entries = db.session.query(WaitlistEntry)\
-        .filter((WaitlistEntry.user == char_id) &
-                ((WaitlistEntry.waitlist_id == group.logiwlID) |
-                (WaitlistEntry.waitlist_id == group.dpswlID) |
-                (WaitlistEntry.waitlist_id == group.sniperwlID))).all()
+    try:
+        logger.info(f"Check Invite and remove timer triggered for"
+                    f" char_id={char_id}, group_id={group_id} and fleet_id={fleet_id}")
+        max_runs: int = 4
+        current_run: int = 1
+        timer_id = (char_id, group_id, fleet_id)
+        if timer_id in check_timers:
+            current_run = check_timers[timer_id]+1
 
-    if char_id in member:  # he is in the fleet
-        logger.info("Member %s found in members", char_id)
-        fittings = []
-        for entry in waitlist_entries:
-            fittings.extend(entry.fittings)
-        
-        # check if there is an other waitlist
-        if group.otherwlID is not None:
-            entry = db.session.query(WaitlistEntry)\
-                .filter((WaitlistEntry.user == char_id) & (WaitlistEntry.waitlist_id == group.otherwlID)).one_or_none()
-            if entry is not None:
-                fittings.extend(entry.fittings)
-        
-        for entry in waitlist_entries:
-            event = EntryRemovedSSE(entry.waitlist.groupID, entry.waitlist_id, entry.id)
-            _events.append(event)
-        
-        db.session.query(WaitlistEntry).filter((WaitlistEntry.user == char_id) &
-                                               ((WaitlistEntry.waitlist_id == group.logiwlID) |
-                                                (WaitlistEntry.waitlist_id == group.dpswlID) |
-                                                (WaitlistEntry.waitlist_id == group.sniperwlID))).delete()
+        check_timers[timer_id] = current_run
+        logger.info(f"New Timer count={check_timers[timer_id]} for timer_id={timer_id}")
 
-        # if other waitlist delete those entries too
-        if group.otherwlID is not None:
-            db.session.query(WaitlistEntry)\
-                .filter((WaitlistEntry.user == char_id) & (WaitlistEntry.waitlist_id == group.otherwlID)).delete()
-        
-        h_entry = create_history_object(char_id, HistoryEntry.EVENT_AUTO_RM_PL, None, fittings)
-        h_entry.exref = group.groupID
-        db.session.add(h_entry)
-        db.session.commit()
-        
-        for event in _events:
-            send_server_sent_event(event)
+        # hold SSE till sending
+        _events = []
+        logger.info("Checking invite for charID[%d] groupID[%d] fleetID[%d] current_run[%d]",
+                    char_id, group_id, fleet_id, current_run)
+        group = db.session.query(WaitlistGroup).get(group_id)
+        crest_fleet = db.session.query(CrestFleet).get(fleet_id)
+        # the fleet was deleted meanwhile or has no fleetcomp
+        if group is None or crest_fleet is None or crest_fleet.comp is None:
+            if group is None:
+                logger.error("On Invitecheck group is None")
+            if crest_fleet is None:
+                logger.error("On Invitecheck crestFleet is None")
+            elif crest_fleet.comp is None:
+                logger.error("On Invitecheck FleetComp is None")
+            db.session.remove()
+            return
+        member = member_info.get_fleet_members(fleet_id, crest_fleet.comp)
+        character = db.session.query(Character).filter(Character.id == char_id).first()
+        waitlist_entries = db.session.query(WaitlistEntry)\
+            .filter((WaitlistEntry.user == char_id) &
+                    ((WaitlistEntry.waitlist_id == group.logiwlID) |
+                    (WaitlistEntry.waitlist_id == group.dpswlID) |
+                    (WaitlistEntry.waitlist_id == group.sniperwlID))).all()
 
-        logger.info("auto removed %s from %s waitlist.", character.eve_name, group.groupName)
-        # we are done delete timer entry
-        check_timers.pop(timer_id, None)
-    else:
-        logger.info("Character %d %s not found in fleetmembers", char_id, character.eve_name)
-        if current_run == max_runs:  # he reached his invite timeout
-            logger.info("Max Runs reached and Member %s not found in members", str(char_id))
+        if char_id in member:  # he is in the fleet
+            logger.info("Member %s found in members", char_id)
+            fittings = []
             for entry in waitlist_entries:
-                entry.inviteCount += 1
-            h_entry = create_history_object(char_id, HistoryEntry.EVENT_AUTO_CHECK_FAILED, None, None)
+                fittings.extend(entry.fittings)
+
+            # check if there is an other waitlist
+            if group.otherwlID is not None:
+                entry = db.session.query(WaitlistEntry)\
+                    .filter((WaitlistEntry.user == char_id) & (WaitlistEntry.waitlist_id == group.otherwlID)).one_or_none()
+                if entry is not None:
+                    fittings.extend(entry.fittings)
+
+            for entry in waitlist_entries:
+                event = EntryRemovedSSE(entry.waitlist.groupID, entry.waitlist_id, entry.id)
+                _events.append(event)
+
+            db.session.query(WaitlistEntry).filter((WaitlistEntry.user == char_id) &
+                                                   ((WaitlistEntry.waitlist_id == group.logiwlID) |
+                                                    (WaitlistEntry.waitlist_id == group.dpswlID) |
+                                                    (WaitlistEntry.waitlist_id == group.sniperwlID))).delete()
+
+            # if other waitlist delete those entries too
+            if group.otherwlID is not None:
+                db.session.query(WaitlistEntry)\
+                    .filter((WaitlistEntry.user == char_id) & (WaitlistEntry.waitlist_id == group.otherwlID)).delete()
+
+            h_entry = create_history_object(char_id, HistoryEntry.EVENT_AUTO_RM_PL, None, fittings)
             h_entry.exref = group.groupID
             db.session.add(h_entry)
             db.session.commit()
-            send_server_sent_event(InviteMissedSSE(group_id, char_id))
-    
-            logger.info("%s missed his invite", character.eve_name)
-            # we are done delete the timer entry
+
+            for event in _events:
+                send_server_sent_event(event)
+
+            logger.info("auto removed %s from %s waitlist.", character.eve_name, group.groupName)
+            # we are done delete timer entry
             check_timers.pop(timer_id, None)
         else:
-            # we want to wait some more, set up new timer
-            logger.info('charID[%d] groupID[%d] fleetID[%d] %s was not in fleet this time, checking again in 20s',
-                        char_id, group_id, fleet_id, character.eve_name)
-            t = Timer(20.0, check_invite_and_remove_timer, [char_id, group_id, fleet_id])
-            t.start()
-    
-    db.session.remove()
+            logger.info("Character %d %s not found in fleetmembers", char_id, character.eve_name)
+            if current_run == max_runs:  # he reached his invite timeout
+                logger.info("Max Runs reached and Member %s not found in members", str(char_id))
+                for entry in waitlist_entries:
+                    entry.inviteCount += 1
+                h_entry = create_history_object(char_id, HistoryEntry.EVENT_AUTO_CHECK_FAILED, None, None)
+                h_entry.exref = group.groupID
+                db.session.add(h_entry)
+                db.session.commit()
+                send_server_sent_event(InviteMissedSSE(group_id, char_id))
+
+                logger.info("%s missed his invite", character.eve_name)
+                # we are done delete the timer entry
+                check_timers.pop(timer_id, None)
+            else:
+                # we want to wait some more, set up new timer
+                logger.info('charID[%d] groupID[%d] fleetID[%d] %s was not in fleet this time, checking again in 20s',
+                            char_id, group_id, fleet_id, character.eve_name)
+                t = Timer(20.0, check_invite_and_remove_timer, [char_id, group_id, fleet_id])
+                t.start()
+
+        db.session.remove()
+    except Exception as e:
+        logger.exception("Some thing went wrong during invite check!")

@@ -23,7 +23,7 @@ def get_expire_time(response: Any) -> datetime:
 
 
 class ESIEndpoint(object):
-    def __init(self):
+    def __init__(self):
         self.__api: App = None
 
     def _api(self) -> App:
