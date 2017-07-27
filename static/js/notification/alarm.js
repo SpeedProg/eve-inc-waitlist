@@ -201,7 +201,7 @@ waitlist.alarm = (function () {
 
 		let alarmExpressionRow = $.parseHTML(`<tr data-groupid="${groupID}">
 <td></td>
-<td><input type="text" placeholder="(xup == 0 and logi < 2) or (xup == 2 and dps <= 5)"></td>
+<td><input class="w-100" type="text" placeholder="(xup == 0 and logi < 2) or (xup == 2 and dps <= 5)"></td>
 <td><input type="checkbox"></td></tr>`)[0];
 		// set it like this to avoid injections
 		alarmExpressionRow.setAttribute("data-groupname", groupName);
