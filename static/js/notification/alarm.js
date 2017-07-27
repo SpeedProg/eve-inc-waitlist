@@ -149,7 +149,8 @@ waitlist.alarm = (function () {
 				'logi': getLogiCount(group.groupID),
 				'dps': getDPSCount(group.groupID),
 				'sniper': getSniperCount(group.groupID),
-				'other': getOtherCount(group.groupID)
+				'other': getOtherCount(group.groupID),
+				'open': group.enabled
 			});
 			if (result) {
 				triggerAlarm(group);
