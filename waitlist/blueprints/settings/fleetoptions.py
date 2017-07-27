@@ -156,7 +156,8 @@ def fleet_status_set(gid: int) -> Response:
             postfix = "was not found in fleet"
 
         with open("set_history.log", "a+") as f:
-            f.write(f'{current_user.username} checked in for activity, {postfix}')
+            f.write(f'{datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")}'
+                    f' - {current_user.username} checked in for activity, {postfix}\n')
         flash(f"Your activity report has been submitted {current_user.username}", "success")
 
     elif action == "change_display_name":
