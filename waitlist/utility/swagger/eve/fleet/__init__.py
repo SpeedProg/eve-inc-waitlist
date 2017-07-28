@@ -17,7 +17,7 @@ class EveFleetEndpoint(object):
     def __init__(self, fleet_id: int, client: EsiClient = None) -> None:
         self.__fleetID: int = fleet_id
         if client is None:
-            self.__client: EsiClient = get_esi_client('v1')
+            self.__client: EsiClient = get_esi_client()
             self.__api: App = self.__client.security.app
         else:
             self.__client: EsiClient = client

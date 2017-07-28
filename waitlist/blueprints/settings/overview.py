@@ -145,7 +145,6 @@ def __create_table_cell_data(desc, column_names, data, hide_rows=None):
     if len(data) >= 1 and len(data[0]) != len(column_names):
         raise ValueError("len(column_names) != len(data[0])")
     if len(hide_rows) == 0:
-        print("Generating default hiding list")
         hide_rows = [False for _ in range(len(column_names))]
     elif len(hide_rows) != len(column_names):
         raise ValueError("When hide_rows is specified it needs to be of the same length as the defined columns")

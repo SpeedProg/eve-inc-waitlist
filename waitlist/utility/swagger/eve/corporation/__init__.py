@@ -1,27 +1,25 @@
 import logging
+from typing import Union
+
 from esipy import EsiClient
 
 from requests.packages.urllib3.exceptions import ReadTimeoutError
 
 from waitlist.utility.swagger.eve.corporation.responses import CorporationInfo
-from waitlist.utility.swagger.eve import get_esi_client, get_expire_time, make_error_response, ESIEndpoint
+from waitlist.utility.swagger.eve import get_esi_client, get_expire_time, make_error_response, ESIEndpoint, ESIResponse
 
 logger = logging.getLogger(__name__)
 
 
 class CorporationEndpoint(ESIEndpoint):
     def __init__(self) -> None:
-        self._add_esi_api('v3')
-        self.esi_client: EsiClient = get_esi_client('', True)  # version doesn't matter if we use no auth
-        pass
+        super().__init__()
+        self.esi_client: EsiClient = get_esi_client(True)  # version doesn't matter if we use no auth
 
-    def get_corporation_info(self, corp_id: int) -> CorporationInfo:
-        # check the endpoints we need are in there
-        if not (ESIEndpoint.is_endpoint_available(self._api('v3'), 'get_corporations_corporation_id')):
-            self._try_reload_api('v3')
+    def get_corporation_info(self, corp_id: int) -> Union[CorporationInfo, ESIResponse]:
 
         try:
-            resp = self.esi_client.request(self._api('v3')
+            resp = self.esi_client.request(self._api()
                                            .op['get_corporations_corporation_id'](corporation_id=corp_id))
             if resp.status == 200:
                 return CorporationInfo(get_expire_time(resp), resp.status, None, resp.data)

@@ -15,6 +15,7 @@ from waitlist.utility.swagger.patch import EsiClient
 
 logger = logging.getLogger(__name__)
 
+
 def get_expire_time(response: Any) -> datetime:
     if 'Expires' in response.header:
         return header_to_datetime(response.header['Expires'][0])
@@ -22,21 +23,13 @@ def get_expire_time(response: Any) -> datetime:
 
 
 class ESIEndpoint(object):
-    def __init(self):
-        pass
+    def __init__(self):
+        self.__api: App = None
 
-    def _add_esi_api(self, version: str) -> None:
-        self.__dict__['api_'+version] = get_api(version)
-
-    def _api(self, version: str) -> App:
-        return self.__dict__['api_'+version]
-
-    @staticmethod
-    def is_endpoint_available(api: App, endpoint_name: str) -> bool:
-        return endpoint_name in api.op
-
-    def _try_reload_api(self, version: str):
-        self.__dict__['api_' + version] = get_api(version)
+    def _api(self) -> App:
+        if self.__api is None:
+            self.__api: App = get_api()
+        return self.__api
 
 
 class ESIResponse(object):
@@ -87,16 +80,16 @@ def make_error_response(resp: Any) -> ESIResponse:
     return ESIResponse(get_expire_time(resp), resp.status, msg)
 
 
-def get_esi_client(version: str, noauth: bool = False) -> EsiClient:
-    return get_esi_client_for_account(current_user, version, noauth)
+def get_esi_client(noauth: bool = False) -> EsiClient:
+    return get_esi_client_for_account(current_user, noauth)
 
 
-def get_esi_client_for_account(account: Account, version: str, noauth: bool = False) -> EsiClient:
+def get_esi_client_for_account(account: Account, noauth: bool = False) -> EsiClient:
     if noauth:
         return EsiClient(timeout=10, headers={'User-Agent': 'Bruce Warhead WTMWaitlist/1.0.0'})
 
     security = EsiSecurity(
-        get_api(version),
+        get_api(),
         crest_return_url,
         crest_client_id,
         crest_client_secret
