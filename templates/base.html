@@ -191,24 +191,27 @@ waitlist.themes = (function() {
 				<li class="nav-item">
 					<a class="nav-link bg-success" href="{{url_for('xup.index')}}">X-UP</a>
 				</li>
-				{% if perm_manager.get_permission('commandcore').can() %}
+
 				<li class="nav-item dropdown">
 					<a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Tools</a>
 					<div class="dropdown-menu">
-						{% if perm_manager.get_permission('fleet_management').can() %}
-						<a class="dropdown-item" href="{{url_for('fleet_reform.index')}}">Reform</a>
-						{% endif %}
-						{% if perm_manager.get_permission('comphistory_view').can() %}
-						<a class="dropdown-item" href="{{url_for('fittings.history_default')}}">Comp History</a>
-						{% endif %}
-						<a class="dropdown-item" href="{{url_for('accounts_cc.accounts')}}">Command Core List</a>
-						{% if perm_manager.get_permission('comphistory_search').can() %}
+						<a class="dropdown-item" href="{{url_for('notification.alarm_idx')}}">Custom Notifications</a>
 						<div class="dropdown-divider"></div>
-						<a class="dropdown-item" href="{{url_for('comp_history_search.index')}}">Comp History Search</a>
+						{% if perm_manager.get_permission('commandcore').can() %}
+							{% if perm_manager.get_permission('fleet_management').can() %}
+							<a class="dropdown-item" href="{{url_for('fleet_reform.index')}}">Reform</a>
+							{% endif %}
+							{% if perm_manager.get_permission('comphistory_view').can() %}
+							<a class="dropdown-item" href="{{url_for('fittings.history_default')}}">Comp History</a>
+							{% endif %}
+							<a class="dropdown-item" href="{{url_for('accounts_cc.accounts')}}">Command Core List</a>
+							{% if perm_manager.get_permission('comphistory_search').can() %}
+							<div class="dropdown-divider"></div>
+							<a class="dropdown-item" href="{{url_for('comp_history_search.index')}}">Comp History Search</a>
+							{% endif %}
 						{% endif %}
 					</div>
 				</li>
-				{% endif %}
 				{% if perm_manager.get_permission('settings_access').can() %}
 				<li class="nav-item">
 					<a class="nav-link" href="{{url_for('settings_overview.overview')}}">Settings</a>
