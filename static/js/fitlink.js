@@ -416,26 +416,26 @@ var eveui;
         var items = dna.split(':');
         // ship name and number of slots
         var ship_id = parseInt(items.shift());
-        var ship = cache['crest/inventory/types/' + ship_id];
+        var ship = cache['esi/universe/types/' + ship_id];
         ship.hiSlots = 0;
         ship.medSlots = 0;
         ship.lowSlots = 0;
-        for (var i in ship.dogma.attributes) {
-            var attr = cache['crest/inventory/types/' + ship_id].dogma.attributes[i];
-            if (attr.attribute.name === 'hiSlots') {
-                ship[attr.attribute.name] = attr.value;
+        for (var i in ship.dogma_attributes) {
+            var attr = ship.dogma_attributes[i];
+            if (attr.attribute_id === 14 ) { // 'hiSlots'
+                ship['hiSlots'] = attr.value;
             }
-            else if (attr.attribute.name === 'medSlots') {
-                ship[attr.attribute.name] = attr.value;
+            else if (attr.attribute_id === 13 ) { // 'medSlots'
+                ship['medSlots'] = attr.value;
             }
-            else if (attr.attribute.name === 'lowSlots') {
-                ship[attr.attribute.name] = attr.value;
+            else if (attr.attribute_id === 12) { // 'lowSlots'
+                ship['lowSlots'] = attr.value;
             }
-            else if (attr.attribute.name === 'rigSlots') {
-                ship[attr.attribute.name] = attr.value;
+            else if (attr.attribute_id === 1137) { // 'rigSlots'
+                ship['rigSlots'] = attr.value;
             }
-            else if (attr.attribute.name === 'maxSubSystems') {
-                ship[attr.attribute.name] = attr.value;
+            else if (attr.attribute_id === 1367) { // 'maxSubSystems'
+                ship['maxSubSystems'] = attr.value;
             }
         }
         // categorize items into slots
@@ -446,38 +446,38 @@ var eveui;
             var match = items[i].split(';');
             var item_id = match[0];
             var quantity = parseInt(match[1]);
-            var item = cache['crest/inventory/types/' + item_id];
-            for (var j in item.dogma.attributes) {
-                var attr = item.dogma.attributes[j];
-                if (attr.attribute.name === 'hiSlotModifier') {
+            var item = cache['esi/universe/types/' + item_id];
+            for (var j in item.dogma_attributes) {
+                var attr = item.dogma_attributes[j];
+                if (attr.attribute_id === 1374) { // 'hiSlotModifier'
                     ship.hiSlots += attr.value;
                 }
-                if (attr.attribute.name === 'medSlotModifier') {
+                if (attr.attribute_id === 1375) { // 'medSlotModifier'
                     ship.medSlots += attr.value;
                 }
-                if (attr.attribute.name === 'lowSlotModifier') {
+                if (attr.attribute_id === 1376) { // 'lowSlotModifier'
                     ship.lowSlots += attr.value;
                 }
             }
-            for (var j in item.dogma.effects) {
-                var effect = item.dogma.effects[j].effect;
-                if (effect.name === 'hiPower') {
+            for (var j in item.dogma_effects) {
+                var effect = item.dogma_effects[j];
+                if (effect.effect_id === 12) { // 'hiPower'
                     high_slots[item_id] = quantity;
                     continue outer;
                 }
-                else if (effect.name === 'medPower') {
+                else if (effect.effect_id === 13) { // 'medPower'
                     med_slots[item_id] = quantity;
                     continue outer;
                 }
-                else if (effect.name === 'loPower') {
+                else if (effect.effect_id === 11) { // 'loPower'
                     low_slots[item_id] = quantity;
                     continue outer;
                 }
-                else if (effect.name === 'rigSlot') {
+                else if (effect.effect_id === 2663) { // 'rigSlot'
                     rig_slots[item_id] = quantity;
                     continue outer;
                 }
-                else if (effect.name === 'subSystem') {
+                else if (effect.effect_id === 3772) { // 'subSystem'
                     subsystem_slots[item_id] = quantity;
                     continue outer;
                 }
@@ -489,7 +489,7 @@ var eveui;
             var html = '';
             var slots_used = 0;
             for (var item_id in fittings) {
-                var item = cache['crest/inventory/types/' + item_id];
+                var item = cache['esi/universe/types/' + item_id];
                 slots_used += fittings[item_id];
                 if (slots_available) {
                     html += "<tr class=\"copy_only\"><td>" + (item.name + '<br />').repeat(fittings[item_id]);
@@ -531,12 +531,12 @@ var eveui;
     }
     eveui.fit_window = fit_window;
     function format_item(item_id) {
-        var item = cache['crest/inventory/types/' + item_id];
+        var item = cache['esi/universe/types/' + item_id];
         var html = "<table class=\"whitespace_nowrap\"><tr><td>" + item.name;
-        for (var i in item.dogma.attributes) {
-            var attr = item.dogma.attributes[i];
+        for (var i in item.dogma_attributes) {
+            var attr = item.dogma_attributes[i];
             html += '<tr>';
-            html += '<td>' + attr.attribute.name;
+            html += '<td>' + attr.attribute_id; // TODO: get names
             html += '<td>' + attr.value;
         }
         html += '</table>';
@@ -555,7 +555,8 @@ var eveui;
         }
         mark('item window created');
         // load required items and set callback to display
-        cache_request('crest/inventory/types/' + item_id, "https://crest-tq.eveonline.com/inventory/types/" + item_id + "/").done(function () {
+        https://esi.tech.ccp.is/latest/universe/types/29984
+        cache_request('esi/universe/types/' + item_id, "https://esi.tech.ccp.is/latest/universe/types/" + item_id + "/?datasource=tranquility&language=en-us").done(function () {
             eveui_window.find('.eveui_content').html(format_item(item_id));
             $(window).trigger('resize');
             mark('item window populated');
@@ -622,7 +623,7 @@ var eveui;
                 return;
             }
             var item_id = selected_element.attr('data-itemid') || this.href.substring(this.href.indexOf(':') + 1);
-            cache_request('crest/inventory/types/' + item_id, "https://crest-tq.eveonline.com/inventory/types/" + item_id + "/").done(function () {
+            cache_request('esi/universe/types/' + item_id, "https://esi.tech.ccp.is/v2/universe/types/" + item_id + "/?datasource=tranquility&language=en-us").done(function () {
                 selected_element.replaceWith("<span class=\"eveui_content eveui_item\">" + format_item(item_id) + "</span>");
                 mark('item window expanded');
             });
@@ -677,7 +678,7 @@ var eveui;
             }
             var match = items[item].split(';');
             var item_id = match[0];
-            pending.push(cache_request('crest/inventory/types/' + item_id, "https://crest-tq.eveonline.com/inventory/types/" + item_id + "/"));
+            pending.push(cache_request('esi/universe/types/' + item_id, "https://esi.tech.ccp.is/v2/universe/types/" + item_id + "/?datasource=tranquility&language=en-us"));
         }
         return $.when.apply(null, pending);
     }
@@ -702,7 +703,7 @@ var eveui;
             // store data in localstorage where applicable
             if (eveui_use_localstorage > 0) {
                 var version = void 0;
-                if (key.startsWith('crest/inventory/types')) {
+                if (key.startsWith('esi/universe/types/')) {
                     // inventory/types key should be reliably cachable until such time as the version changes
                     version = eve_version;
                 }
