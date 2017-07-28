@@ -21,11 +21,10 @@ waitlist.themes = (function() {
 		'id': 'theme-css',
 		'base_path': "/static/css/",
 		'setting_key_prefix': 'themes-',
-		'def_type': 'local',
-		'def_file': 'bootstrap_dark_purple_001.css',
-		'def_integrity': null,
-		'def_crossorigin': null
-
+		'def_type': 'remote',
+		'def_file': 'https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css',
+		'def_integrity': "sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ",
+		'def_crossorigin': "anonymouse"
 	};
 	// file_name = null == standard file
 	function setTheme(file_name, type, integrity, crossorigin) {
