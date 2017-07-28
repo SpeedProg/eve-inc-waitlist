@@ -41,7 +41,7 @@
 {{ super() }}
 
 {% assets filters="babili", output="gen/setup.%(version)s.js", "js/base.js",
-"js/dropdown.js", "js/eveproxy.js", "js/waitlist-dom.js", "js/wlsseupdate.js",
+"js/dropdown.js", "js/eveproxy.js", "js/waitlist-dom.js", "js/wlsseupdate.js", "js/sse-dom.js",
 "js/dnasetup.js", "js/calendar/index.js" %}
 <script type="text/javascript" src="{{ ASSET_URL }}"></script>
 {% endassets %}
