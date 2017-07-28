@@ -5,24 +5,14 @@ if (!waitlist) {
 }
 
 waitlist.sse = (function() {
-	var getMetaData = waitlist.base.getMetaData;
-	var displayMessage = waitlist.base.displayMessage;
-	
-	var loadWaitlist = waitlist.listdom.loadWaitlist;
-	var addFitToDom = waitlist.listdom.addFitToDom;
-	var addNewEntry = waitlist.listdom.addNewEntry;
-	var removeFitFromDom = waitlist.listdom.removeFitFromDom;
-	var removeEntryFromDom = waitlist.listdom.removeEntryFromDom;
-	var updateMissedInvite = waitlist.listdom.updateMissedInvite;
-	var setStatusDom = waitlist.listdom.setStatusDom;
-	var clearWaitlists = waitlist.listdom.clearWaitlists;
+	let getMetaData = waitlist.base.getMetaData;
 
-	var eventListeners = [];
+	let eventListeners = [];
 
-	var settings = {};
+	let settings = {};
 	
-	var eventSource;
-	var errorCount = 0;
+	let eventSource;
+	let errorCount = 0;
 	function handleSSEError(event) {
 		event.target.close();
 		errorCount++;
@@ -48,7 +38,7 @@ waitlist.sse = (function() {
 	}
 
 	function connectSSE() {
-		var wlgroup = getMetaData('wl-group-id');
+		let wlgroup = getMetaData('wl-group-id');
 		if(typeof wlgroup !== "undefined") {
 			eventSource = getSSE("waitlistUpdates,gong,statusChanged", wlgroup);
 		} else {
@@ -56,39 +46,36 @@ waitlist.sse = (function() {
 		}
 	}
 
-	function fitAddedListener(event) {
-		var data = JSON.parse(event.data);
-		addFitToDom(data.listId, data.entryId, data.fit, data.isQueue, data.userId);
-	}
-
-	function entryAddedListener(event) {
-		var data = JSON.parse(event.data);
-		addNewEntry(data.listId, data.entry, data.groupId, data.isQueue);
-		if (data.isQueue && settings.can_manage) {
-			sendNotificationForEntry(data);
+	function getSSE(events, groupId) {
+		let url = getMetaData('api-sse')+"?events="+encodeURIComponent(events);
+		if (typeof groupId !== "undefined") {
+			url += "&groupId="+encodeURIComponent(groupId);
 		}
+		let sse = new EventSource(url);
+		sse.onerror = handleSSEError;
+		sse.onopen = handleSSEOpen;
+
+		sse.addEventListener("status-changed", statusChangedListener);
+
+		for (let addedEvents of eventListeners) {
+			sse.addEventListener(addedEvents.event, addedEvents.listener);
+		}
+
+		return sse;
 	}
 
-	function fitRemovedListener(event) {
-		var data = JSON.parse(event.data);
-		removeFitFromDom(data.listId, data.entryId, data.fitId);
-	}
+    function addEventListener(event, listener) {
+        eventListeners.push({event: event, listener: listener});
+        if (typeof eventSource !== 'undefined') {
+            eventSource.addEventListener(event, listener);
+        }
+    }
 
-	function entryRemovedListener(event) {
-		var data = JSON.parse(event.data);
-		removeEntryFromDom(data.listId, data.entryId);
-	}
-
-	function missedInviteListener(event) {
-		var data = JSON.parse(event.data);
-		updateMissedInvite(data.userId);
-	}
-	
-	function statusChangedListener(event) {
-		var data = JSON.parse(event.data);
+    function statusChangedListener(event) {
+		let data = JSON.parse(event.data);
 		// check if we are current disabled
 		// and if we are and the new status is not reload main page
-		var wlgroup = getMetaData('wl-group-id');
+		let wlgroup = getMetaData('wl-group-id');
 		if(typeof wlgroup === "undefined") {
 			if (data.enabled) {
 				window.location.reload();
@@ -100,76 +87,15 @@ waitlist.sse = (function() {
 					eventSource.close();
 					eventSource = getSSE('statusChanged');
 				}
-				// clear all the lists
-				clearWaitlists();
-				// remove the id from meta data
-				$('meta[name="wl-group-id"]').remove();
 			}
-			setStatusDom(data);
 		}
 	}
-
-	function getSSE(events, groupId) {
-		var url = getMetaData('api-sse')+"?events="+encodeURIComponent(events);
-		if (typeof groupId !== "undefined") {
-			url += "&groupId="+encodeURIComponent(groupId);
-		}
-		var sse = new EventSource(url);
-		sse.onerror = handleSSEError;
-		sse.onopen = handleSSEOpen;
-		
-		sse.addEventListener("fit-added", fitAddedListener);
-		sse.addEventListener("fit-removed", fitRemovedListener);
-		
-		sse.addEventListener("entry-added", entryAddedListener);
-		sse.addEventListener("entry-removed", entryRemovedListener);
-
-		sse.addEventListener("invite-missed", missedInviteListener);
-		
-		sse.addEventListener("status-changed", statusChangedListener);
-
-		for (let addedEvents of eventListeners) {
-			sse.addEventListener(addedEvents.event, addedEvents.listener);
-		}
-
-		return sse;
-	}
-
-	function sendNotificationForEntry(data) {
-		if (!("Notification" in window)) {
-			return;
-		}
-		var title = "New X-UP";
-		var options = {
-			'body': `New X-UP from ${data.entry.character.name}`
-		};
-		// if we have permission
-		if (Notification.permission === "granted") {
-			new Notification(title, options);
-		// if we are not denied (user didn't select yet
-		} else if (Notification.permission !== 'denied') {
-			Notification.requestPermission(function (permission) {
-				// If the user accepts, let's create a notification
-				if (permission === "granted") {
-					new Notification(title, options);
-				}
-			});
-		}
-	}
-
-    function addEventListener(event, listener) {
-        eventListeners.push({event: event, listener: listener});
-        if (typeof eventSource !== 'undefined') {
-            eventSource.addEventListener(event, listener);
-        }
-    }
 
 	function init() {
 		settings.can_manage = getMetaData('can-fleetcomp') === "True";
 		if (window.EventSource) {
 			connectSSE();
 		}
-		loadWaitlist();
 	}
 	
 	
