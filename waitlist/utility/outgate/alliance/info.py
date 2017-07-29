@@ -9,7 +9,8 @@ from waitlist import db
 logger = logging.getLogger(__name__)
 
 
-def set_from_alliance_info(self: APICacheAllianceInfo, info: AllianceInfo):
+def set_from_alliance_info(self: APICacheAllianceInfo, info: AllianceInfo, all_id: int):
+    self.id = all_id
     self.allianceName = info.get_alliance_name()
     self.dateFounded = info.get_date_founded()
     self.executorCorpID = info.get_executor_corp_id()
@@ -26,13 +27,13 @@ def get_alliance_info(alliance_id: int, *args) -> APICacheAllianceInfo:
         all_ep = AllianceEndpoint()
         all_info: AllianceInfo = check_esi_response(all_ep.get_alliance_info(alliance_id), get_alliance_info, args)
 
-        set_from_alliance_info(all_cache, all_info)
+        set_from_alliance_info(all_cache, all_info, alliance_id)
         db.session.add(all_cache)
         db.session.commit()
     elif all_cache.characterName is None:
         all_ep = AllianceEndpoint()
         all_info: AllianceInfo = check_esi_response(all_ep.get_alliance_info(alliance_id), get_alliance_info, args)
-        set_from_alliance_info(all_cache, all_info)
+        set_from_alliance_info(all_cache, all_info, alliance_id)
         db.session.commit()
     else:
         now = datetime.now()
@@ -40,7 +41,7 @@ def get_alliance_info(alliance_id: int, *args) -> APICacheAllianceInfo:
             # expired, update it
             all_ep = AllianceEndpoint()
             all_info: AllianceInfo = check_esi_response(all_ep.get_alliance_info(alliance_id), get_alliance_info, args)
-            set_from_alliance_info(all_cache, all_info)
+            set_from_alliance_info(all_cache, all_info, alliance_id)
             db.session.commit()
 
     return all_cache

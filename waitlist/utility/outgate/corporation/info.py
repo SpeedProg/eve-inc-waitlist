@@ -11,7 +11,8 @@ from waitlist import db
 logger = logging.getLogger(__name__)
 
 
-def set_from_corp_info(self: APICacheCorporationInfo, info: CorporationInfo):
+def set_from_corp_info(self: APICacheCorporationInfo, info: CorporationInfo, corp_id: int):
+    self.id = corp_id
     self.name = info.get_corporation_name()
     self.allianceID = info.get_alliance_id()
     self.ceoID = info.get_ceo_id()
@@ -34,13 +35,13 @@ def get_corp_info(corp_id: int, *args) -> APICacheCorporationInfo:
         corp_ep = CorporationEndpoint()
         corp_info: CorporationInfo = check_esi_response(corp_ep.get_corporation_info(corp_id), get_corp_info, args)
 
-        set_from_corp_info(corp_cache, corp_info)
+        set_from_corp_info(corp_cache, corp_info, corp_id)
         db.session.add(corp_cache)
         db.session.commit()
     elif corp_cache.characterName is None:
         corp_ep = CorporationEndpoint()
         corp_info: CorporationInfo = check_esi_response(corp_ep.get_corporation_info(corp_id), get_corp_info, args)
-        set_from_corp_info(corp_cache, corp_info)
+        set_from_corp_info(corp_cache, corp_info, corp_id)
         db.session.commit()
     else:
         now = datetime.now()
@@ -51,7 +52,7 @@ def get_corp_info(corp_id: int, *args) -> APICacheCorporationInfo:
                 corp_info: CorporationInfo = check_esi_response(corp_ep.get_corporation_info(corp_id), get_corp_info, args)
             except ESIException:
                 return corp_cache
-            set_from_corp_info(corp_cache, corp_info)
+            set_from_corp_info(corp_cache, corp_info, corp_id)
             db.session.commit()
 
     return corp_cache
