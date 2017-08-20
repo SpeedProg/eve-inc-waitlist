@@ -38,7 +38,7 @@ def get_corp_info(corp_id: int, *args) -> APICacheCorporationInfo:
         set_from_corp_info(corp_cache, corp_info, corp_id)
         db.session.add(corp_cache)
         db.session.commit()
-    elif corp_cache.characterName is None:
+    elif corp_cache.name is None:
         corp_ep = CorporationEndpoint()
         corp_info: CorporationInfo = check_esi_response(corp_ep.get_corporation_info(corp_id), get_corp_info, args)
         set_from_corp_info(corp_cache, corp_info, corp_id)
