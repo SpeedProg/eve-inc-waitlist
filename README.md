@@ -6,8 +6,7 @@ For library licenses see licenses folder
 * MySQL/MariaDB (maybe PosgresSQL works too, never tested)
 * all the libraries in "requirements.txt"
 * python library to connect to the choosen database
-## If you want to use JS Minimization
-* node
+* node (optional for JS minimization)
 
 
 # Installation
@@ -29,6 +28,4 @@ Further admin accounts can be created over the account management on the website
 # JS Minimization
 1. Make sure [node](https://nodejs.org) is installed
 2. Go to the waitlist base directory (the one containing **package.json**)
-3. ```bash
-npm i
-```
+3. ```npm i```
