@@ -5,6 +5,8 @@ from pyswagger import App
 from typing import Any, Optional
 
 from esipy.security import EsiSecurity
+
+from waitlist.data.version import version
 from waitlist.utility.swagger import header_to_datetime, get_api
 from waitlist.utility.config import crest_return_url, crest_client_id,\
     crest_client_secret
@@ -86,7 +88,7 @@ def get_esi_client(noauth: bool = False) -> EsiClient:
 
 def get_esi_client_for_account(account: Account, noauth: bool = False) -> EsiClient:
     if noauth:
-        return EsiClient(timeout=10, headers={'User-Agent': 'Bruce Warhead WTMWaitlist/1.0.0'})
+        return EsiClient(timeout=10, headers={'User-Agent': 'Bruce Warhead IncWaitlist/'+version})
 
     security = EsiSecurity(
         get_api(),
@@ -100,4 +102,4 @@ def get_esi_client_for_account(account: Account, noauth: bool = False) -> EsiCli
                        datetime.utcnow()).total_seconds(),
         'refresh_token': account.ssoToken.refresh_token
     })
-    return EsiClient(security, timeout=10, headers={'User-Agent': 'Bruce Warhead WTMWaitlist/1.0.0'})
+    return EsiClient(security, timeout=10, headers={'User-Agent': 'Bruce Warhead IncWaitlist/'+version})
