@@ -14,6 +14,7 @@ if not os.path.isfile(os.path.join(".", "config", "config.cfg")):
     config.set("app", "secret_key", base64.b64encode(os.urandom(24)).decode('utf-8', 'strict'))
     config.set("app", "server_port", "81")
     config.set("app", "server_bind", "0.0.0.0")
+    config.set("app", "community_name", "IncWaitlist")
     
     config.add_section("logging")
     config.set("logging", "error_file", "/var/log/pywaitlist/error.log")
@@ -54,6 +55,7 @@ if not os.path.isfile(os.path.join(".", "config", "config.cfg")):
 
     config.add_section("pageinfo")
     config.set("pageinfo", "influence_link", "#")
+
     
     makedirs(os.path.join(".", "config"))
     with open(os.path.join(".", "config", "config.cfg"), "w") as configfile:
@@ -61,6 +63,8 @@ if not os.path.isfile(os.path.join(".", "config", "config.cfg")):
 
 config = ConfigParser()
 config.read(os.path.join("config", "config.cfg"))
+
+title = config.get("app", "community_name")
 
 debug_enabled = config.get("debug", "enabled") == "True"
 node_bin = config.get("node", "node_bin")
