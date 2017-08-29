@@ -56,6 +56,11 @@ if not os.path.isfile(os.path.join(".", "config", "config.cfg")):
     config.add_section("pageinfo")
     config.set("pageinfo", "influence_link", "#")
 
+    config.add_section("fittools")
+    config.set("fittools", "stats_enabled", "True")
+    config.set("fittools", "stats_uri", "https://quiescens.duckdns.org/wl/ext/wl_external.js")
+    config.set("fittools", "stats_sri", "sha384-VonGhMELp1YLVgnJJMq2NqUOpRjhV7nUpiATMsrK5TIMrYQuGUaUPUZlQIInhGc5")
+
     
     makedirs(os.path.join(".", "config"))
     with open(os.path.join(".", "config", "config.cfg"), "w") as configfile:
@@ -101,3 +106,7 @@ disable_teamspeak = config.get("disable", "teamspeak") == "True"
 influence_link = config.get("pageinfo", "influence_link")
 
 cdn_eveimg_js = cdn_eveimg.format("${ path }", "${ suffix }")
+
+stattool_uri = config.get("fittools", "stats_url")
+stattool_sri = config.get("fittools", "stats_sri")
+stattool_enabled = config.get("fittools", "stats_enabled") == "True"

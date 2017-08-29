@@ -3,7 +3,13 @@
 
 {% block head %}
 {{ super() }}
-<script src="https://quiescens.duckdns.org/wl/wtm.js"></script>
+{% if config.stattool_enabled %}
+<script type="text/javascript"
+src="{{ config.stattool_uri }}" integrity="{{ config.stattool_sri }}" crossorigin="anonymous" defer async/>
+{% assets filters="babili", output="gen/statcfg.%(version)s.js", "js/config/stattool_config.js" %}
+<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
+{% endif %}
 <meta name="api-history-changed" content="{{url_for('api_fittings.history_since')}}">
 <style type="text/css" id="history-css">
 .hidden-el {
