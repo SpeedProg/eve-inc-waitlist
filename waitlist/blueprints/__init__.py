@@ -91,6 +91,10 @@ def index():
 def site_help():
     return render_template("help.html")
 
+@app.route("/about", methods=["GET"])
+def about():
+    return render_template("about.html")
+
 
 # callable like /tokenauth?token=359th8342rt0f3uwf0234r
 @app.route('/tokenauth')
