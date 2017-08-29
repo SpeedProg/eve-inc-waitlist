@@ -1,3 +1,6 @@
+# About
+Incursion Targets Waitlist for Eve Online
+
 # License
 MIT
 For library licenses see licenses folder
