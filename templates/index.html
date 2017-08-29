@@ -67,9 +67,13 @@
 			{% endassets %}
 		{% endif %}
 
-		{% if perm_manager.get_permission('fits_view').can() %}
+		{% if perm_manager.get_permission('fits_view').can() and config.stattool_enabled %}
 			<script type="text/javascript"
-				src="https://quiescens.duckdns.org/wl/wtm.js" defer async></script>
+				src="{{ config.stattool_uri }}" integrity="{{ config.stattool_sri }}"
+					crossorigin="anonymous" defer async/>
+			{% assets filters="babili", output="gen/statcfg.%(version)s.js", "js/config/stattool_config.js" %}
+			<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+			{% endassets %}
 		{% endif %}
 	{% endif %}
 	{% assets filters="babili",
