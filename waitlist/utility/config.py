@@ -107,6 +107,6 @@ influence_link = config.get("pageinfo", "influence_link")
 
 cdn_eveimg_js = cdn_eveimg.format("${ path }", "${ suffix }")
 
-stattool_uri = config.get("fittools", "stats_url")
+stattool_uri = config.get("fittools", "stats_uri")
 stattool_sri = config.get("fittools", "stats_sri")
 stattool_enabled = config.get("fittools", "stats_enabled") == "True"
