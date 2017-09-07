@@ -1,9 +1,8 @@
 from sqlalchemy import Column, Integer, String, SmallInteger, BIGINT, Boolean, DateTime, Index, \
-    sql, BigInteger, text, Float
+    sql, BigInteger, text, Float, Text
 from sqlalchemy import Enum
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.sql.schema import Table, ForeignKey, CheckConstraint
-from sqlalchemy.dialects.mysql.base import LONGTEXT, TEXT
 import logging
 
 from waitlist import db
@@ -103,7 +102,7 @@ class InvType(Base):
     typeID = Column(Integer, primary_key=True, nullable=False)
     groupID = Column(Integer)
     typeName = Column(String(100))
-    description = Column(LONGTEXT)
+    description = Column(Text)
     #    mass = Column(DOUBLE)
     #    volume = Column(DOUBLE)
     #    capacity = Column(DOUBLE)
@@ -458,7 +457,7 @@ class APICacheCorporationInfo(Base):
     name = Column(String(100), index=True)
     allianceID = Column(Integer, index=True)
     ceoID = Column(Integer)
-    description = Column(LONGTEXT)
+    description = Column(Text)
     creatorID = Column(Integer)
     memberCount = Column(Integer)
     taxRate = Column(Float)
@@ -493,7 +492,7 @@ class Ban(Base):
     __tablename__ = "ban"
     id = Column(Integer, primary_key=True)
     name = Column(String(100), index=True)
-    reason = Column(TEXT)
+    reason = Column(Text)
     admin = Column(Integer, ForeignKey("characters.id"))
     admin_obj = relationship("Character", foreign_keys="Ban.admin")
 
@@ -501,7 +500,7 @@ class Ban(Base):
 class Whitelist(Base):
     __tablename__ = "whitelist"
     characterID = Column(Integer, ForeignKey(Character.id), primary_key=True)
-    reason = Column(TEXT)
+    reason = Column(Text)
     adminID = Column(Integer, ForeignKey(Character.id))
     character = relationship(Character, foreign_keys=[characterID])
     admin = relationship(Character, foreign_keys=[adminID])
@@ -517,7 +516,7 @@ class Feedback(Base):
     user = Column(Integer, ForeignKey('characters.id'), unique=True, index=True)
     user_data = relationship("Character")
     likes = Column(Boolean)
-    comment = Column(TEXT)
+    comment = Column(Text)
 
 
 class Ticket(Base):
@@ -529,7 +528,7 @@ class Ticket(Base):
     title = Column(String(50))
     time = Column(DateTime, default=datetime.utcnow, nullable=False, index=True)
     characterID = Column(Integer, ForeignKey('characters.id'), index=True)
-    message = Column(TEXT)
+    message = Column(Text)
     state = Column(String(20), nullable=False, index=True, default="new")
 
     character = relationship("Character")
@@ -633,7 +632,7 @@ class TeamspeakDatum(Base):
 class Setting(Base):
     __tablename__ = "settings"
     key = Column(String(20), primary_key=True)
-    value = Column(TEXT)
+    value = Column(Text)
 
 
 class AccountNote(Base):
@@ -641,7 +640,7 @@ class AccountNote(Base):
     entryID = Column(Integer, primary_key=True)
     accountID = Column(Integer, ForeignKey('accounts.id'), nullable=False)
     byAccountID = Column(Integer, ForeignKey('accounts.id'), nullable=False)
-    note = Column(TEXT, nullable=True)
+    note = Column(Text, nullable=True)
     time = Column(DateTime, default=datetime.utcnow, index=True)
     restriction_level = Column(SmallInteger, default=50, nullable=False, server_default=text('50'))
 
@@ -675,7 +674,7 @@ class CalendarEventCategory(Base):
     categoryID: Column = Column(Integer, primary_key=True)
     categoryName: Column = Column(String(50), index=True)
     fixedTitle: Column = Column(String(200), nullable=True)
-    fixedDescription: Column = Column(TEXT, nullable=True)
+    fixedDescription: Column = Column(Text, nullable=True)
 
 
 class CalendarEvent(Base):
@@ -683,8 +682,8 @@ class CalendarEvent(Base):
     eventID: Column = Column(Integer, primary_key=True)
     eventCreatorID: Column = Column(Integer, ForeignKey('accounts.id', onupdate='CASCADE', ondelete='CASCADE'),
                                     index=True)
-    eventTitle: Column = Column(TEXT)
-    eventDescription: Column = Column(TEXT)
+    eventTitle: Column = Column(Text)
+    eventDescription: Column = Column(Text)
     eventCategoryID: Column = Column(Integer,
                                      ForeignKey('calendar_category.categoryID', onupdate='CASCADE', ondelete='CASCADE'),
                                      index=True)
