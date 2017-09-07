@@ -61,8 +61,8 @@ if not os.path.isfile(os.path.join(".", "config", "config.cfg")):
     config.set("fittools", "stats_uri", "https://quiescens.duckdns.org/wl/ext/wl_external.js")
     config.set("fittools", "stats_sri", "sha384-VonGhMELp1YLVgnJJMq2NqUOpRjhV7nUpiATMsrK5TIMrYQuGUaUPUZlQIInhGc5")
 
-    
-    makedirs(os.path.join(".", "config"))
+    if not os.path.isdir(os.path.join(".", "config")):
+        makedirs(os.path.join(".", "config"))
     with open(os.path.join(".", "config", "config.cfg"), "w") as configfile:
         config.write(configfile)
 
