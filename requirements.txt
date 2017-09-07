@@ -1,6 +1,5 @@
 Flask>=0.11.1
 Jinja2>=2.8
-mysqlclient>=1.3.9
 PyYAML>=3.12
 SQLAlchemy>=1.1.1
 Werkzeug>=0.11.11
@@ -9,7 +8,7 @@ bcrypt>=3.1.1
 blinker>=1.4
 gevent>=1.1.2
 requests>=2.11.1
-pyswagger>=0.8.26
+pyswagger>=0.8.36
 esipy>=0.1.1
 Flask-Assets>=0.12
 Flask-htmlmin>=1.2

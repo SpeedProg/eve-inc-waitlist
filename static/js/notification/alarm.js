@@ -136,7 +136,7 @@ waitlist.alarm = (function () {
 		let expressionMap = getExpressionMap();
 		let parser = new exprEval.Parser();
 		for (let group of cache.groups.values()) {
-			if (!group.enabled || !expressionMap.has(group.groupID)) {
+			if (!expressionMap.has(group.groupID)) {
 				continue; // skip this group
 			}
 			let exprStr = expressionMap.get(group.groupID);

@@ -9,7 +9,8 @@ from waitlist import db
 from waitlist.utility.outgate import corporation
 
 
-def set_from_character_info(self: APICacheCharacterInfo, info: CharacterInfo) -> None:
+def set_from_character_info(self: APICacheCharacterInfo, info: CharacterInfo, char_id: int) -> None:
+    self.id = char_id
     self.characterName = info.get_name()
     self.corporationID = info.get_corp_id()
     self.characterBirthday = info.get_birthday()
@@ -26,13 +27,13 @@ def get_character_info(char_id: int, *args) -> APICacheCharacterInfo:
         char_ep = CharacterEndpoint()
         char_info: CharacterInfo = check_esi_response(char_ep.get_character_info(char_id), get_character_info, args)
         char_cache.id = char_id
-        set_from_character_info(char_cache, char_info)
+        set_from_character_info(char_cache, char_info, char_id)
         db.session.add(char_cache)
         db.session.commit()
     elif char_cache.characterName is None:
         char_ep = CharacterEndpoint()
         char_info: CharacterInfo = check_esi_response(char_ep.get_character_info(char_id), get_character_info, args)
-        set_from_character_info(char_cache, char_info)
+        set_from_character_info(char_cache, char_info, char_id)
         db.session.commit()
     else:
         now = datetime.now()
@@ -40,7 +41,7 @@ def get_character_info(char_id: int, *args) -> APICacheCharacterInfo:
             # expired, update it
             char_ep = CharacterEndpoint()
             char_info: CharacterInfo = check_esi_response(char_ep.get_character_info(char_id), get_character_info, args)
-            set_from_character_info(char_cache, char_info)
+            set_from_character_info(char_cache, char_info, char_id)
             db.session.commit()
 
     return char_cache

@@ -1,6 +1,11 @@
+import logging
 from bz2 import BZ2File
+from concurrent.futures import ThreadPoolExecutor
 from typing import Union
 
+import flask
+from esipy import EsiClient
+from pyswagger import App
 from yaml.events import MappingStartEvent, ScalarEvent, MappingEndEvent
 import yaml
 from waitlist.storage.database import InvType, Station, Constellation,\
@@ -8,7 +13,11 @@ from waitlist.storage.database import InvType, Station, Constellation,\
 from waitlist import db
 from os import path, PathLike
 import csv
-import sqlite3
+
+from waitlist.utility.swagger import get_api
+from waitlist.utility.swagger.eve import get_esi_client
+
+logger = logging.getLogger(__name__)
 
 
 def update_invtypes(filepath: str):
@@ -112,43 +121,60 @@ def update_stations(filename):
     f.close()
 
 
-def update_constellations(filename):
-    if not path.isfile(filename):
+def update_constellations():
+    esi_client: EsiClient = get_esi_client(True)
+    api: App = get_api()
+    consts_request = api.op['get_universe_constellations']()
+
+    consts_resp = esi_client.request(consts_request)
+    if consts_resp.status != 200:
+        flask.abort(500, 'Could not get constellation ids from ESI')
+    with ThreadPoolExecutor(max_workers=None) as executor:
+        for const_id in consts_resp.data:
+            executor.submit(add_constellation_info, const_id)
+    # with waits for all tasks to finish as if .shutdown(True) was called
+
+
+def add_constellation_info(const_id):
+    esi_client: EsiClient = get_esi_client(True)
+    api: App = get_api()
+    const_request = api.op['get_universe_constellations_constellation_id'](constellation_id=const_id)
+    const_resp = esi_client.request(const_request)
+    if const_resp.status != 200:
+        logger.error(f'Could not get constellation info for id={const_id} status={const_resp.status}')
         return
-    con = sqlite3.connect(filename)
-    cur = con.cursor()
-    cur.execute("SELECT constellationID, constellationName FROM mapConstellations")
-    rows = cur.fetchmany()
-    while len(rows) > 0:
-        for row in rows:
-            const = Constellation()
-            const.constellationID = row[0]
-            const.constellationName = row[1]
-            db.session.merge(const)
-        rows = cur.fetchmany()
-    
-    con.close()
-    
+    const = Constellation()
+    const.constellationID = const_resp.data['constellation_id']
+    const.constellationName = const_resp.data['name']
+    db.session.merge(const)
     db.session.commit()
 
 
-def update_systems(filename):
-    if not path.isfile(filename):
+def update_systems():
+    esi_client: EsiClient = get_esi_client(True)
+    api: App = get_api()
+    systems_request = api.op['get_universe_systems']()
+    systems_resp = esi_client.request(systems_request)
+    if systems_resp.status != 200:
+        flask.abort(500, 'Could not get system ids from ESI')
+    with ThreadPoolExecutor(max_workers=None) as executor:
+        for system_id in systems_resp.data:
+            executor.submit(add_sytem_info, system_id)
+    # with waits for all tasks to finish as if .shutdown(True) was called
+
+
+def add_sytem_info(system_id):
+    esi_client: EsiClient = get_esi_client(True)
+    api: App = get_api()
+    system_request = api.op['get_universe_systems_system_id'](system_id=system_id)
+    system_resp = esi_client.request(system_request)
+    if system_resp.status != 200:
+        logger.error(f'Could not get systen info for id={system_id} status={system_resp.status}')
         return
-    con = sqlite3.connect(filename)
-    cur = con.cursor()
-    cur.execute("SELECT solarSystemID, solarSystemName FROM mapSolarSystems")
-    rows = cur.fetchmany()
-    while len(rows) > 0:
-        for row in rows:
-            system = SolarSystem()
-            system.solarSystemID = row[0]
-            system.solarSystemName = row[1]
-            db.session.merge(system)
-        rows = cur.fetchmany()
-    
-    con.close()
-    
+    system = SolarSystem()
+    system.solarSystemID = system_resp.data['system_id']
+    system.solarSystemName = system_resp.data['name']
+    db.session.merge(system)
     db.session.commit()
 
 

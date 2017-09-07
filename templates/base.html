@@ -181,7 +181,7 @@ waitlist.themes = (function() {
 		<button class="navbar-toggler navbar-toggler-right my-1" type="button" data-toggle="collapse" data-target="#mainNavbar">
 			&#9776;
   		</button>
-		<a class="navbar-brand" href="/#">WarpToMe WL</a>
+		<a class="navbar-brand" href="/#">{{ title }}</a>
 		<div class="collapse navbar-collapse" id="mainNavbar">
 			<ul class="navbar-nav justify-content-start mr-auto">
 				<li class="nav-item">
@@ -218,6 +218,9 @@ waitlist.themes = (function() {
 				{% endif %}
 				<li class="nav-item">
 					<a class="nav-link" href="{{url_for('site_help')}}">Help</a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link" href="{{ url_for('about') }}">About</a>
 				</li>
 				{% if current_user.is_authenticated %}
 				<li class="nav-item">

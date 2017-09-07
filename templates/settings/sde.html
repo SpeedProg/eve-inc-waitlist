@@ -39,13 +39,6 @@
 <div class="row mb-2">
 <form class="form-inline" action="{{url_for('sde.update_map')}}" method="post" enctype="multipart/form-data">
 	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
-	<div class="form-group">
-		<label class="form-control-label" for="universe-file">universeDataDx.db</label>
-		<label class="custom-file">
- 			<input data-toggle="custom-file" data-target="#universe" type="file" name="file" id="universe-file" class="custom-file-input">
-  			<span id="universe" data-content="Choose file..." class="custom-file-name custom-file-control"></span>
-		</label>
-	</div>
 	<button type="submit" class="btn btn-primary">Update Systems and Constellations</button>
 </form>
 </div>

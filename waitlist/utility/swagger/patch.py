@@ -43,7 +43,7 @@ class PatchClient(BaseClient):
         self.__s = Session()
         self.__send_opt = send_opt
 
-    def request(self, req_and_resp, opt=None):
+    def request(self, req_and_resp, opt=None, headers=None):
         """
         """
         if opt is None:
@@ -188,7 +188,8 @@ class EsiClient(BaseClient):
             prepared_request = self._session.prepare_request(
                 Request(
                     method=request.method.upper(),
-                    url=request.url,
+                    # lets patch the double / after ccp.is out since apparently esi servers hang up on that
+                    url=request.url.replace("//esi.tech.ccp.is//", "//esi.tech.ccp.is/"),
                     params=request.query,
                     data=request.data,
                     headers=request.header

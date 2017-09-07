@@ -45,5 +45,6 @@ def inject_data() -> Dict[str, Any]:
                 perm_manager=perm_manager, header_insert=header_insert,
                 eve_proxy_js=cdn_eveimg_js, eve_cdn_webp=cdn_eveimg_webp, browserSupportsWebp=req_supports_webp,
                 eve_image=eve_image_macro, ccvote_on=cc_vote_on,
-                influence_link=config.influence_link, is_account=is_account
+                influence_link=config.influence_link, is_account=is_account,
+                title=config.title, config=config
                 )
