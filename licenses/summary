@@ -1,0 +1,53 @@
+Listed project that don't have any (bundled) don't have any of their code included in these files
+JS:
+tether: MIT like
+jquery: MIT-like
+typeahead: MIT like
+(bundled)editablegrid: MIT
+(the version here has been modified, and can be used under MIT too)
+
+CSS:
+typeahead: MIT-like
+(some styles bundled)bootstrap4: MIT
+fontawesome: SIL OFL 1.1 for font, code MIT
+
+Python:
+Flask: Flask license (three clause BSD License)
+jinja2: proprietary license
+PyYAML: MIT
+SQLAlchemy: MIT
+Werkzeug: proprietary license
+alembic: MIT
+bcrypt: Apache License, Version 2.0
+blinker: MIT
+gevent: MIT
+requests: Apache License, Version 2.0
+pyswagger: MIT
+(parts bundled)esipy: 3-Cause BSD
+see: waitlist/utitliy/swagger/patch.py
+tbh that lib is bugged and should be replaced if there is time
+Flask-Assets: BSD
+Flask-htmlmin: proprietary license
+cssmin: MIT, with parts BSD (the ones taken from YUI compressor)
+Flask-Login: MIT
+Flask-Migrate: MIT
+Flask-Principal: MIT
+Flask-SeaSurf: proprietary license (might be BSD)
+Flask-SQLAlchemy: BSD
+Flask-CDN: MIT
+flask-limiter: MIT
+ts3: MIT
+
+
+Beryls Code:
+MIT
+Bruce Warhead Code:
+MIT
+
+static/js/fitlink.js:
+quiescens
+
+eve-ui.js:
+MIT quiescens
+
+license files for directly included code con be found in the licenses folder

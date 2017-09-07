@@ -11,7 +11,7 @@
 <fieldset class="form-group bg-danger">
 <label {% if not newbro %}hidden{%endif%}>
 <input type="checkbox" name="newbro" {% if newbro %}checked{% endif %}>
-I am new to WarpToMe or Incursions</label>
+I am new to {{ title }} or Incursions</label>
 </fieldset>
 {% if is_index %}
 <input type="hidden" name="groupID" id="groupID" value="{{group.groupID}}">

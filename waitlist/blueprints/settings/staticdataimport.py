@@ -1,7 +1,7 @@
 import logging
 import os
-from bz2 import BZ2File
 
+import time
 from flask import Blueprint
 from flask import flash
 from flask import render_template
@@ -50,28 +50,10 @@ def update_type_ids():
 @login_required
 @perm_access.require(http_exception=401)
 def update_map():
-    f = request.files['file']
-    file_ext = f.filename.rsplit('.', 1)[1]
-    if f and (file_ext == "bz2" or file_ext == "db"):
-        filename = secure_filename(f.filename)
-        dest_name = path.join(app.config['UPLOAD_FOLDER'], filename)
-        if path.isfile(dest_name):
-            os.remove(dest_name)
-        f.save(dest_name)
-
-        # if it is bz2 extract it
-        if file_ext == "bz2":
-            raw_file: str = dest_name.rsplit(".", 1)[0]
-            with open(raw_file, 'wb') as new_file, BZ2File(dest_name, 'rb') as f:
-                for data in iter(lambda: f.read(100 * 1024), b''):
-                    new_file.write(data)
-            dest_name = raw_file
-
-        # start the update
-        sde.update_constellations(dest_name)
-        sde.update_systems(dest_name)
-        flash("Constellations and Systems were updated!", "success")
-
+    sde.update_constellations()
+    flash("Constellations where updated!", "success")
+    sde.update_systems()
+    flash("Systems were updated!", "success")
     return redirect(url_for('.sde_settings'))
 
 

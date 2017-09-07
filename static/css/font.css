@@ -1,3 +1,97 @@
+/*
+This Font Software is licensed under the SIL Open Font License, Version 1.1.
+This license is copied below, and is also available with a FAQ at:
+http://scripts.sil.org/OFL
+
+
+-----------------------------------------------------------
+SIL OPEN FONT LICENSE Version 1.1 - 26 February 2007
+-----------------------------------------------------------
+
+PREAMBLE
+The goals of the Open Font License (OFL) are to stimulate worldwide
+development of collaborative font projects, to support the font creation
+efforts of academic and linguistic communities, and to provide a free and
+open framework in which fonts may be shared and improved in partnership
+with others.
+
+The OFL allows the licensed fonts to be used, studied, modified and
+redistributed freely as long as they are not sold by themselves. The
+fonts, including any derivative works, can be bundled, embedded,
+redistributed and/or sold with any software provided that any reserved
+names are not used by derivative works. The fonts and derivatives,
+however, cannot be released under any other type of license. The
+requirement for fonts to remain under this license does not apply
+to any document created using the fonts or their derivatives.
+
+DEFINITIONS
+"Font Software" refers to the set of files released by the Copyright
+Holder(s) under this license and clearly marked as such. This may
+include source files, build scripts and documentation.
+
+"Reserved Font Name" refers to any names specified as such after the
+copyright statement(s).
+
+"Original Version" refers to the collection of Font Software components as
+distributed by the Copyright Holder(s).
+
+"Modified Version" refers to any derivative made by adding to, deleting,
+or substituting -- in part or in whole -- any of the components of the
+Original Version, by changing formats or by porting the Font Software to a
+new environment.
+
+"Author" refers to any designer, engineer, programmer, technical
+writer or other person who contributed to the Font Software.
+
+PERMISSION & CONDITIONS
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of the Font Software, to use, study, copy, merge, embed, modify,
+redistribute, and sell modified and unmodified copies of the Font
+Software, subject to the following conditions:
+
+1) Neither the Font Software nor any of its individual components,
+in Original or Modified Versions, may be sold by itself.
+
+2) Original or Modified Versions of the Font Software may be bundled,
+redistributed and/or sold with any software, provided that each copy
+contains the above copyright notice and this license. These can be
+included either as stand-alone text files, human-readable headers or
+in the appropriate machine-readable metadata fields within text or
+binary files as long as those fields can be easily viewed by the user.
+
+3) No Modified Version of the Font Software may use the Reserved Font
+Name(s) unless explicit written permission is granted by the corresponding
+Copyright Holder. This restriction only applies to the primary font name as
+presented to the users.
+
+4) The name(s) of the Copyright Holder(s) or the Author(s) of the Font
+Software shall not be used to promote, endorse or advertise any
+Modified Version, except to acknowledge the contribution(s) of the
+Copyright Holder(s) and the Author(s) or with their explicit written
+permission.
+
+5) The Font Software, modified or unmodified, in part or in whole,
+must be distributed entirely under this license, and must not be
+distributed under any other license. The requirement for fonts to
+remain under this license does not apply to any document created
+using the Font Software.
+
+TERMINATION
+This license becomes null and void if any of the above conditions are
+not met.
+
+DISCLAIMER
+THE FONT SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO ANY WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT
+OF COPYRIGHT, PATENT, TRADEMARK, OR OTHER RIGHT. IN NO EVENT SHALL THE
+COPYRIGHT HOLDER BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+INCLUDING ANY GENERAL, SPECIAL, INDIRECT, INCIDENTAL, OR CONSEQUENTIAL
+DAMAGES, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+FROM, OUT OF THE USE OR INABILITY TO USE THE FONT SOFTWARE OR FROM
+OTHER DEALINGS IN THE FONT SOFTWARE.
+
+ */
 @font-face {
   font-family: 'fa-subset';
   src: url(data:application/font-woff2;charset=utf-8;base64,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) format('woff2');

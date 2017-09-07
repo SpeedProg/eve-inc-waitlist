@@ -14,6 +14,7 @@ if not os.path.isfile(os.path.join(".", "config", "config.cfg")):
     config.set("app", "secret_key", base64.b64encode(os.urandom(24)).decode('utf-8', 'strict'))
     config.set("app", "server_port", "81")
     config.set("app", "server_bind", "0.0.0.0")
+    config.set("app", "community_name", "IncWaitlist")
     
     config.add_section("logging")
     config.set("logging", "error_file", "/var/log/pywaitlist/error.log")
@@ -54,13 +55,21 @@ if not os.path.isfile(os.path.join(".", "config", "config.cfg")):
 
     config.add_section("pageinfo")
     config.set("pageinfo", "influence_link", "#")
-    
-    makedirs(os.path.join(".", "config"))
+
+    config.add_section("fittools")
+    config.set("fittools", "stats_enabled", "True")
+    config.set("fittools", "stats_uri", "https://quiescens.duckdns.org/wl/ext/wl_external.js")
+    config.set("fittools", "stats_sri", "sha384-VonGhMELp1YLVgnJJMq2NqUOpRjhV7nUpiATMsrK5TIMrYQuGUaUPUZlQIInhGc5")
+
+    if not os.path.isdir(os.path.join(".", "config")):
+        makedirs(os.path.join(".", "config"))
     with open(os.path.join(".", "config", "config.cfg"), "w") as configfile:
         config.write(configfile)
 
 config = ConfigParser()
 config.read(os.path.join("config", "config.cfg"))
+
+title = config.get("app", "community_name")
 
 debug_enabled = config.get("debug", "enabled") == "True"
 node_bin = config.get("node", "node_bin")
@@ -97,3 +106,7 @@ disable_teamspeak = config.get("disable", "teamspeak") == "True"
 influence_link = config.get("pageinfo", "influence_link")
 
 cdn_eveimg_js = cdn_eveimg.format("${ path }", "${ suffix }")
+
+stattool_uri = config.get("fittools", "stats_uri")
+stattool_sri = config.get("fittools", "stats_sri")
+stattool_enabled = config.get("fittools", "stats_enabled") == "True"
