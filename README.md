@@ -1,5 +1,5 @@
 # About
-Incursion Targets Waitlist for Eve Online
+Waitlist for Eve Online targeted towards incursion groups
 
 # License
 MIT
