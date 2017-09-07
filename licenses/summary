@@ -52,4 +52,8 @@ quiescens
 eve-ui.js:
 MIT quiescens
 
+node libs:
+bable: MIT
+babili: MIT
+
 license files for directly included code con be found in the licenses folder
