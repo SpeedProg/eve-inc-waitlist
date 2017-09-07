@@ -29,7 +29,19 @@ When asked for more characters just press enter without entering anything.
 Further admin accounts can be created over the account management on the website
 12. Start the waitlist with `python main.py` and visit it to login with the character that was setup as adming in the previous step.
 13. Now configure groups and permissions :)
+14. Import needed static data! You can find the interface for it under `Setting`->`Static Data Import`.
+The Eve Static Date Export can be found at [Eve Resources](https://developers.eveonline.com/resource/resources).
+Mandatory are: typeIDs.yaml, staStations.yaml and updating systems and constellations!
+The systems and constellations are updated via esi and can take quite a while.
+Updating systems and constellations can fail quietly, so check the error log afterwards.
 14. If you write any improvements committing code back to this project is very much appreciated!
+
+# Configuring Waitlist Groups
+There is a script called `setup_waitlists` in the base directory.
+To create the 3 default waitlist groups, you can just run it with `python setup_waitlists.py`.
+If you want your own customized groups, just look at the script and edit it to your need.
+Currently there is no UI for setting up waitlist groups, but you can change their display name in the fleet settings.
+Having an UI for this would be nice through, but I haven't gotten around to it yet.
 
 # JS Minimization
 1. Make sure [node](https://nodejs.org) is installed
