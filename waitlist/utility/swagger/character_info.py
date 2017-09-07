@@ -13,7 +13,7 @@ import datetime
 from waitlist.utility.swagger.eve import get_esi_client, ESIResponse,\
     get_expire_time, make_error_response
 from typing import Dict, Any, Tuple, Optional
-from waitlist.utility.swagger.patch import EsiClient, PatchClient as Client
+from waitlist.utility.swagger.patch import EsiClient
 
 
 def get_affiliation_info(char_id: int) -> Dict[str, Any]:
@@ -47,26 +47,25 @@ def characterid_from_name(char_name: str) -> Tuple[Optional[int], Optional[str]]
     """
     @return charid, name
     """
-    api_v4 = get_api()
-    security_v4 = Security(
-        api_v4,
+
+    api = get_api()
+    security = Security(
+        api,
     )
-    client_v4 = Client(security_v4, timeout=10)
 
-    api_v1 = get_api()
-    security_v1 = Security(
-        api_v1,
-    )
-    client_v1 = Client(security_v1, timeout=10)
+    client = EsiClient(security, timeout=10)
 
-    search_answer = client_v1.request(api_v1.op['get_search'](search=char_name, categories=['character'], strict=True))
-
+    search_answer = client.request(api.op['get_search'](search=char_name, categories=['character'], strict=True))
+    print(search_answer.data)
+    #print(search_answer.status_code)
+    print(search_answer.status)
+    print(search_answer)
     # this character name doesn't exist
     if not ('character' in search_answer.data):
         return None, None
     char_id: int = int(search_answer.data['character'][0])
     
-    char_answer = client_v4.request(api_v4.op['get_characters_character_id'](character_id=char_id))
+    char_answer = client.request(api.op['get_characters_character_id'](character_id=char_id))
     char_name: str = char_answer.data['name']
     
     return char_id, char_name
