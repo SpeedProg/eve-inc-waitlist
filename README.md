@@ -35,3 +35,8 @@ Further admin accounts can be created over the account management on the website
 1. Make sure [node](https://nodejs.org) is installed
 2. Go to the waitlist base directory (the one containing **package.json**)
 3. ```npm i```
+
+# Usage Guide
+A small [usage guide](https://speedprog.github.io/eve-inc-waitlist-docs/) can be found [here](https://speedprog.github.io/eve-inc-waitlist-docs/)
+You can contribute to the guide buy forking [the guide](https://github.com/SpeedProg/eve-inc-waitlist-docs) and sending pull requests
+Please edit the tex only and not the html! HTML modifications will not be accepted
