@@ -44,7 +44,7 @@ Currently there is no UI for setting up waitlist groups, but you can change thei
 Having an UI for this would be nice through, but I haven't gotten around to it yet.
 
 # JS Minimization
-The use js libs are `bable` and `babili`, which are both MIT licensed.
+For the minification used javascript libs are `bable` and `babili`, which are both MIT licensed.
 1. Make sure [node](https://nodejs.org) is installed
 2. Go to the waitlist base directory (the one containing **package.json**)
 3. ```npm i```
