@@ -1,6 +1,15 @@
 #Changelog
 
-
+* 1.0.0
+  * Changes
+    * preperations for public release
+      * removing wtm references
+      * changing wtm specific features to be more generalzing and configureable
+      * add readme with instructions
+    * updated esi swagger spec to current _latest
+  * Fixes
+    * Fixed esi alliance/character/corp cache not setting ids
+    * trying to create config directory when it already exists
 * 0.16.1
   * Changes
     * Changed Default theme to Generic Bootstrap Theme
