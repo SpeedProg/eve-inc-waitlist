@@ -123,7 +123,7 @@ def setup_step_url():
     else:
         skip_setup = False
 
-    fleet_id_search = re.search('https://crest-tq.eveonline.com/fleets/(\d+)/', fleet_link, re.IGNORECASE)
+    fleet_id_search = re.match('https://esi.tech.ccp.is/v(\d+)/fleets/(\d+)/', fleet_link, re.IGNORECASE)
     fleet_id = None
     if fleet_id_search:
         fleet_id = int(fleet_id_search.group(1))
