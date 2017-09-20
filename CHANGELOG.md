@@ -1,5 +1,8 @@
 #Changelog
 
+* 1.0.2
+  * Fixes
+    * fixed migration scripts to only use lowercase table names, this should fix problems with database configured to support casesensitive table names
 * 1.0.1
   * Changes
     * Improved system/constellation import speed, also should properly retry failed imports now (timeouts etc.)
