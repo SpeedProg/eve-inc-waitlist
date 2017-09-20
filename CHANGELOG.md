@@ -1,5 +1,10 @@
 #Changelog
 
+* 1.0.1
+  * Changes
+    * Improved system/constellation import speed, also should properly retry failed imports now (timeouts etc.)
+  * Fixes
+    * Changed crest fleet link input to esi link, since ccp changed that in the client
 * 1.0.0
   * Changes
     * preperations for public release
