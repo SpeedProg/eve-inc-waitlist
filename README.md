@@ -36,6 +36,9 @@ The systems and constellations are updated via esi and can take quite a while.
 Updating systems and constellations can fail quietly, so check the error log afterwards.
 14. If you write any improvements committing code back to this project is very much appreciated!
 
+# SSO Callback
+<path to your waitlist install>/fc_sso/cb
+
 # Configuring Waitlist Groups
 There is a script called `setup_waitlists` in the base directory.
 To create the 3 default waitlist groups, you can just run it with `python setup_waitlists.py`.
