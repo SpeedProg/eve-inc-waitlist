@@ -27,17 +27,18 @@ For library licenses see licenses folder
 Enter the character name of your main character as account name, then enter the same name as character to associate.
 When asked for more characters just press enter without entering anything.
 Further admin accounts can be created over the account management on the website
-12. Start the waitlist with `python main.py` and visit it to login with the character that was setup as adming in the previous step.
-13. Now configure groups and permissions :)
-14. Import needed static data! You can find the interface for it under `Setting`->`Static Data Import`.
+12. create a folder called `sde` in the waitlists base dir (this is where sde data uploads are saved)
+13. Start the waitlist with `python main.py` and visit it to login with the character that was setup as adming in the previous step.
+14. Now configure groups and permissions :)
+15. Import needed static data! You can find the interface for it under `Setting`->`Static Data Import`.
 The Eve Static Date Export can be found at [Eve Resources](https://developers.eveonline.com/resource/resources).
 Mandatory are: typeIDs.yaml, staStations.yaml and updating systems and constellations!
 The systems and constellations are updated via esi and can take quite a while.
 Updating systems and constellations can fail quietly, so check the error log afterwards.
-14. If you write any improvements committing code back to this project is very much appreciated!
+16. If you write any improvements committing code back to this project is very much appreciated!
 
 # SSO Callback
-<path to your waitlist install>/fc_sso/cb
+(path to your waitlist install)/fc_sso/cb
 
 # Configuring Waitlist Groups
 There is a script called `setup_waitlists` in the base directory.
