@@ -6,7 +6,8 @@ from flask_cdn import CDN
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_principal import Principal
-from os import path
+from os import path, os
+import stat
 from flask_migrate import Migrate, MigrateCommand
 from flask_script import Manager
 from flask_seasurf import SeaSurf
@@ -29,6 +30,9 @@ app.config['REMEMBER_COOKIE_HTTPONLY'] = True
 app.config['REMEMBER_COOKIE_SECURE'] = config.secure_cookies
 app.config['SESSION_COOKIE_SECURE'] = config.secure_cookies
 app.config['UPLOAD_FOLDER'] = path.join(".", "sde")
+# make sure the upload folder actually exists
+# give owner read, write, list(execute)
+os.makedirs(app.config['UPLOAD_FOLDER'], mode=(stat.S_IRUSR|stat.S_IWUSR|stat.S_IXUSR), exist_ok=True)
 
 # sqlalchemy config
 app.config['SQLALCHEMY_DATABASE_URI'] = config.connection_uri
