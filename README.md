@@ -38,7 +38,17 @@ Updating systems and constellations can fail quietly, so check the error log aft
 16. If you write any improvements committing code back to this project is very much appreciated!
 
 # SSO Callback
+You need to create an application on the [CCP 3rd Party Developer Page](https://developers.eveonline.com/applications).
+
+Callback URL:
+
 (path to your waitlist install)/fc_sso/cb
+
+The application needs the following scopes:
+*  esi-mail.send_mail.v1
+*  esi-fleets.read_fleet.v1
+*  esi-fleets.write_fleet.v1
+*  esi-ui.open_window.v1
 
 # Configuring Waitlist Groups
 There is a script called `setup_waitlists` in the base directory.
