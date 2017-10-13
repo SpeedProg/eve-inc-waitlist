@@ -9,13 +9,7 @@
 {% block data %}
 <form action="{{url_for('fleet.setup_steps', step='url')}}" method="post">
 <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
-<fieldset class="form-group">
-	<label for="fleet-link-input">External Fleet Link</label>
-		<div class="input-group">
-		<input class="form-control" type="text" name="fleet-link" id="fleet-link-input" {% if fleetID %}value="https://esi.tech.ccp.is/v1/fleets/{{fleetID}}/?datasource=tranquility"{%endif%}>
-		<a href="http://i.imgur.com/kStDdnP.gif" target="_blank" class="input-group-addon" id="fleet-link-addon-help">?</a>
-	</div>
-</fieldset>
+<input type="hidden" name="fleet-id" id="fleet-id" value="{{fleetID}}">
 <fieldset class="form-group">
 	<label for="fleet-type">Fleet Type:</label>
 	<select class="form-control" id="fleet-type" name="fleet-type">
