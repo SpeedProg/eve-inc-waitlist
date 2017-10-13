@@ -98,3 +98,15 @@ def get_char_affiliations(char_id: int, *args) -> Tuple[int, int]:
     corp_info: APICacheCorporationInfo = corporation.get_info(char_info.corporationID)
     return corp_info.id, corp_info.allianceID
 
+
+def get_character_fleet_id(char_id: int) -> Optional[int]:
+    """
+    Get the fleet id for a character, or None if it is in no fleet
+    :param char_id:  character that should be in a fleet
+    :return: fleet id or None if in no fleet
+    """
+    char_ep = CharacterEndpoint()
+    resp = char_ep.get_fleet_info(char_id)
+    if resp.is_error():
+        return None
+    return resp.get_fleet_id()
