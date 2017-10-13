@@ -39,6 +39,14 @@ fleets_manage = perm_manager.get_permission('fleet_management')
 perm_dev = perm_manager.get_permission('developer_tools')
 
 
+def get_fleet_id_from_esi_link(link):
+    fleet_id_search = re.match('https://esi.tech.ccp.is/v\d+/fleets/(\d+)/', link, re.IGNORECASE)
+    if fleet_id_search:
+        return int(fleet_id_search.group(1))
+    else:
+        flask.abort(400, f"Error with link {link} does not match 'https://esi.tech.ccp.is/v\d+/fleets/(\d+)/")
+
+
 @login_required
 def handle_token_update(code):
     """
@@ -123,13 +131,7 @@ def setup_step_url():
     else:
         skip_setup = False
 
-    fleet_id_search = re.search('https://crest-tq.eveonline.com/fleets/(\d+)/', fleet_link, re.IGNORECASE)
-    fleet_id = None
-    if fleet_id_search:
-        fleet_id = int(fleet_id_search.group(1))
-
-    if fleet_id is None:
-        flask.abort(400)
+    fleet_id = get_fleet_id_from_esi_link(fleet_link)
 
     if not skip_setup:
         fleet_utils.setup(fleet_id, fleet_type)
@@ -301,13 +303,7 @@ def take_form():
 @fleets_manage.require()
 def take_link():
     link = request.form.get('fleet-link')
-    fleet_id_search = re.search('https://crest-tq.eveonline.com/fleets/(\d+)/', link, re.IGNORECASE)
-    fleet_id = None
-    if fleet_id_search:
-        fleet_id = int(fleet_id_search.group(1))
-
-    if fleet_id is None:
-        flask.abort(400)
+    fleet_id = get_fleet_id_from_esi_link(link)
 
     fleet = db.session.query(CrestFleet).get(fleet_id)
 

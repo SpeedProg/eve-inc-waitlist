@@ -1,5 +1,5 @@
 {
-  "name": "babel-babili",
+  "name": "waitlist-jsmini",
   "version": "1.0.0",
   "description": "Used to compress an optimize JS",
   "dependencies": {
@@ -8,5 +8,5 @@
     "babel-preset-babili": "0.0.8"
   },
   "devDependencies": {},
-  "license": "Eve-Inc-Waitlist License"
+  "license": "MIT"
 }

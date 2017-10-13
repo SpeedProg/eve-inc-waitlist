@@ -1,7 +1,7 @@
 import logging
 from bz2 import BZ2File
-from concurrent.futures import ThreadPoolExecutor
-from typing import Union
+from concurrent.futures import ThreadPoolExecutor, Future, as_completed
+from typing import Union, Optional, List, Tuple
 
 import flask
 from esipy import EsiClient
@@ -121,7 +121,7 @@ def update_stations(filename):
     f.close()
 
 
-def update_constellations():
+def update_constellations() -> int:
     esi_client: EsiClient = get_esi_client(True)
     api: App = get_api()
     consts_request = api.op['get_universe_constellations']()
@@ -129,53 +129,86 @@ def update_constellations():
     consts_resp = esi_client.request(consts_request)
     if consts_resp.status != 200:
         flask.abort(500, 'Could not get constellation ids from ESI')
-    with ThreadPoolExecutor(max_workers=None) as executor:
+    futures: List[Future] = []
+    with ThreadPoolExecutor(max_workers=500) as executor:
         for const_id in consts_resp.data:
-            executor.submit(add_constellation_info, const_id)
+            futures.append(executor.submit(add_constellation_info, const_id, esi_client))
+        # re request if it throws an exception
+        while len(futures) > 0:
+            nfutures: List[Future] = []
+            for f in as_completed(futures):
+                r: Optional[Tuple[int, EsiClient]] = f.result()
+                if r is not None:
+                    nfutures.append(executor.submit(add_constellation_info, r[0], r[1]))
+            futures = nfutures
     # with waits for all tasks to finish as if .shutdown(True) was called
+    return len(consts_resp.data)
 
 
-def add_constellation_info(const_id):
-    esi_client: EsiClient = get_esi_client(True)
-    api: App = get_api()
-    const_request = api.op['get_universe_constellations_constellation_id'](constellation_id=const_id)
-    const_resp = esi_client.request(const_request)
-    if const_resp.status != 200:
-        logger.error(f'Could not get constellation info for id={const_id} status={const_resp.status}')
-        return
-    const = Constellation()
-    const.constellationID = const_resp.data['constellation_id']
-    const.constellationName = const_resp.data['name']
-    db.session.merge(const)
-    db.session.commit()
+def add_constellation_info(const_id: int, esi_client: EsiClient) -> Optional[Tuple[int, EsiClient]]:
+    try:
+        #esi_client: EsiClient = get_esi_client(True)
+        api: App = get_api()
+        const_request = api.op['get_universe_constellations_constellation_id'](constellation_id=const_id)
+        print(f"Requesting Const {const_id}")
+        const_resp = esi_client.request(const_request)
+        if const_resp.status != 200:
+            logger.error(f'Could not get constellation info for id={const_id} status={const_resp.status}')
+            return
+        const = Constellation()
+        const.constellationID = const_resp.data['constellation_id']
+        const.constellationName = const_resp.data['name']
+        db.session.merge(const)
+        db.session.commit()
+        return None
+    except Exception as e:
+        print(e)
+        return const_id, esi_client
 
 
-def update_systems():
+def update_systems() -> int:
     esi_client: EsiClient = get_esi_client(True)
     api: App = get_api()
     systems_request = api.op['get_universe_systems']()
     systems_resp = esi_client.request(systems_request)
     if systems_resp.status != 200:
         flask.abort(500, 'Could not get system ids from ESI')
-    with ThreadPoolExecutor(max_workers=None) as executor:
+    futures: List[Future] = []
+    with ThreadPoolExecutor(max_workers=500) as executor:
         for system_id in systems_resp.data:
-            executor.submit(add_sytem_info, system_id)
+            futures.append(executor.submit(add_system_info, system_id, esi_client))
+        # re request if it throws an exception
+        while len(futures) > 0:
+            nfutures: List[Future] = []
+            for f in as_completed(futures):
+                r: Optional[Tuple[int, EsiClient]] = f.result()
+                if r is not None:
+                    nfutures.append(executor.submit(add_system_info, r[0], r[1]))
+            futures = nfutures
+
+    return len(systems_resp.data)
     # with waits for all tasks to finish as if .shutdown(True) was called
 
 
-def add_sytem_info(system_id):
-    esi_client: EsiClient = get_esi_client(True)
-    api: App = get_api()
-    system_request = api.op['get_universe_systems_system_id'](system_id=system_id)
-    system_resp = esi_client.request(system_request)
-    if system_resp.status != 200:
-        logger.error(f'Could not get systen info for id={system_id} status={system_resp.status}')
-        return
-    system = SolarSystem()
-    system.solarSystemID = system_resp.data['system_id']
-    system.solarSystemName = system_resp.data['name']
-    db.session.merge(system)
-    db.session.commit()
+def add_system_info(system_id: int, esi_client: EsiClient) -> Optional[Tuple[int, EsiClient]]:
+    try:
+        #esi_client: EsiClient = get_esi_client(True)
+        api: App = get_api()
+        system_request = api.op['get_universe_systems_system_id'](system_id=system_id)
+        print(f"Requesting System {system_id}")
+        system_resp = esi_client.request(system_request)
+        if system_resp.status != 200:
+            logger.error(f'Could not get systen info for id={system_id} status={system_resp.status}')
+            return
+        system = SolarSystem()
+        system.solarSystemID = system_resp.data['system_id']
+        system.solarSystemName = system_resp.data['name']
+        db.session.merge(system)
+        db.session.commit()
+        return None
+    except Exception as e:
+        print(e)
+        return system_id, esi_client
 
 
 def update_layouts(filename: Union[str, PathLike]):
