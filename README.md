@@ -8,7 +8,7 @@ For library licenses see licenses folder
 # Requirements
 * MySQL/MariaDB (for PosgresSQL the migration does not work, never tested)
 * all the libraries in "requirements.txt"
-* python library to connect to the choosen database
+* python library to connect to the chosen database
 * node (optional for JS minimization)
 
 
@@ -18,7 +18,7 @@ For library licenses see licenses folder
 3. install your database connection library
 4. run `python main.py` to create a default confige file
 5. close the process
-6. Create a an empty database-scheme in your choosen database server. Make sure to use a unicode character set (uf8mb4), utf8mb4 is recommended and not normal utf8 https://mariadb.com/kb/en/library/unicode/ (basically utf8 isn't complete utf8, but utf8mb4 is)
+6. Create a an empty database-scheme in your chosen database server, make sure to use a unicode character set (uf8mb4), utf8mb4 is recommended and not normal utf8 https://mariadb.com/kb/en/library/unicode/ (basically utf8 isn't complete utf8, but utf8mb4 is)
 7. open `config\config.cfg` in your favorite text editor
 8. configure the settings in the `config.cfg`
 9. run `python manager.py db upgrade` which creates the database schema
