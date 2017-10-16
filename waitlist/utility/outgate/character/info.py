@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime
 from typing import Optional, Tuple
 
@@ -7,6 +8,8 @@ from waitlist.utility.swagger.eve.character import CharacterEndpoint, CharacterI
 from waitlist.utility.swagger.eve.search import SearchEndpoint, SearchResponse
 from waitlist import db
 from waitlist.utility.outgate import corporation
+
+logger = logging.getLogger(__name__)
 
 
 def set_from_character_info(self: APICacheCharacterInfo, info: CharacterInfo, char_id: int) -> None:
@@ -108,5 +111,7 @@ def get_character_fleet_id(char_id: int) -> Optional[int]:
     char_ep = CharacterEndpoint()
     resp = char_ep.get_fleet_info(char_id)
     if resp.is_error():
+        logger.error(f"Failed to get fleet id."
+                     f" Error Code is: {resp.get_monolith_error() if resp.is_monolith_error() else resp.error()}")
         return None
     return resp.get_fleet_id()

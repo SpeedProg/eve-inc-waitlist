@@ -31,10 +31,11 @@ class CharacterEndpoint(ESIEndpoint):
             raise e
 
     def get_fleet_info(self, char_id: int) -> Union[FleetInfo, ESIResponse]:
+        authed_esi_client = get_esi_client()
         try:
-            resp = self.esi_client.request(self._api().op['get_characters_character_id_fleet'](character_id=char_id))
+            resp = authed_esi_client.request(self._api().op['get_characters_character_id_fleet'](character_id=char_id))
             if resp.status == 200:
-                return CharacterInfo(get_expire_time(resp), resp.status, None, resp.data)
+                return FleetInfo(get_expire_time(resp), resp.status, None, resp.data)
             else:
                 logger.error(f'Got error requesting fleet info for character={char_id}')
                 return make_error_response(resp)
