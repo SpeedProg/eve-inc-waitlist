@@ -112,7 +112,7 @@ def setup_step_url():
     try:
         fleet_id: int = int(request.form.get('fleet-id'))
     except ValueError:
-        flask.flash(f"fleet-id={request.form.get('fleet-id')} was not valid.", "error")
+        flask.flash(f"fleet-id={request.form.get('fleet-id')} was not valid.", "danger")
         return redirect(url_for('fleetoptions.fleet'))
     fleet_type = request.form.get('fleet-type')
     if skip_setup == "no-setup":
@@ -255,7 +255,7 @@ def take_over_fleet():
 
     fleet_id = get_character_fleet_id(current_user.get_eve_id())
     if fleet_id is None:
-        flask.flash("You are not in a fleet, or didn't not provide rights to read them.", "error")
+        flask.flash("You are not in a fleet, or didn't not provide rights to read them.", "danger")
         return redirect(url_for("fleetoptions.fleet"))
     fleet = db.session.query(CrestFleet).get(fleet_id)
 
