@@ -1,5 +1,7 @@
 #Changelog
-
+* 1.1.0
+  * Changes
+    * Taking over a fleet now detects the fleet you are in (using new ESI route)
 * 1.0.2
   * Fixes
     * fixed migration scripts to only use lowercase table names, this should fix problems with database configured to support casesensitive table names
