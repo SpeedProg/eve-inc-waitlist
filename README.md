@@ -1,5 +1,5 @@
 # About
-Incursion Targets Waitlist for Eve Online
+Waitlist for Eve Online targeted towards incursion groups
 
 # License
 MIT
@@ -18,7 +18,7 @@ For library licenses see licenses folder
 3. install your database connection library
 4. run `python main.py` to create a default confige file
 5. close the process
-6. Create a an empty database-scheme in your chosen database server, make sure to use a unicode character set (uf8mb4)
+6. Create a an empty database-scheme in your chosen database server, make sure to use a unicode character set (uf8mb4), utf8mb4 is recommended and not normal utf8 https://mariadb.com/kb/en/library/unicode/ (basically utf8 isn't complete utf8, but utf8mb4 is)
 7. open `config\config.cfg` in your favorite text editor
 8. configure the settings in the `config.cfg`
 9. run `python manager.py db upgrade` which creates the database schema
@@ -27,14 +27,28 @@ For library licenses see licenses folder
 Enter the character name of your main character as account name, then enter the same name as character to associate.
 When asked for more characters just press enter without entering anything.
 Further admin accounts can be created over the account management on the website
-12. Start the waitlist with `python main.py` and visit it to login with the character that was setup as adming in the previous step.
-13. Now configure groups and permissions :)
-14. Import needed static data! You can find the interface for it under `Setting`->`Static Data Import`.
+12. create a folder called `sde` in the waitlists base dir (this is where sde data uploads are saved)
+13. Start the waitlist with `python main.py` and visit it to login with the character that was setup as adming in the previous step.
+14. Now configure groups and permissions :)
+15. Import needed static data! You can find the interface for it under `Setting`->`Static Data Import`.
 The Eve Static Date Export can be found at [Eve Resources](https://developers.eveonline.com/resource/resources).
 Mandatory are: typeIDs.yaml, staStations.yaml and updating systems and constellations!
 The systems and constellations are updated via esi and can take quite a while.
 Updating systems and constellations can fail quietly, so check the error log afterwards.
-14. If you write any improvements committing code back to this project is very much appreciated!
+16. If you write any improvements committing code back to this project is very much appreciated!
+
+# SSO Callback
+You need to create an application on the [CCP 3rd Party Developer Page](https://developers.eveonline.com/applications).
+
+Callback URL:
+
+(path to your waitlist install)/fc_sso/cb
+
+The application needs the following scopes:
+*  esi-mail.send_mail.v1
+*  esi-fleets.read_fleet.v1
+*  esi-fleets.write_fleet.v1
+*  esi-ui.open_window.v1
 
 # Configuring Waitlist Groups
 There is a script called `setup_waitlists` in the base directory.
@@ -44,6 +58,7 @@ Currently there is no UI for setting up waitlist groups, but you can change thei
 Having an UI for this would be nice through, but I haven't gotten around to it yet.
 
 # JS Minimization
+For the minification used javascript libs are `bable` and `babili`, which are both MIT licensed.
 1. Make sure [node](https://nodejs.org) is installed
 2. Go to the waitlist base directory (the one containing **package.json**)
 3. ```npm i```

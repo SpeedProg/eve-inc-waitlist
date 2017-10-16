@@ -25,3 +25,25 @@ class CharacterInfo(ESIResponse):
 
     def get_race_id(self) -> int:
         return self.data['race_id']
+
+
+class FleetInfo(ESIResponse):
+    def __init__(self, expires: datetime, status_code: int, error: Optional[str],
+                 data: Optional[Dict[str, Union[int, str]]]):
+        super().__init__(expires, status_code, error)
+        self.data: Optional[Dict[str, Union[int, str]]] = data
+
+    def get_fleet_id(self) -> int:
+        return self.data['fleet_id']
+
+    # ['fleet_commander', 'squad_commander', 'squad_member', 'wing_commander']
+    def get_role(self) -> str:
+        return self.data['role']
+
+    # -1 if no squad id
+    def get_squad_id(self) -> int:
+        return self.data['squad_id']
+
+    # -1 if no wing id
+    def get_wing_id(self) -> int:
+        return self.data['wing_id']

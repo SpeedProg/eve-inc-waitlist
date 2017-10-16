@@ -6,7 +6,8 @@ from flask_cdn import CDN
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_principal import Principal
-from os import path, os
+from os import path
+import os
 import stat
 from flask_migrate import Migrate, MigrateCommand
 from flask_script import Manager

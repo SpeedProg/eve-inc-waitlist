@@ -24,6 +24,7 @@ from sqlalchemy import or_
 import json
 from waitlist.utility.json.fleetdata import FleetMemberEncoder
 from waitlist.sso import who_am_i, authorize
+from waitlist.utility.outgate.character.info import get_character_fleet_id
 from waitlist.utility.swagger.eve.fleet import EveFleetEndpoint
 from waitlist.utility.swagger.eve.fleet.models import FleetMember
 from waitlist.utility.utils import token_has_scopes
@@ -78,23 +79,15 @@ def handle_token_update(code):
 
 @login_required
 @fleets_manage.require(http_exception=401)
-def handle_setup_start_sso_cb(tokens):
+def handle_new_fleet_token(tokens):
     handle_token_update(tokens)
-    return redirect(url_for("fleet.setup_start"))
-
-
-@login_required
-@fleets_manage.require(http_exception=401)
-def handle_takeover_sso_cb(tokens):
-    handle_token_update(tokens)
-    return redirect(url_for('fleet.takeover_sso_cb'))
+    return redirect(url_for('fleet.take_over_fleet'))
 
 
 '''
 register sso handler
 '''
-add_sso_handler('setup', handle_setup_start_sso_cb)
-add_sso_handler("takeover", handle_takeover_sso_cb)
+add_sso_handler('get_fleet_token', handle_new_fleet_token)
 
 '''
 Steps:
@@ -116,20 +109,16 @@ def setup_steps(step: str) -> Any:
 
 def setup_step_url():
     skip_setup = request.form.get('skip-setup')
-    fleet_link = request.form.get('fleet-link')
+    try:
+        fleet_id: int = int(request.form.get('fleet-id'))
+    except ValueError:
+        flask.flash(f"fleet-id={request.form.get('fleet-id')} was not valid.", "danger")
+        return redirect(url_for('fleetoptions.fleet'))
     fleet_type = request.form.get('fleet-type')
     if skip_setup == "no-setup":
         skip_setup = True
     else:
         skip_setup = False
-
-    fleet_id_search = re.search('https://crest-tq.eveonline.com/fleets/(\d+)/', fleet_link, re.IGNORECASE)
-    fleet_id = None
-    if fleet_id_search:
-        fleet_id = int(fleet_id_search.group(1))
-
-    if fleet_id is None:
-        flask.abort(400)
 
     if not skip_setup:
         fleet_utils.setup(fleet_id, fleet_type)
@@ -236,43 +225,6 @@ def change_setup(fleet_id):
     return get_select_form(fleet_id)
 
 
-@bp.route("/setup/", methods=['GET'])
-@login_required
-@fleets_manage.require(http_exception=401)
-def setup_start():
-    fleet_id = session['fleet_id']
-    return render_template("fleet/setup/fleet_url.html", fleetID=fleet_id)
-
-
-@bp.route("/setup/<int:fleet_id>", methods=['GET'])
-@login_required
-@fleets_manage.require(http_exception=401)
-def setup(fleet_id: int) -> Response:
-    (logiID, sniperID, dpsID, moreDpsID) = fleet_utils.setup(fleet_id, 'hq')
-    fleet = db.session.query(CrestFleet).get(fleet_id)
-    if fleet is None:
-        fleet = CrestFleet()
-        fleet.id = fleet_id
-        fleet.logiSquadID = logiID
-        fleet.sniperSquadID = sniperID
-        fleet.dpsSquadID = dpsID
-        fleet.otherSquadID = moreDpsID
-        db.session.add(fleet)
-    else:
-        fleet.logiSquadID = logiID
-        fleet.sniperSquadID = sniperID
-        fleet.dpsSquadID = dpsID
-        fleet.otherSquadID = moreDpsID
-
-    current_user.fleet = fleet
-    with open("set_history.log", "a+") as f:
-        f.write('{} - {} is taking a fleet on CREST\n'.format(datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S"),
-                                                              fleet.comp.username))
-
-    db.session.commit()
-    return redirect(url_for('settings.fleet'))
-
-
 @bp.route("/pffleet/<int:fleetid>")
 @login_required
 @perm_dev.require(http_exception=401)
@@ -289,41 +241,32 @@ def print_fleet(fleetid: int) -> Response:
         mimetype='application/json')
 
 
-@bp.route("/take", methods=['GET'])
-@login_required
-@fleets_manage.require(http_exception=401)
-def take_form():
-    return render_template("fleet/takeover/link-form.html")
-
-
-@bp.route("/take", methods=["POST"])
+@bp.route("/take", methods=["GET"])
 @login_required
 @fleets_manage.require()
-def take_link():
-    link = request.form.get('fleet-link')
-    fleet_id_search = re.search('https://crest-tq.eveonline.com/fleets/(\d+)/', link, re.IGNORECASE)
-    fleet_id = None
-    if fleet_id_search:
-        fleet_id = int(fleet_id_search.group(1))
+def take_over_fleet():
+    # lets make sure we got the token we need
+    if current_user.ssoToken is None \
+        or current_user.ssoToken.refresh_token is None \
+        or not token_has_scopes(current_user.ssoToken,
+                ['esi-fleets.read_fleet.v1', 'esi-fleets.write_fleet.v1', 'esi-ui.open_window.v1']):
+        # if not, get it. And then return here
+        return get_sso_redirect('get_fleet_token', 'esi-fleets.read_fleet.v1 esi-fleets.write_fleet.v1 esi-ui.open_window.v1')
 
+    fleet_id = get_character_fleet_id(current_user.get_eve_id())
     if fleet_id is None:
-        flask.abort(400)
-
+        flask.flash("You are not in a fleet, or didn't not provide rights to read them.", "danger")
+        return redirect(url_for("fleetoptions.fleet"))
     fleet = db.session.query(CrestFleet).get(fleet_id)
 
     if fleet is None:
-        session['fleet_id'] = fleet_id
-        return get_sso_redirect("setup", 'esi-fleets.read_fleet.v1 esi-fleets.write_fleet.v1 esi-ui.open_window.v1')
-    elif current_user.ssoToken is None or current_user.ssoToken.refresh_token is None:
-        session['fleet_id'] = fleet_id
-        return get_sso_redirect("takeover", 'esi-fleets.read_fleet.v1 esi-fleets.write_fleet.v1 esi-ui.open_window.v1')
+        # we don't have a setup fleet
+        # this is the fleetsetup page
+        return render_template("fleet/setup/fleet_url.html", fleetID=fleet_id)
     else:
-        # make sure the token we have has all the scopes we need!
-        if not token_has_scopes(current_user.ssoToken,
-                                ['esi-fleets.read_fleet.v1', 'esi-fleets.write_fleet.v1', 'esi-ui.open_window.v1']):
-            session['fleet_id'] = fleet_id
-            return get_sso_redirect("takeover", 'esi-fleets.read_fleet.v1 esi-fleets.write_fleet.v1'
-                                                ' esi-ui.open_window.v1')
+        # if we got a fleet
+        # lets remove the current use from a fleet he might be assigned too
+        # and assign him as the new fleets comp
         if fleet.compID != current_user.id:
             oldfleet = db.session.query(CrestFleet).filter((CrestFleet.compID == current_user.id)).first()
             if oldfleet is not None:
@@ -333,27 +276,6 @@ def take_link():
             with open("set_history.log", "a+") as f:
                 f.write('{} - {} is taking a fleet on CREST\n'.format(datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S"),
                                                                       fleet.comp.username))
-    return redirect(url_for('fleetoptions.fleet'))
-
-
-@bp.route('/take_sso', methods=['GET'])
-@login_required
-@fleets_manage.require()
-def takeover_sso_cb():
-    if not ('fleet_id' in session):
-        flask.abort(400)
-
-    fleet_id = session['fleet_id']
-    fleet = db.session.query(CrestFleet).get(fleet_id)
-    if fleet.compID != current_user.id:
-        oldfleet = db.session.query(CrestFleet).filter((CrestFleet.compID == current_user.id)).first()
-        if oldfleet is not None:
-            oldfleet.compID = None
-        fleet.compID = current_user.id
-        db.session.commit()
-        with open("set_history.log", "a+") as f:
-            f.write('{} - {} is taking a fleet on CREST\n'.format(datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S"),
-                                                                  fleet.comp.username))
     return redirect(url_for('fleetoptions.fleet'))
 
 
