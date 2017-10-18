@@ -112,8 +112,7 @@ class EsiClient(BaseClient):
             prepared_request = self._session.prepare_request(
                 Request(
                     method=request.method.upper(),
-                    # lets patch the double / after ccp.is out since apparently esi servers hang up on that
-                    url=request.url.replace("//esi.tech.ccp.is//", "//esi.tech.ccp.is/"),
+                    url=request,
                     params=request.query,
                     data=request.data,
                     headers=request.header
