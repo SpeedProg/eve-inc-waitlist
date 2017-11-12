@@ -112,7 +112,7 @@ class EsiClient(BaseClient):
             prepared_request = self._session.prepare_request(
                 Request(
                     method=request.method.upper(),
-                    url=request,
+                    url=request.url,
                     params=request.query,
                     data=request.data,
                     headers=request.header
