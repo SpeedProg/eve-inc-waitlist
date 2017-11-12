@@ -1,4 +1,8 @@
 #Changelog
+* 1.1.1
+  * Fixes
+    * Removed some unneeded code
+    * Removed fix for wrong / in ESI underscore routes
 * 1.1.0
   * Changes
     * Taking over a fleet now detects the fleet you are in (using new ESI route)
