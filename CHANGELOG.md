@@ -1,4 +1,7 @@
 #Changelog
+* 1.1.2
+  * Fixes
+    * Fixed broken html that made the page not work correctly in some browser
 * 1.1.1
   * Fixes
     * Removed some unneeded code

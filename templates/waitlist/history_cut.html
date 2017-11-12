@@ -29,7 +29,7 @@
 	{% if config.stattool_enabled %}
 	<script type="text/javascript"
 		src="{{ config.stattool_uri }}" integrity="{{ config.stattool_sri }}"
-		crossorigin="anonymous" defer async/>
+			crossorigin="anonymous" defer async></script>
 	{% assets filters="babili", output="gen/statcfg.%(version)s.js", "js/config/stattool_config.js" %}
 	<script type="text/javascript" src="{{ ASSET_URL }}"></script>
 	{% endassets %}
