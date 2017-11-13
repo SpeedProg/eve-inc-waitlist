@@ -1,4 +1,8 @@
 #Changelog
+* 1.1.3
+  * Fixes
+    * Fixed error in handling sse requests
+    * Fixed error when generating ESI requests
 * 1.1.2
   * Fixes
     * Fixed broken html that made the page not work correctly in some browser
