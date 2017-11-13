@@ -5,6 +5,7 @@ if (!waitlist) {
 }
 
 waitlist.sse_dom = (function () {
+	let getMetaData = waitlist.base.getMetaData;
 	let loadWaitlist = waitlist.listdom.loadWaitlist;
 	let addFitToDom = waitlist.listdom.addFitToDom;
 	let addNewEntry = waitlist.listdom.addNewEntry;
@@ -14,6 +15,8 @@ waitlist.sse_dom = (function () {
 	let setStatusDom = waitlist.listdom.setStatusDom;
 	let clearWaitlists = waitlist.listdom.clearWaitlists;
 	let sse = waitlist.sse;
+
+	let settings = {};
 
 	function fitAddedListener(event) {
 		let data = JSON.parse(event.data);
@@ -93,6 +96,7 @@ waitlist.sse_dom = (function () {
 
 	function init() {
 		loadWaitlist();
+		settings.can_manage = getMetaData('can-fleetcomp') === "True";
 	}
 
 	$(document).ready(init);
