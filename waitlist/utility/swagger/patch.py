@@ -8,12 +8,22 @@ from email._parseaddr import parsedate
 
 from esipy.cache import DictCache, BaseCache, DummyCache
 from esipy.events import api_call_stats
+from esipy.exceptions import APIException
+from flask_login import current_user
 from pyswagger.core import BaseClient
 from requests import Session, Request
 import six
 from requests.adapters import HTTPAdapter
 
+from waitlist import db
+
 logger = logging.getLogger(__name__)
+
+
+class DummyResp(object):
+    def __init__(self, resp, status_code):
+        self.data = resp
+        self.status = status_code
 
 
 class EsiClient(BaseClient):
@@ -90,8 +100,25 @@ class EsiClient(BaseClient):
 
         if opt is None:
             opt = {}
-        # required because of inheritance
-        request, response = super(EsiClient, self).request(req_and_resp, opt)
+
+        try:
+            # required because of inheritance
+            request, response = super(EsiClient, self).request(req_and_resp, opt)
+        except APIException as e:
+            logger.info("Failed to execute request",  e)
+            ermsg = "No Message"
+            if 'error' in e.response:
+                ermsg = e.response['error']
+            elif 'message' in e.response:
+                ermsg = e.response['message']
+
+            if e.status_code == 400 and ermsg == "invalid_token":
+                # since the token is invalid lets delete it
+                db.session.remove(current_user.ssoToken)
+                db.session.commit()
+
+            # fake a response that has the fields as expected
+            return DummyResp(e.response, e.status_code)
 
         # check cache here so we have all headers, formed url and params
         cache_key = self.__make_cache_key(request)
