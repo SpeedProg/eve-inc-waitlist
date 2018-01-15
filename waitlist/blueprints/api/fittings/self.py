@@ -17,6 +17,13 @@ logger = logging.getLogger(__name__)
 def self_remove_fit(fitid):
     # remove one of your fittings by id
     fit = db.session.query(Shipfit).filter(Shipfit.id == fitid).first()
+    # this fit is not on any waitlist
+    # if we get this case it means some ones UI did not update
+    if fit.waitlist is None:
+        logger.info(f"{current_user.get_eve_name()} tried to remove own fit with id={fit.id}"
+                    f" while it was not on any waitlist anymore")
+        return "This fit is not on a waitlist anymore"
+
     wlentry = db.session.query(WaitlistEntry).filter(WaitlistEntry.id == fit.waitlist.id).first()
 
     if wlentry.user == current_user.get_eve_id():

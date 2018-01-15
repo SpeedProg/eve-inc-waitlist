@@ -1,4 +1,7 @@
 #Changelog
+* 1.1.4
+  * Fixes
+    * Fixed error handling for invalidated refresh tokens
 * 1.1.3
   * Fixes
     * Fixed error in handling sse requests
