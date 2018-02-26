@@ -347,7 +347,6 @@ class Waitlist(Base):
     def __repr__(self):
         return "<Waitlist %r>" % self.name
 
-
 class WaitlistGroup(Base):
     """
     Represents a waitlist Group,
@@ -727,7 +726,7 @@ class CCVote(Base):
 class Trivia(Base):
     __tablename__: str = 'trivia'
     __table_args__ = (
-        CheckConstraint('toTime > fromTime'),
+        CheckConstraint('"toTime" > "fromTime"', name="to_biggerthen_from"),
     )
     triviaID: Column = Column(Integer, primary_key=True)
     createdByID: Column = Column(Integer, ForeignKey('accounts.id'))
@@ -743,10 +742,10 @@ class Trivia(Base):
 class TriviaQuestion(Base):
     __tablename__: str = 'trivia_question'
     questionID: Column = Column(Integer, primary_key=True)
-    triviaID: Column = Column(Integer, ForeignKey('trivia.triviaID'), primary_key=True)
+    triviaID: Column = Column(Integer, ForeignKey('trivia.triviaID'))
     questionText: Column = Column(String(1000))
     answerType: Column = Column(String(255))
-    answerConnection: Column = Column(Enum('AND', 'OR', 'NOT', 'NONE'))
+    answerConnection: Column = Column(Enum('AND', 'OR', 'NOT', 'NONE', name="answer_connection_type"))
     inputPlaceholder: Column = Column(String(255))
 
     trivia = relationship('Trivia', back_populates='questions')

@@ -362,7 +362,7 @@ def check_invite_and_remove_timer(char_id: int, group_id: int, fleet_id: int):
                     fittings.extend(entry.fittings)
 
             for entry in waitlist_entries:
-                event = EntryRemovedSSE(entry.waitlist.groupID, entry.waitlist_id, entry.id)
+                event = EntryRemovedSSE(entry.waitlist.group.groupID, entry.waitlist_id, entry.id)
                 _events.append(event)
 
             db.session.query(WaitlistEntry).filter((WaitlistEntry.user == char_id) &

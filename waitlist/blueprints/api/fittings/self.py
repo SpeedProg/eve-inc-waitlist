@@ -29,13 +29,13 @@ def self_remove_fit(fitid):
     if wlentry.user == current_user.get_eve_id():
         logger.info("%s removed their fit with id %d from group %s", current_user.get_eve_name(), fitid,
                     wlentry.waitlist.group.groupName)
-        event = FitRemovedSSE(wlentry.waitlist.groupID, wlentry.waitlist_id, wlentry.id, fit.id, wlentry.user)
+        event = FitRemovedSSE(wlentry.waitlist.group.groupID, wlentry.waitlist_id, wlentry.id, fit.id, wlentry.user)
         wlentry.fittings.remove(fit)
 
         # don't delete anymore we need them for history
         # db.session.delete(fit)
         if len(wlentry.fittings) <= 0:
-            event = EntryRemovedSSE(wlentry.waitlist.groupID, wlentry.waitlist_id, wlentry.id)
+            event = EntryRemovedSSE(wlentry.waitlist.group.groupID, wlentry.waitlist_id, wlentry.id)
             db.session.delete(wlentry)
 
         send_server_sent_event(event)
@@ -90,7 +90,7 @@ def self_remove_all():
 
     for entry in entries:
         logger.info("%s removed own entry with id=%s", current_user.get_eve_name(), entry.id)
-        event = EntryRemovedSSE(entry.waitlist.groupID, entry.waitlist_id, entry.id)
+        event = EntryRemovedSSE(entry.waitlist.group.groupID, entry.waitlist_id, entry.id)
         _events.append(event)
         db.session.delete(entry)
 

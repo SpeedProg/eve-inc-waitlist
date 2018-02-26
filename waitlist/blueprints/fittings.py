@@ -62,7 +62,11 @@ def move_to_waitlists():
         return "OK"
     logger.info("%s approved %s", current_user.username, entry.user_data.get_eve_name())
     waitlist_entries = db.session.query(WaitlistEntry).join(Waitlist, WaitlistEntry.waitlist_id == Waitlist.id) \
-        .join(WaitlistGroup, Waitlist.groupID == WaitlistGroup.groupID) \
+        .join(WaitlistGroup, Waitlist.id == WaitlistGroup.xupwlID) \
+        .join(WaitlistGroup, Waitlist.id == WaitlistGroup.dpswlID) \
+        .join(WaitlistGroup, Waitlist.id == WaitlistGroup.logiwlID) \
+        .join(WaitlistGroup, Waitlist.id == WaitlistGroup.sniperwlID) \
+        .join(WaitlistGroup, Waitlist.id == WaitlistGroup.otherwlID) \
         .filter((WaitlistEntry.user == entry.user) & (WaitlistGroup.groupID == group.groupID)).all()
     logi_entry = None
     sniper_entry = None
@@ -269,7 +273,11 @@ def api_move_fit_to_waitlist():
 
     # lets see if he already has a entry
     waitlist_entries = db.session.query(WaitlistEntry).join(Waitlist, WaitlistEntry.waitlist_id == Waitlist.id) \
-        .join(WaitlistGroup, Waitlist.groupID == WaitlistGroup.groupID) \
+        .join(WaitlistGroup, Waitlist.id == WaitlistGroup.xupwlID) \
+        .join(WaitlistGroup, Waitlist.id == WaitlistGroup.dpswlID) \
+        .join(WaitlistGroup, Waitlist.id == WaitlistGroup.logiwlID) \
+        .join(WaitlistGroup, Waitlist.id == WaitlistGroup.sniperwlID) \
+        .join(WaitlistGroup, Waitlist.id == WaitlistGroup.otherwlID) \
         .filter((WaitlistEntry.user == entry.user) & (WaitlistGroup.groupID == group.groupID)).all()
 
     creation_time = entry.creation
@@ -296,7 +304,7 @@ def api_move_fit_to_waitlist():
     # add the fit to the entry
     wl_entry.fittings.append(fit)
     if not new_entry:
-        event = FitAddedSSE(wl_entry.waitlist.groupID, wl_entry.waitlist_id, wl_entry.id, fit, False, wl_entry.user)
+        event = FitAddedSSE(wl_entry.waitlist.group.groupID, wl_entry.waitlist_id, wl_entry.id, fit, False, wl_entry.user)
         send_server_sent_event(event)
 
     # add a history entry

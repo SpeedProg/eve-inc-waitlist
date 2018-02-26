@@ -30,7 +30,7 @@ def wl_remove_entry():
     db.session.add(h_entry)
     logger.info("%s removed %s from waitlist %s of group %s", current_user.username, entry.user_data.get_eve_name(),
                 entry.waitlist.name, entry.waitlist.group.groupName)
-    event = EntryRemovedSSE(entry.waitlist.groupID, entry.waitlist_id, entry.id)
+    event = EntryRemovedSSE(entry.waitlist.group.groupID, entry.waitlist_id, entry.id)
     db.session.query(WaitlistEntry).filter(WaitlistEntry.id == entry_id).delete()
     db.session.commit()
     send_server_sent_event(event)
@@ -75,7 +75,7 @@ def api_wls_remove_player():
          (WaitlistEntry.waitlist_id == group.dpswlID) |
          (WaitlistEntry.waitlist_id == group.sniperwlID))).all()
     for entry in waitlist_entries:
-        event = EntryRemovedSSE(entry.waitlist.groupID, entry.waitlist_id, entry.id)
+        event = EntryRemovedSSE(entry.waitlist.group.groupID, entry.waitlist_id, entry.id)
         _events.append(event)
 
     db.session.query(WaitlistEntry).filter(
