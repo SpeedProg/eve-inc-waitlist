@@ -1,5 +1,5 @@
 if (typeof _$ == 'undefined') {
-	var _$ = function(elementId) { return document.getElementById(elementId); }
+	function _$(elementId) { return document.getElementById(elementId); }
 }
 
 /**
@@ -24,6 +24,7 @@ function Column(config)
 			thousands_separator: '.',
 			unit_before_number: false,
 			bar: true, // is the column to be displayed in a bar chart ? relevant only for numerical columns 
+			hidden: false, // should the column be hidden by default
 			headerRenderer: null,
 			headerEditor: null,
 			cellRenderer: null,
@@ -31,6 +32,7 @@ function Column(config)
 			cellValidators: [],
 			enumProvider: null,
 			optionValues: null,
+			optionValuesForRender: null,
 			columnIndex: -1
 	};
 
@@ -39,13 +41,21 @@ function Column(config)
 }
 
 Column.prototype.getOptionValuesForRender = function(rowIndex) { 
+	if (!this.enumProvider) {
+		console.log('getOptionValuesForRender called on column ' + this.name + ' but there is no EnumProvider');
+		return null;
+	}
 	var values = this.enumProvider.getOptionValuesForRender(this.editablegrid, this, rowIndex);
-	return values ? values : this.optionValues;
+	return values ? values : this.optionValuesForRender;
 };
 
 Column.prototype.getOptionValuesForEdit = function(rowIndex) { 
+	if (!this.enumProvider) {
+		console.log('getOptionValuesForEdit called on column ' + this.name + ' but there is no EnumProvider');
+		return null;
+	}
 	var values = this.enumProvider.getOptionValuesForEdit(this.editablegrid, this, rowIndex);
-	return values ? values : this.optionValues;
+	return values ? this.editablegrid._convertOptions(values) : this.optionValues;
 };
 
 Column.prototype.isValid = function(value) {
@@ -102,11 +112,16 @@ function EnumProvider(config)
  * <li>smartColorsBar: colors used for rendering (stacked) bar charts</li>
  * <li>smartColorsPie: colors used for rendering pie charts</li>
  * <li>pageSize: maximum number of rows displayed (0 means we don't want any pagination, which is the default)</li>
+ * <li>sortIconDown: icon used to show desc order</li>
+ * <li>sortIconUp:  icon used to show asc order</li>
  * </ul>
  * @constructor
  * @class EditableGrid
  */
-function EditableGrid(name, config, sortDownIndicator, sortUpIndicator) { if (name) this.init(name, config, sortDownIndicator, sortUpIndicator); }
+function EditableGrid(name, config) { 
+	if (typeof name != 'undefined' && name.replace(/\s+/g,'') == "") console.error("EditableGrid() : parameter [name] cannot be empty."); 
+	if (name) this.init(name, config);
+}
 
 /**
  * Default properties
@@ -114,7 +129,7 @@ function EditableGrid(name, config, sortDownIndicator, sortUpIndicator) { if (na
 EditableGrid.prototype.enableSort = true;
 EditableGrid.prototype.enableStore = true;
 EditableGrid.prototype.doubleclick = false;
-EditableGrid.prototype.editmode = "absolute"
+EditableGrid.prototype.editmode = "absolute";
 EditableGrid.prototype.editorzoneid = "";
 EditableGrid.prototype.allowSimultaneousEdition = false;
 EditableGrid.prototype.saveOnBlur = true;
@@ -125,10 +140,18 @@ EditableGrid.prototype.dateFormat = "EU";
 EditableGrid.prototype.shortMonthNames = null;
 EditableGrid.prototype.smartColorsBar = ["#dc243c","#4040f6","#00f629","#efe100","#f93fb1","#6f8183","#111111"];
 EditableGrid.prototype.smartColorsPie = ["#FF0000","#00FF00","#0000FF","#FFD700","#FF00FF","#00FFFF","#800080"];
-EditableGrid.prototype.pageSize = 0;
+EditableGrid.prototype.pageSize = 0; // client-side pagination, don't set this for server-side pagination!
 
-EditableGrid.prototype.init = function (name, config, sortDownIndicator, sortUpIndicator)
-{
+//server-side pagination, sorting and filtering
+EditableGrid.prototype.serverSide = false;
+EditableGrid.prototype.pageCount = 0;
+EditableGrid.prototype.totalRowCount = 0;
+EditableGrid.prototype.unfilteredRowCount = 0;
+EditableGrid.prototype.paginatorAttributes = null;
+EditableGrid.prototype.lastURL = null;
+
+EditableGrid.prototype.init = function (name, config)
+{   
 	if (typeof name != "string" || (typeof config != "object" && typeof config != "undefined")) {
 		alert("The EditableGrid constructor takes two arguments:\n- name (string)\n- config (object)\n\nGot instead " + (typeof name) + " and " + (typeof config) + ".");
 	};
@@ -143,6 +166,11 @@ EditableGrid.prototype.init = function (name, config, sortDownIndicator, sortUpI
 			Gecko: navigator.userAgent.indexOf('Gecko') > -1 && navigator.userAgent.indexOf('KHTML') === -1,
 			MobileSafari: !!navigator.userAgent.match(/Apple.*Mobile.*Safari/)
 	};
+
+	if (typeof this.detectDir != 'function') {
+		var error = new Error();
+		alert("Who is calling me now ? " + error.stack);
+	}
 
 	// private data
 	this.name = name;
@@ -162,19 +190,28 @@ EditableGrid.prototype.init = function (name, config, sortDownIndicator, sortUpI
 	this.currentTableid = null;
 
 	if (this.enableSort) {
-		if (typeof sortUpIndicator == "undefined") {
-			this.sortUpImage = new Image();
-			this.sortUpImage.src = this.baseUrl + "/images/bullet_arrow_up.png";
+		if ( typeof config != "undefined" && typeof config['sortIconUp'] != "undefined" ) {
+			this.sortUpElement = new Image();
+			this.sortUpElement.src = config['sortIconUp'];
 		} else {
-			this.sortUpImage = sortUpIndicator;
+			this.sortUpElement = document.createElement('span');
+			this.sortUpElement.innerHTML = '&#8593;' // Unicode 'up' arrow
 		}
-		if (typeof sortDownIndicator == "undefined") {
-			this.sortDownImage = new Image();
-			this.sortDownImage.src = this.baseUrl + "/images/bullet_arrow_down.png";
+
+		if ( typeof config != "undefined" && typeof config['sortIconDown'] != "undefined" ) {
+			this.sortDownElement = new Image();
+			this.sortDownElement.src = config['sortIconDown'];
 		} else {
-			this.sortDownImage = sortDownIndicator;
+			this.sortDownElement = document.createElement('span');
+			this.sortDownElement.innerHTML = '&#8595;' // Unicode 'down' arrow
 		}
 	}
+
+	// restore stored parameters, or use default values if nothing stored
+	this.currentPageIndex = this.localisset('pageIndex') ? parseInt(this.localget('pageIndex')) : 0;
+	this.sortedColumnName = this.localisset('sortColumnIndexOrName') ? this.localget('sortColumnIndexOrName') : -1;
+	this.sortDescending = this.localisset('sortColumnIndexOrName') && this.localisset('sortDescending') ? this.localget('sortDescending') == 'true' : false;
+	this.currentFilter = this.localisset('filter') ? this.localget('filter') : null;
 };
 
 /**
@@ -186,62 +223,62 @@ EditableGrid.prototype.chartRendered = function() {};
 EditableGrid.prototype.tableRendered = function(containerid, className, tableid) {};
 EditableGrid.prototype.tableSorted = function(columnIndex, descending) {};
 EditableGrid.prototype.tableFiltered = function() {};
+EditableGrid.prototype.openedCellEditor = function(rowIndex, columnIndex) {};
 EditableGrid.prototype.modelChanged = function(rowIndex, columnIndex, oldValue, newValue, row) {};
 EditableGrid.prototype.rowSelected = function(oldRowIndex, newRowIndex) {};
 EditableGrid.prototype.isHeaderEditable = function(rowIndex, columnIndex) { return false; };
 EditableGrid.prototype.isEditable =function(rowIndex, columnIndex) { return true; };
 EditableGrid.prototype.readonlyWarning = function() {};
+/** Notifies that a row has been deleted */
+EditableGrid.prototype.rowRemoved = function(oldRowIndex, rowId) {};
 
 /**
  * Load metadata and/or data from an XML url
  * The callback "tableLoaded" is called when loading is complete.
  */
-EditableGrid.prototype.loadXML = function(url)
+EditableGrid.prototype.loadXML = function(url, callback, dataOnly)
 {
-	// we use a trick to avoid getting an old version from the browser's cache
-	var orig_url = url;
-	var sep = url.indexOf('?') >= 0 ? '&' : '?'; 
-	url += sep + Math.floor(Math.random() * 100000);
-
+	this.lastURL = url; 
+	var self = this;
 
 	// IE
 	if (window.ActiveXObject) 
 	{
 		this.xmlDoc = new ActiveXObject("Microsoft.XMLDOM");
 		this.xmlDoc.onreadystatechange = function() {
-			if (this.xmlDoc.readyState == 4) {
-				this.processXML();
-				this.tableLoaded();
+			if (self.xmlDoc.readyState == 4) {
+				self.processXML();
+				self._callback('xml', callback);
 			}
 		};
-		this.xmlDoc.load(url);
+		this.xmlDoc.load(this._addUrlParameters(url, dataOnly));
 	}
 
-	// Safari
-	else if (/*Browser.WebKit && */ window.XMLHttpRequest) 
+	// generic Ajax
+	else if (window.XMLHttpRequest) 
 	{
 		this.xmlDoc = new XMLHttpRequest();
 		this.xmlDoc.onreadystatechange = function () {
 			if (this.readyState == 4) {
-				this.xmlDoc = this.responseXML;
-				if (!this.xmlDoc) { /* alert("Could not load XML from url '" + orig_url + "'"); */ return false; }
-				this.processXML();
-				this.tableLoaded();
+				self.xmlDoc = this.responseXML;
+				if (!self.xmlDoc) { console.error("Could not load XML from url '" + url + "'"); return false; }
+				self.processXML();
+				self._callback('xml', callback);
 			}
 		};
-		this.xmlDoc.open("GET", url, true);
+		this.xmlDoc.open("GET", this._addUrlParameters(url, dataOnly), true);
 		this.xmlDoc.send("");
 	}
 
-	// Firefox (and other browsers) 
+	// Firefox (and some other browsers) 
 	else if (document.implementation && document.implementation.createDocument) 
 	{
 		this.xmlDoc = document.implementation.createDocument("", "", null);
 		this.xmlDoc.onload = function() {
-			this.processXML();
-			this.tableLoaded();
+			self.processXML();
+			self._callback('xml', callback);
 		};
-		this.xmlDoc.load(url);
+		this.xmlDoc.load(this._addUrlParameters(url, dataOnly));
 	}
 
 	// should never happen
@@ -281,95 +318,120 @@ EditableGrid.prototype.loadXMLFromString = function(xml)
  */
 EditableGrid.prototype.processXML = function()
 {
-	// clear model and pointer to current table
-	this.data = [];
-	this.dataUnfiltered = null;
-	this.table = null;
+	with (this) {
 
-	// load metadata (only one tag <metadata> --> metadata[0])
-	var metadata = this.xmlDoc.getElementsByTagName("metadata");
-	if (metadata && metadata.length >= 1) {
+		// clear model and pointer to current table
+		this.data = [];
+		this.dataUnfiltered = null;
+		this.table = null;
 
-		this.columns = [];
-		var columnDeclarations = metadata[0].getElementsByTagName("column");
-		for (var i = 0; i < columnDeclarations.length; i++) {
+		// load metadata (only one tag <metadata> --> metadata[0])
+		var metadata = xmlDoc.getElementsByTagName("metadata");
+		if (metadata && metadata.length >= 1) {
 
-			// get column type
-			var col = columnDeclarations[i];
-			var datatype = col.getAttribute("datatype");
+			this.columns = [];
+			var columnDeclarations = metadata[0].getElementsByTagName("column");
+			for (var i = 0; i < columnDeclarations.length; i++) {
 
-			// get enumerated values if any
-			var optionValues = null;
-			var enumValues = col.getElementsByTagName("values");
-			if (enumValues.length > 0) {
-				optionValues = {};
+				// get column type
+				var col = columnDeclarations[i];
+				var datatype = col.getAttribute("datatype");
 
-				var enumGroups = enumValues[0].getElementsByTagName("group");
-				if (enumGroups.length > 0) {
-					for (var g = 0; g < enumGroups.length; g++) {
-						var groupOptionValues = {};
-						enumValues = enumGroups[g].getElementsByTagName("value");
-						for (var v = 0; v < enumValues.length; v++) {
-							groupOptionValues[enumValues[v].getAttribute("value")] = enumValues[v].firstChild ? enumValues[v].firstChild.nodeValue : "";
+				// get enumerated values if any
+				var optionValuesForRender = null;
+				var optionValues = null;
+				var enumValues = col.getElementsByTagName("values");
+				if (enumValues.length > 0) {
+					optionValues = [];
+					optionValuesForRender = {};
+
+					var enumGroups = enumValues[0].getElementsByTagName("group");
+					if (enumGroups.length > 0) {
+						for (var g = 0; g < enumGroups.length; g++) {
+							var groupOptionValues = [];
+							enumValues = enumGroups[g].getElementsByTagName("value");
+							for (var v = 0; v < enumValues.length; v++) {
+								var _value = enumValues[v].getAttribute("value");
+								var _label = enumValues[v].firstChild ? enumValues[v].firstChild.nodeValue : "";
+								optionValuesForRender[_value] = _label; 
+								groupOptionValues.push({ value: _value, label: _label });
+							}
+							optionValues.push({ label: enumGroups[g].getAttribute("label"), values: groupOptionValues});
 						}
-						optionValues[enumGroups[g].getAttribute("label")] = groupOptionValues;
+					}
+					else {
+						enumValues = enumValues[0].getElementsByTagName("value");
+						for (var v = 0; v < enumValues.length; v++) {
+							var _value = enumValues[v].getAttribute("value");
+							var _label = enumValues[v].firstChild ? enumValues[v].firstChild.nodeValue : "";
+							optionValuesForRender[_value] = _label; 
+							optionValues.push({ value: _value, label: _label });
+						}
 					}
 				}
-				else {
-					enumValues = enumValues[0].getElementsByTagName("value");
-					for (var v = 0; v < enumValues.length; v++) {
-						optionValues[enumValues[v].getAttribute("value")] = enumValues[v].firstChild ? enumValues[v].firstChild.nodeValue : "";
-					}
+
+				// create new column           
+				columns.push(new Column({
+					name: col.getAttribute("name"),
+					label: (typeof col.getAttribute("label") == 'string' ? col.getAttribute("label") : col.getAttribute("name")),
+					datatype: (col.getAttribute("datatype") ? col.getAttribute("datatype") : "string"),
+					editable: col.getAttribute("editable") == "true",
+					bar: (col.getAttribute("bar") ? col.getAttribute("bar") == "true" : true),
+					hidden: (col.getAttribute("hidden") ? col.getAttribute("hidden") == "true" : false),
+					optionValuesForRender: optionValuesForRender,
+					optionValues: optionValues
+				}));
+			}
+
+			// process columns
+			processColumns();
+		}
+
+		// load server-side pagination data
+		var paginator = xmlDoc.getElementsByTagName("paginator");
+		if (paginator && paginator.length >= 1) {
+			this.paginatorAttributes = null; // TODO: paginator[0].getAllAttributesAsPOJO;
+			this.pageCount = paginator[0].getAttribute('pagecount');
+			this.totalRowCount = paginator[0].getAttribute('totalrowcount');
+			this.unfilteredRowCount = paginator[0].getAttribute('unfilteredrowcount');
+		}
+
+		// if no row id is provided, we create one since we need one
+		var defaultRowId = 1;
+
+		// load content
+		var rows = xmlDoc.getElementsByTagName("row");
+		for (var i = 0; i < rows.length; i++) 
+		{
+			// get all defined cell values
+			var cellValues = {};
+			var cols = rows[i].getElementsByTagName("column");
+			for (var j = 0; j < cols.length; j++) {
+				var colname = cols[j].getAttribute("name");
+				if (!colname) {
+					if (j >= columns.length) console.error("You defined too many columns for row " + (i+1));
+					else colname = columns[j].name; 
 				}
+				cellValues[colname] = cols[j].firstChild ? cols[j].firstChild.nodeValue : "";
 			}
 
-			// create new column           
-			this.columns.push(new Column({
-				name: col.getAttribute("name"),
-				label: (typeof col.getAttribute("label") == 'string' ? col.getAttribute("label") : col.getAttribute("name")),
-				datatype: (col.getAttribute("datatype") ? col.getAttribute("datatype") : "string"),
-				editable: col.getAttribute("editable") == "true",
-				bar: (col.getAttribute("bar") ? col.getAttribute("bar") == "true" : true),
-				optionValues: optionValues
-			}));
-		}
-
-		// process columns
-		processColumns();
-	}
-
-	// load content
-	var rows = this.xmlDoc.getElementsByTagName("row");
-	for (var i = 0; i < rows.length; i++) 
-	{
-		// get all defined cell values
-		var cellValues = {};
-		var cols = rows[i].getElementsByTagName("column");
-		for (var j = 0; j < cols.length; j++) {
-			var colname = cols[j].getAttribute("name");
-			if (!colname) {
-				if (j >= columns.length) alert("You defined too many columns for row " + (i+1));
-				else colname = columns[j].name; 
+			// for each row we keep the orginal index, the id and all other attributes that may have been set in the XML
+			var rowData = { visible: true, originalIndex: i, id: rows[i].getAttribute("id") !== null ? rows[i].getAttribute("id") : defaultRowId++ };  
+			for (var attrIndex = 0; attrIndex < rows[i].attributes.length; attrIndex++) {
+				var node = rows[i].attributes.item(attrIndex);
+				if (node.nodeName != "id") rowData[node.nodeName] = node.nodeValue; 
 			}
-			cellValues[colname] = cols[j].firstChild ? cols[j].firstChild.nodeValue : "";
-		}
 
-		// for each row we keep the orginal index, the id and all other attributes that may have been set in the XML
-		var rowData = { visible: true, originalIndex: i, id: rows[i].getAttribute("id") ? rows[i].getAttribute("id") : "" };  
-		for (var attrIndex = 0; attrIndex < rows[i].attributes.length; attrIndex++) {
-			var node = rows[i].attributes.item(attrIndex);
-			if (node.nodeName != "id") rowData[node.nodeName] = node.nodeValue; 
-		}
+			// get column values for this rows
+			rowData.columns = [];
+			for (var c = 0; c < columns.length; c++) {
+				var cellValue = columns[c].name in cellValues ? cellValues[columns[c].name] : "";
+				rowData.columns.push(getTypedValue(c, cellValue));
+			}
 
-		// get column values for this rows
-		rowData.columns = [];
-		for (var c = 0; c < columns.length; c++) {
-			var cellValue = columns[c].name in cellValues ? cellValues[columns[c].name] : "";
-			rowData.columns.push(getTypedValue(c, cellValue));
+			// add row data in our model
+			data.push(rowData);
 		}
-
-		// add row data in our model
-		this.data.push(rowData);
 	}
 
 	return true;
@@ -379,12 +441,10 @@ EditableGrid.prototype.processXML = function()
  * Load metadata and/or data from a JSON url
  * The callback "tableLoaded" is called when loading is complete.
  */
-EditableGrid.prototype.loadJSON = function(url)
+EditableGrid.prototype.loadJSON = function(url, callback, dataOnly)
 {
-	// we use a trick to avoid getting an old version from the browser's cache
-	var orig_url = url;
-	var sep = url.indexOf('?') >= 0 ? '&' : '?'; 
-	url += sep + Math.floor(Math.random() * 100000);
+	this.lastURL = url; 
+	var self = this;
 
 	// should never happen
 	if (!window.XMLHttpRequest) {
@@ -395,16 +455,52 @@ EditableGrid.prototype.loadJSON = function(url)
 	var ajaxRequest = new XMLHttpRequest();
 	ajaxRequest.onreadystatechange = function () {
 		if (this.readyState == 4) {
-			if (!this.responseText) { /* alert("Could not load JSON from url '" + orig_url + "'"); */ return false; }
-			if (!this.processJSON(this.responseText))  { alert("Invalid JSON data obtained from url '" + orig_url + "'"); return false; }
-			this.tableLoaded();
+			if (!this.responseText) { console.error("Could not load JSON from url '" + url + "'"); return false; }
+			if (!self.processJSON(this.responseText)) { console.error("Invalid JSON data obtained from url '" + url + "'"); return false; }
+			self._callback('json', callback);
 		}
 	};
 
-	ajaxRequest.open("GET", url, true);
+	ajaxRequest.open("GET", this._addUrlParameters(url, dataOnly), true);
 	ajaxRequest.send("");
 
 	return true;
+};
+
+EditableGrid.prototype._addUrlParameters = function(baseUrl, dataOnly)
+{
+	// we add a dummy timestamp parameter to avoid getting an old version from the browser's cache
+	var sep = baseUrl.indexOf('?') >= 0 ? '&' : '?'; 
+	baseUrl += sep + (new Date().getTime());
+
+	if (!this.serverSide) return baseUrl;
+
+	// add pagination, filtering and sorting parameters to the base url
+	return baseUrl
+	+ "&page=" + (this.currentPageIndex + 1)
+	+ "&filter=" + (this.currentFilter ? encodeURIComponent(this.currentFilter) : "")
+	+ "&sort=" + (this.sortedColumnName && this.sortedColumnName != -1 ? encodeURIComponent(this.sortedColumnName) : "")
+	+ "&asc=" + (this.sortDescending ? 0 : 1)
+	+ (dataOnly ? '&data_only=1' : '');
+};
+
+EditableGrid.prototype._callback = function(type, callback)
+{
+	if (callback) callback.call(this); 
+	else {
+
+		if (this.serverSide) {
+
+			// deferred refreshGrid: first load the updated data from the server then call the original refreshGrid
+			this.refreshGrid = function(baseUrl) {
+				var callback = function() { EditableGrid.prototype.refreshGrid.call(this); };
+				var load = type == 'xml' ? this.loadXML : this.loadJSON;
+				load.call(this, baseUrl || this.lastURL, callback, true);
+			};
+		}
+
+		this.tableLoaded();
+	}
 };
 
 /**
@@ -423,6 +519,44 @@ EditableGrid.prototype.loadJSONFromString = function(json)
 EditableGrid.prototype.load = function(object)
 {
 	return this.processJSON(object);
+};
+
+/**
+ * Update and render data for given rows from a Javascript object
+ */
+EditableGrid.prototype.update = function(object)
+{
+	if (object.data) for (var i = 0; i < object.data.length; i++) 
+	{
+		var row = object.data[i];
+		if (!row.id || !row.values) continue;
+
+		// get row to update in our model
+		var rowIndex = this.getRowIndex(row.id);
+		var rowData = this.data[rowIndex];
+
+		// row values can be given as an array (same order as columns) or as an object (associative array)
+		if (Object.prototype.toString.call(row.values) !== '[object Array]' ) cellValues = row.values;
+		else {
+			cellValues = {};
+			for (var j = 0; j < row.values.length && j < this.columns.length; j++) cellValues[this.columns[j].name] = row.values[j];
+		}
+
+		// set all attributes that may have been set in the JSON
+		for (var attributeName in row) if (attributeName != "id" && attributeName != "values") rowData[attributeName] = row[attributeName];
+
+		// get column values for this rows
+		rowData.columns = [];
+		for (var c = 0; c < this.columns.length; c++) {
+			var cellValue = this.columns[c].name in cellValues ? cellValues[this.columns[c].name] : "";
+			rowData.columns.push(this.getTypedValue(c, cellValue));
+		}
+
+		// render row
+		var tr = this.getRow(rowIndex);
+		for (var j = 0; j < tr.cells.length && j < this.columns.length; j++)  if (this.columns[j].renderable) this.columns[j].cellRenderer._render(rowIndex, j, tr.cells[j], this.getValueAt(rowIndex,j));
+		this.tableRendered(this.currentContainerid, this.currentClassName, this.currentTableid);
+	}
 };
 
 /**
@@ -446,19 +580,51 @@ EditableGrid.prototype.processJSON = function(jsonData)
 		this.columns = [];
 		for (var c = 0; c < jsonData.metadata.length; c++) {
 			var columndata = jsonData.metadata[c];
+
+			var optionValues = columndata.values ? this._convertOptions(columndata.values) : null;
+			var optionValuesForRender = null;
+			if (optionValues) {
+
+				// build a fast lookup structure for rendering
+				var optionValuesForRender = {};
+				for (var optionIndex = 0; optionIndex < optionValues.length; optionIndex++) {
+					var optionValue = optionValues[optionIndex];
+					if (typeof optionValue.values == 'object') {
+						for (var groupOptionIndex = 0; groupOptionIndex < optionValue.values.length; groupOptionIndex++) {
+							var groupOptionValue = optionValue.values[groupOptionIndex];
+							optionValuesForRender[groupOptionValue.value] = groupOptionValue.label;
+						}
+					}
+					else optionValuesForRender[optionValue.value] = optionValue.label;
+				}
+			}
+
 			this.columns.push(new Column({
 				name: columndata.name,
 				label: (columndata.label ? columndata.label : columndata.name),
 				datatype: (columndata.datatype ? columndata.datatype : "string"),
 				editable: (columndata.editable ? true : false),
-				bar: (typeof columndata.bar == 'undefined' ? true : (columndata.bar ? true : false)),
-				optionValues: columndata.values ? columndata.values : null
+				bar: (typeof columndata.bar == 'undefined' ? true : (columndata.bar || false)),
+				hidden: (typeof columndata.hidden == 'undefined' ? false : (columndata.hidden ? true : false)),
+				optionValuesForRender: optionValuesForRender,
+				optionValues: optionValues
 			}));
 		}
-		
+
 		// process columns
 		this.processColumns();
 	}
+
+	// load server-side pagination data
+	if (jsonData.paginator) {
+		this.paginatorAttributes = jsonData.paginator;
+		this.pageCount = jsonData.paginator.pagecount;
+		this.totalRowCount = jsonData.paginator.totalrowcount;
+		this.unfilteredRowCount = jsonData.paginator.unfilteredrowcount;
+	}
+
+	// if no row id is provided, we create one since we need one
+	var defaultRowId = 1;
 
 	// load content
 	if (jsonData.data) for (var i = 0; i < jsonData.data.length; i++) 
@@ -468,11 +634,14 @@ EditableGrid.prototype.processJSON = function(jsonData)
 
 		// row values can be given as an array (same order as columns) or as an object (associative array)
 		if (Object.prototype.toString.call(row.values) !== '[object Array]' ) cellValues = row.values;
-		else for (var j = 0; j < row.values.length && j < this.columns.length; j++) cellValues[this.columns[j].name] = row.values[j];
+		else {
+			cellValues = {};
+			for (var j = 0; j < row.values.length && j < this.columns.length; j++) cellValues[this.columns[j].name] = row.values[j];
+		}
 
 		// for each row we keep the orginal index, the id and all other attributes that may have been set in the JSON
-		var rowData = { visible: true, originalIndex: i, id: row.id ? row.id : "" };  
-		for (var attributeName in row) if (attributeName != "id") rowData[attributeName] = row[attributeName];
+		var rowData = { visible: true, originalIndex: i, id: row.id !== undefined && row.id !== null ? row.id : defaultRowId++ };  
+		for (var attributeName in row) if (attributeName != "id" && attributeName != "values") rowData[attributeName] = row[attributeName];
 
 		// get column values for this rows
 		rowData.columns = [];
@@ -528,6 +697,14 @@ EditableGrid.prototype.processColumns = function()
 
 EditableGrid.prototype.parseColumnType = function(column)
 {
+	// reset
+	column.unit = null;
+	column.precision = -1;
+	column.decimal_point = ',';
+	column.thousands_separator = '.';
+	column.unit_before_number = false;
+	column.nansymbol = '';
+
 	// extract precision, unit and number format from type if 6 given
 	if (column.datatype.match(/(.*)\((.*),(.*),(.*),(.*),(.*),(.*)\)$/)) {
 		column.datatype = RegExp.$1;
@@ -602,11 +779,14 @@ EditableGrid.prototype.parseColumnType = function(column)
 
 EditableGrid.prototype.getTypedValue = function(columnIndex, cellValue) 
 {
+	if (cellValue === null) return cellValue;
+
 	var colType = this.getColumnType(columnIndex);
-	if (colType == 'boolean') cellValue = (cellValue && cellValue != 0 && cellValue != "false") ? true : false;
+	if (colType == 'boolean') cellValue = (cellValue && cellValue != 0 && cellValue != "false" && cellValue != "f") ? true : false;
 	if (colType == 'integer') { cellValue = parseInt(cellValue, 10); } 
 	if (colType == 'double') { cellValue = parseFloat(cellValue); }
 	if (colType == 'string') { cellValue = "" + cellValue; }
+
 	return cellValue;
 };
 
@@ -625,12 +805,13 @@ EditableGrid.prototype.attachToHTMLTable = function(_table, _columns)
 	// process columns if given
 	if (_columns) {
 		this.columns = _columns;
+		for (var columnIndex = 0; columnIndex < this.columns.length; columnIndex++) this.columns[columnIndex].optionValues = this._convertOptions(this.columns[columnIndex].optionValues); // convert options from old format if needed
 		this.processColumns();
 	}
 
 	// get pointers to table components
 	this.table = typeof _table == 'string' ? _$(_table) : _table ;
-	if (!this.table) alert("Invalid table given: " + _table);
+	if (!this.table) console.error("Invalid table given: " + _table);
 	this.tHead = this.table.tHead;
 	this.tBody = this.table.tBodies[0];
 
@@ -684,19 +865,20 @@ EditableGrid.prototype.attachToHTMLTable = function(_table, _columns)
 EditableGrid.prototype._createCellRenderer = function(column)
 {
 	column.cellRenderer = 
-		column.enumProvider ? new EnumCellRenderer() :
-			column.datatype == "integer" || column.datatype == "double" ? new NumberCellRenderer() :
-				column.datatype == "boolean" ? new CheckboxCellRenderer() : 
-					column.datatype == "email" ? new EmailCellRenderer() : 
-						column.datatype == "website" || column.datatype == "url" ? new WebsiteCellRenderer() : 
-							column.datatype == "date" ? new DateCellRenderer() : 
-								new CellRenderer();
+		column.enumProvider && column.datatype == "list" && typeof MultiselectCellRenderer != 'undefined' ? new MultiselectCellRenderer() :
+			column.enumProvider ? new EnumCellRenderer() :
+				column.datatype == "integer" || column.datatype == "double" ? new NumberCellRenderer() :
+					column.datatype == "boolean" ? new CheckboxCellRenderer() : 
+						column.datatype == "email" ? new EmailCellRenderer() : 
+							column.datatype == "website" || column.datatype == "url" ? new WebsiteCellRenderer() : 
+								column.datatype == "date" ? new DateCellRenderer() :
+									new CellRenderer();
 
-							// give access to the column from the cell renderer
-							if (column.cellRenderer) {
-								column.cellRenderer.editablegrid = this;
-								column.cellRenderer.column = column;
-							}
+								// give access to the column from the cell renderer
+								if (column.cellRenderer) {
+									column.cellRenderer.editablegrid = this;
+									column.cellRenderer.column = column;
+								}
 };
 
 /**
@@ -721,19 +903,22 @@ EditableGrid.prototype._createHeaderRenderer = function(column)
 EditableGrid.prototype._createCellEditor = function(column)
 {
 	column.cellEditor = 
-		column.enumProvider ? new SelectCellEditor() :
-			column.datatype == "integer" || column.datatype == "double" ? new NumberCellEditor(column.datatype) :
-				column.datatype == "boolean" ? null :
-					column.datatype == "email" ? new TextCellEditor(column.precision) :
-						column.datatype == "website" || column.datatype == "url" ? new TextCellEditor(column.precision) :
-							column.datatype == "date" ? (typeof $ == 'undefined' || typeof $.datepicker == 'undefined' ? new TextCellEditor(column.precision, 10) : new DateCellEditor({ fieldSize: column.precision, maxLength: 10 })) :
-								new TextCellEditor(column.precision);  
+		column.enumProvider && column.datatype == "list" && typeof MultiselectCellEditor != 'undefined' ? new MultiselectCellEditor() :
+			column.enumProvider ? new SelectCellEditor() :
+				column.datatype == "integer" || column.datatype == "double" ? new NumberCellEditor(column.datatype) :
+					column.datatype == "boolean" ? null :
+						column.datatype == "email" ? new TextCellEditor(column.precision) :
+							column.datatype == "website" || column.datatype == "url" ? new TextCellEditor(column.precision) :
+								column.datatype == "date" ? (typeof jQuery == 'undefined' || typeof jQuery.datepicker == 'undefined' ? new TextCellEditor(column.precision, 10) : new DateCellEditor({ fieldSize: column.precision, maxLength: 10 })) :
+									new TextCellEditor(column.precision);  
 
-							// give access to the column from the cell editor
-							if (column.cellEditor) {
-								column.cellEditor.editablegrid = this;
-								column.cellEditor.column = column;
-							}
+								// give access to the column from the cell editor
+								if (column.cellEditor) {
+									column.cellEditor.editablegrid = this;
+									column.cellEditor.column = column;
+								}
+
+
 };
 
 /**
@@ -760,6 +945,29 @@ EditableGrid.prototype.getRowCount = function()
 };
 
 /**
+ * Returns the number of rows, not taking the filter into account if any
+ */
+EditableGrid.prototype.getUnfilteredRowCount = function()
+{
+	// given if server-side filtering is involved
+	if (this.unfilteredRowCount > 0) return this.unfilteredRowCount;
+
+	var _data = this.dataUnfiltered == null ? this.data : this.dataUnfiltered; 
+	return _data.length;
+};
+
+/**
+ * Returns the number of rows in all pages
+ */
+EditableGrid.prototype.getTotalRowCount = function()
+{
+	// different from getRowCount only is server-side pagination is involved
+	if (this.totalRowCount > 0) return this.totalRowCount;
+
+	return this.getRowCount();
+};
+
+/**
  * Returns the number of columns
  */
 EditableGrid.prototype.getColumnCount = function()
@@ -783,7 +991,7 @@ EditableGrid.prototype.hasColumn = function(columnIndexOrName)
 EditableGrid.prototype.getColumn = function(columnIndexOrName)
 {
 	var colIndex = this.getColumnIndex(columnIndexOrName);
-	if (colIndex < 0) { alert("[getColumn] Column not found with index or name " + columnIndexOrName); return null; }
+	if (colIndex < 0) { console.error("[getColumn] Column not found with index or name " + columnIndexOrName); return null; }
 	return this.columns[colIndex];
 };
 
@@ -843,6 +1051,17 @@ EditableGrid.prototype.isColumnBar = function(columnIndexOrName)
 };
 
 /**
+ * Returns the stack of a column (for stacked bar charts)
+ * @param {Object} columnIndexOrName index or name of the column
+ */
+EditableGrid.prototype.getColumnStack = function(columnIndexOrName)
+{
+	var column = this.getColumn(columnIndexOrName);
+	return column.isNumerical() ? column.bar : '';
+};
+
+
+/**
  * Returns true if the column is numerical (double or integer)
  * @param {Object} columnIndexOrName index or name of the column
  */
@@ -860,13 +1079,13 @@ EditableGrid.prototype.isColumnNumerical = function(columnIndexOrName)
 EditableGrid.prototype.getValueAt = function(rowIndex, columnIndex)
 {
 	// check and get column
-	if (columnIndex < 0 || columnIndex >= this.columns.length) { alert("[getValueAt] Invalid column index " + columnIndex); return null; }
+	if (columnIndex < 0 || columnIndex >= this.columns.length) { console.error("[getValueAt] Invalid column index " + columnIndex); return null; }
 	var column = this.columns[columnIndex];
 
 	// get value in model
 	if (rowIndex < 0) return column.label;
 
-	if (typeof this.data[rowIndex] == 'undefined') { alert("[getValueAt] Invalid row index " + rowIndex); return null; }
+	if (typeof this.data[rowIndex] == 'undefined') { console.error("[getValueAt] Invalid row index " + rowIndex); return null; }
 	var rowData = this.data[rowIndex]['columns'];
 	return rowData ? rowData[columnIndex] : null;
 };
@@ -878,13 +1097,10 @@ EditableGrid.prototype.getValueAt = function(rowIndex, columnIndex)
  */
 EditableGrid.prototype.getDisplayValueAt = function(rowIndex, columnIndex)
 {
+	// use renderer to get the value that must be used for sorting and filtering
 	var value = this.getValueAt(rowIndex, columnIndex);
-	if (value !== null) {
-		// use renderer to get the value that must be used for sorting
-		var renderer = rowIndex < 0 ? this.columns[columnIndex].headerRenderer : this.columns[columnIndex].cellRenderer;  
-		value = renderer.getDisplayValue(rowIndex, value);
-	}	
-	return value;
+	var renderer = rowIndex < 0 ? this.columns[columnIndex].headerRenderer : this.columns[columnIndex].cellRenderer;  
+	return renderer.getDisplayValue(rowIndex, value);
 };
 
 
@@ -901,7 +1117,7 @@ EditableGrid.prototype.setValueAt = function(rowIndex, columnIndex, value, rende
 	var previousValue = null;;
 
 	// check and get column
-	if (columnIndex < 0 || columnIndex >= this.columns.length) { alert("[setValueAt] Invalid column index " + columnIndex); return null; }
+	if (columnIndex < 0 || columnIndex >= this.columns.length) { console.error("[setValueAt] Invalid column index " + columnIndex); return null; }
 	var column = this.columns[columnIndex];
 
 	// set new value in model
@@ -910,6 +1126,12 @@ EditableGrid.prototype.setValueAt = function(rowIndex, columnIndex, value, rende
 		column.label = value;
 	}
 	else {
+
+		if (typeof this.data[rowIndex] == 'undefined') {
+			console.error('Invalid rowindex ' + rowIndex);
+			return null;
+		}
+
 		var rowData = this.data[rowIndex]['columns'];
 		previousValue = rowData[columnIndex];
 		if (rowData) rowData[columnIndex] = this.getTypedValue(columnIndex, value);
@@ -917,8 +1139,9 @@ EditableGrid.prototype.setValueAt = function(rowIndex, columnIndex, value, rende
 
 	// render new value
 	if (render) {
-		var renderer = rowIndex < 0 ? column.headerRenderer : column.cellRenderer;  
-		renderer._render(rowIndex, columnIndex, this.getCell(rowIndex, columnIndex), value);
+		var renderer = rowIndex < 0 ? column.headerRenderer : column.cellRenderer;
+		var cell = this.getCell(rowIndex, columnIndex);
+		if (cell) renderer._render(rowIndex, columnIndex, cell, value);
 	}
 
 	return previousValue;
@@ -950,7 +1173,7 @@ EditableGrid.prototype.getColumnIndex = function(columnIndexOrName)
 EditableGrid.prototype.getRow = function(rowIndex)
 {
 	if (rowIndex < 0) return this.tHead.rows[rowIndex + this.nbHeaderRows];
-	if (typeof this.data[rowIndex] == 'undefined') { alert("[getRow] Invalid row index " + rowIndex); return null; }
+	if (typeof this.data[rowIndex] == 'undefined') { console.error("[getRow] Invalid row index " + rowIndex); return null; }
 	return _$(this._getRowDOMId(this.data[rowIndex].id));
 };
 
@@ -981,6 +1204,11 @@ EditableGrid.prototype.getRowIndex = function(rowId)
  */
 EditableGrid.prototype.getRowAttribute = function(rowIndex, attributeName)
 {
+	if (typeof this.data[rowIndex] == 'undefined') {
+		console.error('Invalid rowindex ' + rowIndex);
+		return null;
+	}
+
 	return this.data[rowIndex][attributeName];
 };
 
@@ -1035,6 +1263,9 @@ EditableGrid.prototype.remove = function(rowIndex)
 	this.data.splice(rowIndex, 1);
 	if (this.dataUnfiltered != null) for (var r = 0; r < this.dataUnfiltered.length; r++) if (this.dataUnfiltered[r].id == rowId) { this.dataUnfiltered.splice(r, 1); break; }
 
+	// callback
+	this.rowRemoved(rowIndex,rowId);
+
 	// refresh grid
 	this.refreshGrid();
 };
@@ -1060,12 +1291,12 @@ EditableGrid.prototype.getRowValues = function(rowIndex)
  */
 EditableGrid.prototype.append = function(rowId, cellValues, rowAttributes, dontSort)
 {
-	return this.insertAfter(this.data.length - 1, rowId, cellValues, rowAttributes, dontSort);
+	return this.insert(this.data.length, rowId, cellValues, rowAttributes, dontSort);
 };
 
 /**
  * Append row with given id and data
- * Deprecated: use appendRow instead
+ * Deprecated: use append instead
  * @param {Integer} rowId id of new row
  * @param {Integer} columns
  * @param {Boolean} dontSort
@@ -1101,7 +1332,7 @@ EditableGrid.prototype._insert = function(rowIndex, offset, rowId, cellValues, r
 
 	// build data for new row
 	var rowData = { visible: true, originalIndex: originalIndex, id: rowId };
-	if (rowAttributes) for (var attributeName in rowAttributes) rowData[attributeName] = rowAttributes[attrName]; 
+	if (rowAttributes) for (var attributeName in rowAttributes) rowData[attributeName] = rowAttributes[attributeName]; 
 	rowData.columns = [];
 	for (var c = 0; c < this.columns.length; c++) {
 		var cellValue = this.columns[c].name in cellValues ? cellValues[this.columns[c].name] : "";
@@ -1136,7 +1367,7 @@ EditableGrid.prototype._insert = function(rowIndex, offset, rowId, cellValues, r
 EditableGrid.prototype.insert = function(rowIndex, rowId, cellValues, rowAttributes, dontSort)
 {
 	if (rowIndex < 0) rowIndex = 0;
-	if (rowIndex >= this.data.length) return this.insertAfter(this.data.length - 1, rowId, cellValues, rowAttributes, dontSort);
+	if (rowIndex >= this.data.length && this.data.length > 0) return this.insertAfter(this.data.length - 1, rowId, cellValues, rowAttributes, dontSort);
 	return this._insert(rowIndex, 0, rowId, cellValues, rowAttributes, dontSort);
 };
 
@@ -1150,7 +1381,7 @@ EditableGrid.prototype.insert = function(rowIndex, rowId, cellValues, rowAttribu
 EditableGrid.prototype.insertAfter = function(rowIndex, rowId, cellValues, rowAttributes, dontSort)
 {
 	if (rowIndex < 0) return this.insert(0, rowId, cellValues, rowAttributes, dontSort);
-	if (rowIndex >= this.data.length) rowIndex = this.data.length - 1; 
+	if (rowIndex >= this.data.length) rowIndex = Math.max(0, this.data.length - 1); 
 	return this._insert(rowIndex, 1, rowId, cellValues, rowAttributes, dontSort);
 };
 
@@ -1162,7 +1393,7 @@ EditableGrid.prototype.insertAfter = function(rowIndex, rowId, cellValues, rowAt
 EditableGrid.prototype.setHeaderRenderer = function(columnIndexOrName, cellRenderer)
 {
 	var columnIndex = this.getColumnIndex(columnIndexOrName);
-	if (columnIndex < 0) alert("[setHeaderRenderer] Invalid column: " + columnIndexOrName);
+	if (columnIndex < 0) console.error("[setHeaderRenderer] Invalid column: " + columnIndexOrName);
 	else {
 		var column = this.columns[columnIndex];
 		column.headerRenderer = (this.enableSort && column.datatype != "html") ? new SortHeaderRenderer(column.name, cellRenderer) : cellRenderer;
@@ -1187,7 +1418,7 @@ EditableGrid.prototype.setHeaderRenderer = function(columnIndexOrName, cellRende
 EditableGrid.prototype.setCellRenderer = function(columnIndexOrName, cellRenderer)
 {
 	var columnIndex = this.getColumnIndex(columnIndexOrName);
-	if (columnIndex < 0) alert("[setCellRenderer] Invalid column: " + columnIndexOrName);
+	if (columnIndex < 0) console.error("[setCellRenderer] Invalid column: " + columnIndexOrName);
 	else {
 		var column = this.columns[columnIndex];
 		column.cellRenderer = cellRenderer;
@@ -1208,7 +1439,7 @@ EditableGrid.prototype.setCellRenderer = function(columnIndexOrName, cellRendere
 EditableGrid.prototype.setCellEditor = function(columnIndexOrName, cellEditor)
 {
 	var columnIndex = this.getColumnIndex(columnIndexOrName);
-	if (columnIndex < 0) alert("[setCellEditor] Invalid column: " + columnIndexOrName);
+	if (columnIndex < 0) console.error("[setCellEditor] Invalid column: " + columnIndexOrName);
 	else {
 		var column = this.columns[columnIndex];
 		column.cellEditor = cellEditor;
@@ -1229,7 +1460,7 @@ EditableGrid.prototype.setCellEditor = function(columnIndexOrName, cellEditor)
 EditableGrid.prototype.setHeaderEditor = function(columnIndexOrName, cellEditor)
 {
 	var columnIndex = this.getColumnIndex(columnIndexOrName);
-	if (columnIndex < 0) alert("[setHeaderEditor] Invalid column: " + columnIndexOrName);
+	if (columnIndex < 0) console.error("[setHeaderEditor] Invalid column: " + columnIndexOrName);
 	else {
 		var column = this.columns[columnIndex];
 		column.headerEditor = cellEditor;
@@ -1250,12 +1481,19 @@ EditableGrid.prototype.setHeaderEditor = function(columnIndexOrName, cellEditor)
 EditableGrid.prototype.setEnumProvider = function(columnIndexOrName, enumProvider)
 {
 	var columnIndex = this.getColumnIndex(columnIndexOrName);
-	if (columnIndex < 0) alert("[setEnumProvider] Invalid column: " + columnIndexOrName);
-	else this.columns[columnIndex].enumProvider = enumProvider;
+	if (columnIndex < 0) console.error("[setEnumProvider] Invalid column: " + columnIndexOrName);
+	else {
+		var hadProviderAlready = this.columns[columnIndex].enumProvider != null;
+		this.columns[columnIndex].enumProvider = enumProvider;
 
-	// we must recreate the cell renderer and editor for this column
-	this._createCellRenderer(this.columns[columnIndex]);
-	this._createCellEditor(this.columns[columnIndex]);
+		// if needed, we recreate the cell renderer and editor for this column
+		// if the column had an enum provider already, the render/editor previously created by default is ok already
+		// ... and we don't want to erase a custom renderer/editor that may have been set before calling setEnumProvider
+		if (!hadProviderAlready) {
+			this._createCellRenderer(this.columns[columnIndex]);
+			this._createCellEditor(this.columns[columnIndex]);
+		}
+	}
 };
 
 /**
@@ -1265,7 +1503,7 @@ EditableGrid.prototype.setEnumProvider = function(columnIndexOrName, enumProvide
 EditableGrid.prototype.clearCellValidators = function(columnIndexOrName)
 {
 	var columnIndex = this.getColumnIndex(columnIndexOrName);
-	if (columnIndex < 0) alert("[clearCellValidators] Invalid column: " + columnIndexOrName);
+	if (columnIndex < 0) console.error("[clearCellValidators] Invalid column: " + columnIndexOrName);
 	else this.columns[columnIndex].cellValidators = [];
 };
 
@@ -1276,7 +1514,7 @@ EditableGrid.prototype.clearCellValidators = function(columnIndexOrName)
 EditableGrid.prototype.addDefaultCellValidators = function(columnIndexOrName)
 {
 	var columnIndex = this.getColumnIndex(columnIndexOrName);
-	if (columnIndex < 0) alert("[addDefaultCellValidators] Invalid column: " + columnIndexOrName);
+	if (columnIndex < 0) console.error("[addDefaultCellValidators] Invalid column: " + columnIndexOrName);
 	return this._addDefaultCellValidators(this.columns[columnIndex]);
 };
 
@@ -1300,7 +1538,7 @@ EditableGrid.prototype._addDefaultCellValidators = function(column)
 EditableGrid.prototype.addCellValidator = function(columnIndexOrName, cellValidator)
 {
 	var columnIndex = this.getColumnIndex(columnIndexOrName);
-	if (columnIndex < 0) alert("[addCellValidator] Invalid column: " + columnIndexOrName);
+	if (columnIndex < 0) console.error("[addCellValidator] Invalid column: " + columnIndexOrName);
 	else this.columns[columnIndex].cellValidators.push(cellValidator);
 };
 
@@ -1321,7 +1559,7 @@ EditableGrid.prototype.setCaption = function(caption)
 EditableGrid.prototype.getCell = function(rowIndex, columnIndex)
 {
 	var row = this.getRow(rowIndex);
-	if (row == null) { alert("[getCell] Invalid row index " + rowIndex); return null; }
+	if (row == null) { console.error("[getCell] Invalid row index " + rowIndex); return null; }
 	return row.cells[columnIndex];
 };
 
@@ -1354,6 +1592,34 @@ EditableGrid.prototype.getCellY = function(oElement)
 };
 
 /**
+ * Get X scroll offset relative to the first non static offset parent
+ * @private
+ */
+EditableGrid.prototype.getScrollXOffset = function(oElement)
+{
+	var iReturnValue = 0;
+	while (oElement != null && typeof oElement.scrollLeft != 'undefined' && this.isStatic(oElement) && oElement != document.body) try {
+		iReturnValue += parseInt(oElement.scrollLeft);
+		oElement = oElement.parentNode;
+	} catch(err) { oElement = null; }
+	return iReturnValue;
+};
+
+/**
+ * Get Y scroll offset relative to the first non static offset parent
+ * @private
+ */
+EditableGrid.prototype.getScrollYOffset = function(oElement)
+{
+	var iReturnValue = 0;
+	while (oElement != null && typeof oElement.scrollTop != 'undefined' && this.isStatic(oElement) && oElement != document.body) try {
+		iReturnValue += parseInt(oElement.scrollTop);
+		oElement = oElement.parentNode;
+	} catch(err) { oElement = null; }
+	return iReturnValue;
+};
+
+/**
  * Private
  * @param containerid
  * @param className
@@ -1362,124 +1628,132 @@ EditableGrid.prototype.getCellY = function(oElement)
  */
 EditableGrid.prototype._rendergrid = function(containerid, className, tableid)
 {
-	// if we are already attached to an existing table, just update the cell contents
-	if (typeof this.table != "undefined" && this.table != null) {
+	with (this) {
 
-		var _data = this.dataUnfiltered == null ? this.data : this.dataUnfiltered; 
+		lastSelectedRowIndex = -1;
+		_currentPageIndex = getCurrentPageIndex();
 
-		// render headers
-		this._renderHeaders();
+		// if we are already attached to an existing table, just update the cell contents
+		if (typeof table != "undefined" && table != null) {
 
-		// render content
-		var rows = this.tBody.rows;
-		var skipped = 0;
-		var displayed = 0;
-		var rowIndex = 0;
+			var _data = dataUnfiltered == null ? data : dataUnfiltered; 
 
-		for (var i = 0; i < rows.length; i++) {
+			// render headers
+			_renderHeaders();
 
-			// filtering and pagination in attach mode means hiding rows
-			if (!_data[i].visible || (this.pageSize > 0 && displayed >= this.pageSize)) {
-				if (rows[i].style.display != 'none') {
-					rows[i].style.display = 'none';
-					rows[i].hidden_by_editablegrid = true;
-				}
-			}
-			else {
-				if (skipped < this.pageSize * this.currentPageIndex) {
-					skipped++; 
+			// render content
+			var rows = tBody.rows;
+			var skipped = 0;
+			var displayed = 0;
+			var rowIndex = 0;
+
+			for (var i = 0; i < rows.length; i++) {
+
+				// filtering and pagination in attach mode means hiding rows
+				if (!_data[i].visible || (pageSize > 0 && displayed >= pageSize)) {
 					if (rows[i].style.display != 'none') {
 						rows[i].style.display = 'none';
 						rows[i].hidden_by_editablegrid = true;
 					}
 				}
 				else {
-					displayed++;
-					var rowData = [];
-					var cols = rows[i].cells;
-					if (typeof rows[i].hidden_by_editablegrid != 'undefined' && rows[i].hidden_by_editablegrid) {
-						rows[i].style.display = '';
-						rows[i].hidden_by_editablegrid = false;
+					if (skipped < pageSize * _currentPageIndex) {
+						skipped++; 
+						if (rows[i].style.display != 'none') {
+							rows[i].style.display = 'none';
+							rows[i].hidden_by_editablegrid = true;
+						}
 					}
-					for (var j = 0; j < cols.length && j < this.columns.length; j++) 
-						if (this.columns[j].renderable) this.columns[j].cellRenderer._render(rowIndex, j, cols[j], this.getValueAt(rowIndex,j));
+					else {
+						displayed++;
+						var cols = rows[i].cells;
+						if (typeof rows[i].hidden_by_editablegrid != 'undefined' && rows[i].hidden_by_editablegrid) {
+							rows[i].style.display = '';
+							rows[i].hidden_by_editablegrid = false;
+						}
+						rows[i].rowId = getRowId(rowIndex);
+						rows[i].id = _getRowDOMId(rows[i].rowId);
+						for (var j = 0; j < cols.length && j < columns.length; j++) 
+							if (columns[j].renderable) columns[j].cellRenderer._render(rowIndex, j, cols[j], getValueAt(rowIndex,j));
+					}
+					rowIndex++;
 				}
-				rowIndex++;
 			}
+
+			// attach handler on click or double click 
+			table.editablegrid = this;
+			if (doubleclick) table.ondblclick = function(e) { this.editablegrid.mouseClicked(e); };
+			else table.onclick = function(e) { this.editablegrid.mouseClicked(e); }; 
 		}
 
-		// attach handler on click or double click 
-		this.table.editablegrid = this;
-		if (this.doubleclick) this.table.ondblclick = function(e) { this.editablegrid.mouseClicked(e); };
-		else this.table.onclick = function(e) { this.editablegrid.mouseClicked(e); }; 
-	}
+		// we must render a whole new table
+		else {
 
-	// we must render a whole new table
-	else {
+			if (!containerid) return console.error("Container ID not specified (renderGrid not called yet ?)");
+			if (!_$(containerid)) return console.error("Unable to get element [" + containerid + "]");
 
-		if (!_$(containerid)) return alert("Unable to get element [" + containerid + "]");
+			currentContainerid = containerid;
+			currentClassName = className;
+			currentTableid = tableid;
 
-		this.currentContainerid = containerid;
-		this.currentClassName = className;
-		this.currentTableid = tableid;
+			var startRowIndex = 0;
+			var endRowIndex = getRowCount();
 
-		var startRowIndex = 0;
-		var endRowIndex = this.getRowCount();
-
-		// paginate if required
-		if (this.pageSize > 0) {
-			startRowIndex = this.currentPageIndex * this.pageSize;
-			endRowIndex = Math.min(this.getRowCount(), startRowIndex + this.pageSize); 
-		}
-
-		// create editablegrid table and add it to our container 
-		this.table = document.createElement("table");
-		this.table.className = className || "editablegrid";          
-		if (typeof tableid != "undefined") this.table.id = tableid;
-		while (_$(containerid).hasChildNodes()) _$(containerid).removeChild(_$(containerid).firstChild);
-		_$(containerid).appendChild(table);
-
-		// create header
-		if (this.caption) {
-			var captionElement = document.createElement("CAPTION");
-			captionElement.innerHTML = this.caption;
-			this.table.appendChild(captionElement);
-		}
-
-		this.tHead = document.createElement("THEAD");
-		this.table.appendChild(tHead);
-		var trHeader = this.tHead.insertRow(0);
-		var columnCount = this.getColumnCount();
-		for (var c = 0; c < columnCount; c++) {
-			var headerCell = document.createElement("TH");
-			var td = trHeader.appendChild(headerCell);
-			this.columns[c].headerRenderer._render(-1, c, td, columns[c].label);
-		}
-
-		// create body and rows
-		this.tBody = document.createElement("TBODY");
-		this.table.appendChild(tBody);
-		var insertRowIndex = 0;
-		for (var i = startRowIndex; i < endRowIndex; i++) {
-			var tr = this.tBody.insertRow(insertRowIndex++);
-			tr.rowId = this.data[i]['id'];
-			tr.id = this._getRowDOMId(data[i]['id']);
-			for (j = 0; j < columnCount; j++) {
-
-				// create cell and render its content
-				var td = tr.insertCell(j);
-				this.columns[j].cellRenderer._render(i, j, td, this.getValueAt(i,j));
+			// paginate if required
+			if (pageSize > 0) {
+				startRowIndex = _currentPageIndex * pageSize;
+				endRowIndex = Math.min(getRowCount(), startRowIndex + pageSize); 
 			}
+
+			// create editablegrid table and add it to our container 
+			this.table = document.createElement("table");
+			table.className = className || "editablegrid";          
+			if (typeof tableid != "undefined") table.id = tableid;
+			while (_$(containerid).hasChildNodes()) _$(containerid).removeChild(_$(containerid).firstChild);
+			_$(containerid).appendChild(table);
+
+			// create header
+			if (caption) {
+				var captionElement = document.createElement("CAPTION");
+				captionElement.innerHTML = this.caption;
+				table.appendChild(captionElement);
+			}
+
+			this.tHead = document.createElement("THEAD");
+			table.appendChild(tHead);
+			var trHeader = tHead.insertRow(0);
+			var columnCount = getColumnCount();
+			for (var c = 0; c < columnCount; c++) {
+				var headerCell = document.createElement("TH");
+				var td = trHeader.appendChild(headerCell);
+				columns[c].headerRenderer._render(-1, c, td, columns[c].label);
+			}
+
+			// create body and rows
+			this.tBody = document.createElement("TBODY");
+			table.appendChild(tBody);
+			var insertRowIndex = 0;
+			for (var i = startRowIndex; i < endRowIndex; i++) {
+				var tr = tBody.insertRow(insertRowIndex++);
+				tr.rowId = data[i]['id'];
+				tr.id = this._getRowDOMId(data[i]['id']);
+				for (j = 0; j < columnCount; j++) {
+
+					// create cell and render its content
+					var td = tr.insertCell(j);
+					columns[j].cellRenderer._render(i, j, td, getValueAt(i,j));
+				}
+			}
+
+			// attach handler on click or double click 
+			_$(containerid).editablegrid = this;
+			if (doubleclick) _$(containerid).ondblclick = function(e) { this.editablegrid.mouseClicked(e); };
+			else _$(containerid).onclick = function(e) { this.editablegrid.mouseClicked(e); }; 
 		}
 
-		// attach handler on click or double click 
-		_$(containerid).editablegrid = this;
-		if (this.doubleclick) _$(containerid).ondblclick = function(e) { this.editablegrid.mouseClicked(e); };
-		else _$(containerid).onclick = function(e) { this.editablegrid.mouseClicked(e); }; 
+		// callback
+		tableRendered(containerid, className, tableid);
 	}
-
-	// callback
-	this.tableRendered(containerid, className, tableid);
 };
 
 
@@ -1496,23 +1770,16 @@ EditableGrid.prototype._rendergrid = function(containerid, className, tableid)
  */
 EditableGrid.prototype.renderGrid = function(containerid, className, tableid)
 {
-	// restore stored parameters, or use default values if nothing stored
-	var pageIndex = this.localisset('pageIndex') ? parseInt(this.localget('pageIndex')) : 0;
-	this.sortedColumnName = this.localisset('sortColumnIndexOrName') && this.hasColumn(this.localget('sortColumnIndexOrName')) ? this.localget('sortColumnIndexOrName') : -1;
-	this.sortDescending = this.localisset('sortColumnIndexOrName') && this.localisset('sortDescending') ? this.localget('sortDescending') == 'true' : false;
-	this.currentFilter = this.localisset('filter') ? this.localget('filter') : null;
-
 	// actually render grid
-	this.currentPageIndex = 0;
 	this._rendergrid(containerid, className, tableid);
 
-	// sort and filter table
-	this.sort() ;
-	this.filter();
-
-	// go to stored page (or first if nothing stored)
-	this.setPageIndex(pageIndex);
+	// if client side: sort and filter
+	if (!this.serverSide) {
+		this.sort() ;
+		this.filter();
+	}
 };
+
 
 /**
  * Refreshes the grid
@@ -1530,17 +1797,19 @@ EditableGrid.prototype.refreshGrid = function()
  */
 EditableGrid.prototype._renderHeaders = function() 
 {
-		var rows = this.tHead.rows;
+	with (this) {
+		var rows = tHead.rows;
 		for (var i = 0; i < 1 /*rows.length*/; i++) {
 			var rowData = [];
 			var cols = rows[i].cells;
 			var columnIndexInModel = 0;
-			for (var j = 0; j < cols.length && columnIndexInModel < this.columns.length; j++) {
-				this.columns[columnIndexInModel].headerRenderer._render(-1, columnIndexInModel, cols[j], this.columns[columnIndexInModel].label);
+			for (var j = 0; j < cols.length && columnIndexInModel < columns.length; j++) {
+				columns[columnIndexInModel].headerRenderer._render(-1, columnIndexInModel, cols[j], columns[columnIndexInModel].label);
 				var colspan = parseInt(cols[j].getAttribute("colspan"));
 				columnIndexInModel += colspan > 1 ? colspan : 1;
 			}
 		}
+	}
 };
 
 /**
@@ -1551,39 +1820,101 @@ EditableGrid.prototype._renderHeaders = function()
 EditableGrid.prototype.mouseClicked = function(e) 
 {
 	e = e || window.event;
-	// get row and column index from the clicked cell
-	var target = e.target || e.srcElement;
+	with (this) {
 
-	// go up parents to find a cell or a link under the clicked position
-	while (target) if (target.tagName == "A" || target.tagName == "TD" || target.tagName == "TH") break; else target = target.parentNode;
-	if (!target || !target.parentNode || !target.parentNode.parentNode || (target.parentNode.parentNode.tagName != "TBODY" && target.parentNode.parentNode.tagName != "THEAD") || target.isEditing) return;
+		// get row and column index from the clicked cell
+		var target = e.target || e.srcElement;
 
-	// don't handle clicks on links
-	if (target.tagName == "A") return;
+		// go up parents to find a cell or a link under the clicked position
+		while (target) if (target.tagName == "A" || target.tagName == "TD" || target.tagName == "TH") break; else target = target.parentNode;
+		if (!target || !target.parentNode || !target.parentNode.parentNode || (target.parentNode.parentNode.tagName != "TBODY" && target.parentNode.parentNode.tagName != "THEAD") || target.isEditing) return;
 
-	// get cell position in table
-	var rowIndex = this.getRowIndex(target.parentNode);
-	var columnIndex = target.cellIndex;
+		// don't handle clicks on links
+		if (target.tagName == "A") return;
 
-	var column = this.columns[columnIndex];
-	if (column) {
+		// get cell position in table
+		var rowIndex = getRowIndex(target.parentNode);
+		var columnIndex = target.cellIndex;
 
-		// if another row has been selected: callback
-		if (rowIndex > -1 && rowIndex != this.lastSelectedRowIndex) {
-			this.rowSelected(this.lastSelectedRowIndex, rowIndex);				
-			this.lastSelectedRowIndex = rowIndex;
-		}
+		editCell(rowIndex, columnIndex);		
+	}
+};
 
-		// edit current cell value
-		if (!column.editable) { this.readonlyWarning(column); }
-		else {
-			if (rowIndex < 0) { 
-				if (column.headerEditor && this.isHeaderEditable(rowIndex, columnIndex)) 
-					column.headerEditor.edit(rowIndex, columnIndex, target, column.label);
+/**
+ * Edit Cell
+ * @param rowIndex
+ * @param columnIndex
+ * @private
+ */
+EditableGrid.prototype.editCell = function(rowIndex, columnIndex)
+{
+	var target = this.getCell(rowIndex, columnIndex);
+	with (this) {
+
+		var column = columns[columnIndex];
+		if (column) {
+
+			// if another row has been selected: callback
+			if (rowIndex > -1) {
+				rowSelected(lastSelectedRowIndex, rowIndex);				
+				lastSelectedRowIndex = rowIndex;
 			}
-			else if (column.cellEditor && this.isEditable(rowIndex, columnIndex))
-				column.cellEditor.edit(rowIndex, columnIndex, target, getValueAt(rowIndex, columnIndex));
+
+			// edit current cell value
+			if (!column.editable) { readonlyWarning(column); }
+			else {
+				if (rowIndex < 0) { 
+					if (column.headerEditor && isHeaderEditable(rowIndex, columnIndex))
+						column.headerEditor.edit(rowIndex, columnIndex, target, column.label);
+				}
+				else if (column.cellEditor && isEditable(rowIndex, columnIndex))
+					column.cellEditor.edit(rowIndex, columnIndex, target, getValueAt(rowIndex, columnIndex));
+			}
 		}
+	}
+};
+
+/**
+ * Moves columns around (added by JRE)
+ * @param {array[strings]} an array of class names of the headers
+ * returns boolean based on success
+ */
+EditableGrid.prototype.sortColumns = function(headerArray)
+{
+	with (this) {
+		newColumns = [];
+		newColumnIndices = [];
+
+		for (var i = 0; i < headerArray.length; i++) {
+
+			columnIndex = this.getColumnIndex(headerArray[i]);
+			if (columnIndex == -1) { // a column could not be found. can't reorder anything or data may be lost
+				console.error("[sortColumns] Invalid column: " + columnIndex);
+				return false;
+			}
+
+			newColumns[i] = this.columns[columnIndex];
+			newColumnIndices[i] = columnIndex;
+		}
+
+		// rearrange headers
+		this.columns = newColumns;
+
+		// need to rearrange all of the data elements as well
+		for (var i = 0; i < this.data.length; i++) {
+			var myData = this.data[i];
+			var myDataColumns = myData.columns;
+			var newDataColumns = [];
+
+			for (var j = 0; j < myDataColumns.length; j++) {
+				newIndex = newColumnIndices[j];
+				newDataColumns[j] = myDataColumns[newIndex];
+			}
+
+			this.data[i].columns = newDataColumns;
+		}
+
+		return true;
 	}
 };
 
@@ -1594,124 +1925,198 @@ EditableGrid.prototype.mouseClicked = function(e)
  */
 EditableGrid.prototype.sort = function(columnIndexOrName, descending, backOnFirstPage)
 {
-	if (typeof columnIndexOrName  == 'undefined' && this.sortedColumnName === -1) {
+	with (this) {
 
-		// avoid a double render, but still send the expected callback
-		this.tableSorted(-1, this.sortDescending);
+		if (typeof columnIndexOrName  == 'undefined' && sortedColumnName === -1) {
+
+			// avoid a double render, but still send the expected callback
+			tableSorted(-1, sortDescending);
+			return true;
+		}
+
+		if (typeof columnIndexOrName  == 'undefined') columnIndexOrName = sortedColumnName;
+		if (typeof descending  == 'undefined') descending = sortDescending;
+
+		localset('sortColumnIndexOrName', columnIndexOrName);
+		localset('sortDescending', descending);
+
+		// if sorting is done on server-side, we are done here
+		if (serverSide) return backOnFirstPage ? setPageIndex(0) : refreshGrid();
+
+		var columnIndex = columnIndexOrName;
+		if (parseInt(columnIndex, 10) !== -1) {
+			columnIndex = this.getColumnIndex(columnIndexOrName);
+			if (columnIndex < 0) {
+				console.error("[sort] Invalid column: " + columnIndexOrName);
+				return false;
+			}
+		}
+
+		if (!enableSort) {
+			tableSorted(columnIndex, descending);
+			return;
+		}
+
+		// work on unfiltered data
+		var filterActive = dataUnfiltered != null; 
+		if (filterActive) data = dataUnfiltered;
+
+		var type = columnIndex < 0 ? "" : getColumnType(columnIndex);
+		var row_array = [];
+		var rowCount = getRowCount();
+		for (var i = 0; i < rowCount - (ignoreLastRow ? 1 : 0); i++) row_array.push([columnIndex < 0 ? null : getDisplayValueAt(i, columnIndex), i, data[i].originalIndex]);
+
+		var sort_function = type == "integer" || type == "double" ? sort_numeric : type == "boolean" ? sort_boolean : type == "date" ? sort_date : sort_alpha;
+		row_array.sort(columnIndex < 0 ? unsort : sort_stable(sort_function, descending));
+		if (ignoreLastRow) row_array.push([columnIndex < 0 ? null : getDisplayValueAt(rowCount - 1, columnIndex), rowCount - 1, data[rowCount - 1].originalIndex]);
+
+		// rebuild data using the new order
+		var _data = data;
+		data = [];
+		for (var i = 0; i < row_array.length; i++) data.push(_data[row_array[i][1]]);
+		delete row_array;
+
+		if (filterActive) {
+
+			// keep only visible rows in data
+			dataUnfiltered = data;
+			data = [];
+			for (var r = 0; r < rowCount; r++) if (dataUnfiltered[r].visible) data.push(dataUnfiltered[r]);
+		}
+
+		// refresh grid (back on first page if sort column has changed) and callback
+		if (backOnFirstPage) setPageIndex(0); else refreshGrid();
+		tableSorted(columnIndex, descending);
 		return true;
 	}
-
-	if (typeof columnIndexOrName  == 'undefined') columnIndexOrName = this.sortedColumnName;
-	if (typeof descending  == 'undefined') descending = this.sortDescending;
-
-	this.localset('sortColumnIndexOrName', columnIndexOrName);
-	this.localset('sortDescending', descending);
-
-	var columnIndex = columnIndexOrName;
-	if (parseInt(columnIndex, 10) !== -1) {
-		columnIndex = this.getColumnIndex(columnIndexOrName);
-		if (columnIndex < 0) {
-			alert("[sort] Invalid column: " + columnIndexOrName);
-			return false;
-		}
-	}
-
-	if (!this.enableSort) {
-		this.tableSorted(columnIndex, descending);
-		return;
-	}
-
-	// work on unfiltered data
-	var filterActive = this.dataUnfiltered != null; 
-	if (filterActive) this.data = this.dataUnfiltered;
-
-	var type = columnIndex < 0 ? "" : this.getColumnType(columnIndex);
-	var row_array = [];
-	var rowCount = this.getRowCount();
-	for (var i = 0; i < rowCount - (this.ignoreLastRow ? 1 : 0); i++) row_array.push([columnIndex < 0 ? null : this.getDisplayValueAt(i, columnIndex), i, this.data[i].originalIndex]);
-	row_array.sort(columnIndex < 0 ? this.unsort :
-		type == "integer" || type == "double" ? this.sort_numeric :
-			type == "boolean" ? this.sort_boolean :
-				type == "date" ? this.sort_date :
-					this.sort_alpha);
-
-	if (descending) row_array = row_array.reverse();
-	if (this.ignoreLastRow) row_array.push([columnIndex < 0 ? null : this.getDisplayValueAt(rowCount - 1, columnIndex), rowCount - 1, this.data[rowCount - 1].originalIndex]);
-
-	// rebuild data using the new order
-	var _data = this.data;
-	this.data = [];
-	for (var i = 0; i < row_array.length; i++) this.data.push(_data[row_array[i][1]]);
-
-	if (this.filterActive) {
-
-		// keep only visible rows in data
-		this.dataUnfiltered = this.data;
-		this.data = [];
-		for (var r = 0; r < rowCount; r++) if (this.dataUnfiltered[r].visible) this.data.push(this.dataUnfiltered[r]);
-	}
-
-	// refresh grid (back on first page if sort column has changed) and callback
-	if (this.backOnFirstPage) this.setPageIndex(0); else this.refreshGrid();
-	this.tableSorted(columnIndex, descending);
-	return true;
-
 };
 
 
 /**
  * Filter the content of the table
  * @param {String} filterString String string used to filter: all words must be found in the row
+ * @param {Array} cols Columns to sort.  If cols is not specified, the filter will be done on all columns
  */
-EditableGrid.prototype.filter = function(filterString)
+EditableGrid.prototype.filter = function(filterString, cols)
 {
-	if (typeof filterString != 'undefined') {
-		this.currentFilter = filterString;
-		this.localset('filter', filterString);
-	}
+	with (this) {
 
-	// un-filter if no or empty filter set
-	if (this.currentFilter == null || this.currentFilter == "") {
-		if (this.dataUnfiltered != null) {
-			this.data = this.dataUnfiltered;
-			this.dataUnfiltered = null;
-			for (var r = 0; r < this.getRowCount(); r++) this.data[r].visible = true;
-			this.setPageIndex(0);
-			this.tableFiltered();
+		if (typeof filterString != 'undefined') {
+			this.currentFilter = filterString;
+			this.localset('filter', filterString);
 		}
-		return;
-	}		
 
-	var words = this.currentFilter.toLowerCase().split(" ");
+		// if filtering is done on server-side, we are done here
+		if (serverSide) return setPageIndex(0);
 
-	// work on unfiltered data
-	if (this.dataUnfiltered != null) this.data = this.dataUnfiltered;
+		// un-filter if no or empty filter set
+		if (currentFilter == null || currentFilter == "") {
+			if (dataUnfiltered != null) {
+				data = dataUnfiltered;
+				dataUnfiltered = null;
+				for (var r = 0; r < getRowCount(); r++) data[r].visible = true;
+				setPageIndex(0);
+				tableFiltered();
+			}
+			return;
+		}		
 
-	var rowCount = this.getRowCount();
-	var columnCount = this.getColumnCount();
-	for (var r = 0; r < rowCount; r++) {
-		this.data[r].visible = true;
-		var rowContent = ""; 
-		for (var c = 0; c < columnCount; c++) rowContent += this.getDisplayValueAt(r, c) + " ";
+		var words = currentFilter.toLowerCase().split(" ");
 
-		// if row contents does not match one word in the filter, hide the row
-		for (var i = 0; i < words.length; i++) {
-			if (rowContent.toLowerCase().indexOf(words[i]) < 0) {
-				this.data[r].visible = false;
-				break;
+		// work on unfiltered data
+		if (dataUnfiltered != null) data = dataUnfiltered;
+
+		var rowCount = getRowCount();
+		var columnCount = typeof cols != 'undefined' ? cols.length  : getColumnCount();
+
+		for (var r = 0; r < rowCount; r++) {
+			var row = data[r];
+			row.visible = true;
+			var rowContent = ""; 
+
+			// add column values
+			for (var c = 0; c < columnCount; c++) {
+				if (getColumnType(c) == 'boolean') continue;
+				var displayValue = getDisplayValueAt(r, typeof cols != 'undefined'  ? cols[c] :  c);
+				var value = getValueAt(r, typeof cols != 'undefined'  ? cols[c] : c);
+				rowContent += displayValue + " " + (displayValue == value ? "" : value + " ");
+			}
+
+			// add attribute values
+			for (var attributeName in row) {
+				if (attributeName != "visible" && attributeName != "originalIndex" && attributeName != "columns") rowContent += row[attributeName];
+			}
+
+			// if row contents do not match one word in the filter, hide the row
+			for (var i = 0; i < words.length; i++) {
+				var word = words[i];
+				var match = false;
+
+				// a word starting with "!" means that we want a NON match
+				var invertMatch = word.startsWith("!");
+				if (invertMatch) word = word.substr(1);
+
+				// if word is of the form "colname/attributename=value" or "colname/attributename!=value", only this column/attribute is used
+				var colindex = -1;
+				var attributeName = null;
+				if (word.contains("!=")) {
+					var parts = word.split("!=");
+					colindex = getColumnIndex(parts[0]);
+					if (colindex >= 0) {
+						word = parts[1];
+						invertMatch = !invertMatch;
+					}
+					else if (typeof row[parts[0]] != 'undefined') {
+						attributeName = parts[0];
+						word = parts[1];
+						invertMatch = !invertMatch;
+					}
+				}
+				else if (word.contains("=")) {
+					var parts = word.split("=");
+					colindex = getColumnIndex(parts[0]);
+					if (colindex >= 0) word = parts[1];
+					else if (typeof row[parts[0]] != 'undefined') {
+						attributeName = parts[0];
+						word = parts[1];
+					}
+				}
+
+				// a word ending with "!" means that a column must match this word exactly
+				if (!word.endsWith("!")) {
+					if (colindex >= 0) match = (getValueAt(r, colindex) + ' ' + getDisplayValueAt(r, colindex)).trim().toLowerCase().indexOf(word) >= 0;
+					else if (attributeName !== null) match = (''+getRowAttribute(r, attributeName)).trim().toLowerCase().indexOf(word) >= 0;
+					else match = rowContent.toLowerCase().indexOf(word) >= 0; 
+				}
+				else {
+					word = word.substr(0, word.length - 1);
+					if (colindex >= 0) match = (''+getDisplayValueAt(r, colindex)).trim().toLowerCase() == word || (''+getValueAt(r, colindex)).trim().toLowerCase() == word; 
+					else if (attributeName !== null) match = (''+getRowAttribute(r, attributeName)).trim().toLowerCase() == word; 
+					else for (var c = 0; c < columnCount; c++) {
+						if (getColumnType(typeof cols != 'undefined'  ? cols[c] : c) == 'boolean') continue;
+						if ((''+getDisplayValueAt(r, typeof cols != 'undefined'  ? cols[c] : c)).trim().toLowerCase() == word || (''+getValueAt(r, typeof cols != 'undefined'  ? cols[c] : c)).trim().toLowerCase() == word) match = true;
+					}
+				}
+
+				if (invertMatch ? match : !match) {
+					data[r].visible = false;
+					break;
+				}
 			}
 		}
+
+		// keep only visible rows in data
+		dataUnfiltered = data;
+		data = [];
+		for (var r = 0; r < rowCount; r++) if (dataUnfiltered[r].visible) data.push(dataUnfiltered[r]);
+
+		// refresh grid (back on first page) and callback
+		setPageIndex(0);
+		tableFiltered();
 	}
-
-	// keep only visible rows in data
-	this.dataUnfiltered = this.data;
-	this.data = [];
-	for (var r = 0; r < rowCount; r++) if (this.dataUnfiltered[r].visible) this.data.push(this.dataUnfiltered[r]);
-
-	// refresh grid (back on first page) and callback
-	this.setPageIndex(0);
-	this.tableFiltered();
 };
+
+
 
 /**
  * Sets the page size(pageSize of 0 means no pagination)
@@ -1730,7 +2135,9 @@ EditableGrid.prototype.setPageSize = function(pageSize)
  */
 EditableGrid.prototype.getPageCount = function()
 {
-	if (this.pageSize <= 0) { alert("getPageCount: no or invalid page size defined (" + this.pageSize + ")"); return -1; }
+	if (this.getRowCount() == 0) return 0;
+	if (this.pageCount > 0) return this.pageCount; // server side pagination
+	if (this.pageSize <= 0) return 1; // no client side pagination: one page
 	return Math.ceil(this.getRowCount() / this.pageSize);
 };
 
@@ -1739,8 +2146,11 @@ EditableGrid.prototype.getPageCount = function()
  */
 EditableGrid.prototype.getCurrentPageIndex = function()
 {
-	if (this.pageSize <= 0) { alert("getCurrentPage: no or invalid page size defined (" + this.pageSize + ")"); return -1; }
-	return this.currentPageIndex;
+	// if pagination is handled on the server side, pageSize will (must) be 0
+	if (this.pageSize <= 0 && !this.serverSide) return 0;
+
+	// if page index does not exist anymore, go to last page (without losing the information of the current page)
+	return Math.max(0, this.currentPageIndex >= this.getPageCount() ? this.getPageCount() - 1 : this.currentPageIndex);
 };
 
 /**
@@ -1810,7 +2220,7 @@ EditableGrid.prototype.canGoForward = function()
 
 /**
  * Returns an interval { startPageIndex: ..., endPageIndex: ... } so that a window of the given size is visible around the current page (hence the 'sliding').
- * If pagination is not enabled this method displays an alert and returns null.
+ * If pagination is not enabled this method displays an error and returns null.
  * If pagination is enabled but there is only one page this function returns null (wihtout error).
  * @param slidingWindowSize size of the visible window
  * @return
@@ -1822,17 +2232,12 @@ EditableGrid.prototype.getSlidingPageInterval = function(slidingWindowSize)
 
 	var curPageIndex = this.getCurrentPageIndex();
 	var startPageIndex = Math.max(0, curPageIndex - Math.floor(slidingWindowSize/2));
-	var endPageIndex = Math.min(nbPages, curPageIndex + Math.floor(slidingWindowSize/2));
+	var endPageIndex = Math.min(nbPages - 1, curPageIndex + Math.floor(slidingWindowSize/2));
 
 	if (endPageIndex - startPageIndex < slidingWindowSize) {
-		var diff = slidingWindowSize - (endPageIndex - startPageIndex);
-		endPageIndex = Math.min(nbPages, endPageIndex + diff);
-		// are we still missing some window part?
-		if (endPageIndex - startPageIndex < slidingWindowSize) {
-			diff = slidingWindowSize - (endPageIndex - startPageIndex);
-			startPageIndex = Math.max(0, startPageIndex - diff);
-		}
-		
+		var diff = slidingWindowSize - (endPageIndex - startPageIndex + 1);
+		startPageIndex = Math.max(0, startPageIndex - diff);
+		endPageIndex = Math.min(nbPages - 1, endPageIndex + diff);
 	}
 
 	return { startPageIndex: startPageIndex, endPageIndex: endPageIndex };
@@ -1855,7 +2260,7 @@ EditableGrid.prototype.getSlidingPageInterval = function(slidingWindowSize)
 EditableGrid.prototype.getPagesInInterval = function(interval, callback)
 {
 	var pages = [];
-	for (var p = interval.startPageIndex; p < interval.endPageIndex; p++) {
+	for (var p = interval.startPageIndex; p <= interval.endPageIndex; p++) {
 		pages.push(typeof callback == 'function' ? callback(p, p == this.getCurrentPageIndex()) : p);
 	}
 	return pages;

@@ -5,9 +5,7 @@ $(document).ready(function() {
 			enableSort: true,
 			pageSize: 10,
 			maxBars: 5
-		},
-		$.parseHTML('<i class="fa fa-arrow-down" aria-hidden="true"></i>')[0],
-		$.parseHTML('<i class="fa fa-arrow-up" aria-hidden="true"></i>')[0]);
+		});
 
 	editableGrid.load({
 		metadata: [
