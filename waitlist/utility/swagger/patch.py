@@ -7,7 +7,7 @@ from datetime import datetime
 from email._parseaddr import parsedate
 
 from esipy.cache import DictCache, BaseCache, DummyCache
-from esipy.events import api_call_stats
+from esipy.events import API_CALL_STATS
 from esipy.exceptions import APIException
 from flask_login import current_user
 from pyswagger.core import BaseClient
@@ -153,7 +153,7 @@ class EsiClient(BaseClient):
             )
 
             # event for api call stats
-            api_call_stats.send(
+            API_CALL_STATS.send(
                 url=res.url,
                 status_code=res.status_code,
                 elapsed_time=time.time() - start_api_call,
