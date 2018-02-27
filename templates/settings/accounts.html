@@ -110,9 +110,9 @@
 			<button type="button" class="btn btn-sm btn-info" data-action="sendAuthMail" data-characterid="{{acc.current_char_obj.id}}" data-token="{{acc.login_token}}" data-username="{{current_user.username}}" data-accusername="{{acc.username}}" data-userType="{% if is_tbadge %}tbadge{%elif is_rbadge%}resident{%else%}other{%endif%}">Auth Mail</button>
 			{% endif %}
 			</td>
-			<td id="acc-{{acc.id}}-status">{% if not acc.had_welcome_mail %}{% if acc.disabled %}Deactivated{% else %}Active{% endif %}</td>
 			<td id="acc-{{acc.id}}-name"><a href="{{url_for('accounts_profile.profile_by_name', username=acc.username)}}" target="_blank">{{ acc.username }}</a></td>
-			<td id="acc-{{acc.id}}-roles"><span id="acc-{{acc.id}}-needsmail" class="badge badge-info">New</span>{% endif %}{% for role in acc.roles %}{{role.name}}{% if not loop.last %}, {% endif %}{% endfor %}</td>
+			<td id="acc-{{acc.id}}-status">{% if acc.disabled %}Deactivated{% else %}Active{% endif %}</td>
+			<td id="acc-{{acc.id}}-roles">{% if not acc.had_welcome_mail %}<span id="acc-{{acc.id}}-needsmail" class="badge badge-info">New</span>{% endif %}{% for role in acc.roles %}{{role.name}}{% if not loop.last %}, {% endif %}{% endfor %}</td>
 			<td id="acc-{{acc.id}}-cchar">{{ acc.current_char_obj.eve_name }}</td>
 			<td>{% for character in acc.characters %}{{character.eve_name}}{% if not loop.last %}, {% endif %}{% endfor %}</td>
 			{# <td id="acc-{{acc.id}}-email">{% if acc.email is not none %}{{ acc.email }}{% endif %}</td> #}
