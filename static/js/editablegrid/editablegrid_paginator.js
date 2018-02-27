@@ -67,8 +67,7 @@ EditableGrid.prototype.updatePaginator = function() {
 	}
 };
 
-EditableGrid.prototype.initializeGrid = function() {
-	console.log("Init Grid");
+EditableGrid.prototype.initializePaginator = function() {
 	var editableGrid = this;
 	this.tableRendered = function() {
 		this.updatePaginator();
