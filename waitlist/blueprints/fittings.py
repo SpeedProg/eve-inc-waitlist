@@ -61,13 +61,14 @@ def move_to_waitlists():
     if entry is None:
         return "OK"
     logger.info("%s approved %s", current_user.username, entry.user_data.get_eve_name())
-    waitlist_entries = db.session.query(WaitlistEntry).join(Waitlist, WaitlistEntry.waitlist_id == Waitlist.id) \
-        .join(WaitlistGroup, Waitlist.id == WaitlistGroup.xupwlID) \
-        .join(WaitlistGroup, Waitlist.id == WaitlistGroup.dpswlID) \
-        .join(WaitlistGroup, Waitlist.id == WaitlistGroup.logiwlID) \
-        .join(WaitlistGroup, Waitlist.id == WaitlistGroup.sniperwlID) \
-        .join(WaitlistGroup, Waitlist.id == WaitlistGroup.otherwlID) \
-        .filter((WaitlistEntry.user == entry.user) & (WaitlistGroup.groupID == group.groupID)).all()
+
+    waitlist_ids = [group.xupwlID, group.dpswlID, group.sniperwlID, group.logiwlID]
+    if group.otherwlID is not None:
+        waitlist_ids.append(group.otherwlID)
+
+    waitlist_entries = db.session.query(WaitlistEntry) \
+        .filter((WaitlistEntry.user == entry.user) & WaitlistEntry.waitlist_id.in_(waitlist_ids)).all()
+
     logi_entry = None
     sniper_entry = None
     dps_entry = None
@@ -253,7 +254,7 @@ def api_move_fit_to_waitlist():
 
     entry = db.session.query(WaitlistEntry).filter(WaitlistEntry.id == fit.waitlist.id).first()
 
-    group = entry.waitlist.group
+    group: WaitlistGroup = entry.waitlist.group
 
     logger.info("%s approved fit %s from %s", current_user.username, fit, entry.user_data.get_eve_name())
 
@@ -271,14 +272,12 @@ def api_move_fit_to_waitlist():
         else:
             waitlist = group.dpslist
 
-    # lets see if he already has a entry
-    waitlist_entries = db.session.query(WaitlistEntry).join(Waitlist, WaitlistEntry.waitlist_id == Waitlist.id) \
-        .join(WaitlistGroup, Waitlist.id == WaitlistGroup.xupwlID) \
-        .join(WaitlistGroup, Waitlist.id == WaitlistGroup.dpswlID) \
-        .join(WaitlistGroup, Waitlist.id == WaitlistGroup.logiwlID) \
-        .join(WaitlistGroup, Waitlist.id == WaitlistGroup.sniperwlID) \
-        .join(WaitlistGroup, Waitlist.id == WaitlistGroup.otherwlID) \
-        .filter((WaitlistEntry.user == entry.user) & (WaitlistGroup.groupID == group.groupID)).all()
+    waitlist_ids = [group.xupwlID, group.dpswlID, group.sniperwlID, group.logiwlID]
+    if group.otherwlID is not None:
+        waitlist_ids.append(group.otherwlID)
+
+    waitlist_entries = db.session.query(WaitlistEntry) \
+        .filter((WaitlistEntry.user == entry.user) & WaitlistEntry.waitlist_id.in_(waitlist_ids)).all()
 
     creation_time = entry.creation
 
