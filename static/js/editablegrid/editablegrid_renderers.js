@@ -249,24 +249,22 @@ SortHeaderRenderer.prototype.render = function(cell, value)
 		link.editablegrid = this.editablegrid;
 		link.renderer = this;
 		link.onclick = function() {
-			with (this.editablegrid) {
-
-				var cols = tHead.rows[0].cells;
+				var cols = this.editablegrid.tHead.rows[0].cells;
 				var clearPrevious = -1;
 				var backOnFirstPage = false;
 
-				if (sortedColumnName != this.columnName) {
-					clearPrevious = sortedColumnName;
-					sortedColumnName = this.columnName;
-					sortDescending = false;
+				if (this.editablegrid.sortedColumnName != this.columnName) {
+					clearPrevious = this.editablegrid.sortedColumnName;
+					this.editablegrid.sortedColumnName = this.columnName;
+					this.editablegrid.sortDescending = false;
 					backOnFirstPage = true;
 				}
 				else {
-					if (!sortDescending) sortDescending = true;
+					if (!this.editablegrid.sortDescending) this.editablegrid.sortDescending = true;
 					else { 					
-						clearPrevious = sortedColumnName;
-						sortedColumnName = -1; 
-						sortDescending = false; 
+						clearPrevious = this.editablegrid.sortedColumnName;
+						this.editablegrid.sortedColumnName = -1; 
+						this.editablegrid.sortDescending = false; 
 						backOnFirstPage = true;
 					}
 				} 
@@ -275,12 +273,11 @@ SortHeaderRenderer.prototype.render = function(cell, value)
 				// var j = getColumnIndex(clearPrevious);
 				// if (j >= 0) columns[j].headerRenderer._render(-1, j, cols[j], columns[j].label);
 
-				sort(sortedColumnName, sortDescending, backOnFirstPage);
+				this.editablegrid.sort(this.editablegrid.sortedColumnName, this.editablegrid.sortDescending, backOnFirstPage);
 
 				// render header for new sort column (not needed anymore since the grid is now fully refreshed after a sort - cf. possible pagination)
 				// var j = getColumnIndex(sortedColumnName);
 				// if (j >= 0) columns[j].headerRenderer._render(-1, j, cols[j], columns[j].label);
-			}
 		};
 
 		// add an arrow to indicate if sort is ascending or descending

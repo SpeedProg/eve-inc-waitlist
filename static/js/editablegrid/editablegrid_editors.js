@@ -180,48 +180,42 @@ CellEditor.prototype._clearEditor = function(element)
 
 CellEditor.prototype.cancelEditing = function(element) 
 {
-	with (this) {
+	// check that the element is still being edited (otherwise onblur will be called on textfields that have been closed when we go to another tab in Firefox) 
+	if (element && element.isEditing) {
 
-		// check that the element is still being edited (otherwise onblur will be called on textfields that have been closed when we go to another tab in Firefox) 
-		if (element && element.isEditing) {
+		// render value before editon
+		var renderer = this == this.column.headerEditor ? this.column.headerRenderer : this.column.cellRenderer;
+		this.renderer._render(element.rowIndex, element.columnIndex, element, this.editablegrid.getValueAt(element.rowIndex, element.columnIndex));
 
-			// render value before editon
-			var renderer = this == column.headerEditor ? column.headerRenderer : column.cellRenderer;
-			renderer._render(element.rowIndex, element.columnIndex, element, editablegrid.getValueAt(element.rowIndex, element.columnIndex));
-
-			_clearEditor(element);
-		}
+		this._clearEditor(element);
 	}
 };
 
 CellEditor.prototype.applyEditing = function(element, newValue) 
 {
-	with (this) {
+	// check that the element is still being edited (otherwise onblur will be called on textfields that have been closed when we go to another tab in Firefox) 
+	if (element && element.isEditing) {
 
-		// check that the element is still being edited (otherwise onblur will be called on textfields that have been closed when we go to another tab in Firefox) 
-		if (element && element.isEditing) {
+		// do nothing if the value is rejected by at least one validator
+		if (!this.column.isValid(newValue)) return false;
 
-			// do nothing if the value is rejected by at least one validator
-			if (!column.isValid(newValue)) return false;
+		// format the value before applying
+		var formattedValue = this.formatValue(newValue);
 
-			// format the value before applying
-			var formattedValue = formatValue(newValue);
+		// update model and render cell (keeping previous value)
+		var previousValue = this.editablegrid.setValueAt(element.rowIndex, element.columnIndex, formattedValue);
 
-			// update model and render cell (keeping previous value)
-			var previousValue = editablegrid.setValueAt(element.rowIndex, element.columnIndex, formattedValue);
-
-			// if the new value is different than the previous one, let the user handle the model change
-			var newValue = editablegrid.getValueAt(element.rowIndex, element.columnIndex);
-			if (!this.editablegrid.isSame(newValue, previousValue)) {
-				editablegrid.modelChanged(element.rowIndex, element.columnIndex, previousValue, newValue, editablegrid.getRow(element.rowIndex));
-			}
-
-			_clearEditor(element);	
-			return true;
+		// if the new value is different than the previous one, let the user handle the model change
+		var newValue = this.editablegrid.getValueAt(element.rowIndex, element.columnIndex);
+		if (!this.editablegrid.isSame(newValue, previousValue)) {
+			this.editablegrid.modelChanged(element.rowIndex, element.columnIndex, previousValue, newValue, this.editablegrid.getRow(element.rowIndex));
 		}
 
-		return false;
+		this._clearEditor(element);	
+		return true;
 	}
+
+	return false;
 };
 
 /**
