@@ -23,10 +23,10 @@ class CorporationInfo(ESIResponse):
         return self.data['ceo_id']
 
     def get_corporation_description(self) -> str:
-        return self.data['corporation_description']
+        return self.data['description']
 
     def get_corporation_name(self) -> str:
-        return self.data['corporation_name']
+        return self.data['name']
 
     def get_creator_id(self) -> int:
         return self.data['creator_id']
@@ -44,5 +44,4 @@ class CorporationInfo(ESIResponse):
         return self.data['url']
 
     def get_creation_date(self) -> Optional[datetime]:
-        return self.data['creation_date'].v if 'creation_date' in self.data else None
-
+        return self.data['date_founded'].v if 'date_founded' in self.data else None
