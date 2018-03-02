@@ -50,44 +50,31 @@ def api_wls_remove_player():
     if player_id is None:
         logger.error("Tried to remove player with None id from waitlists.")
 
-    group = db.session.query(WaitlistGroup).get(group_id)
+    group: WaitlistGroup = db.session.query(WaitlistGroup).get(group_id)
+
+
     # don't remove from queue
     waitlist_entries = db.session.query(WaitlistEntry).filter(
-        (WaitlistEntry.user == player_id) &
-        ((WaitlistEntry.waitlist_id == group.logiwlID) |
-         (WaitlistEntry.waitlist_id == group.dpswlID) |
-         (WaitlistEntry.waitlist_id == group.sniperwlID))).all()
+        (WaitlistEntry.user == player_id) & (WaitlistEntry.waitlist_id != group.xuplist.id)
+    ).all()
 
     fittings = []
     for entry in waitlist_entries:
         fittings.extend(entry.fittings)
 
-    # check if there is an other waitlist
-    if group.otherwlID is not None:
-        entry = db.session.query(WaitlistEntry).filter(
-            (WaitlistEntry.user == player_id) & (WaitlistEntry.waitlist_id == group.otherwlID)).one_or_none()
-        if entry is not None:
-            fittings.extend(entry.fittings)
-
     waitlist_entries = db.session.query(WaitlistEntry).filter(
         (WaitlistEntry.user == player_id) &
-        ((WaitlistEntry.waitlist_id == group.logiwlID) |
-         (WaitlistEntry.waitlist_id == group.dpswlID) |
-         (WaitlistEntry.waitlist_id == group.sniperwlID))).all()
+        (WaitlistEntry.waitlist_id != group.xuplist.id)
+        ).all()
+
     for entry in waitlist_entries:
         event = EntryRemovedSSE(entry.waitlist.group.groupID, entry.waitlist_id, entry.id)
         _events.append(event)
 
     db.session.query(WaitlistEntry).filter(
         (WaitlistEntry.user == player_id) &
-        ((WaitlistEntry.waitlist_id == group.logiwlID) |
-         (WaitlistEntry.waitlist_id == group.dpswlID) |
-         (WaitlistEntry.waitlist_id == group.sniperwlID))).delete()
-
-    # if other waitlist delete those entries too
-    if group.otherwlID is not None:
-        db.session.query(WaitlistEntry).filter((WaitlistEntry.user == player_id) &
-                                               (WaitlistEntry.waitlist_id == group.otherwlID)).delete()
+        (WaitlistEntry.waitlist_id != group.xuplist.id)
+    ).delete()
 
     h_entry = create_history_object(player_id, HistoryEntry.EVENT_COMP_RM_PL, current_user.id, fittings)
     h_entry.exref = group.groupID

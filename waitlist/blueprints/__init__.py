@@ -36,7 +36,7 @@ def index():
     else:
         # noinspection PyPep8
         group = db.session.query(WaitlistGroup).filter(WaitlistGroup.enabled == True).order_by(
-            WaitlistGroup.odering).first()
+            WaitlistGroup.ordering).first()
 
     if group is None:
         return render_template("index.html", is_index=True)

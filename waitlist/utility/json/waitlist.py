@@ -89,11 +89,11 @@ def make_json_group(group: WaitlistGroup):
         'station': make_json_station(group.dockup),
         'solarSystem': make_json_solar_system(group.system),
         'constellation': make_json_constellation(group.constellation),
-        'logiwlID': group.logiwlID,
-        'dpswlID': group.dpswlID,
-        'sniperwlID': group.sniperwlID,
-        'otherwlID': group.otherwlID,
-        'xupwlID': group.xupwlID
+        'logiwlID': None if group.logilist is None else group.logilist.id,
+        'dpswlID': None if group.dpslist is None else group.dpslist.id,
+        'sniperwlID': None if group.sniperlist is None else group.sniperlist.id,
+        'otherwlID': None if group.otherlist is None else group.otherlist.id,
+        'xupwlID': None if group.xuplist is None else group.xuplist.id
     }
 
 

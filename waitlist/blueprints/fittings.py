@@ -1,3 +1,5 @@
+from typing import List
+
 from flask import json
 from flask.blueprints import Blueprint
 import logging
@@ -56,16 +58,18 @@ def move_to_waitlists():
     entry = db.session.query(WaitlistEntry).filter(WaitlistEntry.id == entry_id).first()
     if entry is None or entry.waitlist is None:
         flask.abort(404, "This entry does not exist or not belong to a waitlist anymore!")
-    group = entry.waitlist.group
+    group: WaitlistGroup = entry.waitlist.group
 
     if entry is None:
         return "OK"
     logger.info("%s approved %s", current_user.username, entry.user_data.get_eve_name())
 
-    waitlist_ids = [group.xupwlID, group.dpswlID, group.sniperwlID, group.logiwlID]
-    if group.otherwlID is not None:
-        waitlist_ids.append(group.otherwlID)
+    # get waitlists in this group
+    waitlist_ids = []
+    for wl in group.waitlists:
+        waitlist_ids.append(wl.id)
 
+    # get all entries that are in one of these waitlists and from the current user
     waitlist_entries = db.session.query(WaitlistEntry) \
         .filter((WaitlistEntry.user == entry.user) & WaitlistEntry.waitlist_id.in_(waitlist_ids)).all()
 
@@ -272,9 +276,9 @@ def api_move_fit_to_waitlist():
         else:
             waitlist = group.dpslist
 
-    waitlist_ids = [group.xupwlID, group.dpswlID, group.sniperwlID, group.logiwlID]
-    if group.otherwlID is not None:
-        waitlist_ids.append(group.otherwlID)
+    waitlist_ids: List[int] = []
+    for wl in group.waitlists:
+        waitlist_ids.append(wl.id)
 
     waitlist_entries = db.session.query(WaitlistEntry) \
         .filter((WaitlistEntry.user == entry.user) & WaitlistEntry.waitlist_id.in_(waitlist_ids)).all()
