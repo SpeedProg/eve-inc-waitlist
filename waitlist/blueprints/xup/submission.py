@@ -370,7 +370,7 @@ def index():
 
     # noinspection PyPep8
     defaultgroup = db.session.query(WaitlistGroup).filter(WaitlistGroup.enabled == True) \
-        .order_by(WaitlistGroup.odering).first()
+        .order_by(WaitlistGroup.ordering).first()
     # noinspection PyPep8
     activegroups = db.session.query(WaitlistGroup).filter(WaitlistGroup.enabled == True).all()
     return render_template("xup.html", newbro=new_bro, group=defaultgroup, groups=activegroups)
@@ -393,7 +393,7 @@ def update(fit_id: int):
 
     # noinspection PyPep8
     defaultgroup = db.session.query(WaitlistGroup).filter(WaitlistGroup.enabled == True) \
-        .order_by(WaitlistGroup.odering).first()
+        .order_by(WaitlistGroup.ordering).first()
     # noinspection PyPep8
     activegroups = db.session.query(WaitlistGroup).filter(WaitlistGroup.enabled == True).all()
     return render_template("xup.html", newbro=new_bro, group=defaultgroup,

@@ -328,7 +328,7 @@ def check_invite_and_remove_timer(char_id: int, group_id: int, fleet_id: int):
         _events = []
         logger.info("Checking invite for charID[%d] groupID[%d] fleetID[%d] current_run[%d]",
                     char_id, group_id, fleet_id, current_run)
-        group = db.session.query(WaitlistGroup).get(group_id)
+        group: WaitlistGroup = db.session.query(WaitlistGroup).get(group_id)
         crest_fleet = db.session.query(CrestFleet).get(fleet_id)
         # the fleet was deleted meanwhile or has no fleetcomp
         if group is None or crest_fleet is None or crest_fleet.comp is None:
@@ -344,9 +344,8 @@ def check_invite_and_remove_timer(char_id: int, group_id: int, fleet_id: int):
         character = db.session.query(Character).filter(Character.id == char_id).first()
         waitlist_entries = db.session.query(WaitlistEntry)\
             .filter((WaitlistEntry.user == char_id) &
-                    ((WaitlistEntry.waitlist_id == group.logiwlID) |
-                    (WaitlistEntry.waitlist_id == group.dpswlID) |
-                    (WaitlistEntry.waitlist_id == group.sniperwlID))).all()
+                    (WaitlistEntry.waitlist_id != group.xuplist.id)
+                    ).all()
 
         if char_id in member:  # he is in the fleet
             logger.info("Member %s found in members", char_id)
@@ -354,26 +353,14 @@ def check_invite_and_remove_timer(char_id: int, group_id: int, fleet_id: int):
             for entry in waitlist_entries:
                 fittings.extend(entry.fittings)
 
-            # check if there is an other waitlist
-            if group.otherwlID is not None:
-                entry = db.session.query(WaitlistEntry)\
-                    .filter((WaitlistEntry.user == char_id) & (WaitlistEntry.waitlist_id == group.otherwlID)).one_or_none()
-                if entry is not None:
-                    fittings.extend(entry.fittings)
-
             for entry in waitlist_entries:
                 event = EntryRemovedSSE(entry.waitlist.group.groupID, entry.waitlist_id, entry.id)
                 _events.append(event)
 
-            db.session.query(WaitlistEntry).filter((WaitlistEntry.user == char_id) &
-                                                   ((WaitlistEntry.waitlist_id == group.logiwlID) |
-                                                    (WaitlistEntry.waitlist_id == group.dpswlID) |
-                                                    (WaitlistEntry.waitlist_id == group.sniperwlID))).delete()
-
-            # if other waitlist delete those entries too
-            if group.otherwlID is not None:
-                db.session.query(WaitlistEntry)\
-                    .filter((WaitlistEntry.user == char_id) & (WaitlistEntry.waitlist_id == group.otherwlID)).delete()
+            db.session.query(WaitlistEntry).filter(
+                (WaitlistEntry.user == char_id) &
+                (WaitlistEntry.waitlist_id != group.xuplist.id)
+            ).delete()
 
             h_entry = create_history_object(char_id, HistoryEntry.EVENT_AUTO_RM_PL, None, fittings)
             h_entry.exref = group.groupID

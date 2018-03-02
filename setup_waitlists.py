@@ -35,10 +35,10 @@ def createWaitlistGroup(groupName, displayName):
     if db.session.query(WaitlistGroup).filter(WaitlistGroup.groupName == groupName).first() is not None:
         print("Found Group ", groupName)
         return None
-    xuplist = Waitlist(name=WaitlistNames.xup_queue, displayTitle="X-UP")
-    logilist = Waitlist(name=WaitlistNames.logi, displayTitle="Logi")
-    dpslist = Waitlist(name=WaitlistNames.dps, displayTitle="Dps")
-    sniperlist = Waitlist(name=WaitlistNames.sniper, displayTitle="Sniper")
+    xuplist = Waitlist(name=WaitlistNames.xup_queue, displayTitle="X-UP", waitlistType='xup')
+    logilist = Waitlist(name=WaitlistNames.logi, displayTitle="Logi", waitlistType='logi')
+    dpslist = Waitlist(name=WaitlistNames.dps, displayTitle="Dps", waitlistType='dps')
+    sniperlist = Waitlist(name=WaitlistNames.sniper, displayTitle="Sniper", waitlistType='sniper')
     group = WaitlistGroup()
     group.groupName = groupName
     group.displayName = displayName

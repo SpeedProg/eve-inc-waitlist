@@ -335,23 +335,14 @@ def fleet_query_stations():
 @login_required
 @perm_management.require(http_exception=401)
 def clear_waitlist(gid):
-    group = db.session.query(WaitlistGroup).get(gid)
+    group: WaitlistGroup = db.session.query(WaitlistGroup).get(gid)
     logger.info("%s cleared waitlist %s", current_user.username, group.displayName)
-    if group.otherlist is None:
-        db.session.query(WaitlistEntry).filter(
-            (WaitlistEntry.waitlist_id == group.xupwlID)
-            | (WaitlistEntry.waitlist_id == group.logiwlID)
-            | (WaitlistEntry.waitlist_id == group.dpswlID)
-            | (WaitlistEntry.waitlist_id == group.sniperwlID)
-        ).delete()
-    else:
-        db.session.query(WaitlistEntry).filter(
-            (WaitlistEntry.waitlist_id == group.xupwlID)
-            | (WaitlistEntry.waitlist_id == group.logiwlID)
-            | (WaitlistEntry.waitlist_id == group.dpswlID)
-            | (WaitlistEntry.waitlist_id == group.sniperwlID)
-            | (WaitlistEntry.waitlist_id == group.otherwlID)
-        ).delete()
+
+    waitlist_ids = []
+    for wl in group.waitlists:
+        waitlist_ids.append(wl.id)
+
+    db.session.query(WaitlistEntry).filter(WaitlistEntry.waitlist_id.in_(waitlist_ids)).delete()
 
     db.session.commit()
     flash("Waitlists were cleared!", "danger")
