@@ -16,6 +16,9 @@ class SearchResponse(ESIResponse):
     def character_ids(self) -> Optional[Sequence[int]]:
         return self.__get_ids('character')
 
+    def inventory_type_ids(self) -> Optional[Sequence[int]]:
+        return self.__get_ids('inventory_type')
+
     def ids(self, types: Sequence[str]):
         result: List[int] = []
         for type_name in types:
