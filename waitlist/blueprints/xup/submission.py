@@ -1,10 +1,9 @@
 import logging
 from datetime import datetime
-from flask import request, flash, redirect, url_for, render_template
+from flask import request, flash, redirect, url_for, render_template, abort
 from flask_login import current_user, login_required
 
 import re
-from pyswagger.contrib.client import flask
 
 from waitlist.blueprints.api.fittings.self import self_remove_fit
 from waitlist.data.names import WaitlistNames
@@ -162,7 +161,7 @@ def submit():
                 dbfit = parse_eft(fit)
                 fits.append(dbfit)
             except ValueError:
-                flask.abort(400, message="Invalid module amounts")
+                abort(400, "Invalid module amounts")
 
     else:
         # parse chat links
@@ -239,7 +238,7 @@ def submit():
         try:
             mod_map = create_mod_map(fit.modules)
         except ValueError:
-            flask.abort(400, message="Invalid module amounts")
+            abort(400, "Invalid module amounts")
         # check that ship is an allowed ship
 
         # it is a logi put on logi wl
@@ -407,7 +406,7 @@ def update_submit():
     try:
         old_fit_id = int(oldfit_id_str)
     except ValueError:
-        flask.abort(400, "No valid id for the fit to update given!")
+        abort(400, "No valid id for the fit to update given!")
         return None
 
     response = submit()
