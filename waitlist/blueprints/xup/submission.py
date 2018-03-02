@@ -159,6 +159,8 @@ def submit():
         for fit in string_fits:
             try:
                 dbfit = parse_eft(fit)
+                if dbfit is None:
+                    abort(400, "Fit was not parseable.")
                 fits.append(dbfit)
             except ValueError:
                 abort(400, "Invalid module amounts")
