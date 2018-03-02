@@ -44,7 +44,7 @@ def get_item_id(name: str) -> int:
                        typeName=item_data.name, description=item_data.description,
                        marketGroupID=market_group_id)
 
-        db.session.add(item)
+        db.session.merge(item)
         db.session.commit()
         logger.info(f'Added new {item}')
         return item.typeID
