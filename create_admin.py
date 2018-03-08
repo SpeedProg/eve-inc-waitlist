@@ -1,12 +1,14 @@
 # inject the lib folder before everything else
+from typing import Optional
+
 from waitlist import db
 from waitlist.permissions.manager import StaticRoles
 from waitlist.utility.swagger.patch import monkey_patch_pyswagger_requests_client
 
 monkey_patch_pyswagger_requests_client()
-from waitlist.storage.database import Account, Character, Role
+from waitlist.storage.database import Account, Character, Role, APICacheCharacterInfo
 from waitlist.utility.utils import get_random_token
-from waitlist.utility.swagger import character_info
+import waitlist.utility.outgate as outgate
 if __name__ == '__main__':
     name = input("Login Name:")
     print("Creating Account")
@@ -27,7 +29,10 @@ if __name__ == '__main__':
         if not char_name:
             break
         
-        char_id, char_name = character_info.characterid_from_name(char_name)
+        char_info: Optional[APICacheCharacterInfo] = outgate.character.get_info_by_name(char_name)
+        char_id = char_info.id
+        # assign this too because his name could have had wrong case
+        char_name = char_info.characterName
         character: Character = db.session.query(Character).get(char_id)
         if character is None:
             character = Character()
