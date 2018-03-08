@@ -47,7 +47,10 @@ src="{{ config.stattool_uri }}" integrity="{{ config.stattool_sri }}" crossorigi
 {% assets filters="babili", output="gen/eveproxy.%(version)s.js", "js/eveproxy.js" %}
 <script type="text/javascript" src="{{ ASSET_URL }}"></script>
 {% endassets %}
-{% assets filters="babili", output="gen/eve-ui.%(version)s.js", "js/fitlink.js", "js/eve-ui-config.js" %}
+{% assets filters="babili", output="gen/eve-ui.%(version)s.js", "js/eve-ui-config.js" %}
 <script type="text/javascript" src="{{ ASSET_URL }}" defer async></script>
 {% endassets %}
+<script src="https://cdn.jsdelivr.net/gh/quiescens/eve-ui@0.8.9/eve-ui.min.js"
+		integrity="sha384-x6VCPjT7RWb7zkN4FyUF2atPVwoqL4cmAZOq053iWS1s04EgKyH9PdxV0MVN3zxB"
+		crossorigin="anonymous" defer async></script>
 {% endblock %}
