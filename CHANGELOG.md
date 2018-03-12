@@ -1,4 +1,18 @@
 #Changelog
+* 1.2.0
+  * Features
+    * Added icon for wardec check to xup page
+      - red = active wardec
+      - orange = wardec starting soon
+      - ? = there was an error checking
+  * Fixes
+    * Fixed a bug with not applying the right default theme
+    * An id being used double on main page
+    * updated editabletables code to hopefully workaround some bugs
+      - this should also enable sorting by names
+  * Changes
+    * Database access has all been converted to using ORM
+    * Other db reladed changes to better support different databases (like pgsql)
 * 1.1.4
   * Fixes
     * Fixed error handling for invalidated refresh tokens
