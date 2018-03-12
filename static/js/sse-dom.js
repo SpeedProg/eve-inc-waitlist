@@ -95,8 +95,9 @@ waitlist.sse_dom = (function () {
 	sse.addEventListener("status-changed", statusChangedListener);
 
 	function init() {
+	  settings.can_manage = getMetaData('can-fleetcomp') === "True";
 		loadWaitlist();
-		settings.can_manage = getMetaData('can-fleetcomp') === "True";
+		$('body').tooltip({selector: '[data-toggle=tooltip]'});
 	}
 
 	$(document).ready(init);
