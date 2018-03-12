@@ -12,6 +12,7 @@ import stat
 from flask_migrate import Migrate, MigrateCommand
 from flask_script import Manager
 from flask_seasurf import SeaSurf
+from sqlalchemy import MetaData
 
 from waitlist.utility import config
 from waitlist.utility.babili import BabiliFilter
@@ -52,8 +53,19 @@ app.config['ASSETS_DEBUG'] = config.assets_debug
 # flask HTMLMIN config
 app.config['MINIFY_PAGE'] = config.html_min
 
+# naming conventions for sql
+
+convention = {
+  "ix": "ix_%(column_0_label)s",
+  "uq": "uq_%(table_name)s_%(column_0_name)s",
+  "ck": "ck_%(table_name)s_%(constraint_name)s",
+  "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
+  "pk": "pk_%(table_name)s"
+}
+metadata = MetaData(naming_convention=convention)
+
 # init SQLAlchemy
-db = SQLAlchemy(app)
+db = SQLAlchemy(app, metadata=metadata)
 
 # init login manager
 login_manager = LoginManager()

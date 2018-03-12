@@ -1,10 +1,16 @@
 from typing import Optional, Tuple
 
+from esipy import EsiClient
+
 from waitlist.utility import outgate
 from waitlist.storage.database import Constellation, SolarSystem, Station,\
     InvType, Account, Character, Ban, Whitelist
 from waitlist import db
 import logging
+
+from waitlist.utility.swagger import get_api
+from waitlist.utility.swagger.eve import get_esi_client
+from waitlist.utility.swagger.eve.search import SearchEndpoint, SearchResponse
 
 logger = logging.getLogger(__name__)
 
@@ -25,8 +31,46 @@ def get_item_id(name: str) -> int:
     logger.debug("Getting id for item %s", name)
     item = db.session.query(InvType).filter(InvType.typeName == name).first()
     if item is None:
-        return -1
+        item_data = get_item_data_from_api(name)
+        if item_data is None:
+            return -1
+
+        # add the type to db
+        market_group_id = None
+
+        if hasattr(item_data, 'market_group_id'):
+            market_group_id = item_data.market_group_id
+        item = InvType(typeID=item_data.type_id, groupID=item_data.group_id,
+                       typeName=item_data.name, description=item_data.description,
+                       marketGroupID=market_group_id)
+
+        db.session.merge(item)
+        db.session.commit()
+        logger.info(f'Added new {item}')
+        return item.typeID
+
     return item.typeID
+
+
+def get_item_data_from_api(name: str) -> Optional[any]:
+    """Tries to get api data of an item with this name from Search API"""
+    search_endpoint = SearchEndpoint()
+    search_response: SearchResponse = search_endpoint.public_search(name, ['inventory_type'], True)
+    result_ids = search_response.inventory_type_ids()
+    if result_ids is None or len(result_ids) < 1:
+        return None
+
+    esi_client: EsiClient = get_esi_client(True)
+    api = get_api()
+
+    for result_id in result_ids:
+        type_result = esi_client.request(api.op['get_universe_types_type_id'](type_id=result_id))
+        if type_result.data.name == name:
+            return type_result.data
+
+    return None
+
+
 
 
 # load an account by its id

@@ -9,7 +9,7 @@ blinker>=1.4
 gevent>=1.1.2
 requests>=2.11.1
 pyswagger>=0.8.36
-esipy>=0.1.1
+esipy==0.3.0
 Flask-Assets>=0.12
 Flask-htmlmin>=1.2
 cssmin>=0.2.0
@@ -22,3 +22,4 @@ Flask-CDN>=1.5.2
 flask-limiter>=0.9.3
 ts3>=1.0.5
 PyYAML>=3.12
+Flask-Script>=2.0.6
