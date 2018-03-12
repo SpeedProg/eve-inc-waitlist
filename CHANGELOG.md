@@ -1,4 +1,7 @@
 #Changelog
+* 1.2.1
+  * Fixes
+    * Fixed use app from esipy which doesn't exist there anymore
 * 1.2.0
   * Features
     * Added icon for wardec check to xup page
