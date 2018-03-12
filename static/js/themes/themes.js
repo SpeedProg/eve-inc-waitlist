@@ -10,11 +10,10 @@ waitlist.themes = (function() {
 		'id': 'theme-css',
 		'base_path': "/static/css/",
 		'setting_key_prefix': 'themes-',
-		'def_type': 'local',
-		'def_file': 'bootstrap_dark_purple_001.css',
-		'def_integrity': null,
-		'def_crossorigin': null
-
+		'def_type': 'remote',
+		'def_file': 'https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css',
+		'def_integrity': "sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ",
+		'def_crossorigin': "anonymouse"
 	};
 	// file_name = null == standard file
 	function setTheme(file_name, type, integrity, crossorigin) {
@@ -87,13 +86,16 @@ waitlist.themes = (function() {
 		let type = localStorage.getItem(settings.setting_key_prefix+"type");
 		let integrity = localStorage.getItem(settings.setting_key_prefix+"integrity");
 		let crossorigin = localStorage.getItem(settings.setting_key_prefix+"crossorigin");
-		document.addEventListener('DOMContentLoaded', function () {
-			setSelectionAfterPageReady(file);
-		});
 		if (file === null || file === "null") {
 			// set the default theme
+      document.addEventListener('DOMContentLoaded', function () {
+			  setSelectionAfterPageReady(settings.def_file);
+		  });
 			setTheme(settings.def_file, settings.def_type, settings.def_integrity, settings.def_crossorigin)
 		} else {
+		  document.addEventListener('DOMContentLoaded', function () {
+			  setSelectionAfterPageReady(file);
+		  });
 			setTheme(file, type, integrity, crossorigin);
 		}
 	}

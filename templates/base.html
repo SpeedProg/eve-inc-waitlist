@@ -93,17 +93,22 @@ waitlist.themes = (function() {
 	}
 
 	function setCurrentTheme() {
+
 		let file = localStorage.getItem(settings.setting_key_prefix+"file");
 		let type = localStorage.getItem(settings.setting_key_prefix+"type");
 		let integrity = localStorage.getItem(settings.setting_key_prefix+"integrity");
 		let crossorigin = localStorage.getItem(settings.setting_key_prefix+"crossorigin");
-		document.addEventListener('DOMContentLoaded', function () {
-			setSelectionAfterPageReady(file);
-		});
+
 		if (file === null || file === "null") {
 			// set the default theme
+      document.addEventListener('DOMContentLoaded', function () {
+			  setSelectionAfterPageReady(settings.def_file);
+		  });
 			setTheme(settings.def_file, settings.def_type, settings.def_integrity, settings.def_crossorigin)
 		} else {
+		  document.addEventListener('DOMContentLoaded', function () {
+			  setSelectionAfterPageReady(file);
+		  });
 			setTheme(file, type, integrity, crossorigin);
 		}
 	}
