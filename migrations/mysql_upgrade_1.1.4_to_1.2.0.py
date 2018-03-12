@@ -6,7 +6,7 @@ In this version the constraints and indexes have fixed names.
 Also all column name are now lower case
 This is to make sure migration scripts work between different databases.
 """
-
+import datetime
 import re
 from typing import List, Union
 
@@ -14,9 +14,9 @@ from alembic.operations import Operations
 from alembic.runtime.migration import MigrationContext
 from sqlalchemy import text, Column, String
 from sqlalchemy.engine import ResultProxy, RowProxy
-from alembic import op, context
+from alembic import op
 
-from waitlist import db, app, migrate
+from waitlist import db
 
 #modify these values
 database_name = "waitlist"
@@ -804,6 +804,8 @@ def convert_case(s):
 
 
 if __name__ == "__main__":
-    print('Running migration...')
+    start = datetime.datetime.utcnow()
+    print('Running migration...', start)
     upgrade()
-    print("Running migration Done")
+    end = datetime.datetime.utcnow()
+    print("Running migration Done", "Took", start-end)
