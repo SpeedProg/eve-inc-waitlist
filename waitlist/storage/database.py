@@ -527,7 +527,7 @@ class APICacheCorporationInfo(Base):
     description = Column('description', Text)
     creatorID = Column('creator_id', Integer)
     memberCount = Column('member_count', Integer)
-    taxRate = Column('rax_rate', Float)
+    taxRate = Column('tax_rate', Float)
     ticker = Column('ticker', String(10))
     url = Column('url', String(500))
     creationDate = Column('creation_date', DateTime)
@@ -810,7 +810,7 @@ class Trivia(Base):
 class TriviaQuestion(Base):
     __tablename__: str = 'trivia_question'
     questionID: Column = Column('question_id', Integer, primary_key=True)
-    triviaID: Column = Column('trivia_id', Integer, ForeignKey(Trivia.triviaID))
+    triviaID: Column = Column('trivia_id', Integer, ForeignKey(Trivia.triviaID), nullable=False)
     questionText: Column = Column('question_text', String(1000))
     answerType: Column = Column('answer_type', String(255))
     answerConnection: Column = Column('answer_connection', Enum('AND', 'OR', 'NOT', 'NONE', name="answer_connection"))
