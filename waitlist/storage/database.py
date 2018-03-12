@@ -1,8 +1,9 @@
+from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import Column, Integer, String, SmallInteger, BIGINT, Boolean, DateTime, Index, \
     sql, BigInteger, text, Float, Text
 from sqlalchemy import Enum
 from sqlalchemy.orm import relationship, backref
-from sqlalchemy.sql.schema import Table, ForeignKey, CheckConstraint
+from sqlalchemy.sql.schema import Table, ForeignKey, CheckConstraint, UniqueConstraint
 import logging
 
 from waitlist import db
@@ -39,70 +40,71 @@ linked_chars = Table('linked_chars',
 
 backseats = Table("backseats",
                   Base.metadata,
-                  Column("accountID", Integer, ForeignKey('accounts.id', ondelete="CASCADE")),
-                  Column("groupID", Integer, ForeignKey('waitlist_groups.groupID', ondelete="CASCADE"))
+                  Column("account_id", Integer, ForeignKey('accounts.id', ondelete="CASCADE")),
+                  Column("group_id", Integer, ForeignKey('waitlist_groups.group_id', ondelete="CASCADE"))
                   )
+
 fcs = Table("fcs",
             Base.metadata,
-            Column("accountID", Integer, ForeignKey('accounts.id', ondelete="CASCADE")),
-            Column("groupID", Integer, ForeignKey('waitlist_groups.groupID', ondelete="CASCADE"))
+            Column("account_id", Integer, ForeignKey('accounts.id', ondelete="CASCADE")),
+            Column("group_id", Integer, ForeignKey('waitlist_groups.group_id', ondelete="CASCADE"))
             )
+
 fmanager = Table("fleetmanager",
                  Base.metadata,
-                 Column("accountID", Integer, ForeignKey('accounts.id', ondelete="CASCADE")),
-                 Column("groupID", Integer, ForeignKey('waitlist_groups.groupID', ondelete="CASCADE"))
+                 Column("account_id", Integer, ForeignKey('accounts.id', ondelete="CASCADE")),
+                 Column("group_id", Integer, ForeignKey('waitlist_groups.group_id', ondelete="CASCADE"))
                  )
 
 token_scope = Table(
     'tokenscope', Base.metadata,
-    Column('tokenID', Integer, ForeignKey('ssotoken.accountID', onupdate="CASCADE", ondelete="CASCADE"),
+    Column('token_id', Integer, ForeignKey('ssotoken.account_id', onupdate="CASCADE", ondelete="CASCADE"),
            primary_key=True),
-    Column('scopeID', Integer, ForeignKey('eveapiscope.scopeID', onupdate="CASCADE", ondelete="CASCADE"),
+    Column('scope_id', Integer, ForeignKey('eveapiscope.scope_id', onupdate="CASCADE", ondelete="CASCADE"),
            primary_key=True)
 )
 
 
 class EveApiScope(Base):
     __tablename__ = 'eveapiscope'
-    scopeID = Column(Integer, primary_key=True)
-    scopeName = Column(String(100), index=True)
+    scopeID = Column('scope_id', Integer, primary_key=True)
+    scopeName = Column('scope_name', String(100), index=True)
 
 
 class SSOToken(Base):
     __tablename__ = 'ssotoken'
-    accountID = Column(Integer, ForeignKey('accounts.id', onupdate="CASCADE", ondelete="CASCADE"), primary_key=True)
-    refresh_token = Column(String(128), default=None)
-    access_token = Column(String(128), default=None)
-    access_token_expires = Column(DateTime, default=datetime.utcnow)
+    accountID = Column('account_id', Integer, ForeignKey('accounts.id', onupdate="CASCADE", ondelete="CASCADE"), primary_key=True)
+    refresh_token = Column('refresh_token', String(128), default=None)
+    access_token = Column('access_token', String(128), default=None)
+    access_token_expires = Column('access_token_expires', DateTime, default=datetime.utcnow)
 
-    scopes = relationship('EveApiScope', secondary='tokenscope')
+    scopes = relationship(EveApiScope, secondary=token_scope)
 
 
 class Station(Base):
     __tablename__ = "station"
-    stationID = Column(Integer, primary_key=True)
-    stationName = Column(String(100), index=True, unique=True)
+    stationID = Column('station_id', Integer, primary_key=True)
+    stationName = Column('station_name', String(100), index=True, unique=True)
 
 
 class SolarSystem(Base):
     __tablename__ = "solarsystem"
-    solarSystemID = Column(Integer, primary_key=True)
-    solarSystemName = Column(String(100), index=True, unique=True)
+    solarSystemID = Column('solar_system_id', Integer, primary_key=True)
+    solarSystemName = Column('solar_system_name', String(100), index=True, unique=True)
 
 
 class Constellation(Base):
     __tablename__ = "constellation"
-    constellationID = Column(Integer, primary_key=True)
-    constellationName = Column(String(100), index=True, unique=True)
+    constellationID = Column('constellation_id', Integer, primary_key=True)
+    constellationName = Column('constellation_name', String(100), index=True, unique=True)
 
 
 class InvType(Base):
     __tablename__ = 'invtypes'
-
-    typeID = Column(Integer, primary_key=True, nullable=False)
-    groupID = Column(Integer)
-    typeName = Column(String(100))
-    description = Column(Text)
+    typeID = Column('type_id', Integer, primary_key=True, nullable=False)
+    groupID = Column('group_id', Integer, index=True)
+    typeName = Column('type_name', String(100))
+    description = Column('description', Text)
     #    mass = Column(DOUBLE)
     #    volume = Column(DOUBLE)
     #    capacity = Column(DOUBLE)
@@ -110,20 +112,24 @@ class InvType(Base):
     #    raceID = Column(SmallInteger)
     #    basePrice = Column(DECIMAL(19,4))
     #    published = Column(TINYINT)
-    marketGroupID = Column(BIGINT)
+    marketGroupID = Column('market_group_id', BIGINT)
     #    iconID = Column(BIGINT)
     #    soundID = Column(BIGINT)
-    __table_args__ = (Index('invTypes_groupid', "groupID"),)
+
+    def __repr__(self):
+        return f'<InvType typeID={self.typeID} typeName={self.typeName} groupID={self.groupID}' \
+               f' marketGroupID={self.marketGroupID} description={self.description}>'
+
 
 
 class MarketGroup(Base):
     __tablename__ = 'invmarketgroups'
-    marketGroupID = Column(Integer, primary_key=True, nullable=False)
-    parentGroupID = Column(Integer, ForeignKey('invmarketgroups.marketGroupID'))
-    marketGroupName = Column(String(100))
-    description = Column(String(3000))
-    iconID = Column(Integer)
-    hasTypes = Column(Boolean)
+    marketGroupID = Column('market_group_id', Integer, primary_key=True, nullable=False)
+    parentGroupID = Column('parent_group_id', Integer, ForeignKey('invmarketgroups.market_group_id'))
+    marketGroupName = Column('market_group_name', String(100))
+    description = Column('description', String(3000))
+    iconID = Column('icon_id', Integer)
+    hasTypes = Column('has_types', Boolean(name='has_types'))
 
 
 class Account(Base):
@@ -133,12 +139,12 @@ class Account(Base):
 
     __tablename__ = 'accounts'
 
-    id = Column(Integer, primary_key=True)
-    current_char = Column(Integer, ForeignKey("characters.id"))
-    username = Column(String(100), unique=True)  # login name
-    login_token = Column(String(16), unique=True)
-    disabled = Column(Boolean, default=False, server_default=sql.expression.false())
-    had_welcome_mail = Column(Boolean, default=False, server_default=sql.expression.false())
+    id = Column('id', Integer, primary_key=True)
+    current_char = Column('current_char', Integer, ForeignKey("characters.id"))
+    username = Column('username', String(100), unique=True)  # login name
+    login_token = Column('login_token', String(16), unique=True)
+    disabled = Column('disabled', Boolean(name='disabled'), default=False, server_default=sql.expression.false())
+    had_welcome_mail = Column('had_welcome_mail', Boolean(name='had_welcome_mail'), default=False, server_default=sql.expression.false())
     '''
     refresh_token = Column(String(128), default=None)
     access_token = Column(String(128), default=None)
@@ -222,17 +228,17 @@ class CrestFleet(Base):
     """ Represents a setup fleet """
     __tablename__ = 'crest_fleets'
 
-    fleetID = Column(BigInteger, primary_key=True)
-    logiWingID = Column(BigInteger)
-    logiSquadID = Column(BigInteger)
-    sniperWingID = Column(BigInteger)
-    sniperSquadID = Column(BigInteger)
-    dpsWingID = Column(BigInteger)
-    dpsSquadID = Column(BigInteger)
-    otherWingID = Column(BigInteger)
-    otherSquadID = Column(BigInteger)
-    groupID = Column(Integer, ForeignKey('waitlist_groups.groupID'), nullable=False)
-    compID = Column(Integer, ForeignKey("accounts.id"), nullable=True)
+    fleetID = Column('fleet_id', BigInteger, primary_key=True)
+    logiWingID = Column('logi_wing_id', BigInteger)
+    logiSquadID = Column('logi_squad_id', BigInteger)
+    sniperWingID = Column('sniper_wing_id', BigInteger)
+    sniperSquadID = Column('sniper_squad_id', BigInteger)
+    dpsWingID = Column('dps_wing_id', BigInteger)
+    dpsSquadID = Column('dps_squad_id', BigInteger)
+    otherWingID = Column('other_wing_id', BigInteger)
+    otherSquadID = Column('other_squad_id', BigInteger)
+    groupID = Column('group_id', Integer, ForeignKey('waitlist_groups.group_id'), nullable=False)
+    compID = Column('comp_id', Integer, ForeignKey("accounts.id"), nullable=True)
 
     group = relationship("WaitlistGroup", uselist=False, back_populates="fleets")
     comp = relationship("Account", uselist=False, back_populates="fleet")
@@ -244,13 +250,13 @@ class Character(Base):
     """
     __tablename__ = "characters"
 
-    id = Column(Integer, primary_key=True)
-    eve_name = Column(String(100))
-    newbro = Column(Boolean, default=True, nullable=False)
-    lc_level = Column(SmallInteger, default=0, nullable=False)
-    cbs_level = Column(SmallInteger, default=0, nullable=False)
-    login_token = Column(String(16), nullable=True)
-    teamspeak_poke = Column(Boolean, default=True, server_default="1", nullable=False)
+    id = Column('id', Integer, primary_key=True)
+    eve_name = Column('eve_name', String(100))
+    newbro = Column('new_bro', Boolean(name='new_bro'), default=True, nullable=False)
+    lc_level = Column('lc_level', SmallInteger, default=0, nullable=False)
+    cbs_level = Column('cbs_level', SmallInteger, default=0, nullable=False)
+    login_token = Column('login_token', String(16), nullable=True)
+    teamspeak_poke = Column('teamspeak_poke', Boolean(name='teamspeak_poke'), default=True, server_default="1", nullable=False)
 
     def get_login_token(self):
         if self.login_token is None:
@@ -302,9 +308,9 @@ class Role(Base):
     """
     __tablename__ = 'roles'
 
-    id = Column(Integer, primary_key=True)
-    name = Column(String(50), unique=True)
-    displayName = Column(String(150), unique=False)
+    id = Column('id', Integer, primary_key=True)
+    name = Column('name', String(50), unique=True)
+    displayName = Column('display_name', String(150), unique=False)
 
     def __repr__(self):
         return "<Role %r>" % self.name
@@ -312,7 +318,7 @@ class Role(Base):
 
 permission_roles = Table('permission_roles', Base.metadata,
                          Column('permission', Integer, ForeignKey('permissions.id')),
-                         Column('role', Integer, ForeignKey('roles.id'))
+                         Column('role', Integer, ForeignKey(Role.id))
                          )
 
 
@@ -322,8 +328,8 @@ class Permission(Base):
     """
     __tablename__ = 'permissions'
 
-    id = Column(Integer, primary_key=True)
-    name = Column(String(150), unique=True)
+    id = Column('id', Integer, primary_key=True)
+    name = Column('name', String(150), unique=True)
 
     roles_needed = relationship("Role", secondary=permission_roles)
 
@@ -336,17 +342,20 @@ class Waitlist(Base):
     Represents a waitlist
     """
     __tablename__ = 'waitlists'
+    __table_args__ = (
+        UniqueConstraint('group_id', 'waitlist_type', name='uq_waitlists_group_id_waitlist_type'),
+    )
 
-    id = Column(Integer, primary_key=True)
-    name = Column(String(50))
-    groupID = Column(Integer, ForeignKey("waitlist_groups.groupID"))
-    displayTitle = Column(String(100), nullable=False, default="")
+    id = Column('id', Integer, primary_key=True)
+    name = Column('name', String(50))
+    waitlistType = Column('waitlist_type', String(20))
+    groupID = Column('group_id', Integer, ForeignKey("waitlist_groups.group_id"),)
+    displayTitle = Column('display_title', String(100), nullable=False, default="")
     entries = relationship("WaitlistEntry", back_populates="waitlist", order_by="asc(WaitlistEntry.creation)")
-    group = relationship("WaitlistGroup", uselist=False, foreign_keys=[groupID])
+    group = relationship("WaitlistGroup", back_populates="waitlists")
 
     def __repr__(self):
         return "<Waitlist %r>" % self.name
-
 
 class WaitlistGroup(Base):
     """
@@ -358,27 +367,85 @@ class WaitlistGroup(Base):
 
     __tablename__ = "waitlist_groups"
 
-    groupID = Column(Integer, primary_key=True)
-    groupName = Column(String(50), unique=True, nullable=False)
-    displayName = Column(String(50), unique=True, nullable=False)
-    xupwlID = Column(Integer, ForeignKey(Waitlist.id), nullable=False)
-    logiwlID = Column(Integer, ForeignKey(Waitlist.id), nullable=False)
-    dpswlID = Column(Integer, ForeignKey(Waitlist.id), nullable=False)
-    sniperwlID = Column(Integer, ForeignKey(Waitlist.id), nullable=False)
-    otherwlID = Column(Integer, ForeignKey(Waitlist.id), nullable=True)
-    enabled = Column(Boolean, nullable=False, default=False)
-    status = Column(String(1000), default="Down")
-    dockupID = Column(Integer, ForeignKey(Station.stationID), nullable=True)
-    systemID = Column(Integer, ForeignKey(SolarSystem.solarSystemID), nullable=True)
-    constellationID = Column(Integer, ForeignKey(Constellation.constellationID), nullable=True)
-    odering = Column(Integer, nullable=False, default=0)
-    influence = Column(Boolean, nullable=False, server_default='0', default=False)
+    groupID = Column('group_id', Integer, primary_key=True)
+    groupName = Column('group_name', String(50), unique=True, nullable=False)
+    displayName = Column('display_name', String(50), unique=True, nullable=False)
+    """
+    xupwlID = Column('xupwl_id', Integer, ForeignKey(Waitlist.id), nullable=False)
+    logiwlID = Column('logiwl_id', Integer, ForeignKey(Waitlist.id), nullable=False)
+    dpswlID = Column('dpswl_id', Integer, ForeignKey(Waitlist.id), nullable=False)
+    sniperwlID = Column('sniperwl_id', Integer, ForeignKey(Waitlist.id), nullable=False)
+    otherwlID = Column('otherwl_id', Integer, ForeignKey(Waitlist.id), nullable=True)
+    """
+    enabled = Column('enabled', Boolean(name='enabled'), nullable=False, default=False)
+    status = Column('status', String(1000), default="Down")
+    dockupID = Column('dockup_id', Integer, ForeignKey(Station.stationID), nullable=True)
+    systemID = Column('system_id', Integer, ForeignKey(SolarSystem.solarSystemID), nullable=True)
+    constellationID = Column('constellation_id', Integer, ForeignKey(Constellation.constellationID), nullable=True)
+    ordering = Column('ordering', Integer, nullable=False, default=0)
+    influence = Column('influence', Boolean(name='influence'), nullable=False, server_default='0', default=False)
 
-    xuplist = relationship("Waitlist", foreign_keys=[xupwlID])
-    logilist = relationship("Waitlist", foreign_keys=[logiwlID])
-    dpslist = relationship("Waitlist", foreign_keys=[dpswlID])
-    sniperlist = relationship("Waitlist", foreign_keys=[sniperwlID])
-    otherlist = relationship("Waitlist", foreign_keys=[otherwlID])
+    waitlists = relationship(Waitlist, back_populates="group")
+
+    def has_wl_of_type(self, type: str):
+        for wl in self.waitlists:
+            if wl.waitlistType == type:
+                return True
+        return False
+
+    def get_wl_for_type(self, type: str):
+        for wl in self.waitlists:
+            if wl.waitlistType == type:
+                return wl
+
+    def set_wl_to_type(self, wl: Waitlist, type: str):
+        if wl is None:
+            return
+        wl.waitlistType = type
+        self.waitlists.append(wl)
+
+    @property
+    def xuplist(self):
+        return self.get_wl_for_type('xup')
+    @xuplist.setter
+    def xuplist(self, value: Waitlist):
+        self.set_wl_to_type(value, 'xup')
+
+    @property
+    def logilist(self):
+        return self.get_wl_for_type('logi')
+    @logilist.setter
+    def logilist(self, value: Waitlist):
+        self.set_wl_to_type(value, 'logi')
+
+    @property
+    def dpslist(self):
+        return self.get_wl_for_type('dps')
+    @dpslist.setter
+    def dpslist(self, value: Waitlist):
+        self.set_wl_to_type(value, 'dps')
+
+    @property
+    def sniperlist(self):
+        return self.get_wl_for_type('sniper')
+    @sniperlist.setter
+    def sniperlist(self, value: Waitlist):
+        self.set_wl_to_type(value, 'sniper')
+
+    @property
+    def otherlist(self):
+        return self.get_wl_for_type('other')
+    @otherlist.setter
+    def otherlist(self, value: Waitlist):
+        self.set_wl_to_type(value, 'other')
+
+    #xuplist = relationship("Waitlist", foreign_keys=[xupwlID])
+    #logilist = relationship("Waitlist", foreign_keys=[logiwlID])
+    #dpslist = relationship("Waitlist", foreign_keys=[dpswlID])
+    #sniperlist = relationship("Waitlist", foreign_keys=[sniperwlID])
+    #otherlist = relationship("Waitlist", foreign_keys=[otherwlID])
+
+
     dockup = relationship("Station", uselist=False)
     system = relationship("SolarSystem", uselist=False)
     constellation = relationship("Constellation", uselist=False)
@@ -394,12 +461,12 @@ class Shipfit(Base):
     """
     __tablename__ = "fittings"
 
-    id = Column(Integer, primary_key=True)
-    ship_type = Column(Integer, ForeignKey("invtypes.typeID"))
-    modules = Column(String(5000))
-    comment = Column(String(5000))
-    wl_type = Column(String(10))
-    created = Column(DateTime, default=datetime.utcnow)
+    id = Column('id', Integer, primary_key=True)
+    ship_type = Column('ship_type', Integer, ForeignKey(InvType.typeID))
+    modules = Column('modules', String(5000))
+    comment = Column('comment', String(5000))
+    wl_type = Column('wl_type', String(10))
+    created = Column('created', DateTime, default=datetime.utcnow)
 
     ship = relationship("InvType")
     waitlist = relationship("WaitlistEntry", secondary="waitlist_entry_fits", uselist=False)
@@ -417,8 +484,8 @@ class Shipfit(Base):
 
 class WaitlistEntryFit(Base):
     __tablename__ = "waitlist_entry_fits"
-    entryID = Column(Integer, ForeignKey("waitlist_entries.id", onupdate="CASCADE", ondelete="CASCADE"))
-    fitID = Column(Integer, ForeignKey("fittings.id", onupdate="CASCADE", ondelete="CASCADE"), primary_key=True)
+    entryID = Column('entry_id', Integer, ForeignKey("waitlist_entries.id", onupdate="CASCADE", ondelete="CASCADE"))
+    fitID = Column('fit_id', Integer, ForeignKey("fittings.id", onupdate="CASCADE", ondelete="CASCADE"), primary_key=True)
 
 
 class WaitlistEntry(Base):
@@ -427,13 +494,13 @@ class WaitlistEntry(Base):
     A person in a waitlist_id always needs to have a user(his character) and and one or more fits
     """
     __tablename__ = "waitlist_entries"
-    id = Column(Integer, primary_key=True)
-    creation = Column(DateTime)
-    user = Column(Integer, ForeignKey('characters.id'))
+    id = Column('id', Integer, primary_key=True)
+    creation = Column('creation', DateTime)
+    user = Column('user', Integer, ForeignKey('characters.id'))
     fittings = relationship("Shipfit", secondary="waitlist_entry_fits")
-    waitlist_id = Column(Integer, ForeignKey("waitlists.id", onupdate="CASCADE", ondelete="CASCADE"))
-    timeInvited = Column(DateTime, default=None)
-    inviteCount = Column(Integer, default=0)
+    waitlist_id = Column('waitlist_id', Integer, ForeignKey("waitlists.id", onupdate="CASCADE", ondelete="CASCADE"))
+    timeInvited = Column('time_invited', DateTime, default=None)
+    inviteCount = Column('invite_count', Integer, default=0)
     waitlist = relationship("Waitlist", back_populates="entries")
     user_data = relationship("Character")
 
@@ -443,65 +510,65 @@ class WaitlistEntry(Base):
 
 class APICacheCharacterInfo(Base):
     __tablename__ = "apicache_characterinfo"
-    id = Column(Integer, primary_key=True)
-    characterName = Column(String(100))
-    corporationID = Column(Integer, index=True)
-    characterBirthday = Column(DateTime, nullable=False)
-    raceID = Column(Integer)
-    expire = Column(DateTime)
+    id = Column('id', Integer, primary_key=True)
+    characterName = Column('character_name', String(100))
+    corporationID = Column('corporation_id', Integer, index=True)
+    characterBirthday = Column('character_birthday', DateTime, nullable=False)
+    raceID = Column('race_id', Integer)
+    expire = Column('expire', DateTime)
 
 
 class APICacheCorporationInfo(Base):
     __tablename__ = "apicache_corporationinfo"
-    id = Column(Integer, primary_key=True)
-    name = Column(String(100), index=True)
-    allianceID = Column(Integer, index=True)
-    ceoID = Column(Integer)
-    description = Column(Text)
-    creatorID = Column(Integer)
-    memberCount = Column(Integer)
-    taxRate = Column(Float)
-    ticker = Column(String(10))
-    url = Column(String(500))
-    creationDate = Column(DateTime)
-    expire = Column(DateTime)
+    id = Column('id', Integer, primary_key=True)
+    name = Column('name', String(100), index=True)
+    allianceID = Column('alliance_id', Integer, index=True)
+    ceoID = Column('ceo_id', Integer)
+    description = Column('description', Text)
+    creatorID = Column('creator_id', Integer)
+    memberCount = Column('member_count', Integer)
+    taxRate = Column('tax_rate', Float)
+    ticker = Column('ticker', String(10))
+    url = Column('url', String(500))
+    creationDate = Column('creation_date', DateTime)
+    expire = Column('expire', DateTime)
 
 
 class APICacheCharacterAffiliation(Base):
     __tablename__ = "apicache_characteraffiliation"
-    id = Column(Integer, primary_key=True)
-    name = Column(String(100), index=True)
-    corporationID = Column(Integer, index=True)
-    corporationName = Column(String(100), index=True)
-    allianceID = Column(Integer, index=True)
-    allianceName = Column(String(100), index=True)
-    expire = Column(DateTime)
+    id = Column('id', Integer, primary_key=True)
+    name = Column('name', String(100), index=True)
+    corporationID = Column('corporation_id', Integer, index=True)
+    corporationName = Column('corporation_name', String(100), index=True)
+    allianceID = Column('alliance_id', Integer, index=True)
+    allianceName = Column('alliance_name', String(100), index=True)
+    expire = Column('expire', DateTime)
 
 
 class APICacheAllianceInfo(Base):
     __tablename__ = 'apicache_allianceinfo'
-    id = Column(Integer, primary_key=True)
-    allianceName = Column(String(100), index=True)
-    dateFounded = Column(DateTime)
-    executorCorpID = Column(Integer, index=True)
-    ticker = Column(String(10))
-    expire = Column(DateTime)
+    id = Column('id', Integer, primary_key=True)
+    allianceName = Column('alliance_name', String(100), index=True)
+    dateFounded = Column('date_founded', DateTime)
+    executorCorpID = Column('executor_corp_id', Integer, index=True)
+    ticker = Column('ticker', String(10))
+    expire = Column('expire', DateTime)
 
 
 class Ban(Base):
     __tablename__ = "ban"
-    id = Column(Integer, primary_key=True)
-    name = Column(String(100), index=True)
-    reason = Column(Text)
-    admin = Column(Integer, ForeignKey("characters.id"))
+    id = Column('id', Integer, primary_key=True)
+    name = Column('name', String(100), index=True)
+    reason = Column('reason', Text)
+    admin = Column('admin', Integer, ForeignKey("characters.id"))
     admin_obj = relationship("Character", foreign_keys="Ban.admin")
 
 
 class Whitelist(Base):
     __tablename__ = "whitelist"
-    characterID = Column(Integer, ForeignKey(Character.id), primary_key=True)
-    reason = Column(Text)
-    adminID = Column(Integer, ForeignKey(Character.id))
+    characterID = Column('character_id', Integer, ForeignKey(Character.id), primary_key=True)
+    reason = Column('reason', Text)
+    adminID = Column('admin_id', Integer, ForeignKey(Character.id))
     character = relationship(Character, foreign_keys=[characterID])
     admin = relationship(Character, foreign_keys=[adminID])
 
@@ -511,12 +578,12 @@ class Feedback(Base):
     Contains the feedback people give about the waitlist
     """
     __tablename__ = "feedback"
-    id = Column(Integer, primary_key=True)
-    last_changed = Column(DateTime, index=True)
-    user = Column(Integer, ForeignKey('characters.id'), unique=True, index=True)
+    id = Column('id', Integer, primary_key=True)
+    last_changed = Column('last_changed', DateTime, index=True)
+    user = Column('user', Integer, ForeignKey(Character.id), unique=True, index=True)
     user_data = relationship("Character")
-    likes = Column(Boolean)
-    comment = Column(Text)
+    likes = Column('likes', Boolean(name='likes'))
+    comment = Column('comment', Text)
 
 
 class Ticket(Base):
@@ -524,45 +591,45 @@ class Ticket(Base):
     Contains a single 'feedback' entry from a linemember, which can have states
     """
     __tablename__ = "tickets"
-    id = Column(Integer, primary_key=True)
-    title = Column(String(50))
-    time = Column(DateTime, default=datetime.utcnow, nullable=False, index=True)
-    characterID = Column(Integer, ForeignKey('characters.id'), index=True)
-    message = Column(Text)
-    state = Column(String(20), nullable=False, index=True, default="new")
+    id = Column('id', Integer, primary_key=True)
+    title = Column('title', String(50))
+    time = Column('time', DateTime, default=datetime.utcnow, nullable=False, index=True)
+    characterID = Column('character_id', Integer, ForeignKey('characters.id'), index=True)
+    message = Column('message', Text)
+    state = Column('state', String(20), nullable=False, index=True, default="new")
 
     character = relationship("Character")
 
 
 class IncursionLayout(Base):
     __tablename__ = "incursion_layout"
-    constellation = Column(Integer, ForeignKey("constellation.constellationID"), primary_key=True)
-    staging = Column(Integer, ForeignKey("solarsystem.solarSystemID"))
-    headquarter = Column(Integer, ForeignKey("solarsystem.solarSystemID"))
-    dockup = Column(Integer, ForeignKey("station.stationID"))
+    constellation = Column('constellation', Integer, ForeignKey(Constellation.constellationID), primary_key=True)
+    staging = Column('staging', Integer, ForeignKey(SolarSystem.solarSystemID))
+    headquarter = Column('headquarter', Integer, ForeignKey(SolarSystem.solarSystemID))
+    dockup = Column('dockup', Integer, ForeignKey(Station.stationID))
 
-    obj_constellation = relationship("Constellation", foreign_keys="IncursionLayout.constellation")
-    obj_staging = relationship("SolarSystem", foreign_keys="IncursionLayout.staging")
-    obj_headquarter = relationship("SolarSystem", foreign_keys="IncursionLayout.headquarter")
-    obj_dockup = relationship("Station", foreign_keys="IncursionLayout.dockup")
+    obj_constellation = relationship("Constellation", foreign_keys=[constellation])
+    obj_staging = relationship("SolarSystem", foreign_keys=[staging])
+    obj_headquarter = relationship("SolarSystem", foreign_keys=[headquarter])
+    obj_dockup = relationship("Station", foreign_keys=[dockup])
 
 
 class HistoryFits(Base):
     __tablename__ = "comp_history_fits"
-    id = Column(Integer, primary_key=True)
-    historyID = Column(Integer, ForeignKey("comp_history.historyID"))
-    fitID = Column(Integer, ForeignKey("fittings.id"))
+    id = Column('id', Integer, primary_key=True)
+    historyID = Column('history_id', Integer, ForeignKey("comp_history.history_id"))
+    fitID = Column('fit_id', Integer, ForeignKey(Shipfit.id))
 
 
 class HistoryEntry(Base):
     __tablename__ = "comp_history"
-    historyID = Column(Integer, primary_key=True)
-    sourceID = Column(Integer, ForeignKey("accounts.id"), nullable=True)
-    targetID = Column(Integer, ForeignKey("characters.id"), nullable=False)
-    action = Column(String(20))
-    time = Column(DateTime, default=datetime.utcnow, index=True)
-    exref = Column(Integer, nullable=True, default=None)
-    fittings = relationship("Shipfit", secondary="comp_history_fits")
+    historyID = Column('history_id', Integer, primary_key=True)
+    sourceID = Column('source_id', Integer, ForeignKey(Account.id), nullable=True)
+    targetID = Column('target_id', Integer, ForeignKey(Character.id), nullable=False)
+    action = Column('action', String(20))
+    time = Column('time', DateTime, default=datetime.utcnow, index=True)
+    exref = Column('exref', Integer, nullable=True, default=None)
+    fittings = relationship("Shipfit", secondary='comp_history_fits')
     source = relationship("Account")
     target = relationship("Character")
 
@@ -583,66 +650,66 @@ class HistoryEntry(Base):
 
 class HistoryExtInvite(Base):
     __tablename__ = "comp_history_ext_inv"
-    inviteExtID = Column(Integer, primary_key=True)
-    historyID = Column(Integer, ForeignKey(HistoryEntry.historyID))
-    waitlistID = Column(Integer, ForeignKey(Waitlist.id))
-    timeCreated = Column(DateTime)
-    timeInvited = Column(DateTime)
+    inviteExtID = Column('invite_ext_id', Integer, primary_key=True)
+    historyID = Column('history_id', Integer, ForeignKey(HistoryEntry.historyID))
+    waitlistID = Column('waitlist_id', Integer, ForeignKey(Waitlist.id))
+    timeCreated = Column('time_created', DateTime)
+    timeInvited = Column('time_invited', DateTime)
 
 
 class EventHistoryType(Base):
     __tablename__ = "event_history_types"
-    typeID = Column(Integer, primary_key=True)
-    typeName = Column(String(20), unique=True)
+    typeID = Column('type_id', Integer, primary_key=True)
+    typeName = Column('type_name', String(20), unique=True)
 
 
 class EventHistoryEntry(Base):
     __tablename__ = "event_history_entries"
-    historyID = Column(Integer, primary_key=True)
-    time = Column(DateTime, default=datetime.utcnow, index=True)
-    typeID = Column(Integer, ForeignKey("event_history_types.typeID"))
+    historyID = Column('history_id', Integer, primary_key=True)
+    time = Column('time', DateTime, default=datetime.utcnow, index=True)
+    typeID = Column('type_id', Integer, ForeignKey("event_history_types.type_id"))
 
-    type = relationship("EventHistoryType", uselist=False)
+    type = relationship(EventHistoryType, uselist=False)
 
 
 class EventHistoryInfo(Base):
     __tablename__ = "event_history_info"
-    infoID = Column(Integer, primary_key=True)
-    historyID = Column(Integer, ForeignKey("event_history_entries.historyID"))
-    infoType = Column(Integer)
-    referenceID = Column(Integer)
+    infoID = Column('info_id', Integer, primary_key=True)
+    historyID = Column('history_id', Integer, ForeignKey(EventHistoryEntry.historyID))
+    infoType = Column('info_type', Integer)
+    referenceID = Column('reference_id', Integer)
 
 
 class TeamspeakDatum(Base):
     __tablename__ = "ts_dati"
-    teamspeakID = Column(Integer, primary_key=True)
-    displayName = Column(String(128))  # this is displayed in menus and such
-    host = Column(String(128))  # for internal connection
-    port = Column(Integer)  # for internal connection
-    displayHost = Column(String(128))  # this should be shown to public
-    displayPort = Column(Integer)  # this should be shown to public
-    queryName = Column(String(128))
-    queryPassword = Column(String(128))
-    serverID = Column(Integer)
-    channelID = Column(Integer)
-    clientName = Column(String(20))
-    safetyChannelID = Column(Integer)
+    teamspeakID = Column('teamspeak_id', Integer, primary_key=True)
+    displayName = Column('display_name', String(128))  # this is displayed in menus and such
+    host = Column('host', String(128))  # for internal connection
+    port = Column('port', Integer)  # for internal connection
+    displayHost = Column('display_host', String(128))  # this should be shown to public
+    displayPort = Column('display_port', Integer)  # this should be shown to public
+    queryName = Column('query_name', String(128))
+    queryPassword = Column('query_password', String(128))
+    serverID = Column('server_id', Integer)
+    channelID = Column('channel_id', Integer)
+    clientName = Column('client_name', String(20))
+    safetyChannelID = Column('safety_channel_id', Integer)
 
 
 class Setting(Base):
     __tablename__ = "settings"
-    key = Column(String(20), primary_key=True)
-    value = Column(Text)
+    key = Column('key', String(20), primary_key=True)
+    value = Column('value', Text)
 
 
 class AccountNote(Base):
     __tablename__ = "account_notes"
-    entryID = Column(Integer, primary_key=True)
-    accountID = Column(Integer, ForeignKey('accounts.id'), nullable=False)
-    byAccountID = Column(Integer, ForeignKey('accounts.id'), nullable=False)
-    note = Column(Text, nullable=True)
-    time = Column(DateTime, default=datetime.utcnow, index=True)
-    restriction_level = Column(SmallInteger, default=50, nullable=False, server_default=text('50'))
+    entryID = Column('entry_id', Integer, primary_key=True)
+    accountID = Column('account_id', Integer, ForeignKey(Account.id), nullable=False)
+    byAccountID = Column('by_account_id', Integer, ForeignKey(Account.id), nullable=False)
+    note = Column('note', Text, nullable=True)
+    time = Column('time', DateTime, default=datetime.utcnow, index=True)
+    restriction_level = Column('restriction_level', SmallInteger, default=50, nullable=False, server_default=text('50'))
 
     role_changes = relationship("RoleChangeEntry", back_populates="note", order_by="desc(RoleChangeEntry.added)")
     by = relationship('Account', foreign_keys=[byAccountID])
@@ -651,132 +718,132 @@ class AccountNote(Base):
 
 class RoleChangeEntry(Base):
     __tablename__ = "role_changes"
-    roleChangeID = Column(Integer, primary_key=True)
-    entryID = Column(Integer, ForeignKey('account_notes.entryID', onupdate="CASCADE", ondelete="CASCADE"),
+    roleChangeID = Column('role_change_id', Integer, primary_key=True)
+    entryID = Column('entry_id', Integer, ForeignKey(AccountNote.entryID, onupdate="CASCADE", ondelete="CASCADE"),
                      nullable=False)
-    roleID = Column(Integer, ForeignKey('roles.id', onupdate="CASCADE", ondelete="CASCADE"), nullable=False)
-    added = Column(Boolean, nullable=False)
-    note = relationship("AccountNote", back_populates="role_changes")
-    role = relationship('Role')
+    roleID = Column('role_id', Integer, ForeignKey(Role.id, onupdate="CASCADE", ondelete="CASCADE"), nullable=False)
+    added = Column('added', Boolean(name='added'), nullable=False)
+    note = relationship(AccountNote, back_populates="role_changes")
+    role = relationship(Role)
 
 
 class FitModule(Base):
     __tablename__ = 'fit_module'
-    fitID = Column(Integer, ForeignKey('fittings.id'), primary_key=True, nullable=False)
-    moduleID = Column(Integer, ForeignKey('invtypes.typeID'), primary_key=True, nullable=False)
-    amount = Column(Integer, default=1)
-    module = relationship('InvType')
-    fit = relationship('Shipfit')
+    fitID = Column('fit_id', Integer, ForeignKey(Shipfit.id), primary_key=True, nullable=False)
+    moduleID = Column('module_id', Integer, ForeignKey(InvType.typeID), primary_key=True, nullable=False)
+    amount = Column('amount', Integer, default=1)
+    module = relationship(InvType)
+    fit = relationship(Shipfit)
 
 
 class CalendarEventCategory(Base):
     __tablename__: str = 'calendar_category'
-    categoryID: Column = Column(Integer, primary_key=True)
-    categoryName: Column = Column(String(50), index=True)
-    fixedTitle: Column = Column(String(200), nullable=True)
-    fixedDescription: Column = Column(Text, nullable=True)
+    categoryID: Column = Column('category_id', Integer, primary_key=True)
+    categoryName: Column = Column('category_name', String(50), index=True)
+    fixedTitle: Column = Column('fixed_title', String(200), nullable=True)
+    fixedDescription: Column = Column('fixed_description', Text, nullable=True)
 
 
 class CalendarEvent(Base):
     __tablename__: str = 'calendar_event'
-    eventID: Column = Column(Integer, primary_key=True)
-    eventCreatorID: Column = Column(Integer, ForeignKey('accounts.id', onupdate='CASCADE', ondelete='CASCADE'),
+    eventID: Column = Column('event_id', Integer, primary_key=True)
+    eventCreatorID: Column = Column('event_creator_id', Integer, ForeignKey('accounts.id', onupdate='CASCADE', ondelete='CASCADE'),
                                     index=True)
-    eventTitle: Column = Column(Text)
-    eventDescription: Column = Column(Text)
-    eventCategoryID: Column = Column(Integer,
-                                     ForeignKey('calendar_category.categoryID', onupdate='CASCADE', ondelete='CASCADE'),
+    eventTitle: Column = Column('event_title', Text)
+    eventDescription: Column = Column('event_description', Text)
+    eventCategoryID: Column = Column('event_category_id', Integer,
+                                     ForeignKey(CalendarEventCategory.categoryID, onupdate='CASCADE', ondelete='CASCADE'),
                                      index=True)
-    eventApproved: Column = Column(Boolean, index=True)
-    eventTime: Column = Column(DateTime, index=True)
-    approverID: Column = Column(Integer, ForeignKey('accounts.id', ondelete='CASCADE', onupdate='CASCADE'))
+    eventApproved: Column = Column('event_approved', Boolean(name='event_approved'), index=True)
+    eventTime: Column = Column('event_time', DateTime, index=True)
+    approverID: Column = Column('approver_id', Integer, ForeignKey('accounts.id', ondelete='CASCADE', onupdate='CASCADE'))
 
-    creator: relationship = relationship("Account", foreign_keys=[eventCreatorID])
-    eventCategory: relationship = relationship('CalendarEventCategory')
-    organizers: relationship = relationship("Account", secondary="calendar_organizer")
-    backseats: relationship = relationship("Account", secondary="calendar_backseat")
-    approver: relationship = relationship("Account", foreign_keys=[approverID])
+    creator: relationship = relationship(Account, foreign_keys=[eventCreatorID])
+    eventCategory: relationship = relationship(CalendarEventCategory)
+    organizers: relationship = relationship(Account, secondary="calendar_organizer")
+    backseats: relationship = relationship(Account, secondary="calendar_backseat")
+    approver: relationship = relationship(Account, foreign_keys=[approverID])
 
 
 calendar_organizer: Table = Table('calendar_organizer',
                                   Base.metadata,
-                                  Column('accountID', Integer,
-                                         ForeignKey('accounts.id', ondelete="CASCADE", onupdate='CASCADE')),
-                                  Column('eventID', Integer,
-                                         ForeignKey('calendar_event.eventID', ondelete="CASCADE", onupdate='CASCADE'))
+                                  Column('account_id', Integer,
+                                         ForeignKey(Account.id, ondelete="CASCADE", onupdate='CASCADE')),
+                                  Column('event_id', Integer,
+                                         ForeignKey(CalendarEvent.eventID, ondelete="CASCADE", onupdate='CASCADE'))
                                   )
 
 calendar_backseat: Table = Table('calendar_backseat',
                                  Base.metadata,
-                                 Column('accountID', Integer,
-                                        ForeignKey('accounts.id', ondelete="CASCADE", onupdate='CASCADE')),
-                                 Column('eventID', Integer,
-                                        ForeignKey('calendar_event.eventID', ondelete="CASCADE", onupdate='CASCADE'))
+                                 Column('account_id', Integer,
+                                        ForeignKey(Account.id, ondelete="CASCADE", onupdate='CASCADE')),
+                                 Column('event_id', Integer,
+                                        ForeignKey(CalendarEvent.eventID, ondelete="CASCADE", onupdate='CASCADE'))
                                  )
 
 
 class CCVote(Base):
     __tablename__ = "ccvote"
-    ccvoteID = Column(Integer, primary_key=True)
-    voterID = Column(Integer, ForeignKey("characters.id"))
-    lmvoteID = Column(Integer, ForeignKey("accounts.id"))
-    fcvoteID = Column(Integer, ForeignKey("accounts.id"))
-    time = Column(DateTime, default=datetime.utcnow)
+    ccvoteID = Column('ccvote_id', Integer, primary_key=True)
+    voterID = Column('voter_id', Integer, ForeignKey(Character.id))
+    lmvoteID = Column('lmvote_id', Integer, ForeignKey(Account.id))
+    fcvoteID = Column('fcvote_id', Integer, ForeignKey(Account.id))
+    time = Column('time', DateTime, default=datetime.utcnow)
 
 
 class Trivia(Base):
     __tablename__: str = 'trivia'
     __table_args__ = (
-        CheckConstraint('toTime > fromTime'),
+        CheckConstraint('to_time > from_time', name="to_bigger_from"),
     )
-    triviaID: Column = Column(Integer, primary_key=True)
-    createdByID: Column = Column(Integer, ForeignKey('accounts.id'))
-    description: Column = Column(String(5000))
-    alertText: Column = Column(String(1000))
-    fromTime: Column = Column(DateTime)
-    toTime: Column = Column(DateTime)
+    triviaID: Column = Column('trivia_id', Integer, primary_key=True)
+    createdByID: Column = Column('created_by_id', Integer, ForeignKey(Account.id))
+    description: Column = Column('description', String(5000))
+    alertText: Column = Column('alert_text', String(1000))
+    fromTime: Column = Column('from_time', DateTime)
+    toTime: Column = Column('to_time', DateTime)
 
-    createdBy = relationship('Account')
+    createdBy = relationship(Account)
     questions = relationship('TriviaQuestion', back_populates='trivia')
 
 
 class TriviaQuestion(Base):
     __tablename__: str = 'trivia_question'
-    questionID: Column = Column(Integer, primary_key=True)
-    triviaID: Column = Column(Integer, ForeignKey('trivia.triviaID'), primary_key=True)
-    questionText: Column = Column(String(1000))
-    answerType: Column = Column(String(255))
-    answerConnection: Column = Column(Enum('AND', 'OR', 'NOT', 'NONE'))
-    inputPlaceholder: Column = Column(String(255))
+    questionID: Column = Column('question_id', Integer, primary_key=True)
+    triviaID: Column = Column('trivia_id', Integer, ForeignKey(Trivia.triviaID), nullable=False)
+    questionText: Column = Column('question_text', String(1000))
+    answerType: Column = Column('answer_type', String(255))
+    answerConnection: Column = Column('answer_connection', Enum('AND', 'OR', 'NOT', 'NONE', name="answer_connection"))
+    inputPlaceholder: Column = Column('input_placeholder', String(255))
 
-    trivia = relationship('Trivia', back_populates='questions')
+    trivia = relationship(Trivia, back_populates='questions')
     answers = relationship('TriviaAnswer')
 
 
 class TriviaAnswer(Base):
     __tablename__: str = 'trivia_answer'
-    answerID: Column = Column(Integer, primary_key=True)
-    questionID: Column = Column(Integer, ForeignKey('trivia_question.questionID'), primary_key=True)
-    answerText: Column = Column(String(1000))
+    answerID: Column = Column('answer_id', Integer, primary_key=True)
+    questionID: Column = Column('question_id', Integer, ForeignKey(TriviaQuestion.questionID), primary_key=True)
+    answerText: Column = Column('answer_text', String(1000))
 
 
 class TriviaSubmission(Base):
     __tablename__: str = 'trivia_submission'
-    submissionID: Column = Column(Integer, primary_key=True)
-    triviaID: Column = Column(Integer, ForeignKey('trivia.triviaID'))
-    submittorID: Column = Column(Integer, ForeignKey('characters.id'), nullable=True)
-    submittorAccountID: Column = Column(Integer, ForeignKey('accounts.id'), nullable=True)
+    submissionID: Column = Column('submission_id', Integer, primary_key=True)
+    triviaID: Column = Column('trivia_id', Integer, ForeignKey(Trivia.triviaID))
+    submittorID: Column = Column('submittor_id', Integer, ForeignKey(Character.id), nullable=True)
+    submittorAccountID: Column = Column('submittor_account_id', Integer, ForeignKey(Account.id), nullable=True)
 
-    account = relationship('Account')
-    character = relationship('Character')
+    account = relationship(Account)
+    character = relationship(Character)
     answers = relationship('TriviaSubmissionAnswer', back_populates='submission')
 
 
 class TriviaSubmissionAnswer(Base):
     __tablename__: str = 'trivia_submission_answer'
-    submissionID: Column = Column(Integer, ForeignKey('trivia_submission.submissionID'), primary_key=True)
-    questionID: Column = Column(Integer, ForeignKey('trivia_question.questionID'), primary_key=True)
-    answerText: Column = Column(String(5000))
+    submissionID: Column = Column('submission_id', Integer, ForeignKey(TriviaSubmission.submissionID), primary_key=True)
+    questionID: Column = Column('question_id', Integer, ForeignKey(TriviaQuestion.questionID), primary_key=True)
+    answerText: Column = Column('answer_text', String(5000))
 
-    submission = relationship('TriviaSubmission', back_populates='answers')
-    question = relationship('TriviaQuestion')
+    submission = relationship(TriviaSubmission, back_populates='answers')
+    question = relationship(TriviaQuestion)

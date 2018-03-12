@@ -22,23 +22,36 @@ CellRenderer.prototype._render = function(rowIndex, columnIndex, element, value)
 	// remove existing content	
 	while (element.hasChildNodes()) element.removeChild(element.firstChild);
 
-	// always apply the number style to numerical cells and column headers
+	// clear isEditing (in case a currently editeed is being re-rendered by some external call)
+	element.isEditing = false;
+
+	// always apply the number class to numerical cells and column headers
 	if (this.column.isNumerical()) EditableGrid.prototype.addClassName(element, "number");
 
-	// always apply the boolean style to boolean column headers
+	// always apply the boolean class to boolean column headers
 	if (this.column.datatype == 'boolean') EditableGrid.prototype.addClassName(element, "boolean");
-		
+
+	// apply a css class corresponding to the column name
+	EditableGrid.prototype.addClassName(element, "editablegrid-" + this.column.name);
+
+	// add a data-title attribute used for responsiveness
+	element.setAttribute('data-title', this.column.label);
+
 	// call the specialized render method
-	return this.render(element, typeof value == 'string' && this.column.datatype != "html" ? htmlspecialchars(value, 'ENT_NOQUOTES').replace(/\s\s/g, '&nbsp; ') : value);
+	return this.render(element, typeof value == 'string' && this.column.datatype != "html" ? (value === null ? null : htmlspecialchars(value, 'ENT_NOQUOTES').replace(/  /g, ' &nbsp;')) : value);
 };
 
-CellRenderer.prototype.render = function(element, value) 
+CellRenderer.prototype.render = function(element, value, escapehtml) 
 {
-	element.innerHTML = value ? value : "";
+	var _value = escapehtml ? (typeof value == 'string' && this.column.datatype != "html" ? (value === null ? null : htmlspecialchars(value, 'ENT_NOQUOTES').replace(/  /g, ' &nbsp;')) : value) : value;
+	element.innerHTML = _value ? _value : "";
 };
 
 CellRenderer.prototype.getDisplayValue = function(rowIndex, value) 
 {
+	// for html data type, sort and filter after replacing html entities
+	if (this.column.datatype == 'html') return html_entity_decode(value);
+			
 	return value;
 };
 
@@ -52,28 +65,29 @@ function EnumCellRenderer(config) { this.init(config); }
 EnumCellRenderer.prototype = new CellRenderer();
 EnumCellRenderer.prototype.getLabel = function(rowIndex, value)
 {
-	var label = "";
+	var label = null;
 	if (typeof value != 'undefined') {
+		value = value ? value : '';
 		var optionValues = this.column.getOptionValuesForRender(rowIndex);
-		if (value in optionValues) label = optionValues[value];
-		for (var optionValue in optionValues) if (typeof optionValues[optionValue] == 'object' && value in optionValues[optionValue]) label = optionValues[optionValue][value];
-		if (label == "") {
+		if (optionValues && value in optionValues) label = optionValues[value];
+		if (label === null) {
 			var isNAN = typeof value == 'number' && isNaN(value);
 			label = isNAN ? "" : value;
 		}
 	}
-	return label;
+	return label ? label : '';
 };
 
 EnumCellRenderer.prototype.render = function(element, value)
 {
-	element.innerHTML = this.getLabel(element.rowIndex, value);
+	var label = this.getLabel(element.rowIndex, value);
+	element.innerHTML = label ? (this.column.datatype != "html" ? htmlspecialchars(label, 'ENT_NOQUOTES').replace(/\s\s/g, '&nbsp; ') : label) : ''; 
 };
 
 EnumCellRenderer.prototype.getDisplayValue = function(rowIndex, value) 
 {
 	// if the column has enumerated values, sort and filter on the value label
-	return this.getLabel(rowIndex, value);
+	return value === null ? null : this.getLabel(rowIndex, value);
 };
 
 /**
@@ -88,23 +102,24 @@ NumberCellRenderer.prototype.render = function(element, value)
 {
 	var column = this.column || {}; // in case somebody calls new NumberCellRenderer().render(..)
 
-	var isNAN = typeof value == 'number' && isNaN(value);
+	var isNAN = value === null || (typeof value == 'number' && isNaN(value));
 	var displayValue = isNAN ? (column.nansymbol || "") : value;
 	if (typeof displayValue == 'number') {
-		
+
 		if (column.precision !== null) {
 			// displayValue = displayValue.toFixed(column.precision);
 			displayValue = number_format(displayValue, column.precision, column.decimal_point, column.thousands_separator);
 		}
-		
+
 		if (column.unit !== null) {
 			if (column.unit_before_number) displayValue = column.unit + ' ' + displayValue;
 			else displayValue = displayValue + ' ' + column.unit;
 		}
 	}
-	
+
 	element.innerHTML = displayValue;
-	element.style.fontWeight = isNAN ? "normal" : "";
+	if (isNAN) EditableGrid.prototype.addClassName(element, "nan");
+	else EditableGrid.prototype.removeClassName(element, "nan");
 };
 
 /**
@@ -126,6 +141,12 @@ CheckboxCellRenderer.prototype._render = function(rowIndex, columnIndex, element
 	element.rowIndex = rowIndex; 
 	element.columnIndex = columnIndex;
 
+	// apply a css class corresponding to the column name
+	EditableGrid.prototype.addClassName(element, "editablegrid-" + this.column.name);
+
+	// add a data-title attribute used for responsiveness
+	element.setAttribute('data-title', this.column.label);
+
 	// call the specialized render method
 	return this.render(element, value);
 };
@@ -137,7 +158,7 @@ CheckboxCellRenderer.prototype.render = function(element, value)
 
 	// if check box already created, just update its state
 	if (element.firstChild) { element.firstChild.checked = value; return; }
-	
+
 	// create and initialize checkbox
 	var htmlInput = document.createElement("input"); 
 	htmlInput.setAttribute("type", "checkbox");
@@ -159,8 +180,8 @@ CheckboxCellRenderer.prototype.render = function(element, value)
 	element.appendChild(htmlInput);
 	htmlInput.checked = value;
 	htmlInput.disabled = (!this.column.editable || !this.editablegrid.isEditable(element.rowIndex, element.columnIndex));
-	
-	element.className = "boolean";
+
+	EditableGrid.prototype.addClassName(element, "boolean");
 };
 
 /**
@@ -202,7 +223,8 @@ DateCellRenderer.prototype.render = function(cell, value)
 {
 	var date = this.editablegrid.checkDate(value);
 	if (typeof date == "object") cell.innerHTML = date.formattedDate;
-	else cell.innerHTML = value;
+	else cell.innerHTML = value ? value : "";
+	cell.style.whiteSpace = 'nowrap';
 };
 
 /**
@@ -217,7 +239,7 @@ SortHeaderRenderer.prototype.render = function(cell, value)
 {
 	if (!value) { if (this.cellRenderer) this.cellRenderer.render(cell, value); }
 	else {
-						
+
 		// create a link that will sort (alternatively ascending/descending)
 		var link = document.createElement("a");
 		cell.appendChild(link);
@@ -227,42 +249,41 @@ SortHeaderRenderer.prototype.render = function(cell, value)
 		link.editablegrid = this.editablegrid;
 		link.renderer = this;
 		link.onclick = function() {
-			var grid = this.editablegrid;
-			var cols = grid.tHead.rows[0].cells;
-			var clearPrevious = -1;
-			var backOnFirstPage = false;
-			
-			if (grid.sortedColumnName != this.columnName) {
-				clearPrevious = grid.sortedColumnName;
-				grid.sortedColumnName = this.columnName;
-				grid.sortDescending = false;
-				backOnFirstPage = true;
-			}
-			else {
-				if (!grid.sortDescending) grid.sortDescending = true;
-				else { 					
-					clearPrevious = grid.sortedColumnName;
-					grid.sortedColumnName = -1; 
-					grid.sortDescending = false; 
+				var cols = this.editablegrid.tHead.rows[0].cells;
+				var clearPrevious = -1;
+				var backOnFirstPage = false;
+
+				if (this.editablegrid.sortedColumnName != this.columnName) {
+					clearPrevious = this.editablegrid.sortedColumnName;
+					this.editablegrid.sortedColumnName = this.columnName;
+					this.editablegrid.sortDescending = false;
 					backOnFirstPage = true;
 				}
-			} 
-			
-			// render header for previous sort column (not needed anymore since the grid is now fully refreshed after a sort - cf. possible pagination)
-			// var j = getColumnIndex(clearPrevious);
-			// if (j >= 0) columns[j].headerRenderer._render(-1, j, cols[j], columns[j].label);
+				else {
+					if (!this.editablegrid.sortDescending) this.editablegrid.sortDescending = true;
+					else { 					
+						clearPrevious = this.editablegrid.sortedColumnName;
+						this.editablegrid.sortedColumnName = -1; 
+						this.editablegrid.sortDescending = false; 
+						backOnFirstPage = true;
+					}
+				} 
 
-			grid.sort(grid.sortedColumnName, grid.sortDescending, backOnFirstPage);
+				// render header for previous sort column (not needed anymore since the grid is now fully refreshed after a sort - cf. possible pagination)
+				// var j = getColumnIndex(clearPrevious);
+				// if (j >= 0) columns[j].headerRenderer._render(-1, j, cols[j], columns[j].label);
 
-			// render header for new sort column (not needed anymore since the grid is now fully refreshed after a sort - cf. possible pagination)
-			// var j = getColumnIndex(sortedColumnName);
-			// if (j >= 0) columns[j].headerRenderer._render(-1, j, cols[j], columns[j].label);
+				this.editablegrid.sort(this.editablegrid.sortedColumnName, this.editablegrid.sortDescending, backOnFirstPage);
+
+				// render header for new sort column (not needed anymore since the grid is now fully refreshed after a sort - cf. possible pagination)
+				// var j = getColumnIndex(sortedColumnName);
+				// if (j >= 0) columns[j].headerRenderer._render(-1, j, cols[j], columns[j].label);
 		};
 
 		// add an arrow to indicate if sort is ascending or descending
 		if (this.editablegrid.sortedColumnName == this.columnName) {
 			cell.appendChild(document.createTextNode("\u00a0"));
-			cell.appendChild(this.editablegrid.sortDescending ? this.editablegrid.sortDownImage: this.editablegrid.sortUpImage);
+			cell.appendChild(this.editablegrid.sortDescending ? this.editablegrid.sortDownElement: this.editablegrid.sortUpElement);
 		}
 
 		// call user renderer if any

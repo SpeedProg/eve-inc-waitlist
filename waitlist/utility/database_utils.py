@@ -16,6 +16,8 @@ def parse_eft(lines):
         ship_type = info[0]  # I only care about what ship it is
 
         ship_id = get_item_id(ship_type)
+        if ship_id == -1:
+            return None
         fit.ship_type = ship_id
 
         mod_map = {}

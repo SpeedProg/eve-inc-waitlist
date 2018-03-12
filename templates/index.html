@@ -10,7 +10,6 @@
 <meta name="api-waitlists-groups" content="{{url_for('api_waitlists.groups', group_id=-1)}}">
 <meta name="influence-link" content="{{ influence_link }}">
 <meta name="api-remove-own-fit" content="{{ url_for('api_fittings.self_remove_fit', fitid=-1) }}">
-<link rel="preconnect" href="https://crest-tq.eveonline.com/">
 
 {% if perm_manager.get_permission('fits_view').can() %}
 <link rel="preconnect" href="https://quiescens.duckdns.org">
@@ -77,10 +76,12 @@
 		{% endif %}
 	{% endif %}
 	{% assets filters="babili",
-		output="gen/eve-ui.%(version)s.js", "js/fitlink.js",
-		"js/eve-ui-config.js" %}
+		output="gen/eve-ui.%(version)s.js", "js/eve-ui-config.js" %}
 		<script type="text/javascript" src="{{ ASSET_URL }}" defer async></script>
 	{% endassets %}
+	<script src="https://cdn.jsdelivr.net/gh/quiescens/eve-ui@0.8.9/eve-ui.min.js"
+			integrity="sha384-x6VCPjT7RWb7zkN4FyUF2atPVwoqL4cmAZOq053iWS1s04EgKyH9PdxV0MVN3zxB"
+			crossorigin="anonymous" defer async></script>
 {% endblock %}
 
 {% block alert_base %}{% endblock %}
@@ -159,7 +160,7 @@
 	<div class="col-sm-6">
 		<div id="status" class="card mb-0">
 			<div data-toggle="collapse" data-target="#status-body"
-				class="card-header" id="status-heading" role="button">
+				class="card-header" role="button">
 					<div class="h5 mb-0" id="grp-{{group.groupID}}-status">
 					</div>
 			</div>
@@ -216,7 +217,7 @@
 		{# Calendar Events #}
 		{% if events|length > 0 %}
 		<div id="events" class="card mb-0">
-			<div data-toggle="collapse" data-target="#events-body" class="card-header" id="status-heading" role="button">
+			<div data-toggle="collapse" data-target="#events-body" class="card-header" role="button">
 				<div class="h5 mb-0" >Events{%if events|length > 1%}<i id="events-tog-icon" class="fa float-right fa-plus-square"></i>{% endif %}</div>
 			</div>
 			<div class="alert alert-info mb-0" role="alert">

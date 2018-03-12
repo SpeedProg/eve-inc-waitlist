@@ -139,10 +139,17 @@ waitlist.listdom = (function(){
 		} else {
 			imgHTML = `<img class="img-32" src="${eve_image("Character/"+entry.character.id+"_32", "jpg")}">`;
 		}
+
+		let wardecHTML = '';
+		if (settings.can_view_fits || entry.character.id === settings.user_id) {
+		  wardecHTML = `<img height="15px" width="15px" class="float-right mt-1 mr-1" src="https://wars.feralfedo.com/characters/${entry.character.id}/img/"
+		   data-toggle="tooltip" data-placement="top" title="red = valid target, orange = soon to be valid target, error = error happened">`;
+		}
 		
 		var charRow = $(`<a href="${charHref}"${charInserts}>
 							<div class="wel-header-32">
 								${imgHTML}
+								${wardecHTML}
 								<div class="wel-container-32">
 									<div class="wel-text-row-32-2">${entry.character.name}${oldInvites}${newBroTag} <small class="wait-time" data-time="${entry.time}">${waitTimeMinutes} min ago</small></div>
 									<div class="wel-text-row-32-2 tag-row"></div>

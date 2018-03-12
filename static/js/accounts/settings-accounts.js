@@ -183,11 +183,12 @@ waitlist.accounts = (function() {
 					editable: false
 				}, {
 					name: "Account Name",
-					datatype: "html",
-					editable: false
+					datatype: "string",
+					editable: false,
+					values: [{"value": "canViewProfile", "label": true}]
 				}, {
 					name: "Roles",
-					datatype: "string",
+					datatype: "html",
 					editable: false
 				}, {
 					name: "Current Char",
@@ -206,6 +207,7 @@ waitlist.accounts = (function() {
 		});
 
 		editableGrid.attachToHTMLTable('acctable');
+		editableGrid.initializePaginator();
 		editableGrid.initializeGrid();
 		editableGrid.renderGrid();
 		$('#filter').on('keyup', function() {
@@ -222,3 +224,7 @@ waitlist.accounts = (function() {
 	$(document).ready(init);
 	return {};
 })();
+
+EditableGrid.prototype.initializeGrid = function() {
+  this.setCellRenderer("Account Name", new AccountCellRenderer());
+};
