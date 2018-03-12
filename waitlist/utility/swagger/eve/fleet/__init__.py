@@ -1,5 +1,6 @@
 from pyswagger import App
 
+from waitlist.utility.swagger import get_api
 from waitlist.utility.swagger.eve import get_esi_client, ESIResponse, \
     get_expire_time, make_error_response
 from waitlist.utility.swagger.eve.fleet.responses import EveFleet, EveFleetWings, \
@@ -18,10 +19,10 @@ class EveFleetEndpoint(object):
         self.__fleetID: int = fleet_id
         if client is None:
             self.__client: EsiClient = get_esi_client()
-            self.__api: App = self.__client.security.app
+            self.__api: App = get_api()
         else:
             self.__client: EsiClient = client
-            self.__api: App = self.__client.security.app
+            self.__api: App = get_api()
 
     def get_member(self) -> ESIResponse:
         response = self.__client.request(self.__api.op['get_fleets_fleet_id_members'](fleet_id=self.__fleetID))

@@ -91,7 +91,6 @@ def get_esi_client_for_account(account: Account, noauth: bool = False) -> EsiCli
         return EsiClient(timeout=10, headers={'User-Agent': 'Bruce Warhead IncWaitlist/'+version})
 
     security = EsiSecurity(
-        get_api(),
         crest_return_url,
         crest_client_id,
         crest_client_secret
