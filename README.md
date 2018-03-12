@@ -79,7 +79,7 @@ If you are upgrading from a version prior to 1.2.0 you need to upgrade you datab
 Then you need to run the `mysql_upgrade_1.1.4_to_1.2.0.py` script that can be found inside the `migrations` directory.
 You need to adjust the name of the database inside the script.
 
-Do this from the base waitlist directory you would start `main.py` from. E.g.: `python migrations/mysql_upgrade_1.1.4_to_1.2.0.py`.
+Do this from the base waitlist directory you would start `main.py` from. E.g.: `PYTHONPATH=<yourinstalldir_where_main.py_is> python migrations/mysql_upgrade_1.1.4_to_1.2.0.py`.
 
 The script will errors about trying to drop a primary index that doesn't exist.
 I am just trying to drop them in case some one created them manually for some reason. Checking if they exists would just wast time.
