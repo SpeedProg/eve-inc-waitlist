@@ -62,7 +62,7 @@ def upgrade():
     sa.Column('description', sa.Text(), nullable=True),
     sa.Column('creator_id', sa.Integer(), nullable=True),
     sa.Column('member_count', sa.Integer(), nullable=True),
-    sa.Column('rax_rate', sa.Float(), nullable=True),
+    sa.Column('tax_rate', sa.Float(), nullable=True),
     sa.Column('ticker', sa.String(length=10), nullable=True),
     sa.Column('url', sa.String(length=500), nullable=True),
     sa.Column('creation_date', sa.DateTime(), nullable=True),
