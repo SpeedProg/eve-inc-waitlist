@@ -24,7 +24,6 @@ from waitlist.utility.swagger.patch import EsiClient
 def send_mail(recipients: List[Dict[str, Any]], body: str, subject: str) -> Any:
     api: App = get_api()
     security = EsiSecurity(
-        api,
         crest_return_url,
         crest_client_id,
         crest_client_secret
