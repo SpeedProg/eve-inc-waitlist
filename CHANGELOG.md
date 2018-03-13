@@ -1,4 +1,8 @@
 #Changelog
+* 1.2.2
+  * Fixes
+    * Fixed eve mail part not working
+    * babili minify not working on editable grid js
 * 1.2.1
   * Fixes
     * Fixed use app from esipy which doesn't exist there anymore
