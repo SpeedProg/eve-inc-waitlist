@@ -18,9 +18,9 @@ class BabiliFilter(ExternalTool):
     def output(self, _in, out, **kw):
         # prepare arguments
         if self.presets:
-            self.presets += ",babili"
+            self.presets += ",minify"
         else:
-            self.presets = "babili"
+            self.presets = "minify"
         if self.extra_args:
             self.extra_args.extend(['--no-babelrc', '--no-comments', '--plugins=transform-remove-console'])
         else:

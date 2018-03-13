@@ -1,5 +1,5 @@
 if (typeof _$ == 'undefined') {
-	function _$(elementId) { return document.getElementById(elementId); }
+	_$ = function(elementId) { return document.getElementById(elementId); }
 }
 
 /**
@@ -1959,7 +1959,6 @@ EditableGrid.prototype.sort = function(columnIndexOrName, descending, backOnFirs
 		var _data = this.data;
 		this.data = [];
 		for (var i = 0; i < row_array.length; i++) this.data.push(_data[row_array[i][1]]);
-		delete row_array;
 
 		if (filterActive) {
 
