@@ -1,1 +1,1 @@
-version = "1.2.1-$Format:%h$"
+version = "1.2.2-$Format:%h$"
