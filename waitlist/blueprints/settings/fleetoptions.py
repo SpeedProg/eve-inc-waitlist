@@ -342,7 +342,7 @@ def clear_waitlist(gid):
     for wl in group.waitlists:
         waitlist_ids.append(wl.id)
 
-    db.session.query(WaitlistEntry).filter(WaitlistEntry.waitlist_id.in_(waitlist_ids)).delete()
+    db.session.query(WaitlistEntry).filter(WaitlistEntry.waitlist_id.in_(waitlist_ids)).delete(synchronize_session=False)
 
     db.session.commit()
     flash("Waitlists were cleared!", "danger")
