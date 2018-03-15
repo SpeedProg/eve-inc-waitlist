@@ -1,4 +1,7 @@
 #Changelog
+* 1.2.3
+  * Fixes
+    * Waitlist Group can not be cleared
 * 1.2.2
   * Fixes
     * Fixed eve mail part not working
