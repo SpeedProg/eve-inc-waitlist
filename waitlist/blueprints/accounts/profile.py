@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 perm_manager.define_permission('view_profile')
 perm_manager.define_permission('profile_notes_add')
-perm_manager.define_permission('view_notes_high')  # >= 500
+perm_manager.define_permission('view_notes_high')  # <= 500
 perm_manager.define_permission('view_notes_low')  # < 100
 perm_manager.define_permission('view_notes_med')  # < 200
 perm_manager.define_permission('view_notes_all')
