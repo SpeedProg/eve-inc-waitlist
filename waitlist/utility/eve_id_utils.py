@@ -124,19 +124,18 @@ def get_character_by_name(eve_name: str) -> Optional[Character]:
 
 def is_char_banned(char: Character) -> Tuple[bool, str]:
     try:
+        if is_charid_whitelisted(char.get_eve_id()):
+            return False, ""
+
+        if char.banned:
+            return True, "Character"
+
         corp_id, alli_id = outgate.character.get_affiliations(char.get_eve_id())
         # if he is on whitelist let him pass
         
-        char_banned = char.banned
         corp_banned = is_charid_banned(corp_id)
         alli_banned = is_charid_banned(alli_id)
-        
-        if is_charid_whitelisted(char.get_eve_id()):
-            return False, ""
-        
-        if char_banned:
-            return True, "Character"
-        
+
         if is_charid_whitelisted(corp_id):
                 return False, ""
         
