@@ -51,7 +51,7 @@ def post_esi_openwindow_newmail():
             if alliance_or_corp is not None or mailinglist_id is not None:
                 raise ValueError("Only one alliance or corp or mailing list at maximum can be receipient of a mail")
             alliance_or_corp = rec['recipient_id']
-        elif rec['receipient_type'] == 'mailing_list':
+        elif rec['recipient_type'] == 'mailing_list':
             if mailinglist_id is not None or alliance_or_corp is not None:
                 raise ValueError("Only one alliance or corp or mailing list at maximum can be receipient of a mail")
             mailinglist_id = rec['recipient_id']
