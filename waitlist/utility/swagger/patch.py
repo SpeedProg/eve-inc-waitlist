@@ -114,7 +114,7 @@ class EsiClient(BaseClient):
 
             if e.status_code == 400 and ermsg == "invalid_token":
                 # since the token is invalid lets delete it
-                db.session.remove(current_user.ssoToken)
+                db.session.delete(current_user.sso_token)
                 db.session.commit()
 
             # fake a response that has the fields as expected
