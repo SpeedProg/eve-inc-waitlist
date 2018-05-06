@@ -9,11 +9,11 @@ def create_token_cb(account_id):
         account = db.session.query(Account).get(account_id)
         if account is None:
             return
-        if account.ssoToken is None:
-            account.ssoToken = SSOToken(access_token=access, access_token_expires=expire)
+        if account.sso_token is None:
+            account.sso_token = SSOToken(access_token=access, access_token_expires=expire)
         else:
-            account.ssoToken.access_token = access
-            account.ssoToken.access_token_expires = expire
+            account.sso_token.access_token = access
+            account.sso_token.access_token_expires = expire
         db.session.commit()
         return
     return cb

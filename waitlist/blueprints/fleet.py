@@ -1,4 +1,4 @@
-from typing import Dict, Optional, Any
+from typing import Dict, Optional, Any, List
 
 from flask import Response
 from flask.blueprints import Blueprint
@@ -57,22 +57,21 @@ def handle_token_update(code):
                     '". Instead you granted it for "' + char_name + '"')
 
     scopenames = auth_info['Scopes'].split(' ')
-    if current_user.ssoToken is None:
-        sso_token = SSOToken(refresh_token=re_token, access_token=acc_token,
+    if current_user.sso_token is None:
+        current_user.sso_token = SSOToken(refresh_token=re_token, access_token=acc_token,
                              access_token_expires=(datetime.utcnow() + timedelta(seconds=exp_in)))
-        current_user.ssoToken = sso_token
-        dbscopes = db.session.query(EveApiScope).filter(or_(EveApiScope.scopeName == name for name in scopenames))
-        for dbscope in dbscopes:
-            current_user.ssoToken.scopes.append(dbscope)
+        for scope_name in scopenames:
+            current_user.sso_token.scopes.append(EveApiScope(scopeName=scope_name))
+
     else:
-        current_user.ssoToken.refresh_token = re_token
-        current_user.ssoToken.access_token = acc_token
-        current_user.ssoToken.access_token_expires = datetime.utcnow() + timedelta(seconds=exp_in)
-        for dbscope in current_user.ssoToken.scopes:
-            current_user.ssoToken.scopes.remove(dbscope)
-        dbscopes = db.session.query(EveApiScope).filter(or_(EveApiScope.scopeName == name for name in scopenames))
-        for dbscope in dbscopes:
-            current_user.ssoToken.scopes.append(dbscope)
+        current_user.sso_token.refresh_token = re_token
+        current_user.sso_token.access_token = acc_token
+        current_user.sso_token.access_token_expires = datetime.utcnow() + timedelta(seconds=exp_in)
+        token_scopes: List[EveApiScope] = []
+        for scope_name in scopenames:
+            token_scopes.append(EveApiScope(scopeName=scope_name))
+
+        current_user.sso_token.scopes = token_scopes
 
     db.session.commit()
 
@@ -127,7 +126,7 @@ def setup_step_url():
 
 
 def get_select_form(fleet_id: int) -> Any:
-    if current_user.ssoToken is None:
+    if current_user.sso_token is None:
         return Response('You have no api token associated with your account, please take over the fleet again.',
                         status=412)
     fleet_api = EveFleetEndpoint(fleet_id)
@@ -246,9 +245,9 @@ def print_fleet(fleetid: int) -> Response:
 @fleets_manage.require()
 def take_over_fleet():
     # lets make sure we got the token we need
-    if current_user.ssoToken is None \
-        or current_user.ssoToken.refresh_token is None \
-        or not token_has_scopes(current_user.ssoToken,
+    if current_user.sso_token is None \
+        or current_user.sso_token.refresh_token is None \
+        or not token_has_scopes(current_user.sso_token,
                 ['esi-fleets.read_fleet.v1', 'esi-fleets.write_fleet.v1', 'esi-ui.open_window.v1']):
         # if not, get it. And then return here
         return get_sso_redirect('get_fleet_token', 'esi-fleets.read_fleet.v1 esi-fleets.write_fleet.v1 esi-ui.open_window.v1')

@@ -30,8 +30,8 @@ def send_esi_mail():
     mailSubject => String
     """
     needs_refresh = True
-    if current_user.ssoToken is not None:
-        for scope in current_user.ssoToken.scopes:
+    if current_user.sso_token is not None:
+        for scope in current_user.sso_token.scopes:
             if scope.scopeName == 'esi-mail.send_mail.v1':
                 needs_refresh = False
     
