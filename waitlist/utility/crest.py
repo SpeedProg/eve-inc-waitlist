@@ -6,7 +6,7 @@ logger = logging.getLogger(__name__)
 
 def create_token_cb(account_id):
     def cb(access, expire):
-        account = db.session.query(Account).get(account_id)
+        account: Account = db.session.query(Account).get(account_id)
         if account is None:
             return
         if account.sso_token is None:

@@ -81,4 +81,5 @@ def generate_token():
     salt = str(randrange(0, 2 << 63)).encode('utf-8')
     return hashlib.sha1(salt).hexdigest()
 
+
 add_sso_handler('linelogin', member_login_cb)

@@ -71,8 +71,6 @@ def get_item_data_from_api(name: str) -> Optional[any]:
     return None
 
 
-
-
 # load an account by its id
 def get_account_from_db(int_id: int) -> Account:
     return db.session.query(Account).filter(Account.id == int_id).first()
