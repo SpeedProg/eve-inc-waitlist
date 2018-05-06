@@ -138,6 +138,9 @@ class Account(Base):
     __tablename__ = 'accounts'
 
     id = Column('id', Integer, primary_key=True)
+    # the session key is used to invalidate old sessions by chaning it
+    # if id + session_key does not match the session is invalid
+    session_key = Column('session_key', Integer, nullable=False, server_default='0')
     current_char = Column('current_char', Integer, ForeignKey("characters.id"))
     username = Column('username', String(100), unique=True)  # login name
     login_token = Column('login_token', String(16), unique=True)
@@ -151,7 +154,7 @@ class Account(Base):
     roles = relationship('Role', secondary=roles,
                          backref=backref('account_roles'))
     characters = relationship('Character', secondary=linked_chars,
-                              backref=backref('linked_chars'))
+                              back_populates='accounts')
     current_char_obj = relationship('Character')
 
     fleet = relationship('CrestFleet', uselist=False, back_populates="comp")
@@ -244,7 +247,7 @@ class Account(Base):
         return not self.disabled
 
     def get_id(self):
-        return str("acc" + str(self.id))
+        return "acc" + str(self.id) + '_' + str(self.session_key)
 
     # def set_password(self, pwd):
     #    self.password = bcrypt.hashpw(pwd, bcrypt.gensalt())
@@ -280,15 +283,25 @@ class Character(Base):
     __tablename__ = "characters"
 
     id = Column('id', Integer, primary_key=True)
+    # the session key is used to invalidate old sessions by chaning it
+    # if id + session_key does not match the session is invalid
+    session_key = Column('session_key', Integer, nullable=False, server_default='0')
     eve_name = Column('eve_name', String(100))
     newbro = Column('new_bro', Boolean(name='new_bro'), default=True, nullable=False)
     lc_level = Column('lc_level', SmallInteger, default=0, nullable=False)
     cbs_level = Column('cbs_level', SmallInteger, default=0, nullable=False)
     login_token = Column('login_token', String(16), nullable=True)
     teamspeak_poke = Column('teamspeak_poke', Boolean(name='teamspeak_poke'), default=True, server_default="1", nullable=False)
+    owner_hash = Column('owner_hash', Text)
+
     # this contains all SSOToken for this character
     # normally we only want the ones not associated with an account! we got a property for this
     ssoTokens: List[SSOToken] = relationship('SSOToken')
+
+    accounts = relationship(
+        "Account",
+        secondary=linked_chars,
+        back_populates="characters")
 
     @property
     def sso_token(self) -> Optional[SSOToken]:
@@ -350,7 +363,7 @@ class Character(Base):
         return not self.banned
 
     def get_id(self):
-        return str("char" + str(self.id))
+        return "char" + str(self.id) + '_' + str(self.session_key)
 
     @property
     def poke_me(self):

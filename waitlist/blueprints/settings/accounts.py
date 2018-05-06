@@ -1,8 +1,9 @@
 import logging
-from typing import Union
+from datetime import timedelta, datetime
+from typing import Union, Optional
 
 import flask
-from flask import Blueprint
+from flask import Blueprint, session
 from flask import Response
 from flask import flash
 from flask import redirect
@@ -10,22 +11,24 @@ from flask import render_template
 from flask import request
 from flask import url_for
 from flask_login import login_required, current_user
-from pyswagger.contrib.client import flask
 from sqlalchemy import asc
 from sqlalchemy import or_
 from sqlalchemy.orm import joinedload
 
 from waitlist import db
+from waitlist.blueprints.fc_sso import get_sso_redirect, add_sso_handler
 from waitlist.blueprints.settings import add_menu_entry
 from waitlist.permissions import perm_manager
 from waitlist.permissions.manager import StaticPermissions, StaticRoles
 from waitlist.signal.signals import send_account_created, send_roles_changed, send_account_status_change
-from waitlist.storage.database import Account, Character, Role, linked_chars, APICacheCharacterInfo
+from waitlist.sso import authorize, who_am_i
+from waitlist.storage.database import Account, Character, Role, linked_chars, APICacheCharacterInfo, SSOToken
+from waitlist.utility.login import invalidate_all_sessions_for_given_user
 from waitlist.utility.settings import sget_resident_mail, sget_tbadge_mail, sget_other_mail, sget_other_topic, \
     sget_tbadge_topic, sget_resident_topic
 from waitlist.utility.utils import get_random_token
 
-from waitlist.utility import outgate
+from waitlist.utility import outgate, config
 
 bp = Blueprint('accounts', __name__)
 logger = logging.getLogger(__name__)
@@ -214,7 +217,7 @@ def account_self_edit():
     if acc is None:
         return flask.abort(400)
 
-    if char_name is not None:
+    if char_name is not None and char_name != current_user.get_eve_name():
         char_info = outgate.character.get_info_by_name(char_name)
 
         if char_info is None:
@@ -235,13 +238,47 @@ def account_self_edit():
             link = db.session.query(linked_chars) \
                 .filter((linked_chars.c.id == acc_id) & (linked_chars.c.char_id == char_id)).first()
             if link is None:
-                acc.characters.append(character)
+                if config.require_auth_for_chars:
+                    # this is a new link, lets redirect him to check if he owns the character after we saved the charid
+                    session['link_charid'] = character.id
+                    return get_sso_redirect("alt_verification", 'publicData')
+                else:
+                    acc.characters.append(character)
 
             db.session.flush()
             if acc.current_char != char_id:
-                # remove all the access tokens
-                if acc.ssoToken is not None:
-                    db.session.delete(acc.ssoToken)
+                # we have a link and it is not the current char
+                if config.require_auth_for_chars:
+                    # we need authentication for char change so lets see if the token works
+                    auth_token: Optional[SSOToken] = None
+                    for tkn in acc.ssoTokens:
+                        if tkn.characterID == char_id:
+                            auth_token = tkn
+
+                    # we need new auth
+                    if auth_token is None:
+                        logger.debug("Could not find a valid authorization for this character")
+                        session['link_charid'] = character.id
+                        return get_sso_redirect("alt_verification", 'publicData')
+
+                    auth_info = who_am_i(auth_token.access_token)
+                    # if we don't have this the token was invalid
+                    if 'CharacterOwnerHash' not in auth_info:
+                        logger.debug("CharacterOwnerHash was not in authorization info")
+                        db.session.delete(auth_token)
+                        db.session.commit()
+                        # let them re authenticate
+                        session['link_charid'] = character.id
+                        return get_sso_redirect("alt_verification", 'publicData')
+
+                    if auth_info['CharacterOwnerHash'] != character.owner_hash:
+                        # owner hash does not match
+                        db.session.delete(auth_token)
+                        db.session.commit()
+                        session['link_charid'] = character.id
+                        logger.debug("Character owner_owner hash did not match")
+                        return get_sso_redirect("alt_verification", 'publicData')
+
                 acc.current_char = char_id
 
     db.session.commit()
@@ -321,3 +358,98 @@ def accounts_download_csv() -> Response:
 
 add_menu_entry('accounts.accounts', 'Accounts', perm_manager.get_permission('accounts_edit').can)
 add_menu_entry('accounts.account_self', 'Own Settings', lambda: True)
+
+
+@login_required
+@perm_manager.require('settings_access')
+def alt_verification_handler(code: str) -> None:
+    # this throws exception and exists this function
+    if current_user.type != 'account':
+        flask.abort(403, "You are not on an account.")
+
+    auth = authorize(code)
+    access_token = auth['access_token']
+    auth_info = who_am_i(access_token)
+    char_name = auth_info['CharacterName']
+    char_id = auth_info['CharacterID']
+    owner_hash = auth_info['CharacterOwnerHash']
+    # if he authed the char he told us
+    if session['link_charid'] is not None and session['link_charid'] == char_id:
+        session.pop('link_charid')  # remove info from session
+
+        # store the token
+        refresh_token = auth['refresh_token']
+        exp_in = int(auth['expires_in'])
+
+        db_token: SSOToken = SSOToken(characterID=char_id, accountID=current_user.id, refresh_token=refresh_token,
+                                     access_token=access_token,
+                                     access_token_expires=(datetime.utcnow() + timedelta(seconds=exp_in)))
+        db.session.merge(db_token)
+        db.session.commit()
+
+        # make sure the char is not already linked to the account
+        for character in current_user.characters:
+            if character.id == char_id: # we are already linked to the char
+                # if it is not set as active char set it
+                if current_user.current_char != char_id:
+                    current_user.current_char = char_id
+
+                # we need to check and maybe update owner hash
+                if character.owner_hash is None or character.owner_hash == '':
+                    # first time accessing this character
+                    logger.info("Setting owner_hash for %s the first time", character)
+                    character.owner_hash = owner_hash
+
+                elif character.owner_hash != owner_hash:
+                    # the owner changed
+                    logger.info("Setting new owner_hash for %s, invalidating all existing sessions", character)
+                    invalidate_all_sessions_for_given_user(character)
+
+                db.session.commit()
+                return redirect(url_for('accounts.account_self'), code=303)
+
+        # we need to add the char
+        # try if he is already in db
+        character = db.session.query(Character).filter(Character.id == char_id).first()
+
+        if character is None:
+            # lets make sure we have the correct name (case)
+            char_info: APICacheCharacterInfo = outgate.character.get_info(char_id)
+            character = Character()
+            character.eve_name = char_info.characterName
+            character.id = char_id
+            character.owner_hash = owner_hash
+        else:
+            if character.owner_hash is None or character.owner_hash == '':
+                # first time accessing this character
+                logger.info("Setting owner_hash for %s the first time", character)
+                character.owner_hash = owner_hash
+
+            if character.owner_hash != owner_hash:
+                character.owner_hash = owner_hash
+                invalidate_all_sessions_for_given_user(character)
+                logger.info("Setting new owner_hash for %s, invalidating all existing sessions", character)
+
+        # delete any existing links (to other accounts)
+        links = db.session.query(linked_chars) \
+            .filter((linked_chars.c.id != current_user.id) & (linked_chars.c.char_id == char_id)).all()
+        for link in links:
+            db.session.delete(link)
+
+        db.session.flush()
+
+        # add the new link
+        current_user.characters.append(character)
+        db.session.flush()
+        if current_user.current_char != char_id:
+            current_user.current_char = char_id
+
+        db.session.commit()
+        flash(f'Alt {character.eve_name} was added', 'info')
+        return redirect(url_for('accounts.account_self'), code=303)
+    else:
+        flask.abort(400, 'Could not confirm your authorisation of the alt,'
+                         ' most likely you authenticated a wrong character.')
+
+
+add_sso_handler('alt_verification', alt_verification_handler)
