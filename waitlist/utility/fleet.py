@@ -273,15 +273,15 @@ def invite(user_id: int, squad_id_list: Sequence[Tuple[int, int]]):
                     continue
                 elif mono_error['error_label'] == 'FleetCandidateOffline':
                     logger.info('Failed invite because target player is offline.')
-                    return {'status_code': 420, 'text': 'They player you tried to invite was offline.'}
+                    return {'status_code': 520, 'text': 'They player you tried to invite was offline.'}
                 elif mono_error['error_label'] == 'ContactOwnerUnreachable':
                     logger.info(f'Failed to invite {mono_error["error_dict"]["name"]}'
                                 f' because he has the invitee blocked')
-                    return {'status_code': 420, 'text': f'Could not invite {mono_error["error_dict"]["name"]}'
+                    return {'status_code': 520, 'text': f'Could not invite {mono_error["error_dict"]["name"]}'
                                                         f' because he has you blocked or is otherwise unreachable.'}
                 else:
                     logger.error(f'Failed invite because of monolith error {response.error()}')
-                    return {'status_code': 420, 'text': f'Failed invite because of unhandled Monolith error '
+                    return {'status_code': 520, 'text': f'Failed invite because of unhandled Monolith error '
                                                         f'{response.error()} please report this to the waitlist '
                                                         f'maintainer with the monolith message.'}
             elif response.code() == 404:

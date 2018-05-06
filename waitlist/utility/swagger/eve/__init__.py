@@ -53,7 +53,7 @@ class ESIResponse(object):
 
     def is_monolith_error(self):
         if self.is_error():
-            if self.__status_code == 420:
+            if self.__status_code == 520:
                 if 'error_label' in self.__error:
                     return True
                 else:
@@ -68,7 +68,7 @@ class ESIResponse(object):
 
 
 def make_error_response(resp: Any) -> ESIResponse:
-    if resp.status == 420:  # monolith error
+    if resp.status == 520:  # monolith error
         if resp.data is None:
             data = json.loads(resp.raw.decode("utf-8"))
             msg = data['error'] if data is not None and 'error' in data else 'No error data send'
