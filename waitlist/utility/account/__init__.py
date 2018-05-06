@@ -12,3 +12,5 @@ def force_logout():
     # Tell Flask-Principal the user is anonymous
     identity_changed.send(current_app._get_current_object(),
                           identity=AnonymousIdentity())
+
+

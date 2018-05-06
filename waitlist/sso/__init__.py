@@ -1,9 +1,11 @@
+from typing import Dict
+
 import requests
 import base64
 from waitlist.utility.config import crest_client_id, crest_client_secret
 
 
-def authorize(code):
+def authorize(code: str) -> Dict:
     """{'access_token', 'refresh_token', 'expires_in'}"""
     auth = base64.b64encode(
                 ("%s:%s" % (crest_client_id, crest_client_secret)).encode('utf-8', 'strict')
@@ -21,7 +23,7 @@ def authorize(code):
     return res.json()
 
 
-def who_am_i(access_token):
+def who_am_i(access_token: str) -> Dict:
     url = 'https://login.eveonline.com/oauth/verify'
     response = requests.get(url, headers={'Authorization': "Bearer " + access_token})
     return response.json()

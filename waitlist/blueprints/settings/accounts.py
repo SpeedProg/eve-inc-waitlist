@@ -356,6 +356,7 @@ def accounts_download_csv() -> Response:
     response.headers['Content-Disposition'] = 'attachment; filename=accounts.csv'
     return response
 
+
 add_menu_entry('accounts.accounts', 'Accounts', perm_manager.get_permission('accounts_edit').can)
 add_menu_entry('accounts.account_self', 'Own Settings', lambda: True)
 

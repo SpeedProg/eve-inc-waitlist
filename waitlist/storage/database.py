@@ -191,11 +191,11 @@ class Account(Base):
         return "account"
 
     @property
-    def poke_me(self):
+    def poke_me(self) -> bool:
         return self.current_char_obj.poke_me
 
     @poke_me.setter
-    def poke_me(self, value):
+    def poke_me(self, value: bool):
         self.current_char_obj.poke_me = value
 
     @property
@@ -253,7 +253,7 @@ class Account(Base):
     #    self.password = bcrypt.hashpw(pwd, bcrypt.gensalt())
 
     def __repr__(self):
-        return '<Account %r>' % self.username
+        return f'<Account {self.username} id={self.id} session_key={self.session_key}>'
 
 
 class CrestFleet(Base):
@@ -374,7 +374,7 @@ class Character(Base):
         self.teamspeak_poke = value
 
     def __repr__(self):
-        return "<Character id={0} eve_name={1}>".format(self.id, self.eve_name)
+        return f'<Character {self.eve_name} id={self.id} session_key={self.session_key}>'
 
 
 class Role(Base):

@@ -308,6 +308,7 @@ def spawn_invite_check(character_id, group_id, fleet_id):
     t = Timer(20.0, check_invite_and_remove_timer, [character_id, group_id, fleet_id])
     t.start()
 
+
 check_timers: Dict[Tuple[int, int, int], int] = dict()
 
 
