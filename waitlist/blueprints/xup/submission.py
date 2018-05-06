@@ -106,7 +106,7 @@ def submit():
                 event = FitAddedSSE(group_id, queue.id, wl_entry.id, fit, True, wl_entry.user)
                 send_server_sent_event(event)
 
-        flash("You were added as " + ship_type, "success")
+        flash(f"You were added as {ship_type}", "success")
         return redirect(url_for('index') + "?groupId=" + str(group_id))
     # ### END SCRUFFY CODE
 
@@ -194,7 +194,7 @@ def submit():
     logger.debug("Parsed %d fits", fit_count)
 
     if fit_count <= 0:
-        flash("You submitted {0} fits to be check by a fleet comp before getting on the waitlist.".format(fit_count),
+        flash(f"You submitted {fit_count} fits to be check by a fleet comp before getting on the waitlist.",
               "danger")
         return redirect(url_for('index') + "?groupId=" + str(group_id))
 
@@ -348,7 +348,7 @@ def submit():
             event = FitAddedSSE(group_id, queue.id, wl_entry.id, fit, True, wl_entry.user)
             send_server_sent_event(event)
 
-    flash("You submitted {0} fits to be check by a fleet comp before getting on the waitlist.".format(fit_count),
+    flash(f"You submitted {fit_count} fits to be check by a fleet comp before getting on the waitlist.",
           "success")
 
     return redirect(url_for('index') + "?groupId=" + str(group_id))

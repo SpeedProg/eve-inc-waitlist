@@ -178,7 +178,7 @@ def fleet_status_set(gid: int) -> Response:
         # it is not a unresticted name and we do not have the power to set abitrary names, then we are done
         if not ((display_name in unrestricted_display_names) or
                     perm_manager.get_permission('fleet_custom_display_name_all').can()):
-            flash(f"You gave no unrestricted display name and do not have the power to set abitrary names!", "danger")
+            flash("You gave no unrestricted display name and do not have the power to set arbitrary names!", "danger")
             return redirect(url_for(".fleet"), code=303)
 
         # we checked that we are allowed to do this, let do it and logg it
@@ -232,7 +232,7 @@ def fleet_location_set(gid):
                     group.system = None
                     group.dockup = None
 
-            flash("All Constellations were set to " + name + "!", "success")
+            flash(f"All Constellations were set to {name}!", "success")
         else:  # if not default waitlist set only the single waitlist
             group.constellation = constellation
             logger.info("%s Constellation was set to %s by %s", group.groupName, name, current_user.username)
@@ -252,12 +252,12 @@ def fleet_location_set(gid):
                 group.system = None
                 group.dockup = None
 
-            flash(group.displayName + " Constellation was set to " + name, "success")
+            flash(f"{group.displayName} Constellation was set to {name}", "success")
     elif action == "system":
         name = request.form['name']
         system = get_system(name)
         if system is None:
-            flash("Invalid system name " + name, "danger")
+            flash(f"Invalid system name {name}", "danger")
             return redirect(url_for(".fleet"), code=303)
 
         if group.groupName == "default":
@@ -266,16 +266,16 @@ def fleet_location_set(gid):
                 group.system = system
 
             logger.info("All Systems were set to %s by %s", name, current_user.username, group.groupName)
-            flash("All Systems were set to " + name, "success")
+            flash(f"All Systems were set to {name}", "success")
         else:
             group.system = system
             logger.info(group.displayName + " System was set to %s by %s", name, current_user.username)
-            flash(group.displayName + " System was set to " + name, "success")
+            flash(f"{group.displayName} System was set to {name}", "success")
     elif action == "dock":
         name = request.form['name']
         station = get_station(name)
         if station is None:
-            flash("Invalid station name " + name, "danger")
+            flash(f"Invalid station name: {name}", "danger")
             return redirect(url_for(".fleet"), code=303)
         if group.displayName == "default":
             groups = db.session.query(WaitlistGroup).all()
@@ -284,11 +284,11 @@ def fleet_location_set(gid):
                 group.dockup = station
 
             logger.info("All Docks were set to %s by %s", name, current_user.username)
-            flash("All Dock were set to " + name, "success")
+            flash(f"All Docks were set to {name}", "success")
         else:
             group.dockup = get_station(name)
             logger.info("%s Dock was set to %s by %s", group.displayName, name, current_user.username)
-            flash(group.displayName + " Dock was set to " + name, "success")
+            flash(f"{group.displayName} Dock was set to {name}", "success")
 
     db.session.commit()
 
