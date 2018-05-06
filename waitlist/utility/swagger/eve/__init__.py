@@ -96,9 +96,9 @@ def get_esi_client_for_account(account: Account, noauth: bool = False) -> EsiCli
         crest_client_secret
     )
     security.update_token({
-        'access_token': account.ssoToken.access_token,
-        'expires_in': (account.ssoToken.access_token_expires -
+        'access_token': account.sso_token.access_token,
+        'expires_in': (account.sso_token.access_token_expires -
                        datetime.utcnow()).total_seconds(),
-        'refresh_token': account.ssoToken.refresh_token
+        'refresh_token': account.sso_token.refresh_token
     })
     return EsiClient(security, timeout=10, headers={'User-Agent': 'Bruce Warhead IncWaitlist/'+version})

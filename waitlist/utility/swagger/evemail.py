@@ -29,10 +29,10 @@ def send_mail(recipients: List[Dict[str, Any]], body: str, subject: str) -> Any:
         crest_client_secret
     )
     security.update_token({
-        'access_token': current_user.ssoToken.access_token,
-        'expires_in': (current_user.ssoToken.access_token_expires -
+        'access_token': current_user.sso_token.access_token,
+        'expires_in': (current_user.sso_token.access_token_expires -
                        datetime.utcnow()).total_seconds(),
-        'refresh_token': current_user.ssoToken.refresh_token
+        'refresh_token': current_user.sso_token.refresh_token
     })
 
     client = get_esi_client(False)

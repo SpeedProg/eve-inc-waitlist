@@ -1,3 +1,5 @@
+from typing import List, Optional
+
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import Column, Integer, String, SmallInteger, BIGINT, Boolean, DateTime, Index, \
     sql, BigInteger, text, Float, Text
@@ -56,29 +58,25 @@ fmanager = Table("fleetmanager",
                  Column("group_id", Integer, ForeignKey('waitlist_groups.group_id', ondelete="CASCADE"))
                  )
 
-token_scope = Table(
-    'tokenscope', Base.metadata,
-    Column('token_id', Integer, ForeignKey('ssotoken.account_id', onupdate="CASCADE", ondelete="CASCADE"),
-           primary_key=True),
-    Column('scope_id', Integer, ForeignKey('eveapiscope.scope_id', onupdate="CASCADE", ondelete="CASCADE"),
-           primary_key=True)
-)
-
 
 class EveApiScope(Base):
     __tablename__ = 'eveapiscope'
-    scopeID = Column('scope_id', Integer, primary_key=True)
-    scopeName = Column('scope_name', String(100), index=True)
+    tokenID = Column('token_id', Integer, ForeignKey('ssotoken.character_id', onupdate="CASCADE", ondelete="CASCADE"), primary_key=True)
+    scopeName = Column('scope_name', String(100), primary_key=True)
 
 
 class SSOToken(Base):
     __tablename__ = 'ssotoken'
-    accountID = Column('account_id', Integer, ForeignKey('accounts.id', onupdate="CASCADE", ondelete="CASCADE"), primary_key=True)
+    characterID = Column('character_id', Integer, ForeignKey('characters.id', onupdate="CASCADE", ondelete="CASCADE"),
+                         primary_key=True)
+    # the last account that used this char, if null means no account=>standalone char
+    accountID = Column('account_id', Integer, ForeignKey('accounts.id', onupdate="CASCADE", ondelete="CASCADE"),
+                       nullable=True)
     refresh_token = Column('refresh_token', String(128), default=None)
     access_token = Column('access_token', String(128), default=None)
     access_token_expires = Column('access_token_expires', DateTime, default=datetime.utcnow)
 
-    scopes = relationship(EveApiScope, secondary=token_scope)
+    scopes:List[EveApiScope] = relationship(EveApiScope, cascade="save-update, merge, delete, delete-orphan")
 
 
 class Station(Base):
@@ -158,7 +156,7 @@ class Account(Base):
 
     fleet = relationship('CrestFleet', uselist=False, back_populates="comp")
 
-    ssoToken = relationship('SSOToken', uselist=False)
+    ssoTokens: List[SSOToken] = relationship('SSOToken')
 
     @property
     def lc_level(self):
@@ -196,6 +194,37 @@ class Account(Base):
     @poke_me.setter
     def poke_me(self, value):
         self.current_char_obj.poke_me = value
+
+    @property
+    def sso_token(self) -> Optional[SSOToken]:
+        """
+        Get the sso token for the currently active character
+        :return: the SSOToken or None
+        """
+        for token in self.ssoTokens:
+            if token.characterID == self.current_char_obj.id:
+                return token
+
+        return None
+
+    @sso_token.setter
+    def sso_token(self, value: SSOToken) -> None:
+        """
+        Set the token for the current active character on this account.
+        :param value: the sso token
+        :return: None
+        """
+        # lets check if there is a token for this character
+
+        token: SSOToken = SSOToken.query.filter(SSOToken.characterID == self.current_char).one_or_none()
+        # remove the old token
+        if token is not None:
+            db.session.delete(token)
+
+        # add the token
+        value.characterID = self.current_char_obj.id
+        self.ssoTokens.append(value)
+
 
     # check if password matches
     # def password_match(self, pwd):
@@ -257,6 +286,39 @@ class Character(Base):
     cbs_level = Column('cbs_level', SmallInteger, default=0, nullable=False)
     login_token = Column('login_token', String(16), nullable=True)
     teamspeak_poke = Column('teamspeak_poke', Boolean(name='teamspeak_poke'), default=True, server_default="1", nullable=False)
+    # this contains all SSOToken for this character
+    # normally we only want the ones not associated with an account! we got a property for this
+    ssoTokens: List[SSOToken] = relationship('SSOToken')
+
+    @property
+    def sso_token(self) -> Optional[SSOToken]:
+        """
+        Get the SSOToken for this character without account
+        :return: the SSOToken
+        """
+        for token in self.ssoTokens:
+            if token.accountID is None:
+                return token
+
+        return None
+
+    @sso_token.setter
+    def sso_token(self, value: SSOToken) -> None:
+        """
+        Set the token for the current character as none Account token
+        :param value: the sso token
+        :return: None
+        """
+
+        token: SSOToken = SSOToken.query.filter(SSOToken.characterID == self.id).one_or_none()
+        # remove the old token
+        if token is not None:
+            db.session.delete(token)
+
+        # add the token
+        value.characterID = self.id
+        value.accountID = None
+        self.ssoTokens.append(value)
 
     def get_login_token(self):
         if self.login_token is None:
