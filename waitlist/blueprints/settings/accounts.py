@@ -221,7 +221,7 @@ def account_self_edit():
         char_info = outgate.character.get_info_by_name(char_name)
 
         if char_info is None:
-            flash("Character with name {char_name} could not be found!")
+            flash(f"Character with name {char_name} could not be found!")
         else:
             char_id = char_info.id
             # find out if there is a character like that in the database
