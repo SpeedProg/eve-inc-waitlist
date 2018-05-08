@@ -21,6 +21,7 @@ from waitlist.utility import config
 from waitlist.utility.account import force_logout
 from waitlist.utility.eve_id_utils import is_char_banned, get_account_from_db, get_char_from_db
 from waitlist.utility.login import set_token_data, invalidate_all_sessions_for_current_user
+from waitlist.utility.manager.owner_hash_check_manager import owner_hash_check_manager
 
 logger = logging.getLogger(__name__)
 
@@ -40,102 +41,17 @@ def check_user_owner_hash():
         return
 
     if user.type == 'account':
-        logger.info("Account type, we need to check hashes")
         user: Account = user
-        # if there is NO main character set just force a logout
-        if user.current_char_obj is None:
-            logger.info("Force logount because %s has no current_char_object", user)
-            force_logout()
+        # if there is NO main character set ignore the hash check
+        if user.current_char is None:
+            logger.debug("%s has no current character set, ignore owner_hash check.", user)
             return
 
-        char_id = user.current_char
-
-        if not need_to_do_owner_hash_check(char_id):
-            logger.debug("We already did the owner_hash check during the current window")
-            return
-
-        if user.sso_token is None:
-            logger.info("%s sso_token is None, force logout and invalidate all sessions", user)
-            invalidate_all_sessions_for_current_user()
-            force_logout()
-            return None
-
-        security = EsiSecurity('', client_id=config.crest_client_id, secret_key=config.crest_client_secret)
-        security.refresh_token = user.sso_token.refresh_token
-        try:
-            security.refresh()
-
-            # the token still works
-            auth_info = who_am_i(security.access_token)
-            owner_hash = auth_info['CharacterOwnerHash']
-            scopes = auth_info['Scopes']
-
-            set_token_data(user.sso_token, security.access_token, security.refresh_token,
-                           datetime.fromtimestamp(security.token_expiry), scopes)
-            db.session.commit()
-            if owner_hash != user.current_char_obj.owner_hash:
-                logger.info("%s owner_hash did not match, force logout and invalidate all sessions", user)
-                invalidate_all_sessions_for_current_user()
-                force_logout()
-                return None
-
-            # owner hash still matches
-            set_last_successful_owner_hash_check(user.get_eve_id())
-            logger.debug("%s owner_hash did match, let the request continue", user)
-            return None
-
-        except APIException as e:
-            # if this happens the token doesn't work anymore
-            # => owner probably changed or for other reason
-            logger.exception("API Error during token validation, invalidating all sessions and forcing logout", e)
-            invalidate_all_sessions_for_current_user()
-            force_logout()
-            return None
-
-    elif user.type == 'character':
-        logger.info("Character type, we need to check owner_hash")
-        user: Character = user
-        if not need_to_do_owner_hash_check(user.id):
-            logger.info("Hash check was already successfully done after the last downtime")
-            return None
-        security = EsiSecurity('', client_id=config.crest_client_id, secret_key=config.crest_client_secret)
-        if user.sso_token is None:
-            logger.info("User sso token is None, logging out")
-            invalidate_all_sessions_for_current_user()
-            force_logout()
-            return None
-
-        security.refresh_token = user.sso_token.refresh_token
-        try:
-            security.refresh()
-            # the token still works
-            auth_info = who_am_i(security.access_token)
-            owner_hash = auth_info['CharacterOwnerHash']
-            scopes = auth_info['Scopes']
-
-            set_token_data(user.sso_token, security.access_token, security.refresh_token,
-                           datetime.fromtimestamp(security.token_expiry), scopes)
-            db.session.commit()
-
-            # this is probably never gonna happen, since the token shouldn't work anymore after an owner change
-            if owner_hash != user.owner_hash:
-                logger.info("Characters current owner_hash did not match owner_hash in database")
-                invalidate_all_sessions_for_current_user()
-                force_logout()
-                return None
-
-            set_last_successful_owner_hash_check(user.get_eve_id())
-            # owner hash still matches
-            logger.debug("%s owner_hash did match, let the request continue", user)
-            return None
-
-        except APIException as e:
-            # if this happens the token doesn't work anymore
-            # => owner probably changed or for other reason
-            logger.exception("API Error during token validation, invalidating all sessions and forcing logout", e)
-            invalidate_all_sessions_for_current_user()
-            force_logout()
-            return None
+    if not owner_hash_check_manager.is_ownerhash_valid(user):
+        logger.info("owner_hash for %s was invalid. Invalidating all sessions and logging out.", user)
+        invalidate_all_sessions_for_current_user()
+        force_logout()
+        return None
 
     # else
     logger.debug("Everything okay, the request can continue")
@@ -201,9 +117,6 @@ def get_view_to_unauthed_character_list(unauthed_chars: List[Account]) -> str:
     return render_template("account/unauthed_characters_form.html", char_list=unauthed_chars, account=current_user)
 
 
-last_owner_hash_check_lookup: Dict[int, datetime] = dict()
-
-
 @login_manager.user_loader
 def load_user(unicode_id):
     user: Optional[Union[Account, Character]] = get_user_from_db(unicode_id)
@@ -212,35 +125,6 @@ def load_user(unicode_id):
         return None
 
     return user
-
-
-def need_to_do_owner_hash_check(character_id: int) -> bool:
-    if character_id in last_owner_hash_check_lookup:
-        last_check: datetime = last_owner_hash_check_lookup[character_id]
-        # if the last check was before the last downtime do a check
-        if last_check < get_last_downtime():
-            return True
-        return False
-
-    return True
-
-
-def set_last_successful_owner_hash_check(character_id: int) -> None:
-    last_owner_hash_check_lookup[character_id] = datetime.now(timezone.utc)
-
-
-def get_last_downtime():
-    # get current utc time
-    current_time = datetime.utcnow()
-    # downtime is at 11:00 UTC every day
-    if current_time.hour < 11:
-        # last downtime was 11 utc 1 day earlier
-        current_time -= timedelta(days=1)
-
-    # if we are past dt, dt was today at 11 UTC no need to substract
-    current_time = current_time.replace(hour=11, minute=0, second=0, microsecond=0, tzinfo=timezone.utc)
-
-    return current_time
 
 
 def get_user_from_db(unicode_id: str) -> Optional[Union[Character, Account]]:

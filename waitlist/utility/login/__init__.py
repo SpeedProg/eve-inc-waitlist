@@ -17,6 +17,7 @@ from waitlist.sso import authorize, who_am_i
 from waitlist.storage.database import Account, Character, SSOToken, EveApiScope
 from waitlist.utility import config
 from waitlist.utility.eve_id_utils import get_character_by_id_and_name, is_char_banned
+from waitlist.utility.manager.owner_hash_check_manager import OwnerHashCheckManager
 
 logger = logging.getLogger(__name__)
 
@@ -78,7 +79,7 @@ def member_login_cb(code):
                 else:
                     char.sso_token.accountID = None
 
-                set_token_data(char.sso_token, access_token, refresh_token, expires_at, scopes)
+                OwnerHashCheckManager.set_token_data(char.sso_token, access_token, refresh_token, expires_at, scopes)
                 db.session.commit()
 
             else:  # connected exactly to 1 account, since <= 1 and > 0
@@ -103,22 +104,22 @@ def member_login_cb(code):
                                 # if this doesn't throw an exception, we don't update
                             except APIException as e:
                                 # this probably happens because the token is invalid now
-                                set_token_data(acc.sso_token, access_token, refresh_token, expires_at, scopes)
+                                OwnerHashCheckManager.set_token_data(acc.sso_token, access_token, refresh_token, expires_at, scopes)
                                 db.session.commit()
                         else:
                             # has same scopes as this, just replace it
-                            set_token_data(acc.sso_token, access_token, refresh_token, expires_at, scopes)
+                            OwnerHashCheckManager.set_token_data(acc.sso_token, access_token, refresh_token, expires_at, scopes)
                             db.session.commit()
 
                     else:
                         # old token has no scopes
                         acc.sso_token = SSOToken()
-                        set_token_data(acc.sso_token, access_token, refresh_token, expires_at, scopes)
+                        OwnerHashCheckManager.set_token_data(acc.sso_token, access_token, refresh_token, expires_at, scopes)
                         db.session.commit()
                 else:
                     # no old token
                     acc.sso_token = SSOToken()
-                    set_token_data(acc.sso_token, access_token, refresh_token, expires_at, scopes)
+                    OwnerHashCheckManager.set_token_data(acc.sso_token, access_token, refresh_token, expires_at, scopes)
                     db.session.commit()
 
     if acc is not None and not acc.disabled:  # accs are allowed to ignore bans
@@ -137,7 +138,7 @@ def member_login_cb(code):
     if char.sso_token is None:
         char.sso_token = SSOToken()
 
-    set_token_data(char.sso_token, access_token, refresh_token, expires_at, scopes)
+    OwnerHashCheckManager.set_token_data(char.sso_token, access_token, refresh_token, expires_at, scopes)
     db.session.commit()
 
     logger.info(f"Logging character eve_name={char.get_eve_name()} id={char.get_eve_id()} in")
@@ -149,23 +150,6 @@ def member_login_cb(code):
     login_user(char, remember=True)
     logger.debug("Member Login by %s successful", char.get_eve_name())
     return redirect(url_for("index"))
-
-
-def set_token_data(token: SSOToken, access_token: str, refresh_token: str, expires_at: datetime, scopes: str) -> None:
-    """
-    :param scopes space seperated list of scopes
-    """
-
-    token.access_token = access_token
-    token.refresh_token = refresh_token
-    token.access_token_expires = expires_at
-    scope_name_list: List[str] = scopes.split(" ")
-    token_scopes: List[EveApiScope] = []
-
-    for scope_name in scope_name_list:
-        token_scopes.append(EveApiScope(scopeName=scope_name))
-
-    token.scopes = token_scopes
 
 
 def invalidate_all_sessions_for_current_user() -> None:
