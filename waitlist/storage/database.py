@@ -186,6 +186,13 @@ class Account(Base):
     def is_new(self):
         return self.current_char_obj.is_new()
 
+
+    @property
+    def owner_hash(self):
+        if self.current_char is None:
+            return None
+        return self.current_char_obj.owner_hash
+
     @property
     def type(self):
         return "account"
