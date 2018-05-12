@@ -5,8 +5,8 @@ from time import sleep
 import logging
 from threading import Timer
 from waitlist import db
-from waitlist.storage.database import WaitlistGroup, CrestFleet, WaitlistEntry,\
-    HistoryEntry, Character, TeamspeakDatum, Account
+from waitlist.storage.database import WaitlistGroup, CrestFleet, WaitlistEntry, \
+    HistoryEntry, Character, TeamspeakDatum, Account, SSOToken
 from datetime import datetime, timedelta
 from waitlist.utility.history_utils import create_history_object
 from flask.helpers import url_for
@@ -14,6 +14,7 @@ from waitlist.utility.settings import sget_active_ts_id, sget_motd_hq,\
     sget_motd_vg
 from waitlist.data.sse import send_server_sent_event, InviteMissedSSE,\
     EntryRemovedSSE
+from waitlist.utility.swagger import esi_scopes
 from waitlist.utility.swagger.eve.fleet import EveFleetEndpoint
 import flask
 from waitlist.utility.swagger.eve import get_esi_client_for_account, ESIResponse
@@ -26,9 +27,9 @@ logger = logging.getLogger(__name__)
 class FleetMemberInfo:
     def __init__(self):
         self._cached_until: Dict[int, datetime] = {}
-        self._lastmembers: Dict[int, FleetMember] = {}
+        self._lastmembers: Dict[int, Dict[int, FleetMember]] = {}
     
-    def get_fleet_members(self, fleet_id, account):
+    def get_fleet_members(self, fleet_id: int, account: Account) -> Optional[Dict[int, FleetMember]]:
         return self._get_data(fleet_id, account)
 
     def get_fleet_ids(self) -> KeysView:
@@ -57,7 +58,11 @@ class FleetMemberInfo:
             if tnow - self._cached_until[fleet_id] < timedelta(minutes=5):
                 continue
 
-            fleet_api = EveFleetEndpoint(fleet_id, get_esi_client_for_account(db_fleet.comp))
+            token: Optional[SSOToken] = db_fleet.comp.get_a_sso_token_with_scopes(esi_scopes.fleetcomp_scopes)
+            if token is None:
+                return
+
+            fleet_api = EveFleetEndpoint(token, fleet_id, get_esi_client_for_account(token, db_fleet.comp))
             resp: ESIResponse = fleet_api.get_member()
             if resp.is_error():
                 remove_ids.append(fleet_id)
@@ -74,8 +79,12 @@ class FleetMemberInfo:
             data[member.character_id()] = member
         return data
     
-    def _get_data(self, fleet_id: int, account: Account) -> Dict[int, FleetMember]:
-        fleet_api = EveFleetEndpoint(fleet_id, get_esi_client_for_account(account))
+    def _get_data(self, fleet_id: int, account: Account) -> Optional[Dict[int, FleetMember]]:
+        token: Optional[SSOToken] = account.get_a_sso_token_with_scopes(esi_scopes.fleetcomp_scopes)
+        if token is None:
+            return None
+
+        fleet_api = EveFleetEndpoint(token, fleet_id, get_esi_client_for_account(token, account))
         utcnow = datetime.utcnow()
         if self._is_expired(fleet_id, utcnow):
             logger.debug("Member Data Expired for %d and account %s", fleet_id, account.username)
@@ -96,12 +105,12 @@ class FleetMemberInfo:
             logger.debug("Cache hit for %d and account %s", fleet_id, account.username)
         return self._lastmembers[fleet_id]
     
-    def get_cache_data(self, fleet_id):
+    def get_cache_data(self, fleet_id) -> Optional[Dict[int, FleetMember]]:
         if fleet_id in self._lastmembers:
             return self._lastmembers[fleet_id]
         return None
     
-    def _is_expired(self, fleet_id, utcnow):
+    def _is_expired(self, fleet_id, utcnow) -> bool:
         if fleet_id not in self._cached_until:
             return True
         else:
@@ -111,16 +120,16 @@ class FleetMemberInfo:
             else:
                 return True
     
-    def _update_cache(self, fleet_id: int, response: EveFleetMembers):
+    def _update_cache(self, fleet_id: int, response: EveFleetMembers) -> None:
         self._lastmembers[fleet_id] = self._to_members_map(response)
         self._cached_until[fleet_id] = response.expires()
 
 member_info = FleetMemberInfo()
 
 
-def setup(fleet_id: int, fleet_type: str)\
+def setup(token: SSOToken, fleet_id: int, fleet_type: str)\
         -> Optional[Tuple[Optional[int], Optional[int], Optional[int], Optional[int]]]:
-    fleet_api = EveFleetEndpoint(fleet_id)
+    fleet_api = EveFleetEndpoint(token, fleet_id)
     fleet_settings = fleet_api.get_fleet_settings()
     if fleet_settings.is_error():
         logger.error("Failed to get Fleet Settings code[%d] msg[%s]",
@@ -249,8 +258,13 @@ def setup(fleet_id: int, fleet_type: str)\
 
 
 def invite(user_id: int, squad_id_list: Sequence[Tuple[int, int]]):
-    fleet = current_user.fleet
-    fleet_api = EveFleetEndpoint(fleet.fleetID)
+    token: Optional[SSOToken] = current_user.get_a_sso_token_with_scopes(esi_scopes.fleet_write)
+    if token is None:
+        return {'status_code': 404, 'text': "You need to go to <a href='" + url_for('fc_sso.login_redirect') +
+                                            "'>SSO Login</a> and relogin in!"}
+
+    fleet: CrestFleet = current_user.fleet
+    fleet_api: EveFleetEndpoint = EveFleetEndpoint(token, fleet.fleetID)
     oldsquad = (0, 0)
     for idx in range(len(squad_id_list)):
         squad = squad_id_list[idx]

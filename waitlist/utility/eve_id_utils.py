@@ -60,7 +60,7 @@ def get_item_data_from_api(name: str) -> Optional[any]:
     if result_ids is None or len(result_ids) < 1:
         return None
 
-    esi_client: EsiClient = get_esi_client(True)
+    esi_client: EsiClient = get_esi_client(None, True)
     api = get_api()
 
     for result_id in result_ids:

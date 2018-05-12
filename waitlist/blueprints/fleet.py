@@ -9,25 +9,22 @@ from waitlist.utility import fleet as fleet_utils
 from werkzeug.utils import redirect
 from flask_login import login_required, current_user
 from waitlist import db
-from waitlist.storage.database import CrestFleet, WaitlistGroup, SSOToken, \
-    EveApiScope
+from waitlist.storage.database import CrestFleet, WaitlistGroup, SSOToken
 from flask.helpers import url_for, make_response
 from flask.templating import render_template
 from flask.globals import request, session, current_app
-import re
 import flask
 from waitlist.utility.fleet import member_info
 from waitlist.blueprints.fc_sso import get_sso_redirect, add_sso_handler
 from datetime import datetime
-from datetime import timedelta
-from sqlalchemy import or_
 import json
 from waitlist.utility.json.fleetdata import FleetMemberEncoder
-from waitlist.sso import who_am_i, authorize
+from waitlist.sso import add_token
+from waitlist.utility.manager import OwnerHashCheckManager
 from waitlist.utility.outgate.character.info import get_character_fleet_id
+from waitlist.utility.swagger import esi_scopes
 from waitlist.utility.swagger.eve.fleet import EveFleetEndpoint
 from waitlist.utility.swagger.eve.fleet.models import FleetMember
-from waitlist.utility.utils import token_has_scopes
 
 bp = Blueprint('fleet', __name__)
 logger = logging.getLogger(__name__)
@@ -41,45 +38,9 @@ perm_dev = perm_manager.get_permission('developer_tools')
 
 
 @login_required
-def handle_token_update(code):
-    """
-    SSO cb handler
-    """
-    tokens = authorize(code)
-    re_token = tokens['refresh_token']
-    acc_token = tokens['access_token']
-    exp_in = int(tokens['expires_in'])
-
-    auth_info = who_am_i(acc_token)
-    char_name = auth_info['CharacterName']
-    if char_name != current_user.get_eve_name():
-        flask.abort(409, 'You did not grant authorization for the right character "' + current_user.get_eve_name() +
-                    '". Instead you granted it for "' + char_name + '"')
-
-    scopenames = auth_info['Scopes'].split(' ')
-    if current_user.sso_token is None:
-        current_user.sso_token = SSOToken(refresh_token=re_token, access_token=acc_token,
-                             access_token_expires=(datetime.utcnow() + timedelta(seconds=exp_in)))
-        for scope_name in scopenames:
-            current_user.sso_token.scopes.append(EveApiScope(scopeName=scope_name))
-
-    else:
-        current_user.sso_token.refresh_token = re_token
-        current_user.sso_token.access_token = acc_token
-        current_user.sso_token.access_token_expires = datetime.utcnow() + timedelta(seconds=exp_in)
-        token_scopes: List[EveApiScope] = []
-        for scope_name in scopenames:
-            token_scopes.append(EveApiScope(scopeName=scope_name))
-
-        current_user.sso_token.scopes = token_scopes
-
-    db.session.commit()
-
-
-@login_required
 @fleets_manage.require(http_exception=401)
 def handle_new_fleet_token(tokens):
-    handle_token_update(tokens)
+    add_token(tokens)
     return redirect(url_for('fleet.take_over_fleet'))
 
 
@@ -107,6 +68,11 @@ def setup_steps(step: str) -> Any:
 
 
 def setup_step_url():
+    token: Optional[SSOToken] = current_user.get_a_sso_token_with_scopes(esi_scopes.fleetcomp_scopes)
+    if token is None:
+        return Response('You have no api token with the required scopes associated with your account,'
+                        ' please take over the fleet again.',
+                        status=412)
     skip_setup = request.form.get('skip-setup')
     try:
         fleet_id: int = int(request.form.get('fleet-id'))
@@ -120,16 +86,13 @@ def setup_step_url():
         skip_setup = False
 
     if not skip_setup:
-        fleet_utils.setup(fleet_id, fleet_type)
+        fleet_utils.setup(token, fleet_id, fleet_type)
 
-    return get_select_form(fleet_id)
+    return get_select_form(token, fleet_id)
 
 
-def get_select_form(fleet_id: int) -> Any:
-    if current_user.sso_token is None:
-        return Response('You have no api token associated with your account, please take over the fleet again.',
-                        status=412)
-    fleet_api = EveFleetEndpoint(fleet_id)
+def get_select_form(token: SSOToken, fleet_id: int) -> Any:
+    fleet_api = EveFleetEndpoint(token, fleet_id)
     wings = fleet_api.get_wings()
     if wings.is_error():
         logger.error(f"Could not get wings for fleet_id[{fleet_id}], maybe some ones tokens are wrong. {wings.error()}")
@@ -245,14 +208,13 @@ def print_fleet(fleetid: int) -> Response:
 @fleets_manage.require()
 def take_over_fleet():
     # lets make sure we got the token we need
-    if current_user.sso_token is None \
-        or current_user.sso_token.refresh_token is None \
-        or not token_has_scopes(current_user.sso_token,
-                ['esi-fleets.read_fleet.v1', 'esi-fleets.write_fleet.v1', 'esi-ui.open_window.v1']):
-        # if not, get it. And then return here
-        return get_sso_redirect('get_fleet_token', 'esi-fleets.read_fleet.v1 esi-fleets.write_fleet.v1 esi-ui.open_window.v1')
 
-    fleet_id = get_character_fleet_id(current_user.get_eve_id())
+    token: SSOToken = current_user.get_a_sso_token_with_scopes(esi_scopes.fleetcomp_scopes)
+    if token is None:
+        # if not, get it. And then return here
+        return get_sso_redirect('get_fleet_token', ' '.join(esi_scopes.fleetcomp_scopes))
+
+    fleet_id = get_character_fleet_id(token, current_user.get_eve_id())
     if fleet_id is None:
         flask.flash("You are not in a fleet, or didn't not provide rights to read them.", "danger")
         return redirect(url_for("fleetoptions.fleet"))

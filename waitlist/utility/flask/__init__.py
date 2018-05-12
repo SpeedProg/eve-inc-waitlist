@@ -20,8 +20,8 @@ from waitlist.storage.database import Account, Character
 from waitlist.utility import config
 from waitlist.utility.account import force_logout
 from waitlist.utility.eve_id_utils import is_char_banned, get_account_from_db, get_char_from_db
-from waitlist.utility.login import set_token_data, invalidate_all_sessions_for_current_user
-from waitlist.utility.manager.owner_hash_check_manager import owner_hash_check_manager
+from waitlist.utility.login import invalidate_all_sessions_for_current_user
+from waitlist.utility.manager import owner_hash_check_manager
 
 logger = logging.getLogger(__name__)
 
@@ -34,10 +34,24 @@ def load_identity_when_session_expires():
 
 @app.before_request
 def check_user_owner_hash():
+    # if no auth for alts is required there is no reason to check the owner_hash
+    if not config.require_auth_for_chars:
+        logger.debug("Skipping owner_hash check because it is disabled in the configuration")
+        return
+
+    # we want to allow requests to accounts.account_self_edit here
+    # and sso
+    allowed_endpoints = [url_for('fc_sso.login_cb')]
+
+    # if it is allowed let it continue with an other handle
+    if request.path in allowed_endpoints:
+        logger.debug("request.path %s in allowed_endpoints, not checking owner_hash", request.path)
+        return None
+
     user: Optional[Union[Account, Character, AnonymousUserMixin]] = current_user
 
     if not hasattr(user, 'type'):
-        logger.info("AnonymouseUserMixin no need to check hashes")
+        logger.debug("AnonymouseUserMixin no need to check hashes")
         return
 
     if user.type == 'account':
@@ -185,7 +199,7 @@ def unauthorized_ogb():
     Handle unauthorized users that visit with an out of game browser
     -> Redirect them to SSO
     """
-    return get_sso_redirect('linelogin', 'publicData')
+    return get_sso_redirect('linelogin', '')
 
 
 @app.template_filter('waittime')

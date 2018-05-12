@@ -1,3 +1,4 @@
+from esipy.exceptions import APIException
 from flask.blueprints import Blueprint
 import logging
 from flask.globals import request
@@ -23,5 +24,9 @@ perm_fleet_manage = perm_manager.get_permission('fleet_management')
 def ownerdetails():
     eve_id = int(request.form.get("characterID"))
 
-    resp = open_information(eve_id)
-    return make_response(resp.error() if resp.is_error() else '', resp.code())
+    try:
+        resp = open_information(eve_id)
+        return make_response(resp.error() if resp.is_error() else '', resp.code())
+    except APIException as e:
+        return make_response(f"Got APIException while opening ownerdetails for {eve_id}", 500)
+

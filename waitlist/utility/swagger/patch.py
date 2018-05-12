@@ -101,24 +101,8 @@ class EsiClient(BaseClient):
         if opt is None:
             opt = {}
 
-        try:
-            # required because of inheritance
-            request, response = super(EsiClient, self).request(req_and_resp, opt)
-        except APIException as e:
-            logger.info("Failed to execute request",  e)
-            ermsg = "No Message"
-            if 'error' in e.response:
-                ermsg = e.response['error']
-            elif 'message' in e.response:
-                ermsg = e.response['message']
-
-            if e.status_code == 400 and ermsg == "invalid_token":
-                # since the token is invalid lets delete it
-                db.session.delete(current_user.sso_token)
-                db.session.commit()
-
-            # fake a response that has the fields as expected
-            return DummyResp(e.response, e.status_code)
+        # required because of inheritance
+        request, response = super(EsiClient, self).request(req_and_resp, opt)
 
         # check cache here so we have all headers, formed url and params
         cache_key = self.__make_cache_key(request)

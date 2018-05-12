@@ -12,7 +12,7 @@ from waitlist.utility.config import crest_return_url, crest_client_id,\
     crest_client_secret
 from flask_login import current_user
 from datetime import datetime, timezone
-from waitlist.storage.database import Account
+from waitlist.storage.database import Account, SSOToken
 from waitlist.utility.swagger.patch import EsiClient
 
 logger = logging.getLogger(__name__)
@@ -82,11 +82,11 @@ def make_error_response(resp: Any) -> ESIResponse:
     return ESIResponse(get_expire_time(resp), resp.status, msg)
 
 
-def get_esi_client(noauth: bool = False) -> EsiClient:
-    return get_esi_client_for_account(current_user, noauth)
+def get_esi_client(token: Optional[SSOToken], noauth: bool = False) -> EsiClient:
+    return get_esi_client_for_account(token, current_user, noauth)
 
 
-def get_esi_client_for_account(account: Account, noauth: bool = False) -> EsiClient:
+def get_esi_client_for_account(token: Optional[SSOToken], account: Account, noauth: bool = False) -> EsiClient:
     if noauth:
         return EsiClient(timeout=10, headers={'User-Agent': 'Bruce Warhead IncWaitlist/'+version})
 
@@ -96,9 +96,9 @@ def get_esi_client_for_account(account: Account, noauth: bool = False) -> EsiCli
         crest_client_secret
     )
     security.update_token({
-        'access_token': account.sso_token.access_token,
-        'expires_in': (account.sso_token.access_token_expires -
+        'access_token': token.access_token,
+        'expires_in': (token.access_token_expires -
                        datetime.utcnow()).total_seconds(),
-        'refresh_token': account.sso_token.refresh_token
+        'refresh_token': token.refresh_token
     })
     return EsiClient(security, timeout=10, headers={'User-Agent': 'Bruce Warhead IncWaitlist/'+version})

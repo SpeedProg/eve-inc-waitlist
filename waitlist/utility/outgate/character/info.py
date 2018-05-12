@@ -2,7 +2,7 @@ import logging
 from datetime import datetime
 from typing import Optional, Tuple
 
-from waitlist.storage.database import APICacheCharacterInfo, APICacheCorporationInfo
+from waitlist.storage.database import APICacheCharacterInfo, APICacheCorporationInfo, SSOToken
 from waitlist.utility.outgate.exceptions import check_esi_response
 from waitlist.utility.swagger.eve.character import CharacterEndpoint, CharacterInfo
 from waitlist.utility.swagger.eve.search import SearchEndpoint, SearchResponse
@@ -102,14 +102,14 @@ def get_char_affiliations(char_id: int, *args) -> Tuple[int, int]:
     return corp_info.id, corp_info.allianceID
 
 
-def get_character_fleet_id(char_id: int) -> Optional[int]:
+def get_character_fleet_id(token: SSOToken, char_id: int) -> Optional[int]:
     """
     Get the fleet id for a character, or None if it is in no fleet
     :param char_id:  character that should be in a fleet
     :return: fleet id or None if in no fleet
     """
     char_ep = CharacterEndpoint()
-    resp = char_ep.get_fleet_info(char_id)
+    resp = char_ep.get_fleet_info(token, char_id)
     if resp.is_error():
         logger.error(f"Failed to get fleet id."
                      f" Error Code is: {resp.get_monolith_error() if resp.is_monolith_error() else resp.error()}")
