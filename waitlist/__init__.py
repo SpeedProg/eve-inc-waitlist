@@ -34,7 +34,7 @@ app.config['SESSION_COOKIE_SECURE'] = config.secure_cookies
 app.config['UPLOAD_FOLDER'] = path.join(".", "sde")
 # make sure the upload folder actually exists
 # give owner read, write, list(execute)
-os.makedirs(app.config['UPLOAD_FOLDER'], mode=(stat.S_IRUSR|stat.S_IWUSR|stat.S_IXUSR), exist_ok=True)
+os.makedirs(app.config['UPLOAD_FOLDER'], mode=(stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR), exist_ok=True)
 
 # sqlalchemy config
 app.config['SQLALCHEMY_DATABASE_URI'] = config.connection_uri
