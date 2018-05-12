@@ -1,6 +1,6 @@
 import logging
 from datetime import datetime, timezone, timedelta
-from typing import Dict, Union, List
+from typing import Dict, Union, List, Optional
 
 from esipy import EsiSecurity
 from esipy.exceptions import APIException
@@ -18,11 +18,15 @@ class OwnerHashCheckManager():
     Manager for checking owner hash
     """
 
-    def __init(self):
+    def __init__(self):
         self.last_owner_hash_check_lookup: Dict[int, datetime] = dict()
-        pass
 
     def need_new_ownerhash_check(self, character_id: int) -> bool:
+        """
+        Check if this characters owner_hash was check successfully since last downtime
+        :param character_id: the id of the character
+        :return: True if the character's owner_hash was not checked successfully since the last downtime
+        """
         if character_id in self.last_owner_hash_check_lookup:
             last_check: datetime = self.last_owner_hash_check_lookup[character_id]
             # if the last check was before the last downtime do a check
@@ -33,50 +37,108 @@ class OwnerHashCheckManager():
         return True
 
     def set_last_successful_owner_hash_check(self, character_id: int) -> None:
+        """
+        Set the last successful owner_hash check time to now
+        :param character_id: Id of the character to check for
+        :return: Nothing
+        """
         self.last_owner_hash_check_lookup[character_id] = datetime.now(timezone.utc)
 
+    def is_alt_ownerhash_valid(self, account: Account, character: Character) -> bool:
+        """
+        Checks if the owner_hash of the given character connected with the given account is valid
+        :param account: the account the character is connected too
+        :param character: the character to check the owner_hash of
+        :return: True if the owner_hash is valid otherwise False
+        """
+        if not self.need_new_ownerhash_check(character.id):
+            return True
+
+
+        token: Optional[SSOToken] = account.get_a_sso_token_with_scopes([''])
+
+        if token is None:
+            return False
+
+        # the token still works
+        auth_info = who_am_i(token.access_token)
+        owner_hash = auth_info['CharacterOwnerHash']
+
+        db.session.commit()
+        if owner_hash != character.owner_hash:
+            logger.info("%s owner_hash did not match", character)
+            return False
+
+        # owner hash still matches
+        self.set_last_successful_owner_hash_check(character.id)
+        logger.debug("%s and %s owner_hash did match", account, character)
+        return True
+
     def is_ownerhash_valid(self, user: Union[Character, Account]) -> bool:
+        """
+        Checks if the owner_hash and the SSOToken of the given character or character set on the account,
+        connected with the given account is valid
+        This also updates the token data.
+        :param user: Character or Account to check the owner_hash/token validity off
+        :return: True if the owner_hash is valid otherwise False
+        """
         char_id: int = user.get_eve_id()
 
         if not self.need_new_ownerhash_check(char_id):
             logger.debug("We already did the owner_hash check since last downtime")
             return True
 
-        if user.sso_token is None:
-            logger.info("%s sso_token is None, owner_hash check failed", user)
+        token: Optional[SSOToken] = user.get_a_sso_token_with_scopes([''])
+
+        if token is None:
+            logger.debug("%s no valid sso token, owner_hash check failed", user)
             return False
 
-        security = EsiSecurity('', client_id=config.crest_client_id, secret_key=config.crest_client_secret)
-        security.refresh_token = user.sso_token.refresh_token
-        try:
-            security.refresh()
+        # the token still works
+        auth_info = who_am_i(token.access_token)
+        owner_hash = auth_info['CharacterOwnerHash']
 
-            # the token still works
-            auth_info = who_am_i(security.access_token)
-            owner_hash = auth_info['CharacterOwnerHash']
-            scopes = auth_info['Scopes']
-
-            OwnerHashCheckManager.set_token_data(user.sso_token, security.access_token, security.refresh_token,
-                                                 datetime.fromtimestamp(security.token_expiry), scopes)
-            db.session.commit()
-            if owner_hash != user.owner_hash:
-                logger.info("%s owner_hash did not match, force logout and invalidate all sessions", user)
-                return False
-
-            # owner hash still matches
-            self.set_last_successful_owner_hash_check(char_id)
-            logger.debug("%s owner_hash did match, let the request continue", user)
-            return True
-
-        except APIException as e:
-            # if this happens the token doesn't work anymore
-            # => owner probably changed or for other reason
-            logger.exception("API Error during token validation, invalidating all sessions and forcing logout", e)
+        if owner_hash != user.owner_hash:
+            logger.info("%s's new owner_hash %s did not match owner_hash in database %s", user, owner_hash,  user.owner_hash)
             return False
 
+        # owner hash still matches
+        self.set_last_successful_owner_hash_check(char_id)
+        logger.debug("%s owner_hash did match, let the request continue", user)
+        return True
+
+    @staticmethod
+    def is_auth_valid_for_token(token: Optional[SSOToken]) -> bool:
+        """
+        Checks if a token still works, returns an EsiSecurity object that .refresh() was used on
+        or None if the token doesn't work anymore
+        :param token: a token to check or None
+        :return: True if the token is still valid otherwise False
+        """
+        if token is None:
+            logger.debug("token is not valid")
+            return False
+
+        return token.is_valid()
+
+    @staticmethod
+    def is_auth_valid_for_account_character_pair(account: Account, character: Character) -> Optional[EsiSecurity]:
+        """
+        Checks if a token still works, returns an EsiSecurity object that .refresh() was used on
+        or None if the token doesn't work anymore
+        :param account: the account the token should be connected to
+        :param character: the character the token should be connected to
+        :return: None of the token is not valid or an EsiSecurity object
+        """
+        # does a valid token exist for this character+account combo
+        return OwnerHashCheckManager.is_auth_valid_for_token(account.get_token_for_charid(character.id))
 
     @staticmethod
     def get_last_downtime() -> datetime:
+        """
+        Get the datetime the last downtime occurred
+        :return: The datetime of the last downtime
+        """
         # get current utc time
         current_time = datetime.utcnow()
         # downtime is at 11:00 UTC every day
@@ -87,24 +149,6 @@ class OwnerHashCheckManager():
         # if we are past dt, dt was today at 11 UTC no need to substract
         current_time = current_time.replace(hour=11, minute=0, second=0, microsecond=0, tzinfo=timezone.utc)
         return current_time
-
-    @staticmethod
-    def set_token_data(token: SSOToken, access_token: str, refresh_token: str, expires_at: datetime,
-                       scopes: str) -> None:
-        """
-        :param scopes space seperated list of scopes
-        """
-
-        token.access_token = access_token
-        token.refresh_token = refresh_token
-        token.access_token_expires = expires_at
-        scope_name_list: List[str] = scopes.split(" ")
-        token_scopes: List[EveApiScope] = []
-
-        for scope_name in scope_name_list:
-            token_scopes.append(EveApiScope(scopeName=scope_name))
-
-        token.scopes = token_scopes
 
 
 owner_hash_check_manager = OwnerHashCheckManager()

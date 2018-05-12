@@ -1,6 +1,6 @@
 import logging
 from datetime import timedelta, datetime
-from typing import Union, Optional
+from typing import Union, Optional, List
 
 import flask
 from flask import Blueprint, session
@@ -24,6 +24,7 @@ from waitlist.signal.signals import send_account_created, send_roles_changed, se
 from waitlist.sso import authorize, who_am_i
 from waitlist.storage.database import Account, Character, Role, linked_chars, APICacheCharacterInfo, SSOToken
 from waitlist.utility.login import invalidate_all_sessions_for_given_user
+from waitlist.utility.manager.owner_hash_check_manager import owner_hash_check_manager, OwnerHashCheckManager
 from waitlist.utility.settings import sget_resident_mail, sget_tbadge_mail, sget_other_mail, sget_other_topic, \
     sget_tbadge_topic, sget_resident_topic
 from waitlist.utility.utils import get_random_token
@@ -89,7 +90,7 @@ def accounts():
 
             db.session.commit()
             send_account_created(accounts, acc.id, current_user.id, acc_roles, 'Creating account. ' + note)
-
+    clean_alt_list()
     roles = db.session.query(Role).order_by(Role.name).all()
     accs = db.session.query(Account).order_by(asc(Account.disabled)).order_by(Account.username).all()
     mails = {
@@ -99,6 +100,33 @@ def accounts():
     }
 
     return render_template("settings/accounts.html", roles=roles, accounts=accs, mails=mails)
+
+
+def clean_alt_list() -> None:
+    """
+    Removes links between accounts and characters if
+     there is a token
+     but the token expired
+     or the owner_hash changed (this should expire the token!)
+    if there is no token for the character at all, the character is keept
+    """
+    return None
+    accs: List[Account] = db.session.query(Account).all()
+    for acc in accs:
+        for char in acc.characters:
+            if OwnerHashCheckManager.is_auth_valid_for_account_character_pair(acc, char):
+                continue
+
+            token: Optional[SSOToken] = acc.get_token_for_charid(char.id)
+            # if there is no token for this account/character combination we don't need to do anything
+            if token is None:
+                continue
+
+            # the auth token is not valid AND we have a token
+            # remove the invalid toekn
+            db.session.delete(token)
+
+    db.session.commit()
 
 
 @bp.route("/edit", methods=["POST"])
@@ -371,11 +399,12 @@ def alt_verification_handler(code: str) -> None:
     auth = authorize(code)
     access_token = auth['access_token']
     auth_info = who_am_i(access_token)
-    char_name = auth_info['CharacterName']
+    #char_name = auth_info['CharacterName']
     char_id = auth_info['CharacterID']
     owner_hash = auth_info['CharacterOwnerHash']
     # if he authed the char he told us
     if session['link_charid'] is not None and session['link_charid'] == char_id:
+        logger.debug("Updating Token for %s char_id=%s", current_user, char_id)
         session.pop('link_charid')  # remove info from session
 
         # store the token
