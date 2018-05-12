@@ -78,6 +78,8 @@ waitlist.listdom = (function(){
 			} else if (jsonFit.shipType === 1) {
 				// it is scruffy
 				return "LOGI";
+			} else {
+			  return "LOGI"
 			}
 			break;
 		case "sniper":
