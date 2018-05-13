@@ -41,17 +41,7 @@ def index():
     if group is None:
         return render_template("index.html", is_index=True)
 
-    new_bro = True
-    if current_user.type == "character":
-        if current_user.newbro is None:
-            new_bro = True
-        else:
-            new_bro = current_user.newbro
-    elif current_user.type == "account":
-        if current_user.current_char_obj.newbro is None:
-            new_bro = True
-        else:
-            new_bro = current_user.current_char_obj.newbro
+    new_bro = current_user.is_new
 
     wlists = []
     logi_wl = group.logilist

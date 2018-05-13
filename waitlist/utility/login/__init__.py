@@ -1,10 +1,9 @@
-import datetime
-from typing import Optional, List, Union
+from datetime import datetime, timedelta
+from typing import Optional, Union
 
 import flask
 import logging
 
-from esipy import EsiSecurity
 from flask import current_app, session, Response
 from flask import redirect
 from flask import url_for
@@ -153,10 +152,10 @@ def login_accounts_by_alts_or_character(char: Character, owner_hash: str) -> Res
                 # or we will send to reauth if there is no proper api token
                 acc.current_char = None
 
-                security: Optional[EsiSecurity] = OwnerHashCheckManager.\
+                valid: bool = OwnerHashCheckManager.\
                     is_auth_valid_for_account_character_pair(acc, char)
 
-                if security is None:
+                if not valid:
                     # log the account in with no character and request alt verification
                     logger.info(f"Logging account username={acc.username} id={acc.id} in")
                     login_user(acc, remember=True)
@@ -175,9 +174,14 @@ def login_accounts_by_alts_or_character(char: Character, owner_hash: str) -> Res
 
 def member_login_cb(code):
     auth = authorize(code)
+    refresh_token = auth['refresh_token']
     access_token = auth['access_token']
+    expires_in = int(auth['expires_in'])
 
-    auth_info = who_am_i(access_token)
+    token: SSOToken = SSOToken(refresh_token=refresh_token, access_token=access_token,
+                               access_token_expires=(datetime.utcnow() + timedelta(seconds=expires_in)))
+
+    auth_info = who_am_i(token)
     char_id = auth_info['CharacterID']
     char_name = auth_info['CharacterName']
     owner_hash = auth_info['CharacterOwnerHash']

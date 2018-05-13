@@ -85,7 +85,7 @@ def create_new_character(eve_id: int, char_name: str) -> Character:
     char = Character()
     char.id = eve_id
     char.eve_name = char_name
-    char.newbro = True
+    char.is_new = True
     db.session.add(char)
     db.session.commit()
     return char

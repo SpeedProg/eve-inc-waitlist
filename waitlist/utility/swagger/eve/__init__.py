@@ -1,19 +1,22 @@
 import ast
 import json
 import logging
+
+from esipy import EsiClient
+from esipy.cache import DummyCache
+from esipy.events import Signal
 from pyswagger import App
 from typing import Any, Optional
 
 from esipy.security import EsiSecurity
 
-from waitlist.data.version import version
+from waitlist.utility import config
 from waitlist.utility.swagger import header_to_datetime, get_api
 from waitlist.utility.config import crest_return_url, crest_client_id,\
     crest_client_secret
 from flask_login import current_user
 from datetime import datetime, timezone
 from waitlist.storage.database import Account, SSOToken
-from waitlist.utility.swagger.patch import EsiClient
 
 logger = logging.getLogger(__name__)
 
@@ -83,22 +86,23 @@ def make_error_response(resp: Any) -> ESIResponse:
 
 
 def get_esi_client(token: Optional[SSOToken], noauth: bool = False) -> EsiClient:
-    return get_esi_client_for_account(token, current_user, noauth)
+    return get_esi_client_for_account(token, noauth)
 
 
-def get_esi_client_for_account(token: Optional[SSOToken], account: Account, noauth: bool = False) -> EsiClient:
+def get_esi_client_for_account(token: Optional[SSOToken], noauth: bool = False) -> EsiClient:
     if noauth:
-        return EsiClient(timeout=10, headers={'User-Agent': 'Bruce Warhead IncWaitlist/'+version})
+        return EsiClient(timeout=10, headers={'User-Agent': config.user_agent}, cache=DummyCache())
+
+    signal: Signal = Signal()
+    signal.add_receiver(SSOToken.update_token_callback)
 
     security = EsiSecurity(
         crest_return_url,
         crest_client_id,
-        crest_client_secret
+        crest_client_secret,
+        headers={'User-Agent': config.user_agent},
+        signal_token_updated=signal,
+        token_identifier=token.tokenID
     )
-    security.update_token({
-        'access_token': token.access_token,
-        'expires_in': (token.access_token_expires -
-                       datetime.utcnow()).total_seconds(),
-        'refresh_token': token.refresh_token
-    })
-    return EsiClient(security, timeout=10, headers={'User-Agent': 'Bruce Warhead IncWaitlist/'+version})
+    security.update_token(token.info_for_esi_security())
+    return EsiClient(security, timeout=10, headers={'User-Agent': config.user_agent}, cache=DummyCache())

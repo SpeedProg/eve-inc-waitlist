@@ -3,6 +3,8 @@ import base64
 from os import makedirs
 from configparser import ConfigParser
 
+from waitlist.data import version
+
 if not os.path.isfile(os.path.join(".", "config", "config.cfg")):
     # create a preset file
     config = ConfigParser()
@@ -15,6 +17,7 @@ if not os.path.isfile(os.path.join(".", "config", "config.cfg")):
     config.set("app", "server_port", "81")
     config.set("app", "server_bind", "0.0.0.0")
     config.set("app", "community_name", "IncWaitlist")
+    config.set("app", "user_agent", "Bruce Warhead: Eve Incursion Waitlist")
     
     config.add_section("logging")
     config.set("logging", "error_file", "/var/log/pywaitlist/error.log")
@@ -112,3 +115,5 @@ cdn_eveimg_js = cdn_eveimg.format("${ path }", "${ suffix }")
 stattool_uri = config.get("fittools", "stats_uri")
 stattool_sri = config.get("fittools", "stats_sri")
 stattool_enabled = config.get("fittools", "stats_enabled") == "True"
+
+user_agent = config.get("app", "user_agent")+"/"+version.version

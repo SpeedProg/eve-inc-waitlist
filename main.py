@@ -1,7 +1,5 @@
 from gevent import monkey
 monkey.patch_all()
-from waitlist.utility.swagger.patch import monkey_patch_pyswagger_requests_client
-monkey_patch_pyswagger_requests_client()
 
 import logging
 from logging.handlers import TimedRotatingFileHandler
