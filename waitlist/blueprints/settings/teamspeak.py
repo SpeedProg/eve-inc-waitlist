@@ -94,4 +94,5 @@ def teamspeak_change():
 
     return redirect(url_for("teamspeak.teamspeak"))
 
+
 add_menu_entry('teamspeak.teamspeak', 'TS Settings', perm_view_server.can)

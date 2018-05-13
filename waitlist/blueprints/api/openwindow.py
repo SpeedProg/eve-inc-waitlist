@@ -27,6 +27,6 @@ def ownerdetails():
     try:
         resp = open_information(eve_id)
         return make_response(resp.error() if resp.is_error() else '', resp.code())
-    except APIException as e:
+    except APIException:
         return make_response(f"Got APIException while opening ownerdetails for {eve_id}", 500)
 

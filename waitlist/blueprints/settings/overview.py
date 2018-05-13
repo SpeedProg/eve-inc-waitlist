@@ -42,6 +42,7 @@ class StatCache(object):
     def add_item_to_cache(self, key: str, item: Any) -> None:
         self.__data[key] = item
 
+
 __cache = StatCache()
 
 
@@ -49,13 +50,11 @@ __cache = StatCache()
 @login_required
 @perm_access.require(http_exception=401)
 def overview():
-
-
-    # EXTRACT(EPOCH FROM current_timestamp-somedate)/3600
-
     ship_stats15_days = __get_query_result('shipStats', query_wrapper(query_ship_stats, timedelta(days=30)), 2, 3600)
-    approved_fits_by_fc_result = __get_query_result('approvedFits30Days', query_wrapper(query_approved_ships, timedelta(days=7)), 2, 3600)
-    ship_stats1_day = __get_query_result('shipStats1Day', query_wrapper(query_ship_stats, timedelta(days=1)), 2, 3600)
+    approved_fits_by_fc_result = __get_query_result('approvedFits30Days',
+                                                    query_wrapper(query_approved_ships, timedelta(days=7)), 2, 3600)
+    ship_stats1_day = __get_query_result('shipStats1Day',
+                                         query_wrapper(query_ship_stats, timedelta(days=1)), 2, 3600)
 
     stats = [
         __create_table_cell_row(
@@ -74,14 +73,14 @@ def overview():
     return render_template('settings/overview.html', stats=stats)
 
 
-def query_wrapper(func, duration):
+def query_wrapper(fnc, duration):
     def f():
-        return func(duration)
+        return fnc(duration)
     return f
 
 
 def query_ship_stats(duration: timedelta):
-    '''
+    """
     SELECT shipType, COUNT(name)
     FROM (
         SELECT DISTINCT invtypes."typeName" AS "shipType", characters.eve_name AS name
@@ -101,10 +100,11 @@ def query_ship_stats(duration: timedelta):
     GROUP BY "shipType"
     ORDER BY COUNT(name) DESC
     LIMIT 15;
-    '''
+    """
     since: datetime = datetime.utcnow() - duration
 
-    shiptype_name_combinations = db.session.query(InvType.typeName.label('shipType'), Character.eve_name.label('name')) \
+    shiptype_name_combinations = db.session\
+        .query(InvType.typeName.label('shipType'), Character.eve_name.label('name'))\
         .distinct() \
         .join(Shipfit, InvType.typeID == Shipfit.ship_type) \
         .join(HistoryFits, Shipfit.id == HistoryFits.fitID) \
@@ -120,15 +120,15 @@ def query_ship_stats(duration: timedelta):
             )
         ).subquery('shiptypeNameCombinations')
 
-    return db.session.query(shiptype_name_combinations.c.shipType, func.count(shiptype_name_combinations.c.name)) \
-            .group_by(shiptype_name_combinations.c.shipType) \
-            .order_by(func.count(shiptype_name_combinations.c.name).desc()) \
-            .limit(15) \
-            .all()
+    return db.session.query(shiptype_name_combinations.c.shipType, func.count(shiptype_name_combinations.c.name))\
+        .group_by(shiptype_name_combinations.c.shipType) \
+        .order_by(func.count(shiptype_name_combinations.c.name).desc()) \
+        .limit(15) \
+        .all()
 
 
 def query_approved_ships(duration: timedelta):
-    '''
+    """
     SELECT name, COUNT(fitid)
     FROM (
         SELECT DISTINCT accounts.username AS name, comp_history_fits.id as fitid
@@ -149,7 +149,7 @@ def query_approved_ships(duration: timedelta):
     GROUP BY name
     ORDER BY COUNT(fitid) DESC
     LIMIT 15;
-    '''
+    """
     since: datetime = datetime.utcnow() - duration
 
     fits_flown_by_subquery = db.session.query(Account.username.label('name'), HistoryFits.id.label('fitid')) \
@@ -167,11 +167,11 @@ def query_approved_ships(duration: timedelta):
             )
         ).subquery("fitsFlownBy")
 
-    return db.session.query(fits_flown_by_subquery.c.name, func.count(fits_flown_by_subquery.c.fitid)) \
-            .group_by(fits_flown_by_subquery.c.name) \
-            .order_by(func.count(fits_flown_by_subquery.c.fitid).desc()) \
-            .limit(15) \
-            .all()
+    return db.session.query(fits_flown_by_subquery.c.name, func.count(fits_flown_by_subquery.c.fitid))\
+        .group_by(fits_flown_by_subquery.c.name) \
+        .order_by(func.count(fits_flown_by_subquery.c.fitid).desc()) \
+        .limit(15) \
+        .all()
 
 
 def query_shipstats(duration: timedelta):
@@ -192,11 +192,11 @@ def query_shipstats(duration: timedelta):
             HistoryEntry.time >= since
             )
         ).subquery('flownBy')
-    return db.session.query(ship_flown_by_subquery.c.shipType, func.count(ship_flown_by_subquery.c.name)) \
-            .groupe_by(ship_flown_by_subquery.c.shipType) \
-            .order_by(func.count(ship_flown_by_subquery.c.name).desc()) \
-            .limit(15) \
-            .all()
+    return db.session.query(ship_flown_by_subquery.c.shipType, func.count(ship_flown_by_subquery.c.name))\
+        .groupe_by(ship_flown_by_subquery.c.shipType) \
+        .order_by(func.count(ship_flown_by_subquery.c.name).desc()) \
+        .limit(15) \
+        .all()
 
 
 def __create_table_cell_row(left, right):
@@ -254,5 +254,6 @@ def __get_query_result(name, query, column_count, cache_time_seconds):
 
         Greenlet.spawn(execute_query, name, column_count, query, cache_time_seconds)
     return result
+
 
 add_menu_entry('settings_overview.overview', 'Overview', lambda: True)

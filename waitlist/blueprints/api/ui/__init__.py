@@ -72,4 +72,5 @@ def handle_open_ui_sso_cb(tokens):
 def auth():
     return get_sso_redirect('esi_ui', 'esi-ui.open_window.v1')
 
+
 add_sso_handler('esi_ui', handle_open_ui_sso_cb)

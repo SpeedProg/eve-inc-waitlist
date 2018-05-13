@@ -1,4 +1,4 @@
-from typing import Iterable, Sequence
+from typing import Iterable, Sequence, Any
 
 from waitlist.permissions import perm_manager
 from waitlist.storage.database import AccountNote, RoleChangeEntry
@@ -49,7 +49,7 @@ def on_roles_changed_check_welcome_mail(sender, to_id: int, by_id: int, added_ro
 
 
 @roles_added_sig.connect
-def on_roles_added(sender, by_id: int, role_name: str, role_display_name: str) -> None:
+def on_roles_added(_: Any, by_id: int, role_name: str, role_display_name: str) -> None:
 
     if by_id is None or role_name is None or role_display_name is None:
         return

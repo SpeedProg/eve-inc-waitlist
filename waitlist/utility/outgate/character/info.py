@@ -91,7 +91,7 @@ def get_char_or_corp_or_alliance_id_by_name(name: str, *args) -> Optional[int]:
     return ids[0]
 
 
-def get_char_affiliations(char_id: int, *args) -> Tuple[int, int]:
+def get_char_affiliations(char_id: int, *_) -> Tuple[int, int]:
     """
     Get the id of a characters corporation and alliance
     :param char_id: characters id
@@ -105,6 +105,7 @@ def get_char_affiliations(char_id: int, *args) -> Tuple[int, int]:
 def get_character_fleet_id(token: SSOToken, char_id: int) -> Optional[int]:
     """
     Get the fleet id for a character, or None if it is in no fleet
+    :param token: the SSOToken of the fleetboss
     :param char_id:  character that should be in a fleet
     :return: fleet id or None if in no fleet
     """

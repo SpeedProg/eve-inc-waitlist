@@ -19,6 +19,8 @@ perm_manager.define_permission('commandcore')
 @perm_manager.require('commandcore')
 def accounts():
     clean_alt_list()
+
+    # noinspection PyPep8
     accs = db.session.query(Account).\
         filter(Account.disabled == False).\
         order_by(Account.username).all()

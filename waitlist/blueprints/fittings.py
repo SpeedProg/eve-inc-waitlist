@@ -307,7 +307,8 @@ def api_move_fit_to_waitlist():
     # add the fit to the entry
     wl_entry.fittings.append(fit)
     if not new_entry:
-        event = FitAddedSSE(wl_entry.waitlist.group.groupID, wl_entry.waitlist_id, wl_entry.id, fit, False, wl_entry.user)
+        event = FitAddedSSE(wl_entry.waitlist.group.groupID, wl_entry.waitlist_id,
+                            wl_entry.id, fit, False, wl_entry.user)
         send_server_sent_event(event)
 
     # add a history entry

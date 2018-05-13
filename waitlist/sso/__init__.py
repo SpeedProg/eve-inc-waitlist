@@ -1,5 +1,5 @@
 import logging
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 from typing import Dict, Any
 
 import flask
@@ -29,7 +29,7 @@ def authorize(code: str) -> Dict:
 
 
 def token_arguement_update_cb(access_token: str, refresh_token: str, expires_at: int,
-                              token_identifier: SSOToken, **kwargs: Dict[str, Any]):
+                              token_identifier: SSOToken, **_: Dict[str, Any]):
     token_identifier.refresh_token = refresh_token
     token_identifier.access_token = access_token
     token_identifier.access_token_expires = datetime.utcfromtimestamp(expires_at)

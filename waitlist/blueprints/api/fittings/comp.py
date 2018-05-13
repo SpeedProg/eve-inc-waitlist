@@ -52,7 +52,6 @@ def api_wls_remove_player():
 
     group: WaitlistGroup = db.session.query(WaitlistGroup).get(group_id)
 
-
     # don't remove from queue
     waitlist_entries = db.session.query(WaitlistEntry).filter(
         (WaitlistEntry.user == player_id) & (WaitlistEntry.waitlist_id != group.xuplist.id)

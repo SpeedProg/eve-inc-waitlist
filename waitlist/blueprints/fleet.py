@@ -1,26 +1,25 @@
-from typing import Dict, Optional, Any, List
+import json
+import logging
+from datetime import datetime
+from typing import Dict, Optional, Any
 
+import flask
 from flask import Response
 from flask.blueprints import Blueprint
-import logging
-
-from waitlist.permissions import perm_manager
-from waitlist.utility import fleet as fleet_utils
-from werkzeug.utils import redirect
-from flask_login import login_required, current_user
-from waitlist import db
-from waitlist.storage.database import CrestFleet, WaitlistGroup, SSOToken
+from flask.globals import request, current_app
 from flask.helpers import url_for, make_response
 from flask.templating import render_template
-from flask.globals import request, session, current_app
-import flask
-from waitlist.utility.fleet import member_info
+from flask_login import login_required, current_user
+from werkzeug.utils import redirect
+
+from waitlist import db
 from waitlist.blueprints.fc_sso import get_sso_redirect, add_sso_handler
-from datetime import datetime
-import json
-from waitlist.utility.json.fleetdata import FleetMemberEncoder
+from waitlist.permissions import perm_manager
 from waitlist.sso import add_token
-from waitlist.utility.manager import OwnerHashCheckManager
+from waitlist.storage.database import CrestFleet, WaitlistGroup, SSOToken
+from waitlist.utility import fleet as fleet_utils
+from waitlist.utility.fleet import member_info
+from waitlist.utility.json.fleetdata import FleetMemberEncoder
 from waitlist.utility.outgate.character.info import get_character_fleet_id
 from waitlist.utility.swagger import esi_scopes
 from waitlist.utility.swagger.eve.fleet import EveFleetEndpoint
@@ -183,8 +182,9 @@ def setup_step_select() -> Optional[Response]:
 @bp.route("/setup/change_squads/<fleet_id>", methods=["GET"])
 @login_required
 @fleets_manage.require()
-def change_setup(fleet_id):
-    return get_select_form(fleet_id)
+def change_setup(fleet_id: int):
+    token: SSOToken = current_user.get_a_sso_token_with_scopes(esi_scopes.fleetcomp_scopes)
+    return get_select_form(token, fleet_id)
 
 
 @bp.route("/pffleet/<int:fleetid>")

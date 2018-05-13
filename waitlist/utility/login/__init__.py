@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from typing import Optional, Union
+from typing import Union
 
 import flask
 import logging
@@ -13,7 +13,7 @@ from flask_principal import identity_changed, Identity
 from waitlist import db
 from waitlist.blueprints.fc_sso import get_sso_redirect, add_sso_handler
 from waitlist.sso import authorize, who_am_i
-from waitlist.storage.database import Account, Character, SSOToken, EveApiScope
+from waitlist.storage.database import Account, Character, SSOToken
 from waitlist.utility import config
 from waitlist.utility.eve_id_utils import get_character_by_id_and_name, is_char_banned
 from waitlist.utility.manager import OwnerHashCheckManager
@@ -34,7 +34,6 @@ def login_account_by_username_or_character(char: Character, owner_hash: str) -> 
         (Account.username == char.get_eve_name()) & (Account.disabled == False)).first()
     if acc is not None:  # accs are allowed to ignore bans
         login_account(acc)
-
 
     return login_character(char, owner_hash)
 
@@ -94,8 +93,6 @@ def login_accounts_by_alts_or_character(char: Character, owner_hash: str) -> Res
     :param owner_hash: current owner_hash of the character
     :return: a Response that should be delivered to the client
     """
-    # this will store our account if the character is eligible for login into an account
-    acc: Optional[Account] = None
 
     # lets check if there is any accounts connected
     logger.info(f"{len(char.accounts)} accounts connected with this character")
@@ -131,9 +128,9 @@ def login_accounts_by_alts_or_character(char: Character, owner_hash: str) -> Res
         else:
             logger.debug("Character owner_hash for %s did match", char)
 
-            if len(char.accounts) > 1: # this character is connected with more then 1 account
+            if len(char.accounts) > 1:  # this character is connected with more then 1 account
                 logger.error("%s connected to multiple accounts, logging in as character.", char)
-                flask.flash(f"Your character {char_name} is connected to more than one Waitlist Account,"
+                flask.flash(f"Your character {char.get_eve_name()} is connected to more than one Waitlist Account,"
                             f" please contact an Administrator."
                             f" Meanwhile, you are logged in as a normal character.", "danger")
 
@@ -167,7 +164,7 @@ def login_accounts_by_alts_or_character(char: Character, owner_hash: str) -> Res
                     # set the accounts current character to this character
                     acc.current_char = char.id
                     return login_account(acc)
-    else: # not connected to an account
+    else:  # not connected to an account
 
         return login_character(char, owner_hash)
 
@@ -220,5 +217,6 @@ def invalidate_all_sessions_for_given_user(user: Union[Character, Account]) -> N
     """
     user.session_key = user.session_key + 1
     db.session.commit()
+
 
 add_sso_handler('linelogin', member_login_cb)

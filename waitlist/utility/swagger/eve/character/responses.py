@@ -1,5 +1,5 @@
 import logging
-from datetime import datetime, timezone
+from datetime import datetime
 from pyswagger.primitives import Datetime
 from typing import Optional, Union, Dict
 

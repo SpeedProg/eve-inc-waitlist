@@ -9,7 +9,7 @@ from waitlist.storage.database import Account, Character, SSOToken
 logger = logging.getLogger(__name__)
 
 
-class OwnerHashCheckManager():
+class OwnerHashCheckManager(object):
     """
     Manager for checking owner hash
     """
@@ -90,7 +90,8 @@ class OwnerHashCheckManager():
 
         if token is None:
             if hasattr(user, 'current_char'):
-                logger.debug("%s no valid sso token with character %s, owner_hash check failed", user, user.current_char)
+                logger.debug("%s no valid sso token with character %s, owner_hash check failed",
+                             user, user.current_char)
             else:
                 logger.debug("%s no valid sso token , owner_hash check failed", user)
             return False
@@ -102,7 +103,8 @@ class OwnerHashCheckManager():
         db.session.commit()
 
         if owner_hash != user.owner_hash:
-            logger.info("%s's new owner_hash %s did not match owner_hash in database %s", user, owner_hash,  user.owner_hash)
+            logger.info("%s's new owner_hash %s did not match owner_hash in database %s",
+                        user, owner_hash,  user.owner_hash)
             return False
 
         # owner hash still matches

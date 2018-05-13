@@ -124,6 +124,7 @@ class FleetMemberInfo:
         self._lastmembers[fleet_id] = self._to_members_map(response)
         self._cached_until[fleet_id] = response.expires()
 
+
 member_info = FleetMemberInfo()
 
 
@@ -411,5 +412,5 @@ def check_invite_and_remove_timer(char_id: int, group_id: int, fleet_id: int):
                 t.start()
 
         db.session.remove()
-    except Exception as e:
+    except Exception:
         logger.exception("Some thing went wrong during invite check!")

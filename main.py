@@ -1,6 +1,4 @@
-from gevent import monkey
-monkey.patch_all()
-
+import gevent_patch_helper
 import logging
 from logging.handlers import TimedRotatingFileHandler
 from waitlist.blueprints.feedback import feedback
@@ -39,6 +37,16 @@ from waitlist.blueprints import xup
 from waitlist.blueprints import notification
 # needs to he here so signal handler gets registered
 from waitlist.signal.handler import acc_created, roles_changed, account_status_change
+
+# load the jinja2 hooks
+from waitlist.utility.jinja2 import *
+
+# load flask hooks
+from waitlist.utility.flask import *
+
+# load base app routes
+from waitlist.blueprints import *
+
 
 app.register_blueprint(bp_waitlist)
 app.register_blueprint(feedback, url_prefix="/feedback")
@@ -81,36 +89,25 @@ app.register_blueprint(permission.bp, url_prefix='/api/permission')
 app.register_blueprint(fittings.bp, url_prefix='/api/fittings')
 app.register_blueprint(xup.bp, url_prefix='/xup')
 
-
 # notification
-
 app.register_blueprint(notification.bp, url_prefix="/notification")
 
 logger = logging.getLogger(__name__)
 
-# load the jinja2 hooks
-from waitlist.utility.jinja2 import *
-
-# load flask hooks
-from waitlist.utility.flask import *
-
-# load base app routes
-from waitlist.blueprints import *
-
 err_fh = None
 info_fh = None
 access_fh = None
-debug_fh  = None
+debug_fh = None
 
 
-#@werkzeug.serving.run_with_reloader
-def runServer():
+def run_server():
     wsgi_logger = logging.getLogger("gevent.pywsgi.WSGIServer")
     wsgi_logger.addHandler(err_fh)
     wsgi_logger.addHandler(access_fh)
     wsgi_logger.setLevel(logging.INFO)
     server = WSGIServer((config.server_bind, config.server_port), app, log=wsgi_logger, error_log=wsgi_logger)
     server.serve_forever()
+
 
 if __name__ == '__main__':
     err_fh = TimedRotatingFileHandler(filename=config.error_log, when="midnight", interval=1, utc=True)
@@ -141,4 +138,4 @@ if __name__ == '__main__':
     app.logger.setLevel(logging.INFO)
     
     # app.run(host="0.0.0.0", port=81, debug=True)
-    runServer()
+    run_server()

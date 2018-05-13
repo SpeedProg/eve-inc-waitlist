@@ -1,3 +1,5 @@
+import logging
+from datetime import datetime, timedelta
 from typing import List, Optional, Union, Dict, Any
 
 from esipy import EsiSecurity
@@ -7,29 +9,14 @@ from sqlalchemy import Column, Integer, String, SmallInteger, BIGINT, Boolean, D
 from sqlalchemy import Enum
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.sql.schema import Table, ForeignKey, CheckConstraint, UniqueConstraint
-import logging
 
 from waitlist import db
-from datetime import datetime, timedelta, timezone
-
 from waitlist.utility import config
 from waitlist.utility.utils import get_random_token
 
 logger = logging.getLogger(__name__)
 
-# existing_metadata = MetaData()
-# existing_metadata.reflect(engine, only=["invtypes"])
-
-# AutoBase = automap_base(metadata=existing_metadata)
-# AutoBase.prepare()
-
 Base = db.Model
-
-"""
-typeID = id of module
-typeName = name of module
-"""
-# Module = AutoBase.classes.invtypes
 
 roles = Table('account_roles',
               Base.metadata,
@@ -82,7 +69,7 @@ class SSOToken(Base):
     access_token = Column('access_token', String(128), default=None)
     access_token_expires = Column('access_token_expires', DateTime, default=datetime.utcnow)
 
-    scopes:List[EveApiScope] = relationship(EveApiScope, cascade="save-update, merge, delete, delete-orphan")
+    scopes: List[EveApiScope] = relationship(EveApiScope, cascade="save-update, merge, delete, delete-orphan")
 
     def has_scopes(self, scopes: List[str]):
         for searched_scope in scopes:
@@ -98,7 +85,7 @@ class SSOToken(Base):
 
     @staticmethod
     def update_token_callback(token_identifier: int, access_token: str, refresh_token: str, expires_at: int,
-                              **kwargs: Dict[str, Any]) -> None:
+                              **_: Dict[str, Any]) -> None:
         logger.debug("Updating token with id=%s", token_identifier)
         token: SSOToken = db.session.query(SSOToken).get(token_identifier)
         token.access_token = access_token
@@ -225,7 +212,6 @@ class InvType(Base):
                f' marketGroupID={self.marketGroupID} description={self.description}>'
 
 
-
 class MarketGroup(Base):
     __tablename__ = 'invmarketgroups'
     marketGroupID = Column('market_group_id', Integer, primary_key=True, nullable=False)
@@ -251,7 +237,8 @@ class Account(Base):
     username = Column('username', String(100), unique=True)  # login name
     login_token = Column('login_token', String(16), unique=True)
     disabled = Column('disabled', Boolean(name='disabled'), default=False, server_default=sql.expression.false())
-    had_welcome_mail = Column('had_welcome_mail', Boolean(name='had_welcome_mail'), default=False, server_default=sql.expression.false())
+    had_welcome_mail = Column('had_welcome_mail', Boolean(name='had_welcome_mail'),
+                              default=False, server_default=sql.expression.false())
     '''
     refresh_token = Column(String(128), default=None)
     access_token = Column(String(128), default=None)
@@ -453,7 +440,8 @@ class Character(Base):
     lc_level = Column('lc_level', SmallInteger, default=0, nullable=False)
     cbs_level = Column('cbs_level', SmallInteger, default=0, nullable=False)
     login_token = Column('login_token', String(16), nullable=True)
-    teamspeak_poke = Column('teamspeak_poke', Boolean(name='teamspeak_poke'), default=True, server_default="1", nullable=False)
+    teamspeak_poke = Column('teamspeak_poke', Boolean(name='teamspeak_poke'),
+                            default=True, server_default="1", nullable=False)
     owner_hash = Column('owner_hash', Text)
 
     # this contains all SSOToken for this character
@@ -488,6 +476,7 @@ class Character(Base):
         if self.current_char is None:
             return []
 
+        # noinspection PyPep8,PyComparisonWithNone
         tokens: List[SSOToken] = SSOToken.query\
             .filter((SSOToken.characterID == self.current_char) & (SSOToken.accountID == None)).all()
         qualified_tokens: List[SSOToken] = []
@@ -614,6 +603,7 @@ class Waitlist(Base):
     def __repr__(self):
         return "<Waitlist %r>" % self.name
 
+
 class WaitlistGroup(Base):
     """
     Represents a waitlist Group,
@@ -644,26 +634,27 @@ class WaitlistGroup(Base):
 
     waitlists = relationship(Waitlist, back_populates="group")
 
-    def has_wl_of_type(self, type: str):
+    def has_wl_of_type(self, wl_type: str):
         for wl in self.waitlists:
-            if wl.waitlistType == type:
+            if wl.waitlistType == wl_type:
                 return True
         return False
 
-    def get_wl_for_type(self, type: str):
+    def get_wl_for_type(self, wl_type: str):
         for wl in self.waitlists:
-            if wl.waitlistType == type:
+            if wl.waitlistType == wl_type:
                 return wl
 
-    def set_wl_to_type(self, wl: Waitlist, type: str):
+    def set_wl_to_type(self, wl: Waitlist, wl_type: str):
         if wl is None:
             return
-        wl.waitlistType = type
+        wl.waitlistType = wl_type
         self.waitlists.append(wl)
 
     @property
     def xuplist(self):
         return self.get_wl_for_type('xup')
+
     @xuplist.setter
     def xuplist(self, value: Waitlist):
         self.set_wl_to_type(value, 'xup')
@@ -671,6 +662,7 @@ class WaitlistGroup(Base):
     @property
     def logilist(self):
         return self.get_wl_for_type('logi')
+
     @logilist.setter
     def logilist(self, value: Waitlist):
         self.set_wl_to_type(value, 'logi')
@@ -678,6 +670,7 @@ class WaitlistGroup(Base):
     @property
     def dpslist(self):
         return self.get_wl_for_type('dps')
+
     @dpslist.setter
     def dpslist(self, value: Waitlist):
         self.set_wl_to_type(value, 'dps')
@@ -685,6 +678,7 @@ class WaitlistGroup(Base):
     @property
     def sniperlist(self):
         return self.get_wl_for_type('sniper')
+
     @sniperlist.setter
     def sniperlist(self, value: Waitlist):
         self.set_wl_to_type(value, 'sniper')
@@ -692,16 +686,10 @@ class WaitlistGroup(Base):
     @property
     def otherlist(self):
         return self.get_wl_for_type('other')
+
     @otherlist.setter
     def otherlist(self, value: Waitlist):
         self.set_wl_to_type(value, 'other')
-
-    #xuplist = relationship("Waitlist", foreign_keys=[xupwlID])
-    #logilist = relationship("Waitlist", foreign_keys=[logiwlID])
-    #dpslist = relationship("Waitlist", foreign_keys=[dpswlID])
-    #sniperlist = relationship("Waitlist", foreign_keys=[sniperwlID])
-    #otherlist = relationship("Waitlist", foreign_keys=[otherwlID])
-
 
     dockup = relationship("Station", uselist=False)
     system = relationship("SolarSystem", uselist=False)
@@ -742,7 +730,8 @@ class Shipfit(Base):
 class WaitlistEntryFit(Base):
     __tablename__ = "waitlist_entry_fits"
     entryID = Column('entry_id', Integer, ForeignKey("waitlist_entries.id", onupdate="CASCADE", ondelete="CASCADE"))
-    fitID = Column('fit_id', Integer, ForeignKey("fittings.id", onupdate="CASCADE", ondelete="CASCADE"), primary_key=True)
+    fitID = Column('fit_id', Integer, ForeignKey("fittings.id", onupdate="CASCADE", ondelete="CASCADE"),
+                   primary_key=True)
 
 
 class WaitlistEntry(Base):
@@ -1004,16 +993,19 @@ class CalendarEventCategory(Base):
 class CalendarEvent(Base):
     __tablename__: str = 'calendar_event'
     eventID: Column = Column('event_id', Integer, primary_key=True)
-    eventCreatorID: Column = Column('event_creator_id', Integer, ForeignKey('accounts.id', onupdate='CASCADE', ondelete='CASCADE'),
+    eventCreatorID: Column = Column('event_creator_id', Integer, ForeignKey('accounts.id', onupdate='CASCADE',
+                                                                            ondelete='CASCADE'),
                                     index=True)
     eventTitle: Column = Column('event_title', Text)
     eventDescription: Column = Column('event_description', Text)
     eventCategoryID: Column = Column('event_category_id', Integer,
-                                     ForeignKey(CalendarEventCategory.categoryID, onupdate='CASCADE', ondelete='CASCADE'),
+                                     ForeignKey(CalendarEventCategory.categoryID, onupdate='CASCADE',
+                                                ondelete='CASCADE'),
                                      index=True)
     eventApproved: Column = Column('event_approved', Boolean(name='event_approved'), index=True)
     eventTime: Column = Column('event_time', DateTime, index=True)
-    approverID: Column = Column('approver_id', Integer, ForeignKey('accounts.id', ondelete='CASCADE', onupdate='CASCADE'))
+    approverID: Column = Column('approver_id', Integer,
+                                ForeignKey('accounts.id', ondelete='CASCADE', onupdate='CASCADE'))
 
     creator: relationship = relationship(Account, foreign_keys=[eventCreatorID])
     eventCategory: relationship = relationship(CalendarEventCategory)

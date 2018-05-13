@@ -81,6 +81,7 @@ def index():
 def site_help():
     return render_template("help.html")
 
+
 @app.route("/about", methods=["GET"])
 def about():
     return render_template("about.html")

@@ -1,7 +1,6 @@
 import logging
 import os
 
-import time
 from flask import Blueprint
 from flask import flash
 from flask import render_template
@@ -98,5 +97,6 @@ def update_layouts():
 @perm_access.require(http_exception=401)
 def sde_settings():
     return render_template("settings/sde.html")
+
 
 add_menu_entry('sde.sde_settings', 'Static Data Import', perm_access.can)
