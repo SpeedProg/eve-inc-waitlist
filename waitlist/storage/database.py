@@ -1,8 +1,7 @@
-from typing import List, Optional
+from typing import List, Optional, Union, Dict, Any
 
 from esipy import EsiSecurity
 from esipy.exceptions import APIException
-from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import Column, Integer, String, SmallInteger, BIGINT, Boolean, DateTime, Index, \
     sql, BigInteger, text, Float, Text
 from sqlalchemy import Enum
@@ -11,10 +10,9 @@ from sqlalchemy.sql.schema import Table, ForeignKey, CheckConstraint, UniqueCons
 import logging
 
 from waitlist import db
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 
 from waitlist.utility import config
-from waitlist.utility.manager import OwnerHashCheckManager
 from waitlist.utility.utils import get_random_token
 
 logger = logging.getLogger(__name__)
@@ -73,7 +71,7 @@ class EveApiScope(Base):
 
 class SSOToken(Base):
     __tablename__ = 'ssotoken'
-    __table_args__ = (Index('ix_character_id_account_id', 'characterID', 'accountID'), )
+    __table_args__ = (Index('ix_character_id_account_id', 'character_id', 'account_id'), )
     tokenID = Column('token_id', Integer, primary_key=True)
     characterID = Column('character_id', Integer, ForeignKey('characters.id', onupdate="CASCADE", ondelete="CASCADE"),
                          index=True)
@@ -98,44 +96,94 @@ class SSOToken(Base):
 
         return True
 
+    @staticmethod
+    def update_token_callback(token_identifier: int, access_token: str, refresh_token: str, expires_at: int,
+                              **kwargs: Dict[str, Any]) -> None:
+        logger.debug("Updating token with id=%s", token_identifier)
+        token: SSOToken = db.session.query(SSOToken).get(token_identifier)
+        token.access_token = access_token
+        token.refresh_token = refresh_token
+        token.access_token_expires = datetime.utcfromtimestamp(expires_at)
+        db.session.commit()
+
+    @property
     def is_valid(self) -> bool:
         """
         Checks if this token still works
         Also updates it's own tokens data if it works
-        :param token: a token to check or None
         :return: True if the token is still valid otherwise False
         """
 
+        # if the access_token is still not expired return as valid
+        if self.access_token_expires > datetime.utcnow()+timedelta(seconds=10):
+            logger.debug("Token valid because access_token_expires %s still in the future", self.access_token_expires)
+            return True
+
         # check that the token is valid
         security: EsiSecurity = EsiSecurity('', config.crest_client_id,
-                                            config.crest_client_secret)
-        security.refresh_token = self.refresh_token
+                                            config.crest_client_secret,
+                                            headers={'User-Agent': config.user_agent}
+                                            )
+        security.update_token(self.info_for_esi_security())
+
         try:
             security.refresh()
+            SSOToken.update_token_callback(token_identifier=self.tokenID, access_token=security.access_token,
+                                           refresh_token=security.refresh_token, expires_at=security.token_expiry)
             logger.debug("Token refresh worked")
-            self.set_token_data(security.access_token, security.refresh_token,
-                                                 datetime.fromtimestamp(security.token_expiry))
             return True
         except APIException as e:
             # this probably happens because the token is invalid now
-            logger.debug("API error on token refresh", e)
+            if ('message' in e.response and e.response['message'] == 'invalid_token')\
+                    or ('error' in e.response and e.response['error'] == 'invalid_request'):
+                logger.debug("Token invalid because of response.")
+                return False
+
+            logger.exception(e)
+            logger.debug("Token invalid because of exception.")
             return False
 
-    def update_token_data(self, access_token: str, refresh_token: str, expires_at: datetime) -> None:
-        self.access_token = access_token
-        self.refresh_token = refresh_token
-        self.access_token_expires = expires_at
+    def expires_in(self) -> int:
+        """ Get amount of seconds until expiry.
 
+        :return: how many seconds the access_token is still valid for
+        """
+        return int((self.access_token_expires - datetime.utcnow()).total_seconds())
 
-    def set_token_data(self, access_token: str, refresh_token: str, expires_at: datetime, scopes: str) -> None:
-        self.update_token_data(access_token, refresh_token, expires_at)
-        scope_name_list: List[str] = scopes.split(" ")
-        token_scopes: List[EveApiScope] = []
+    def info_for_esi_security(self) -> Dict[str, Union[str, int]]:
+        """
+        Information formatted to passing to EsiSecurity.update_token
 
-        for scope_name in scope_name_list:
-            token_scopes.append(EveApiScope(scopeName=scope_name))
+        :return: a dict containing token info
+        """
+        return {
+            'access_token': self.access_token,
+            'refresh_token': self.refresh_token,
+            'expires_in': self.expires_in()
+        }
 
-        self.scopes = token_scopes
+    def update_token_data(self, access_token: Optional[str] = None, refresh_token: Optional[str] = None,
+                          expires_at: Optional[datetime] = None, scopes: Optional[str] = None) -> None:
+        if access_token is not None:
+            self.access_token = access_token
+
+        if refresh_token is not None:
+            self.refresh_token = refresh_token
+
+        if expires_at is not None:
+            self.access_token_expires = expires_at
+
+        if scopes is not None:
+            scope_name_list: List[str] = scopes.split(" ")
+            token_scopes: List[EveApiScope] = []
+
+            for scope_name in scope_name_list:
+                if scope_name == '':
+                    continue
+                token_scopes.append(EveApiScope(scopeName=scope_name))
+
+            self.scopes = token_scopes
+
 
 class Station(Base):
     __tablename__ = "station"
@@ -221,29 +269,47 @@ class Account(Base):
 
     @property
     def lc_level(self):
+        if self.current_char_obj is None:
+            return 0
         return self.current_char_obj.lc_level
 
     @lc_level.setter
     def lc_level(self, val):
+        if self.current_char_obj is None:
+            return
         self.current_char_obj.lc_level = val
 
     @property
     def cbs_level(self):
+        if self.current_char_obj is None:
+            return 0
         return self.current_char_obj.cbs_level
 
     @cbs_level.setter
     def cbs_level(self, val):
+        if self.current_char_obj is None:
+            return
         self.current_char_obj.cbs_level = val
 
     def get_eve_name(self):
+        if self.current_char_obj is None:
+            return ""
         return self.current_char_obj.eve_name
 
     def get_eve_id(self):
         return self.current_char
 
+    @property
     def is_new(self):
-        return self.current_char_obj.is_new()
+        if self.current_char_obj is None:
+            return False
+        return self.current_char_obj.is_new
 
+    @is_new.setter
+    def is_new(self, value: bool):
+        if self.current_char_obj is None:
+            return
+        self.current_char_obj.is_new = value
 
     @property
     def owner_hash(self):
@@ -257,44 +323,60 @@ class Account(Base):
 
     @property
     def poke_me(self) -> bool:
+        if self.current_char_obj is None:
+            return False
         return self.current_char_obj.poke_me
 
     @poke_me.setter
     def poke_me(self, value: bool):
+        if self.current_char_obj is None:
+            return
         self.current_char_obj.poke_me = value
 
-    def get_a_sso_token_with_scopes(self, scopes: List[str]) -> Optional[SSOToken]:
+    def get_a_sso_token_with_scopes(self, scopes: List[str], character_id: int = None) -> Optional[SSOToken]:
         """
-        Gets a token for this account and the current_char that has the given scopes
+        Gets a token for this account and the given character or current_char that has the given scopes
         and is still valid.
         :param scopes: the scopes the token should have
+        :param character_id: id of the character the token should be for or if None uses current_char
         :return: a token that has these scopes or None
         """
-        tokens: List[SSOToken] = self.get_sso_tokens_with_scopes(scopes)
+        tokens: List[SSOToken] = self.get_sso_tokens_with_scopes(scopes, character_id)
         if len(tokens) <= 0:
+            logger.debug("No token found for %s with character %s and scopes %s", self, character_id, scopes)
             return None
 
         return tokens[0]
 
-    def get_sso_tokens_with_scopes(self, scopes: List[str]) -> List[SSOToken]:
+    def get_sso_tokens_with_scopes(self, scopes: List[str], character_id: int = None) -> List[SSOToken]:
         """
         Returns a list of tokens for the account and current_char that have the given scopes
         and are still valid.
         :param scopes: the scopes the token needs to have
+        :param character_id: id of the character the token should be for or if None uses current_char
         :return: a list of tokens that have the given scopes
         """
-        if self.current_char is None:
+        if character_id is None:
+            character_id = self.current_char
+
+        if character_id is None:
             return []
 
         tokens: List[SSOToken] = SSOToken.query\
-            .filter((SSOToken.characterID == self.current_char) & (SSOToken.accountID == self.id)).all()
+            .filter((SSOToken.characterID == character_id) & (SSOToken.accountID == self.id)).all()
+        logger.debug("Found %s tokens for Account.id=%s and Character.id=%s", len(tokens), self.id, character_id)
         qualified_tokens: List[SSOToken] = []
         for token in tokens:
             if token.has_scopes(scopes):
-                if token.is_valid():
+                logger.debug("Token %s has scopes %s", token.tokenID, scopes)
+                if token.is_valid:
+                    logger.debug("Token %s is valid", token.tokenID)
                     qualified_tokens.append(token)
                 else:
+                    logger.debug("Token %s is not valid", token.tokenID)
                     db.session.delete(token)
+            else:
+                logger.debug("Token %s does not have scopes %s", token.tokenID, scopes)
 
         db.session.commit()
         return qualified_tokens
@@ -307,26 +389,6 @@ class Account(Base):
             token.accountID = self.id
 
         self.ssoTokens.append(token)
-
-    @property
-    def sso_token(self) -> Optional[SSOToken]:
-        """
-        Get the sso token for the currently active character
-        :return: the SSOToken or None
-        """
-        logger.error("This sso_token property getter should not be used anymore!")
-        raise RuntimeError("sso_token property getter should not be used anymore")
-
-    @sso_token.setter
-    def sso_token(self, value: SSOToken) -> None:
-        """
-        Set the token for the current active character on this account.
-        :param value: the sso token
-        :return: None
-        """
-        # lets check if there is a token for this character
-        logger.error("This sso_token property setter should not be used anymore!")
-        raise RuntimeError("sso_token property setter should not be used anymore")
 
     def get_token_for_charid(self, character_id: int) -> Optional[SSOToken]:
         for token in self.ssoTokens:
@@ -404,6 +466,12 @@ class Character(Base):
         back_populates="characters")
 
     def get_a_sso_token_with_scopes(self, scopes: List[str]) -> Optional[SSOToken]:
+        """
+        Gets a token for this Character that has the given scopes
+        and is still valid.
+        :param scopes: the scopes the token should have
+        :return: a token that has these scopes or None
+        """
         tokens: List[SSOToken] = self.get_sso_tokens_with_scopes(scopes)
         if len(tokens) <= 0:
             return None
@@ -411,14 +479,26 @@ class Character(Base):
         return tokens[0]
 
     def get_sso_tokens_with_scopes(self, scopes: List[str]) -> List[SSOToken]:
+        """
+        Returns a list of tokens for this Character that have the given scopes
+        and are still valid.
+        :param scopes: the scopes the token needs to have
+        :return: a list of tokens that have the given scopes
+        """
+        if self.current_char is None:
+            return []
+
         tokens: List[SSOToken] = SSOToken.query\
-            .filter((SSOToken.characterID == self.id) & (SSOToken.accountID == None)).all()
+            .filter((SSOToken.characterID == self.current_char) & (SSOToken.accountID == None)).all()
         qualified_tokens: List[SSOToken] = []
         for token in tokens:
             if token.has_scopes(scopes):
-                qualified_tokens.append(token)
+                if token.is_valid:
+                    qualified_tokens.append(token)
+                else:
+                    db.session.delete(token)
 
-
+        db.session.commit()
         return qualified_tokens
 
     def add_sso_token(self, token: SSOToken):
@@ -429,26 +509,6 @@ class Character(Base):
             token.accountID = None
 
         self.ssoTokens.append(token)
-
-
-    @property
-    def sso_token(self) -> Optional[SSOToken]:
-        """
-        Get the SSOToken for this character without account
-        :return: the SSOToken
-        """
-        logger.error("This should not be used anymore!")
-        raise RuntimeError("sso_token property getter should not be used anymore")
-
-    @sso_token.setter
-    def sso_token(self, value: SSOToken) -> None:
-        """
-        Set the token for the current character as none Account token
-        :param value: the sso token
-        :return: None
-        """
-        logger.error("This should not be used anymore!")
-        raise RuntimeError("sso_token property setter should not be used anymore")
 
     def get_login_token(self):
         if self.login_token is None:
@@ -461,8 +521,13 @@ class Character(Base):
     def get_eve_id(self):
         return self.id
 
+    @property
     def is_new(self):
         return self.newbro
+
+    @is_new.setter
+    def is_new(self, value: bool) -> None:
+        self.newbro = value
 
     @property
     def banned(self):

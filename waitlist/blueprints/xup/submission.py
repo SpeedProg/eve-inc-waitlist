@@ -120,7 +120,7 @@ def submit():
     caldari_bs_lvl = int(caldari_bs_lvl)
     newbro = request.form.get('newbro', "off")
     newbro = (newbro is not "off")
-    get_character(current_user).newbro = newbro
+    current_user.is_new = newbro
 
     current_user.cbs_level = caldari_bs_lvl
     current_user.lc_level = logilvl
@@ -357,17 +357,7 @@ def submit():
 @bp.route('/', methods=['GET'])
 @login_required
 def index():
-    new_bro = True
-    if current_user.type == "character":
-        if current_user.newbro is None:
-            new_bro = True
-        else:
-            new_bro = current_user.newbro
-    elif current_user.type == "account":
-        if current_user.current_char_obj.newbro is None:
-            new_bro = True
-        else:
-            new_bro = current_user.current_char_obj.newbro
+    new_bro = current_user.is_new
 
     # noinspection PyPep8
     defaultgroup = db.session.query(WaitlistGroup).filter(WaitlistGroup.enabled == True) \
@@ -380,17 +370,7 @@ def index():
 @bp.route("/<int:fit_id>", methods=['GET'])
 @login_required
 def update(fit_id: int):
-    new_bro: bool = True
-    if current_user.type == "character":
-        if current_user.newbro is None:
-            new_bro = True
-        else:
-            new_bro = current_user.newbro
-    elif current_user.type == "account":
-        if current_user.current_char_obj.newbro is None:
-            new_bro = True
-        else:
-            new_bro = current_user.current_char_obj.newbro
+    new_bro: bool = current_user.is_new
 
     # noinspection PyPep8
     defaultgroup = db.session.query(WaitlistGroup).filter(WaitlistGroup.enabled == True) \

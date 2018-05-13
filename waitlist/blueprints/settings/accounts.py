@@ -241,11 +241,11 @@ def account_self_edit():
     if char_name == "":
         char_name = None
 
-    acc = db.session.query(Account).filter(Account.id == acc_id).first()
+    acc: Account = db.session.query(Account).filter(Account.id == acc_id).first()
     if acc is None:
         return flask.abort(400)
 
-    if char_name is not None and char_name != current_user.get_eve_name():
+    if char_name is not None and (current_user.get_eve_name() is None or char_name != current_user.get_eve_name()):
         char_info = outgate.character.get_info_by_name(char_name)
 
         if char_info is None:
@@ -278,10 +278,7 @@ def account_self_edit():
                 # we have a link and it is not the current char
                 if config.require_auth_for_chars:
                     # we need authentication for char change so lets see if the token works
-                    auth_token: Optional[SSOToken] = None
-                    for tkn in acc.ssoTokens:
-                        if tkn.characterID == char_id:
-                            auth_token = tkn
+                    auth_token: SSOToken = acc.get_a_sso_token_with_scopes([], char_id)
 
                     # we need new auth
                     if auth_token is None:
@@ -289,7 +286,7 @@ def account_self_edit():
                         session['link_charid'] = character.id
                         return get_sso_redirect("alt_verification", 'publicData')
 
-                    auth_info = who_am_i(auth_token.access_token)
+                    auth_info = who_am_i(auth_token)
                     # if we don't have this the token was invalid
                     if 'CharacterOwnerHash' not in auth_info:
                         logger.debug("CharacterOwnerHash was not in authorization info")
@@ -397,24 +394,28 @@ def alt_verification_handler(code: str) -> None:
         flask.abort(403, "You are not on an account.")
 
     auth = authorize(code)
+
+
+
     access_token = auth['access_token']
-    auth_info = who_am_i(access_token)
+    refresh_token = auth['refresh_token']
+    exp_in = int(auth['expires_in'])
+    auth_token: SSOToken = SSOToken(accountID=current_user.id, refresh_token=refresh_token,
+                                  access_token=access_token,
+                                  access_token_expires=(datetime.utcnow() + timedelta(seconds=exp_in)))
+
+    auth_info = who_am_i(auth_token)
     #char_name = auth_info['CharacterName']
-    char_id = auth_info['CharacterID']
+    char_id = int(auth_info['CharacterID'])
     owner_hash = auth_info['CharacterOwnerHash']
+    scopes: str = auth_info['Scopes']
+    auth_token.characterID = char_id
     # if he authed the char he told us
     if session['link_charid'] is not None and session['link_charid'] == char_id:
         logger.debug("Updating Token for %s char_id=%s", current_user, char_id)
         session.pop('link_charid')  # remove info from session
-
-        # store the token
-        refresh_token = auth['refresh_token']
-        exp_in = int(auth['expires_in'])
-
-        db_token: SSOToken = SSOToken(characterID=char_id, accountID=current_user.id, refresh_token=refresh_token,
-                                     access_token=access_token,
-                                     access_token_expires=(datetime.utcnow() + timedelta(seconds=exp_in)))
-        db.session.merge(db_token)
+        auth_token.update_token_data(scopes=scopes)
+        db.session.merge(auth_token)
         db.session.commit()
 
         # make sure the char is not already linked to the account
@@ -461,12 +462,10 @@ def alt_verification_handler(code: str) -> None:
                 logger.info("Setting new owner_hash for %s, invalidating all existing sessions", character)
 
         # delete any existing links (to other accounts)
-        links = db.session.query(linked_chars) \
-            .filter((linked_chars.c.id != current_user.id) & (linked_chars.c.char_id == char_id)).all()
-        for link in links:
-            db.session.delete(link)
+        db.session.query(linked_chars) \
+            .filter((linked_chars.c.id != current_user.id) & (linked_chars.c.char_id == char_id)).delete(synchronize_session=False)
 
-        db.session.flush()
+        db.session.commit()
 
         # add the new link
         current_user.characters.append(character)

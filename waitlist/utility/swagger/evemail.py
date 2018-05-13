@@ -1,16 +1,12 @@
 # https://esi.tech.ccp.is/latest/swagger.json?datasource=tranquility
 from flask_login import current_user
-from esipy.security import EsiSecurity
 from pyswagger import App
 
 from waitlist.storage.database import SSOToken
-from waitlist.utility.config import crest_return_url, crest_client_id,\
-    crest_client_secret
-from datetime import datetime
 
 from waitlist.utility.swagger import get_api
 from waitlist.utility.swagger.eve import ESIResponse, get_expire_time, make_error_response
-from typing import Dict, List, Any, Sequence, Optional
+from typing import Dict, List, Any, Sequence
 
 ################################
 # recipients=[{
@@ -19,7 +15,6 @@ from typing import Dict, List, Any, Sequence, Optional
 # }]
 ################################
 from waitlist.utility.swagger.eve import get_esi_client
-from waitlist.utility.swagger.patch import EsiClient
 
 
 def send_mail(token: SSOToken, recipients: List[Dict[str, Any]], body: str, subject: str) -> Any:

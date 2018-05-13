@@ -3,19 +3,16 @@ from datetime import datetime, timedelta, timezone
 
 import math
 
-from esipy import EsiSecurity
-from esipy.exceptions import APIException
-from typing import List, Union, Optional, Dict
+from typing import List, Union, Optional
 
+import flask
 from flask import render_template, url_for, request
 from flask_login import current_user, AnonymousUserMixin
 from flask_principal import Identity, UserNeed, RoleNeed, identity_loaded
-from sqlalchemy.exc import StatementError
+from werkzeug.utils import redirect
 
 from waitlist import principals, app, db, login_manager
 from waitlist.blueprints.fc_sso import get_sso_redirect
-from waitlist.permissions import perm_manager
-from waitlist.sso import who_am_i
 from waitlist.storage.database import Account, Character
 from waitlist.utility import config
 from waitlist.utility.account import force_logout
@@ -61,11 +58,22 @@ def check_user_owner_hash():
             logger.debug("%s has no current character set, ignore owner_hash check.", user)
             return
 
-    if not owner_hash_check_manager.is_ownerhash_valid(user):
-        logger.info("owner_hash for %s was invalid. Invalidating all sessions and logging out.", user)
-        invalidate_all_sessions_for_current_user()
-        force_logout()
-        return None
+        if not owner_hash_check_manager.is_ownerhash_valid(user):
+            logger.info("owner_hash for %s was invalid. Removing connected character %s.", user, user.current_char_obj)
+            flask.flash(f"Your set current character {user.get_eve_name()}"
+                        f" was unset because the provided token got invalidated."
+                        f" Go to Own Settings to re-add.", 'danger')
+            user.current_char = None
+            db.session.commit()
+            return redirect(url_for('index'))
+
+    else:
+        if not owner_hash_check_manager.is_ownerhash_valid(user):
+            user.current_char = None
+            logger.info("owner_hash for %s was invalid. Invalidating all sessions and logging out.", user)
+            invalidate_all_sessions_for_current_user()
+            force_logout()
+            return redirect(url_for('index'))
 
     # else
     logger.debug("Everything okay, the request can continue")

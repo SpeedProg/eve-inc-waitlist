@@ -3,6 +3,7 @@
 """
 import logging
 
+from esipy import EsiClient
 from esipy.exceptions import APIException
 from flask_login import current_user
 from pyswagger import App
@@ -18,7 +19,6 @@ import datetime
 from waitlist.utility.swagger.eve import get_esi_client, ESIResponse,\
     get_expire_time, make_error_response
 from typing import Dict, Any, Tuple, Optional
-from waitlist.utility.swagger.patch import EsiClient
 
 logger = logging.getLogger(__name__)
 
@@ -91,12 +91,7 @@ def open_information(target_id: int) -> ESIResponse:
     api_v1: App = get_api()
     client: EsiClient = get_esi_client(None, False)
 
-    try:
-        resp = client.request(api_v1.op['post_ui_openwindow_information'](target_id=target_id))
-        if resp.status == 204:
-            return ESIResponse(get_expire_time(resp), resp.status, None)
-        return make_error_response(resp)
-    except APIException as e:
-        logger.info("Got APIException on open_information for %s", current_user)
-        logger.exception(e)
-        raise e
+    resp = client.request(api_v1.op['post_ui_openwindow_information'](target_id=target_id))
+    if resp.status == 204:
+        return ESIResponse(get_expire_time(resp), resp.status, None)
+    return make_error_response(resp)

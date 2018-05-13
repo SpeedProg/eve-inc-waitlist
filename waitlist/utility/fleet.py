@@ -62,7 +62,7 @@ class FleetMemberInfo:
             if token is None:
                 return
 
-            fleet_api = EveFleetEndpoint(token, fleet_id, get_esi_client_for_account(token, db_fleet.comp))
+            fleet_api = EveFleetEndpoint(token, fleet_id, get_esi_client_for_account(token))
             resp: ESIResponse = fleet_api.get_member()
             if resp.is_error():
                 remove_ids.append(fleet_id)
@@ -84,7 +84,7 @@ class FleetMemberInfo:
         if token is None:
             return None
 
-        fleet_api = EveFleetEndpoint(token, fleet_id, get_esi_client_for_account(token, account))
+        fleet_api = EveFleetEndpoint(token, fleet_id, get_esi_client_for_account(token))
         utcnow = datetime.utcnow()
         if self._is_expired(fleet_id, utcnow):
             logger.debug("Member Data Expired for %d and account %s", fleet_id, account.username)

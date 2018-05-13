@@ -34,7 +34,7 @@ def make_json_character(dbcharacter: Character, scramble_names: bool = False,
             include_names_from is not None and dbcharacter.get_eve_id() in include_names_from) else None,
         'name': dbcharacter.get_eve_name() if not scramble_names or (
             include_names_from is not None and dbcharacter.get_eve_id() in include_names_from) else 'Name Hidden',
-        'newbro': dbcharacter.is_new()
+        'newbro': dbcharacter.is_new
     }
 
 
