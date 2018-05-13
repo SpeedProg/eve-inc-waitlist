@@ -1,24 +1,19 @@
-"""
-@return corp_id, alliance_id
-"""
+import datetime
 import logging
+from typing import Dict, Any, Tuple, Optional
 
 from esipy import EsiClient
-from esipy.exceptions import APIException
 from flask_login import current_user
 from pyswagger import App
+from pyswagger import Security
 
 from waitlist.storage.database import SSOToken
+from waitlist.utility.swagger import get_api, esi_scopes
+from waitlist.utility.swagger.eve import get_esi_client, ESIResponse, \
+    get_expire_time, make_error_response
 from waitlist.utility.swagger.eve.alliance import AllianceEndpoint
 from waitlist.utility.swagger.eve.character import CharacterEndpoint, CharacterInfo
 from waitlist.utility.swagger.eve.corporation import CorporationEndpoint
-from waitlist.utility.swagger import get_api, esi_scopes
-from pyswagger import Security
-import datetime
-
-from waitlist.utility.swagger.eve import get_esi_client, ESIResponse,\
-    get_expire_time, make_error_response
-from typing import Dict, Any, Tuple, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -52,7 +47,7 @@ def get_affiliation_info(char_id: int) -> Dict[str, Any]:
 
 def characterid_from_name(char_name: str) -> Tuple[Optional[int], Optional[str]]:
     """
-    @return charid, name
+    @return: charid, name
     """
 
     api = get_api()
@@ -63,10 +58,6 @@ def characterid_from_name(char_name: str) -> Tuple[Optional[int], Optional[str]]
     client = EsiClient(security, timeout=10)
 
     search_answer = client.request(api.op['get_search'](search=char_name, categories=['character'], strict=True))
-    print(search_answer.data)
-    #print(search_answer.status_code)
-    print(search_answer.status)
-    print(search_answer)
     # this character name doesn't exist
     if not ('character' in search_answer.data):
         return None, None

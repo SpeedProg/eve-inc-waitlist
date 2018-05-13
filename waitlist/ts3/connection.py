@@ -40,6 +40,7 @@ def make_connection():
         con = None
     return con
 
+
 conn = make_connection()
 
 

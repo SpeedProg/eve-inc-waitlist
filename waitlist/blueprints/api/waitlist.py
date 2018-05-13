@@ -70,6 +70,7 @@ class WaitlistBaseDataAPI(MethodView):
                 flask.abort(404, 'No Waitlist with this ID found')
             return jsonify(make_json_waitlist_base_data(waitlist))
 
+
 groups_view = WaitlistGroupsAPI.as_view('groups')
 waitlist_base_view = WaitlistBaseDataAPI.as_view('wlbasedata')
 

@@ -147,7 +147,6 @@ def update_constellations() -> int:
 
 def add_constellation_info(const_id: int, esi_client: EsiClient) -> Optional[Tuple[int, EsiClient]]:
     try:
-        #esi_client: EsiClient = get_esi_client(True)
         api: App = get_api()
         const_request = api.op['get_universe_constellations_constellation_id'](constellation_id=const_id)
         print(f"Requesting Const {const_id}")
@@ -192,7 +191,6 @@ def update_systems() -> int:
 
 def add_system_info(system_id: int, esi_client: EsiClient) -> Optional[Tuple[int, EsiClient]]:
     try:
-        #esi_client: EsiClient = get_esi_client(True)
         api: App = get_api()
         system_request = api.op['get_universe_systems_system_id'](system_id=system_id)
         print(f"Requesting System {system_id}")

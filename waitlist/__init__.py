@@ -104,6 +104,7 @@ class MiniJSONEncoder(JSONEncoder):
         # Let the base class default method raise the TypeError
         return JSONEncoder.default(self, obj)
 
+
 app.json_encoder = MiniJSONEncoder
 
 # init rate limiting

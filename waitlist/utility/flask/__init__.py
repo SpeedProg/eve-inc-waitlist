@@ -1,9 +1,7 @@
 import logging
-from datetime import datetime, timedelta, timezone
-
 import math
-
-from typing import List, Union, Optional
+from datetime import datetime
+from typing import List, Union, Optional, Any
 
 import flask
 from flask import render_template, url_for, request
@@ -185,7 +183,7 @@ def get_user_from_db(unicode_id: str) -> Optional[Union[Character, Account]]:
 
 
 @identity_loaded.connect_via(app)
-def on_identity_loaded(sender, identity):
+def on_identity_loaded(_: Any, identity):
     # Set the identity user object
     identity.user = current_user
     # Add the UserNeed to the identity

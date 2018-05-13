@@ -177,16 +177,13 @@ def fleet_status_set(gid: int) -> Response:
 
         # it is not a unresticted name and we do not have the power to set abitrary names, then we are done
         if not ((display_name in unrestricted_display_names) or
-                    perm_manager.get_permission('fleet_custom_display_name_all').can()):
+                perm_manager.get_permission('fleet_custom_display_name_all').can()):
             flash("You gave no unrestricted display name and do not have the power to set arbitrary names!", "danger")
             return redirect(url_for(".fleet"), code=303)
 
         # we checked that we are allowed to do this, let do it and logg it
         group.displayName = display_name
         logging.info(f"{current_user.username} set the displayName of group with id={group.groupID} to {display_name}")
-
-
-
 
     db.session.commit()
 
@@ -342,7 +339,9 @@ def clear_waitlist(gid):
     for wl in group.waitlists:
         waitlist_ids.append(wl.id)
 
-    db.session.query(WaitlistEntry).filter(WaitlistEntry.waitlist_id.in_(waitlist_ids)).delete(synchronize_session=False)
+    db.session.query(WaitlistEntry)\
+        .filter(WaitlistEntry.waitlist_id.in_(waitlist_ids))\
+        .delete(synchronize_session=False)
 
     db.session.commit()
     flash("Waitlists were cleared!", "danger")
@@ -358,5 +357,6 @@ def fleet_status_global_set() -> str:
         should_scrable = not (request.form.get('scramble', 'off') == 'off')
         config.scramble_names = should_scrable
     return "OK"
+
 
 add_menu_entry('fleetoptions.fleet', 'Fleet Settings', perm_management.can)

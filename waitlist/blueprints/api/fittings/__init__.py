@@ -1,7 +1,8 @@
-from flask import Blueprint
-
-bp = Blueprint('api_fittings', __name__)
-
+from .blueprint import bp
 from .fittings import *
 from .comp import *
 from .self import *
+
+
+
+

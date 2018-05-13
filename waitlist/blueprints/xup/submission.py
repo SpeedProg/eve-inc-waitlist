@@ -8,12 +8,13 @@ import re
 from waitlist.blueprints.api.fittings.self import self_remove_fit
 from waitlist.data.names import WaitlistNames
 from waitlist.data.sse import EntryAddedSSE, send_server_sent_event, FitAddedSSE
-from waitlist.storage.database import WaitlistGroup, WaitlistEntry, Shipfit, InvType, FitModule, MarketGroup, HistoryEntry
-from waitlist.storage.modules import resist_ships, logi_ships, sniper_ships, sniper_weapons, dps_weapons, weapongroups, \
+from waitlist.storage.database import WaitlistGroup, WaitlistEntry, Shipfit, InvType, FitModule,\
+    MarketGroup, HistoryEntry
+from waitlist.storage.modules import resist_ships, logi_ships, sniper_ships, sniper_weapons, dps_weapons, weapongroups,\
     dps_ships, t3c_ships
 from waitlist.utility.database_utils import parse_eft
 from waitlist.utility.history_utils import create_history_object
-from waitlist.utility.utils import get_character, get_fit_format, create_mod_map
+from waitlist.utility.utils import get_fit_format, create_mod_map
 from waitlist import db
 from . import bp
 
@@ -237,6 +238,7 @@ def submit():
 
     # split his fits into types for the different waitlist_entries
     for fit in fits:
+        mod_map = dict()
         try:
             mod_map = create_mod_map(fit.modules)
         except ValueError:

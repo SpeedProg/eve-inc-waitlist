@@ -1,22 +1,20 @@
 import ast
 import json
 import logging
+from datetime import datetime
+from typing import Any, Optional
 
 from esipy import EsiClient
 from esipy.cache import DummyCache
 from esipy.events import Signal
-from pyswagger import App
-from typing import Any, Optional
-
 from esipy.security import EsiSecurity
+from pyswagger import App
 
+from waitlist.storage.database import SSOToken
 from waitlist.utility import config
-from waitlist.utility.swagger import header_to_datetime, get_api
-from waitlist.utility.config import crest_return_url, crest_client_id,\
+from waitlist.utility.config import crest_return_url, crest_client_id, \
     crest_client_secret
-from flask_login import current_user
-from datetime import datetime, timezone
-from waitlist.storage.database import Account, SSOToken
+from waitlist.utility.swagger import header_to_datetime, get_api
 
 logger = logging.getLogger(__name__)
 

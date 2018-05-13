@@ -35,4 +35,5 @@ def change(type_) -> Response:
         flash("Header Insert Saved")
     return redirect(url_for('settings_inserts.index'))
 
+
 add_menu_entry('settings_inserts.index', 'Page Inserts', perm_manager.get_permission('inserts_edit').can)

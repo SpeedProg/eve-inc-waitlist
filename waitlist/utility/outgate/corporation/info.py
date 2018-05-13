@@ -1,12 +1,10 @@
 import logging
 from datetime import datetime
-from typing import Optional, Callable, Any, Sequence, Dict
 
+from waitlist import db
 from waitlist.storage.database import APICacheCorporationInfo
 from waitlist.utility.outgate.exceptions import ESIException, check_esi_response
-from waitlist.utility.swagger.eve import ESIResponse
 from waitlist.utility.swagger.eve.corporation import CorporationEndpoint, CorporationInfo
-from waitlist import db
 
 logger = logging.getLogger(__name__)
 
@@ -49,7 +47,8 @@ def get_corp_info(corp_id: int, *args) -> APICacheCorporationInfo:
             # expired, update it
             corp_ep = CorporationEndpoint()
             try:
-                corp_info: CorporationInfo = check_esi_response(corp_ep.get_corporation_info(corp_id), get_corp_info, args)
+                corp_info: CorporationInfo = check_esi_response(corp_ep.get_corporation_info(corp_id),
+                                                                get_corp_info, args)
             except ESIException:
                 return corp_cache
             set_from_corp_info(corp_cache, corp_info, corp_id)

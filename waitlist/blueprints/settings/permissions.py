@@ -38,5 +38,6 @@ def add_role() -> Response:
 
     return redirect(url_for('.view_permissions'), code=303)
 
+
 add_menu_entry('settings_permissions.view_permissions', 'Permissions',
                lambda: perm_manager.get_permission(StaticPermissions.ADMIN).can())

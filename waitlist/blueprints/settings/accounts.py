@@ -23,13 +23,12 @@ from waitlist.permissions.manager import StaticPermissions, StaticRoles
 from waitlist.signal.signals import send_account_created, send_roles_changed, send_account_status_change
 from waitlist.sso import authorize, who_am_i
 from waitlist.storage.database import Account, Character, Role, linked_chars, APICacheCharacterInfo, SSOToken
+from waitlist.utility import outgate, config
 from waitlist.utility.login import invalidate_all_sessions_for_given_user
-from waitlist.utility.manager.owner_hash_check_manager import owner_hash_check_manager, OwnerHashCheckManager
+from waitlist.utility.manager.owner_hash_check_manager import OwnerHashCheckManager
 from waitlist.utility.settings import sget_resident_mail, sget_tbadge_mail, sget_other_mail, sget_other_topic, \
     sget_tbadge_topic, sget_resident_topic
 from waitlist.utility.utils import get_random_token
-
-from waitlist.utility import outgate, config
 
 bp = Blueprint('accounts', __name__)
 logger = logging.getLogger(__name__)
@@ -110,7 +109,6 @@ def clean_alt_list() -> None:
      or the owner_hash changed (this should expire the token!)
     if there is no token for the character at all, the character is keept
     """
-    return None
     accs: List[Account] = db.session.query(Account).all()
     for acc in accs:
         for char in acc.characters:
@@ -360,6 +358,7 @@ def accounts_download_csv() -> Response:
             yield '\n'
 
     permission = perm_manager.get_permission('include_in_accountlist')
+    # noinspection PyPep8
     include_check = (Account.disabled == False)
     role_check = None
     for role_need in permission.needs:
@@ -395,17 +394,14 @@ def alt_verification_handler(code: str) -> None:
 
     auth = authorize(code)
 
-
-
     access_token = auth['access_token']
     refresh_token = auth['refresh_token']
     exp_in = int(auth['expires_in'])
     auth_token: SSOToken = SSOToken(accountID=current_user.id, refresh_token=refresh_token,
-                                  access_token=access_token,
-                                  access_token_expires=(datetime.utcnow() + timedelta(seconds=exp_in)))
+                                    access_token=access_token,
+                                    access_token_expires=(datetime.utcnow() + timedelta(seconds=exp_in)))
 
     auth_info = who_am_i(auth_token)
-    #char_name = auth_info['CharacterName']
     char_id = int(auth_info['CharacterID'])
     owner_hash = auth_info['CharacterOwnerHash']
     scopes: str = auth_info['Scopes']
@@ -420,7 +416,7 @@ def alt_verification_handler(code: str) -> None:
 
         # make sure the char is not already linked to the account
         for character in current_user.characters:
-            if character.id == char_id: # we are already linked to the char
+            if character.id == char_id:  # we are already linked to the char
                 # if it is not set as active char set it
                 if current_user.current_char != char_id:
                     current_user.current_char = char_id
@@ -463,7 +459,8 @@ def alt_verification_handler(code: str) -> None:
 
         # delete any existing links (to other accounts)
         db.session.query(linked_chars) \
-            .filter((linked_chars.c.id != current_user.id) & (linked_chars.c.char_id == char_id)).delete(synchronize_session=False)
+            .filter((linked_chars.c.id != current_user.id)
+                    & (linked_chars.c.char_id == char_id)).delete(synchronize_session=False)
 
         db.session.commit()
 
