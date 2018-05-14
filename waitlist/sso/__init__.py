@@ -1,8 +1,10 @@
+import base64
 import logging
 from datetime import datetime, timedelta
 from typing import Dict, Any
 
 import flask
+import requests
 
 from esipy import EsiSecurity
 from esipy.events import Signal
@@ -48,6 +50,33 @@ def who_am_i(token: SSOToken) -> Dict:
     security.update_token(token.info_for_esi_security())
 
     return security.verify()
+
+
+def revoke(access_token: str = None, refresh_token: str = None) -> None:
+    """{'access_token', 'refresh_token', 'expires_in'}"""
+    auth = base64.b64encode(
+        ("%s:%s" % (config.crest_client_id, config.crest_client_secret)).encode('utf-8', 'strict')
+    ).decode('utf-8', 'strict')
+    headers = {"Authorization": "Basic %s" % auth}
+    url = "https://login.eveonline.com/oauth/revoke"
+    if access_token is not None:
+        params = {
+            "token_type_hint": "access_token",
+            "token": access_token
+        }
+        res = requests.post(url, params=params, headers=headers)
+        if res.status_code != 200:
+            logger.exception(Exception(f"Access token revoke failed with status code { res.status_code }"))
+
+    if refresh_token is not None:
+        params = {
+            "token_type_hint": "refresh_token",
+            "token": refresh_token
+        }
+        res = requests.post(url, params=params, headers=headers)
+        if res.status_code != 200:
+            logger.exception(Exception(f"Refresh token revoke failed with status code { res.status_code }"))
+
 
 
 def add_token(code):

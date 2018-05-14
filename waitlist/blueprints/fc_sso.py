@@ -62,6 +62,7 @@ def login_cb():
         logger.error(f'No handler for sso return handle_key[{handle_key}] found. State[{state}]')
         flask.abort(400, 'No Handler for this sso return found!')
     else:
+        logger.debug("Calling handler %s", handler)
         return handler(code)
 
 

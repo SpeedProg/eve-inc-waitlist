@@ -1,9 +1,7 @@
 import gevent_patch_helper
 import logging
 from logging.handlers import TimedRotatingFileHandler
-from waitlist.blueprints.feedback import feedback
 from gevent.pywsgi import WSGIServer
-from waitlist import app
 from waitlist.blueprints.fittings import bp_waitlist
 from waitlist.blueprints.fc_sso import bp as fc_sso_bp
 from waitlist.blueprints.fleet import bp as fleet_bp
@@ -28,11 +26,10 @@ from waitlist.blueprints.cc_vote import bp as bp_ccvote
 from waitlist.blueprints.settings.ccvote_results import bp as bp_ccvote_settings
 from waitlist.blueprints.fleetview import bp as bp_fleetview
 
-from waitlist.blueprints.settings import accounts, bans, fleet_motd, fleetoptions, inserts, mail, overview,\
+from waitlist.blueprints.settings import accounts as settings_accounts, bans, fleet_motd, fleetoptions, inserts, mail, overview,\
     staticdataimport, teamspeak, permissions
-from waitlist.blueprints import trivia
+from waitlist.blueprints import trivia, feedback
 from waitlist.blueprints.api import permission
-from waitlist.blueprints.api import fittings
 from waitlist.blueprints import xup
 from waitlist.blueprints import notification
 # needs to he here so signal handler gets registered
@@ -49,7 +46,7 @@ from waitlist.blueprints import *
 
 
 app.register_blueprint(bp_waitlist)
-app.register_blueprint(feedback, url_prefix="/feedback")
+app.register_blueprint(feedback.feedback, url_prefix="/feedback")
 app.register_blueprint(fc_sso_bp, url_prefix="/fc_sso")
 app.register_blueprint(fleet_bp, url_prefix="/fleet")
 app.register_blueprint(api_fleet_bp, url_prefix="/api/fleet")
@@ -75,7 +72,7 @@ app.register_blueprint(bp_fleetview, url_prefix="/fleetview")
 app.register_blueprint(trivia.submission.bp, url_prefix="/trivia")
 
 # settings blueprints
-app.register_blueprint(accounts.bp, url_prefix='/settings/accounts')
+app.register_blueprint(settings_accounts.bp, url_prefix='/settings/accounts')
 app.register_blueprint(bans.bp, url_prefix='/settings/bans')
 app.register_blueprint(fleet_motd.bp, url_prefix='/settings/motd')
 app.register_blueprint(fleetoptions.bp, url_prefix='/settings/fleet')
@@ -86,7 +83,6 @@ app.register_blueprint(staticdataimport.bp, url_prefix='/settings/sde')
 app.register_blueprint(teamspeak.bp, url_prefix='/settings/teamspeak')
 app.register_blueprint(permissions.bp, url_prefix='/settings/permissions')
 app.register_blueprint(permission.bp, url_prefix='/api/permission')
-app.register_blueprint(fittings.bp, url_prefix='/api/fittings')
 app.register_blueprint(xup.bp, url_prefix='/xup')
 
 # notification
