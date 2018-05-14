@@ -29,11 +29,6 @@ def load_identity_when_session_expires():
 
 @app.before_request
 def check_user_owner_hash():
-    # if no auth for alts is required there is no reason to check the owner_hash
-    if not config.require_auth_for_chars:
-        logger.debug("Skipping owner_hash check because it is disabled in the configuration")
-        return
-
     # we want to allow requests to accounts.account_self_edit here
     # and sso
     allowed_endpoints = [url_for('fc_sso.login_cb')]
@@ -50,6 +45,10 @@ def check_user_owner_hash():
         return
 
     if user.type == 'account':
+        # if no auth for alts is required there is no reason to check the owner_hash
+        if not config.require_auth_for_chars:
+            logger.debug("Skipping owner_hash check because it is disabled in the configuration")
+            return
         user: Account = user
         # if there is NO main character set ignore the hash check
         if user.current_char is None:
@@ -103,7 +102,7 @@ def check_all_alts_authorized():
 
     # we want to allow requests to accounts.account_self_edit here
     # and sso
-    allowed_endpoints = [url_for('accounts.account_self_edit'), url_for('fc_sso.login_cb')]
+    allowed_endpoints = [url_for('accounts.account_self_edit'), url_for('fc_sso.login_cb'), url_for('logout')]
 
     # if it is allowed let it continue with an other handle
     if request.path in allowed_endpoints:
@@ -205,7 +204,8 @@ def unauthorized_ogb():
     Handle unauthorized users that visit with an out of game browser
     -> Redirect them to SSO
     """
-    return get_sso_redirect('linelogin', '')
+
+    return get_sso_redirect('linelogin', 'publicData')
 
 
 @app.template_filter('waittime')

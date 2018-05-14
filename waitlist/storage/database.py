@@ -473,12 +473,10 @@ class Character(Base):
         :param scopes: the scopes the token needs to have
         :return: a list of tokens that have the given scopes
         """
-        if self.current_char is None:
-            return []
 
         # noinspection PyPep8,PyComparisonWithNone
         tokens: List[SSOToken] = SSOToken.query\
-            .filter((SSOToken.characterID == self.current_char) & (SSOToken.accountID == None)).all()
+            .filter((SSOToken.characterID == self.id) & (SSOToken.accountID == None)).all()
         qualified_tokens: List[SSOToken] = []
         for token in tokens:
             if token.has_scopes(scopes):

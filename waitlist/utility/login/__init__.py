@@ -12,7 +12,7 @@ from flask_principal import identity_changed, Identity
 
 from waitlist import db
 from waitlist.blueprints.fc_sso import get_sso_redirect, add_sso_handler
-from waitlist.sso import authorize, who_am_i
+from waitlist.sso import authorize, who_am_i, revoke
 from waitlist.storage.database import Account, Character, SSOToken
 from waitlist.utility import config
 from waitlist.utility.eve_id_utils import get_character_by_id_and_name, is_char_banned
@@ -21,11 +21,12 @@ from waitlist.utility.manager import OwnerHashCheckManager
 logger = logging.getLogger(__name__)
 
 
-def login_account_by_username_or_character(char: Character, owner_hash: str) -> Response:
+def login_account_by_username_or_character(char: Character, owner_hash: str, token: SSOToken) -> Response:
     """
     Handle login, when accounts should be loggedin by username matching the character name
     :param char: Character we got the authentication for
     :param owner_hash: current owner_hash of the character
+    :param token: sso token for the character
     :return: a Response that should be delivered to the client
     """
     # see if there is an fc account connected
@@ -33,18 +34,21 @@ def login_account_by_username_or_character(char: Character, owner_hash: str) -> 
     acc = db.session.query(Account).filter(
         (Account.username == char.get_eve_name()) & (Account.disabled == False)).first()
     if acc is not None:  # accs are allowed to ignore bans
-        login_account(acc)
+        logger.debug(f"Account with username %s found. Logging in as %s", char.get_eve_name(), acc)
+        return login_account(acc, token)
 
-    return login_character(char, owner_hash)
+    logger.debug(f"No Account with username %s found. Logging in as %s", char.get_eve_name(), char)
+    return login_character(char, owner_hash, token)
 
 
-def login_character(char: Character, owner_hash: str) -> Response:
+def login_character(char: Character, owner_hash: str, token: SSOToken) -> Response:
     """
     Login a character and update the owner_hash/invalidate all existing sessions
     if the owner_hash changed
     This also checks if the character is banned before letting him login
     :param char: the Character to login
     :param owner_hash: the owner_hash to check and update
+    :param token: sso token for the character
     :return: a redirect to the next page the client should visite
     """
     # update owner_hash if different
@@ -60,37 +64,59 @@ def login_character(char: Character, owner_hash: str) -> Response:
         invalidate_all_sessions_for_current_user()
         db.session.commit()
 
+    tokens = char.get_sso_tokens_with_scopes(['publicData'])
+    for tkn in tokens:
+        revoke(refresh_token=tkn.refresh_token)
+        db.session.delete(tkn)
+
+    db.session.flush()
+
+    char.add_sso_token(token)
+    db.session.commit()
+
     logger.info(f"Logging character eve_name={char.get_eve_name()} id={char.get_eve_id()} in")
     is_banned, reason = is_char_banned(char)
     if is_banned:
         logger.info(f"Character is banned eve_name={char.get_eve_name()} id={char.get_eve_id()}")
-        return flask.abort(401, 'You are banned, because your ' + reason + " is banned!")
-
+        flask.abort(401, 'You are banned, because your ' + reason + " is banned!")
     login_user(char, remember=True)
     logger.debug("Member Login by %s successful", char.get_eve_name())
     return redirect(url_for("index"))
 
 
-def login_account(acc: Account) -> Response:
+def login_account(acc: Account, token: SSOToken) -> Response:
     """
     Logs in an account and creates the session information, Accounts ignore banns
     :param acc: The account to create the session for
+    :param token: sso token for the character
     :return: a redirect to the index page
     """
     logger.info(f"Logging account username={acc.username} id={acc.id} in")
+
+    tokens = acc.get_sso_tokens_with_scopes(['publicData'])
+
+    for tkn in tokens:
+        revoke(refresh_token=tkn.refresh_token)
+        db.session.delete(tkn)
+
+    db.session.flush()
+    acc.add_sso_token(token)
+    db.session.commit()
+
     login_user(acc, remember=True)
     identity_changed.send(current_app._get_current_object(),
                           identity=Identity(acc.id))
     return redirect(url_for("index"))
 
 
-def login_accounts_by_alts_or_character(char: Character, owner_hash: str) -> Response:
+def login_accounts_by_alts_or_character(char: Character, owner_hash: str, token: SSOToken) -> Response:
     """
     Handle login, when an account should be loggedin by a connected alt who has no owner_hash or the owner_hash matches
     the current one
     If no matching account is found or more then one account is found, login as user and use flash for a message
     :param char: Character we got the authentication for
     :param owner_hash: current owner_hash of the character
+    :param token: sso token for the character
     :return: a Response that should be delivered to the client
     """
 
@@ -101,7 +127,7 @@ def login_accounts_by_alts_or_character(char: Character, owner_hash: str) -> Res
 
     # if there is no account connected, login as character
     if account_count == 0:
-        return login_character(char, owner_hash)
+        return login_character(char, owner_hash, token)
 
     if account_count > 0:
         # if we never had a owner hash lets set it
@@ -113,7 +139,7 @@ def login_accounts_by_alts_or_character(char: Character, owner_hash: str) -> Res
             db.session.commit()
 
         # character changed owner, so not eligible for account login anymore
-        elif char.owner_hash != owner_hash:
+        if char.owner_hash != owner_hash:
             logger.debug("Character owner_hash for %s did not match."
                          " Invalidating all sessions and removing character as alt from all accounts.", char)
             flask.flash("You character seemed to have changed owner."
@@ -123,7 +149,7 @@ def login_accounts_by_alts_or_character(char: Character, owner_hash: str) -> Res
                 # TODO: send signal here that an alt is removed from this account
                 char.accounts = []
 
-            return login_character(char, owner_hash)
+            return login_character(char, owner_hash, token)
 
         else:
             logger.debug("Character owner_hash for %s did match", char)
@@ -134,7 +160,7 @@ def login_accounts_by_alts_or_character(char: Character, owner_hash: str) -> Res
                             f" please contact an Administrator."
                             f" Meanwhile, you are logged in as a normal character.", "danger")
 
-                return login_character(char, owner_hash)
+                return login_character(char, owner_hash, token)
 
             else:  # connected exactly one account since > 0 and not > 1
                 logger.debug("%s connected to one account", char)
@@ -142,7 +168,7 @@ def login_accounts_by_alts_or_character(char: Character, owner_hash: str) -> Res
 
                 if acc.disabled:  # this account is disabled -> login as character
                     logger.debug("The Account %s is disabled logging in a character", acc)
-                    return login_character(char, owner_hash)
+                    return login_character(char, owner_hash, token)
 
                 # set no character as active char for the account
                 # we will set the login char further in the progress
@@ -163,10 +189,10 @@ def login_accounts_by_alts_or_character(char: Character, owner_hash: str) -> Res
                 else:
                     # set the accounts current character to this character
                     acc.current_char = char.id
-                    return login_account(acc)
+                    return login_account(acc, token)
     else:  # not connected to an account
 
-        return login_character(char, owner_hash)
+        return login_character(char, owner_hash, token)
 
 
 def member_login_cb(code):
@@ -182,6 +208,12 @@ def member_login_cb(code):
     char_id = auth_info['CharacterID']
     char_name = auth_info['CharacterName']
     owner_hash = auth_info['CharacterOwnerHash']
+    scopes = auth_info['Scopes']
+
+    if 'publicData' not in scopes:
+        flask.abort(400, "Needed scope publicData missing")
+
+    token.update_token_data(scopes=scopes)
 
     if char_id is None or char_name is None:
         logger.error("Failed to get character auth info")
@@ -192,9 +224,9 @@ def member_login_cb(code):
     # if we don't need authorization to set a character on an account
     # we get this handled in an other function
     if not config.require_auth_for_chars:
-        return login_account_by_username_or_character(char, owner_hash)
+        return login_account_by_username_or_character(char, owner_hash, token)
 
-    return login_accounts_by_alts_or_character(char, owner_hash)
+    return login_accounts_by_alts_or_character(char, owner_hash, token)
 
 
 def invalidate_all_sessions_for_current_user() -> None:
