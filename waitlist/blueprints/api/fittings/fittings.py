@@ -1,6 +1,8 @@
 from typing import Dict, Tuple
 
 import logging
+
+from flask import make_response
 from flask_login import login_required, current_user
 from waitlist.permissions import perm_manager
 from flask.globals import request
@@ -64,7 +66,7 @@ perm_fits_view = perm_manager.get_permission('fits_view')
 def send_notification(player_id):
     waitlist_id = int(request.form['waitlistID'])
     send_notifiaction_to_player(player_id, waitlist_id, "The FC is looking for you")
-    return jsonify(message="Notification send", status_code=200)
+    return make_response("Notification send", 200)
 
 
 @bp.route("/waitlists/", methods=["GET"])

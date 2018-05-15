@@ -121,8 +121,15 @@ class SSOToken(Base):
             return True
         except APIException as e:
             # this probably happens because the token is invalid now
-            if ('message' in e.response and e.response['message'] == 'invalid_token')\
-                    or ('error' in e.response and e.response['error'] == 'invalid_request'):
+            if ('message' in e.response and
+                    (e.response['message'] == 'invalid_token' or
+                     e.response['message'] == 'invalid_request')
+                )\
+                or\
+                ('error' in e.response and
+                      (e.response['error'] == 'invalid_request' or
+                       e.response['error'] == 'invalid_token')
+            ):
                 logger.debug("Token invalid because of response.")
                 return False
 

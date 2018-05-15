@@ -68,7 +68,7 @@ def invite_to_fleet():
     # lets check that the given wl exists
     if waitlist is None:
         logger.error("Given waitlist ID=%d is not valid.", waitlist_id)
-        flask.abort(400)
+        flask.abort(400, f"Given waitlist ID=%d is not valid.")
 
     squad_type = waitlist.name
     logger.info("Invited %s by %s into %s", character.eve_name, current_user.username, squad_type)
