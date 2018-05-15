@@ -1,7 +1,7 @@
 import logging
 from datetime import datetime
 from pyswagger.primitives import Datetime
-from typing import Optional, Union, Dict
+from typing import Optional, Union, Dict, Any
 
 from waitlist.utility.swagger.eve import ESIResponse
 
@@ -15,15 +15,13 @@ class CorporationInfo(ESIResponse):
         self.data: Optional[Dict[str, Union[str, int, float, Datetime]]] = data
 
     def get_alliance_id(self) -> Optional[int]:
-        if 'alliance_id' not in self.data:
-            return None
-        return self.data['alliance_id']
+        return self.__get_data('alliance_id', None)
 
     def get_ceo_id(self) -> int:
         return self.data['ceo_id']
 
     def get_corporation_description(self) -> str:
-        return self.data['description']
+        return self.__get_data('description', '')
 
     def get_corporation_name(self) -> str:
         return self.data['name']
@@ -41,7 +39,10 @@ class CorporationInfo(ESIResponse):
         return self.data['ticker']
 
     def get_url(self) -> str:
-        return self.data['url']
+        return self.__get_data('url', '')
 
     def get_creation_date(self) -> Optional[datetime]:
         return self.data['date_founded'].v if 'date_founded' in self.data else None
+
+    def __get_data(self, key: str, default: Any = None) -> Any:
+        return self.data[key] if key in self.data else default
