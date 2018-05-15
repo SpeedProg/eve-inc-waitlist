@@ -69,8 +69,8 @@ waitlist.fsettings = (function() {
 			},
 			'error': function(data) {
 				var message = data.statusText;
-				if (typeof data.message !== 'undefined') {
-					message += ": " + data.message;
+				if (typeof data.responseText !== 'undefined') {
+					message += ": " + data.responseText;
 				}
 				waitlist.base.displayMessage(message, "danger");
 			}
@@ -93,8 +93,8 @@ waitlist.fsettings = (function() {
 			},
 			'error': function(data) {
 				var message = data.statusText;
-				if (typeof data.message !== 'undefined') {
-					message += ": " + data.message;
+				if (typeof data.responseText !== 'undefined') {
+					message += ": " + data.responseText;
 				}
 				waitlist.base.displayMessage(message, "danger");
 			}

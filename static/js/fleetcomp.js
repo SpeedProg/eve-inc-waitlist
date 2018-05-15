@@ -30,8 +30,8 @@ waitlist.fleetcomp = (function() {
 			},
 			'error': function(data) {
 				var message = data.statusText;
-				if (typeof data.message !== 'undefined') {
-					message += ": " + data.message;
+				if (typeof data.responseText !== 'undefined') {
+					message += ": " + data.responseText;
 				}
 				displayMessage(message, "danger");
 			},
@@ -55,13 +55,14 @@ waitlist.fleetcomp = (function() {
 			},
 			'error': function(data) {
 				var message = data.statusText;
-				if (typeof data.message !== 'undefined') {
-					message += ": " + data.message;
-				}
-				if (typeof data.responseJSON !== 'undefined'
+        if (typeof data.responseJSON !== 'undefined'
 					&& typeof data.responseJSON.message !== 'undefined') {
 					message += ": " + data.responseJSON.message;
 				}
+				else if (typeof data.responseText !== 'undefined') {
+					message += ": " + data.responseText;
+				}
+
 				displayMessage(message, "danger", true);
 			},
 			'dataType': 'json'

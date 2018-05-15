@@ -58,7 +58,7 @@ def post_esi_openwindow_newmail():
     if response.is_error():
         flask.abort(response.error(), response.code())
 
-    return make_response('', response.code())
+    return make_response('OK', response.code())
 
 
 def handle_open_ui_sso_cb(tokens):

@@ -78,9 +78,10 @@ def open_information(target_id: int) -> ESIResponse:
     """
     token: Optional[SSOToken] = current_user.get_a_sso_token_with_scopes(esi_scopes.open_ui_window)
     if token is None:
-        raise RuntimeWarning('No valid token')
+        return ESIResponse(datetime.datetime.utcnow(), 403, f"No token with the required scopes:"
+                                                            f" {''.join(esi_scopes.open_ui_window)} exists.")
     api_v1: App = get_api()
-    client: EsiClient = get_esi_client(None, False)
+    client: EsiClient = get_esi_client(token)
 
     resp = client.request(api_v1.op['post_ui_openwindow_information'](target_id=target_id))
     if resp.status == 204:

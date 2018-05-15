@@ -1,7 +1,7 @@
 import logging
 from datetime import datetime
 
-from flask import Response, jsonify
+from flask import Response, jsonify, make_response
 from flask import flash
 from flask import redirect
 from flask import request
@@ -356,7 +356,7 @@ def fleet_status_global_set() -> str:
     if action == "set_name_scramble":
         should_scrable = not (request.form.get('scramble', 'off') == 'off')
         config.scramble_names = should_scrable
-    return "OK"
+    return make_response("OK", 200)
 
 
 add_menu_entry('fleetoptions.fleet', 'Fleet Settings', perm_management.can)
