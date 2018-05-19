@@ -101,6 +101,16 @@ def get_character_by_id_and_name(eve_id: int, eve_name: str) -> Character:
     return char
 
 
+def get_character_by_id(eve_character_id: int) -> Character:
+    character: Character = get_char_from_db(eve_character_id)
+    if character is None:
+        logger.info("No character found in database for id %d", eve_character_id)
+        char_info = outgate.character.get_info(eve_character_id)
+        character = create_new_character(eve_character_id, char_info.characterName)
+
+    return character
+
+
 def is_charid_banned(character_id: int) -> bool:
     if character_id == 0:  # this stands for no id in the eve api (for example no alliance)
         return False

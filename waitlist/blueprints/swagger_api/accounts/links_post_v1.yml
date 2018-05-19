@@ -1,0 +1,75 @@
+Creat Link
+Creat a link for an alternate character.
+This resets the owner_hash of the character to an empty string
+---
+    consumes:
+      - application/json
+    operationId: post_accounts_account_id
+    tags:
+      - Accounts
+    parameters:
+      - name: account_id
+        in: path
+        description: account's id to add the character link to
+        required: true
+        type: integer
+        format: int32
+      - name: character_identifier
+        in: body
+        description: information that identifies the character to add
+        required: true
+        schema:
+          description: character information
+          type: object
+          properties:
+            character_id:
+              description: id of the character
+              required: false
+              type: integer
+              format: int64
+            character_name:
+              description: name of the character
+              required: false
+              type: string
+    responses:
+      201:
+         description: Link between Account and Character was created
+         schema:
+          required:
+            - message
+          properties:
+            message:
+             description: message that can be displayed
+             type: string
+            character_id:
+              description: id of the character that was added as alt
+              type: integer
+              format: int64
+            account_int:
+              description: id of the account the character was added as alt
+              type: integer
+              format: int64
+            character_name:
+              description: name of the character that was added as alt
+              type: string
+      400:
+        description: Character does not exist in eve or link already existed
+        examples:
+          application/json:
+            error: Character does not exist
+        schema:
+          $ref: '#/definitions/ErrorBadRequest'
+      403:
+        description: You are missing the required permission for this route
+        examples:
+          application/json:
+            error: You are missing the required permission change_character_links
+        schema:
+          $ref: '#/definitions/ErrorForbidden'
+      404:
+        description: Account did not exist
+        examples:
+          application/json:
+            error: Account did not exist
+        schema:
+          $ref: '#/definitions/ErrorNotFound'

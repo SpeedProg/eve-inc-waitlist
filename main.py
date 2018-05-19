@@ -28,7 +28,7 @@ from waitlist.blueprints.fleetview import bp as bp_fleetview
 
 from waitlist.blueprints.settings import accounts as settings_accounts, bans, fleet_motd, fleetoptions, inserts, mail, overview,\
     staticdataimport, teamspeak, permissions
-from waitlist.blueprints import trivia, feedback
+from waitlist.blueprints import trivia, feedback, swagger_api
 from waitlist.blueprints.api import permission
 from waitlist.blueprints import xup
 from waitlist.blueprints import notification
