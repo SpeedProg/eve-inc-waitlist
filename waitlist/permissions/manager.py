@@ -104,10 +104,10 @@ class PermissionManager(object):
 
     def get_permission(self, name: str) -> AddPermission:
         if name in self.__definitions:
-            if name in self.__permissions:
-                return self.__permissions[name]
-            else:
-                return AddPermission(RoleNeed(StaticRoles.ADMIN))
+            if name not in self.__permissions:
+                self.__add_permission(name, AddPermission(RoleNeed(StaticRoles.ADMIN)))
+
+            return self.__permissions[name]
         else:
             raise ValueError(f'Permission [{ name }] is not defined!')
 
