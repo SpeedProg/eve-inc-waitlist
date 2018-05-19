@@ -405,7 +405,11 @@ def alt_verification_handler(code: str) -> None:
     char_id = int(auth_info['CharacterID'])
     owner_hash = auth_info['CharacterOwnerHash']
     scopes: str = auth_info['Scopes']
-    auth_token.characterID = char_id
+
+    # make sure the character exists
+    character: Character = get_character_by_id(char_id)
+
+    auth_token.characterID = character.id
     # if he authed the char he told us
     if session['link_charid'] is not None and session['link_charid'] == char_id:
         logger.debug("Updating Token for %s char_id=%s", current_user, char_id)
