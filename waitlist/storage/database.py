@@ -411,6 +411,16 @@ class Account(Base):
     def __repr__(self):
         return f'<Account {self.username} id={self.id} session_key={self.session_key}>'
 
+    def __eq__(self, other) -> int:
+        if other is None:
+            return False
+        if not hasattr(other, 'id'):
+            return False
+        return self.id == other.id
+
+    def __hash__(self) -> int:
+        return self.id
+
 
 class CrestFleet(Base):
     """ Represents a setup fleet """
@@ -551,6 +561,16 @@ class Character(Base):
 
     def __repr__(self):
         return f'<Character {self.eve_name} id={self.id} session_key={self.session_key}>'
+
+    def __eq__(self, other) -> int:
+        if other is None:
+            return False
+        if not hasattr(other, 'id'):
+            return False
+        return self.id == other.id
+
+    def __hash__(self) -> int:
+        return self.id
 
 
 class Role(Base):

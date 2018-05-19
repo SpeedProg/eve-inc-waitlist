@@ -18,6 +18,8 @@ if not os.path.isfile(os.path.join(".", "config", "config.cfg")):
     config.set("app", "server_bind", "0.0.0.0")
     config.set("app", "community_name", "IncWaitlist")
     config.set("app", "user_agent", "Bruce Warhead: Eve Incursion Waitlist")
+    config.set("app", "protocol", "https")
+    config.set("app", "domain", "localhost")
     
     config.add_section("logging")
     config.set("logging", "error_file", "/var/log/pywaitlist/error.log")
@@ -117,3 +119,6 @@ stattool_sri = config.get("fittools", "stats_sri")
 stattool_enabled = config.get("fittools", "stats_enabled") == "True"
 
 user_agent = config.get("app", "user_agent")+"/"+version.version
+
+protocol = config.get("app", "protocol")
+domain = config.get("app", "domain")

@@ -1,0 +1,8 @@
+Http 400 Bad Request
+---
+required:
+  - error
+properties:
+  error:
+    type: string
+    description: error message for the 400
