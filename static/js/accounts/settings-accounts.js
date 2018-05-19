@@ -197,7 +197,8 @@ waitlist.accounts = (function() {
 				}, {
 					name: "Alts",
 					datatype: "string",
-					editable: false
+					editable: false,
+					values: [{"value": "canChangeLinks", "label": getMetaData('can-change-links') == 'True'}]
 				}, {
 					name: "#",
 					datatype: "integer",
@@ -227,4 +228,5 @@ waitlist.accounts = (function() {
 
 EditableGrid.prototype.initializeGrid = function() {
   this.setCellRenderer("Account Name", new AccountCellRenderer());
+  this.setCellRenderer("Alts", new AltCellRenderer());
 };
