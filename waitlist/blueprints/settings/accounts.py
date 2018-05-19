@@ -24,6 +24,7 @@ from waitlist.signal.signals import send_account_created, send_roles_changed, se
 from waitlist.sso import authorize, who_am_i
 from waitlist.storage.database import Account, Character, Role, linked_chars, APICacheCharacterInfo, SSOToken
 from waitlist.utility import outgate, config
+from waitlist.utility.eve_id_utils import get_character_by_id
 from waitlist.utility.login import invalidate_all_sessions_for_given_user
 from waitlist.utility.manager.owner_hash_check_manager import OwnerHashCheckManager
 from waitlist.utility.settings import sget_resident_mail, sget_tbadge_mail, sget_other_mail, sget_other_topic, \
@@ -104,25 +105,31 @@ def accounts():
 def clean_alt_list() -> None:
     """
     Removes links between accounts and characters if
-     there is a token
-     but the token expired
-     or the owner_hash changed (this should expire the token!)
-    if there is no token for the character at all, the character is keept
+     - there is a token
+       - but the token expired
+     - or the owner_hash changed (this should expire the token!)
+    if there is no token for the character at all, the character is kept
     """
+
     accs: List[Account] = db.session.query(Account).all()
     for acc in accs:
+        logger.debug("Checking tokens for alts of %s", acc)
         for char in acc.characters:
+            logger.debug("Checking alt %s for account %s", char, acc)
             if OwnerHashCheckManager.is_auth_valid_for_account_character_pair(acc, char):
+                logger.debug("Auth valid for %s on %s", char, acc)
                 continue
 
             token: Optional[SSOToken] = acc.get_token_for_charid(char.id)
             # if there is no token for this account/character combination we don't need to do anything
             if token is None:
+                logger.debug("No token for %s on %s doing nothing", char, acc)
                 continue
 
             # the auth token is not valid AND we have a token
             # remove the invalid toekn
             db.session.delete(token)
+            logger.debug("Deleted invalid token for %s on %s", char, acc)
 
     db.session.commit()
 

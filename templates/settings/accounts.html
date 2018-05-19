@@ -13,6 +13,7 @@
 <meta name="api-account-disable" content="{{url_for('accounts.account_disabled')}}">
 <meta name="api-esi-mail-send" content="{{url_for('api_mail.send_esi_mail')}}">
 <meta name="api-esi-mail-auth" content="{{url_for('api_mail.auth')}}">
+<meta name="can-change-links" content="{{perm_manager.get_permission('change_character_links').can()}}">
 {{ super() }}
 
 {% assets filters="cssmin", output="gen/fileinput.%(version)s.css", "css/fileinput.css" %}
@@ -27,7 +28,8 @@
 <script type="text/javascript" src="{{ ASSET_URL }}"></script>
 {% endassets %}
 
-{% assets filters="babili", output="gen/acc-cc-list.%(version)s.js", "js/base.js", "js/eve-igb-wrapper.js", "js/editablegrid/editablegrid_customrenderer.js", "js/accounts/settings-accounts.js" %}
+{% assets filters="babili", output="gen/acc-cc-list.%(version)s.js", "js/base.js", "js/eve-igb-wrapper.js",
+"js/editablegrid/editablegrid_customrenderer.js", "js/swagger-client.min.js", "js/accounts/accountslist-dom.js", "js/accounts/settings-accounts.js" %}
 <script type="text/javascript" src="{{ ASSET_URL }}"></script>
 {% endassets %}
 {% endblock %}
@@ -114,7 +116,7 @@
 			<td id="acc-{{acc.id}}-name">{{ acc.username }}</td>
 			<td id="acc-{{acc.id}}-roles">{% if not acc.had_welcome_mail %}<span id="acc-{{acc.id}}-needsmail" class="badge badge-info">New</span>{% endif %}{% for role in acc.roles %}{{role.name}}{% if not loop.last %}, {% endif %}{% endfor %}</td>
 			<td id="acc-{{acc.id}}-cchar">{{ acc.current_char_obj.eve_name }}</td>
-			<td>{% for character in acc.characters %}{{character.eve_name}}{% if not loop.last %}, {% endif %}{% endfor %}</td>
+			<td>{{acc.id}};{% for character in acc.characters %}{{character.id}}:{{character.eve_name}}{% if not loop.last %},{% endif %}{% endfor %}</td>
 			{# <td id="acc-{{acc.id}}-email">{% if acc.email is not none %}{{ acc.email }}{% endif %}</td> #}
 			<td id="acc-{{acc.id}}-id">{{ acc.id }}</td>
 		</tr>
