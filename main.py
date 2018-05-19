@@ -92,8 +92,15 @@ logger = logging.getLogger(__name__)
 
 err_fh = None
 info_fh = None
-access_fh = None
 debug_fh = None
+
+
+class LogDedicatedLevelFilter(object):
+    def __init__(self, level):
+        self.__level = level
+
+    def filter(self, log_record):
+        return log_record.levelno == self.__level
 
 
 def run_server():
@@ -121,6 +128,9 @@ if __name__ == '__main__':
     info_fh.setLevel(logging.INFO)
     err_fh.setLevel(logging.ERROR)
     debug_fh.setLevel(logging.DEBUG)
+
+    info_fh.addFilter(LogDedicatedLevelFilter(logging.INFO))
+    debug_fh.addFilter(LogDedicatedLevelFilter(logging.DEBUG))
 
     waitlistlogger = logging.getLogger("waitlist")
     waitlistlogger.addHandler(err_fh)
