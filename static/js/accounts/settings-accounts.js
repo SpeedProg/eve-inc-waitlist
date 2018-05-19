@@ -15,7 +15,7 @@ waitlist.accounts = (function() {
 				async: true,
 				dataType: "text",
 				error: function() {
-					displayMessage("error", "Disabling Account failed!");
+					displayMessage("Disabling Account failed!", "danger");
 				},
 				method: "POST",
 				data: {
@@ -35,7 +35,7 @@ waitlist.accounts = (function() {
 				async: true,
 				dataType: "text",
 				error: function() {
-					displayMessage("error", "Enabling Account failed!");
+					displayMessage("Enabling Account failed!", "danger");
 				},
 				method: "POST",
 				data: {
@@ -93,8 +93,7 @@ waitlist.accounts = (function() {
 		var needsMailTag = $(`#acc-${accId}-needsmail`, charTr);
 		needsMailTag.remove();
 	}
-	
-	
+
 	function setUpEventhandlers() {
 		var accountTable = $('#account-table-body');
 		accountTable.on('click', '[data-type="acc-enable"]', enableAccountHandler);
@@ -132,6 +131,7 @@ waitlist.accounts = (function() {
 		$('#acc-edit-id').val(accountId);
 		$('#modal-account-edit').modal('toggle');
 	}
+
 	function noclick() {
 		$('.noclick').click(function(e){
 			e.preventDefault();
