@@ -106,7 +106,8 @@ class LogDedicatedLevelFilter(object):
 def run_server():
     wsgi_logger = logging.getLogger("gevent.pywsgi.WSGIServer")
     wsgi_logger.addHandler(err_fh)
-    wsgi_logger.addHandler(access_fh)
+    wsgi_logger.addHandler(info_fh)
+    wsgi_logger.addHandler(debug_fh)
     wsgi_logger.setLevel(logging.INFO)
     server = WSGIServer((config.server_bind, config.server_port), app, log=wsgi_logger, error_log=wsgi_logger)
     server.serve_forever()
@@ -115,14 +116,12 @@ def run_server():
 if __name__ == '__main__':
     err_fh = TimedRotatingFileHandler(filename=config.error_log, when="midnight", interval=1, utc=True)
     info_fh = TimedRotatingFileHandler(filename=config.info_log, when="midnight", interval=1, utc=True)
-    access_fh = TimedRotatingFileHandler(filename=config.access_log, when="midnight", interval=1, utc=True)
     debug_fh = TimedRotatingFileHandler(filename=config.debug_log, when="midnight", interval=1, utc=True)
 
     formatter = logging\
         .Formatter('%(asctime)s - %(name)s - %(levelname)s - %(pathname)s - %(funcName)s - %(lineno)d - %(message)s')
     err_fh.setFormatter(formatter)
     info_fh.setFormatter(formatter)
-    access_fh.setFormatter(formatter)
     debug_fh.setFormatter(formatter)
 
     info_fh.setLevel(logging.INFO)
