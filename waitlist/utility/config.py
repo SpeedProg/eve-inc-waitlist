@@ -144,5 +144,4 @@ stattool_enabled = config.get("fittools", "stats_enabled") == "True"
 
 user_agent = config.get("app", "user_agent")+"/"+version.version
 
-protocol = config.get("app", "protocol")
 domain = config.get("app", "domain")
