@@ -20,7 +20,8 @@ from waitlist.blueprints.fc_sso import get_sso_redirect, add_sso_handler
 from waitlist.blueprints.settings import add_menu_entry
 from waitlist.permissions import perm_manager
 from waitlist.permissions.manager import StaticPermissions, StaticRoles
-from waitlist.signal.signals import send_account_created, send_roles_changed, send_account_status_change
+from waitlist.signal.signals import send_account_created, send_roles_changed, send_account_status_change,\
+    send_alt_link_added
 from waitlist.sso import authorize, who_am_i
 from waitlist.storage.database import Account, Character, Role, linked_chars, APICacheCharacterInfo, SSOToken
 from waitlist.utility import outgate, config
@@ -90,6 +91,7 @@ def accounts():
 
             db.session.commit()
             send_account_created(accounts, acc.id, current_user.id, acc_roles, 'Creating account. ' + note)
+            send_alt_link_added(accounts, current_user.id, acc.id, character.id)
     clean_alt_list()
     roles = db.session.query(Role).order_by(Role.name).all()
     accs = db.session.query(Account).order_by(asc(Account.disabled)).order_by(Account.username).all()
@@ -227,6 +229,7 @@ def account_edit():
                 .filter((linked_chars.c.id == acc_id) & (linked_chars.c.char_id == char_id)).first()
             if link is None:
                 acc.characters.append(character)
+                send_alt_link_added(account_edit, current_user.id, acc.id, character.id)
 
             db.session.flush()
             acc.current_char = char_id
@@ -277,6 +280,7 @@ def account_self_edit():
                     return get_sso_redirect("alt_verification", 'publicData')
                 else:
                     acc.characters.append(character)
+                    send_alt_link_added(account_self_edit, current_user.id, acc.id, character.id)
 
             db.session.flush()
             if acc.current_char != char_id:
@@ -478,6 +482,7 @@ def alt_verification_handler(code: str) -> None:
         # add the new link
         current_user.characters.append(character)
         db.session.flush()
+        send_alt_link_added(alt_verification_handler, current_user.id, current_user.id, character.id)
         if current_user.current_char != char_id:
             current_user.current_char = char_id
 
