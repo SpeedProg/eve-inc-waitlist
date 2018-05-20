@@ -35,12 +35,9 @@ AltCellRenderer.prototype = new CellRenderer();
 AltCellRenderer.prototype.render = function(element, value)
 {
 
-	let alts_list = new AltsList();
-
 	let account_info = value.split(";");
 	let account_id = Number(account_info[0]);
-
-	alts_list.setDataDirect(account_id, this.column.optionValuesForRender["canChangeLinks"]);
+	let alts_list = new AltsList(account_id, this.column.optionValuesForRender["canChangeLinks"]);
 
 	let alts_data = account_info[1].split(",");
 

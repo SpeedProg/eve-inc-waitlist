@@ -9,14 +9,18 @@ let swa_client = SwaggerClient(
 );
 
 class AltEntry {
-	constructor() {
-		this.account_id = undefined;
-		this.character_id = undefined;
-		this.character_name = undefined;
-		this.can_change_link = undefined;
-		this.html = undefined;
-		this.remove_button = undefined;
-		this.alts_list = undefined;
+	constructor(account_id, character_id, character_name, can_change_link) {
+		if (account_id instanceof HTMLElement) {
+			setDataFromHtml(account_id);
+		} else {
+			this.account_id = account_id;
+			this.character_id = character_id;
+			this.character_name = character_name;
+			this.can_change_link = can_change_link;
+			this.html = undefined;
+			this.remove_button = undefined;
+			this.alts_list = undefined;
+		}
 	}
 
 	setDataDirect(account_id, character_id, character_name, can_change_link) {
@@ -111,12 +115,16 @@ class AltEntry {
 }
 
 class AltsList {
-	constructor() {
-		this.account_id = undefined;
-		this.can_change_link = undefined;
-		this.alt_entries = [];
-		this.html = undefined;
-		this.add_button = undefined;
+	constructor(account_id, can_change_link) {
+		if (account_id instanceof HTMLElement){
+			setDataFromHtml(account_id);
+		} else {
+			this.account_id = account_id;
+			this.can_change_link = can_change_link;
+			this.alt_entries = [];
+			this.html = undefined;
+			this.add_button = undefined;
+		}
 	}
 
 	setDataFromHtml(element) {
@@ -144,8 +152,7 @@ class AltsList {
 
 		for(let child of element.childNodes) {
 			if (child.tagName === 'SPAN') {
-				let alt_entry = new AltEntry();
-				alt_entry.setDataFromHtml(child);
+				let alt_entry = new AltEntry(child);
 				this.alt_entries.push(alt_entry);
 			}
 		}
@@ -163,8 +170,7 @@ class AltsList {
 	}
 
 	addAltByData(character_id, character_name) {
-		let alt_entry = new AltEntry();
-		alt_entry.setDataDirect(this.account_id, character_id, character_name, this.can_change_link);
+		let alt_entry = new AltEntry(this.account_id, character_id, character_name, this.can_change_link);
 		alt_entry.setAltsList(this);
 		this.alt_entries.push(alt_entry);
 		this.addAltEntryToElementIfNeeded(alt_entry);
