@@ -227,6 +227,6 @@ waitlist.accounts = (function() {
 })();
 
 EditableGrid.prototype.initializeGrid = function() {
-  this.setCellRenderer("Account Name", new AccountCellRenderer());
-  this.setCellRenderer("Alts", new AltCellRenderer());
+	this.setCellRenderer("Account Name", new AccountCellRenderer());
+	this.setCellRenderer("Alts", new AltCellRenderer());
 };
