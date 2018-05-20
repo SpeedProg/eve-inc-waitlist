@@ -37,6 +37,7 @@ config.set_if_not_exists("app", "server_bind", "0.0.0.0")
 config.set_if_not_exists("app", "community_name", "IncWaitlist")
 config.set_if_not_exists("app", "user_agent", "Bruce Warhead: Eve Incursion Waitlist")
 config.set_if_not_exists("app", "domain", "localhost")
+config.set_if_not_exists("app", "using_proxy", "False")
 
 if not config.has_section("logging"):
     config.add_section("logging")
@@ -145,3 +146,4 @@ stattool_enabled = config.get("fittools", "stats_enabled") == "True"
 user_agent = config.get("app", "user_agent")+"/"+version.version
 
 domain = config.get("app", "domain")
+using_proxy = config.get("app", "using_proxy") == "True"

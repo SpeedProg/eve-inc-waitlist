@@ -1,5 +1,6 @@
 import gevent_patch_helper
 import logging
+from werkzeug.contrib.fixers import ProxyFix
 from logging.handlers import TimedRotatingFileHandler
 from gevent.pywsgi import WSGIServer
 from waitlist.blueprints.fittings import bp_waitlist
@@ -109,6 +110,7 @@ def run_server():
     wsgi_logger.addHandler(info_fh)
     wsgi_logger.addHandler(debug_fh)
     wsgi_logger.setLevel(logging.INFO)
+    app.wsgi_app = ProxyFix(app.wsgi_app)
     server = WSGIServer((config.server_bind, config.server_port), app, log=wsgi_logger, error_log=wsgi_logger)
     server.serve_forever()
 
