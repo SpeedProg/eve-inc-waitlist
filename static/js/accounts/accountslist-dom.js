@@ -31,8 +31,8 @@ class AltEntry {
 	}
 
 	setDataFromHtml(element) {
-		if (element.tagName !== 'SPAN') {
-			throw new Error('Given element is no span.');
+		if (!(element instanceof HTMLElement) || element.tagName !== 'SPAN') {
+			throw new Error('Not a HTMLElement of tagName SPAN.');
 		}
 
 		this.html = element;
@@ -128,8 +128,8 @@ class AltsList {
 	}
 
 	setDataFromHtml(element) {
-		if (element.tagName !== "DIV") {
-			throw new Error("Element not of tagName DIV");
+		if (!(element instanceof HTMLElement) || element.tagName !== "DIV") {
+			throw new Error("Not a HTMLElement of tagName DIV.");
 		}
 		let id_string = element.getAttribute('id');
 		let id_parts = id_string.split('-');
