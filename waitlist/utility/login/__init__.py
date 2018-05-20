@@ -173,23 +173,9 @@ def login_accounts_by_alts_or_character(char: Character, owner_hash: str, token:
                 # set no character as active char for the account
                 # we will set the login char further in the progress
                 # or we will send to reauth if there is no proper api token
-                acc.current_char = None
+                acc.current_char = char.id
 
-                valid: bool = OwnerHashCheckManager.\
-                    is_auth_valid_for_account_character_pair(acc, char)
-
-                if not valid:
-                    # log the account in with no character and request alt verification
-                    logger.info(f"Logging account username={acc.username} id={acc.id} in")
-                    login_user(acc, remember=True)
-                    identity_changed.send(current_app._get_current_object(),
-                                          identity=Identity(acc.id))
-                    session['link_charid'] = char.id
-                    return get_sso_redirect("alt_verification", 'publicData')
-                else:
-                    # set the accounts current character to this character
-                    acc.current_char = char.id
-                    return login_account(acc, token)
+                return login_account(acc, token)
     else:  # not connected to an account
 
         return login_character(char, owner_hash, token)
