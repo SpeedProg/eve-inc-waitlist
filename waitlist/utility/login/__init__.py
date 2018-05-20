@@ -67,6 +67,7 @@ def login_character(char: Character, owner_hash: str, token: SSOToken) -> Respon
     tokens = char.get_sso_tokens_with_scopes(['publicData'])
     for tkn in tokens:
         revoke(refresh_token=tkn.refresh_token)
+        logger.debug('Revoked %s', tkn)
         db.session.delete(tkn)
 
     db.session.flush()
@@ -97,6 +98,7 @@ def login_account(acc: Account, token: SSOToken) -> Response:
 
     for tkn in tokens:
         revoke(refresh_token=tkn.refresh_token)
+        logger.debug('Revoked %s', tkn)
         db.session.delete(tkn)
 
     db.session.flush()

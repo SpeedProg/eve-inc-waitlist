@@ -103,7 +103,7 @@ class SSOToken(Base):
 
         # if the access_token is still not expired return as valid
         if self.access_token_expires > datetime.utcnow()+timedelta(seconds=10):
-            logger.debug("Token valid because access_token_expires %s still in the future", self.access_token_expires)
+            logger.debug("%s valid because access_token_expires %s still in the future", self, self.access_token_expires)
             return True
 
         # check that the token is valid
@@ -130,11 +130,11 @@ class SSOToken(Base):
                       (e.response['error'] == 'invalid_request' or
                        e.response['error'] == 'invalid_token')
             ):
-                logger.debug("Token invalid because of response.")
+                logger.debug("%s invalid because of response %s.", self, e.response)
                 return False
 
             logger.exception(e)
-            logger.debug("Token invalid because of exception.")
+            logger.debug("%s invalid because of exception.", self)
             return False
 
     def expires_in(self) -> int:
@@ -177,6 +177,9 @@ class SSOToken(Base):
                 token_scopes.append(EveApiScope(scopeName=scope_name))
 
             self.scopes = token_scopes
+
+    def __repr__(self):
+        return f'<Token tokenID={self.tokenID} characterID={self.characterID} accountID={self.accountID} refresh_token={self.refresh_token}>'
 
 
 class Station(Base):
@@ -382,6 +385,7 @@ class Account(Base):
         if token.accountID is None:
             token.accountID = self.id
 
+        logger.debug("%s adding %s", self, token)
         self.ssoTokens.append(token)
 
     def get_token_for_charid(self, character_id: int) -> Optional[SSOToken]:
@@ -511,7 +515,7 @@ class Character(Base):
 
         if token.accountID is not None:
             token.accountID = None
-
+        logger.debug("%s adding %s", self, token)
         self.ssoTokens.append(token)
 
     def get_login_token(self):
