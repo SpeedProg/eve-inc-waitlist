@@ -6,10 +6,13 @@ from flask_login import login_required
 from waitlist import db
 from waitlist.permissions import perm_manager
 from waitlist.storage.database import Account, Character
-from waitlist.utility.eve_id_utils import get_character_by_id, get_character_by_name
+from waitlist.utility.eve_id_utils import get_character_by_id,\
+    get_character_by_name
 from waitlist.blueprints.swagger_api.models import errors
 
 from . import bp_v1
+from waitlist.signal.signals import send_alt_link_removed, send_alt_link_added
+from flask_login.utils import current_user
 
 
 logger = logging.getLogger(__name__)
@@ -32,7 +35,6 @@ def links_delete_v1(account_id: int, character_id: int) -> Response:
         resp.status_code = 404
         return resp
 
-
     character_to_remove: Character = None
     for character in acc.characters:
         if character.id == character_id:
@@ -47,8 +49,11 @@ def links_delete_v1(account_id: int, character_id: int) -> Response:
     acc.characters.remove(character_to_remove)
     if acc.current_char == character_to_remove.id:
         acc.current_char = None
-
     db.session.commit()
+
+    # tell handlers about this
+    send_alt_link_removed(links_delete_v1, current_user.id, account_id, character_id)
+
     return make_response('', 204)
 
 
@@ -103,6 +108,9 @@ def links_post_v1(account_id: int) -> Response:
     character.owner_hash = ''
     account.characters.append(character)
     db.session.commit()
+
+    send_alt_link_added(links_post_v1, current_user.id, account.id, character.id)
+
     resp: Response = jsonify({
         'account_id': account.id,
         'character_id': character.id,

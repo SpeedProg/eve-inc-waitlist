@@ -17,6 +17,7 @@ from waitlist.storage.database import Account, Character, SSOToken
 from waitlist.utility import config
 from waitlist.utility.eve_id_utils import get_character_by_id_and_name, is_char_banned
 from waitlist.utility.manager import OwnerHashCheckManager
+from waitlist.signal.signals import send_alt_link_removed
 
 logger = logging.getLogger(__name__)
 
@@ -149,7 +150,10 @@ def login_accounts_by_alts_or_character(char: Character, owner_hash: str, token:
             invalidate_all_sessions_for_given_user(char)
             if len(char.accounts) > 0:
                 # TODO: send signal here that an alt is removed from this account
+                for acc in char.accounts:
+                    send_alt_link_removed(login_accounts_by_alts_or_character, None, acc.id, char.id)
                 char.accounts = []
+                db.session.commit()
 
             return login_character(char, owner_hash, token)
 
