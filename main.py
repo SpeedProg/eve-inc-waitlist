@@ -34,7 +34,7 @@ from waitlist.blueprints.api import permission
 from waitlist.blueprints import xup
 from waitlist.blueprints import notification
 # needs to he here so signal handler gets registered
-from waitlist.signal.handler import acc_created, roles_changed, account_status_change
+from waitlist.signal import handler
 
 # load the jinja2 hooks
 from waitlist.utility.jinja2 import *
@@ -145,4 +145,7 @@ if __name__ == '__main__':
     app.logger.setLevel(logging.INFO)
     
     # app.run(host="0.0.0.0", port=81, debug=True)
+
+    # connect account signal handler
+    handler.account.connect()
     run_server()
