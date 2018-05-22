@@ -23,7 +23,6 @@
 		<tbody>
 			{% if notes is not none %}
 				{% for note in notes %}
-				{% if (note.restriction_level < 100 and perm_manager.get_permission('view_notes_low')) or (note.restriction_level < 200 and perm_manager.get_permission('view_notes_med').can()) or (note.restriction_level < 500 and perm_manager.get_permission('view_notes_high')) or (perm_manager.get_permission('view_notes_all').can()) %}
 				<tr>
 					<td>{{note.entryID}}</td>
 					<td>{{note.time}}</td>
@@ -31,7 +30,6 @@
 					<td>{{note.note}}</td>
 					<td>{% for rolechange in note.role_changes %}{%if rolechange.added%}+{% else %}-{% endif %}{{rolechange.role.displayName}}{%if not loop.last %}, {% endif %}{% endfor %}</td>
 				</tr>
-				{% endif %}
 				{% endfor %}
 			{% endif %}
 		</tbody>

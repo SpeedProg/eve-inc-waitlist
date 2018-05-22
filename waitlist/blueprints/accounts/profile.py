@@ -54,10 +54,8 @@ def profile_by_name(username):
     account = db.session.query(Account).filter(Account.username == username).first()
     if account is None:
         flask.abort(404, "Account not found!")
-    notes = None
-    if perm_manager.get_permission('view_notes').can():
-        notes = db.session.query(AccountNote).filter(AccountNote.accountID == account.id).all()
-    return render_template('account/profile.html', account=account, notes=notes)
+    
+    return profile(account.id)
 
 
 @bp.route('/<int:accountid>/notes/add', methods=['POST'])
