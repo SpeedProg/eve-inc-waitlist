@@ -9,6 +9,7 @@ import flask
 from flask.globals import request
 from werkzeug.utils import redirect
 from flask.helpers import url_for
+from waitlist.utility.constants import account_notes
 bp = Blueprint('accounts_profile', __name__)
 logger = logging.getLogger(__name__)
 
@@ -63,9 +64,14 @@ def profile_by_name(username):
 @perm_manager.require('profile_notes_add')
 def notes_add(accountid):
     note = request.form['note']
+    if note is None or note == '':
+        flask.abort(400, 'Note can not be empty')
+
     restriction_level = int(request.form['restriction_level'])
-    history_entry = AccountNote(accountID=accountid, byAccountID=current_user.id, note=note,
-                                restriction_level=restriction_level)
+    history_entry = AccountNote(accountID=accountid,
+                                byAccountID=current_user.id, note=note,
+                                restriction_level=restriction_level,
+                                type=account_notes.TYPE_HUMAN)
     db.session.add(history_entry)
     db.session.commit()
     return redirect(url_for('.profile', accountid=accountid))
