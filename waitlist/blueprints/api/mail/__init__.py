@@ -29,12 +29,14 @@ perm_manager.define_permission('send_mail')
 @perm_manager.require('send_mail')
 def send_esi_mail():
     """
+    Sends mails to characters.
     mailRecipients => JSON String recipients=[{"recipient_id": 0, "recipient_type": "character|alliance"}]
     mailBody => String
     mailSubject => String
     """
 
-    token: SSOToken = current_user.get_a_sso_token_with_scopes(esi_scopes.mail_scopes)
+    token: SSOToken = current_user.get_a_sso_token_with_scopes(
+        esi_scopes.mail_scopes)
 
     if token is None:
         return flask.abort(412, 'Not Authenticated for esi-mail.send_mail.v1')
