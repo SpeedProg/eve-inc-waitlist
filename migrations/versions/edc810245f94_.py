@@ -48,7 +48,7 @@ def upgrade():
                     )
     op.create_index(op.f('ix_ssotoken_character_id'), 'ssotoken', ['character_id'], unique=False)
     op.create_index(op.f('ix_ssotoken_account_id'), 'ssotoken', ['account_id'], unique=False)
-    op.create_index(op.f('ix_ssotoken_character_id_account_id'), 'ssotoken', ['character_id', 'account_id'])
+    op.create_index('ix_character_id_account_id', 'ssotoken', ['character_id', 'account_id'], unique=False)
 
     op.create_table('eveapiscope',
                     sa.Column('token_id', sa.Integer(), nullable=False),
