@@ -90,7 +90,8 @@ def accounts():
             acc.current_char = char_id
 
             db.session.commit()
-            send_account_created(accounts, acc.id, current_user.id, acc_roles, 'Creating account. ' + note)
+            send_account_created(accounts, acc.id, current_user.id, acc_roles,
+                                 note)
             send_alt_link_added(accounts, current_user.id, acc.id, character.id)
     clean_alt_list()
     roles = db.session.query(Role).order_by(Role.name).all()

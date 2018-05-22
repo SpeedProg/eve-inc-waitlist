@@ -13,6 +13,8 @@ from sqlalchemy.sql.schema import Table, ForeignKey, CheckConstraint, UniqueCons
 from waitlist import db
 from waitlist.utility import config
 from waitlist.utility.utils import get_random_token
+from sqlalchemy.types import UnicodeText
+import json
 
 logger = logging.getLogger(__name__)
 
@@ -61,6 +63,7 @@ class SSOToken(Base):
     __table_args__ = (Index('ix_character_id_account_id', 'character_id', 'account_id'), )
     tokenID = Column('token_id', Integer, primary_key=True)
     characterID = Column('character_id', Integer, ForeignKey('characters.id', onupdate="CASCADE", ondelete="CASCADE"),
+                         nullable=False,
                          index=True)
     # the last account that used this char, if null means no account=>standalone char
     accountID = Column('account_id', Integer, ForeignKey('accounts.id', onupdate="CASCADE", ondelete="CASCADE"),
@@ -980,16 +983,47 @@ class Setting(Base):
 class AccountNote(Base):
     __tablename__ = "account_notes"
     entryID = Column('entry_id', Integer, primary_key=True)
-    accountID = Column('account_id', Integer, ForeignKey(Account.id), nullable=False)
-    byAccountID = Column('by_account_id', Integer, ForeignKey(Account.id), nullable=False)
-    note = Column('note', Text, nullable=True)
+    accountID = Column('account_id', Integer, ForeignKey(Account.id),
+                       nullable=False)
+    byAccountID = Column('by_account_id', Integer, ForeignKey(Account.id),
+                         nullable=False)
+    note = Column('note', Text, nullable=True, default=None)
     time = Column('time', DateTime, default=datetime.utcnow, index=True)
-    restriction_level = Column('restriction_level', SmallInteger, default=50, nullable=False, server_default=text('50'))
+    restriction_level = Column('restriction_level', SmallInteger, default=50,
+                               nullable=False, server_default=text('50'))
+    textPayload = Column('text_payload', UnicodeText, nullable=True)
+    type = Column('type', String(length=50), nullable=False, index=True)
 
-    role_changes = relationship("RoleChangeEntry", back_populates="note", order_by="desc(RoleChangeEntry.added)")
+    role_changes = relationship("RoleChangeEntry", back_populates="note",
+                                order_by="desc(RoleChangeEntry.added)")
     by = relationship('Account', foreign_keys=[byAccountID])
     account = relationship('Account', foreign_keys=[accountID])
 
+    @property
+    def jsonPayload(self) -> Any:
+        if not hasattr(self, '_AccountNote__payload'):
+            if self.textPayload is None or self.textPayload == '':
+                setattr(self, '_AccountNote__payload', None)
+            else:
+                setattr(self, '_AccountNote__payload', json.loads(self.textPayload))
+
+        return self.__payload
+
+    @jsonPayload.setter
+    def jsonPayload(self, value) -> None:
+        if value == '':
+            value = None
+        self.__payload = value
+        self.textPayload = json.dumps(value)
+
+    def __repr__(self):
+        return (f'<AccountNote entryID={self.entryID}'
+                f' accountID={self.accountID}'
+                f' byAccountID={self.byAccountID}'
+                f' type={self.type} time={self.time}'
+                f' restriction_level={self.restriction_level}'
+                f' textPayload={self.textPayload}'
+                f' note={self.note}>')
 
 class RoleChangeEntry(Base):
     __tablename__ = "role_changes"
