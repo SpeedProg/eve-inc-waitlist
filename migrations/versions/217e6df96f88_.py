@@ -97,6 +97,7 @@ def upgrade():
         else:  # other notes should be human writting notes
             dbnote.type = account_notes.TYPE_HUMAN
     db.session.commit()
+    db.session.close()
 
     op.alter_column('account_notes', 'type', nullable=False,
                     existing_type=sa.String(length=50))
@@ -139,6 +140,7 @@ def downgrade():
                            f'{dbnote.jsonPayload["target_character_id"]}'
                            f' and name={character.eve_name}')
     db.session.commit()
+    db.session.close()
     op.drop_column('account_notes', 'type')
     op.drop_column('account_notes', 'text_payload')
     # ### end Alembic commands ###
