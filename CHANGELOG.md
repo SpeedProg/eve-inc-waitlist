@@ -1,4 +1,27 @@
 #Changelog
+* 1.3.0
+  * Fixes
+    * Ban for character banned users did not work when esi was not responding
+    * Fix a typo in Open Mail endpoint preventing it from working
+        * this did not affect anything since the waitlist did not use the feature of this codepath
+    * The Edit Account Dialog now properly selects all roles an Account has, if the account has a `New` tag
+  * Features
+    * The whole token management got reworked and the waitlist can now have more then 1 token per character
+      This means that e.g. you don't need to reauth evertime you change from sending a mail to taking fleet and the other way round.
+    * Added config option: `app -> user_agent` to allow setting a custom user agent to use for ESI interaction
+    * Reworked login management and introduced new config option: `security -> require_auth_for_chars` (Normal Visitors to the site are not an Account)
+      * If this is **enabled** Waitlist Account user
+        * can only set a character after poviding authentication for it
+        * can login to the waitlist with any of the authenticated alts
+      * If this is **disabled** Waitlist Account user
+        * can only login with the Eve Character that matches their Account usnername
+        * can set any Character as the character to use for the Waitlist
+    * Added option for accounts with a group that has the new permission 'change_character_links' to remove and add character links for accounts
+  * Improvements
+    * Before assinging some one as Fleet Comp to a fleet on take over it is now check that this character has Fleet Boss on the fleet instead of just checking if he is a member of the fleet.
+    * Added an AccountNote if a Account's username is changed
+    * Notes now contain a jsonPayload that can hold more information e.g. the body of a mail sent etc. for old notes this info is lost
+        * the migration script converts old notes to the new format and extracts as much data as possible
 * 1.2.3
   * Fixes
     * Waitlist Group can not be cleared
