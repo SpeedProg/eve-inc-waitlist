@@ -103,24 +103,32 @@ waitlist.accounts = (function() {
 	}
 
 	function editAccount(accountId) {
-		var name = $('#acc-'+accountId+"-name > a").text();
-		var roles = $('#acc-'+accountId+'-roles').text();
-		var default_char_name = $('#acc-'+accountId+'-cchar').text();
+		let name = $('#acc-'+accountId+"-name > a").text();
+		let roles_node = document.getElementById('acc-'+accountId+'-roles');
+		let has_new_tag = (roles_node.childNodes.length > 0 && roles_node.childNodes[0].nodeName === "SPAN");
+		let roles = roles_node.textContent;
+		
+		// if it has a new tag remove the "New" from the beginning
+		if (has_new_tag){
+			roles = roles.slice(3)
+		}
+		
+		let default_char_name = $('#acc-'+accountId+'-cchar').text();
 		$('#acc-edit-name').val(name);
 		// this is more complicated
 		// $('#acc-edit-roles')
 		roles = roles.split(", ");
 		// map the roles he has to a dict so we can fast and easy check for them
 		// later
-		var has_roles = {};
+		let has_roles = {};
 		for (let role in roles) {
 			has_roles[roles[role]] = true;
 		}
 
-		var edit_roles_select = document.getElementById('acc-edit-roles');
-		for (var i=0; i < edit_roles_select.options.length; i++) {
-			var option = edit_roles_select.options[i];
-			var val = option.value;
+		let edit_roles_select = document.getElementById('acc-edit-roles');
+		for (let i=0; i < edit_roles_select.options.length; i++) {
+			let option = edit_roles_select.options[i];
+			let val = option.value;
 			if (val in has_roles) {
 				option.selected = true;
 			} else {
