@@ -10,6 +10,7 @@ from flask.globals import request
 from werkzeug.utils import redirect
 from flask.helpers import url_for
 from waitlist.utility.constants import account_notes
+from waitlist.utility.account.notes.note_renderer import render_note_text
 bp = Blueprint('accounts_profile', __name__)
 logger = logging.getLogger(__name__)
 
@@ -45,7 +46,9 @@ def profile(accountid):
 
     notes = db.session.query(AccountNote).filter(criterion).all()
 
-    return render_template('account/profile.html', account=account, notes=notes)
+    return render_template('account/profile.html', account=account,
+                           notes=notes,
+                           note_renderer=render_note_text)
 
 
 @bp.route("/byname/<path:username>", methods=["GET"])
