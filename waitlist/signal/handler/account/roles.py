@@ -43,7 +43,7 @@ def on_roles_changed_history_entry(_, to_id: int, by_id: int,
 # handler to reset welcome mail status
 def on_roles_changed_check_welcome_mail(_: Any, to_id: int, by_id: int,
                                         added_roles: Iterable[str],
-                                        remove_roles: Iterable[str], note: str) -> None:
+                                        removed_roles: Iterable[str], note: str) -> None:
     """
     Handler to reset welcome mail status.
     """
