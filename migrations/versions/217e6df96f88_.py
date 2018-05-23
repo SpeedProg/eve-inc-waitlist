@@ -50,13 +50,13 @@ def upgrade():
             }
             dbnote.note = None
             dbnote.type = account_notes.TYPE_ACCOUNT_ACTIVE_CHANGED
-        elif dbnote.note.startswith('Creating account. '):
+        elif dbnote.note is not None and dbnote.note.startswith('Creating account. '):
             dbnote.type = account_notes.TYPE_ACCOUNT_CREATED
             dbnote.note = dbnote.note[18:]  # remove the start of string
         # if it has role_changes and is not creat account is is a role change
         elif len(dbnote.role_changes) > 0:
             dbnote.type = account_notes.TYPE_ACCOUNT_ROLES_CHANGED
-        elif dbnote.note.startswith('Added role with name'):
+        elif dbnote.note is not None and dbnote.note.startswith('Added role with name'):
             '''
             Old note format was:
             Added role with name{role_name} and displayName {role_display_name}
@@ -74,7 +74,7 @@ def upgrade():
                 dbnote.type = account_notes.TYPE_ROLE_CREATED
             else:
                 print(f"Error in conversion to ROLE_CREATED with Note={dbnote} entryID={dbnote.entryID}")
-        elif dbnote.note.startswith('Send mail to main character linked to this account with id='):
+        elif dbnote.note is not None and dbnote.note.startswith('Send mail to main character linked to this account with id='):
             '''
             For this we can not recover all the information since it was not logged
             Old note format was:
