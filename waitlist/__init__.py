@@ -115,11 +115,7 @@ limiter.init_app(app)
 app.config['SWAGGER'] = {
     "swagger_version": "2.0",
     "title": "Swagger Waitlist API",
-    "headers": [
-        ('Access-Control-Allow-Origin', '*'),
-        ('Access-Control-Allow-Methods', "GET, POST, PUT, DELETE, OPTIONS"),
-        ('Access-Control-Allow-Credentials', "true"),
-    ],
+    "headers": [],
     "specs": [
         {
             "version": "0.0.1",
