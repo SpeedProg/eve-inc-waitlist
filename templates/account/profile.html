@@ -27,7 +27,7 @@
 					<td>{{note.entryID}}</td>
 					<td>{{note.time}}</td>
 					<td>{{note.by.username}}</td>
-					<td>{{note.note}}</td>
+					<td>{{note_renderer(note)}}</td>
 					<td>{% for rolechange in note.role_changes %}{%if rolechange.added%}+{% else %}-{% endif %}{{rolechange.role.displayName}}{%if not loop.last %}, {% endif %}{% endfor %}</td>
 				</tr>
 				{% endfor %}

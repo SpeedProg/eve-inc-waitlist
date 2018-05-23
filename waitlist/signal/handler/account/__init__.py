@@ -1,4 +1,4 @@
-from . import created, roles, status, alts
+from . import created, roles, status, alts, name_change
 
 
 def connect() -> None:
@@ -9,3 +9,4 @@ def connect() -> None:
     roles.connect()
     status.connect()
     alts.connect()
+    name_change.connect()

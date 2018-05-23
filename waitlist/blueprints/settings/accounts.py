@@ -1,6 +1,5 @@
 import logging
 from datetime import timedelta, datetime
-from typing import Union, Optional, List
 
 import flask
 from flask import Blueprint, session
@@ -21,7 +20,7 @@ from waitlist.blueprints.settings import add_menu_entry
 from waitlist.permissions import perm_manager
 from waitlist.permissions.manager import StaticPermissions, StaticRoles
 from waitlist.signal.signals import send_account_created, send_roles_changed, send_account_status_change,\
-    send_alt_link_added
+    send_alt_link_added, send_account_name_change
 from waitlist.sso import authorize, who_am_i
 from waitlist.storage.database import Account, Character, Role, linked_chars, APICacheCharacterInfo, SSOToken
 from waitlist.utility import outgate, config
@@ -158,7 +157,10 @@ def account_edit():
         return flask.abort(400)
 
     if acc.username != acc_name:
+        old_name: str = acc.username
         acc.username = acc_name
+        send_account_name_change(account_edit, current_user.id, acc.id,
+                                 old_name, acc_name, note)
 
     # if there are roles, add new ones, remove the ones that aren't there
     if len(acc_roles) > 0:
