@@ -358,43 +358,6 @@ def api_account_delete(acc_id: int) -> Response:
     return flask.jsonify(status="OK")
 
 
-@bp.route('/accounts/downloadlist/cvs')
-@login_required
-@perm_manager.require('accounts_download_list')
-def accounts_download_csv() -> Response:
-    def iter_accs(data):
-        for account in data:
-            for ci, char in enumerate(account.characters):
-                if ci > 0:
-                    yield ", " + char.eve_name
-                else:
-                    yield char.eve_name
-            yield '\n'
-
-    permission = perm_manager.get_permission('include_in_accountlist')
-    # noinspection PyPep8
-    include_check = (Account.disabled == False)
-    role_check = None
-    for role_need in permission.needs:
-        if role_need.method != 'role':
-            continue
-        if role_check is None:
-            role_check = (Role.name == role_need.value)
-        else:
-            role_check = role_check | (Role.name == role_need.value)
-
-    include_check = (include_check & role_check)
-
-    # noinspection PyPep8
-    accs = db.session.query(Account).options(joinedload('characters')).join(Account.roles).filter(
-        include_check ).order_by(
-        Account.username).all()
-
-    response = Response(iter_accs(accs), mimetype='text/csv')
-    response.headers['Content-Disposition'] = 'attachment; filename=accounts.csv'
-    return response
-
-
 add_menu_entry('accounts.accounts', 'Accounts', perm_manager.get_permission('accounts_edit').can)
 add_menu_entry('accounts.account_self', 'Own Settings', lambda: True)
 
