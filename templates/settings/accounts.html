@@ -36,7 +36,16 @@
 
 {% block raw_content %}
 <div class="row mb-2">
-	<a href="{{url_for('accounts.accounts_download_csv')}}" target="_blank">Download Full Commander List</a>
+	<form class="form-inline" target="_blank" method="GET" action="{{url_for('accounts_v1.download_get_v1')}}">
+		<label for="include_disabled_cbx">Disabled Accounts</label>
+		<input type="checkbox" class="form-check-input" name="include_disabled" id="include_disabled_cbx">
+		<label for="include_alts_cbx">Alts</label>
+		<input type="checkbox" class="form-check-input" name="include_alts" id="include_alts_cbx">
+		<label for="include_owner_hash_cbx">Owner Hash</label>
+		<input type="checkbox" class="form-check-input" name="include_owner_hash" id="include_owner_hash_cbx">
+		<input type="checkbox" name="as_download" checked hidden="">
+		<button type="submit" class="btn btn.primary">Download Full Commander List</button>
+	</form>
 </div>
 <div class="row mb-2">
 	<div class="btn-group" role="group" aria-label="Account Actions">
