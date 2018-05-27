@@ -1,5 +1,5 @@
-Creat Link
-Creat a link for an alternate character.
+Create Link
+Create a link for an alternate character.
 This resets the owner_hash of the character to an empty string
 ---
     consumes:
@@ -26,7 +26,7 @@ This resets the owner_hash of the character to an empty string
               description: id of the character
               required: false
               type: integer
-              format: int64
+              format: int32
             character_name:
               description: name of the character
               required: false
@@ -37,6 +37,9 @@ This resets the owner_hash of the character to an empty string
          schema:
           required:
             - message
+            - character_id
+            - account_id
+            - character_name
           properties:
             message:
              description: message that can be displayed
@@ -44,11 +47,11 @@ This resets the owner_hash of the character to an empty string
             character_id:
               description: id of the character that was added as alt
               type: integer
-              format: int64
-            account_int:
+              format: int32
+            account_id:
               description: id of the account the character was added as alt
               type: integer
-              format: int64
+              format: int32
             character_name:
               description: name of the character that was added as alt
               type: string
