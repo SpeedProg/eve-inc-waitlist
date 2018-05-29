@@ -1,30 +1,24 @@
-from flask_sqlalchemy import SQLAlchemy
+import logging
+from datetime import datetime, timedelta
+from typing import List, Optional, Union, Dict, Any
+
+from esipy import EsiSecurity
+from esipy.exceptions import APIException
 from sqlalchemy import Column, Integer, String, SmallInteger, BIGINT, Boolean, DateTime, Index, \
     sql, BigInteger, text, Float, Text
 from sqlalchemy import Enum
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.sql.schema import Table, ForeignKey, CheckConstraint, UniqueConstraint
-import logging
 
 from waitlist import db
-from datetime import datetime
+from waitlist.utility import config
 from waitlist.utility.utils import get_random_token
+from sqlalchemy.types import UnicodeText
+import json
 
 logger = logging.getLogger(__name__)
 
-# existing_metadata = MetaData()
-# existing_metadata.reflect(engine, only=["invtypes"])
-
-# AutoBase = automap_base(metadata=existing_metadata)
-# AutoBase.prepare()
-
 Base = db.Model
-
-"""
-typeID = id of module
-typeName = name of module
-"""
-# Module = AutoBase.classes.invtypes
 
 roles = Table('account_roles',
               Base.metadata,
@@ -56,29 +50,139 @@ fmanager = Table("fleetmanager",
                  Column("group_id", Integer, ForeignKey('waitlist_groups.group_id', ondelete="CASCADE"))
                  )
 
-token_scope = Table(
-    'tokenscope', Base.metadata,
-    Column('token_id', Integer, ForeignKey('ssotoken.account_id', onupdate="CASCADE", ondelete="CASCADE"),
-           primary_key=True),
-    Column('scope_id', Integer, ForeignKey('eveapiscope.scope_id', onupdate="CASCADE", ondelete="CASCADE"),
-           primary_key=True)
-)
-
 
 class EveApiScope(Base):
     __tablename__ = 'eveapiscope'
-    scopeID = Column('scope_id', Integer, primary_key=True)
-    scopeName = Column('scope_name', String(100), index=True)
+    tokenID = Column('token_id', Integer, ForeignKey('ssotoken.token_id', onupdate="CASCADE", ondelete="CASCADE"),
+                     primary_key=True)
+    scopeName = Column('scope_name', String(100), nullable=False, primary_key=True, default='')
 
 
 class SSOToken(Base):
     __tablename__ = 'ssotoken'
-    accountID = Column('account_id', Integer, ForeignKey('accounts.id', onupdate="CASCADE", ondelete="CASCADE"), primary_key=True)
+    __table_args__ = (Index('ix_character_id_account_id', 'character_id', 'account_id'), )
+    tokenID = Column('token_id', Integer, primary_key=True)
+    characterID = Column('character_id', Integer, ForeignKey('characters.id', onupdate="CASCADE", ondelete="CASCADE"),
+                         nullable=False,
+                         index=True)
+    # the last account that used this char, if null means no account=>standalone char
+    accountID = Column('account_id', Integer, ForeignKey('accounts.id', onupdate="CASCADE", ondelete="CASCADE"),
+                       nullable=True, index=True)
     refresh_token = Column('refresh_token', String(128), default=None)
     access_token = Column('access_token', String(128), default=None)
     access_token_expires = Column('access_token_expires', DateTime, default=datetime.utcnow)
 
-    scopes = relationship(EveApiScope, secondary=token_scope)
+    scopes: List[EveApiScope] = relationship(EveApiScope, cascade="save-update, merge, delete, delete-orphan")
+
+    def has_scopes(self, scopes: List[str]):
+        for searched_scope in scopes:
+            scope_found = False
+            for token_scope in self.scopes:
+                if searched_scope == token_scope.scopeName:
+                    scope_found = True
+                    break
+            if not scope_found:
+                return False
+
+        return True
+
+    @staticmethod
+    def update_token_callback(token_identifier: int, access_token: str, refresh_token: str, expires_at: int,
+                              **_: Dict[str, Any]) -> None:
+        logger.debug("Updating token with id=%s", token_identifier)
+        token: SSOToken = db.session.query(SSOToken).get(token_identifier)
+        token.access_token = access_token
+        token.refresh_token = refresh_token
+        token.access_token_expires = datetime.utcfromtimestamp(expires_at)
+        db.session.commit()
+
+    @property
+    def is_valid(self) -> bool:
+        """
+        Checks if this token still works
+        Also updates it's own tokens data if it works
+        :return: True if the token is still valid otherwise False
+        """
+
+        # if the access_token is still not expired return as valid
+        if self.access_token_expires > datetime.utcnow()+timedelta(seconds=10):
+            logger.debug("%s valid because access_token_expires %s still in the future", self, self.access_token_expires)
+            return True
+
+        # check that the token is valid
+        security: EsiSecurity = EsiSecurity('', config.crest_client_id,
+                                            config.crest_client_secret,
+                                            headers={'User-Agent': config.user_agent}
+                                            )
+        security.update_token(self.info_for_esi_security())
+
+        try:
+            security.refresh()
+            SSOToken.update_token_callback(token_identifier=self.tokenID, access_token=security.access_token,
+                                           refresh_token=security.refresh_token, expires_at=security.token_expiry)
+            logger.debug("Token refresh worked")
+            return True
+        except APIException as e:
+            # this probably happens because the token is invalid now
+            if ('message' in e.response and
+                    (e.response['message'] == 'invalid_token' or
+                     e.response['message'] == 'invalid_request')
+                )\
+                or\
+                ('error' in e.response and
+                      (e.response['error'] == 'invalid_request' or
+                       e.response['error'] == 'invalid_token')
+            ):
+                logger.debug("%s invalid because of response %s.", self, e.response)
+                return False
+
+            logger.exception(e)
+            logger.debug("%s invalid because of exception.", self)
+            return False
+
+    def expires_in(self) -> int:
+        """ Get amount of seconds until expiry.
+
+        :return: how many seconds the access_token is still valid for
+        """
+        return int((self.access_token_expires - datetime.utcnow()).total_seconds())
+
+    def info_for_esi_security(self) -> Dict[str, Union[str, int]]:
+        """
+        Information formatted to passing to EsiSecurity.update_token
+
+        :return: a dict containing token info
+        """
+        return {
+            'access_token': self.access_token,
+            'refresh_token': self.refresh_token,
+            'expires_in': self.expires_in()
+        }
+
+    def update_token_data(self, access_token: Optional[str] = None, refresh_token: Optional[str] = None,
+                          expires_at: Optional[datetime] = None, scopes: Optional[str] = None) -> None:
+        if access_token is not None:
+            self.access_token = access_token
+
+        if refresh_token is not None:
+            self.refresh_token = refresh_token
+
+        if expires_at is not None:
+            self.access_token_expires = expires_at
+
+        if scopes is not None:
+            scope_name_list: List[str] = scopes.split(" ")
+            token_scopes: List[EveApiScope] = []
+
+            for scope_name in scope_name_list:
+                if scope_name == '':
+                    continue
+                token_scopes.append(EveApiScope(scopeName=scope_name))
+
+            self.scopes = token_scopes
+
+    def __repr__(self):
+        return f'<Token tokenID={self.tokenID} characterID={self.characterID} accountID={self.accountID} refresh_token={self.refresh_token}>'
 
 
 class Station(Base):
@@ -121,7 +225,6 @@ class InvType(Base):
                f' marketGroupID={self.marketGroupID} description={self.description}>'
 
 
-
 class MarketGroup(Base):
     __tablename__ = 'invmarketgroups'
     marketGroupID = Column('market_group_id', Integer, primary_key=True, nullable=False)
@@ -140,11 +243,15 @@ class Account(Base):
     __tablename__ = 'accounts'
 
     id = Column('id', Integer, primary_key=True)
+    # the session key is used to invalidate old sessions by chaning it
+    # if id + session_key does not match the session is invalid
+    session_key = Column('session_key', Integer, nullable=False, server_default='0')
     current_char = Column('current_char', Integer, ForeignKey("characters.id"))
     username = Column('username', String(100), unique=True)  # login name
     login_token = Column('login_token', String(16), unique=True)
     disabled = Column('disabled', Boolean(name='disabled'), default=False, server_default=sql.expression.false())
-    had_welcome_mail = Column('had_welcome_mail', Boolean(name='had_welcome_mail'), default=False, server_default=sql.expression.false())
+    had_welcome_mail = Column('had_welcome_mail', Boolean(name='had_welcome_mail'),
+                              default=False, server_default=sql.expression.false())
     '''
     refresh_token = Column(String(128), default=None)
     access_token = Column(String(128), default=None)
@@ -153,55 +260,143 @@ class Account(Base):
     roles = relationship('Role', secondary=roles,
                          backref=backref('account_roles'))
     characters = relationship('Character', secondary=linked_chars,
-                              backref=backref('linked_chars'))
+                              back_populates='accounts')
     current_char_obj = relationship('Character')
 
     fleet = relationship('CrestFleet', uselist=False, back_populates="comp")
 
-    ssoToken = relationship('SSOToken', uselist=False)
+    ssoTokens: List[SSOToken] = relationship('SSOToken')
 
     @property
     def lc_level(self):
+        if self.current_char_obj is None:
+            return 0
         return self.current_char_obj.lc_level
 
     @lc_level.setter
     def lc_level(self, val):
+        if self.current_char_obj is None:
+            return
         self.current_char_obj.lc_level = val
 
     @property
     def cbs_level(self):
+        if self.current_char_obj is None:
+            return 0
         return self.current_char_obj.cbs_level
 
     @cbs_level.setter
     def cbs_level(self, val):
+        if self.current_char_obj is None:
+            return
         self.current_char_obj.cbs_level = val
 
     def get_eve_name(self):
+        if self.current_char_obj is None:
+            return ""
         return self.current_char_obj.eve_name
 
     def get_eve_id(self):
         return self.current_char
 
+    @property
     def is_new(self):
-        return self.current_char_obj.is_new()
+        if self.current_char_obj is None:
+            return False
+        return self.current_char_obj.is_new
+
+    @is_new.setter
+    def is_new(self, value: bool):
+        if self.current_char_obj is None:
+            return
+        self.current_char_obj.is_new = value
+
+    @property
+    def owner_hash(self):
+        if self.current_char is None:
+            return None
+        return self.current_char_obj.owner_hash
 
     @property
     def type(self):
         return "account"
 
     @property
-    def poke_me(self):
+    def poke_me(self) -> bool:
+        if self.current_char_obj is None:
+            return False
         return self.current_char_obj.poke_me
 
     @poke_me.setter
-    def poke_me(self, value):
+    def poke_me(self, value: bool):
+        if self.current_char_obj is None:
+            return
         self.current_char_obj.poke_me = value
 
-    # check if password matches
-    # def password_match(self, pwd):
-    #    if bcrypt.hashpw(self.pwd, self.password) == self.password:
-    #       return True
-    #   return False
+    def get_a_sso_token_with_scopes(self, scopes: List[str], character_id: int = None) -> Optional[SSOToken]:
+        """
+        Gets a token for this account and the given character or current_char that has the given scopes
+        and is still valid.
+        :param scopes: the scopes the token should have
+        :param character_id: id of the character the token should be for or if None uses current_char
+        :return: a token that has these scopes or None
+        """
+        tokens: List[SSOToken] = self.get_sso_tokens_with_scopes(scopes, character_id)
+        if len(tokens) <= 0:
+            logger.debug("No token found for %s with character %s and scopes %s", self, character_id, scopes)
+            return None
+
+        return tokens[0]
+
+    def get_sso_tokens_with_scopes(self, scopes: List[str], character_id: int = None) -> List[SSOToken]:
+        """
+        Returns a list of tokens for the account and current_char that have the given scopes
+        and are still valid.
+        :param scopes: the scopes the token needs to have
+        :param character_id: id of the character the token should be for or if None uses current_char
+        :return: a list of tokens that have the given scopes
+        """
+        if character_id is None:
+            character_id = self.current_char
+
+        if character_id is None:
+            return []
+
+        tokens: List[SSOToken] = SSOToken.query\
+            .filter((SSOToken.characterID == character_id) & (SSOToken.accountID == self.id)).all()
+        logger.debug("Found %s tokens for Account.id=%s and Character.id=%s", len(tokens), self.id, character_id)
+        qualified_tokens: List[SSOToken] = []
+        for token in tokens:
+            if token.has_scopes(scopes):
+                logger.debug("Token %s has scopes %s", token.tokenID, scopes)
+                if token.is_valid:
+                    logger.debug("Token %s is valid", token.tokenID)
+                    qualified_tokens.append(token)
+                else:
+                    logger.debug("Token %s is not valid", token.tokenID)
+                    db.session.delete(token)
+            else:
+                logger.debug("Token %s does not have scopes %s", token.tokenID, scopes)
+
+        db.session.commit()
+        return qualified_tokens
+
+    def add_sso_token(self, token: SSOToken):
+        if token.characterID is None:
+            token.characterID = self.current_char
+
+        if token.accountID is None:
+            token.accountID = self.id
+
+        logger.debug("%s adding %s", self, token)
+        self.ssoTokens.append(token)
+
+    def get_token_for_charid(self, character_id: int) -> Optional[SSOToken]:
+        for token in self.ssoTokens:
+            if token.characterID == character_id:
+                return token
+
+        return None
 
     def token_match(self, token):
         if self.login_token == token:
@@ -215,13 +410,23 @@ class Account(Base):
         return not self.disabled
 
     def get_id(self):
-        return str("acc" + str(self.id))
+        return "acc" + str(self.id) + '_' + str(self.session_key)
 
     # def set_password(self, pwd):
     #    self.password = bcrypt.hashpw(pwd, bcrypt.gensalt())
 
     def __repr__(self):
-        return '<Account %r>' % self.username
+        return f'<Account {self.username} id={self.id} session_key={self.session_key}>'
+
+    def __eq__(self, other) -> int:
+        if other is None:
+            return False
+        if not hasattr(other, 'id'):
+            return False
+        return self.id == other.id
+
+    def __hash__(self) -> int:
+        return self.id
 
 
 class CrestFleet(Base):
@@ -251,12 +456,70 @@ class Character(Base):
     __tablename__ = "characters"
 
     id = Column('id', Integer, primary_key=True)
+    # the session key is used to invalidate old sessions by chaning it
+    # if id + session_key does not match the session is invalid
+    session_key = Column('session_key', Integer, nullable=False, server_default='0')
     eve_name = Column('eve_name', String(100))
     newbro = Column('new_bro', Boolean(name='new_bro'), default=True, nullable=False)
     lc_level = Column('lc_level', SmallInteger, default=0, nullable=False)
     cbs_level = Column('cbs_level', SmallInteger, default=0, nullable=False)
     login_token = Column('login_token', String(16), nullable=True)
-    teamspeak_poke = Column('teamspeak_poke', Boolean(name='teamspeak_poke'), default=True, server_default="1", nullable=False)
+    teamspeak_poke = Column('teamspeak_poke', Boolean(name='teamspeak_poke'),
+                            default=True, server_default="1", nullable=False)
+    owner_hash = Column('owner_hash', Text)
+
+    # this contains all SSOToken for this character
+    # normally we only want the ones not associated with an account! we got a property for this
+    ssoTokens: List[SSOToken] = relationship('SSOToken')
+
+    accounts = relationship(
+        "Account",
+        secondary=linked_chars,
+        back_populates="characters")
+
+    def get_a_sso_token_with_scopes(self, scopes: List[str]) -> Optional[SSOToken]:
+        """
+        Gets a token for this Character that has the given scopes
+        and is still valid.
+        :param scopes: the scopes the token should have
+        :return: a token that has these scopes or None
+        """
+        tokens: List[SSOToken] = self.get_sso_tokens_with_scopes(scopes)
+        if len(tokens) <= 0:
+            return None
+
+        return tokens[0]
+
+    def get_sso_tokens_with_scopes(self, scopes: List[str]) -> List[SSOToken]:
+        """
+        Returns a list of tokens for this Character that have the given scopes
+        and are still valid.
+        :param scopes: the scopes the token needs to have
+        :return: a list of tokens that have the given scopes
+        """
+
+        # noinspection PyPep8,PyComparisonWithNone
+        tokens: List[SSOToken] = SSOToken.query\
+            .filter((SSOToken.characterID == self.id) & (SSOToken.accountID == None)).all()
+        qualified_tokens: List[SSOToken] = []
+        for token in tokens:
+            if token.has_scopes(scopes):
+                if token.is_valid:
+                    qualified_tokens.append(token)
+                else:
+                    db.session.delete(token)
+
+        db.session.commit()
+        return qualified_tokens
+
+    def add_sso_token(self, token: SSOToken):
+        if token.characterID is None or token.characterID != self.id:
+            token.characterID = self.id
+
+        if token.accountID is not None:
+            token.accountID = None
+        logger.debug("%s adding %s", self, token)
+        self.ssoTokens.append(token)
 
     def get_login_token(self):
         if self.login_token is None:
@@ -269,8 +532,13 @@ class Character(Base):
     def get_eve_id(self):
         return self.id
 
+    @property
     def is_new(self):
         return self.newbro
+
+    @is_new.setter
+    def is_new(self, value: bool) -> None:
+        self.newbro = value
 
     @property
     def banned(self):
@@ -288,7 +556,7 @@ class Character(Base):
         return not self.banned
 
     def get_id(self):
-        return str("char" + str(self.id))
+        return "char" + str(self.id) + '_' + str(self.session_key)
 
     @property
     def poke_me(self):
@@ -299,7 +567,17 @@ class Character(Base):
         self.teamspeak_poke = value
 
     def __repr__(self):
-        return "<Character id={0} eve_name={1}>".format(self.id, self.eve_name)
+        return f'<Character {self.eve_name} id={self.id} session_key={self.session_key}>'
+
+    def __eq__(self, other) -> int:
+        if other is None:
+            return False
+        if not hasattr(other, 'id'):
+            return False
+        return self.id == other.id
+
+    def __hash__(self) -> int:
+        return self.id
 
 
 class Role(Base):
@@ -357,6 +635,7 @@ class Waitlist(Base):
     def __repr__(self):
         return "<Waitlist %r>" % self.name
 
+
 class WaitlistGroup(Base):
     """
     Represents a waitlist Group,
@@ -387,26 +666,27 @@ class WaitlistGroup(Base):
 
     waitlists = relationship(Waitlist, back_populates="group")
 
-    def has_wl_of_type(self, type: str):
+    def has_wl_of_type(self, wl_type: str):
         for wl in self.waitlists:
-            if wl.waitlistType == type:
+            if wl.waitlistType == wl_type:
                 return True
         return False
 
-    def get_wl_for_type(self, type: str):
+    def get_wl_for_type(self, wl_type: str):
         for wl in self.waitlists:
-            if wl.waitlistType == type:
+            if wl.waitlistType == wl_type:
                 return wl
 
-    def set_wl_to_type(self, wl: Waitlist, type: str):
+    def set_wl_to_type(self, wl: Waitlist, wl_type: str):
         if wl is None:
             return
-        wl.waitlistType = type
+        wl.waitlistType = wl_type
         self.waitlists.append(wl)
 
     @property
     def xuplist(self):
         return self.get_wl_for_type('xup')
+
     @xuplist.setter
     def xuplist(self, value: Waitlist):
         self.set_wl_to_type(value, 'xup')
@@ -414,6 +694,7 @@ class WaitlistGroup(Base):
     @property
     def logilist(self):
         return self.get_wl_for_type('logi')
+
     @logilist.setter
     def logilist(self, value: Waitlist):
         self.set_wl_to_type(value, 'logi')
@@ -421,6 +702,7 @@ class WaitlistGroup(Base):
     @property
     def dpslist(self):
         return self.get_wl_for_type('dps')
+
     @dpslist.setter
     def dpslist(self, value: Waitlist):
         self.set_wl_to_type(value, 'dps')
@@ -428,6 +710,7 @@ class WaitlistGroup(Base):
     @property
     def sniperlist(self):
         return self.get_wl_for_type('sniper')
+
     @sniperlist.setter
     def sniperlist(self, value: Waitlist):
         self.set_wl_to_type(value, 'sniper')
@@ -435,16 +718,10 @@ class WaitlistGroup(Base):
     @property
     def otherlist(self):
         return self.get_wl_for_type('other')
+
     @otherlist.setter
     def otherlist(self, value: Waitlist):
         self.set_wl_to_type(value, 'other')
-
-    #xuplist = relationship("Waitlist", foreign_keys=[xupwlID])
-    #logilist = relationship("Waitlist", foreign_keys=[logiwlID])
-    #dpslist = relationship("Waitlist", foreign_keys=[dpswlID])
-    #sniperlist = relationship("Waitlist", foreign_keys=[sniperwlID])
-    #otherlist = relationship("Waitlist", foreign_keys=[otherwlID])
-
 
     dockup = relationship("Station", uselist=False)
     system = relationship("SolarSystem", uselist=False)
@@ -485,7 +762,8 @@ class Shipfit(Base):
 class WaitlistEntryFit(Base):
     __tablename__ = "waitlist_entry_fits"
     entryID = Column('entry_id', Integer, ForeignKey("waitlist_entries.id", onupdate="CASCADE", ondelete="CASCADE"))
-    fitID = Column('fit_id', Integer, ForeignKey("fittings.id", onupdate="CASCADE", ondelete="CASCADE"), primary_key=True)
+    fitID = Column('fit_id', Integer, ForeignKey("fittings.id", onupdate="CASCADE", ondelete="CASCADE"),
+                   primary_key=True)
 
 
 class WaitlistEntry(Base):
@@ -705,16 +983,47 @@ class Setting(Base):
 class AccountNote(Base):
     __tablename__ = "account_notes"
     entryID = Column('entry_id', Integer, primary_key=True)
-    accountID = Column('account_id', Integer, ForeignKey(Account.id), nullable=False)
-    byAccountID = Column('by_account_id', Integer, ForeignKey(Account.id), nullable=False)
-    note = Column('note', Text, nullable=True)
+    accountID = Column('account_id', Integer, ForeignKey(Account.id),
+                       nullable=False)
+    byAccountID = Column('by_account_id', Integer, ForeignKey(Account.id),
+                         nullable=False)
+    note = Column('note', Text, nullable=True, default=None)
     time = Column('time', DateTime, default=datetime.utcnow, index=True)
-    restriction_level = Column('restriction_level', SmallInteger, default=50, nullable=False, server_default=text('50'))
+    restriction_level = Column('restriction_level', SmallInteger, default=50,
+                               nullable=False, server_default=text('50'))
+    textPayload = Column('text_payload', UnicodeText, nullable=True)
+    type = Column('type', String(length=50), nullable=False, index=True)
 
-    role_changes = relationship("RoleChangeEntry", back_populates="note", order_by="desc(RoleChangeEntry.added)")
+    role_changes = relationship("RoleChangeEntry", back_populates="note",
+                                order_by="desc(RoleChangeEntry.added)")
     by = relationship('Account', foreign_keys=[byAccountID])
     account = relationship('Account', foreign_keys=[accountID])
 
+    @property
+    def jsonPayload(self) -> Any:
+        if not hasattr(self, '_AccountNote__payload'):
+            if self.textPayload is None or self.textPayload == '':
+                setattr(self, '_AccountNote__payload', None)
+            else:
+                setattr(self, '_AccountNote__payload', json.loads(self.textPayload))
+
+        return self.__payload
+
+    @jsonPayload.setter
+    def jsonPayload(self, value) -> None:
+        if value == '':
+            value = None
+        self.__payload = value
+        self.textPayload = json.dumps(value)
+
+    def __repr__(self):
+        return (f'<AccountNote entryID={self.entryID}'
+                f' accountID={self.accountID}'
+                f' byAccountID={self.byAccountID}'
+                f' type={self.type} time={self.time}'
+                f' restriction_level={self.restriction_level}'
+                f' textPayload={self.textPayload}'
+                f' note={self.note}>')
 
 class RoleChangeEntry(Base):
     __tablename__ = "role_changes"
@@ -747,16 +1056,19 @@ class CalendarEventCategory(Base):
 class CalendarEvent(Base):
     __tablename__: str = 'calendar_event'
     eventID: Column = Column('event_id', Integer, primary_key=True)
-    eventCreatorID: Column = Column('event_creator_id', Integer, ForeignKey('accounts.id', onupdate='CASCADE', ondelete='CASCADE'),
+    eventCreatorID: Column = Column('event_creator_id', Integer, ForeignKey('accounts.id', onupdate='CASCADE',
+                                                                            ondelete='CASCADE'),
                                     index=True)
     eventTitle: Column = Column('event_title', Text)
     eventDescription: Column = Column('event_description', Text)
     eventCategoryID: Column = Column('event_category_id', Integer,
-                                     ForeignKey(CalendarEventCategory.categoryID, onupdate='CASCADE', ondelete='CASCADE'),
+                                     ForeignKey(CalendarEventCategory.categoryID, onupdate='CASCADE',
+                                                ondelete='CASCADE'),
                                      index=True)
     eventApproved: Column = Column('event_approved', Boolean(name='event_approved'), index=True)
     eventTime: Column = Column('event_time', DateTime, index=True)
-    approverID: Column = Column('approver_id', Integer, ForeignKey('accounts.id', ondelete='CASCADE', onupdate='CASCADE'))
+    approverID: Column = Column('approver_id', Integer,
+                                ForeignKey('accounts.id', ondelete='CASCADE', onupdate='CASCADE'))
 
     creator: relationship = relationship(Account, foreign_keys=[eventCreatorID])
     eventCategory: relationship = relationship(CalendarEventCategory)

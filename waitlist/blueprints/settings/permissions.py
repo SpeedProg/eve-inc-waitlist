@@ -11,7 +11,7 @@ from flask_login import login_required, current_user
 from waitlist.blueprints.settings import add_menu_entry
 from waitlist.permissions import perm_manager
 from waitlist.permissions.manager import StaticPermissions
-from waitlist.signal.signals import send_roles_added
+from waitlist.signal.signals import send_role_created
 
 bp = Blueprint('settings_permissions', __name__)
 logger = logging.getLogger(__name__)
@@ -34,9 +34,10 @@ def add_role() -> Response:
     role_display_name: str = request.form['role_display_name']
 
     perm_manager.add_role(role_name, role_display_name)
-    send_roles_added(add_role, current_user.id, role_name, role_display_name)
+    send_role_created(add_role, current_user.id, role_name, role_display_name)
 
     return redirect(url_for('.view_permissions'), code=303)
+
 
 add_menu_entry('settings_permissions.view_permissions', 'Permissions',
                lambda: perm_manager.get_permission(StaticPermissions.ADMIN).can())

@@ -60,8 +60,8 @@ waitlist.ticketsettings = (function (){
 			},
 			'error': function(data) {
 				var message = data.statusText;
-				if (typeof data.message !== 'undefined') {
-						message += ": " + data.message;
+				if (typeof data.responseText !== 'undefined') {
+						message += ": " + data.responseText;
 				}
 				displayMessage(message, "danger");
 			},

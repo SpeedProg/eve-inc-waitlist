@@ -3,9 +3,6 @@ from typing import Optional
 
 from waitlist import db
 from waitlist.permissions.manager import StaticRoles
-from waitlist.utility.swagger.patch import monkey_patch_pyswagger_requests_client
-
-monkey_patch_pyswagger_requests_client()
 from waitlist.storage.database import Account, Character, Role, APICacheCharacterInfo
 from waitlist.utility.utils import get_random_token
 import waitlist.utility.outgate as outgate

@@ -59,7 +59,7 @@
 	<tr id="account-{{acc.id}}"{% if acc.disabled %} class="table-warning"{% endif %}>
 		<td id="acc-{{acc.id}}-name">{{ acc.username }}</td>
 		<td id="acc-{{acc.id}}-roles">{% for role in acc.roles %}{{role.displayName}}{% if not loop.last %}, {% endif %}{% endfor %}</td>
-		<td>{% for character in acc.characters %}{{character.eve_name}}{% if not loop.last %}, {% endif %}{% endfor %}</td>
+		<td>{% for character in acc.characters %}{% if acc.get_token_for_charid(character.id) is not none %}{{character.eve_name}}{% if not loop.last %}, {% endif %}{% endif %}{% endfor %}</td>
 	</tr>
 	{% endfor %}
 </tbody>

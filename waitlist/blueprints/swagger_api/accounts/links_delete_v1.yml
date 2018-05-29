@@ -1,0 +1,36 @@
+Remove Link
+Remove the link to an alternate character
+---
+    operationId: delete_accounts_account_id
+    tags:
+      - Accounts
+    parameters:
+      - name: account_id
+        in: path
+        description: account's id to remove the alternate character from
+        required: true
+        type: integer
+        format: int32
+      - name: character_id
+        in: path
+        description: alternate character's id
+        required: true
+        type: integer
+        format: int32
+    responses:
+      204:
+         description: Link between Account and Character was removed
+      403:
+        description: You are missing the required permission for this route
+        examples:
+          application/json:
+            error: You are missing the required permission change_character_links
+        schema:
+          $ref: '#/definitions/ErrorForbidden'
+      404:
+        description: Link did not exist
+        examples:
+          application/json:
+            error: Link did not exist
+        schema:
+          $ref: '#/definitions/ErrorNotFound'

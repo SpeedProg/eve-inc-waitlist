@@ -309,5 +309,6 @@ def whitelist_unlist():
 
     return redirect(url_for(".whitelist"))
 
+
 add_menu_entry('bans.bans', 'Bans', perm_manager.get_permission('bans_edit').can)
 add_menu_entry('bans.whitelist', 'Whitelist', perm_manager.get_permission('bans_edit').can)

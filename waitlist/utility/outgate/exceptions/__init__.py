@@ -1,6 +1,5 @@
-from typing import Callable, Any, Optional, Sequence, List
-
 import logging
+from typing import Callable, Any, Optional, Sequence
 
 from waitlist.utility.swagger.eve import ESIResponse
 

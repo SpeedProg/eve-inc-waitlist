@@ -2,8 +2,7 @@ import logging
 from typing import Union
 
 from esipy import EsiClient
-
-from requests.packages.urllib3.exceptions import ReadTimeoutError
+from urllib3.exceptions import ReadTimeoutError
 
 from waitlist.utility.swagger.eve.alliance.responses import AllianceInfo
 from waitlist.utility.swagger.eve import get_esi_client, get_expire_time, make_error_response, ESIEndpoint, ESIResponse
@@ -14,7 +13,7 @@ logger = logging.getLogger(__name__)
 class AllianceEndpoint(ESIEndpoint):
     def __init__(self) -> None:
         super().__init__()
-        self.esi_client: EsiClient = get_esi_client(True)
+        self.esi_client: EsiClient = get_esi_client(None, True)
 
     def get_alliance_info(self, all_id: int) -> Union[AllianceInfo, ESIResponse]:
 

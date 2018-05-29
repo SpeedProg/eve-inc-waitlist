@@ -1,5 +1,6 @@
 from pyswagger import App
 
+from waitlist.storage.database import SSOToken
 from waitlist.utility.swagger import get_api
 from waitlist.utility.swagger.eve import get_esi_client, ESIResponse, \
     get_expire_time, make_error_response
@@ -9,16 +10,16 @@ from waitlist.utility.swagger.eve.fleet.models import EveFleetWing, \
     EveFleetSquad, FleetSettings
 import logging
 from esipy.client import EsiClient
-from typing import Any, Dict
+from typing import Any, Dict, Union
 
 logger = logging.getLogger(__name__)
 
 
 class EveFleetEndpoint(object):
-    def __init__(self, fleet_id: int, client: EsiClient = None) -> None:
+    def __init__(self, token: SSOToken, fleet_id: int, client: EsiClient = None) -> None:
         self.__fleetID: int = fleet_id
         if client is None:
-            self.__client: EsiClient = get_esi_client()
+            self.__client: EsiClient = get_esi_client(token, False)
             self.__api: App = get_api()
         else:
             self.__client: EsiClient = client
@@ -33,7 +34,7 @@ class EveFleetEndpoint(object):
                                    None, response.data)
         return make_error_response(response)
 
-    def get_fleet_settings(self) -> EveFleet:
+    def get_fleet_settings(self) -> Union[EveFleet, ESIResponse]:
         # type: () -> EveFleet
         """
         Get fleet information

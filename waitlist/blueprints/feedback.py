@@ -82,4 +82,5 @@ def change_status() -> Response:
     db.session.commit()
     return make_response("OK")
 
+
 add_menu_entry('feedback.settings', 'Feedback', perm_view.can)

@@ -8,12 +8,13 @@ import re
 from waitlist.blueprints.api.fittings.self import self_remove_fit
 from waitlist.data.names import WaitlistNames
 from waitlist.data.sse import EntryAddedSSE, send_server_sent_event, FitAddedSSE
-from waitlist.storage.database import WaitlistGroup, WaitlistEntry, Shipfit, InvType, FitModule, MarketGroup, HistoryEntry
-from waitlist.storage.modules import resist_ships, logi_ships, sniper_ships, sniper_weapons, dps_weapons, weapongroups, \
+from waitlist.storage.database import WaitlistGroup, WaitlistEntry, Shipfit, InvType, FitModule,\
+    MarketGroup, HistoryEntry
+from waitlist.storage.modules import resist_ships, logi_ships, sniper_ships, sniper_weapons, dps_weapons, weapongroups,\
     dps_ships, t3c_ships
 from waitlist.utility.database_utils import parse_eft
 from waitlist.utility.history_utils import create_history_object
-from waitlist.utility.utils import get_character, get_fit_format, create_mod_map
+from waitlist.utility.utils import get_fit_format, create_mod_map
 from waitlist import db
 from . import bp
 
@@ -106,7 +107,7 @@ def submit():
                 event = FitAddedSSE(group_id, queue.id, wl_entry.id, fit, True, wl_entry.user)
                 send_server_sent_event(event)
 
-        flash("You were added as " + ship_type, "success")
+        flash(f"You were added as {ship_type}", "success")
         return redirect(url_for('index') + "?groupId=" + str(group_id))
     # ### END SCRUFFY CODE
 
@@ -120,7 +121,7 @@ def submit():
     caldari_bs_lvl = int(caldari_bs_lvl)
     newbro = request.form.get('newbro', "off")
     newbro = (newbro is not "off")
-    get_character(current_user).newbro = newbro
+    current_user.is_new = newbro
 
     current_user.cbs_level = caldari_bs_lvl
     current_user.lc_level = logilvl
@@ -194,7 +195,7 @@ def submit():
     logger.debug("Parsed %d fits", fit_count)
 
     if fit_count <= 0:
-        flash("You submitted {0} fits to be check by a fleet comp before getting on the waitlist.".format(fit_count),
+        flash(f"You submitted {fit_count} fits to be check by a fleet comp before getting on the waitlist.",
               "danger")
         return redirect(url_for('index') + "?groupId=" + str(group_id))
 
@@ -237,6 +238,7 @@ def submit():
 
     # split his fits into types for the different waitlist_entries
     for fit in fits:
+        mod_map = dict()
         try:
             mod_map = create_mod_map(fit.modules)
         except ValueError:
@@ -348,7 +350,7 @@ def submit():
             event = FitAddedSSE(group_id, queue.id, wl_entry.id, fit, True, wl_entry.user)
             send_server_sent_event(event)
 
-    flash("You submitted {0} fits to be check by a fleet comp before getting on the waitlist.".format(fit_count),
+    flash(f"You submitted {fit_count} fits to be check by a fleet comp before getting on the waitlist.",
           "success")
 
     return redirect(url_for('index') + "?groupId=" + str(group_id))
@@ -357,17 +359,7 @@ def submit():
 @bp.route('/', methods=['GET'])
 @login_required
 def index():
-    new_bro = True
-    if current_user.type == "character":
-        if current_user.newbro is None:
-            new_bro = True
-        else:
-            new_bro = current_user.newbro
-    elif current_user.type == "account":
-        if current_user.current_char_obj.newbro is None:
-            new_bro = True
-        else:
-            new_bro = current_user.current_char_obj.newbro
+    new_bro = current_user.is_new
 
     # noinspection PyPep8
     defaultgroup = db.session.query(WaitlistGroup).filter(WaitlistGroup.enabled == True) \
@@ -380,17 +372,7 @@ def index():
 @bp.route("/<int:fit_id>", methods=['GET'])
 @login_required
 def update(fit_id: int):
-    new_bro: bool = True
-    if current_user.type == "character":
-        if current_user.newbro is None:
-            new_bro = True
-        else:
-            new_bro = current_user.newbro
-    elif current_user.type == "account":
-        if current_user.current_char_obj.newbro is None:
-            new_bro = True
-        else:
-            new_bro = current_user.current_char_obj.newbro
+    new_bro: bool = current_user.is_new
 
     # noinspection PyPep8
     defaultgroup = db.session.query(WaitlistGroup).filter(WaitlistGroup.enabled == True) \

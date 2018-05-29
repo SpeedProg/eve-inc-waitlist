@@ -289,59 +289,29 @@ waitlist.fleetview = (function(){
 	}
 
 	function getShipInfo(shipIDs) {
-		return new Promise(function (resolve, reject) {
-			window.clientv2.apis.Universe.post_universe_names({ids: shipIDs}, {responseContentType: 'application/json'},
-				function (success) {
-					console.log("success");
-					console.log(success);
-					resolve(success.obj);
-				},
-				function (error) {
-					console.log("Error");
-					console.log(error);
-					reject(error);
-				}
-			)
-		});
+		return window.clientv2.apis.Universe.post_universe_names({ids: shipIDs}, {responseContentType: 'application/json'});
 	}
 
 	function getCharacterInfo(characterID) {
-		return new Promise(function (resolve, reject) {
-				window.clientv4.apis.Character.get_characters_character_id({character_id: characterID}, {responseContentType: 'application/json'},
-					function (success) {
-						console.log("success");
-						console.log(success);
-						resolve(success.obj);
-					},
-					function (error) {
-						console.log("Error");
-						console.log(error);
-						reject(error);
-					}
-				)
-		});
+    return window.clientv4.apis.Character.get_characters_character_id({character_id: characterID}, {responseContentType: 'application/json'});
 	}
 
 	$(document).ready(function() {
-		window.clientv4 = new SwaggerClient({
-			url: "https://esi.tech.ccp.is/v4/swagger.json",
-			success: function() {
-			},
-			error: function (event) {
+		window.clientv4 = new SwaggerClient("https://esi.tech.ccp.is/v4/swagger.json")
+    .catch(
+      function (event) {
 				console.log("SwaggerError");
 				console.log(event);
 			}
-		});
+    );
 
-		window.clientv2 = new SwaggerClient({
-			url: "https://esi.tech.ccp.is/v2/swagger.json",
-			success: function() {
-			},
-			error: function (event) {
+		window.clientv2 = new SwaggerClient("https://esi.tech.ccp.is/v2/swagger.json")
+		.catch(
+      function (event) {
 				console.log("SwaggerError");
 				console.log(event);
 			}
-		});
+    );
 
 		setupDB();
 	});

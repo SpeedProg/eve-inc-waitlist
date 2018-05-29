@@ -5,4 +5,5 @@ class WaitlistNames:
     xup_queue = "queue"
     other = "other"
 
+
 DEFAULT_PREFIX = "default"

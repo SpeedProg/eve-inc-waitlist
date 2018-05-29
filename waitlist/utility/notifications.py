@@ -14,12 +14,13 @@ logger = logging.getLogger(__name__)
 def send_notification(player_id: int, waitlist_id: int, message: str = "You are invited to fleet as {0}") -> None:
     if player_id is None:
         logger.error("Tried to send notification to player with None ID.")
+        flask.abort(400, "Tried to send notification to player with None ID")
 
     # lets check that the given wl exists
     waitlist = db.session.query(Waitlist).get(waitlist_id)
     if waitlist is None:
         logger.error("Given waitlist id %s is not valid.", str(waitlist_id))
-        flask.abort(400)
+        flask.abort(400, f"Given waitlist id {waitlist_id} is not valid.")
     # don't remove from queue
     # queue = db.session.query(Waitlist).filter(Waitlist.name == WaitlistNames.xup_queue).first()
 

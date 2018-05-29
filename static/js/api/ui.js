@@ -43,8 +43,8 @@ waitlist.esi.ui = (function() {
 				if (data.status === 412) {
 					window.location = urls.esi_ui_auth;
 				}
-				if (typeof data.message !== 'undefined') {
-						message += ": " + data.message;
+				if (typeof data.responseText !== 'undefined') {
+						message += ": " + data.responseText;
 				}
 				waitlist.base.displayMessage(message, "danger");
 			}

@@ -12,7 +12,7 @@ dps_weapons = {2929: "800mm Repeating Cannon II", 9327: "800mm Heavy 'Scout' Rep
                }
 
 resist_ships = {17918: "Rattlesnake", 32309: "Scorpion Navy Issue", 24688: "Rokh"}
-logi_ships = {11985: "Basilisk", 11978: "Scimitar"}
+logi_ships = {11985: "Basilisk", 11978: "Scimitar", 33472: "Nestor"}
 
 sniper_ships = {17736: "Nightmare", 17738: "Machariel", 24694: "Maelstrom",
                 24688: "Rokh", 28665: "Vargur"

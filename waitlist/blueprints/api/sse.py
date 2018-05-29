@@ -44,7 +44,9 @@ def events():
 
     event_group_strs = event_groups_str.split(",")
     event_list = []
-    options = {'userId': int(current_user.get_eve_id())}
+    # userId can be None for accounts that have no character set currently
+    options = {'userId': current_user.get_eve_id()}
+
     logger.info(event_group_strs)
     group_id_str = request.args.get('groupId', None)
     if group_id_str is not None:

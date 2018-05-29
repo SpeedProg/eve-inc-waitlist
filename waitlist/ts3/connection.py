@@ -40,6 +40,7 @@ def make_connection():
         con = None
     return con
 
+
 conn = make_connection()
 
 
@@ -63,8 +64,7 @@ def handle_dc(func, **kwargs):
                 func(*argsw, **kwargsw)
             except TS3QueryError as error:
                 logger.error("TS3 Query Error: %s", str(error))
-            except Exception as ex:
-                    logger.error("To call ts %s", ex)
+            except Exception:
                     ncon = make_connection()
                     if ncon is None:
                         sleep(2)
@@ -76,7 +76,7 @@ def handle_dc(func, **kwargs):
                     func(*argsw, **kwargs)
         else:
             conn = make_connection()
-            logger.error("No TS Connection")
+
     return func_wrapper
 
 
