@@ -1,0 +1,65 @@
+Download Account Dump
+Download a account data.
+Parameters can be used to select what should be included.
+---
+    consumes:
+      - application/json
+    operationId: get_accounts_download
+    tags:
+      - Accounts
+    parameters:
+      - name: include_disabled
+        in: query
+        description: include disabled accounts
+        type: boolean
+      - name: include_alts
+        in: query
+        description: include connected character
+        type: boolean
+      - name: include_owner_hash
+        in: query
+        description: include owner hash for characters
+        type: boolean
+    responses:
+      201:
+         description: Dump of account data
+         schema:
+            type: array
+            items:
+              type: object
+              required:
+                - username
+                - disabled
+              properties:
+                username:
+                  type: string
+                  description: Account name
+                disabled:
+                  type: boolean
+                  description: disabled state of the account
+                alts:
+                  type: array
+                  description: list of characters connected to the account
+                  items:
+                    type: object
+                    required:
+                      - name
+                      - id
+                    properties:
+                      name:
+                        description: characer's name
+                        type: string
+                      id:
+                        description: character's id
+                        type: integer
+                        format: int32
+                      owner_hash:
+                        description: owner_hash belonging to the character
+                        type: string
+      403:
+        description: You are missing the required permission for this route
+        examples:
+          application/json:
+            error: You are missing the required permission accounts_download_list
+        schema:
+          $ref: '#/definitions/ErrorForbidden'

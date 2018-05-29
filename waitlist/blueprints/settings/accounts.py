@@ -1,6 +1,5 @@
 import logging
 from datetime import timedelta, datetime
-from typing import Union, Optional, List
 
 import flask
 from flask import Blueprint, session
@@ -20,10 +19,12 @@ from waitlist.blueprints.fc_sso import get_sso_redirect, add_sso_handler
 from waitlist.blueprints.settings import add_menu_entry
 from waitlist.permissions import perm_manager
 from waitlist.permissions.manager import StaticPermissions, StaticRoles
-from waitlist.signal.signals import send_account_created, send_roles_changed, send_account_status_change
+from waitlist.signal.signals import send_account_created, send_roles_changed, send_account_status_change,\
+    send_alt_link_added, send_account_name_change
 from waitlist.sso import authorize, who_am_i
 from waitlist.storage.database import Account, Character, Role, linked_chars, APICacheCharacterInfo, SSOToken
 from waitlist.utility import outgate, config
+from waitlist.utility.eve_id_utils import get_character_by_id
 from waitlist.utility.login import invalidate_all_sessions_for_given_user
 from waitlist.utility.manager.owner_hash_check_manager import OwnerHashCheckManager
 from waitlist.utility.settings import sget_resident_mail, sget_tbadge_mail, sget_other_mail, sget_other_topic, \
@@ -88,7 +89,9 @@ def accounts():
             acc.current_char = char_id
 
             db.session.commit()
-            send_account_created(accounts, acc.id, current_user.id, acc_roles, 'Creating account. ' + note)
+            send_account_created(accounts, acc.id, current_user.id, acc_roles,
+                                 note)
+            send_alt_link_added(accounts, current_user.id, acc.id, character.id)
     clean_alt_list()
     roles = db.session.query(Role).order_by(Role.name).all()
     accs = db.session.query(Account).order_by(asc(Account.disabled)).order_by(Account.username).all()
@@ -104,25 +107,31 @@ def accounts():
 def clean_alt_list() -> None:
     """
     Removes links between accounts and characters if
-     there is a token
-     but the token expired
-     or the owner_hash changed (this should expire the token!)
-    if there is no token for the character at all, the character is keept
+     - there is a token
+       - but the token expired
+     - or the owner_hash changed (this should expire the token!)
+    if there is no token for the character at all, the character is kept
     """
+
     accs: List[Account] = db.session.query(Account).all()
     for acc in accs:
+        logger.debug("Checking tokens for alts of %s", acc)
         for char in acc.characters:
+            logger.debug("Checking alt %s for account %s", char, acc)
             if OwnerHashCheckManager.is_auth_valid_for_account_character_pair(acc, char):
+                logger.debug("Auth valid for %s on %s", char, acc)
                 continue
 
             token: Optional[SSOToken] = acc.get_token_for_charid(char.id)
             # if there is no token for this account/character combination we don't need to do anything
             if token is None:
+                logger.debug("No token for %s on %s doing nothing", char, acc)
                 continue
 
             # the auth token is not valid AND we have a token
             # remove the invalid toekn
             db.session.delete(token)
+            logger.debug("Deleted invalid token for %s on %s", char, acc)
 
     db.session.commit()
 
@@ -148,7 +157,10 @@ def account_edit():
         return flask.abort(400)
 
     if acc.username != acc_name:
+        old_name: str = acc.username
         acc.username = acc_name
+        send_account_name_change(account_edit, current_user.id, acc.id,
+                                 old_name, acc_name, note)
 
     # if there are roles, add new ones, remove the ones that aren't there
     if len(acc_roles) > 0:
@@ -220,6 +232,7 @@ def account_edit():
                 .filter((linked_chars.c.id == acc_id) & (linked_chars.c.char_id == char_id)).first()
             if link is None:
                 acc.characters.append(character)
+                send_alt_link_added(account_edit, current_user.id, acc.id, character.id)
 
             db.session.flush()
             acc.current_char = char_id
@@ -270,6 +283,7 @@ def account_self_edit():
                     return get_sso_redirect("alt_verification", 'publicData')
                 else:
                     acc.characters.append(character)
+                    send_alt_link_added(account_self_edit, current_user.id, acc.id, character.id)
 
             db.session.flush()
             if acc.current_char != char_id:
@@ -344,43 +358,6 @@ def api_account_delete(acc_id: int) -> Response:
     return flask.jsonify(status="OK")
 
 
-@bp.route('/accounts/downloadlist/cvs')
-@login_required
-@perm_manager.require('accounts_download_list')
-def accounts_download_csv() -> Response:
-    def iter_accs(data):
-        for account in data:
-            for ci, char in enumerate(account.characters):
-                if ci > 0:
-                    yield ", " + char.eve_name
-                else:
-                    yield char.eve_name
-            yield '\n'
-
-    permission = perm_manager.get_permission('include_in_accountlist')
-    # noinspection PyPep8
-    include_check = (Account.disabled == False)
-    role_check = None
-    for role_need in permission.needs:
-        if role_need.method != 'role':
-            continue
-        if role_check is None:
-            role_check = (Role.name == role_need.value)
-        else:
-            role_check = role_check | (Role.name == role_need.value)
-
-    include_check = (include_check & role_check)
-
-    # noinspection PyPep8
-    accs = db.session.query(Account).options(joinedload('characters')).join(Account.roles).filter(
-        include_check ).order_by(
-        Account.username).all()
-
-    response = Response(iter_accs(accs), mimetype='text/csv')
-    response.headers['Content-Disposition'] = 'attachment; filename=accounts.csv'
-    return response
-
-
 add_menu_entry('accounts.accounts', 'Accounts', perm_manager.get_permission('accounts_edit').can)
 add_menu_entry('accounts.account_self', 'Own Settings', lambda: True)
 
@@ -405,7 +382,11 @@ def alt_verification_handler(code: str) -> None:
     char_id = int(auth_info['CharacterID'])
     owner_hash = auth_info['CharacterOwnerHash']
     scopes: str = auth_info['Scopes']
-    auth_token.characterID = char_id
+
+    # make sure the character exists
+    character: Character = get_character_by_id(char_id)
+
+    auth_token.characterID = character.id
     # if he authed the char he told us
     if session['link_charid'] is not None and session['link_charid'] == char_id:
         logger.debug("Updating Token for %s char_id=%s", current_user, char_id)
@@ -467,6 +448,7 @@ def alt_verification_handler(code: str) -> None:
         # add the new link
         current_user.characters.append(character)
         db.session.flush()
+        send_alt_link_added(alt_verification_handler, current_user.id, current_user.id, character.id)
         if current_user.current_char != char_id:
             current_user.current_char = char_id
 

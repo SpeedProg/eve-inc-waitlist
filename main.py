@@ -1,5 +1,6 @@
 import gevent_patch_helper
 import logging
+from werkzeug.contrib.fixers import ProxyFix
 from logging.handlers import TimedRotatingFileHandler
 from gevent.pywsgi import WSGIServer
 from waitlist.blueprints.fittings import bp_waitlist
@@ -28,12 +29,12 @@ from waitlist.blueprints.fleetview import bp as bp_fleetview
 
 from waitlist.blueprints.settings import accounts as settings_accounts, bans, fleet_motd, fleetoptions, inserts, mail, overview,\
     staticdataimport, teamspeak, permissions
-from waitlist.blueprints import trivia, feedback
+from waitlist.blueprints import trivia, feedback, swagger_api
 from waitlist.blueprints.api import permission
 from waitlist.blueprints import xup
 from waitlist.blueprints import notification
 # needs to he here so signal handler gets registered
-from waitlist.signal.handler import acc_created, roles_changed, account_status_change
+from waitlist.signal import handler
 
 # load the jinja2 hooks
 from waitlist.utility.jinja2 import *
@@ -92,15 +93,24 @@ logger = logging.getLogger(__name__)
 
 err_fh = None
 info_fh = None
-access_fh = None
 debug_fh = None
+
+
+class LogDedicatedLevelFilter(object):
+    def __init__(self, level):
+        self.__level = level
+
+    def filter(self, log_record):
+        return log_record.levelno == self.__level
 
 
 def run_server():
     wsgi_logger = logging.getLogger("gevent.pywsgi.WSGIServer")
     wsgi_logger.addHandler(err_fh)
-    wsgi_logger.addHandler(access_fh)
+    wsgi_logger.addHandler(info_fh)
+    wsgi_logger.addHandler(debug_fh)
     wsgi_logger.setLevel(logging.INFO)
+    app.wsgi_app = ProxyFix(app.wsgi_app)
     server = WSGIServer((config.server_bind, config.server_port), app, log=wsgi_logger, error_log=wsgi_logger)
     server.serve_forever()
 
@@ -108,19 +118,20 @@ def run_server():
 if __name__ == '__main__':
     err_fh = TimedRotatingFileHandler(filename=config.error_log, when="midnight", interval=1, utc=True)
     info_fh = TimedRotatingFileHandler(filename=config.info_log, when="midnight", interval=1, utc=True)
-    access_fh = TimedRotatingFileHandler(filename=config.access_log, when="midnight", interval=1, utc=True)
     debug_fh = TimedRotatingFileHandler(filename=config.debug_log, when="midnight", interval=1, utc=True)
 
     formatter = logging\
         .Formatter('%(asctime)s - %(name)s - %(levelname)s - %(pathname)s - %(funcName)s - %(lineno)d - %(message)s')
     err_fh.setFormatter(formatter)
     info_fh.setFormatter(formatter)
-    access_fh.setFormatter(formatter)
     debug_fh.setFormatter(formatter)
 
     info_fh.setLevel(logging.INFO)
     err_fh.setLevel(logging.ERROR)
     debug_fh.setLevel(logging.DEBUG)
+
+    info_fh.addFilter(LogDedicatedLevelFilter(logging.INFO))
+    debug_fh.addFilter(LogDedicatedLevelFilter(logging.DEBUG))
 
     waitlistlogger = logging.getLogger("waitlist")
     waitlistlogger.addHandler(err_fh)
@@ -134,4 +145,7 @@ if __name__ == '__main__':
     app.logger.setLevel(logging.INFO)
     
     # app.run(host="0.0.0.0", port=81, debug=True)
+
+    # connect account signal handler
+    handler.account.connect()
     run_server()

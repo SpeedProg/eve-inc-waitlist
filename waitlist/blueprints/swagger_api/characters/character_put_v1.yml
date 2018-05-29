@@ -1,0 +1,37 @@
+Change Character data
+Change information for a character
+---
+    operationId: put_characters_character_id
+    tags:
+      - Characters
+    parameters:
+      - name: character_id
+        in: path
+        description: id of the character
+        required: true
+        type: integer
+        format: int32
+      - name: owner_hash
+        in: body
+        schema:
+          properties:
+            owner_hash:
+              description: owner_hash to set
+              type: string
+    responses:
+      204:
+         description: Character data was updated
+      403:
+        description: You are missing the required permission for this route
+        examples:
+          application/json:
+            error: You are missing the required permission change_character_owner_hash
+        schema:
+          $ref: '#/definitions/ErrorForbidden'
+    404:
+        description: Character does not exist on the waitlist
+        examples:
+          application/json:
+            error: Character does not exist
+        schema:
+          $ref: '#/definitions/ErrorNotFound'

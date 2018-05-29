@@ -1,7 +1,7 @@
 import json
 import logging
 from datetime import datetime
-from typing import Dict, Optional, Any
+from typing import Dict, Optional, Any, Union
 
 import flask
 from flask import Response
@@ -24,6 +24,8 @@ from waitlist.utility.outgate.character.info import get_character_fleet_id
 from waitlist.utility.swagger import esi_scopes
 from waitlist.utility.swagger.eve.fleet import EveFleetEndpoint
 from waitlist.utility.swagger.eve.fleet.models import FleetMember
+from waitlist.utility.swagger.eve import ESIResponse
+from waitlist.utility.swagger.eve.fleet.responses import EveFleet
 
 bp = Blueprint('fleet', __name__)
 logger = logging.getLogger(__name__)
@@ -218,6 +220,14 @@ def take_over_fleet():
     if fleet_id is None:
         flask.flash("You are not in a fleet, or didn't not provide rights to read them.", "danger")
         return redirect(url_for("fleetoptions.fleet"))
+
+    fleet_ep: EveFleetEndpoint = EveFleetEndpoint(token, fleet_id)
+
+    settings_resp: Union[EveFleet, ESIResponse] = fleet_ep.get_fleet_settings()
+    if settings_resp.is_error():
+        flask.flash('You are not the boss of the fleet you are in.', 'danger')
+        return redirect(url_for("fleetoptions.fleet"))
+
     fleet = db.session.query(CrestFleet).get(fleet_id)
 
     if fleet is None:

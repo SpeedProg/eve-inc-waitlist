@@ -38,8 +38,11 @@ def get_item_id(name: str) -> int:
         # add the type to db
         market_group_id = None
 
-        if hasattr(item_data, 'market_group_id'):
+        try:
             market_group_id = item_data.market_group_id
+        except (KeyError, AttributeError):
+            pass  # it should stay None
+
         item = InvType(typeID=item_data.type_id, groupID=item_data.group_id,
                        typeName=item_data.name, description=item_data.description,
                        marketGroupID=market_group_id)
@@ -99,6 +102,16 @@ def get_character_by_id_and_name(eve_id: int, eve_name: str) -> Character:
         char = create_new_character(eve_id, eve_name)
 
     return char
+
+
+def get_character_by_id(eve_character_id: int) -> Character:
+    character: Character = get_char_from_db(eve_character_id)
+    if character is None:
+        logger.info("No character found in database for id %d", eve_character_id)
+        char_info = outgate.character.get_info(eve_character_id)
+        character = create_new_character(eve_character_id, char_info.characterName)
+
+    return character
 
 
 def is_charid_banned(character_id: int) -> bool:

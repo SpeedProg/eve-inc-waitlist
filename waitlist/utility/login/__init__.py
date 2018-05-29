@@ -17,6 +17,7 @@ from waitlist.storage.database import Account, Character, SSOToken
 from waitlist.utility import config
 from waitlist.utility.eve_id_utils import get_character_by_id_and_name, is_char_banned
 from waitlist.utility.manager import OwnerHashCheckManager
+from waitlist.signal.signals import send_alt_link_removed
 
 logger = logging.getLogger(__name__)
 
@@ -67,6 +68,7 @@ def login_character(char: Character, owner_hash: str, token: SSOToken) -> Respon
     tokens = char.get_sso_tokens_with_scopes(['publicData'])
     for tkn in tokens:
         revoke(refresh_token=tkn.refresh_token)
+        logger.debug('Revoked %s', tkn)
         db.session.delete(tkn)
 
     db.session.flush()
@@ -97,6 +99,7 @@ def login_account(acc: Account, token: SSOToken) -> Response:
 
     for tkn in tokens:
         revoke(refresh_token=tkn.refresh_token)
+        logger.debug('Revoked %s', tkn)
         db.session.delete(tkn)
 
     db.session.flush()
@@ -147,7 +150,10 @@ def login_accounts_by_alts_or_character(char: Character, owner_hash: str, token:
             invalidate_all_sessions_for_given_user(char)
             if len(char.accounts) > 0:
                 # TODO: send signal here that an alt is removed from this account
+                for acc in char.accounts:
+                    send_alt_link_removed(login_accounts_by_alts_or_character, None, acc.id, char.id)
                 char.accounts = []
+                db.session.commit()
 
             return login_character(char, owner_hash, token)
 
@@ -173,23 +179,9 @@ def login_accounts_by_alts_or_character(char: Character, owner_hash: str, token:
                 # set no character as active char for the account
                 # we will set the login char further in the progress
                 # or we will send to reauth if there is no proper api token
-                acc.current_char = None
+                acc.current_char = char.id
 
-                valid: bool = OwnerHashCheckManager.\
-                    is_auth_valid_for_account_character_pair(acc, char)
-
-                if not valid:
-                    # log the account in with no character and request alt verification
-                    logger.info(f"Logging account username={acc.username} id={acc.id} in")
-                    login_user(acc, remember=True)
-                    identity_changed.send(current_app._get_current_object(),
-                                          identity=Identity(acc.id))
-                    session['link_charid'] = char.id
-                    return get_sso_redirect("alt_verification", 'publicData')
-                else:
-                    # set the accounts current character to this character
-                    acc.current_char = char.id
-                    return login_account(acc, token)
+                return login_account(acc, token)
     else:  # not connected to an account
 
         return login_character(char, owner_hash, token)

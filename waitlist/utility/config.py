@@ -5,73 +5,100 @@ from configparser import ConfigParser
 
 from waitlist.data import version
 
-if not os.path.isfile(os.path.join(".", "config", "config.cfg")):
-    # create a preset file
-    config = ConfigParser()
-    config.add_section("database")
-    config.set("database", "connection_uri", "mysql+mysqldb://user:password@localhost:3306/dbname")
-    config.set("database", "sqlalchemy_pool_recycle", "7200")
-    
-    config.add_section("app")
-    config.set("app", "secret_key", base64.b64encode(os.urandom(24)).decode('utf-8', 'strict'))
-    config.set("app", "server_port", "81")
-    config.set("app", "server_bind", "0.0.0.0")
-    config.set("app", "community_name", "IncWaitlist")
-    config.set("app", "user_agent", "Bruce Warhead: Eve Incursion Waitlist")
-    
-    config.add_section("logging")
-    config.set("logging", "error_file", "/var/log/pywaitlist/error.log")
-    config.set("logging", "info_file", "/var/log/pywaitlist/info.log")
-    config.set("logging", "access_file", "/var/log/pywaitlist/access.log")
-    config.set("logging", "debug_file", "/var/log/pywaitlist/debug.log")
-    
-    config.add_section("crest")
-    config.set("crest", "client_id", "f8934rsdf")
-    config.set("crest", "client_secret", "f893ur3")
-    config.set("crest", "return_url", "")
-    
-    config.add_section("motd")
-    config.set("motd", "hq", "..")
-    config.set("motd", "vg", "..")
 
-    config.add_section("cdn")
-    config.set("cdn", "cdn_domain", "")
-    config.set("cdn", "cdn_assets", "False")
-    config.set("cdn", "cdn_https", "False")
-    config.set("cdn", "eve_img_server", "https://imageserver.eveonline.com/{0}.{1}")
-    config.set("cdn", "eve_img_server_webp", "False")
+def set_if_not_exists(self, section, option, value):
+    if not self.has_option(section, option):
+        self.set(section, option, value)
 
-    config.add_section("cookies")
-    config.set("cookies", "secure_cookies", "False")
 
-    config.add_section("node")
-    config.set("node", "node_bin", "")
-
-    config.add_section("debug")
-    config.set("debug", "enabled", "False")
-    
-    config.add_section("security")
-    config.set("security", "scramble_names", "False")
-    config.set("security", "require_auth_for_chars", "False")
-
-    config.add_section("disable")
-    config.set("disable", "teamspeak", "False")
-
-    config.add_section("pageinfo")
-    config.set("pageinfo", "influence_link", "#")
-
-    config.add_section("fittools")
-    config.set("fittools", "stats_enabled", "True")
-    config.set("fittools", "stats_uri", "https://quiescens.duckdns.org/wl/ext/wl_external.js")
-    config.set("fittools", "stats_sri", "sha384-VonGhMELp1YLVgnJJMq2NqUOpRjhV7nUpiATMsrK5TIMrYQuGUaUPUZlQIInhGc5")
-
-    if not os.path.isdir(os.path.join(".", "config")):
-        makedirs(os.path.join(".", "config"))
-    with open(os.path.join(".", "config", "config.cfg"), "w") as configfile:
-        config.write(configfile)
+ConfigParser.set_if_not_exists = set_if_not_exists
 
 config = ConfigParser()
-config.read(os.path.join("config", "config.cfg"))
+
+if os.path.isfile(os.path.join(".", "config", "config.cfg")):
+    config.read(os.path.join(".", "config", "config.cfg"))
+else:
+    # make sure the directory exists
+    if not os.path.isdir(os.path.join(".", "config")):
+        makedirs(os.path.join(".", "config"))
+    
+# database section
+if not config.has_section("database"):
+    config.add_section("database")
+
+config.set_if_not_exists("database", "connection_uri", "mysql+mysqldb://user:password@localhost:3306/dbname")
+config.set_if_not_exists("database", "sqlalchemy_pool_recycle", "7200")
+
+if not config.has_section("app"):
+    config.add_section("app")
+config.set_if_not_exists("app", "secret_key", base64.b64encode(os.urandom(24)).decode('utf-8', 'strict'))
+config.set_if_not_exists("app", "server_port", "81")
+config.set_if_not_exists("app", "server_bind", "0.0.0.0")
+config.set_if_not_exists("app", "community_name", "IncWaitlist")
+config.set_if_not_exists("app", "user_agent", "Bruce Warhead: Eve Incursion Waitlist")
+config.set_if_not_exists("app", "domain", "localhost")
+config.set_if_not_exists("app", "using_proxy", "False")
+
+if not config.has_section("logging"):
+    config.add_section("logging")
+config.set_if_not_exists("logging", "error_file", "/var/log/pywaitlist/error.log")
+config.set_if_not_exists("logging", "info_file", "/var/log/pywaitlist/info.log")
+config.set_if_not_exists("logging", "access_file", "/var/log/pywaitlist/access.log")
+config.set_if_not_exists("logging", "debug_file", "/var/log/pywaitlist/debug.log")
+
+if not config.has_section("crest"):
+    config.add_section("crest")
+config.set_if_not_exists("crest", "client_id", "f8934rsdf")
+config.set_if_not_exists("crest", "client_secret", "f893ur3")
+config.set_if_not_exists("crest", "return_url", "")
+
+if not config.has_section("motd"):
+    config.add_section("motd")
+config.set_if_not_exists("motd", "hq", "..")
+config.set_if_not_exists("motd", "vg", "..")
+
+if not config.has_section("cdn"):
+    config.add_section("cdn")
+config.set_if_not_exists("cdn", "cdn_domain", "")
+config.set_if_not_exists("cdn", "cdn_assets", "False")
+config.set_if_not_exists("cdn", "cdn_https", "False")
+config.set_if_not_exists("cdn", "eve_img_server", "https://imageserver.eveonline.com/{0}.{1}")
+config.set_if_not_exists("cdn", "eve_img_server_webp", "False")
+
+if not config.has_section("cookies"):
+    config.add_section("cookies")
+config.set_if_not_exists("cookies", "secure_cookies", "False")
+
+if not config.has_section("node"):
+    config.add_section("node")
+config.set_if_not_exists("node", "node_bin", "")
+
+if not config.has_section("debug"):
+    config.add_section("debug")
+config.set_if_not_exists("debug", "enabled", "False")
+
+if not config.has_section("security"):
+    config.add_section("security")
+config.set_if_not_exists("security", "scramble_names", "False")
+config.set_if_not_exists("security", "require_auth_for_chars", "False")
+
+if not config.has_section("disable"):
+    config.add_section("disable")
+config.set_if_not_exists("disable", "teamspeak", "False")
+
+if not config.has_section("pageinfo"):
+    config.add_section("pageinfo")
+config.set_if_not_exists("pageinfo", "influence_link", "#")
+
+if not config.has_section("fittools"):
+    config.add_section("fittools")
+config.set_if_not_exists("fittools", "stats_enabled", "True")
+config.set_if_not_exists("fittools", "stats_uri", "https://quiescens.duckdns.org/wl/ext/wl_external.js")
+config.set_if_not_exists("fittools", "stats_sri", "sha384-VonGhMELp1YLVgnJJMq2NqUOpRjhV7nUpiATMsrK5TIMrYQuGUaUPUZlQIInhGc5")
+
+    
+with open(os.path.join(".", "config", "config.cfg"), "w") as configfile:
+    config.write(configfile)
 
 title = config.get("app", "community_name")
 
@@ -117,3 +144,6 @@ stattool_sri = config.get("fittools", "stats_sri")
 stattool_enabled = config.get("fittools", "stats_enabled") == "True"
 
 user_agent = config.get("app", "user_agent")+"/"+version.version
+
+domain = config.get("app", "domain")
+using_proxy = config.get("app", "using_proxy") == "True"

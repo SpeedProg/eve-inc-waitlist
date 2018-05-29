@@ -13,6 +13,7 @@
 <meta name="api-account-disable" content="{{url_for('accounts.account_disabled')}}">
 <meta name="api-esi-mail-send" content="{{url_for('api_mail.send_esi_mail')}}">
 <meta name="api-esi-mail-auth" content="{{url_for('api_mail.auth')}}">
+<meta name="can-change-links" content="{{perm_manager.get_permission('change_character_links').can()}}">
 {{ super() }}
 
 {% assets filters="cssmin", output="gen/fileinput.%(version)s.css", "css/fileinput.css" %}
@@ -27,15 +28,27 @@
 <script type="text/javascript" src="{{ ASSET_URL }}"></script>
 {% endassets %}
 
-{% assets filters="babili", output="gen/acc-cc-list.%(version)s.js", "js/base.js", "js/eve-igb-wrapper.js", "js/editablegrid/editablegrid_customrenderer.js", "js/accounts/settings-accounts.js" %}
+{% assets filters="babili", output="gen/acc-cc-list.%(version)s.js", "js/base.js", "js/eve-igb-wrapper.js",
+"js/editablegrid/editablegrid_customrenderer.js", "js/swagger-client.min.js", "js/accounts/accountslist-dom.js", "js/accounts/settings-accounts.js" %}
 <script type="text/javascript" src="{{ ASSET_URL }}"></script>
 {% endassets %}
 {% endblock %}
 
 {% block raw_content %}
+{% if perm_manager.get_permission('accounts_download_list').can() %}
 <div class="row mb-2">
-	<a href="{{url_for('accounts.accounts_download_csv')}}" target="_blank">Download Full Commander List</a>
+	<form class="form-inline" target="_blank" method="GET" action="{{url_for('accounts_v1.download_get_v1')}}">
+		<label for="include_disabled_cbx">Disabled Accounts</label>
+		<input type="checkbox" class="form-check-input" name="include_disabled" id="include_disabled_cbx">
+		<label for="include_alts_cbx">Alts</label>
+		<input type="checkbox" class="form-check-input" name="include_alts" id="include_alts_cbx">
+		<label for="include_owner_hash_cbx">Owner Hash</label>
+		<input type="checkbox" class="form-check-input" name="include_owner_hash" id="include_owner_hash_cbx">
+		<input type="checkbox" name="as_download" checked hidden="">
+		<button type="submit" class="btn btn.primary">Download Full Commander List</button>
+	</form>
 </div>
+{% endif %}
 <div class="row mb-2">
 	<div class="btn-group" role="group" aria-label="Account Actions">
 		<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal-account-create">New Account</button>
@@ -114,7 +127,7 @@
 			<td id="acc-{{acc.id}}-name">{{ acc.username }}</td>
 			<td id="acc-{{acc.id}}-roles">{% if not acc.had_welcome_mail %}<span id="acc-{{acc.id}}-needsmail" class="badge badge-info">New</span>{% endif %}{% for role in acc.roles %}{{role.name}}{% if not loop.last %}, {% endif %}{% endfor %}</td>
 			<td id="acc-{{acc.id}}-cchar">{{ acc.current_char_obj.eve_name }}</td>
-			<td>{% for character in acc.characters %}{{character.eve_name}}{% if not loop.last %}, {% endif %}{% endfor %}</td>
+			<td>{{acc.id}};{% for character in acc.characters %}{{character.id}}:{{character.eve_name}}{% if not loop.last %},{% endif %}{% endfor %}</td>
 			{# <td id="acc-{{acc.id}}-email">{% if acc.email is not none %}{{ acc.email }}{% endif %}</td> #}
 			<td id="acc-{{acc.id}}-id">{{ acc.id }}</td>
 		</tr>
