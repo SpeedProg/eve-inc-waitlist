@@ -13,6 +13,8 @@ from sqlalchemy.sql.schema import Table, ForeignKey, CheckConstraint, UniqueCons
 from waitlist import db
 from waitlist.utility import config
 from waitlist.utility.utils import get_random_token
+from sqlalchemy.types import UnicodeText
+import json
 
 logger = logging.getLogger(__name__)
 
@@ -61,6 +63,7 @@ class SSOToken(Base):
     __table_args__ = (Index('ix_character_id_account_id', 'character_id', 'account_id'), )
     tokenID = Column('token_id', Integer, primary_key=True)
     characterID = Column('character_id', Integer, ForeignKey('characters.id', onupdate="CASCADE", ondelete="CASCADE"),
+                         nullable=False,
                          index=True)
     # the last account that used this char, if null means no account=>standalone char
     accountID = Column('account_id', Integer, ForeignKey('accounts.id', onupdate="CASCADE", ondelete="CASCADE"),
@@ -103,7 +106,7 @@ class SSOToken(Base):
 
         # if the access_token is still not expired return as valid
         if self.access_token_expires > datetime.utcnow()+timedelta(seconds=10):
-            logger.debug("Token valid because access_token_expires %s still in the future", self.access_token_expires)
+            logger.debug("%s valid because access_token_expires %s still in the future", self, self.access_token_expires)
             return True
 
         # check that the token is valid
@@ -130,11 +133,11 @@ class SSOToken(Base):
                       (e.response['error'] == 'invalid_request' or
                        e.response['error'] == 'invalid_token')
             ):
-                logger.debug("Token invalid because of response.")
+                logger.debug("%s invalid because of response %s.", self, e.response)
                 return False
 
             logger.exception(e)
-            logger.debug("Token invalid because of exception.")
+            logger.debug("%s invalid because of exception.", self)
             return False
 
     def expires_in(self) -> int:
@@ -177,6 +180,9 @@ class SSOToken(Base):
                 token_scopes.append(EveApiScope(scopeName=scope_name))
 
             self.scopes = token_scopes
+
+    def __repr__(self):
+        return f'<Token tokenID={self.tokenID} characterID={self.characterID} accountID={self.accountID} refresh_token={self.refresh_token}>'
 
 
 class Station(Base):
@@ -382,6 +388,7 @@ class Account(Base):
         if token.accountID is None:
             token.accountID = self.id
 
+        logger.debug("%s adding %s", self, token)
         self.ssoTokens.append(token)
 
     def get_token_for_charid(self, character_id: int) -> Optional[SSOToken]:
@@ -410,6 +417,16 @@ class Account(Base):
 
     def __repr__(self):
         return f'<Account {self.username} id={self.id} session_key={self.session_key}>'
+
+    def __eq__(self, other) -> int:
+        if other is None:
+            return False
+        if not hasattr(other, 'id'):
+            return False
+        return self.id == other.id
+
+    def __hash__(self) -> int:
+        return self.id
 
 
 class CrestFleet(Base):
@@ -501,7 +518,7 @@ class Character(Base):
 
         if token.accountID is not None:
             token.accountID = None
-
+        logger.debug("%s adding %s", self, token)
         self.ssoTokens.append(token)
 
     def get_login_token(self):
@@ -551,6 +568,16 @@ class Character(Base):
 
     def __repr__(self):
         return f'<Character {self.eve_name} id={self.id} session_key={self.session_key}>'
+
+    def __eq__(self, other) -> int:
+        if other is None:
+            return False
+        if not hasattr(other, 'id'):
+            return False
+        return self.id == other.id
+
+    def __hash__(self) -> int:
+        return self.id
 
 
 class Role(Base):
@@ -956,16 +983,47 @@ class Setting(Base):
 class AccountNote(Base):
     __tablename__ = "account_notes"
     entryID = Column('entry_id', Integer, primary_key=True)
-    accountID = Column('account_id', Integer, ForeignKey(Account.id), nullable=False)
-    byAccountID = Column('by_account_id', Integer, ForeignKey(Account.id), nullable=False)
-    note = Column('note', Text, nullable=True)
+    accountID = Column('account_id', Integer, ForeignKey(Account.id),
+                       nullable=False)
+    byAccountID = Column('by_account_id', Integer, ForeignKey(Account.id),
+                         nullable=False)
+    note = Column('note', Text, nullable=True, default=None)
     time = Column('time', DateTime, default=datetime.utcnow, index=True)
-    restriction_level = Column('restriction_level', SmallInteger, default=50, nullable=False, server_default=text('50'))
+    restriction_level = Column('restriction_level', SmallInteger, default=50,
+                               nullable=False, server_default=text('50'))
+    textPayload = Column('text_payload', UnicodeText, nullable=True)
+    type = Column('type', String(length=50), nullable=False, index=True)
 
-    role_changes = relationship("RoleChangeEntry", back_populates="note", order_by="desc(RoleChangeEntry.added)")
+    role_changes = relationship("RoleChangeEntry", back_populates="note",
+                                order_by="desc(RoleChangeEntry.added)")
     by = relationship('Account', foreign_keys=[byAccountID])
     account = relationship('Account', foreign_keys=[accountID])
 
+    @property
+    def jsonPayload(self) -> Any:
+        if not hasattr(self, '_AccountNote__payload'):
+            if self.textPayload is None or self.textPayload == '':
+                setattr(self, '_AccountNote__payload', None)
+            else:
+                setattr(self, '_AccountNote__payload', json.loads(self.textPayload))
+
+        return self.__payload
+
+    @jsonPayload.setter
+    def jsonPayload(self, value) -> None:
+        if value == '':
+            value = None
+        self.__payload = value
+        self.textPayload = json.dumps(value)
+
+    def __repr__(self):
+        return (f'<AccountNote entryID={self.entryID}'
+                f' accountID={self.accountID}'
+                f' byAccountID={self.byAccountID}'
+                f' type={self.type} time={self.time}'
+                f' restriction_level={self.restriction_level}'
+                f' textPayload={self.textPayload}'
+                f' note={self.note}>')
 
 class RoleChangeEntry(Base):
     __tablename__ = "role_changes"

@@ -68,13 +68,11 @@ class PermissionManager(object):
         admin_perm: DBPermission = db.session.query(DBPermission).filter(
             DBPermission.name == StaticPermissions.ADMIN).first()
         if admin_perm is None:
-            db_perm: DBPermission = DBPermission(name=StaticPermissions.ADMIN)
+            admin_perm: DBPermission = DBPermission(name=StaticPermissions.ADMIN)
             admin_role: Role = db.session.query(Role).filter(Role.name == StaticRoles.ADMIN).first()
-            db_perm.roles_needed.append(admin_role)
-            db.session.add(db_perm)
+            admin_perm.roles_needed.append(admin_role)
+            db.session.add(admin_perm)
             db.session.commit()
-            admin_perm: DBPermission = db.session.query(DBPermission).filter(
-                DBPermission.name == StaticPermissions.ADMIN).first()
         else:
             # make sure the admin role is in there
             has_admin_role = False
@@ -104,10 +102,10 @@ class PermissionManager(object):
 
     def get_permission(self, name: str) -> AddPermission:
         if name in self.__definitions:
-            if name in self.__permissions:
-                return self.__permissions[name]
-            else:
-                return AddPermission(RoleNeed(StaticRoles.ADMIN))
+            if name not in self.__permissions:
+                self.__add_permission(name, AddPermission(RoleNeed(StaticRoles.ADMIN)))
+
+            return self.__permissions[name]
         else:
             raise ValueError(f'Permission [{ name }] is not defined!')
 
