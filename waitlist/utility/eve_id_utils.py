@@ -38,8 +38,11 @@ def get_item_id(name: str) -> int:
         # add the type to db
         market_group_id = None
 
-        if hasattr(item_data, 'market_group_id'):
+        try:
             market_group_id = item_data.market_group_id
+        except (KeyError, AttributeError):
+            pass  # it should stay None
+
         item = InvType(typeID=item_data.type_id, groupID=item_data.group_id,
                        typeName=item_data.name, description=item_data.description,
                        marketGroupID=market_group_id)
