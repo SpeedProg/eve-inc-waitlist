@@ -5,6 +5,7 @@
     * Fix a typo in Open Mail endpoint preventing it from working
         * this did not affect anything since the waitlist did not use the feature of this codepath
     * The Edit Account Dialog now properly selects all roles an Account has, if the account has a `New` tag
+    * Fix an exception that was not properly handled which prevented unknown modules to be loaded from ESI
   * Features
     * The whole token management got reworked and the waitlist can now have more then 1 token per character
       This means that e.g. you don't need to reauth evertime you change from sending a mail to taking fleet and the other way round.
@@ -22,6 +23,7 @@
     * Added an AccountNote if a Account's username is changed
     * Notes now contain a jsonPayload that can hold more information e.g. the body of a mail sent etc. for old notes this info is lost
         * the migration script converts old notes to the new format and extracts as much data as possible
+    * Account list download is now as json and offeres multiple options of which data should be included
 * 1.2.3
   * Fixes
     * Waitlist Group can not be cleared
