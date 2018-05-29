@@ -1,6 +1,7 @@
 from datetime import datetime
 from json import JSONEncoder
 
+from flasgger import Swagger
 from flask import Flask
 from flask_cdn import CDN
 from flask_sqlalchemy import SQLAlchemy
@@ -34,7 +35,7 @@ app.config['SESSION_COOKIE_SECURE'] = config.secure_cookies
 app.config['UPLOAD_FOLDER'] = path.join(".", "sde")
 # make sure the upload folder actually exists
 # give owner read, write, list(execute)
-os.makedirs(app.config['UPLOAD_FOLDER'], mode=(stat.S_IRUSR|stat.S_IWUSR|stat.S_IXUSR), exist_ok=True)
+os.makedirs(app.config['UPLOAD_FOLDER'], mode=(stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR), exist_ok=True)
 
 # sqlalchemy config
 app.config['SQLALCHEMY_DATABASE_URI'] = config.connection_uri
@@ -104,8 +105,38 @@ class MiniJSONEncoder(JSONEncoder):
         # Let the base class default method raise the TypeError
         return JSONEncoder.default(self, obj)
 
+
 app.json_encoder = MiniJSONEncoder
 
 # init rate limiting
-limiter = Limiter(key_func=get_ipaddr, storage_uri="memory://", strategy="moving-window")
+limiter = Limiter(key_func=get_ipaddr, storage_uri="memory://",
+                  strategy="moving-window")
 limiter.init_app(app)
+
+app.config['SWAGGER'] = {
+    'swagger_version': '2.0',
+    'title': 'Swagger Waitlist API',
+    'headers': [],
+    'specs': [
+        {
+            'version': '0.0.1',
+            'title': 'Api v1',
+            'endpoint': 'spec/',
+            'description': 'Version 1 of the Swagger Waitlist API',
+            'route': '/spec/v1/swagger.json',
+            # rule_filter is optional
+            # it is a callable to filter the views to extract
+            'rule_filter': lambda rule: (print(rule.endpoint) or
+                                         '_v1' in rule.endpoint),
+            # definition_filter is optional
+            # it is a callable to filter the definition models to include
+            'definition_filter': lambda definition: (
+                'v1_model' in definition.tags)
+        }
+    ],
+    'host': config.domain,
+    'basePath': '',
+    'uiversion': 3,
+}
+
+swag = Swagger(app)

@@ -13,8 +13,6 @@ from waitlist.utility.config import crest_return_url, crest_client_id
 import flask
 from urllib.parse import urlencode
 
-from waitlist.utility.login import member_login_cb
-
 bp = Blueprint('fc_sso', __name__)
 logger = logging.getLogger(__name__)
 
@@ -37,7 +35,8 @@ def remove_handler(key: str):
 @login_required
 @perm_fleet_manage.require(http_exception=401)
 def login_redirect() -> Response:
-    return get_sso_redirect("get_fleet_token", 'esi-ui.open_window.v1 esi-fleets.read_fleet.v1 esi-fleets.write_fleet.v1')
+    return get_sso_redirect("get_fleet_token", 'esi-ui.open_window.v1 esi-fleets.read_fleet.v1'
+                                               ' esi-fleets.write_fleet.v1')
 
 
 def get_sso_redirect(action, scopes) -> Response:
@@ -63,6 +62,7 @@ def login_cb():
         logger.error(f'No handler for sso return handle_key[{handle_key}] found. State[{state}]')
         flask.abort(400, 'No Handler for this sso return found!')
     else:
+        logger.debug("Calling handler %s", handler)
         return handler(code)
 
 
@@ -80,5 +80,3 @@ def get_sso_token() -> str:
 def generate_token():
     salt = str(randrange(0, 2 << 63)).encode('utf-8')
     return hashlib.sha1(salt).hexdigest()
-
-add_sso_handler('linelogin', member_login_cb)

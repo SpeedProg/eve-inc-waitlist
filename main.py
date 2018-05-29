@@ -1,13 +1,8 @@
-from gevent import monkey
-monkey.patch_all()
-from waitlist.utility.swagger.patch import monkey_patch_pyswagger_requests_client
-monkey_patch_pyswagger_requests_client()
-
+import gevent_patch_helper
 import logging
+from werkzeug.contrib.fixers import ProxyFix
 from logging.handlers import TimedRotatingFileHandler
-from waitlist.blueprints.feedback import feedback
 from gevent.pywsgi import WSGIServer
-from waitlist import app
 from waitlist.blueprints.fittings import bp_waitlist
 from waitlist.blueprints.fc_sso import bp as fc_sso_bp
 from waitlist.blueprints.fleet import bp as fleet_bp
@@ -32,18 +27,27 @@ from waitlist.blueprints.cc_vote import bp as bp_ccvote
 from waitlist.blueprints.settings.ccvote_results import bp as bp_ccvote_settings
 from waitlist.blueprints.fleetview import bp as bp_fleetview
 
-from waitlist.blueprints.settings import accounts, bans, fleet_motd, fleetoptions, inserts, mail, overview,\
+from waitlist.blueprints.settings import accounts as settings_accounts, bans, fleet_motd, fleetoptions, inserts, mail, overview,\
     staticdataimport, teamspeak, permissions
-from waitlist.blueprints import trivia
+from waitlist.blueprints import trivia, feedback, swagger_api
 from waitlist.blueprints.api import permission
-from waitlist.blueprints.api import fittings
 from waitlist.blueprints import xup
 from waitlist.blueprints import notification
 # needs to he here so signal handler gets registered
-from waitlist.signal.handler import acc_created, roles_changed, account_status_change
+from waitlist.signal import handler
+
+# load the jinja2 hooks
+from waitlist.utility.jinja2 import *
+
+# load flask hooks
+from waitlist.utility.flask import *
+
+# load base app routes
+from waitlist.blueprints import *
+
 
 app.register_blueprint(bp_waitlist)
-app.register_blueprint(feedback, url_prefix="/feedback")
+app.register_blueprint(feedback.feedback, url_prefix="/feedback")
 app.register_blueprint(fc_sso_bp, url_prefix="/fc_sso")
 app.register_blueprint(fleet_bp, url_prefix="/fleet")
 app.register_blueprint(api_fleet_bp, url_prefix="/api/fleet")
@@ -69,7 +73,7 @@ app.register_blueprint(bp_fleetview, url_prefix="/fleetview")
 app.register_blueprint(trivia.submission.bp, url_prefix="/trivia")
 
 # settings blueprints
-app.register_blueprint(accounts.bp, url_prefix='/settings/accounts')
+app.register_blueprint(settings_accounts.bp, url_prefix='/settings/accounts')
 app.register_blueprint(bans.bp, url_prefix='/settings/bans')
 app.register_blueprint(fleet_motd.bp, url_prefix='/settings/motd')
 app.register_blueprint(fleetoptions.bp, url_prefix='/settings/fleet')
@@ -80,56 +84,54 @@ app.register_blueprint(staticdataimport.bp, url_prefix='/settings/sde')
 app.register_blueprint(teamspeak.bp, url_prefix='/settings/teamspeak')
 app.register_blueprint(permissions.bp, url_prefix='/settings/permissions')
 app.register_blueprint(permission.bp, url_prefix='/api/permission')
-app.register_blueprint(fittings.bp, url_prefix='/api/fittings')
 app.register_blueprint(xup.bp, url_prefix='/xup')
 
-
 # notification
-
 app.register_blueprint(notification.bp, url_prefix="/notification")
 
 logger = logging.getLogger(__name__)
 
-# load the jinja2 hooks
-from waitlist.utility.jinja2 import *
-
-# load flask hooks
-from waitlist.utility.flask import *
-
-# load base app routes
-from waitlist.blueprints import *
-
 err_fh = None
 info_fh = None
-access_fh = None
-debug_fh  = None
+debug_fh = None
 
 
-#@werkzeug.serving.run_with_reloader
-def runServer():
+class LogDedicatedLevelFilter(object):
+    def __init__(self, level):
+        self.__level = level
+
+    def filter(self, log_record):
+        return log_record.levelno == self.__level
+
+
+def run_server():
     wsgi_logger = logging.getLogger("gevent.pywsgi.WSGIServer")
     wsgi_logger.addHandler(err_fh)
-    wsgi_logger.addHandler(access_fh)
+    wsgi_logger.addHandler(info_fh)
+    wsgi_logger.addHandler(debug_fh)
     wsgi_logger.setLevel(logging.INFO)
+    app.wsgi_app = ProxyFix(app.wsgi_app)
     server = WSGIServer((config.server_bind, config.server_port), app, log=wsgi_logger, error_log=wsgi_logger)
     server.serve_forever()
+
 
 if __name__ == '__main__':
     err_fh = TimedRotatingFileHandler(filename=config.error_log, when="midnight", interval=1, utc=True)
     info_fh = TimedRotatingFileHandler(filename=config.info_log, when="midnight", interval=1, utc=True)
-    access_fh = TimedRotatingFileHandler(filename=config.access_log, when="midnight", interval=1, utc=True)
     debug_fh = TimedRotatingFileHandler(filename=config.debug_log, when="midnight", interval=1, utc=True)
 
     formatter = logging\
         .Formatter('%(asctime)s - %(name)s - %(levelname)s - %(pathname)s - %(funcName)s - %(lineno)d - %(message)s')
     err_fh.setFormatter(formatter)
     info_fh.setFormatter(formatter)
-    access_fh.setFormatter(formatter)
     debug_fh.setFormatter(formatter)
 
     info_fh.setLevel(logging.INFO)
     err_fh.setLevel(logging.ERROR)
     debug_fh.setLevel(logging.DEBUG)
+
+    info_fh.addFilter(LogDedicatedLevelFilter(logging.INFO))
+    debug_fh.addFilter(LogDedicatedLevelFilter(logging.DEBUG))
 
     waitlistlogger = logging.getLogger("waitlist")
     waitlistlogger.addHandler(err_fh)
@@ -143,4 +145,7 @@ if __name__ == '__main__':
     app.logger.setLevel(logging.INFO)
     
     # app.run(host="0.0.0.0", port=81, debug=True)
-    runServer()
+
+    # connect account signal handler
+    handler.account.connect()
+    run_server()

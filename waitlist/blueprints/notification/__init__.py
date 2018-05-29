@@ -1,4 +1,2 @@
-from flask import Blueprint
-
-bp = Blueprint('notification', __name__)
+from .blueprint import bp
 from .alarm import *

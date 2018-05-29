@@ -38,8 +38,11 @@ def get_item_id(name: str) -> int:
         # add the type to db
         market_group_id = None
 
-        if hasattr(item_data, 'market_group_id'):
+        try:
             market_group_id = item_data.market_group_id
+        except (KeyError, AttributeError):
+            pass  # it should stay None
+
         item = InvType(typeID=item_data.type_id, groupID=item_data.group_id,
                        typeName=item_data.name, description=item_data.description,
                        marketGroupID=market_group_id)
@@ -60,7 +63,7 @@ def get_item_data_from_api(name: str) -> Optional[any]:
     if result_ids is None or len(result_ids) < 1:
         return None
 
-    esi_client: EsiClient = get_esi_client(True)
+    esi_client: EsiClient = get_esi_client(None, True)
     api = get_api()
 
     for result_id in result_ids:
@@ -69,8 +72,6 @@ def get_item_data_from_api(name: str) -> Optional[any]:
             return type_result.data
 
     return None
-
-
 
 
 # load an account by its id
@@ -87,7 +88,7 @@ def create_new_character(eve_id: int, char_name: str) -> Character:
     char = Character()
     char.id = eve_id
     char.eve_name = char_name
-    char.newbro = True
+    char.is_new = True
     db.session.add(char)
     db.session.commit()
     return char
@@ -101,6 +102,16 @@ def get_character_by_id_and_name(eve_id: int, eve_name: str) -> Character:
         char = create_new_character(eve_id, eve_name)
 
     return char
+
+
+def get_character_by_id(eve_character_id: int) -> Character:
+    character: Character = get_char_from_db(eve_character_id)
+    if character is None:
+        logger.info("No character found in database for id %d", eve_character_id)
+        char_info = outgate.character.get_info(eve_character_id)
+        character = create_new_character(eve_character_id, char_info.characterName)
+
+    return character
 
 
 def is_charid_banned(character_id: int) -> bool:
@@ -124,19 +135,18 @@ def get_character_by_name(eve_name: str) -> Optional[Character]:
 
 def is_char_banned(char: Character) -> Tuple[bool, str]:
     try:
+        if is_charid_whitelisted(char.get_eve_id()):
+            return False, ""
+
+        if char.banned:
+            return True, "Character"
+
         corp_id, alli_id = outgate.character.get_affiliations(char.get_eve_id())
         # if he is on whitelist let him pass
         
-        char_banned = char.banned
         corp_banned = is_charid_banned(corp_id)
         alli_banned = is_charid_banned(alli_id)
-        
-        if is_charid_whitelisted(char.get_eve_id()):
-            return False, ""
-        
-        if char_banned:
-            return True, "Character"
-        
+
         if is_charid_whitelisted(corp_id):
                 return False, ""
         

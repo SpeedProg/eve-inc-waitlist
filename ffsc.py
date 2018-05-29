@@ -1,4 +1,6 @@
 from multiprocessing import Process, JoinableQueue
+from typing import List, Union
+
 from waitlist.storage.database import Shipfit, InvType, FitModule
 from waitlist import db, manager
 
@@ -30,25 +32,25 @@ class ConvertConsumer(Process):
                     if moduleDefStr == '':
                         continue
                     try:
-                        moduleDefArr = moduleDefStr.split(';')
-                        if len(moduleDefArr) != 2:
+                        module_def_arr: List[Union[str, int], Union[str, int]] = moduleDefStr.split(';')
+                        if len(module_def_arr) != 2:
                             print("Skipping Module Fit ID=", fit.id, " Module Def Str:", moduleDefStr)
                             continue
                         
                         # lets check here if that module exists
-                        moduleDefArr[0] = int(moduleDefArr[0])
-                        moduleDefArr[1] = int(moduleDefArr[1])
-                        if moduleDefArr[1] > 2147483647 or moduleDefArr[1] < 0:
-                            moduleDefArr[1] = 2147483647
+                        module_def_arr[0] = int(module_def_arr[0])
+                        module_def_arr[1] = int(module_def_arr[1])
+                        if module_def_arr[1] > 2147483647 or module_def_arr[1] < 0:
+                            module_def_arr[1] = 2147483647
                         
-                        module = db.session.query(InvType).get(moduleDefArr[0])
+                        module = db.session.query(InvType).get(module_def_arr[0])
                         if module is None:
-                            print("No Module with ID=", str(moduleDefArr[0]))
+                            print("No Module with ID=", str(module_def_arr[0]))
                             continue
                         
-                        dbModule = FitModule(moduleID=moduleDefArr[0], amount=moduleDefArr[1])
-                        fit.moduleslist.append(dbModule)
-                        filtered_modules_string += str(moduleDefArr[0])+';'+str(moduleDefArr[1])+':'
+                        db_module = FitModule(moduleID=module_def_arr[0], amount=module_def_arr[1])
+                        fit.moduleslist.append(db_module)
+                        filtered_modules_string += str(module_def_arr[0])+';'+str(module_def_arr[1])+':'
                     except ValueError as e:
                         print("Fit ID=", str(fit.id), " Module Def Str:", moduleDefStr)
                         raise e

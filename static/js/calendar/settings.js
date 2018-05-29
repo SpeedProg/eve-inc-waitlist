@@ -37,11 +37,11 @@ waitlist.calendar.settings = (function() {
 				async: true,
 				dataType: "text",
 				error: function() {
-					displayMessage("error", "Deleting event failed");
+					displayMessage("Deleting event failed", "danger");
 				},
 				method: "DELETE",
 				success: function() {
-					displayMessage("success", "Event deleted");
+					displayMessage("Event deleted", "success");
 					target.closest("tr").remove();
 				},
 				headers: {

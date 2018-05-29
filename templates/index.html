@@ -75,13 +75,7 @@
 			{% endassets %}
 		{% endif %}
 	{% endif %}
-	{% assets filters="babili",
-		output="gen/eve-ui.%(version)s.js", "js/eve-ui-config.js" %}
-		<script type="text/javascript" src="{{ ASSET_URL }}" defer async></script>
-	{% endassets %}
-	<script src="https://cdn.jsdelivr.net/gh/quiescens/eve-ui@0.8.9/eve-ui.min.js"
-			integrity="sha384-x6VCPjT7RWb7zkN4FyUF2atPVwoqL4cmAZOq053iWS1s04EgKyH9PdxV0MVN3zxB"
-			crossorigin="anonymous" defer async></script>
+	{% include "libs/eve-ui.html"%}
 {% endblock %}
 
 {% block alert_base %}{% endblock %}
@@ -92,6 +86,7 @@
 	{% with messages = get_flashed_messages(with_categories=true) %}
   		{% if messages %}
   		{% for category, message in messages %}
+		{% if category == "error" %} {% set category = "danger" %}{% endif %}
 
   		<div class="alert alert-{{category}} alert-dismissible" role="alert">
   			<button type="button" class="close" data-dismiss="alert" aria-label="Close">

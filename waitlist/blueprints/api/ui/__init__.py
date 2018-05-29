@@ -11,8 +11,10 @@ from flask.globals import request
 from flask_login import login_required, current_user
 
 from waitlist.blueprints.fc_sso import get_sso_redirect, add_sso_handler
-from waitlist.blueprints.fleet import handle_token_update
 from waitlist.permissions import perm_manager
+from waitlist.sso import add_token
+from waitlist.storage.database import SSOToken
+from waitlist.utility.swagger import esi_scopes
 from waitlist.utility.swagger.evemail import open_mail
 
 bp = Blueprint('api_ui', __name__)
@@ -23,13 +25,9 @@ logger = logging.getLogger(__name__)
 @login_required
 @perm_manager.require('commandcore')
 def post_esi_openwindow_newmail():
-    needs_refresh = True
-    if current_user.ssoToken is not None:
-        for scope in current_user.ssoToken.scopes:
-            if scope.scopeName == 'esi-ui.open_window.v1':
-                needs_refresh = False
+    token: SSOToken = current_user.get_a_sso_token_with_scopes(esi_scopes.open_ui_window)
 
-    if needs_refresh:
+    if token is None:
         return flask.abort(412, 'Not Authenticated for esi-ui.open_window.v1')
 
     recipients_str: str = request.form['mailRecipients']
@@ -51,20 +49,20 @@ def post_esi_openwindow_newmail():
             if alliance_or_corp is not None or mailinglist_id is not None:
                 raise ValueError("Only one alliance or corp or mailing list at maximum can be receipient of a mail")
             alliance_or_corp = rec['recipient_id']
-        elif rec['receipient_type'] == 'mailing_list':
+        elif rec['recipient_type'] == 'mailing_list':
             if mailinglist_id is not None or alliance_or_corp is not None:
                 raise ValueError("Only one alliance or corp or mailing list at maximum can be receipient of a mail")
             mailinglist_id = rec['recipient_id']
 
-    response = open_mail(receipients, body, subject, alliance_or_corp, mailinglist_id)
+    response = open_mail(token, receipients, body, subject, alliance_or_corp, mailinglist_id)
     if response.is_error():
         flask.abort(response.error(), response.code())
 
-    return make_response('', response.code())
+    return make_response('OK', response.code())
 
 
-def handle_sso_cb(tokens):
-    handle_token_update(tokens)
+def handle_open_ui_sso_cb(tokens):
+    add_token(tokens)
     return redirect(url_for('feedback.settings'))
 
 
@@ -74,4 +72,5 @@ def handle_sso_cb(tokens):
 def auth():
     return get_sso_redirect('esi_ui', 'esi-ui.open_window.v1')
 
-add_sso_handler('esi_ui', handle_sso_cb)
+
+add_sso_handler('esi_ui', handle_open_ui_sso_cb)

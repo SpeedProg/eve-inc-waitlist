@@ -9,12 +9,14 @@ import flask
 from flask.globals import request
 from werkzeug.utils import redirect
 from flask.helpers import url_for
+from waitlist.utility.constants import account_notes
+from waitlist.utility.account.notes.note_renderer import render_note_text
 bp = Blueprint('accounts_profile', __name__)
 logger = logging.getLogger(__name__)
 
 perm_manager.define_permission('view_profile')
 perm_manager.define_permission('profile_notes_add')
-perm_manager.define_permission('view_notes_high')  # >= 500
+perm_manager.define_permission('view_notes_high')  # <= 500
 perm_manager.define_permission('view_notes_low')  # < 100
 perm_manager.define_permission('view_notes_med')  # < 200
 perm_manager.define_permission('view_notes_all')
@@ -44,7 +46,9 @@ def profile(accountid):
 
     notes = db.session.query(AccountNote).filter(criterion).all()
 
-    return render_template('account/profile.html', account=account, notes=notes)
+    return render_template('account/profile.html', account=account,
+                           notes=notes,
+                           note_renderer=render_note_text)
 
 
 @bp.route("/byname/<path:username>", methods=["GET"])
@@ -54,10 +58,8 @@ def profile_by_name(username):
     account = db.session.query(Account).filter(Account.username == username).first()
     if account is None:
         flask.abort(404, "Account not found!")
-    notes = None
-    if perm_manager.get_permission('view_notes').can():
-        notes = db.session.query(AccountNote).filter(AccountNote.accountID == account.id).all()
-    return render_template('account/profile.html', account=account, notes=notes)
+    
+    return profile(account.id)
 
 
 @bp.route('/<int:accountid>/notes/add', methods=['POST'])
@@ -65,9 +67,14 @@ def profile_by_name(username):
 @perm_manager.require('profile_notes_add')
 def notes_add(accountid):
     note = request.form['note']
+    if note is None or note == '':
+        flask.abort(400, 'Note can not be empty')
+
     restriction_level = int(request.form['restriction_level'])
-    history_entry = AccountNote(accountID=accountid, byAccountID=current_user.id, note=note,
-                                restriction_level=restriction_level)
+    history_entry = AccountNote(accountID=accountid,
+                                byAccountID=current_user.id, note=note,
+                                restriction_level=restriction_level,
+                                type=account_notes.TYPE_HUMAN)
     db.session.add(history_entry)
     db.session.commit()
     return redirect(url_for('.profile', accountid=accountid))

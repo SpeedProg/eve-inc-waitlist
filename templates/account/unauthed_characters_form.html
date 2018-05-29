@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %}Account - Unauthorized Characters - {{account.username}}{% endblock %}
+
+{% block head %}
+	{{super()}}
+{% endblock %}
+
+{% block container_data %}
+<div class="row">
+	<div class="col">
+	<div class="alert alert-info" role="alert">
+		To continue using your account, you need to authenticate all connected characters, they are listed below.
+	</div>
+	<table class="table">
+		<thead>
+		<tr>
+			<th>Username</th>
+			<th>Action</th>
+		</tr>
+		</thead>
+		<tbody>
+		{% for character in char_list %}
+		<tr>
+			<td>{{character.eve_name}}</td>
+			<td>
+				<form action="{{url_for('accounts.account_self_edit')}}" method="post">
+					<input type="hidden" name="default_char_name" value="{{character.eve_name}}">
+					<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+					<button type="submit" class="btn btn-primary">Authenticate</button>
+				</form>
+			</td>
+		</tr>
+		{% endfor %}
+		</tbody>
+	</table>
+	</div>
+</div>
+
+{% endblock %}

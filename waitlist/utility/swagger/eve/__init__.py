@@ -1,19 +1,20 @@
 import ast
 import json
 import logging
-from pyswagger import App
+from datetime import datetime
 from typing import Any, Optional
 
+from esipy import EsiClient
+from esipy.cache import DummyCache
+from esipy.events import Signal
 from esipy.security import EsiSecurity
+from pyswagger import App
 
-from waitlist.data.version import version
-from waitlist.utility.swagger import header_to_datetime, get_api
-from waitlist.utility.config import crest_return_url, crest_client_id,\
+from waitlist.storage.database import SSOToken
+from waitlist.utility import config
+from waitlist.utility.config import crest_return_url, crest_client_id, \
     crest_client_secret
-from flask_login import current_user
-from datetime import datetime, timezone
-from waitlist.storage.database import Account
-from waitlist.utility.swagger.patch import EsiClient
+from waitlist.utility.swagger import header_to_datetime, get_api
 
 logger = logging.getLogger(__name__)
 
@@ -53,7 +54,7 @@ class ESIResponse(object):
 
     def is_monolith_error(self):
         if self.is_error():
-            if self.__status_code == 420:
+            if self.__status_code == 520:
                 if 'error_label' in self.__error:
                     return True
                 else:
@@ -68,7 +69,7 @@ class ESIResponse(object):
 
 
 def make_error_response(resp: Any) -> ESIResponse:
-    if resp.status == 420:  # monolith error
+    if resp.status == 520:  # monolith error
         if resp.data is None:
             data = json.loads(resp.raw.decode("utf-8"))
             msg = data['error'] if data is not None and 'error' in data else 'No error data send'
@@ -82,23 +83,24 @@ def make_error_response(resp: Any) -> ESIResponse:
     return ESIResponse(get_expire_time(resp), resp.status, msg)
 
 
-def get_esi_client(noauth: bool = False) -> EsiClient:
-    return get_esi_client_for_account(current_user, noauth)
+def get_esi_client(token: Optional[SSOToken], noauth: bool = False) -> EsiClient:
+    return get_esi_client_for_account(token, noauth)
 
 
-def get_esi_client_for_account(account: Account, noauth: bool = False) -> EsiClient:
+def get_esi_client_for_account(token: Optional[SSOToken], noauth: bool = False) -> EsiClient:
     if noauth:
-        return EsiClient(timeout=10, headers={'User-Agent': 'Bruce Warhead IncWaitlist/'+version})
+        return EsiClient(timeout=10, headers={'User-Agent': config.user_agent}, cache=DummyCache())
+
+    signal: Signal = Signal()
+    signal.add_receiver(SSOToken.update_token_callback)
 
     security = EsiSecurity(
         crest_return_url,
         crest_client_id,
-        crest_client_secret
+        crest_client_secret,
+        headers={'User-Agent': config.user_agent},
+        signal_token_updated=signal,
+        token_identifier=token.tokenID
     )
-    security.update_token({
-        'access_token': account.ssoToken.access_token,
-        'expires_in': (account.ssoToken.access_token_expires -
-                       datetime.utcnow()).total_seconds(),
-        'refresh_token': account.ssoToken.refresh_token
-    })
-    return EsiClient(security, timeout=10, headers={'User-Agent': 'Bruce Warhead IncWaitlist/'+version})
+    security.update_token(token.info_for_esi_security())
+    return EsiClient(security, timeout=10, headers={'User-Agent': config.user_agent}, cache=DummyCache())

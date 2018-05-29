@@ -1,11 +1,8 @@
 # https://esi.tech.ccp.is/latest/swagger.json?datasource=tranquility
 from flask_login import current_user
-from esipy.security import EsiSecurity
 from pyswagger import App
 
-from waitlist.utility.config import crest_return_url, crest_client_id,\
-    crest_client_secret
-from datetime import datetime
+from waitlist.storage.database import SSOToken
 
 from waitlist.utility.swagger import get_api
 from waitlist.utility.swagger.eve import ESIResponse, get_expire_time, make_error_response
@@ -18,24 +15,11 @@ from typing import Dict, List, Any, Sequence
 # }]
 ################################
 from waitlist.utility.swagger.eve import get_esi_client
-from waitlist.utility.swagger.patch import EsiClient
 
 
-def send_mail(recipients: List[Dict[str, Any]], body: str, subject: str) -> Any:
+def send_mail(token: SSOToken, recipients: List[Dict[str, Any]], body: str, subject: str) -> Any:
     api: App = get_api()
-    security = EsiSecurity(
-        crest_return_url,
-        crest_client_id,
-        crest_client_secret
-    )
-    security.update_token({
-        'access_token': current_user.ssoToken.access_token,
-        'expires_in': (current_user.ssoToken.access_token_expires -
-                       datetime.utcnow()).total_seconds(),
-        'refresh_token': current_user.ssoToken.refresh_token
-    })
-
-    client = get_esi_client(False)
+    client = get_esi_client(token, False)
 
     mail = {
         "approved_cost": 0,
@@ -47,7 +31,7 @@ def send_mail(recipients: List[Dict[str, Any]], body: str, subject: str) -> Any:
         character_id=current_user.current_char, mail=mail))
 
 
-def open_mail(recipients: Sequence[int], body: str, subject: str, to_corp_or_alliance_id: int = None,
+def open_mail(token: SSOToken, recipients: Sequence[int], body: str, subject: str, to_corp_or_alliance_id: int = None,
               to_mailing_list_id: int = None) -> ESIResponse:
     """
     {
@@ -61,6 +45,7 @@ def open_mail(recipients: Sequence[int], body: str, subject: str, to_corp_or_all
         # max 1 of the 2 optimal values
     }
     """
+
     payload: Dict[str, Any] = {}
     if to_corp_or_alliance_id is not None and to_mailing_list_id is not None:
         raise ValueError("Only to_mailing_list_id or to_corp_or_alliance_id can have a value, not both!")
@@ -81,8 +66,7 @@ def open_mail(recipients: Sequence[int], body: str, subject: str, to_corp_or_all
     if len(payload['recipients']) <= 0:
         payload['recipients'] = [0]
 
-    client = get_esi_client()
-    app = get_api()
+    client = get_esi_client(token, False)
     response = client.request(client.security.app.op['post_ui_openwindow_newmail'](new_mail=payload))
     if response.status == 204:
         return ESIResponse(get_expire_time(response), response.status, None)

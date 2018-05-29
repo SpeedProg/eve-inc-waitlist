@@ -21,6 +21,7 @@ perm_manager.define_permission('change_fleet_motd')
 def get_permission():
     return perm_manager.get_permission('change_fleet_motd')
 
+
 perm = get_permission()
 
 
@@ -48,5 +49,6 @@ def change(type_):
         sset_motd_vg(motd)
         flash("VG MOTD Saved")
     return redirect(url_for('settings_fmotds.index'))
+
 
 add_menu_entry('settings_fmotds.index', 'Fleet MOTD', perm.can)
