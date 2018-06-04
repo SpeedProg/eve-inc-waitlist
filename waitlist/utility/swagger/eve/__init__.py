@@ -77,9 +77,11 @@ def make_error_response(resp: Any) -> ESIResponse:
             msg = resp.data['error']
         else:
             msg = f'Unknown Monolith error {resp.data}'
+
+        logger.debug('ESI responded with status Monolith 520 and msg %s', msg)
     else:
         msg = resp.data['error'] if resp.data is not None and 'error' in resp.data else 'No error data send'
-    logger.error(f'ESI responded with status {resp.status} and msg {msg}')
+        logger.error('ESI responded with status %s and msg %s', resp.status, msg)
     return ESIResponse(get_expire_time(resp), resp.status, msg)
 
 

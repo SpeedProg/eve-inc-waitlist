@@ -11,8 +11,14 @@ import logging
 from waitlist.utility.swagger import get_api
 from waitlist.utility.swagger.eve import get_esi_client
 from waitlist.utility.swagger.eve.search import SearchEndpoint, SearchResponse
+from threading import Lock
 
 logger = logging.getLogger(__name__)
+
+"""
+Lock for checking existance of a character and creating it
+"""
+character_check_lock: Lock = Lock()
 
 
 def get_constellation(name: str) -> Constellation:
@@ -81,7 +87,7 @@ def get_account_from_db(int_id: int) -> Account:
 
 # load a character by its id
 def get_char_from_db(int_id: int) -> Character:
-    return db.session.query(Character).filter(Character.id == int_id).first()
+    return db.session.query(Character).get(int_id)
 
 
 def create_new_character(eve_id: int, char_name: str) -> Character:
@@ -95,23 +101,25 @@ def create_new_character(eve_id: int, char_name: str) -> Character:
 
 
 def get_character_by_id_and_name(eve_id: int, eve_name: str) -> Character:
-    char = get_char_from_db(eve_id)
-    if char is None:
-        logger.info("No character found for id %d", eve_id)
-        # create a new char
-        char = create_new_character(eve_id, eve_name)
+    with character_check_lock:
+        char = get_char_from_db(eve_id)
+        if char is None:
+            logger.info("No character found for id %d", eve_id)
+            # create a new char
+            char = create_new_character(eve_id, eve_name)
 
-    return char
+        return char
 
 
 def get_character_by_id(eve_character_id: int) -> Character:
-    character: Character = get_char_from_db(eve_character_id)
-    if character is None:
-        logger.info("No character found in database for id %d", eve_character_id)
-        char_info = outgate.character.get_info(eve_character_id)
-        character = create_new_character(eve_character_id, char_info.characterName)
+    with character_check_lock:
+        character: Character = get_char_from_db(eve_character_id)
+        if character is None:
+            logger.info("No character found in database for id %d", eve_character_id)
+            char_info = outgate.character.get_info(eve_character_id)
+            character = create_new_character(eve_character_id, char_info.characterName)
 
-    return character
+        return character
 
 
 def is_charid_banned(character_id: int) -> bool:
