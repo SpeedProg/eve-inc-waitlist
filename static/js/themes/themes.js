@@ -13,7 +13,7 @@ waitlist.themes = (function() {
 		'def_type': 'remote',
 		'def_file': 'https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css',
 		'def_integrity': "sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ",
-		'def_crossorigin': "anonymouse"
+		'def_crossorigin': "anonymous"
 	};
 	// file_name = null == standard file
 	function setTheme(file_name, type, integrity, crossorigin) {
