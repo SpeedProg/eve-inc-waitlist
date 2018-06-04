@@ -62,7 +62,7 @@ def login_character(char: Character, owner_hash: str, token: SSOToken) -> Respon
     # if the hash is there but different the owner changed we need to invalidate sessions and update
     elif char.owner_hash != owner_hash:
         char.owner_hash = owner_hash
-        invalidate_all_sessions_for_current_user()
+        invalidate_all_sessions_for_given_user(char)
         db.session.commit()
 
     tokens = char.get_sso_tokens_with_scopes(['publicData'])

@@ -1,4 +1,12 @@
 #Changelog
+* 1.3.1
+  * Fixes
+    * fixed for possible race contition between checking if a character exists in db and creating it
+    * Fixed spelling anonymous as anonymouse in crossorigin
+    * Fix not beeing able to login with a transfered character
+  * Changes
+    * Not logging monolith errors to the error log anymore only to debug, these are expected
+    * Not logging fleet invite errors that are caused by a monolith error at all anymore
 * 1.3.0
   * Fixes
     * Ban for character banned users did not work when esi was not responding
