@@ -1,4 +1,11 @@
 #Changelog
+* 1.3.2
+  * Fixes
+    * Feedbacks open ingame mail button not working (this was broken with esipy upgrade in 1.3.0)
+  * Improvement
+    * Intercepting ajax calls to urls with /universe/types/ in url and setting Accept-Language header to'en-us, en;q=0.9'
+    to counter the change where ccp's esi started looking at that header for the name of modules
+    
 * 1.3.1
   * Fixes
     * fixed for possible race contition between checking if a character exists in db and creating it
