@@ -67,7 +67,8 @@ def open_mail(token: SSOToken, recipients: Sequence[int], body: str, subject: st
         payload['recipients'] = [0]
 
     client = get_esi_client(token, False)
-    response = client.request(client.security.app.op['post_ui_openwindow_newmail'](new_mail=payload))
+    api: App = get_api()
+    response = client.request(api.op['post_ui_openwindow_newmail'](new_mail=payload))
     if response.status == 204:
         return ESIResponse(get_expire_time(response), response.status, None)
 
