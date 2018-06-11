@@ -305,7 +305,8 @@ def invite(user_id: int, squad_id_list: Sequence[Tuple[int, int]]):
             else:
                 return {'status_code': response.code(), 'text': response.error()}
 
-        return {'status_code': response.code(), 'text': ''}
+        return {'status_code': response.code(),
+                'text': 'Invite failed for unknown reason'}
 
     logger.info("Failed to invite %d to a squad, because all squads are full!", user_id)
     return {'status_code': 403, 'text': 'Failed to invite person a squad, all squads are full!'}
