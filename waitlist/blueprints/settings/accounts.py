@@ -12,7 +12,6 @@ from flask import url_for
 from flask_login import login_required, current_user
 from sqlalchemy import asc
 from sqlalchemy import or_
-from sqlalchemy.orm import joinedload
 
 from waitlist import db
 from waitlist.blueprints.fc_sso import get_sso_redirect, add_sso_handler
@@ -30,6 +29,10 @@ from waitlist.utility.manager.owner_hash_check_manager import OwnerHashCheckMana
 from waitlist.utility.settings import sget_resident_mail, sget_tbadge_mail, sget_other_mail, sget_other_topic, \
     sget_tbadge_topic, sget_resident_topic
 from waitlist.utility.utils import get_random_token
+from typing import Callable, Any
+import gevent
+import time
+from gevent.threading import Lock
 
 bp = Blueprint('accounts', __name__)
 logger = logging.getLogger(__name__)
@@ -104,17 +107,45 @@ def accounts():
     return render_template("settings/accounts.html", roles=roles, accounts=accs, mails=mails)
 
 
-def clean_alt_list() -> None:
+alt_clean_lock: Lock = Lock()
+last_alt_clean: datetime = datetime.min
+min_time_between_checks: timedelta = timedelta(hours=12)
+
+
+def should_clean_alts() -> bool:
+    return (datetime.utcnow() - last_alt_clean) > min_time_between_checks
+
+
+def async_clean_alt_list() -> None:
     """
+    This function asyncron and returns instantly
     Removes links between accounts and characters if
      - there is a token
        - but the token expired
      - or the owner_hash changed (this should expire the token!)
     if there is no token for the character at all, the character is kept
     """
+    if not should_clean_alts():
+        return
+    if not alt_clean_lock.acquire(False):
+        # this is alread running
+        return
+    try:
+        last_alt_clean = datetime.utcnow()
 
-    accs: List[Account] = db.session.query(Account).all()
-    for acc in accs:
+        accs: List[Account] = db.session.query(Account).all()
+        for acc in accs:
+            gevent.spawn(check_tokens_for_account, acc)
+    finally:
+        alt_clean_lock.release()
+
+
+def check_tokens_for_account(acc: Account) -> None:
+    """
+    Check tokens for characters connected to this account.
+    This method is made to be used in a thread
+    """
+    try:
         logger.debug("Checking tokens for alts of %s", acc)
         for char in acc.characters:
             logger.debug("Checking alt %s for account %s", char, acc)
@@ -123,7 +154,8 @@ def clean_alt_list() -> None:
                 continue
 
             token: Optional[SSOToken] = acc.get_token_for_charid(char.id)
-            # if there is no token for this account/character combination we don't need to do anything
+            # if there is no token for this account/character combination
+            # we don't need to do anything
             if token is None:
                 logger.debug("No token for %s on %s doing nothing", char, acc)
                 continue
@@ -132,8 +164,35 @@ def clean_alt_list() -> None:
             # remove the invalid toekn
             db.session.delete(token)
             logger.debug("Deleted invalid token for %s on %s", char, acc)
+    except Exception:
+        logger.exception("Failed while cleaning tokens for account %s", acc)
+    finally:
+        db.session.remove()
 
-    db.session.commit()
+
+def clean_alt_list() -> None:
+    """
+    This function syncron
+    Removes links between accounts and characters if
+     - there is a token
+       - but the token expired
+     - or the owner_hash changed (this should expire the token!)
+    if there is no token for the character at all, the character is kept
+    """
+    if not should_clean_alts():
+        return
+    if not alt_clean_lock.acquire(False):
+        # this is alread running
+        return
+    try:
+        start_time = time.time()
+        accs: List[Account] = db.session.query(Account).all()
+        jobs = [gevent.spawn(check_tokens_for_account, acc) for acc in accs]
+        gevent.joinall(jobs, timeout=600)
+        end_time = time.time()
+        logger.info("Cleaned alt list in %ss", (end_time-start_time))
+    finally:
+        alt_clean_lock.release()
 
 
 @bp.route("/edit", methods=["POST"])
