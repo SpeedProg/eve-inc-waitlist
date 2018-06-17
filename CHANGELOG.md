@@ -1,4 +1,8 @@
 #Changelog
+* 1.4.1:
+  * Fixes
+    * Swagger spec not containing the scheme
+    * Falling back to dark_purple theme instead of default when user has a theme set that does not exist anymore (if no theme set it went for default)
 * 1.4.0:
   * Improvements
     * Updated bootstrap framework from 4alph6 to 4.1.1
