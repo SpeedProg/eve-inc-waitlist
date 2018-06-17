@@ -220,13 +220,13 @@ def __create_cache_item(data: Any, expire_in_s: int):
     return {'data': data, 'datetime': (datetime.utcnow() + timedelta(seconds=expire_in_s))}
 
 
-def __get_query_result(name, query, column_count, cache_time_seconds):
-    if __cache.has_cache_item(name):
-        cache_item = __cache.get_cache_item(name)
+def __get_query_result(dataset_id, query, column_count, cache_time_seconds):
+    if __cache.has_cache_item(dataset_id):
+        cache_item = __cache.get_cache_item(dataset_id)
         result = cache_item['data']
     else:
         # we are going to return this
-        cache_item = __cache.get_cache_item(name)
+        cache_item = __cache.get_cache_item(dataset_id)
         if cache_item is None:
             result = []
             row = []
@@ -252,7 +252,7 @@ def __get_query_result(name, query, column_count, cache_time_seconds):
             __cache.add_item_to_cache(data_name, __create_cache_item(result_, ct))
             db.session.remove()
 
-        Greenlet.spawn(execute_query, name, column_count, query, cache_time_seconds)
+        Greenlet.spawn(execute_query, dataset_id, column_count, query, cache_time_seconds)
     return result
 
 
