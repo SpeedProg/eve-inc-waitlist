@@ -3,15 +3,11 @@
 }
 
 .eveui_window {
-  background: $gray-600 !important;
-  color: $gray-200 !important;
+  background: $body-bg !important;
+  color: $body-color !important;
 }
 
 .eveui_title {
-  background: $gray-900;
-  color: $gray-100 !important;
-}
-
-#wl_hover table {
-  background: $gray-400 !important;
+  background: $body-bg;
+  color: $body-color !important;
 }
