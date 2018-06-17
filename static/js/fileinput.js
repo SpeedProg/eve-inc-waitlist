@@ -6,7 +6,7 @@ document
 			$('body')
 				.on(
 					'change',
-					'input[type="file"][data-toggle="custom-file"]',
+					'input[type="file"][class="custom-file-input"]',
 					function(event) {
 						const $input = $(event.currentTarget);
 						const target = $input.data('target');

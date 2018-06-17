@@ -31,9 +31,9 @@ waitlist.listdom = (function(){
 			type = "warning";
 			break;
 		default:
-			type = "default";
+			type = "secondary";
 		}
-		return $.parseHTML(`<span class="badge badge-${type}">${name}</span>`);
+		return $.parseHTML(`<span class="badge badge-pill badge-${type}">${name}</span>`);
 	}
 	
 	/**
@@ -107,7 +107,7 @@ waitlist.listdom = (function(){
 		// if the current user can view fits and or it is this character and
 		// this entry is a rookie
 		if ((settings.can_view_fits || entry.character.id === settings.user_id) && entry.character.newbro) {
-			newBroTag = ' <span class="badge badge-info">New</span>';
+			newBroTag = ' <span class="badge badge-pill badge-info">New</span>';
 		}
 		var cTime = new Date(Date.now());
 		var xupTime = new Date(Date.parse(entry.time));

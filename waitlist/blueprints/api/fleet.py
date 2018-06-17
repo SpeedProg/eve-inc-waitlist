@@ -100,8 +100,9 @@ def invite_to_fleet():
 
     if resp.status_code != 204:  # invite failed send no notifications
         if resp.status_code != 520:
-            logger.error("Invited %s by %s into %s failed",
-                         character.eve_name, current_user.username, squad_type)
+            logger.error("Invited %s by %s into %s failed, status_code %s message %s",
+                         character.eve_name, current_user.username, squad_type,
+                         resp.status_code, status['text'])
         return resp
 
     send_notification(character_id, waitlist_id)

@@ -15,6 +15,7 @@ from sqlalchemy import or_
 from waitlist import db
 from waitlist.permissions import perm_manager
 from waitlist.storage.database import Account, CalendarEvent, CalendarEventCategory
+import flask
 
 bp = Blueprint('calendar_settings', __name__)
 logger = logging.getLogger(__name__)
@@ -49,13 +50,24 @@ def get_index():
 @login_required
 @perm_manager.require('commandcore')
 def post_index():
+    for name in ['categoryID', 'time', 'date']:
+        if name not in request.form:
+            flask.abort(400, 'Some required information is missing')
+
     category_id: int = int(request.form['categoryID'])
     backseats_string: List[string] = request.form.getlist('backseats')
+    event_time: str = request.form['time']
+    event_date: str = request.form['date']
+
+    if event_time == '' or event_date == '':
+        flask.abort(400, 'Event time or date was not specified')
+
     backseat_ids: List[int] = []
+    print(backseats_string)
     for backseat_string in backseats_string:
         backseat_ids.append(int(backseat_string))
 
-    event_time: datetime = datetime.strptime(request.form['time'], "%Y/%m/%d %H:%M")
+    event_datetime: datetime = datetime.strptime(event_date+' '+event_time, "%Y-%m-%d %H:%M")
 
     category: CalendarEventCategory = db.session.query(CalendarEventCategory).get(category_id)
 
@@ -66,10 +78,11 @@ def post_index():
     event = CalendarEvent(eventCreatorID=current_user.id,
                           eventTitle=category.fixedTitle, eventDescription=desc,
                           eventCategoryID=category.categoryID, eventApproved=True,
-                          eventTime=event_time)
+                          eventTime=event_datetime)
 
     accs: Sequence[Account] = db.session.query(Account).filter(
-        or_(Account.id == acc_id for acc_id in backseat_ids)).all()
+        Account.id.in_(backseat_ids)
+        ).all()
     for acc in accs:
         event.backseats.append(acc)
 

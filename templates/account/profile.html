@@ -9,7 +9,7 @@
 {% block container_data %}
 <div class="row">
 <h4>Profile of {{account.username}}</h4>
-	<div class="col-md-8">
+	<div class="col-lg-8">
 	<table class="table">
 		<thead>
 			<tr>
@@ -36,7 +36,7 @@
 	</table>
 	</div>
 	{% if perm_manager.get_permission('profile_notes_add').can() %}
-	<div class="col-md-4">
+	<div class="col-lg-4">
 		<form id="form-add-note" action="{{url_for('accounts_profile.notes_add', accountid=account.id)}}" method="POST">
 			<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 			<div class="form-group">
