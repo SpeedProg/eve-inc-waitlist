@@ -145,4 +145,4 @@ template = {
     "schemes": [LazyString(lambda: request.scheme)]
 }
 
-swag = Swagger(app)
+swag = Swagger(app, template=template)
