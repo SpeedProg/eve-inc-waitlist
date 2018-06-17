@@ -1,0 +1,47 @@
+Get approved fits statistics
+Get statistics data over approved fits
+Parameters can be used to decide the duration from the current time.
+These statistics are cached for at least one hour.
+---
+    consumes:
+      - application/json
+    operationId: get_approved_fits_by_account
+    produces:
+      - application/json
+    tags:
+      - Statistics
+    parameters:
+      - name: duration_seconds
+        in: path
+        description: duration of the statistic
+        type: Integer
+        format: int32
+    responses:
+      201:
+         description: Object containing statistics data
+         schema:
+          type: object
+          required:
+            - title
+            - xnames
+            - yvalues
+          properties:
+            title:
+              type: string
+              description: title text
+            xnames:
+              type: array
+              items:
+                type: string
+            yvalues:
+              type: array
+              items:
+                type: integer
+                format: int64
+      403:
+        description: You are missing the required permission for this route
+        examples:
+          application/json:
+            error: You are missing the required permission settings_access
+        schema:
+          $ref: '#/definitions/ErrorForbidden'

@@ -1,0 +1,46 @@
+Get joined members statistics
+Get statistics data over characters joining fleet
+These statistics are cached for at least one hour.
+---
+    consumes:
+      - application/json
+    operationId: get_joined_members
+    produces:
+      - application/json
+    tags:
+      - Statistics
+    parameters:
+      - name: duration_seconds
+        in: path
+        description: duration of the statistic
+        type: Integer
+        format: int32
+    responses:
+      201:
+         description: Object containing statistics data
+         schema:
+          type: object
+          required:
+            - title
+            - xnames
+            - yvalues
+          properties:
+            title:
+              type: string
+              description: title text
+            xnames:
+              type: array
+              items:
+                type: string
+            yvalues:
+              type: array
+              items:
+                type: integer
+                format: int64
+      403:
+        description: You are missing the required permission for this route
+        examples:
+          application/json:
+            error: You are missing the required permission settings_access
+        schema:
+          $ref: '#/definitions/ErrorForbidden'

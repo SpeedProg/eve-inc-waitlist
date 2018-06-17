@@ -4,6 +4,7 @@ from waitlist import app
 from . import models
 
 from . import accounts, characters
+from waitlist.blueprints.swagger_api import statistics
 
 
 @accounts.bp_v1.errorhandler(403)
@@ -22,3 +23,4 @@ def error_handler_forbidden(ex: Exception) -> Response:
 
 app.register_blueprint(characters.bp_v1, url_prefix='/swa/v1/characters')
 app.register_blueprint(accounts.bp_v1, url_prefix='/swa/v1/accounts')
+app.register_blueprint(statistics.bp_v1, url_prefix='/swa/v1/statistics')

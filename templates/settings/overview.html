@@ -2,34 +2,24 @@
 
 {% block title %}Settings - Overview{% endblock %}
 
-{% block raw_content %}
+{% block head %}
+	{{ super() }}
+<meta name="show_approval_count" content="{{config.overview_show_count_for_approvals}}">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/4.1.0/echarts-en.js"
+ integrity="sha256-q4eNahhjrmTWF+LAesQ+rDagZhwcegBpS7qE0UAjJx4="
+ crossorigin="anonymous"></script>
 
-{% for s_row in stats %}
-	<div class="row">
-	
-	{% for table in s_row %}
-	{# (desc, column_names, data, hide_rows) #}
-	<div class="col-6">
-		<table class="table table-sm">
-			<caption>{{table.0}}</caption>
-			<thead>
-				{% for header_text in table.1 %}
-				<th {% if table.3[loop.index0] == true %}hidden{% endif %}>{{header_text}}</th>
-				{% endfor %}
-			</thead>
-			<tbody>
-				{% for trow in table.2 %}
-				<tr>
-					{% for tcell in trow %}
-					<td {% if table.3[loop.index0] == true %}hidden{% endif %}>{{tcell}}</td>
-					{% endfor %}
-				</tr>
-				{% endfor %}
-			</tbody>
-		</table>
-	</div>
-	{% endfor %}
-
-	</div>
-{% endfor %}
+	{% assets filters="babili", output="gen/swagger-client.%(version)s.js", "js/swagger-client.min.js" %}
+<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+	{% endassets %}
+	{% assets filters="babili", output="gen/settings.overview.%(version)s.js", "js/base.js",
+	"js/overview/overview.js" %}
+<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+	{% endassets %}
 {% endblock %}
+
+	{% block raw_content %}
+	<div class="row" id="chart-row">
+	
+	</div>
+	{% endblock %}

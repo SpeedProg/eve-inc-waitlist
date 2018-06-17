@@ -96,7 +96,11 @@ config.set_if_not_exists("fittools", "stats_enabled", "True")
 config.set_if_not_exists("fittools", "stats_uri", "https://quiescens.duckdns.org/wl/ext/wl_external.js")
 config.set_if_not_exists("fittools", "stats_sri", "sha384-VonGhMELp1YLVgnJJMq2NqUOpRjhV7nUpiATMsrK5TIMrYQuGUaUPUZlQIInhGc5")
 
-    
+if not config.has_section("overview"):
+    config.add_section("overview")
+config.set_if_not_exists("overview", "show_count_for_approvals", "True")
+
+
 with open(os.path.join(".", "config", "config.cfg"), "w") as configfile:
     config.write(configfile)
 
@@ -147,3 +151,6 @@ user_agent = config.get("app", "user_agent")+"/"+version.version
 
 domain = config.get("app", "domain")
 using_proxy = config.get("app", "using_proxy") == "True"
+
+overview_show_count_for_approvals = config.get("overview", "show_count_for_approvals") == "True"
+
