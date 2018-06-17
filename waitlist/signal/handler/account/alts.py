@@ -1,6 +1,7 @@
 from waitlist.storage.database import AccountNote, Character
 from waitlist import db
 from ...signals import alt_link_added_sig, alt_link_removed_sig
+from waitlist.utility.constants import account_notes
 
 
 def on_alt_link_added_history_entry(_, added_by_id: int, account_id: int,
@@ -11,9 +12,9 @@ def on_alt_link_added_history_entry(_, added_by_id: int, account_id: int,
     :param account_id: id of the account the alt was added to
     :param character_id: id of the character that was added as alt
     """
-    character: Character = db.session.query(Character).get(character_id)
     history_entry = AccountNote(accountID=account_id,
-                                byAccountID=added_by_id
+                                byAccountID=added_by_id,
+                                type=account_notes.TYPE_ACCOUNT_CHARACTER_LINK_ADDED
                                 )
     history_entry.jsonPayload = {'character_id': character_id}
 
@@ -32,8 +33,7 @@ def on_alt_link_removed_history_entry(_, removed_by_id: int, account_id: int,
     character: Character = db.session.query(Character).get(character_id)
     history_entry = AccountNote(accountID=account_id,
                                 byAccountID=removed_by_id,
-                                note=f"Added character with id={character.id}"
-                                f" name={character.eve_name} as alt.",
+                                type=account_notes.TYPE_ACCOUNT_CHARACTER_LINK_REMOVED
                                 )
     history_entry.jsonPayload = {'character_id': character.id}
 

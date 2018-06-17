@@ -27,66 +27,76 @@ src="{{ config.stattool_uri }}" integrity="{{ config.stattool_sri }}"
 
 {% block container_data %}
 <div class="row">
-<div class="btn-group" data-toggle="buttons" role="group" aria-label="history settings">
-	<label id="filter-approval-only" class="btn btn-primary">
-		<input id="filter-approval-only-box" type="checkbox" autocomplete="off">Only Show Approvals
-	</label><button class="btn btn-sm btn-primary" style="font-size:1em;" data-action="changeSize" data-size="0.25">A</button><button class="btn btn-sm btn-primary" style="font-size:0.5em;" data-action="changeSize" data-size="-0.25">A</button>
-</div>
-</div>
-<div class="row">
-<div class="form-inline">
-<div class="form-group">
-	<label for="input-sources">Accounts</label><input class="form-control" id="input-sources" type="text">
-</div>
-<div class="form-group">
-	<label for="input-targets">Characters</label><input class="form-control" id="input-targets" type="text">
-</div>
-<div class="form-group">
-	<label for="input-actions">Actions</label>
-	<select class="form-control" id="input-actions" multiple>
-		<option value="xup">X-UP</option>
-		<option value="comp_rm_pl">Removed a Character from Waitlists</option>
-		<option value="comp_inv_pl">Send Invitation to Character</option>
-		<option value="comp_rm_etr">Removed Entry from X-UPs</option>
-		<option value="self_rm_entry">Removed own fit</option>
-		<option value="self_rm_wls_all">Removed himself from all lists</option>
-		<option value="comp_mv_xup_etr">Approved X-UP entry</option>
-		<option value="comp_mv_xup_fit">Approved Single Fit</option>
-		<option value="comp_send_noti">Send Notification to Character</option>
-		<option value="auto_rm_pl">Player was removed after found in fleet</option>
-		<option value="auto_inv_missed">Player missed his invite</option>
-		<option value="self_rm_etr">Player removed himself from X-UPs</option>
-		<option value="comp_inv_by_name">Player was invited by Name(Reform Tool?)</option>
-	</select>
-</div>
-<div class="form-group">
-<div class='input-group date' id='startpicker'>
-    <input type='text' class="form-control" />
-    <span class="input-group-addon">
-        <span class="fa fa-calendar"></span>
-    </span>
-</div>
- to 
-<div class='input-group date' id='endpicker'>
-    <input type='text' class="form-control" />
-    <span class="input-group-addon">
-        <span class="fa fa-calendar"></span>
-    </span>
-</div>
-</div>
-<div class="form-group">
-<button id="search" class="form-control">Get Info</button>
-</div>
-</div>
+	<div class="btn-group-toggle pr-3" data-toggle="buttons">
+		<label id="filter-approval-only" class="btn btn-primary" >
+			<input id="filter-approval-only-box" type="checkbox" autocomplete="off" aria-label="toggle show only approvals">Only Show Approvals
+		</label>
+	</div>
+	<div class="btn-group">
+		<button class="btn btn-sm btn-primary" style="font-size:1em;" data-action="changeSize" data-size="0.25">A</button>
+		<button class="btn btn-sm btn-primary" style="font-size:0.5em;" data-action="changeSize" data-size="-0.25">A</button>
+	</div>
 </div>
 <div class="row">
-<table class="table table-sm comp-font">
-<thead>
-<th>Time</th><th>Action</th><th>Account</th><th>Target</th><th>Associated Fits</th>
-</thead>
-<tbody id="historybody">
-</tbody>
-</table>
+	<div class="form-inline">
+		<div class="form-group mr-2">
+			<label class="mr-1" for="input-sources">Accounts</label>
+			<input class="form-control" id="input-sources" type="text">
+		</div>
+		<div class="form-group mr-2">
+			<label class="mr-1" for="input-targets">Characters</label>
+			<input class="form-control" id="input-targets" type="text">
+		</div>
+		<div class="form-group mr-2">
+			<label class="mr-1" for="input-actions">Actions</label>
+			<select class="form-control" id="input-actions" multiple>
+				<option value="xup">X-UP</option>
+				<option value="comp_rm_pl">Removed a Character from Waitlists</option>
+				<option value="comp_inv_pl">Send Invitation to Character</option>
+				<option value="comp_rm_etr">Removed Entry from X-UPs</option>
+				<option value="self_rm_entry">Removed own fit</option>
+				<option value="self_rm_wls_all">Removed himself from all lists</option>
+				<option value="comp_mv_xup_etr">Approved X-UP entry</option>
+				<option value="comp_mv_xup_fit">Approved Single Fit</option>
+				<option value="comp_send_noti">Send Notification to Character</option>
+				<option value="auto_rm_pl">Player was removed after found in fleet</option>
+				<option value="auto_inv_missed">Player missed his invite</option>
+				<option value="self_rm_etr">Player removed himself from X-UPs</option>
+				<option value="comp_inv_by_name">Player was invited by Name(Reform Tool?)</option>
+			</select>
+		</div>
+		<div class="form-group mr-2">
+			<div class='input-group date' id='startpicker'>
+				<input type='text' class="form-control" />
+				<div class="input-group-prepend">
+					<span class="input-group-text">
+						<i class="fa fa-calendar"></i>
+					</span>
+				</div>
+			</div>
+			<span class="mx-1">to</span>
+			<div class='input-group date' id='endpicker'>
+				<input type='text' class="form-control" />
+				<div class="input-group-prepend">
+					<span class="input-group-text">
+						<span class="fa fa-calendar"></span>
+					</span>
+				</div>
+			</div>
+		</div>
+		<div class="form-group">
+			<button id="search" class="form-control">Get Info</button>
+		</div>
+	</div>
+</div>
+<div class="row">
+	<table class="table table-sm comp-font">
+		<thead>
+			<th>Time</th><th>Action</th><th>Account</th><th>Target</th><th>Associated Fits</th>
+		</thead>
+		<tbody id="historybody">
+		</tbody>
+	</table>
 </div>
 {% assets filters="babili", output="gen/history-base.%(version)s.js", "js/base.js", "js/history-base.js", "js/history-font.js" %}
 <script type="text/javascript" src="{{ ASSET_URL }}"></script>
