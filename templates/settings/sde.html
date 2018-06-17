@@ -23,47 +23,53 @@
 	<div class="alert alert-info" role="alert">File Uploads do not work in the IGB. Please use an out of game browser</div>
 	{% endif %}
 </div>
-<div class="row mb-2">
+<div class="row mb-3">
 <form class="form-inline" action="{{url_for('sde.update_type_ids')}}" method="post" enctype="multipart/form-data">
 	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
-	<div class="form-group">
-		<label class="form-control-label" for="typeid-file">typeIDs.yaml</label>
-		<label class="custom-file">
- 			<input data-toggle="custom-file" data-target="#typeid" type="file" name="file" id="typeid-file" class="custom-file-input">
-  			<span id="typeid" data-content="Choose file..." class="custom-file-name custom-file-control"></span>
-		</label>
+	<div class="input-group mr-1">
+		<div class="input-group-prepend">
+			<span class="input-group-text">typeIDs.yaml</span>
+		</div>
+		<div class="custom-file">
+			<input type="file" name="file" data-target="#typeid-file-label" class="custom-file-input" id="typeid-file">
+			<label id="typeid-file-label" class="custom-file-label" data-content="Choose file..." for="typeid-file"></label>
+		</div>
 	</div>
 	<button type="submit" class="btn btn-primary">Update typeIDs</button>
 </form>
 </div>
-<div class="row mb-2">
+<div class="row mb-3">
 <form class="form-inline" action="{{url_for('sde.update_map')}}" method="post" enctype="multipart/form-data">
 	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 	<button type="submit" class="btn btn-primary">Update Systems and Constellations</button>
 </form>
 </div>
-<div class="row mb-2">
+<div class="row mb-3">
 <form class="form-inline" action="{{url_for('sde.update_stations')}}" method="post" enctype="multipart/form-data">
 	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
-	<div class="form-group">
-		<label class="form-control-label" for="station-file">staStations.yaml</label>
-		<label class="custom-file">
- 			<input data-toggle="custom-file" data-target="#station" type="file" name="file" id="station-file" class="custom-file-input">
-  			<span id="station" data-content="Choose file..." class="custom-file-name custom-file-control"></span>
-		</label>
+	<div class="input-group mr-1">
+		<div class="input-group-prepend">
+			<span class="input-group-text">staStations.yaml</span>
+		</div>
+		<div class="custom-file">
+			<input type="file" name="file" data-target="#station-file-label" class="custom-file-input" id="station-file">
+			<label id="station-file-label" class="custom-file-label" data-content="Choose file..." for="station-file"></label>
+		</div>
 	</div>
 	<button type="submit" class="btn btn-primary">Update Stations</button>
 </form>
 </div>
-<div class="row mb-2">
+<div class="row mb-3">
 <form class="form-inline" action="{{url_for('sde.update_layouts')}}" method="post" enctype="multipart/form-data">
 	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
-	<div class="form-group">
-		<label class="form-control-label" for="layout-file">layout.csv</label>
-		<label class="custom-file">
- 			<input data-toggle="custom-file" data-target="#layout" type="file" name="file" id="layout-file" class="custom-file-input">
-  			<span id="layout" data-content="Choose file..." class="custom-file-name custom-file-control"></span>
-		</label>
+	<div class="input-group mr-1">
+		<div class="input-group-prepend">
+			<span class="input-group-text">layout.csv</span>
+		</div>
+		<div class="custom-file">
+			<input type="file" name="file" data-target="#layout-file-label" class="custom-file-input" id="layout-file">
+			<label id="layout-file-label" class="custom-file-label" data-content="Choose file..." for="layout-file"></label>
+		</div>
 	</div>
 	<button type="submit" class="btn btn-primary">Update Layouts</button>
 </form>

@@ -19,14 +19,16 @@
 	<label for="default-textarea">Mail Content $link$ gets replaced with auth link url, $sig$ with the sending users name, $recv$ with the receivers name</label>
 	<textarea name="mail" class="form-control" id="default-textarea" rows="3">{{mails['other'][0]}}</textarea>
 </fieldset>
-<samp>
-Hello $recv$,<br>
-welcome to the T-Badge program!<br>
-your  &lt;a href=&quot;$link$&quot;&gt;Login Link&lt;/a&gt; save it as a bookmark!<br>
+<pre>
+<code>
+Hello <var>$recv$</var>,<br>
+welcome to the Community program!<br>
+your  &lt;a href=&quot;<var>$link$</var>&quot;&gt;Login Link&lt;/a&gt; save it as a bookmark!<br>
 <br>
 sincerely<br>
-$sig$<br>
-</samp>
+<var>$sig$</var><br>
+</code>
+</pre>
 <button type="submit" class="btn btn-primary">Save</button>
 </form>
 {% endif %}
@@ -42,14 +44,16 @@ $sig$<br>
 	<label for="t-bdage-textarea">Mail Content $link$ gets replaced with auth link url, $sig$ with the sending users name, $recv$ with the receivers name</label>
 	<textarea name="mail" class="form-control" id="t-bdage-textarea" rows="3">{{mails['tbadge'][0]}}</textarea>
 </fieldset>
-<samp>
-Hello $recv$,<br>
+<pre>
+<code>
+Hello <var>$recv$</var>,<br>
 welcome to the T-Badge program!<br>
-your  &lt;a href=&quot;$link$&quot;&gt;Login Link&lt;/a&gt; save it as a bookmark!<br>
+your  &lt;a href=&quot;<var>$link$</var>&quot;&gt;Login Link&lt;/a&gt; save it as a bookmark!<br>
 <br>
 sincerely<br>
-$sig$<br>
-</samp>
+<var>$sig$</var><br>
+</code>
+</pre>
 <button type="submit" class="btn btn-primary">Save</button>
 </form>
 {% endif %}
@@ -65,14 +69,16 @@ $sig$<br>
 	<label for="resident-textarea">Mail Content $link$ gets replaced with auth link url, $sig$ with the sending users name, $recv$ with the receivers name</label>
 	<textarea name="mail" class="form-control" id="resident-textarea" rows="3">{{mails['resident'][0]}}</textarea>
 </fieldset>
-<samp>
-Hello $recv$,<br>
+<pre>
+<code>
+Hello <var>$recv$</var>,<br>
 welcome to the R-Badge program!<br>
-your  &lt;a href=&quot;$link$&quot;&gt;Login Link&lt;/a&gt; save it as a bookmark!<br>
+your  &lt;a href=&quot;<var>$link$</var>&quot;&gt;Login Link&lt;/a&gt; save it as a bookmark!<br>
 <br>
 sincerely<br>
-$sig$<br>
-</samp>
+<var>$sig$</var><br>
+</code>
+</pre>
 <button type="submit" class="btn btn-primary">Save</button>
 </form>
 {% endif %}

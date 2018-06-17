@@ -7,7 +7,7 @@
 {% endblock %}
 
 {% block data %}
-<div class="col-sm-8" id="x-up">
+<div class="col-md-8" id="x-up">
 <form action="{{url_for('feedback.submit')}}" method="post">
 <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 <fieldset class="form-group">

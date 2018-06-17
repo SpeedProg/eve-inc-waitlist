@@ -85,7 +85,7 @@ waitlist.history.base = (function() {
 		targetA.text(entry.target.name);
 
 		if (entry.target.newbro) {
-			targetTD.prepend('<span class="badge badge-info">New</span> ');
+			targetTD.prepend('<span class="badge badge-pill badge-info">New</span> ');
 		}
 		for (var i=0; i < entry.fittings.length; i++) {
 			fittingsTD.append(createFittingDOM(entry.fittings[i]));

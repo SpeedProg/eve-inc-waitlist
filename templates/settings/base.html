@@ -8,7 +8,7 @@
 
 {% block container_data %}
 <div class="row">
-	<div class="col-sm-3 col-md-2 sidebar" id="sidebar">
+	<div class="col-md-3 col-lg-2 sidebar" id="sidebar">
 		<ul class="nav nav-pills flex-column">
 		<li class="nav-item">
 			<a class="nav-link {% if request.endpoint == 'settings_overview.overview' %}active{% endif %}" href="{{url_for('settings_overview.overview')}}">Overview</a>
@@ -20,7 +20,7 @@
 		{% endfor %}
 		</ul>
 	</div>
-	<div class="col-sm-9 col-md-10 content" id="main">
+	<div class="col-md-9 col-lg-10 content" id="main">
 	{% block raw_content %}
 	<div class="row flex-column">
 	{% block content %}<p> Please select something on the left side </p>{% endblock %}
@@ -32,15 +32,7 @@
 	<div class="col-10">
 		&copy; Copyright 2016-2018+ by <a href="char:91495852">Bruce Warhead</a>.
 	</div>
-	<select id="theme-selector" class="col-2 h-25 custom-select">
-			<option value="bootstrap_dark_purple_001.css" data-type="local">Dark Purple</option>
-			<option value="bootstrap_dark_001.css" data-type="local">Dark</option>
-			<option value="bootstrap_purple_001.css" data-type="local">Purple</option>
-			<option value="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css"
-					data-type="remote"
-					data-integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ"
-					data-crossorigin="anonymous">Generic</option>
-	</select>
+	{% include 'partials/themes_selector.html' %}
 </footer >
 {% endblock %}
 
