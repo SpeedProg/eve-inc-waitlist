@@ -138,7 +138,7 @@
 </div>
 <div class="row">
 	{% if group %}
-	<div class="col-sm-12">
+	<div class="col-md-12">
 		<ul class="nav nav-tabs">
 			{% for grp in groups %}
 			<li class="nav-item">{% if grp.groupID == group.groupID %} <a
@@ -152,7 +152,7 @@
 	</div>
 </div>
 <div class="row">
-	<div class="col-sm-6">
+	<div class="col-md-6">
 		<div id="status" class="card mb-0">
 			<div data-toggle="collapse" data-target="#status-body"
 				class="card-header" role="button">
@@ -199,7 +199,7 @@
 			</div>
 		</div>
 	</div>
-	<div class="col-sm-6">
+	<div class="col-md-6">
 		{% if not group.enabled %}
 		<div class="alert alert-warning" role="alert">
 			<p class="text-sm-center">This waitlist is currently closed however
@@ -237,16 +237,16 @@
 </div>
 <div class="row" id="waitlists">
 	{% for wlist in lists %}
-	<div class="col-sm-3" id="wl-{{ wlist.id }}">
-		<div class="panel panel-default">
-			<div class="panel-heading" id="wl-heading-{{ wlist.id }}">
-				<h4 class="panel-title">
+	<div class="col-md-3" id="wl-{{ wlist.id }}">
+		<div class="card">
+			<div class="card-header p-0" id="wl-heading-{{ wlist.id }}">
+				<h4 class="card-title m-0">
 					<a class="list-group-item text-uppercase d-flex flex-row justify-content-start" data-toggle="collapse"
 						data-parent="#wl-{{ wlist.id }}-tog"
 						data-target="#wl-fits-col-{{ wlist.id }}" aria-expanded="true"
 						aria-controls="wl-fits-{{ wlist.id }}" role="button">
 					{% if perm_manager.get_permission('fleet_management').can() %}
-					<span id="wl-count-{{ wlist.id }}" class="badge badge-pill badge-default">0</span>
+					<span id="wl-count-{{ wlist.id }}" class="badge badge-pill badge-secondary">0</span>
 					{% endif %}
 					{{wlist.displayTitle|e }}
 					<i class="ml-auto fa fa-minus-square float-right" id="wl-{{ wlist.id }}-tog-icon"></i>

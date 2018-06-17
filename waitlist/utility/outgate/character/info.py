@@ -62,7 +62,8 @@ def get_character_info_by_name(name: str, *args) -> Optional[APICacheCharacterIn
         search_ep = SearchEndpoint()
         search_info: SearchResponse = check_esi_response(search_ep.public_search(name, ['character']),
                                                          get_character_info_by_name, args)
-        if len(search_info.character_ids()) < 1:
+        if search_info.character_ids() is None or\
+           len(search_info.character_ids()) < 1:
             return None
         return get_character_info(search_info.character_ids()[0])
     else:

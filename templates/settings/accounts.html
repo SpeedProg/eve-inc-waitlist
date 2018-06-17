@@ -28,8 +28,12 @@
 <script type="text/javascript" src="{{ ASSET_URL }}"></script>
 {% endassets %}
 
+{% assets filters="babili", output="gen/swagger-client.%(version)s.js", "js/swagger-client.min.js" %}
+<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
+
 {% assets filters="babili", output="gen/acc-cc-list.%(version)s.js", "js/base.js", "js/eve-igb-wrapper.js",
-"js/editablegrid/editablegrid_customrenderer.js", "js/swagger-client.min.js", "js/accounts/accountslist-dom.js", "js/accounts/settings-accounts.js" %}
+"js/editablegrid/editablegrid_customrenderer.js", "js/accounts/accountslist-dom.js", "js/accounts/settings-accounts.js" %}
 <script type="text/javascript" src="{{ ASSET_URL }}"></script>
 {% endassets %}
 {% endblock %}
@@ -38,12 +42,18 @@
 {% if perm_manager.get_permission('accounts_download_list').can() %}
 <div class="row mb-2">
 	<form class="form-inline" target="_blank" method="GET" action="{{url_for('accounts_v1.download_get_v1')}}">
-		<label for="include_disabled_cbx">Disabled Accounts</label>
-		<input type="checkbox" class="form-check-input" name="include_disabled" id="include_disabled_cbx">
-		<label for="include_alts_cbx">Alts</label>
-		<input type="checkbox" class="form-check-input" name="include_alts" id="include_alts_cbx">
-		<label for="include_owner_hash_cbx">Owner Hash</label>
-		<input type="checkbox" class="form-check-input" name="include_owner_hash" id="include_owner_hash_cbx">
+		<div class="custom-control custom-checkbox mr-2">
+			<input type="checkbox" class="custom-control-input" name="include_disabled" id="include_disabled_cbx">
+			<label for="include_disabled_cbx" class="custom-control-label">Disabled Accounts</label>
+		</div>
+		<div class="custom-control custom-checkbox  mr-2">
+			<input type="checkbox" class="custom-control-input" name="include_alts" id="include_alts_cbx">
+			<label for="include_alts_cbx" class="custom-control-label">Alts</label>
+		</div>
+		<div class="custom-control custom-checkbox  mr-2">
+			<input type="checkbox" class="custom-control-input" name="include_owner_hash" id="include_owner_hash_cbx">
+			<label for="include_owner_hash_cbx" class="custom-control-label">Owner Hash</label>
+		</div>
 		<input type="checkbox" name="as_download" checked hidden="">
 		<button type="submit" class="btn btn.primary">Download Full Commander List</button>
 	</form>
@@ -56,7 +66,9 @@
 </div>
 <div class="row">
 	<div class="input-group">
-		<span class="input-group-addon" id="filter-addon">Filter</span>
+		<div class="input-group-prepend">
+			<span class="input-group-text" id="filter-addon">Filter</span>
+		</div>
 		<input class="form-control" type="text" id="filter"/>
 	</div>
 	<nav aria-label="Page navigation">
@@ -125,7 +137,7 @@
 			</td>
 			<td id="acc-{{acc.id}}-status">{% if acc.disabled %}Deactivated{% else %}Active{% endif %}</td>
 			<td id="acc-{{acc.id}}-name">{{ acc.username }}</td>
-			<td id="acc-{{acc.id}}-roles">{% if not acc.had_welcome_mail %}<span id="acc-{{acc.id}}-needsmail" class="badge badge-info">New</span>{% endif %}{% for role in acc.roles %}{{role.name}}{% if not loop.last %}, {% endif %}{% endfor %}</td>
+			<td id="acc-{{acc.id}}-roles">{% if not acc.had_welcome_mail %}<span id="acc-{{acc.id}}-needsmail" class="badge badge-pill badge-info">New</span>{% endif %}{% for role in acc.roles %}{{role.name}}{% if not loop.last %}, {% endif %}{% endfor %}</td>
 			<td id="acc-{{acc.id}}-cchar">{{ acc.current_char_obj.eve_name }}</td>
 			<td>{{acc.id}};{% for character in acc.characters %}{{character.id}}:{{character.eve_name}}{% if not loop.last %},{% endif %}{% endfor %}</td>
 			{# <td id="acc-{{acc.id}}-email">{% if acc.email is not none %}{{ acc.email }}{% endif %}</td> #}

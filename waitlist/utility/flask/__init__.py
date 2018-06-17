@@ -17,6 +17,7 @@ from waitlist.utility.account import force_logout
 from waitlist.utility.eve_id_utils import is_char_banned, get_account_from_db, get_char_from_db
 from waitlist.utility.login import invalidate_all_sessions_for_current_user
 from waitlist.utility.manager import owner_hash_check_manager
+from fileinput import filename
 
 logger = logging.getLogger(__name__)
 
@@ -31,9 +32,15 @@ def load_identity_when_session_expires():
 def check_user_owner_hash():
     # we want to allow requests to accounts.account_self_edit here
     # and sso
-    allowed_endpoints = [url_for('fc_sso.login_cb')]
+
+    # if it is static path let it continue
+    static_path_root = url_for('static', filename='')
+    if request.path.startswith(static_path_root):
+        logger.debug("request.path %s in static_path_root %s, not checking owner_hash", request.path, static_path_root)
+        return None
 
     # if it is allowed let it continue with an other handle
+    allowed_endpoints = [url_for('fc_sso.login_cb'), ]
     if request.path in allowed_endpoints:
         logger.debug("request.path %s in allowed_endpoints, not checking owner_hash", request.path)
         return None
@@ -100,12 +107,21 @@ def check_all_alts_authorized():
     if (not user.is_authenticated) or (user.type != 'account'):
         return
 
+    # if it is static path let it continue
+    static_path_root = url_for('static', filename='')
+    if request.path.startswith(static_path_root):
+        logger.debug("request.path %s in static_path_root %s, not checking alts authorized",
+                     request.path, static_path_root)
+        return None
+
     # we want to allow requests to accounts.account_self_edit here
     # and sso
-    allowed_endpoints = [url_for('accounts.account_self_edit'), url_for('fc_sso.login_cb'), url_for('logout')]
+    allowed_endpoints = [url_for('accounts.account_self_edit'), url_for('fc_sso.login_cb'), url_for('logout'), url_for('static', filename='')]
 
     # if it is allowed let it continue with an other handle
     if request.path in allowed_endpoints:
+        logger.debug("request.path %s in allowed_endpoints %s, not checking alts authorized",
+                     request.path, allowed_endpoints)
         return None
 
     unauthed_chars: List[Character] = []

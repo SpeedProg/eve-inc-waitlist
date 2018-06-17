@@ -23,11 +23,15 @@ src="{{ config.stattool_uri }}" integrity="{{ config.stattool_sri }}" crossorigi
 
 {% block container_data %}
 <div class="row">
-<div class="btn-group" data-toggle="buttons" role="group" aria-label="history settings">
-	<label id="filter-approval-only" class="btn btn-primary">
-		<input id="filter-approval-only-box" type="checkbox" autocomplete="off">Only Show Approvals
-	</label><button class="btn btn-sm" style="font-size:1em;" data-action="changeSize" data-size="0.25">A</button><button class="btn btn-sm" style="font-size:0.5em;" data-action="changeSize" data-size="-0.25">A</button>
-</div>
+	<div class="btn-group-toggle pr-3" data-toggle="buttons">
+		<label id="filter-approval-only" class="btn btn-primary" >
+			<input id="filter-approval-only-box" type="checkbox" autocomplete="off" aria-label="toggle show only approvals">Only Show Approvals
+		</label>
+	</div>
+	<div class="btn-group">
+		<button class="btn btn-sm btn-primary" style="font-size:1em;" data-action="changeSize" data-size="0.25">A</button>
+		<button class="btn btn-sm btn-primary" style="font-size:0.5em;" data-action="changeSize" data-size="-0.25">A</button>
+	</div>
 </div>
 <div class="row">
 <table class="table table-sm comp-font">

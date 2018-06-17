@@ -16,13 +16,6 @@
 #waitlists {
     padding-top: 0.4rem;
 }
-.badge {
-    padding-top: 0.2em;
-    padding-bottom: 0.2em;
-}
-.alert-info {
-    margin-bottom: 0.2em;
-}
 p.text-center {
     margin-bottom: 0rem;
 }
@@ -30,9 +23,6 @@ p.text-center {
     padding: .1rem .4rem;
     font-size: .6rem;
     border-radius: .1rem;
-}
-.list-group-item {
-	padding: .1rem .1rem;
 }
 #sound {
     display: block;
@@ -46,4 +36,8 @@ p.text-center {
     border-top: .6em solid;
     border-right: .5em solid transparent;
     border-left: .5em solid transparent;
+}
+
+[role=button] {
+    cursor:pointer
 }

@@ -6,7 +6,7 @@
 {{ super() }}
 {% endblock head %}
 {% block content %}
-<p>$type$ gets replaced with number representing the type of a person, 0=linemember,1=fc/t,2=lm/r,3=both</p>
+<p><var>$type$</var> gets replaced with number representing the type of a person, 0=linemember,1=fc/t,2=lm/r,3=both</p>
 <h4>Page Inserts</h4>
 <form method="post" action="{{url_for('settings_inserts.change', type_='header')}}">
 <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">

@@ -11,21 +11,6 @@ waitlist.calendar.settings = (function() {
 	var displayMessage = waitlist.base.displayMessage;
 	var getMetaData = waitlist.base.getMetaData;
 	function init() {
-		$('#timepicker').datetimepicker({
-			icons: {
-				time: "fa fa-clock-o",
-				date: "fa fa-calendar",
-				up: "fa fa-arrow-up",
-				down: "fa fa-arrow-down",
-				previous: 'fa fa-chevron-left',
-				next: 'fa fa-chevron-right',
-				today: 'fa fa-calendar-o',
-				clear: 'fa fa-trash',
-				close: 'fa fa-times'
-			},
-			format: "YYYY/MM/DD HH:mm",
-			sideBySide: true
-		});
 		setupEventHandler();
 	}
 
