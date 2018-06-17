@@ -37,3 +37,7 @@ p.text-center {
     border-right: .5em solid transparent;
     border-left: .5em solid transparent;
 }
+
+[role=button] {
+    cursor:pointer
+}
