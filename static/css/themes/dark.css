@@ -8988,6 +8988,11 @@ a.text-dark:hover, a.text-dark:focus {
 }
 
 .eveui_title {
-  background: #495057;
+  background: #495057 !important;
+  color: #f8f9fa !important;
+}
+
+#wl_hover table {
+  background: #495057 !important;
   color: #f8f9fa !important;
 }

@@ -8,6 +8,11 @@
 }
 
 .eveui_title {
-  background: $body-bg;
+  background: $body-bg !important;
   color: $body-color !important;
 }
+
+#wl_hover table {
+	background: $body-bg !important;
+	color: $body-color !important;
+	}
