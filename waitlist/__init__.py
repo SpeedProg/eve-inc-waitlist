@@ -84,7 +84,8 @@ manager.add_command("db", MigrateCommand)
 seasurf = SeaSurf(app)
 
 # init flask CDN
-CDN(app)
+if config.cdn_assets:
+    CDN(app)
 
 # init flask HTMLMIN
 HTMLMIN(app)
