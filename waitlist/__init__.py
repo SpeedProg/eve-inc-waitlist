@@ -1,7 +1,7 @@
 from datetime import datetime
 from json import JSONEncoder
 
-from flasgger import Swagger
+from flasgger import Swagger, LazyString, LazyJSONEncoder
 from flask import Flask
 from flask_cdn import CDN
 from flask_sqlalchemy import SQLAlchemy
@@ -22,6 +22,7 @@ from flask_assets import Environment
 from webassets.filter import register_filter
 from flask_limiter.extension import Limiter
 from flask_limiter.util import get_ipaddr
+from flask.globals import request
 
 app = Flask(import_name=__name__, static_url_path="/static",
             static_folder="../static", template_folder=path.join("..", "templates"))
@@ -104,7 +105,7 @@ class MiniJSONEncoder(JSONEncoder):
         if isinstance(obj, datetime):
             return obj.isoformat()+"Z"
         # Let the base class default method raise the TypeError
-        return JSONEncoder.default(self, obj)
+        return LazyJSONEncoder.default(self, obj)
 
 
 app.json_encoder = MiniJSONEncoder
@@ -135,9 +136,13 @@ app.config['SWAGGER'] = {
                 'v1_model' in definition.tags)
         }
     ],
-    'host': config.domain,
+    'host': LazyString(lambda: request.host),
     'basePath': '',
     'uiversion': 3,
+}
+
+template = {
+    "schemes": [LazyString(lambda: request.scheme)]
 }
 
 swag = Swagger(app)
