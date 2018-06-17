@@ -1,4 +1,16 @@
 #Changelog
+* 1.4.0:
+  * Improvements
+    * Updated bootstrap framework from 4alph6 to 4.1.1
+    * Redesigned the overview page
+    * Improved speed on checking account character tokens (from multiple minutes for a few hundred chars to a few seconds), by using parallel requests
+  * Features:
+    * There is a config option now to enable/disable showing count for approvals
+    * Added statistic for members found in fleet, a characters is only counted once per UTC day
+  * Fixes:
+    * Bug with removing/adding alts not generating the history entry
+    * CDN getting initialized even when disabled
+    * Exception that could occure if you input a non existant character name in e.g. bans
 * 1.3.2
   * Fixes
     * Feedbacks open ingame mail button not working (this was broken with esipy upgrade in 1.3.0)
