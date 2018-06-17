@@ -33,11 +33,11 @@
 <body>
 	<nav class="navbar navbar-expand-md">
 	{% block menu %}
+		<a class="navbar-brand" href="/#">{{ title }}</a>
 		<button class="navbar-toggler navbar-toggler-right my-1" type="button" data-toggle="collapse" data-target="#mainNavbar" aria-label="Toggle navigation">
 			&#9776;
 		</button>
 		<div class="collapse navbar-collapse" id="mainNavbar">
-			<a class="navbar-brand" href="/#">{{ title }}</a>
 			<ul class="navbar-nav justify-content-start mr-auto">
 				<li class="nav-item">
 					<a class="nav-link" href="{{url_for('index')}}">Home</a>
