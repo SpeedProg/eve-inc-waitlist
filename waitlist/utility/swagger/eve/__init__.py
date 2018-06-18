@@ -94,7 +94,7 @@ def get_esi_client(token: Optional[SSOToken], noauth: bool = False) -> EsiClient
 
 def get_esi_client_for_account(token: Optional[SSOToken], noauth: bool = False) -> EsiClient:
     if noauth:
-        return EsiClient(timeout=10, headers={'User-Agent': config.user_agent}, cache=DummyCache())
+        return EsiClient(timeout=20, headers={'User-Agent': config.user_agent}, cache=DummyCache())
 
     signal: Signal = Signal()
     signal.add_receiver(SSOToken.update_token_callback)
@@ -108,4 +108,4 @@ def get_esi_client_for_account(token: Optional[SSOToken], noauth: bool = False) 
         token_identifier=token.tokenID
     )
     security.update_token(token.info_for_esi_security())
-    return EsiClient(security, timeout=10, headers={'User-Agent': config.user_agent}, cache=DummyCache())
+    return EsiClient(security, timeout=20, headers={'User-Agent': config.user_agent}, cache=DummyCache())
