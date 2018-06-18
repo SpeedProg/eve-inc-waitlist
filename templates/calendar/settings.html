@@ -1,6 +1,6 @@
 {% extends "settings/base.html" %}
 
-{% block title %}Settings - Calendar{% endblock %}
+{% block title %}{{ _('Settings') }} - {{ _('Calendar') }}{% endblock %}
 
 {% block head %}
 {{ super() }}
@@ -15,7 +15,7 @@
 	<form method="POST" target="{{ url_for('calendar_settings.post_index') }}">
 		<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 
-			<label for="eventCategory">Category</label>
+			<label for="eventCategory">{{ _('Category') }}</label>
 			<select class="custom-select my-1 mr-sm-2" id="eventCategory" name="categoryID">
 				{% for category in categories %}
 				<option value="{{ category.categoryID }}">{{ category.categoryName }}</option>
@@ -23,43 +23,48 @@
 			</select>
 
 		<div class="input-group form-group date" id="timepicker">
-			<label for="eventTime">When (UTC - EveTime)</label>
+			<label for="eventTime">{{ _('When (UTC - EveTime)') }}</label>
 			<div class="input-group date" id="datetimepicker">
 				<input id="eventDate" placeholder="YYYY-mm-dd" type="date" class="form-control" name="date" />
 				<input id="eventTime" placeholder="HH:MM" type="time" class="form-control" name="time" />
 				<div class="input-group-append">
 					<span class="input-group-text">
-						<i class="fa fa-calendar">UTC</i>
+						<i class="fa fa-calendar">{{ _('UTC') }}</i>
 					</span>
 				</div>
 			</div>
 		</div>
 		<div>
-			<label for="eventBackseats">Backseats</label>
+			<label for="eventBackseats">{{ _('Backseats') }}</label>
 			<select class="form-control" id="eventBackseats" name="backseats" multiple size="3">
 				{% for account in accounts %}
 				<option value="{{ account.id }}">{{ account.username }}</option>
 				{% endfor %}
 			</select>
 		</div>
-		<button type="submit" class="btn btn-primary">Submit Event</button>
+		<button type="submit" class="btn btn-primary">{{ _('Submit Event') }}</button>
 	</form>
 </div>
 <div class="row mt-2">
 	<table class="table">
-		<caption>Outstanding Events</caption>
+		<caption>{{ _('Outstanding Events') }}</caption>
 		<thead>
-		<th>Actions</th><th>Creator</th><th>Time</th><th>Title</th><th>Category</th>{# <th>Organizers</th> #}<th>Backseats</th>
+		<th>{{ _('Actions') }}</th><th>{{ _('Creator') }}</th><th>{{ _('Time') }}</th><th>{{ _('Title') }}</th><th>{{ _('Category') }}</th><th>{{ _('Backseats') }}</th>
 		</thead>
 		<tbody>
 		{% for event in events %}
 		<tr>
-			<td>{% if event.creator.id == current_user.id or perm_manager.get_permission('calendar_event_delete_other').can() %}<button type="button" date-deletepath="{{ url_for('calendar_settings.delete_event_id', event_id=event.eventID) }}" data-eventid="{{ event.eventID }}" data-action="remove-event" class="btn btn-primary">Remove Event</button>{% endif %}</td>
+			<td>
+				{% if event.creator.id == current_user.id or perm_manager.get_permission('calendar_event_delete_other').can() %}
+					<button type="button" date-deletepath="{{ url_for('calendar_settings.delete_event_id', event_id=event.eventID) }}"
+					data-eventid="{{ event.eventID }}" data-action="remove-event" class="btn btn-primary">{{ _('Remove Event') }}
+					</button>
+				{% endif %}
+			</td>
 			<td>{{ event.creator.username }}</td>
 			<td>{{ event.eventTime }}</td>
 			<td>{{ event.eventTitle }}</td>
 			<td>{{ event.eventCategory.categoryName }}</td>
-			{# <td>{% for account in event.organizers %} {% if not loop.first %}, {% endif %} {{ account.current_char_obj.eve_name }} {% endfor %}</td> #}
 			<td>{% for account in event.backseats %} {% if not loop.first %}, {% endif %} {{ account.current_char_obj.eve_name }} {% endfor %}</td>
 		</tr>
 		{% endfor %}

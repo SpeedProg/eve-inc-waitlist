@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Settings{% endblock %}
+{% block title %}{{ _('Settings') }}{% endblock %}
 
 {% block head %}
 {{ super() }}
@@ -23,7 +23,7 @@
 	<div class="col-md-9 col-lg-10 content" id="main">
 	{% block raw_content %}
 	<div class="row flex-column">
-	{% block content %}<p> Please select something on the left side </p>{% endblock %}
+	{% block content %}<p> {{ _('Please select something on the left side') }} </p>{% endblock %}
 	</div>
 	{% endblock %}
 	</div>

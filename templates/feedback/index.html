@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Feedback{% endblock %}
+{% block title %}{{ _('Feedback') }}{% endblock %}
 
 {% block head %}
 {{ super() }}
@@ -11,14 +11,14 @@
 <form action="{{url_for('feedback.submit')}}" method="post">
 <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 <fieldset class="form-group">
-	<label for="title">Feedback Title</label>
-	<input type="text" class="form-control" id="title" name="title" size="50" placeholder="Short feedback sumup (max 50chars)" required/>
+	<label for="title">{{ _('Feedback Title') }}</label>
+	<input type="text" class="form-control" id="title" name="title" size="50" placeholder="{{ _('Short feedback sumup (max 50chars)') }}" required/>
 </fieldset>
 <fieldset class="form-group">
-	<label for="message">Additional Feedback</label>
-	<textarea class="form-control" id="message" name="message" rows="10" cols="50" placeholder="Write additional information for us here" required></textarea>
+	<label for="message">{{ _('Additional Feedback') }}</label>
+	<textarea class="form-control" id="message" name="message" rows="10" cols="50" placeholder="{{ _('Write additional information for us here') }}" required></textarea>
 </fieldset>
-<button type="submit" class="btn btn-primary">Send Feedback</button>
+<button type="submit" class="btn btn-primary">{{ _('Send Feedback') }}</button>
 </form>
 </div>
 {% endblock %}

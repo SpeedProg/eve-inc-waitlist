@@ -17,7 +17,7 @@
 <div class="row" id="controls">
 <div class="input-group">
 	<select class="form-control" id="fleetSelect">
-		<option selected value="None">Choose...</option>
+		<option selected value="None">{{ _('Choose...') }}</option>
 		{% for fleet in fleets %}
 		<option value="{{fleet.fleetID}}">{{fleet.comp.username}}</option>
 		{% endfor %}

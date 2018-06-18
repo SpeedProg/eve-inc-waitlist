@@ -1,6 +1,6 @@
 {% extends "settings/base.html" %}
 
-{% block title %}Settings - Fleet Settings{% endblock %}
+{% block title %}{{ _('Settings') }} - {{ _('Fleet Settings') }}{% endblock %}
 
 {% block head %}
 {{ super() }}
@@ -23,7 +23,7 @@
 	<div class="row">
 		<div class="custom-control custom-checkbox mr-2">
 			<input type="checkbox" class="custom-control-input" name="scramble" id="scramble-cbx" {% if scramble %}checked{% endif %}>
-			<label for="scramble-cbx" class="custom-control-label">Hide Names</label>
+			<label for="scramble-cbx" class="custom-control-label">{{ _('Hide Names') }}</label>
 		</div>
 	</div>
 {% for group in groups %}
@@ -37,7 +37,7 @@
 			<table class="table table-sm">
 			<tbody>
 			<tr>
-				<th scope="row">Display Name</th>
+				<th scope="row">{{ _('Display Name') }}</th>
 				<td>{{group.displayName}}</td>
 				<td>
 					<form action="{{url_for('fleetoptions.fleet_status_set', gid=group.groupID)}}" method="post" class="form-inline">
@@ -48,12 +48,12 @@
 						{% else %}
 						<select class="form-control form-control-sm custom-select mr-3" id="displayname-{{group.groupID}}" name="display_name" required>
 							<option value="">Please Select</option>
-							<option value="Headquarter"{% if group.displayName == "Headquater" %} selected{% endif %}>Headquarter</option>
-							<option value="Assault"{% if group.displayName == "Assault" %} selected{% endif %}>Assault</option>
-							<option value="Vanguard"{% if group.displayName == "Vanguard" %} selected{% endif %}>Vanguard</option>
+							<option value="Headquarter"{% if group.displayName == "Headquater" %} selected{% endif %}>{{ _('Headquarter') }}</option>
+							<option value="Assault"{% if group.displayName == "Assault" %} selected{% endif %}>{{ _('Assault') }}</option>
+							<option value="Vanguard"{% if group.displayName == "Vanguard" %} selected{% endif %}>{{ _('Vanguard') }}</option>
 						</select>
 						{% endif %}
-						<button type="submit" class="btn btn-sm btn-primary">Change Display Name</button>
+						<button type="submit" class="btn btn-sm btn-primary">{{ _('Change Display Name') }}</button>
 					</form>
 				</td>
 			</tr>

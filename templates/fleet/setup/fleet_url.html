@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Fleet - Setup - Fleet Input{% endblock %}
+{% block title %}{{ _('Fleet') }} - {{ _('Setup') }} - {{ _('Fleet Input') }}{% endblock %}
 
 {% block head %}
 {{ super() }}
@@ -11,10 +11,10 @@
 <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 <input type="hidden" name="fleet-id" id="fleet-id" value="{{fleetID}}">
 <fieldset class="form-group">
-	<label for="fleet-type">Fleet Type:</label>
+	<label for="fleet-type">{{ _('Fleet Type:') }}</label>
 	<select class="form-control" id="fleet-type" name="fleet-type">
-		<option value="hq" selected>HQ/Assault</option>
-		<option value="vg">VG</option>
+		<option value="hq" selected>{{ _('HQ/Assault') }}</option>
+		<option value="vg">{{ _('VG') }}</option>
 	</select>
 </fieldset>
 <fieldset class="form-group pretty-dd">
@@ -25,10 +25,10 @@
  			<span><i class="fa fa-times"></i></span>
 		</label>
 	<label for="skip-setup" class="btn btn-sm btn-danger">
-		Skip Auto Fleet Setup
+		{{ _('Skip Auto Fleet Setup') }}
 	</label>
 	</div>
 </fieldset>
-<button type="submit" class="btn-primary btn">Next</button>
+<button type="submit" class="btn-primary btn">{{ _('Next') }}</button>
 </form>
 {% endblock %}

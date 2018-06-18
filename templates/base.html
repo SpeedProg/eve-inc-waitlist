@@ -26,7 +26,7 @@
 <script type="text/javascript">
 	$(function () {
 		if (!window.EventSource) {
-			waitlist.base.displayMessage('We have had to disable <strong>features</strong> please consider upgrading your<a href="http://caniuse.com/#feat=eventsource"> browser', 'danger', true);
+			waitlist.base.displayMessage('{{_('We have had to disable <strong>features</strong> please consider upgrading your<a href="http://caniuse.com/#feat=eventsource"> browser</a>')}}', 'danger', true);
 		}
 	});
 </script>
@@ -41,46 +41,46 @@
 		<div class="collapse navbar-collapse" id="mainNavbar">
 			<ul class="navbar-nav justify-content-start mr-auto">
 				<li class="nav-item">
-					<a class="nav-link" href="{{url_for('index')}}">Home</a>
+					<a class="nav-link" href="{{url_for('index')}}">{{_('Home')}}</a>
 				</li>
 				<li class="nav-item">
-					<a class="nav-link bg-success" href="{{url_for('xup.index')}}">X-UP</a>
+					<a class="nav-link bg-success" href="{{url_for('xup.index')}}">{{_('X-UP')}}</a>
 				</li>
 
 				<li class="nav-item dropdown">
 					<a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Tools</a>
 					<div class="dropdown-menu">
-						<a class="dropdown-item" href="{{url_for('notification.alarm_idx')}}">Custom Notifications</a>
+						<a class="dropdown-item" href="{{url_for('notification.alarm_idx')}}">{{_('Custom Notifications')}}</a>
 						<div class="dropdown-divider"></div>
 						{% if perm_manager.get_permission('commandcore').can() %}
 							{% if perm_manager.get_permission('fleet_management').can() %}
-							<a class="dropdown-item" href="{{url_for('fleet_reform.index')}}">Reform</a>
+							<a class="dropdown-item" href="{{url_for('fleet_reform.index')}}">{{_('Reform')}}</a>
 							{% endif %}
 							{% if perm_manager.get_permission('comphistory_view').can() %}
-							<a class="dropdown-item" href="{{url_for('fittings.history_default')}}">Comp History</a>
+							<a class="dropdown-item" href="{{url_for('fittings.history_default')}}">{{_('Comp History')}}</a>
 							{% endif %}
-							<a class="dropdown-item" href="{{url_for('accounts_cc.accounts')}}">Command Core List</a>
+							<a class="dropdown-item" href="{{url_for('accounts_cc.accounts')}}">{{_('Command Core List')}}</a>
 							{% if perm_manager.get_permission('comphistory_search').can() %}
 							<div class="dropdown-divider"></div>
-							<a class="dropdown-item" href="{{url_for('comp_history_search.index')}}">Comp History Search</a>
+							<a class="dropdown-item" href="{{url_for('comp_history_search.index')}}">{{_('Comp History Search')}}</a>
 							{% endif %}
 						{% endif %}
 					</div>
 				</li>
 				{% if perm_manager.get_permission('settings_access').can() %}
 				<li class="nav-item">
-					<a class="nav-link" href="{{url_for('settings_overview.overview')}}">Settings</a>
+					<a class="nav-link" href="{{url_for('settings_overview.overview')}}">{{_('Settings')}}</a>
 				</li>
 				{% endif %}
 				<li class="nav-item">
-					<a class="nav-link" href="{{url_for('site_help')}}">Help</a>
+					<a class="nav-link" href="{{url_for('site_help')}}">{{_('Help')}}</a>
 				</li>
 				<li class="nav-item">
-					<a class="nav-link" href="{{ url_for('about') }}">About</a>
+					<a class="nav-link" href="{{ url_for('about') }}">{{_('About')}}</a>
 				</li>
 				{% if current_user.is_authenticated %}
 				<li class="nav-item">
-					<a class="nav-link" href="{{url_for('logout')}}">{% if current_user.get_eve_id() is not none %}<img class="profile-img-32" src="{{eve_image('Character/'+(current_user.get_eve_id()|string)+'_32', 'jpg')}}"> {% endif %}Logout</a>
+					<a class="nav-link" href="{{url_for('logout')}}">{% if current_user.get_eve_id() is not none %}<img class="profile-img-32" src="{{eve_image('Character/'+(current_user.get_eve_id()|string)+'_32', 'jpg')}}"> {% endif %}{{_('Logout')}}</a>
 				</li>
 				{% endif %}
 			</ul>
@@ -95,16 +95,16 @@
 								<span><i class="fa fa-times"></i></span>
 							</label>
 							<label for="gongbutton" class="nav-link btn btn-sm btn-danger">
-								Browser Notifications
+								{{_('Browser Notifications')}}
 							</label>
 						</div>
 					</div>
 				</li>
 				<li class="nav-item wlb mr-2">
-					<button type="button" class="nav-link btn btn-danger btn-sm" data-action="test-poke">Test TS Poke</button>
+					<button type="button" class="nav-link btn btn-danger btn-sm" data-action="test-poke">{{_('Test TS Poke')}}</button>
 				</li>
 				<li class="nav-item wlb">
-					<button type="button" class="nav-link btn btn-danger btn-sm" data-action="removeSelfFromWaitlists">Leave Waitlists</button>
+					<button type="button" class="nav-link btn btn-danger btn-sm" data-action="removeSelfFromWaitlists">{{_('Leave Waitlists')}}</button>
 				</li>
 				{% endif %}
 			</ul>
@@ -135,7 +135,7 @@
 	{% block footer %}
 	<footer class="footer container-fluid">
 		<div class="row justify-content-left">
-		<div class="col-10">&copy; Copyright 2016-2018+ by <a href="char:91495852">Bruce Warhead ISK Donations are appreciated</a> v{{version}}.<br/>
+		<div class="col-10">&copy; Copyright 2016-2018+ by <a href="char:91495852">Bruce Warhead {{_('ISK Donations are appreciated')}}</a> v{{version}}.<br/>
 		EVE Online and the EVE logo are the registered trademarks of CCP hf. All rights are reserved worldwide. All other trademarks are the property of their respective owners. EVE Online, the EVE logo, EVE and all associated logos and designs are the intellectual property of CCP hf. All artwork, screenshots, characters, vehicles, storylines, world facts or other recognizable features of the intellectual property relating to these trademarks are likewise the intellectual property of CCP hf. CCP hf. has granted permission to Bruce Warhead to use EVE Online and all associated logos and designs for promotional and information purposes on its website but does not endorse, and is not in any way affiliated with, Bruce Warhead. CCP is in no way responsible for the content on or functioning of this website, nor can it be liable for any damage arising from the use of this website.
 		</div>
 		{% include 'partials/themes_selector.html' %}

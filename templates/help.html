@@ -14,7 +14,7 @@
     	<h4 class="card-title" data-toggle="collapse" data-target="#help-enter-waitlist">How do I enter the Waitlist?</h4>
     	<div class="collapse" id="help-enter-waitlist">
     	<p class="card-text">
-    	In the eve client, go to the Ship Fitting Window.<br/>
+    	{{_('In the eve client, go to the Ship Fitting Window.<br/>
     	On the bottom right side is a Save button, click it.<br/>
     	A Fitting Management window will open, that has a Copy to Clipboard button at the bottom, click it.<br/>
     	Now you are ready to switch to the Waitlist Website.<br/>
@@ -24,7 +24,7 @@
     	If you are flying a Logistics Ship, namely Basilisk or Scimitar, please select your Logistics Cruiser Level too.<br/>
     	Now you can press Enter on Waitlist.<br/>
     	Your Fittings will now be queued up for review by a Waitlist Manager before you are put on the Waitlist.<br/>
-    	You will be send back to the index page, where you can see who is on the Waitlist, and/or in the queue, to be review by a Waitlist Manager.
+    	You will be send back to the index page, where you can see who is on the Waitlist, and/or in the queue, to be review by a Waitlist Manager.')}}
     	</p>
     	</div>
   	</div>
@@ -33,61 +33,61 @@
 	<li class="list-group-item">
 	<div class="card">
 	<div class="card-block">
-    	<h4 class="card-title" data-toggle="collapse" data-target="#help-alarm-expression">How do Alarm Expressions work?</h4>
+    	<h4 class="card-title" data-toggle="collapse" data-target="#help-alarm-expression">{{ _('How do Alarm Expressions work?') }}</h4>
     	<div class="collapse" id="help-alarm-expression">
 			<p class="card-text">
-			For expression evaluation <a href="https://github.com/silentmatt/expr-eval" target="_blank">expr-eval</a> is used.
+			{{ _('For expression evaluation <a href="https://github.com/silentmatt/expr-eval" target="_blank">expr-eval</a> is used.
 			The variables, <code>open, xup, logi, dps, sniper, other</code> are provided, open being a boolean(true/false) while the others are numbers.
-			You can have one expression per Waitlist Group, there is no need for more then one, because using (expression) or (expression) would be the same as using two expression for one group.
+			You can have one expression per Waitlist Group, there is no need for more then one, because using (expression) or (expression) would be the same as using two expression for one group.') }}
 			</p>
 			<p class="card-text">
-			To explain how the expressions work, first we are introducing the word operator.
-			An operator is something that takes input values, and does something witht them, then providing an output value.
+			{{ _('To explain how the expressions work, first we are introducing the word operator.
+			An operator is something that takes input values, and does something witht them, then providing an output value.') }}
 			</p>
 			<p class="card-text">
-			For our usage we only need to look at unary and binary operators.
-			Binary operators, take two arguments. Unary ones only take one. Now that we have established this we are going to move on to an example.
+			{{ _('For our usage we only need to look at unary and binary operators.
+			Binary operators, take two arguments. Unary ones only take one. Now that we have established this we are going to move on to an example.') }}
 			</p>
 			<p class="card-text">
-			Our placeholder expression is <code>(xup == 0 and logi < 2) or (xup == 2 and dps <= 5)</code>.
-			This expression is split on two subexpressions, made by <code>()</code>, a grouping operator, which are (1)<code>(xup == 0 and logi < 2)</code> and (2)<code>(xup == 2 and dps <= 5)</code>.
+			{{ _('Our placeholder expression is <code>(xup == 0 and logi &lt; 2) or (xup == 2 and dps &lt;= 5)</code>.
+			This expression is split on two subexpressions, made by <code>()</code>, a grouping operator, which are (1)<code>(xup == 0 and logi &lt; 2)</code> and (2)<code>(xup == 2 and dps &lt;= 5)</code>.') }}
 			</p>
 			<p class="card-text">
-			These two expressions are connected by the operator <code>or</code> which is a binary operator.
-			The <code>or</code> operator works like this: It takes the two given arguments, and if either is true, it solves to true in all other cases (both are false) it solves to false.
+			{{ _('These two expressions are connected by the operator <code>or</code> which is a binary operator.
+			The <code>or</code> operator works like this: It takes the two given arguments, and if either is true, it solves to true in all other cases (both are false) it solves to false.') }}
 			</p>
 			<p class="card-text">
-				Now taking a look at subexpression (1)<code>(xup == 0 and logi < 2)</code> we see our placeholder variables <code>xup</code> and <code>logi</code>.
-				They will be replaced with our values from the table, on every update and following evaluation of the expressions.
+				{{ _('Now taking a look at subexpression (1)<code>(xup == 0 and logi &lt; 2)</code> we see our placeholder variables <code>xup</code> and <code>logi</code>.
+				They will be replaced with our values from the table, on every update and following evaluation of the expressions.') }}
 			</p>
 			<p class="card-text">
-				So here again we have two subexpressions inside this subexpression. <code>(xup == 0)</code> and <code>(logi < 2)</code>.
+				{{ _('So here again we have two subexpressions inside this subexpression. <code>(xup == 0)</code> and <code>(logi &lt; 2)</code>.') }}
 			</p>
 			<p class="card-text">
-				We know these two are subexpressions like this because of association.
-				You really don't need to care about this, if you don't know what it is.
-				Just put all your expressions in <code>()</code> and you don't need to know what it is.
+				{{ _('We know these two are subexpressions like this because of association.
+				You really don\'t need to care about this, if you don\'t know what it is.
+				Just put all your expressions in <code>()</code> and you don\'t need to know what it is.') }}
 			</p>
 			<p class="card-text">
-				Taking the first one <code>(xup == 0)</code> it uses the binary operator <code>==</code> which means "equals".
+				{{ _('Taking the first one <code>(xup == 0)</code> it uses the binary operator <code>==</code> which means "equals".
 				And so check if both arguments <code>xup</code> and <code>0</code> are equal.
-				If this is the case the operator <code>==</code> resolves to true, otherwise false.
+				If this is the case the operator <code>==</code> resolves to true, otherwise false.') }}
 			</p>
 			<p class="card-text">
-				<code>(logi < 2)</code> uses the binary operator <code>&lt;</code> "lesser then", with <code>logi</code> and <code>2</code> as arguments.
-				And so evaluates to <code>true</code>, if <code>logi</code> (the replacement value) is less then <code>2</code>.
+				{{ _('<code>(logi &lt; 2)</code> uses the binary operator <code>&lt;</code> "lesser then", with <code>logi</code> and <code>2</code> as arguments.
+				And so evaluates to <code>true</code>, if <code>logi</code> (the replacement value) is less then <code>2</code>.') }}
 			</p>
 			<p class="card-text">
-				The common operators are: <code>==</code> equals, <code>!=</code> does not equal, <code>&gt;=</code> bigger or equal, <code>&lt;=</code> less then or equal
+				{{ _('The common operators are: <code>==</code> equals, <code>!=</code> does not equal, <code>&gt;=</code> bigger or equal, <code>&lt;=</code> less then or equal
 				<code>&gt;</code> greater then, <code>&lt;</code> less then
 				And to connect these expressions, the operators:
 				<code>and</code> and <code>or</code>. Keep in mind the "or" is a "true or", not the way it often is used in language, it is not an "either or". On this "or" both can be true.
 				There are other also useful operators, that can be used you can find them under <a href="https://github.com/silentmatt/expr-eval" target="_blank">expr-eval</a>.
-				But the ones introduced here, should be enough to write decent notification logic and should cover most use cases.
+				But the ones introduced here, should be enough to write decent notification logic and should cover most use cases.') }}
 			</p>
-    	</div>
-  	</div>
-  	</div>
+			</div>
+		</div>
+		</div>
 	</li>
 </ul>
 {% endblock %}

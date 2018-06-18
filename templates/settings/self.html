@@ -61,11 +61,11 @@
 <form class="w-100" id="form-account-edit" action="{{url_for('accounts.account_self_edit')}}" method="POST">
 	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 	<fieldset class="form-group">
-		<label for="acc-edit-name">Account Name</label>
+		<label for="acc-edit-name">{{ _('Account Name') }}</label>
 		<input type="text" class="form-control" id="acc-edit-name" name="account_name" value="{{account.username}}" disabled>
 	</fieldset>
 	<fieldset>
-		<label for="acc-edit-roles">Roles</label>
+		<label for="acc-edit-roles">{{ _('Roles') }}</label>
 		<select class="form-control" id="acc-edit-roles" name="account_roles" multiple disabled>
 			{% for role in account.roles %}
 			<option value="{{role.name}}">{{role.name}}</option>
@@ -73,10 +73,10 @@
 		</select>
 	</fieldset>
 	<fieldset class="form-group">
-		<label for="acc-edit-cchar">Default Character</label>
+		<label for="acc-edit-cchar">{{ _('Default Character') }}</label>
 		<input type="text" class="form-control" id="acc-edit-cchar"	name="default_char_name" value="{{account.current_char_obj.eve_name}}">
 	</fieldset>
 	<button id="acc-edit-submit" type="submit"
-		class="btn btn-primary">Apply</button>
+		class="btn btn-primary">{{ _('Apply') }}</button>
 </form>
 {% endblock %}

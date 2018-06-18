@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Account - Profile - {{account.username}}{% endblock %}
+{% block title %}{{ _('Account') }} - {{ _('Profile') }} - {{account.username}}{% endblock %}
 
 {% block head %}
 	{{super()}}
@@ -14,10 +14,10 @@
 		<thead>
 			<tr>
 				<th>#</th>
-				<th>Date Time</th>
-				<th>Noted By</th>
-				<th>Note</th>
-				<th>Role Changes</th>
+				<th>{{ _('Date Time') }}</th>
+				<th>{{ _('Noted By') }}</th>
+				<th>{{ _('Note') }}</th>
+				<th>{{ _('Role Changes') }}</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -40,23 +40,23 @@
 		<form id="form-add-note" action="{{url_for('accounts_profile.notes_add', accountid=account.id)}}" method="POST">
 			<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 			<div class="form-group">
-				<label for="restricion_level">View Restriction</label>
+				<label for="restricion_level">{{ _('View Restriction') }}</label>
 				<select class="form-control" id="restricion_level" name="restriction_level">
-					<option value="50">Default</option>
+					<option value="50">{{ _('Default') }}</option>
 					{% if perm_manager.get_permission('view_notes_med').can() %}
-					<option value="100">Council</option>
+					<option value="100">{{ _('Council') }}</option>
 					{% endif %}
 					{% if perm_manager.get_permission('view_notes_high').can() %}
-					<option value="200">Leadership</option>
+					<option value="200">{{ _('Leadership') }}</option>
 					{% endif %}
 				</select>
-				<small id="restricion_level_desc" class="text-muted">Restrict who can see this message</small>
+				<small id="restricion_level_desc" class="text-muted">{{ _('Restrict who can see this message') }}</small>
 			</div>
 			<fieldset class="form-group">
-				<label for="add-note-note">Note</label>
+				<label for="add-note-note">{{ _('Note') }}</label>
 				<textarea class="form-control" id="add-note-note" name="note" rows="3"></textarea>
 			</fieldset>
-			<button type="submit" class="btn btn-primary">Add Note</button>
+			<button type="submit" class="btn btn-primary">{{ _('Add Note') }}</button>
 		</form>
 	</div>
 	{% endif %}
