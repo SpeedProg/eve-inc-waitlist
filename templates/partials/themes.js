@@ -1,146 +1,157 @@
 'use strict';
-// this code is directly included into the base.html because the css element needs to be included during the first pass
+// this code is directly included into the base.html because the css element
+// needs to be included during the first pass
 // otherwise people will see a unstyled page flash
 if (!waitlist) {
-    var waitlist = {};
+	var waitlist = {};
 }
 
 waitlist.themes = (function() {
-    let settings = {
-        'id': 'theme-css',
-        'base_path': "/static/css/",
-        'setting_key_prefix': 'themes-',
-        'def_type': 'local',
-        'def_file': 'themes/default.css',
-    };
-    // file_name = null == standard file
-    function setTheme(file_name, type, integrity, crossorigin) {
-        localStorage.setItem(settings.setting_key_prefix+"file", file_name);
-        localStorage.setItem(settings.setting_key_prefix+"type", type);
-        if (integrity === null) {
-            localStorage.removeItem(settings.setting_key_prefix+"integrity");
-        } else {
-            localStorage.setItem(settings.setting_key_prefix+"integrity", integrity);
-        }
-        if (crossorigin === null) {
-            localStorage.removeItem(settings.setting_key_prefix+"crossorigin");
-        } else {
-            localStorage.setItem(settings.setting_key_prefix+"crossorigin", crossorigin);
-        }
+	let settings = {
+		'css_element_id': 'theme-css',
+		'select_id': 'theme-selector',
+		'setting_key_prefix': 'themes-',
+		'default_theme_id': 'default',
+		'themes': {
+			'default': {
+				id: 'default',
+				path: {% assets "themes.default" %}'{{ ASSET_URL }}'{% endassets %},
+				type: 'local',
+				integrity: null,
+				crossorigin: null,
+			},
+			'dark': {
+				id: 'dark',
+				path: {% assets "themes.dark" %}'{{ ASSET_URL }}'{% endassets %},
+				type: 'local',
+				integrity: null,
+				crossorigin: null,
+			},
+			'dark_purple': {
+				id: 'dark_purple',
+				path: {% assets "themes.dark_purple" %}'{{ ASSET_URL }}'{% endassets %},
+				type: 'local',
+				integrity: null,
+				crossorigin: null,
+			}
+		},
+	};
 
-        let new_element = false;
-        let theme_element = document.getElementById(settings.id);
-        // we got none yet
-        if (theme_element === null) {
-            // add one
-            let parser = new DOMParser();
-            let htmlPart = parser.parseFromString('<html><body><link rel="stylesheet" href="" id="'+settings.id+'"></body></html>', "text/html");
-            theme_element = htmlPart.getElementById(settings.id);
-            new_element = true;
-        }
+	// file_name = null == standard file
+	function setTheme(theme_id) {
+		localStorage.setItem(settings.setting_key_prefix + "id", theme_id);
 
-        let pure_element = theme_element;
+		let new_element = false;
+		let theme_element = document.getElementById(settings.css_element_id);
+		// we got none yet
+		if (theme_element === null) {
+			// add one
+			let parser = new DOMParser();
+			let htmlPart = parser.parseFromString(
+			    '<html><body><link rel="stylesheet" href="" id="' + settings.css_element_id
+			        + '"></body></html>', "text/html");
+			theme_element = htmlPart.getElementById(settings.css_element_id);
+			new_element = true;
+		}
 
-        // lets check if we have a local or remote theme
-        if (type === 'remote' && integrity !== null && (!pure_element.hasAttribute('integrity')
-            || !pure_element.getAttribute('integrity') !== integrity)) {
-            pure_element.setAttribute('integrity', integrity);
-        }
-        if (type === 'remote' && crossorigin !== null && (!pure_element.hasAttribute('crossorigin')
-            || !pure_element.getAttribute('crossorigin') !== crossorigin)) {
-            pure_element.setAttribute('crossorigin', crossorigin);
-        }
+		let pure_element = theme_element;
+		let theme = settings.themes[theme_id];
+		// lets check if we have a local or remote theme
+		if (theme.type === 'remote'
+		    && theme.integrity !== null
+		    && (!pure_element.hasAttribute('integrity') || !pure_element
+		        .getAttribute('integrity') !== theme.integrity)) {
+			pure_element.setAttribute('integrity', theme.integrity);
+		}
+		if (theme.type === 'remote'
+		    && theme.crossorigin !== null
+		    && (!pure_element.hasAttribute('crossorigin') || !pure_element
+		        .getAttribute('crossorigin') !== theme.crossorigin)) {
+			pure_element.setAttribute('crossorigin', theme.crossorigin);
+		}
 
-        if ((type === 'local' || integrity === null) && pure_element.hasAttribute('integrity')) {
-            pure_element.removeAttribute('integrity')
-        }
-        if ((type === 'local' || crossorigin === null) && pure_element.hasAttribute('crossorigin')) {
-            pure_element.removeAttribute('crossorigin');
-        }
-        // lets set the href
-        let href = type === "remote" ? file_name : settings.base_path+file_name;
-        pure_element.setAttribute('href', href);
-        if (new_element) {
+		if ((theme.type === 'local' || theme.integrity === null)
+		    && pure_element.hasAttribute('integrity')) {
+			pure_element.removeAttribute('integrity')
+		}
+		if ((theme.type === 'local' || theme.crossorigin === null)
+		    && pure_element.hasAttribute('crossorigin')) {
+			pure_element.removeAttribute('crossorigin');
+		}
+		// lets set the href
+		let href = theme.path;
+		pure_element.setAttribute('href', href);
+		if (new_element) {
 
-            document.write(pure_element.outerHTML);
-            //let headElement = document.getElementsByTagName("head")[0];
-            //let themLoaderElement = document.getElementById("themeloader");
-            //themLoaderElement.insertAdjacentHTML("afterend", pure_element.outerHTML)
-            //headElement.insertAfter(pure_element, themLoaderElement);
-        }
-    }
+			document.write(pure_element.outerHTML);
+			// let headElement = document.getElementsByTagName("head")[0];
+			// let themLoaderElement = document.getElementById("themeloader");
+			// themLoaderElement.insertAdjacentHTML("afterend",
+			// pure_element.outerHTML)
+			// headElement.insertAfter(pure_element, themLoaderElement);
+		}
+	}
 
-    function selectionChangeHandler(event) {
-        let url = event.target.value;
-        let target_option = event.target.options[event.target.options.selectedIndex];
-        let type = target_option.getAttribute('data-type');
-        let integrity = target_option.hasAttribute('data-integrity') ? target_option.getAttribute('data-integrity') : null;
-        let crossorigin = target_option.hasAttribute('data-crossorigin') ? target_option.getAttribute('data-crossorigin') : null;
-        setTheme(this.value, type, integrity, crossorigin); //
-    }
+	function selectionChangeHandler(event) {
+		let theme_id = event.target.value;
+		setTheme(theme_id);
+	}
 
-    function setCurrentTheme() {
-        let file = localStorage.getItem(settings.setting_key_prefix+"file");
-        let type = localStorage.getItem(settings.setting_key_prefix+"type");
-        let integrity = localStorage.getItem(settings.setting_key_prefix+"integrity");
-        let crossorigin = localStorage.getItem(settings.setting_key_prefix+"crossorigin");
-        if (file === null || file === "null") {
-            // set the default theme
-      document.addEventListener('DOMContentLoaded', function () {
-              setSelectionAfterPageReady(settings.def_file);
-          });
-            setTheme(settings.def_file, settings.def_type, settings.def_integrity, settings.def_crossorigin)
-        } else {
-          document.addEventListener('DOMContentLoaded', function () {
-              setSelectionAfterPageReady(file);
-          });
-            setTheme(file, type, integrity, crossorigin);
-        }
-    }
+	function setUpTheme() {
+		let theme_id = localStorage.getItem(settings.setting_key_prefix + "id");
+		
+		if (theme_id === null || theme_id === "null" || !(theme_id in settings.themes) ) {
+			// set the default theme
+			theme_id = settings.default_theme_id;
+		}
 
-    function initThemeAfterPageReady() {
-        let selector = $('#theme-selector')[0];
-        let firstOption = selector[selector.selectedIndex];
-        let file = firstOption.getAttribute('value');
-        let type = firstOption.getAttribute('data-type');
-        let integrity = firstOption.hasAttribute('data-integrity') ? firstOption.getAttribute('data-integrity') : null;
-        let crossorigin = firstOption.hasAttribute('data-crossorigin') ? firstOption.getAttribute('data-crossorigin') : null;
-        setTheme(file, type, integrity, crossorigin);
-    }
+		let theme = settings.themes[theme_id];
 
-    function setSelectionAfterPageReady(file) {
-        let selector = document.getElementById('theme-selector');
-        let foundTheme = false;
-        for(let idx=0; idx < selector.length; idx++) {
-            if (selector[idx].getAttribute('value') === file) {
-                selector[idx].selected = true;
-                foundTheme = true;
-                break;
-            }
-        }
+		setTheme(theme_id);
+		
+		// set selection after dome is done
+		// and then setup a handler for theme selection
+		document.addEventListener('DOMContentLoaded', function() {
+			setSelectionAfterPageReady(theme_id);
+			let selector = document.getElementById(settings.select_id);
+			selector.addEventListener('change', selectionChangeHandler);
+		});
+	}
 
+	function initThemeAfterPageReady() {
+		let selector = $('#theme-selector')[0];
+		let firstOption = selector[selector.selectedIndex];
+		let file = firstOption.getAttribute('value');
+		let type = firstOption.getAttribute('data-type');
+		let integrity = firstOption.hasAttribute('data-integrity') ? firstOption
+		    .getAttribute('data-integrity')
+		    : null;
+		let crossorigin = firstOption.hasAttribute('data-crossorigin') ? firstOption
+		    .getAttribute('data-crossorigin')
+		    : null;
+		setTheme(file, type, integrity, crossorigin);
+	}
 
-        if (!foundTheme) {
-            if (selector.options.length > 0) {
-                selector[0].selected = true;
-                let target_option = selector[0];
-                let url = target_option.value;
-                let type = target_option.getAttribute('data-type');
-                let integrity = target_option.hasAttribute('data-integrity') ? target_option.getAttribute('data-integrity') : null;
-                let crossorigin = target_option.hasAttribute('data-crossorigin') ? target_option.getAttribute('data-crossorigin') : null;
-                setTheme(url, type, integrity, crossorigin); //
-            }
-        }
+	function setSelectionAfterPageReady(theme_id) {
+		let selector = document.getElementById(settings.select_id);
+		let foundTheme = false;
+		for (let idx = 0; idx < selector.length; idx++) {
+			if (selector[idx].getAttribute('value') === theme_id) {
+				selector[idx].selected = true;
+				foundTheme = true;
+				break;
+			}
+		}
 
-    }
+		if (!foundTheme) {
+			console.error('No theme with value ' + theme_id + ' was found in selector, this should never happen.');
+				
+		}
 
-    // apply our current theme and set handlers
-    function init() {
-        let selector = $('#theme-selector');
-        selector.on("change", selectionChangeHandler);
-    }
-    setCurrentTheme();
-    document.addEventListener('DOMContentLoaded', init);
-    // nothing to export
-    return {};
+	}
+
+	// this
+	setUpTheme();
+	// nothing to export
+	return {};
 })();
