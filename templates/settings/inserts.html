@@ -6,14 +6,14 @@
 {{ super() }}
 {% endblock head %}
 {% block content %}
-<p><var>$type$</var> gets replaced with number representing the type of a person, 0=linemember,1=fc/t,2=lm/r,3=both</p>
-<h4>Page Inserts</h4>
+<p>{{ _('<var>$type$</var> gets replaced with number representing the type of a person, 0=linemember,1=fc/t,2=lm/r,3=both') }}</p>
+<h4>{{ _('Page Inserts') }}</h4>
 <form method="post" action="{{url_for('settings_inserts.change', type_='header')}}">
 <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 <fieldset class="form-group">
-	<label for="header-textarea">Header Insert</label>
+	<label for="header-textarea">{{ _('Header Insert') }}</label>
 	<textarea name="content" class="form-control" id="header-textarea" rows="3">{%if 'header' in inserts and inserts['header'] is not none %}{{inserts['header']}}{%endif%}</textarea>
 </fieldset>
-<button type="submit" class="btn btn-primary">Save</button>
+<button type="submit" class="btn btn-primary">{{ _('Save') }}</button>
 </form>
 {% endblock content %}

@@ -18,6 +18,7 @@ from waitlist.utility.eve_id_utils import is_char_banned, get_account_from_db, g
 from waitlist.utility.login import invalidate_all_sessions_for_current_user
 from waitlist.utility.manager import owner_hash_check_manager
 from fileinput import filename
+from flask_babel import gettext
 
 logger = logging.getLogger(__name__)
 
@@ -64,9 +65,12 @@ def check_user_owner_hash():
 
         if not owner_hash_check_manager.is_ownerhash_valid(user):
             logger.info("owner_hash for %s was invalid. Removing connected character %s.", user, user.current_char_obj)
-            flask.flash(f"Your set current character {user.get_eve_name()}"
-                        f" was unset because the provided token got invalidated."
-                        f" Go to Own Settings to re-add.", 'danger')
+            flask.flash(gettext(
+                """Your set current character %(eve_name)s
+                was unset because the provided token got invalidated."
+                Go to Own Settings to re-add.""",
+                eve_name=user.get_eve_name()),
+                'danger')
             user.current_char = None
             db.session.commit()
             return redirect(url_for('index'))

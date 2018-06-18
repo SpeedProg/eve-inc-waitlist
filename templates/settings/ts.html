@@ -1,6 +1,6 @@
 {% extends "settings/base.html" %}
 
-{% block title %}Settings - Teamspeak{% endblock %}
+{% block title %}{{ _('Settings') }} - {{ _('Teamspeak') }}{% endblock %}
 
 {% block head %}
 {{ super() }}
@@ -22,7 +22,7 @@
 				{% endfor %}
 				{% endif %}
 			</select>
-			<button class="btn btn-primary" type="submit">Change TS</button>
+			<button class="btn btn-primary" type="submit">{{ _('Change TS') }}</button>
 		</form>
 	{% endif %}
 	{% if perm_manager.get_permission('teamspeak_edit').can() %}
@@ -40,56 +40,56 @@
 				{% endfor %}
 				{% endif %}
 			</select>
-			<button class="btn btn-primary" type="submit">Remove TS</button>
+			<button class="btn btn-primary" type="submit">{{ _('Remove TS') }}</button>
 		</form>
 		<form action="{{url_for('teamspeak.teamspeak_change')}}" method="POST">
 			<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 			<input type="hidden" name="action" value="add">
 			<div class="form-group">
-				<label for="displayName">Display Name</label>
+				<label for="displayName">{{ _('Display Name') }}</label>
 				<input type="text" class="form-control" id="displayName" name="displayName" value="{{active.displayName}}">
 			</div>
 			<div class="form-group">
-				<label for="internalHost">Internal Host</label>
+				<label for="internalHost">{{ _('Internal Host') }}</label>
 				<input type="text" class="form-control" id="internalHost" name="internalHost" value="{{active.host}}">
 			</div>
 			<div class="form-group">
-				<label for="internalPort">Internal Port</label>
+				<label for="internalPort">{{ _('Internal Port') }}</label>
 				<input type="number" class="form-control" id="internalPort" name="internalPort" value="{{active.port}}">
 			</div>
 			<div class="form-group">
-				<label for="displayHost">Display Host</label>
+				<label for="displayHost">{{ _('Display Host') }}</label>
 				<input type="text" class="form-control" id="displayHost" name="displayHost" value="{{active.displayHost}}">
 			</div>
 			<div class="form-group">
-				<label for="displayPort">Display Port</label>
+				<label for="displayPort">{{ _('Display Port') }}</label>
 				<input type="number" class="form-control" id="displayPort" name="displayPort" value="{{active.displayPort}}">
 			</div>
 			<div class="form-group">
-				<label for="queryName">Query Name</label>
+				<label for="queryName">{{ _('Query Name') }}</label>
 				<input type="text" class="form-control" id="queryName" name="queryName" value="{{active.queryName}}">
 			</div>
 			<div class="form-group">
-				<label for="queryPassword">Query Password</label>
+				<label for="queryPassword">{{ _('Query Password') }}</label>
 				<input type="text" class="form-control" id="queryPassword" name="queryPassword">
 			</div>
 			<div class="form-group">
-				<label for="serverID">Server ID</label>
+				<label for="serverID">{{ _('Server ID') }}</label>
 				<input type="number" class="form-control" id="serverID" name="serverID" value="{{active.serverID}}">
 			</div>
 			<div class="form-group">
-				<label for="channelID">Channel ID</label>
+				<label for="channelID">{{ _('Channel ID') }}</label>
 				<input type="number" class="form-control" id="channelID" name="channelID" value="{{active.channelID}}">
 			</div>
 			<div class="form-group">
-				<label for="clientName">Client Name</label>
+				<label for="clientName">{{ _('Client Name') }}</label>
 				<input type="text" class="form-control" id="clientName" name="clientName" value="{{active.clientName}}">
 			</div>
 			<div class="form-group">
-				<label for="safetyChannelID">Safety ChannelID</label>
+				<label for="safetyChannelID">{{ _('Safety ChannelID') }}</label>
 				<input type="number" class="form-control" id="safetyChannelID" name="safetyChannelID" value="{{active.safetyChannelID}}">
 			</div>
-			<button class="btn btn-primary" type="submit">Add TS</button>
+			<button class="btn btn-primary" type="submit">{{ _('Add TS') }}</button>
 		</form>
 	{% endif %}
 {% endblock %}

@@ -11,6 +11,7 @@ import logging
 from flask.globals import request
 from flask.helpers import flash, url_for
 from werkzeug.utils import redirect
+from flask_babel import gettext
 bp = Blueprint('settings_fmotds', __name__)
 logger = logging.getLogger(__name__)
 
@@ -43,11 +44,11 @@ def change(type_):
     if type_ == "hq":
         motd = request.form.get('motd')
         sset_motd_hq(motd)
-        flash("HQ MOTD Saved")
+        flash(gettext("HQ MOTD Saved"), 'success')
     elif type_ == "vg":
         motd = request.form.get('motd')
         sset_motd_vg(motd)
-        flash("VG MOTD Saved")
+        flash(gettext("VG MOTD Saved"), 'success')
     return redirect(url_for('settings_fmotds.index'))
 
 

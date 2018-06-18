@@ -24,6 +24,7 @@ from flask_limiter.extension import Limiter
 from flask_limiter.util import get_ipaddr
 from flask.globals import request
 from waitlist.utility.assets import register_asset_bundles
+from flask_babel import Babel
 
 app = Flask(import_name=__name__, static_url_path="/static",
             static_folder="../static", template_folder=path.join("..", "templates"))
@@ -148,3 +149,14 @@ template = {
 }
 
 swag = Swagger(app, template=template)
+
+app.config['LANGUAGES'] = ['en', 'de']#
+app.config['BABEL_TRANSLATION_DIRECTORIES'] = 'F:/source/eclipseworkspaces/python/WTMWaitlistF/translations'
+
+babel = Babel(app)
+
+print(babel.list_translations())
+
+@babel.localeselector
+def get_locale():
+    return 'de' #request.accept_languages.best_match(app.config['LANGUAGES'])

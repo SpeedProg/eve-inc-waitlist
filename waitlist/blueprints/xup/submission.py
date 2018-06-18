@@ -17,6 +17,7 @@ from waitlist.utility.history_utils import create_history_object
 from waitlist.utility.utils import get_fit_format, create_mod_map
 from waitlist import db
 from . import bp
+from flask_babel import gettext, ngettext
 
 logger = logging.getLogger(__name__)
 
@@ -45,7 +46,7 @@ def submit():
 
     if not group.enabled:
         # xups are disabled atm
-        flash("X-UP is disabled!!!")
+        flash(gettext("X-UP is disabled!!!"))
         return redirect(url_for("index"))
 
     poke_me = 'pokeMe' in request.form
@@ -71,7 +72,7 @@ def submit():
 
         # check if shiptype is valid
         if len(ship_types) <= 0:
-            flash("Valid entries are scruffy [dps|logi|sniper,..]")
+            flash(gettext("Valid entries are scruffy [dps|logi|sniper,..]"))
             return redirect(url_for('index'))
 
         queue = group.xuplist
@@ -107,7 +108,8 @@ def submit():
                 event = FitAddedSSE(group_id, queue.id, wl_entry.id, fit, True, wl_entry.user)
                 send_server_sent_event(event)
 
-        flash(f"You were added as {ship_type}", "success")
+        flash(gettext("You were added as %(ship_type)", ship_type=ship_type),
+              "success")
         return redirect(url_for('index') + "?groupId=" + str(group_id))
     # ### END SCRUFFY CODE
 
@@ -195,7 +197,9 @@ def submit():
     logger.debug("Parsed %d fits", fit_count)
 
     if fit_count <= 0:
-        flash(f"You submitted {fit_count} fits to be check by a fleet comp before getting on the waitlist.",
+        flash(ngettext("You submitted %(num)d fit to be check by a fleet comp before getting on the waitlist.",
+                       "You submitted %(num)d fits to be check by a fleet comp before getting on the waitlist.",
+                       fit_count),
               "danger")
         return redirect(url_for('index') + "?groupId=" + str(group_id))
 
@@ -350,7 +354,9 @@ def submit():
             event = FitAddedSSE(group_id, queue.id, wl_entry.id, fit, True, wl_entry.user)
             send_server_sent_event(event)
 
-    flash(f"You submitted {fit_count} fits to be check by a fleet comp before getting on the waitlist.",
+    flash(ngettext("You submitted %(num)d fit to be check by a fleet comp before getting on the waitlist.",
+                   "You submitted %(num)d fits to be check by a fleet comp before getting on the waitlist.",
+                   fit_count),
           "success")
 
     return redirect(url_for('index') + "?groupId=" + str(group_id))

@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}History{% endblock %}
+{% block title %}{{ _('History') }}{% endblock %}
 
 {% block head %}
 {{ super() }}
@@ -25,7 +25,7 @@ src="{{ config.stattool_uri }}" integrity="{{ config.stattool_sri }}" crossorigi
 <div class="row">
 	<div class="btn-group-toggle pr-3" data-toggle="buttons">
 		<label id="filter-approval-only" class="btn btn-primary" >
-			<input id="filter-approval-only-box" type="checkbox" autocomplete="off" aria-label="toggle show only approvals">Only Show Approvals
+			<input id="filter-approval-only-box" type="checkbox" autocomplete="off" aria-label="toggle show only approvals">{{ _('Only Show Approvals') }}
 		</label>
 	</div>
 	<div class="btn-group">
@@ -36,7 +36,7 @@ src="{{ config.stattool_uri }}" integrity="{{ config.stattool_sri }}" crossorigi
 <div class="row">
 <table class="table table-sm comp-font">
 <thead>
-<th>Time</th><th>Action</th><th>Account</th><th>Target</th><th>Associated Fits</th>
+<th>{{ _('Time') }}</th><th>{{ _('Action') }}</th><th>{{ _('Account') }}</th><th>{{ _('Target') }}</th><th>{{ _('Associated Fits') }}</th>
 </thead>
 <tbody id="historybody">
 </tbody>

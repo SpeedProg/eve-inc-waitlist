@@ -18,6 +18,9 @@ from waitlist import app, db
 from waitlist.storage.database import WaitlistGroup, TeamspeakDatum, CalendarEvent, WaitlistEntry, Account, Trivia
 from waitlist.utility.settings import sget_active_ts_id
 
+from flask_babel import _
+from flask.helpers import flash
+
 logger = logging.getLogger(__name__)
 
 
@@ -91,7 +94,7 @@ def about():
 @app.route('/tokenauth')
 def login_token():
     if not config.debug_enabled:
-        flask.abort(404, "Tokens where removed, please use the EVE SSO")
+        flask.abort(404, _("Tokens where removed, please use the EVE SSO"))
         return
 
     token = request.args.get('token')

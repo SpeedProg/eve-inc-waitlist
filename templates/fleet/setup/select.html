@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Fleet - Setup - Select Squads{% endblock %}
+{% block title %}{{ _('Fleet') }} - {{ _('Setup') }} - {{ _('Select Squads') }}{% endblock %}
 
 {% block head %}
 {{ super() }}
@@ -11,7 +11,7 @@
 <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 <input type="hidden" name="fleet-id" value="{{ fleet_id }}">
 <fieldset class="form-group">
-	<label for="fleet-group">Waitlist Group</label>
+	<label for="fleet-group">{{ _('Waitlist Group') }}</label>
 	<select class="form-control" id="fleet-group" name="fleet-group">
 	{% for group in groups %}
 		<option value="{{group.groupID}}">{{group.displayName}}</option>
@@ -19,7 +19,7 @@
 	</select>
 </fieldset>
 <fieldset class="form-group">
-	<label for="wl-logi">Logi Squad</label>
+	<label for="wl-logi">{{ _('Logi Squad') }}</label>
 	<select class="form-control" id="wl-logi" name="wl-logi">
 	{% for wing in wings %}
 		{% for squad in wing.squads() %}
@@ -29,7 +29,7 @@
 	</select>
 </fieldset>
 <fieldset class="form-group">
-	<label for="wl-sniper">Sniper Squad</label>
+	<label for="wl-sniper">{{ _('Sniper Squad') }}</label>
 	<select class="form-control" id="wl-sniper" name="wl-sniper">
 	{% for wing in wings %}
 		{% for squad in wing.squads() %}
@@ -39,7 +39,7 @@
 	</select>
 </fieldset>
 <fieldset class="form-group">
-	<label for="wl-dps">DPS Squad</label>
+	<label for="wl-dps">{{ _('DPS Squad') }}</label>
 	<select class="form-control" id="wl-dps" name="wl-dps">
 	{% for wing in wings %}
 		{% for squad in wing.squads() %}
@@ -49,7 +49,7 @@
 	</select>
 </fieldset>
 <fieldset class="form-group">
-	<label for="wl-overflow">Overflow Squad</label>
+	<label for="wl-overflow">{{ _('Overflow Squad') }}</label>
 	<select class="form-control" id="wl-overflow" name="wl-overflow">
 	{% for wing in wings %}
 		{% for squad in wing.squads() %}
@@ -58,6 +58,6 @@
 	{% endfor %}
 	</select>
 </fieldset>
-<button type="submit" class="btn-primary btn">Next</button>
+<button type="submit" class="btn-primary btn">{{ _('Next') }}</button>
 </form>
 {% endblock %}

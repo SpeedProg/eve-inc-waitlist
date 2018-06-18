@@ -1,6 +1,6 @@
 {% extends "settings/base.html" %}
 
-{% block title %}Settings - Static Data Import{% endblock %}
+{% block title %}{{ _('Settings') }} - {{ _('Static Data Import') }}{% endblock %}
 
 {% block m_sde %}active{% endblock %}
 
@@ -18,10 +18,7 @@
 
 {% block raw_content %}
 <div class="row">
-	<div class="alert alert-info" role="alert">All files can be bz2 compressed if uploaded with extension .bz2</div>
-	{% if is_igb %}
-	<div class="alert alert-info" role="alert">File Uploads do not work in the IGB. Please use an out of game browser</div>
-	{% endif %}
+	<div class="alert alert-info" role="alert">{{ _('All files can be bz2 compressed if uploaded with extension .bz2') }}</div>
 </div>
 <div class="row mb-3">
 <form class="form-inline" action="{{url_for('sde.update_type_ids')}}" method="post" enctype="multipart/form-data">
@@ -35,13 +32,13 @@
 			<label id="typeid-file-label" class="custom-file-label" data-content="Choose file..." for="typeid-file"></label>
 		</div>
 	</div>
-	<button type="submit" class="btn btn-primary">Update typeIDs</button>
+	<button type="submit" class="btn btn-primary">{{ _('Update typeIDs') }}</button>
 </form>
 </div>
 <div class="row mb-3">
 <form class="form-inline" action="{{url_for('sde.update_map')}}" method="post" enctype="multipart/form-data">
 	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
-	<button type="submit" class="btn btn-primary">Update Systems and Constellations</button>
+	<button type="submit" class="btn btn-primary">{{ _('Update Systems and Constellations') }}</button>
 </form>
 </div>
 <div class="row mb-3">
@@ -56,7 +53,7 @@
 			<label id="station-file-label" class="custom-file-label" data-content="Choose file..." for="station-file"></label>
 		</div>
 	</div>
-	<button type="submit" class="btn btn-primary">Update Stations</button>
+	<button type="submit" class="btn btn-primary">{{ _('Update Stations') }}</button>
 </form>
 </div>
 <div class="row mb-3">
@@ -71,10 +68,10 @@
 			<label id="layout-file-label" class="custom-file-label" data-content="Choose file..." for="layout-file"></label>
 		</div>
 	</div>
-	<button type="submit" class="btn btn-primary">Update Layouts</button>
+	<button type="submit" class="btn btn-primary">{{ _('Update Layouts') }}</button>
 </form>
-	<p>This cvs file, needs to be data separated by tabs. and the first line need to contain the following separated by tabs instead of a space and comma:
-	Constellation, Headquarter System, Dockup
+	<p>{{ _('This cvs file, needs to be data separated by tabs. and the first line need to contain the following separated by tabs instead of a space and comma:'+
+	'Constellation, Headquarter System, Dockup') }}
 	</p>
 </div>
 {% endblock %}

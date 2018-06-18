@@ -33,6 +33,7 @@ from typing import Callable, Any
 import gevent
 import time
 from gevent.threading import Lock
+from flask_babel import gettext
 
 bp = Blueprint('accounts', __name__)
 logger = logging.getLogger(__name__)
@@ -61,7 +62,7 @@ def accounts():
 
         char_info = outgate.character.get_info_by_name(char_name)
         if char_info is None:
-            flash(f"A Character named {char_name} does not exist!")
+            flash(gettext("A Character named %(char_name)s does not exist!", char_name=char_name), 'warning')
         else:
             char_id = char_info.id
             acc = Account()
@@ -273,7 +274,7 @@ def account_edit():
     if char_name is not None:
         char_info = outgate.character.get_info_by_name(char_name)
         if char_info is None:
-            flash(f"Character with name {char_name} could not be found!")
+            flash(gettext("Character with name %(char_name)s could not be found!", char_name=char_name), 'danger')
         else:
             char_id = char_info.id
             # find out if there is a character like that in the database
@@ -319,7 +320,7 @@ def account_self_edit():
         char_info = outgate.character.get_info_by_name(char_name)
 
         if char_info is None:
-            flash(f"Character with name {char_name} could not be found!")
+            flash(gettext("Character with name %(char_name)s could not be found!", char_name=char_name), 'danger')
         else:
             char_id = char_info.id
             # find out if there is a character like that in the database
@@ -512,7 +513,7 @@ def alt_verification_handler(code: str) -> None:
             current_user.current_char = char_id
 
         db.session.commit()
-        flash(f'Alt {character.eve_name} was added', 'info')
+        flash(gettext('Alt %(char_name)s was added', char_name=character.eve_name), 'info')
         return redirect(url_for('accounts.account_self'), code=303)
     else:
         flask.abort(400, 'Could not confirm your authorisation of the alt,'

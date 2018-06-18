@@ -15,6 +15,7 @@ from waitlist.blueprints.settings import add_menu_entry
 from waitlist import app
 from waitlist.permissions import perm_manager
 from waitlist.utility import sde
+from flask_babel import gettext
 
 bp = Blueprint('sde', __name__)
 logger = logging.getLogger(__name__)
@@ -40,7 +41,7 @@ def update_type_ids():
         f.save(dest_name)
         # start the update
         sde.update_invtypes(dest_name)
-        flash("Type IDs were updated!", "success")
+        flash(gettext("Type IDs were updated!"), "success")
 
     return redirect(url_for('.sde_settings'))
 
@@ -50,9 +51,9 @@ def update_type_ids():
 @perm_access.require(http_exception=401)
 def update_map():
     sde.update_constellations()
-    flash("Constellations where updated!", "success")
+    flash(gettext("Constellations where updated!"), "success")
     sde.update_systems()
-    flash("Systems were updated!", "success")
+    flash(gettext("Systems were updated!"), "success")
     return redirect(url_for('.sde_settings'))
 
 
@@ -69,7 +70,7 @@ def update_stations():
         f.save(dest_name)
         # start the update
         sde.update_stations(dest_name)
-        flash("Stations were updated!", "success")
+        flash(gettext("Stations were updated!"), "success")
 
     return redirect(url_for('.sde_settings'))
 
@@ -87,7 +88,7 @@ def update_layouts():
         f.save(dest_name)
         # start the update
         sde.update_layouts(dest_name)
-        flash("Layouts were updated!", "success")
+        flash(gettext("Layouts were updated!"), "success")
 
     return redirect(url_for('.sde_settings'))
 

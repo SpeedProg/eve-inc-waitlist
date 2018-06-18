@@ -1,6 +1,6 @@
 {% extends "settings/base.html" %}
 
-{% block title %}Settings - Permissions{% endblock %}
+{% block title %}{{ _('Settings') }} - {{ _('Permissions') }}{% endblock %}
 
 {% block head %}
 {{ super() }}
@@ -16,14 +16,14 @@
 	<form class="form-inline" action="{{ url_for('settings_permissions.add_role') }}" method="POST" autocomplete="off">
 		<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 		<div class="form-group mr-3">
-			<label class="mr-1" for="role-name">Role Name</label>
+			<label class="mr-1" for="role-name">{{ _('Role Name') }}</label>
 			<input id="role-name" class="form-control" name="role_name">
 		</div>
 		<div class="form-group mr-3">
-			<label class="mr-1" for="role-name">Role Display Name</label>
+			<label class="mr-1" for="role-name">{{ _('Role Display Name') }}</label>
 			<input id="role-name" class="form-control" name="role_display_name">
 		</div>
-		<button  type="submit" class="btn btn-primary">Add</button>
+		<button  type="submit" class="btn btn-primary">{{ _('Add') }}</button>
 	</form>
 	</div>
 		<!-- Make a table down wards permissions and to the right roles
@@ -36,7 +36,7 @@
 			<table class="table table-hover table-sm table-responsive">
 				<thead>
 				<tr>
-				<th>Permission</th>
+				<th>{{ _('Permission') }}</th>
 				{% for role in roles if role.name != 'admin'  %}
 					<th>{{ role.displayName }}</th>
 				{% endfor %}
@@ -50,7 +50,9 @@
 					{% for role in roles if role.name != 'admin' %}
 					<td>
 						<div class="custom-control custom-checkbox">
-							<input id="{{outer_loop.index0}}-{{loop.index0}}" class="custom-control-input" autocomplete="off" data-action="changePermission" data-perm-name="{{ perm_name }}" data-role-name="{{ role.name }}" type="checkbox" value="" {% if perms[perm_name].has_role(role.name) %}checked{% endif %}>
+							<input id="{{outer_loop.index0}}-{{loop.index0}}" class="custom-control-input" autocomplete="off" data-action="changePermission"
+							data-perm-name="{{ perm_name }}" data-role-name="{{ role.name }}" type="checkbox"
+							value="" {% if perms[perm_name].has_role(role.name) %}checked{% endif %}>
 							<label style="position: absolute;" class="custom-control-label" for="{{outer_loop.index0}}-{{loop.index0}}"></label>
 						</div>
 					</td>
