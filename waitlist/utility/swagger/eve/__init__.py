@@ -67,6 +67,9 @@ class ESIResponse(object):
     def error(self) -> Optional[str]:
         return self.__error
 
+    def __repr__(self):
+        return f'<ESIResponse  code={self.code()} error={self.error()} expires={self.expires()}>'
+
 
 def make_error_response(resp: Any) -> ESIResponse:
     if resp.status == 520:  # monolith error

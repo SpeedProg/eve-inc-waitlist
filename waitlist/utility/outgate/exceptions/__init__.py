@@ -26,14 +26,18 @@ class ESIException(ApiException):
     def get_call(self) -> Callable:
         return self.__call
 
+    def __repr__(self):
+        return f'<ESIException caller={self.get_call().__name__} resp={self.get_response()}>'
+
 
 def check_esi_response(resp: Optional[ESIResponse], call: Callable, params: Sequence[Any]) -> ESIResponse:
     if resp is None:
         # this should never happen
-        logger.error(f'Got no response in {call.__name__} with {params}')
+        logger.error('Got no response in {} with {}', call.__name__, params)
         raise ESIException(resp, call)
     elif resp.is_error():
         # esi returned no data
+        logger.info('Got ESIResponse {}', resp)
         raise ESIException(resp, call)
     else:
         return resp
