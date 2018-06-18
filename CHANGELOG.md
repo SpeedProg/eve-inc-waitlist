@@ -1,4 +1,14 @@
 #Changelog
+* 1.4.2:
+  * Improvements
+    * Community name is no longer hidden when menu collapses, also moved menu button to right side
+    * Using minfied version of the fitting stats tool script now
+    * Theme are now versioned like other assets allowing for easier cache control
+  * Fixes:
+    * Converted the date-time picker fields on comp history search to date and time native browser fields
+    * Properly apply scheme to swagger spec
+    * Fixed some bootstrap includes using the wrong version
+    * Fixed a typo on reform page
 * 1.4.1:
   * Fixes
     * Swagger spec not containing the scheme
