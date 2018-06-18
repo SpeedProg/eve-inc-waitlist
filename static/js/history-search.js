@@ -9,7 +9,7 @@ waitlist.history.historysearch = (function() {
 	var getMetaData = waitlist.base.getMetaData;
 	var createHistoryEntryDOM = waitlist.history.base.createHistoryEntryDOM;
 
-	function loadData(sources, targets, actions, startdate, enddate) {
+	function loadData(sources, targets, actions, startdate, starttime, enddate, endtime) {
 		var data = {};
 		if (sources !== null) {
 			data.accs = sources;
@@ -20,14 +20,16 @@ waitlist.history.historysearch = (function() {
 		if (actions !== null) {
 			data.actions = actions;
 		}
-		data.start = startdate;
-		data.end = enddate;
+		data.startdate = startdate;
+		data.starttime = starttime;
+		data.enddate = enddate;
+		data.endtime = endtime;
 		$.getJSON(getMetaData('api-history-search'), data, function(data) {
 			var hbody = $('#historybody');
 			hbody.empty();
 			if (data.history.length <= 0) {
-				 hbody.append('<td cospan="5">No Results Found</td>');
-				 return;
+				hbody.append('<td cospan="5">No Results Found</td>');
+				return;
 			}
 			for (var i = 0; i < data.history.length; i++) {
 				var hEntryDOM = createHistoryEntryDOM(data.history[i]);
@@ -37,8 +39,8 @@ waitlist.history.historysearch = (function() {
 			}
 			if (data.history.length > 0) {
 				data.laststamp = (new Date(Date
-					.parse(data.history[data.history.length - 1].time)))
-					.getTime();
+				    .parse(data.history[data.history.length - 1].time)))
+				    .getTime();
 			}
 		});
 	}
@@ -50,8 +52,10 @@ waitlist.history.historysearch = (function() {
 		if (actions !== null) {
 			actions = actions.join('|');
 		}
-		var start = $('#startpicker > input').val();
-		var end = $('#endpicker > input').val();
+		let startDate = $('#startDate').val();
+		let startTime = $('#startTime').val();
+		let endDate = $('#endDate').val();
+		let endTime = $('#endTime').val();
 
 		if (sources === "") {
 			sources = null;
@@ -62,55 +66,28 @@ waitlist.history.historysearch = (function() {
 		if (actions === "") {
 			actions = null;
 		}
-		if (start === "") {
-			start = moment().subtract(1, 'day').format("YYYY/MM/DD HH:mm");
+		if (startDate === "" || startTime === "") {
+			return;
 		}
-		if (end === "") {
-			end = moment().format("YYYY/MM/DD HH:mm");
+		if (endDate === "" || endTime === "") {
+			return;
 		}
 
-		loadData(sources, targets, actions, start, end);
+		loadData(sources, targets, actions, startDate, startTime, endDate, endTime);
 	}
 
 	function init() {
 		$('#search').on('click', search_click_handler);
-		$('#startpicker').datetimepicker({
-			icons: {
-				time: "fa fa-clock-o",
-				date: "fa fa-calendar",
-				up: "fa fa-arrow-up",
-				down: "fa fa-arrow-down",
-				previous: 'fa fa-chevron-left',
-				next: 'fa fa-chevron-right',
-				today: 'fa fa-calendar-o',
-				clear: 'fa fa-trash',
-				close: 'fa fa-times'
-			},
-			format: "YYYY/MM/DD HH:mm",
-			sideBySide: true
+		Date.prototype.toDateInputValue = (function() {
+			var local = new Date(this);
+			local.setMinutes(this.getMinutes() - this.getTimezoneOffset());
+			return local.toJSON().slice(0,10);
 		});
-		$('#endpicker').datetimepicker({
-			useCurrent: false,
-			icons: {
-				time: "fa fa-clock-o",
-				date: "fa fa-calendar",
-				up: "fa fa-arrow-up",
-				down: "fa fa-arrow-down",
-				previous: 'fa fa-chevron-left',
-				next: 'fa fa-chevron-right',
-				today: 'fa fa-calendar-o',
-				clear: 'fa fa-trash',
-				close: 'fa fa-times'
-			},
-			format: "YYYY/MM/DD HH:mm",
-			sideBySide: true
-		});
-		$("#startpicker").on("dp.change", function(e) {
-			$('#endpicker').data("DateTimePicker").minDate(e.date);
-		});
-		$("#endpicker").on("dp.change", function(e) {
-			$('#startpicker').data("DateTimePicker").maxDate(e.date);
-		});
+		let nowValue = new Date();
+		document.getElementById('startDate').valueAsDate = nowValue;
+		document.getElementById('startTime').valueAsDate = nowValue;
+		document.getElementById('endDate').valueAsDate = nowValue;
+		document.getElementById('endTime').valueAsDate = nowValue;
 	}
 
 	$(document).ready(init);

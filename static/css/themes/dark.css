@@ -8983,15 +8983,16 @@ a.text-dark:hover, a.text-dark:focus {
 }
 
 .eveui_window {
-  background: #6c757d !important;
-  color: #e9ecef !important;
+  background: #495057 !important;
+  color: #f8f9fa !important;
 }
 
 .eveui_title {
-  background: #212529;
+  background: #495057 !important;
   color: #f8f9fa !important;
 }
 
 #wl_hover table {
-  background: #ced4da !important;
+  background: #495057 !important;
+  color: #f8f9fa !important;
 }

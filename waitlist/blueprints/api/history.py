@@ -22,9 +22,20 @@ perm_manager.define_permission('comphistory_search')
 def get_comp_history():
     f_acc_names = request.args.get('accs')
     f_char_names = request.args.get('chars')
-    f_time_start = request.args.get('start')
-    f_time_end = request.args.get('end')
+    f_start_date = request.args.get('startdate')
+    f_start_time = request.args.get('starttime')
+    f_end_date = request.args.get('enddate')
+    f_end_time = request.args.get('endtime')
     f_actions = request.args.get('actions')
+
+    f_start = None
+    f_end = None
+    if f_start_date is not None and f_start_time is not None:
+        f_start = f_start_date + ' ' + f_start_time
+
+    if f_end_date is not None and f_end_time is not None:
+        f_end = f_end_date + ' ' + f_end_time
+
     query = db.session.query(HistoryEntry)
     if f_acc_names is not None:
         a_names = f_acc_names.split('|')
@@ -36,7 +47,7 @@ def get_comp_history():
                 condition = (condition | (Account.username.contains(a)))
         if condition is not None:
             query = query.join(HistoryEntry.source).filter(condition)
-    
+
     if f_char_names is not None:
         a_names = f_char_names.split('|')
         condition = None
@@ -47,12 +58,12 @@ def get_comp_history():
                 condition = (condition | (Character.eve_name.contains(a)))
         if condition is not None:
             query = query.join(HistoryEntry.target).filter(condition)
-    
-    if f_time_start is not None and f_time_end is not None:
-        times = datetime.strptime(f_time_start, "%Y/%m/%d %H:%M")
-        timee = datetime.strptime(f_time_end, "%Y/%m/%d %H:%M")
+
+    if f_start is not None and f_end is not None:
+        times = datetime.strptime(f_start[0:16], "%Y-%m-%d %H:%M")
+        timee = datetime.strptime(f_end[0:16], "%Y-%m-%d %H:%M")
         query = query.filter((HistoryEntry.time >= times) & (HistoryEntry.time <= timee))
-    
+
     if f_actions is not None:
         a_actions = f_actions.split('|')
         condition = None

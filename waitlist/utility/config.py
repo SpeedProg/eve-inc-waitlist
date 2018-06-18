@@ -93,8 +93,8 @@ config.set_if_not_exists("pageinfo", "influence_link", "#")
 if not config.has_section("fittools"):
     config.add_section("fittools")
 config.set_if_not_exists("fittools", "stats_enabled", "True")
-config.set_if_not_exists("fittools", "stats_uri", "https://quiescens.duckdns.org/wl/ext/wl_external.js")
-config.set_if_not_exists("fittools", "stats_sri", "sha384-VonGhMELp1YLVgnJJMq2NqUOpRjhV7nUpiATMsrK5TIMrYQuGUaUPUZlQIInhGc5")
+config.set_if_not_exists("fittools", "stats_uri", "https://quiescens.duckdns.org/wl/ext/wl_external.min.js")
+config.set_if_not_exists("fittools", "stats_sri", "")
 
 if not config.has_section("overview"):
     config.add_section("overview")
