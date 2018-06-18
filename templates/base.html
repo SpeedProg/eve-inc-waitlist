@@ -16,7 +16,8 @@
 {% endassets %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js" integrity="sha384-cs/chFZiN24E4KMATLdqdvsezGxaGsi4hLGOzlXwp5UZB1LY//20VyM2taTB4QvJ" crossorigin="anonymous"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js" integrity="sha384-uefMccjFJAIv6A+rW+L4AHf99KvxDjWSu1z9VI8SKNVmz4sk7buKt/6v9KI65qnm" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T" crossorigin="anonymous"></script>
+	
 <title>{% block title %}{% endblock %}</title>
 {% endblock %}
 {% if header_insert is not none %}
@@ -33,11 +34,11 @@
 <body>
 	<nav class="navbar navbar-expand-md">
 	{% block menu %}
+		<a class="navbar-brand" href="/#">{{ title }}</a>
 		<button class="navbar-toggler navbar-toggler-right my-1" type="button" data-toggle="collapse" data-target="#mainNavbar" aria-label="Toggle navigation">
 			&#9776;
 		</button>
 		<div class="collapse navbar-collapse" id="mainNavbar">
-			<a class="navbar-brand" href="/#">{{ title }}</a>
 			<ul class="navbar-nav justify-content-start mr-auto">
 				<li class="nav-item">
 					<a class="nav-link" href="{{url_for('index')}}">Home</a>

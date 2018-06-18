@@ -67,7 +67,7 @@ def post_index():
     for backseat_string in backseats_string:
         backseat_ids.append(int(backseat_string))
 
-    event_datetime: datetime = datetime.strptime(event_date+' '+event_time, "%Y-%m-%d %H:%M")
+    event_datetime: datetime = datetime.strptime((event_date+' '+event_time)[0:16], "%Y-%m-%d %H:%M")
 
     category: CalendarEventCategory = db.session.query(CalendarEventCategory).get(category_id)
 
