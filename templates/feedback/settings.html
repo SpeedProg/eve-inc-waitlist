@@ -6,7 +6,7 @@
 <meta name="api-esi-ui-newmail" content="{{url_for('api_ui.post_esi_openwindow_newmail')}}">
 <meta name="api-esi-ui-auth" content="{{ url_for('api_ui.auth') }}">
 {{ super() }}
-{% assets filters="babili", output="gen/ticket.%(version)s.js", "js/base.js", "js/api/ui.js", "js/ticket-settings.js" %}
+{% assets filters="babili", output="gen/ticket.%(version)s.js", "js/api/ui.js", "js/ticket-settings.js" %}
 <script type="text/javascript" src="{{ ASSET_URL }}"></script>
 {% endassets %}
 {% endblock %}

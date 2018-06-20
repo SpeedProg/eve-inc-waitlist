@@ -14,7 +14,7 @@ from flask.globals import request
 from flask.helpers import flash, url_for
 from werkzeug.utils import redirect
 from waitlist import app
-from flask_babel import gettext
+from flask_babel import gettext, lazy_gettext
 
 bp = Blueprint('settings_mail', __name__)
 logger = logging.getLogger(__name__)
@@ -66,4 +66,4 @@ def change(type_):
     return redirect(url_for('settings_mail.index'))
 
 
-add_menu_entry('settings_mail.index', 'IG Mail Settings', lambda: perm_edit.can())
+add_menu_entry('settings_mail.index', lazy_gettext('IG Mail Settings'), lambda: perm_edit.can())

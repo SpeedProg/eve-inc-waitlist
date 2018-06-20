@@ -7,7 +7,7 @@
 	<meta name="api-groups" content="{{url_for('api_waitlists.groups')}}">
 {{ super() }}
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/expr-eval/1.0.1/bundle.min.js" integrity="sha256-R6r1M1yfa1MKl+m/J4ieun+1bZKH2KBNVEyTEsF4kNA=" crossorigin="anonymous"></script>
-	{% assets filters="babili", output="gen/alarm.%(version)s.js", "js/base.js", "js/notification/alarm.js" %}
+	{% assets filters="babili", output="gen/alarm.%(version)s.js", "js/notification/alarm.js" %}
 	<script type="text/javascript" src="{{ ASSET_URL }}"></script>
 	{% endassets %}
 {% endblock head %}
@@ -34,7 +34,7 @@
 		<div class="row">
 			<div class="input-group">
 				<label class="input-group-prepend" for="expr-target-select">{{ _('Expression Target') }}</label>
-				<select id="expr-target-select" class="custom-select" aria-describedby="expr-target-addon">
+				<select autocomplete="off" id="expr-target-select" class="custom-select" aria-describedby="expr-target-addon">
 				</select>
   				<span class="input-group-prepend">
 					<button id="expr-target-add" class="btn btn-primary" type="button">{{ _('Add') }}</button>

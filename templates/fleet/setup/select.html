@@ -12,7 +12,7 @@
 <input type="hidden" name="fleet-id" value="{{ fleet_id }}">
 <fieldset class="form-group">
 	<label for="fleet-group">{{ _('Waitlist Group') }}</label>
-	<select class="form-control" id="fleet-group" name="fleet-group">
+	<select autocomplete="off" class="custom-select" id="fleet-group" name="fleet-group">
 	{% for group in groups %}
 		<option value="{{group.groupID}}">{{group.displayName}}</option>
 	{% endfor %}
@@ -20,7 +20,7 @@
 </fieldset>
 <fieldset class="form-group">
 	<label for="wl-logi">{{ _('Logi Squad') }}</label>
-	<select class="form-control" id="wl-logi" name="wl-logi">
+	<select autocomplete="off" class="custom-select" id="wl-logi" name="wl-logi">
 	{% for wing in wings %}
 		{% for squad in wing.squads() %}
 			<option name="wl-logi" value="{{wing.id()}};{{squad.id()}}"{% if 'logi' in assign and assign['logi'].id() == squad.id() %} selected{%endif%}>{{wing.name()}} - {{squad.name()}}</option>
@@ -30,7 +30,7 @@
 </fieldset>
 <fieldset class="form-group">
 	<label for="wl-sniper">{{ _('Sniper Squad') }}</label>
-	<select class="form-control" id="wl-sniper" name="wl-sniper">
+	<select autocomplete="off" class="custom-select" id="wl-sniper" name="wl-sniper">
 	{% for wing in wings %}
 		{% for squad in wing.squads() %}
 		<option name="wl-sniper" value="{{wing.id()}};{{squad.id()}}"{% if 'sniper' in assign and assign['sniper'].id() == squad.id() %} selected{%endif%}>{{wing.name()}} - {{squad.name()}}</option>
@@ -40,7 +40,7 @@
 </fieldset>
 <fieldset class="form-group">
 	<label for="wl-dps">{{ _('DPS Squad') }}</label>
-	<select class="form-control" id="wl-dps" name="wl-dps">
+	<select autocomplete="off" class="custom-select" id="wl-dps" name="wl-dps">
 	{% for wing in wings %}
 		{% for squad in wing.squads() %}
 		<option name="wl-dps" value="{{wing.id()}};{{squad.id()}}"{% if 'dps' in assign and assign['dps'].id() == squad.id() %} selected{%endif%}>{{wing.name()}} - {{squad.name()}}</option>
@@ -50,7 +50,7 @@
 </fieldset>
 <fieldset class="form-group">
 	<label for="wl-overflow">{{ _('Overflow Squad') }}</label>
-	<select class="form-control" id="wl-overflow" name="wl-overflow">
+	<select autocomplete="off" class="custom-select" id="wl-overflow" name="wl-overflow">
 	{% for wing in wings %}
 		{% for squad in wing.squads() %}
 		<option name="wl-overflow" value="{{wing.id()}};{{squad.id()}}"{% if 'overflow' in assign and assign['overflow'].id() == squad.id() %} selected{%endif%}>{{wing.name()}} - {{squad.name()}}</option>

@@ -147,8 +147,10 @@ def login_accounts_by_alts_or_character(char: Character, owner_hash: str, token:
             logger.debug("Character owner_hash for %s did not match."
                          " Invalidating all sessions and removing character as alt from all accounts.", char)
             flask.flash(
-                gettext("""You character seemed to have changed owner.
-             You where removed as eligible character for account login."""),
+                gettext(
+                    "You character seemed to have changed owner." +
+                    " You where removed as eligible character " +
+                    "for account login."),
                 'danger')
             invalidate_all_sessions_for_given_user(char)
             if len(char.accounts) > 0:
@@ -166,10 +168,11 @@ def login_accounts_by_alts_or_character(char: Character, owner_hash: str, token:
             if len(char.accounts) > 1:  # this character is connected with more then 1 account
                 logger.error("%s connected to multiple accounts, logging in as character.", char)
                 flask.flash(
-                    gettext("""Your character %(eve_name)s is connected
-                     to more than one Waitlist Account,
-                     please contact an Administrator.
-                     Meanwhile, you are logged in as a normal character.""",
+                    gettext("Your character %(eve_name)s is connected"
+                            " to more than one Waitlist Account,"
+                            " please contact an Administrator."
+                            " Meanwhile, you are logged in as"
+                            " a normal character.",
                             eve_name=char.get_eve_name()),
                     "danger")
 

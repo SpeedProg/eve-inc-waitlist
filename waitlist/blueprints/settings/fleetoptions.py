@@ -21,7 +21,7 @@ from waitlist.storage.database import WaitlistGroup, Account, IncursionLayout, S
     WaitlistEntry
 from waitlist.utility.eve_id_utils import get_constellation, get_system, get_station
 from waitlist.utility.fleet import member_info
-from flask_babel import gettext
+from flask_babel import gettext, lazy_gettext
 
 bp = Blueprint('fleetoptions', __name__)
 logger = logging.getLogger(__name__)
@@ -90,7 +90,7 @@ def fleet_status_set(gid: int) -> Response:
                             group.status)
                 flash(gettext("You do not have the rights to change the status to %(text)s",
                               text=text), "danger")
-                flash(gettext("XUP is now %(xup_text)", xup_text=xup_text),
+                flash(gettext("XUP is now %(xup_text)s", xup_text=xup_text),
                       "success")
     elif action == "fc":
         group.fcs.append(current_user)
@@ -107,7 +107,7 @@ def fleet_status_set(gid: int) -> Response:
             f.write('{} - {} sets them self as Fleet Manager\n'.format(datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S"),
                                                                        current_user.username))
 
-        flash(gettext("You added your self to manager %(eve_name)", eve_name=current_user.get_eve_name()), "success")
+        flash(gettext("You added your self to manager %(eve_name)s", eve_name=current_user.get_eve_name()), "success")
     elif action == "manager-remove":
         account_id = int(request.form['accountID'])
         account = db.session.query(Account).get(account_id)
@@ -163,7 +163,7 @@ def fleet_status_set(gid: int) -> Response:
         with open("set_history.log", "a+") as f:
             f.write(f'{datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")}'
                     f' - {current_user.username} checked in for activity, {postfix}\n')
-        flash(gettext("Your activity report has been submitted %(user_name)s)",
+        flash(gettext("Your activity report has been submitted %(user_name)s",
                       user_name=current_user.username), "success")
 
     elif action == "change_display_name":
@@ -260,7 +260,7 @@ def fleet_location_set(gid):
                 group.system = None
                 group.dockup = None
 
-            flash(gettext("%(group.displayName)s Constellation was set to %(name)s",
+            flash(gettext("%(group_name)s Constellation was set to %(name)s",
                           group_name=group.displayName, name=name), "success")
     elif action == "system":
         name = request.form['name']
@@ -372,4 +372,4 @@ def fleet_status_global_set() -> str:
     return make_response("OK", 200)
 
 
-add_menu_entry('fleetoptions.fleet', 'Fleet Settings', perm_management.can)
+add_menu_entry('fleetoptions.fleet', lazy_gettext('Fleet Settings'), perm_management.can)

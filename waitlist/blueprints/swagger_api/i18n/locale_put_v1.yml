@@ -1,0 +1,24 @@
+Set your locale code
+Set the locale code to use for the current login
+---
+    operationId: put_i18n_locale
+    tags:
+      - I18n
+    parameters:
+      - name: lang
+        in: body
+        schema:
+          properties:
+            lang:
+              description: locale code to set e.g. en_US
+              type: string
+    responses:
+      204:
+          description: Locale code was set
+      404:
+          description: Not a valid locale code
+          examples:
+            application/json:
+              error: Locale a-d3d not a valid locale code!
+          schema:
+            $ref: '#/definitions/ErrorNotFound'

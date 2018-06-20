@@ -11,7 +11,7 @@
 		<form action="{{url_for('teamspeak.teamspeak_change')}}" method="POST" class="form-inline mb-3">
 			<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 			<input type="hidden" name="action" value="set">
-			<select class="custom-select mr-1" name="teamspeakID">
+			<select autocomplete="off" class="custom-select mr-1" name="teamspeakID">
 				{% if active is none %}
 				{% for ts in all %}
 					<option value="{{ts.teamspeakID}}">{{ts.displayName}}</option>
@@ -29,7 +29,7 @@
 			<form action="{{url_for('teamspeak.teamspeak_change')}}" method="POST" class="form-inline mb-3">
 			<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 			<input type="hidden" name="action" value="remove">
-			<select class="custom-select mr-1" name="teamspeakID">
+			<select autocomplete="off" class="custom-select mr-1" name="teamspeakID">
 				{% if active is none %}
 				{% for ts in all %}
 					<option value="{{ts.teamspeakID}}">{{ts.displayName}}</option>

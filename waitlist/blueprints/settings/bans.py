@@ -15,7 +15,7 @@ from waitlist.permissions import perm_manager
 from waitlist.storage.database import Ban, Whitelist, Character
 from waitlist.utility.eve_id_utils import get_character_by_name
 from waitlist.utility.utils import get_info_from_ban
-from flask_babel import gettext
+from flask_babel import lazy_gettext
 
 bp = Blueprint('bans', __name__)
 logger = logging.getLogger(__name__)
@@ -321,5 +321,5 @@ def whitelist_unlist():
     return redirect(url_for(".whitelist"))
 
 
-add_menu_entry('bans.bans', 'Bans', perm_manager.get_permission('bans_edit').can)
-add_menu_entry('bans.whitelist', 'Whitelist', perm_manager.get_permission('bans_edit').can)
+add_menu_entry('bans.bans', lazy_gettext('Bans'), perm_manager.get_permission('bans_edit').can)
+add_menu_entry('bans.whitelist', lazy_gettext('Whitelist'), perm_manager.get_permission('bans_edit').can)

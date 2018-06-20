@@ -13,7 +13,7 @@ from waitlist import db
 import flask
 from datetime import datetime, timedelta
 from sqlalchemy.sql.expression import desc
-from flask_babel import gettext
+from flask_babel import gettext, lazy_gettext
 
 logger = logging.getLogger(__name__)
 
@@ -84,4 +84,4 @@ def change_status() -> Response:
     return make_response("OK")
 
 
-add_menu_entry('feedback.settings', 'Feedback', perm_view.can)
+add_menu_entry('feedback.settings', lazy_gettext('Feedback'), perm_view.can)

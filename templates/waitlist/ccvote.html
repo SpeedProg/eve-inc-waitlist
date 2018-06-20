@@ -22,8 +22,8 @@ The voted FC/LM will get a price.') }}
 <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 <fieldset class="form-group">
 <label for="fc-vote">{{ _('Your favorite FC:') }}</label>
-<select name="fc-vote" id="fc-vote" >
-<option selected value="-1">{{ _('Please Select') }}</option>/
+<select autocomplete="off" name="fc-vote" id="fc-vote" >
+	<option selected value="-1">{{ _('Please Select') }}</option>/
 {% for fc in fcs %}
 	<option value="{{fc.id}}">{{fc.username}}</option>)
 {% endfor %}
@@ -31,8 +31,8 @@ The voted FC/LM will get a price.') }}
 </fieldset>
 <fieldset class="form-group">
 <label for="fc-vote">{{ _('Your favorite LM:') }}</label>
-<select name="lm-vote" id="lm-vote">
-<option selected value="-1">{{ _('Please Select') }}</option>/
+<select autocomplete="off" name="lm-vote" id="lm-vote">
+	<option selected value="-1">{{ _('Please Select') }}</option>/
 {% for lm in lms %}
 	<option value="{{lm.id}}">{{ lm.username }}</option>)
 {% endfor %}

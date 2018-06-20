@@ -11,7 +11,7 @@ import logging
 from flask.globals import request
 from flask.helpers import flash, url_for
 from werkzeug.utils import redirect
-from flask_babel import gettext
+from flask_babel import gettext, lazy_gettext
 bp = Blueprint('settings_fmotds', __name__)
 logger = logging.getLogger(__name__)
 
@@ -52,4 +52,4 @@ def change(type_):
     return redirect(url_for('settings_fmotds.index'))
 
 
-add_menu_entry('settings_fmotds.index', 'Fleet MOTD', perm.can)
+add_menu_entry('settings_fmotds.index', lazy_gettext('Fleet MOTD'), perm.can)

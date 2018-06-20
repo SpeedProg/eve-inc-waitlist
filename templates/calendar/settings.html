@@ -6,7 +6,7 @@
 {{ super() }}
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.15.1/moment.min.js" integrity="sha256-4PIvl58L9q7iwjT654TQJM+C/acEyoG738iL8B8nhXg=" crossorigin="anonymous"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css" integrity="sha256-yMjaV542P+q1RnH6XByCPDfUFhmOafWbeLPmqKh11zo=" crossorigin="anonymous" />
-{% assets filters="babili", output="gen/calendar-settings.%(version)s.js", "js/base.js", "js/calendar/settings.js" %}
+{% assets filters="babili", output="gen/calendar-settings.%(version)s.js", "js/calendar/settings.js" %}
 <script type="text/javascript" src="{{ ASSET_URL }}"></script>
 {% endassets %}
 {%  endblock %}
@@ -16,7 +16,7 @@
 		<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 
 			<label for="eventCategory">{{ _('Category') }}</label>
-			<select class="custom-select my-1 mr-sm-2" id="eventCategory" name="categoryID">
+			<select autocomplete="off" class="custom-select my-1 mr-sm-2" id="eventCategory" name="categoryID">
 				{% for category in categories %}
 				<option value="{{ category.categoryID }}">{{ category.categoryName }}</option>
 				{% endfor %}
@@ -36,7 +36,7 @@
 		</div>
 		<div>
 			<label for="eventBackseats">{{ _('Backseats') }}</label>
-			<select class="form-control" id="eventBackseats" name="backseats" multiple size="3">
+			<select autocomplete="off" class="form-control" id="eventBackseats" name="backseats" multiple size="3">
 				{% for account in accounts %}
 				<option value="{{ account.id }}">{{ account.username }}</option>
 				{% endfor %}

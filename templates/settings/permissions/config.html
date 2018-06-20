@@ -5,7 +5,7 @@
 {% block head %}
 {{ super() }}
 	<meta name="url.api.permission.change" content="{{url_for('api_permission.change')}}">
-	{% assets filters="babili", output="gen/permission-config.%(version)s.js", "js/base.js", "js/permissions/config.js" %}
+	{% assets filters="babili", output="gen/permission-config.%(version)s.js", "js/permissions/config.js" %}
 	<script type="text/javascript" src="{{ ASSET_URL }}"></script>
 	{% endassets %}
 {% endblock %}
