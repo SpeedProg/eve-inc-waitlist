@@ -33,7 +33,7 @@ from typing import Callable, Any
 import gevent
 import time
 from gevent.threading import Lock
-from flask_babel import gettext
+from flask_babel import gettext, lazy_gettext
 
 bp = Blueprint('accounts', __name__)
 logger = logging.getLogger(__name__)
@@ -418,8 +418,8 @@ def api_account_delete(acc_id: int) -> Response:
     return flask.jsonify(status="OK")
 
 
-add_menu_entry('accounts.accounts', 'Accounts', perm_manager.get_permission('accounts_edit').can)
-add_menu_entry('accounts.account_self', 'Own Settings', lambda: True)
+add_menu_entry('accounts.accounts', lazy_gettext('Accounts'), perm_manager.get_permission('accounts_edit').can)
+add_menu_entry('accounts.account_self', lazy_gettext('Own Settings'), lambda: True)
 
 
 @login_required

@@ -4,7 +4,7 @@
 
 {% block head %}
 {{ super() }}
-{%  assets filters="babili", output="gen/eveproxy.%(version)s.js", "js/base.js", "js/eveproxy.js" %}
+{%  assets filters="babili", output="gen/eveproxy.%(version)s.js", "js/eveproxy.js" %}
 	<script type="text/javascript" src="{{ ASSET_URL }}"></script>
 {% endassets %}
 {% include "libs/eve-ui.html"%}

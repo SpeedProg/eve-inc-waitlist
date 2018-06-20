@@ -18,7 +18,7 @@
 {% else %}
 <fieldset class="form-group">
 	<label for="group">{{ _('Fleet to x-up for') }}</label>
-	<select class="form-control" id="group" name="groupID">
+	<select autocomplete="off" class="form-control" id="group" name="groupID">
 		<option value="{{group.groupID}}">{{group.displayName}}</option>
 		{% for grp in groups %}
 		{% if grp.groupID != group.groupID %}
@@ -38,7 +38,7 @@
 </fieldset>
 <fieldset class="form-group" id="grp-cbslvl">
 	<label for="cbs">{{ _('Caldari Battleship Level') }}</label>
-	<select class="form-control" id="cbs" name="cbs">
+	<select autocomplete="off" class="form-control" id="cbs" name="cbs">
 		<option value=""{% if current_user.cbs_level == 0 %} selected{% endif %}>{{ _('No Caldari BS') }}</option>
 		<option value="1"{% if current_user.cbs_level == 1 %} selected{% endif %}>1</option>
 		<option value="2"{% if current_user.cbs_level == 2 %} selected{% endif %}>2</option>
@@ -49,7 +49,7 @@
 </fieldset>
 <fieldset class="form-group" id="grp-logilvl">
 	<label for="logi">{{ _('Logistic Cruiser Level') }}</label>
-	<select class="form-control" id="logi" name="logi">
+	<select autocomplete="off" class="form-control" id="logi" name="logi">
 		<option value=""{% if current_user.lc_level == 0 %} selected{% endif %}>{{ _('No Logi') }}</option>
 		<option value="5"{% if current_user.lc_level == 5 %} selected{% endif %}>5</option>
 		<option value="4"{% if current_user.lc_level == 4 %} selected{% endif %}>4</option>

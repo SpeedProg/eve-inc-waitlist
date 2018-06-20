@@ -15,7 +15,7 @@ waitlist.accounts = (function() {
 				async: true,
 				dataType: "text",
 				error: function() {
-					displayMessage("Disabling Account failed!", "danger");
+					displayMessage($.i18n('wl-accounts-error-disable-account-failed'), "danger");
 				},
 				method: "POST",
 				data: {
@@ -35,7 +35,7 @@ waitlist.accounts = (function() {
 				async: true,
 				dataType: "text",
 				error: function() {
-					displayMessage("Enabling Account failed!", "danger");
+					displayMessage($.i18n('wl-accounts-error-enabling-account-failed'), "danger");
 				},
 				method: "POST",
 				data: {
@@ -182,28 +182,28 @@ waitlist.accounts = (function() {
 		editableGrid.load({
 			metadata: [
 				{
-					name: "Actions",
+					name: 'actions',
 					datatype: "html",
 					editable: false
 				}, {
-					name: "Status",
+					name: 'status',
 					datatype: "string",
 					editable: false
 				}, {
-					name: "Account Name",
+					name: 'account-name',
 					datatype: "string",
 					editable: false,
 					values: [{"value": "canViewProfile", "label": true}]
 				}, {
-					name: "Roles",
+					name: 'roles',
 					datatype: "html",
 					editable: false
 				}, {
-					name: "Current Char",
+					name: 'current-character',
 					datatype: "string",
 					editable: false
 				}, {
-					name: "Alts",
+					name: 'alts',
 					datatype: "string",
 					editable: false,
 					values: [{"value": "canChangeLinks", "label": getMetaData('can-change-links') == 'True'}]
@@ -227,7 +227,10 @@ waitlist.accounts = (function() {
 	function init() {
 		noclick();
 		setUpEventhandlers();
-		setUpTable();
+		// make sure language data is loaded
+		i18nloaded.then(() => {
+			setUpTable();
+		});
 	}
 
 	$(document).ready(init);
@@ -235,6 +238,6 @@ waitlist.accounts = (function() {
 })();
 
 EditableGrid.prototype.initializeGrid = function() {
-	this.setCellRenderer("Account Name", new AccountCellRenderer());
-	this.setCellRenderer("Alts", new AltCellRenderer());
+	this.setCellRenderer('account-name', new AccountCellRenderer());
+	this.setCellRenderer('alts', new AltCellRenderer());
 };

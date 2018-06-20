@@ -11,7 +11,7 @@
 <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 <fieldset class="form-group">
 	<label for="fleet-group">{{ _('Waitlist Type') }}</label>
-	<select class="form-control" id="fleet-group" name="fleet-group">
+	<select autocomplete="off" class="form-control" id="fleet-group" name="fleet-group">
 	{% for group in groups %}
 		<option value="{{group.groupID}}">{{group.displayName}}</option>
 	{% endfor %}

@@ -7,7 +7,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js" integrity="sha384-cs/chFZiN24E4KMATLdqdvsezGxaGsi4hLGOzlXwp5UZB1LY//20VyM2taTB4QvJ" crossorigin="anonymous"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T" crossorigin="anonymous"></script>
-{% assets filters="babili", output="gen/fleetview.%(version)s.js", "js/base.js", "js/swagger-client.min.js", "js/fleetview/fleetview.js" %}
+{% assets filters="babili", output="gen/fleetview.%(version)s.js", "js/swagger-client.min.js", "js/fleetview/fleetview.js" %}
 <script type="text/javascript" src="{{ ASSET_URL }}"></script>
 {% endassets %}
 
@@ -16,7 +16,7 @@
 <div class="container">
 <div class="row" id="controls">
 <div class="input-group">
-	<select class="form-control" id="fleetSelect">
+	<select autocomplete="off" class="form-control" id="fleetSelect">
 		<option selected value="None">{{ _('Choose...') }}</option>
 		{% for fleet in fleets %}
 		<option value="{{fleet.fleetID}}">{{fleet.comp.username}}</option>

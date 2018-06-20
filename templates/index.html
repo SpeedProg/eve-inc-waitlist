@@ -42,7 +42,7 @@
 
 {{ super() }}
 
-{% assets filters="babili", output="gen/setup.%(version)s.js", "js/base.js",
+{% assets filters="babili", output="gen/setup.%(version)s.js",
 "js/dropdown.js", "js/eveproxy.js", "js/waitlist-dom.js", "js/wlsseupdate.js", "js/sse-dom.js",
 "js/dnasetup.js", "js/calendar/index.js" %}
 <script type="text/javascript" src="{{ ASSET_URL }}"></script>
@@ -120,7 +120,7 @@
 	<div class="alert alert-info" role="alert">
 		<p class="text-center">
 			{{ _('You are not associated with any fleet, you can change this in <a
-				href="%(url)s">Fleet Settings</a>', url=url_for('fleetoptions.fleet')) }}
+ href="%(url)s">Fleet Settings</a>', url=url_for('fleetoptions.fleet')) }}
 		</p>
 	</div>
 	{% endif %}
@@ -128,8 +128,8 @@
 	<div class="alert alert-info" role="alert">
 		<p class="text-center">
 			{{ _('Please join Teamspeak, your character name must match <b>exactly</b>
-			(case sensitive)<br>TS3 Server:') }} {{ts.displayHost}}{% if
-			ts.displayPort != 9987 %}:{{ts.displayPort}}{% endif %}
+ (case sensitive)<br>TS3 Server:') }} {{ts.displayHost}}{% if
+ ts.displayPort != 9987 %}:{{ts.displayPort}}{% endif %}
 		</p>
 	</div>
 	{% endif %}
@@ -151,6 +151,28 @@
 				{% endif %}
 			</li>
 			{% endfor %}
+			{% if is_on_wl %}
+			<li id="gong" class="nav-item ml-auto wlb">
+				<div class="mr-2 form-group pretty-dd">
+					<input type="checkbox" name="gongbutton" id="gongbutton"/>
+					<div class="btn-group">
+						<label for="gongbutton" class="nav-link btn btn-sm btn-info">
+							<span><i class="fa fa-bell-o"></i></span>
+							<span><i class="fa fa-bell-slash-o"></i></span>
+						</label>
+						<label for="gongbutton" class="nav-link btn btn-sm btn-danger">
+							{{ _('Browser') }}
+						</label>
+					</div>
+				</div>
+			</li>
+			<li class="nav-item mr-2 wlb">
+				<button type="button" class="nav-link btn btn-info btn-sm" data-action="test-poke">{{_('Test TS')}} <i class="fa-bell-o"></i></button>
+			</li>
+			<li class="nav-item wlb">
+				<button type="button" class="nav-link btn btn-danger btn-sm" data-action="removeSelfFromWaitlists"><i class="fa-user-times"></i> {{_('Leave Waitlists')}}</button>
+			<li>
+			{% endif %}
 		</ul>
 	</div>
 </div>
@@ -206,7 +228,8 @@
 		{% if not group.enabled %}
 		<div class="alert alert-warning" role="alert">
 			<p class="text-sm-center">{{ _('This waitlist is currently closed however
-			<a href="%(url)">another</a> is open!</p>', url=url_for('index')) }}
+ <a href="%(url)">another</a> is open!', url=url_for('index')) }}
+		</p>
 		</div>
 		{% endif %}
 		{% if is_on_wl %}
@@ -232,8 +255,8 @@
 		{% endif %}
 		<div class="alert alert-info" role="alert">
 			<p class="text-sm-center mb-0">
-				{{ _('<strong>Help us!</strong> We would like your <a ' +
-					'href="%(url)s">feedback</a>!', url=url_for('feedback.index')) }}
+				{{ _('<strong>Help us!</strong> We would like your <a href="%(url)s">feedback</a>!',
+				url=url_for('feedback.index')) }}
 			</p>
 		</div>
 	</div>

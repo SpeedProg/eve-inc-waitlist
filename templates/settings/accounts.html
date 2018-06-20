@@ -28,11 +28,7 @@
 <script type="text/javascript" src="{{ ASSET_URL }}"></script>
 {% endassets %}
 
-{% assets filters="babili", output="gen/swagger-client.%(version)s.js", "js/swagger-client.min.js" %}
-<script type="text/javascript" src="{{ ASSET_URL }}"></script>
-{% endassets %}
-
-{% assets filters="babili", output="gen/acc-cc-list.%(version)s.js", "js/base.js", "js/eve-igb-wrapper.js",
+{% assets filters="babili", output="gen/acc-cc-list.%(version)s.js", "js/eve-igb-wrapper.js",
 "js/editablegrid/editablegrid_customrenderer.js", "js/accounts/accountslist-dom.js", "js/accounts/settings-accounts.js" %}
 <script type="text/javascript" src="{{ ASSET_URL }}"></script>
 {% endassets %}
@@ -137,7 +133,7 @@
 			{% set is_tbadge = (is_tbadge|length > 1) %}
 			<button type="button" class="btn btn-sm btn-info" data-action="sendAuthMail" data-characterid="{{acc.current_char_obj.id}}"
 			data-token="{{acc.login_token}}" data-username="{{current_user.username}}" data-accusername="{{acc.username}}"
-			data-userType="{% if is_tbadge %}tbadge{%elif is_rbadge%}resident{%else%}other{%endif%}">{{ _('Auth Mail') }}</button>
+			data-userType="{% if is_tbadge %}tbadge{%elif is_rbadge%}resident{%else%}other{%endif%}">{{ _('Mail') }}</button>
 			{% endif %}
 			</td>
 			<td id="acc-{{acc.id}}-status">{% if acc.disabled %}{{ _('Deactivated') }}{% else %}{{ _('Active') }}{% endif %}</td>
@@ -176,7 +172,7 @@
       	</fieldset>
       	<fieldset>
       		<label for="account-roles">{{ _('Roles') }}</label>
-      		<select multiple="multiple" class="form-control" id="account-roles" name="account_roles">
+      		<select autocomplete="off" multiple="multiple" class="form-control" id="account-roles" name="account_roles">
       			{% for role in roles %}
       			<option value="{{role.name}}">{{role.name}}</option>
       			{% endfor %}
@@ -224,7 +220,7 @@
       	</fieldset>
         <fieldset class="form-group">
          <label for="acc-edit-roles">{{ _('Roles') }}</label>
-         <select multiple="multiple" class="form-control" id="acc-edit-roles" name="account_roles">
+         <select autocomplete="off" multiple="multiple" class="form-control" id="acc-edit-roles" name="account_roles">
           {% for role in roles %}
            <option value="{{role.name}}">{{role.name}}</option>
           {% endfor %}

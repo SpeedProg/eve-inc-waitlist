@@ -10,7 +10,7 @@ from flask.globals import request
 from flask.helpers import flash, url_for
 from werkzeug.utils import redirect
 from waitlist.permissions import perm_manager
-from flask_babel import gettext
+from flask_babel import gettext, lazy_gettext
 
 bp = Blueprint('settings_inserts', __name__)
 logger = logging.getLogger(__name__)
@@ -37,4 +37,4 @@ def change(type_) -> Response:
     return redirect(url_for('settings_inserts.index'))
 
 
-add_menu_entry('settings_inserts.index', 'Page Inserts', perm_manager.get_permission('inserts_edit').can)
+add_menu_entry('settings_inserts.index', lazy_gettext('Page Inserts'), perm_manager.get_permission('inserts_edit').can)

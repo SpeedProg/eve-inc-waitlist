@@ -37,34 +37,34 @@ src="{{ config.stattool_uri }}" integrity="{{ config.stattool_sri }}"
 <div class="row">
 	<div class="form-inline">
 		<div class="form-group mr-2">
-			<label class="mr-1" for="input-sources">Accounts</label>
+			<label class="mr-1" for="input-sources">{{ _('Accounts') }}</label>
 			<input class="form-control" id="input-sources" type="text">
 		</div>
 		<div class="form-group mr-2">
-			<label class="mr-1" for="input-targets">Characters</label>
+			<label class="mr-1" for="input-targets">{{ _('Characters') }}</label>
 			<input class="form-control" id="input-targets" type="text">
 		</div>
 		<div class="form-group mr-2">
-			<label class="mr-1" for="input-actions">Actions</label>
-			<select class="form-control" id="input-actions" multiple>
-				<option value="xup">X-UP</option>
-				<option value="comp_rm_pl">Removed a Character from Waitlists</option>
-				<option value="comp_inv_pl">Send Invitation to Character</option>
-				<option value="comp_rm_etr">Removed Entry from X-UPs</option>
-				<option value="self_rm_entry">Removed own fit</option>
-				<option value="self_rm_wls_all">Removed himself from all lists</option>
-				<option value="comp_mv_xup_etr">Approved X-UP entry</option>
-				<option value="comp_mv_xup_fit">Approved Single Fit</option>
-				<option value="comp_send_noti">Send Notification to Character</option>
-				<option value="auto_rm_pl">Player was removed after found in fleet</option>
-				<option value="auto_inv_missed">Player missed his invite</option>
-				<option value="self_rm_etr">Player removed himself from X-UPs</option>
-				<option value="comp_inv_by_name">Player was invited by Name(Reform Tool?)</option>
+			<label class="mr-1" for="input-actions">{{ _('Actions') }}</label>
+			<select autocomplete="off" class="form-control" id="input-actions" multiple>
+				<option value="xup">{{ _('X-UP') }}</option>
+				<option value="comp_rm_pl">{{ _('Removed a Character from Waitlists') }}</option>
+				<option value="comp_inv_pl">{{ _('Send Invitation to Character') }}</option>
+				<option value="comp_rm_etr">{{ _('Removed Entry from X-UPs') }}</option>
+				<option value="self_rm_entry">{{ _('Removed own fit') }}</option>
+				<option value="self_rm_wls_all">{{ _('Removed himself from all lists') }}</option>
+				<option value="comp_mv_xup_etr">{{ _('Approved X-UP entry') }}</option>
+				<option value="comp_mv_xup_fit">{{ _('Approved Single Fit') }}</option>
+				<option value="comp_send_noti">{{ _('Send Notification to Character') }}</option>
+				<option value="auto_rm_pl">{{ _('Player was removed after found in fleet') }}</option>
+				<option value="auto_inv_missed">{{ _('Player missed his invite') }}</option>
+				<option value="self_rm_etr">{{ _('Player removed himself from X-UPs') }}</option>
+				<option value="comp_inv_by_name">{{ _('Player was invited by Name(Reform Tool?)') }}</option>
 			</select>
 		</div>
 		<div class="form-group mr-2">
 			<div class="input-group form-group date" id="starttimepicker">
-				<label for="eventTime">From</label>
+				<label for="eventTime">{{ _('From') }}</label>
 				<div class="input-group date" id="startdatetimepicker">
 					<input id="startDate" placeholder="YYYY-mm-dd" type="date" class="form-control" name="startdate" />
 					<input id="startTime" placeholder="HH:MM" type="time" class="form-control" name="starttime" />
@@ -76,7 +76,7 @@ src="{{ config.stattool_uri }}" integrity="{{ config.stattool_sri }}"
 				</div>
 			</div>
 			<div class="input-group form-group date" id="endtimepicker">
-				<label for="eventTime">To</label>
+				<label for="eventTime">{{ _('To') }}</label>
 				<div class="input-group date" id="enddatetimepicker">
 					<input id="endDate" placeholder="YYYY-mm-dd" type="date" class="form-control" name="enddate" />
 					<input id="endTime" placeholder="HH:MM" type="time" class="form-control" name="endtime" />
@@ -89,20 +89,20 @@ src="{{ config.stattool_uri }}" integrity="{{ config.stattool_sri }}"
 			</div>
 		</div>
 		<div class="form-group">
-			<button id="search" class="form-control">Get Info</button>
+			<button id="search" class="form-control">{{ _('Get Info') }}</button>
 		</div>
 	</div>
 </div>
 <div class="row">
 	<table class="table table-sm comp-font">
 		<thead>
-			<th>Time</th><th>Action</th><th>Account</th><th>Target</th><th>Associated Fits</th>
+			<th>{{ _('Time') }}</th><th>{{ _('Action') }}</th><th>{{ _('Account') }}</th><th>{{ _('Target') }}</th><th>{{ _('Associated Fits') }}</th>
 		</thead>
 		<tbody id="historybody">
 		</tbody>
 	</table>
 </div>
-{% assets filters="babili", output="gen/history-base.%(version)s.js", "js/base.js", "js/history-base.js", "js/history-font.js" %}
+{% assets filters="babili", output="gen/history-base.%(version)s.js", "js/history-base.js", "js/history-font.js" %}
 <script type="text/javascript" src="{{ ASSET_URL }}"></script>
 {% endassets %}
 {% assets filters="babili", output="gen/history-search.%(version)s.js", "js/history-search.js" %}

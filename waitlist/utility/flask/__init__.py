@@ -66,9 +66,9 @@ def check_user_owner_hash():
         if not owner_hash_check_manager.is_ownerhash_valid(user):
             logger.info("owner_hash for %s was invalid. Removing connected character %s.", user, user.current_char_obj)
             flask.flash(gettext(
-                """Your set current character %(eve_name)s
-                was unset because the provided token got invalidated."
-                Go to Own Settings to re-add.""",
+                "Your set current character %(eve_name)s" +
+                " was unset because the provided token got invalidated."+
+                " Go to Own Settings to re-add.",
                 eve_name=user.get_eve_name()),
                 'danger')
             user.current_char = None

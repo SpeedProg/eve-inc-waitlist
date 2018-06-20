@@ -15,7 +15,7 @@ from waitlist.blueprints.settings import add_menu_entry
 from waitlist import app
 from waitlist.permissions import perm_manager
 from waitlist.utility import sde
-from flask_babel import gettext
+from flask_babel import gettext, lazy_gettext
 
 bp = Blueprint('sde', __name__)
 logger = logging.getLogger(__name__)
@@ -100,4 +100,4 @@ def sde_settings():
     return render_template("settings/sde.html")
 
 
-add_menu_entry('sde.sde_settings', 'Static Data Import', perm_access.can)
+add_menu_entry('sde.sde_settings', lazy_gettext('Static Data Import'), perm_access.can)

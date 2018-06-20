@@ -25,6 +25,8 @@ from flask_limiter.util import get_ipaddr
 from flask.globals import request
 from waitlist.utility.assets import register_asset_bundles
 from flask_babel import Babel
+from waitlist.utility.webassets.filter.json import JsonMinFilter
+from waitlist.utility.i18n.locale import get_locale, get_langcode_from_locale
 
 app = Flask(import_name=__name__, static_url_path="/static",
             static_folder="../static", template_folder=path.join("..", "templates"))
@@ -96,6 +98,7 @@ HTMLMIN(app)
 # init assets environment
 assets = Environment(app)
 register_filter(BabiliFilter)
+register_filter(JsonMinFilter)
 register_asset_bundles(assets)
 
 
@@ -157,6 +160,7 @@ babel = Babel(app)
 
 print(babel.list_translations())
 
+
 @babel.localeselector
-def get_locale():
-    return 'de' #request.accept_languages.best_match(app.config['LANGUAGES'])
+def babel_localeselection():
+    return get_langcode_from_locale(get_locale(app))

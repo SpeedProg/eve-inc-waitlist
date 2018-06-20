@@ -42,8 +42,8 @@ waitlist.fsettings = (function() {
 					clearWaitlist(gid);
 				});
 				
-				$("#remove-diag-body").text("Do your really want to clear the Waitlist and all Xups?");
-				$("#remove-diag-label").text("Clear Waitlist???");
+				$("#remove-diag-body").text('wl-clear-list-warning-body');
+				$("#remove-diag-label").text('wl-clear-list-warning-label');
 			}
 		});
 	}
@@ -151,8 +151,8 @@ waitlist.fsettings = (function() {
 				url: urls.settings_fleet_query_systems+'?term=%QUERY',
 				wildcard: '%QUERY',
 				filter: function(response) {
-		            return response.result;
-		        }
+					return response.result;
+				}
 			}
 		});
 		$('.hq-typeahead').typeahead({

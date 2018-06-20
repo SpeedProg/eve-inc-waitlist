@@ -41,7 +41,7 @@
 			<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 			<div class="form-group">
 				<label for="restricion_level">{{ _('View Restriction') }}</label>
-				<select class="form-control" id="restricion_level" name="restriction_level">
+				<select autocomplete="off" class="form-control" id="restricion_level" name="restriction_level">
 					<option value="50">{{ _('Default') }}</option>
 					{% if perm_manager.get_permission('view_notes_med').can() %}
 					<option value="100">{{ _('Council') }}</option>

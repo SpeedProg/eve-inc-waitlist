@@ -8,7 +8,7 @@
 {% assets filters="babili", output="gen/editablegrid.%(version)s.js", "js/editablegrid/editablegrid.js", "js/editablegrid/editablegrid_utils.js", "js/editablegrid/editablegrid_renderers.js", "js/editablegrid/editablegrid_editors.js", "js/editablegrid/editablegrid_validators.js", "js/editablegrid/editablegrid_paginator.js" %}
 <script type="text/javascript" src="{{ ASSET_URL }}"></script>
 {% endassets %}
-{% assets filters="babili", output="gen/acc-cc-list.%(version)s.js", "js/base.js", "js/editablegrid/editablegrid_customrenderer.js", "js/accounts/commandcorelist.js" %}
+{% assets filters="babili", output="gen/acc-cc-list.%(version)s.js", "js/editablegrid/editablegrid_customrenderer.js", "js/accounts/commandcorelist.js" %}
 <script type="text/javascript" src="{{ ASSET_URL }}"></script>
 {% endassets %}
 {% endblock %}
@@ -53,7 +53,7 @@
 	<tr>
 		<th>{{ _('Account Name') }}</th>
 		<th>{{ _('Roles') }}</th>
-		<th>{{ _('Known Alts') }}</th>
+		<th>{{ _('Alts') }}</th>
 	</tr>
 </thead>
 <tbody id="account-table-body">
