@@ -36,7 +36,8 @@ def inject_data() -> Dict[str, Any]:
     start_time: datetime = datetime(2016, 7, 4, 11, 0, 0)
     cc_vote_on: bool = ((start_time < current_time) and (current_time < end_time))
 
-    if 'image/webp' in request.headers.get('accept'):
+    if request.headers.get('accept') is not None and (
+     'image/webp' in request.headers.get('accept')):
         req_supports_webp = True
     else:
         req_supports_webp = False
