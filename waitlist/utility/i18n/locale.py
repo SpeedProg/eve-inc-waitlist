@@ -3,6 +3,9 @@ from flask_login.utils import current_user
 from waitlist.utility.account.helpers import get_locale_code
 from babel.core import Locale, UnknownLocaleError
 from typing import Any
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def get_locale(app):
@@ -12,6 +15,7 @@ def get_locale(app):
 
 def fix_locale_and_get(lang_code: str, app: Any) -> Locale:
     from waitlist import db
+    logger.debug('lang_code: %s', lang_code)
     if lang_code is None or lang_code not in app.config['LANGUAGES']:
         lang_code = request.accept_languages.best_match(app.config['LANGUAGES'])
         locale = Locale.parse(lang_code)
