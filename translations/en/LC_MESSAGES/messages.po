@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2018-06-20 22:03+0200\n"
+"POT-Creation-Date: 2018-06-21 15:39+0200\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -14,7 +14,7 @@ msgstr ""
 "X-Generator: Zanata 4.4.5\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
 
-#: templates/about.html:14
+#: templates/about.html:15
 msgid ""
 "<a href=\"https://github.com/speedprog/eve-inc-waitlist\" target="
 "\"_blank\">Eve-Inc-Waitlist</a> Created by <a href=\"char:91495852\">Bruce "
@@ -24,7 +24,7 @@ msgstr ""
 "\"_blank\">Eve-Inc-Waitlist</a> Created by <a href=\"char:91495852\">Bruce "
 "Warhead</a> and <a href=\"char:93356698\">Beryl Slanjava</a>"
 
-#: templates/about.html:16
+#: templates/about.html:17
 msgid ""
 "<a href=\"https://github.com/quiescens/eve-ui\" target=\"_blank\">Fitting "
 "Display (Eve-UI)</a> and Fitting Stats by <a href=\"char:"
@@ -34,7 +34,7 @@ msgstr ""
 "Display (Eve-UI)</a> and Fitting Stats by <a href=\"char:"
 "725396116\">Quie'scens</a>"
 
-#: templates/base.html:57
+#: templates/base.html:58
 msgid ""
 "We have had to disable <strong>features</strong> please consider upgrading "
 "your<a href=\"http://caniuse.com/#feat=eventsource\"> browser</a>"
@@ -42,45 +42,45 @@ msgstr ""
 "We have had to disable <strong>features</strong> please consider upgrading "
 "your<a href=\"http://caniuse.com/#feat=eventsource\"> browser</a>"
 
-#: templates/base.html:66
+#: templates/base.html:67
 msgid "Toggle navigation"
 msgstr "Toggle navigation"
 
-#: templates/base.html:72 templates/waitlist/tools/history_search.html:50
+#: templates/base.html:73 templates/waitlist/tools/history_search.html:50
 #: templates/xup.html:3
 msgid "X-UP"
 msgstr "X-UP"
 
-#: templates/base.html:76 templates/waitlist/tools/commandcore_list.html:3
+#: templates/base.html:77 templates/waitlist/tools/commandcore_list.html:3
 #: templates/waitlist/tools/history_search.html:2
 msgid "Tools"
 msgstr "Tools"
 
-#: templates/base.html:78
+#: templates/base.html:79
 msgid "Custom Notifications"
 msgstr "Custom Notifications"
 
-#: templates/base.html:82 templates/fleet/reform/index.html:2
+#: templates/base.html:83 templates/fleet/reform/index.html:2
 msgid "Reform"
 msgstr "Reform"
 
-#: templates/base.html:85
+#: templates/base.html:86
 msgid "Comp History"
 msgstr "Comp History"
 
-#: templates/base.html:87
+#: templates/base.html:88
 msgid "Command Core List"
 msgstr "Command Core List"
 
-#: templates/base.html:90
+#: templates/base.html:91
 msgid "Comp History Search"
 msgstr "Comp History Search"
 
-#: templates/base.html:96
+#: templates/base.html:97
 msgid "Help"
 msgstr "Help"
 
-#: templates/base.html:115 templates/calendar/settings.html:3
+#: templates/base.html:116 templates/calendar/settings.html:3
 #: templates/feedback/settings.html:3 templates/settings/accounts.html:3
 #: templates/settings/bans.html:3 templates/settings/base.html:3
 #: templates/settings/ccvotes.html:3 templates/settings/fleet.html:3
@@ -90,23 +90,23 @@ msgstr "Help"
 msgid "Settings"
 msgstr "Settings"
 
-#: templates/base.html:117 templates/logout.html:2
+#: templates/base.html:118 templates/logout.html:2
 msgid "Logout"
 msgstr "Logout"
 
-#: templates/base.html:118
+#: templates/base.html:119
 msgid "About"
 msgstr "About"
 
-#: templates/base.html:150
+#: templates/base.html:151
 msgid "ISK Donations are appreciated"
 msgstr "ISK Donations are appreciated"
 
-#: templates/help.html:14
+#: templates/help.html:15
 msgid "How do I enter the Waitlist?"
 msgstr "How do I enter the Waitlist?"
 
-#: templates/help.html:17
+#: templates/help.html:18
 msgid ""
 "In the eve client, go to the Ship Fitting Window.<br/>\n"
 " On the bottom right side is a Save button, click it.<br/>\n"
@@ -144,11 +144,11 @@ msgstr ""
 " You will be send back to the index page, where you can see who is on the "
 "Waitlist, and/or in the queue, to be review by a Waitlist Manager."
 
-#: templates/help.html:36
+#: templates/help.html:37
 msgid "How do Alarm Expressions work?"
 msgstr "How do Alarm Expressions work?"
 
-#: templates/help.html:39
+#: templates/help.html:40
 msgid ""
 "For expression evaluation <a href=\"https://github.com/silentmatt/expr-"
 "eval\" target=\"_blank\">expr-eval</a> is used.\n"
@@ -166,7 +166,7 @@ msgstr ""
 "then one, because using (expression) or (expression) would be the same as "
 "using two expression for one group."
 
-#: templates/help.html:44
+#: templates/help.html:45
 msgid ""
 "To explain how the expressions work, first we are introducing the word "
 "operator.\n"
@@ -178,7 +178,7 @@ msgstr ""
 " An operator is something that takes input values, and does something witht "
 "them, then providing an output value."
 
-#: templates/help.html:48
+#: templates/help.html:49
 msgid ""
 "For our usage we only need to look at unary and binary operators.\n"
 " Binary operators, take two arguments. Unary ones only take one. Now that we "
@@ -188,7 +188,7 @@ msgstr ""
 " Binary operators, take two arguments. Unary ones only take one. Now that we "
 "have established this we are going to move on to an example."
 
-#: templates/help.html:52
+#: templates/help.html:53
 msgid ""
 "Our placeholder expression is <code>(xup == 0 and logi &lt; 2) or (xup == 2 "
 "and dps &lt;= 5)</code>.\n"
@@ -202,7 +202,7 @@ msgstr ""
 "grouping operator, which are (1)<code>(xup == 0 and logi &lt; 2)</code> and "
 "(2)<code>(xup == 2 and dps &lt;= 5)</code>."
 
-#: templates/help.html:56
+#: templates/help.html:57
 msgid ""
 "These two expressions are connected by the operator <code>or</code> which is "
 "a binary operator.\n"
@@ -216,7 +216,7 @@ msgstr ""
 "arguments, and if either is true, it solves to true in all other cases (both "
 "are false) it solves to false."
 
-#: templates/help.html:60
+#: templates/help.html:61
 msgid ""
 "Now taking a look at subexpression (1)<code>(xup == 0 and logi &lt; 2)</"
 "code> we see our placeholder variables <code>xup</code> and <code>logi</"
@@ -230,7 +230,7 @@ msgstr ""
 " They will be replaced with our values from the table, on every update and "
 "following evaluation of the expressions."
 
-#: templates/help.html:64
+#: templates/help.html:65
 msgid ""
 "So here again we have two subexpressions inside this subexpression. "
 "<code>(xup == 0)</code> and <code>(logi &lt; 2)</code>."
@@ -238,7 +238,7 @@ msgstr ""
 "So here again we have two subexpressions inside this subexpression. "
 "<code>(xup == 0)</code> and <code>(logi &lt; 2)</code>."
 
-#: templates/help.html:67
+#: templates/help.html:68
 msgid ""
 "We know these two are subexpressions like this because of association.\n"
 " You really don't need to care about this, if you don't know what it is.\n"
@@ -250,7 +250,7 @@ msgstr ""
 " Just put all your expressions in <code>()</code> and you don't need to know "
 "what it is."
 
-#: templates/help.html:72
+#: templates/help.html:73
 msgid ""
 "Taking the first one <code>(xup == 0)</code> it uses the binary operator "
 "<code>==</code> which means \"equals\".\n"
@@ -266,7 +266,7 @@ msgstr ""
 " If this is the case the operator <code>==</code> resolves to true, "
 "otherwise false."
 
-#: templates/help.html:77
+#: templates/help.html:78
 msgid ""
 "<code>(logi &lt; 2)</code> uses the binary operator <code>&lt;</code> "
 "\"lesser then\", with <code>logi</code> and <code>2</code> as arguments.\n"
@@ -278,7 +278,7 @@ msgstr ""
 " And so evaluates to <code>true</code>, if <code>logi</code> (the "
 "replacement value) is less then <code>2</code>."
 
-#: templates/help.html:81
+#: templates/help.html:82
 msgid ""
 "The common operators are: <code>==</code> equals, <code>!=</code> does not "
 "equal, <code>&gt;=</code> bigger or equal, <code>&lt;=</code> less then or "
@@ -369,6 +369,10 @@ msgstr ""
 "This waitlist is currently closed however\n"
 " <a href=\"%(url)\">another</a> is open!"
 
+#: templates/index.html:242
+msgid "Events"
+msgstr "Events"
+
 #: templates/index.html:258
 #, python-format
 msgid ""
@@ -378,7 +382,7 @@ msgstr ""
 "<strong>Help us!</strong> We would like your <a href=\"%(url)s\">feedback</"
 "a>!"
 
-#: templates/index.html:289 templates/xup-form.html:64
+#: templates/index.html:290 templates/xup-form.html:64
 msgid "All Waitlists are closed!"
 msgstr "All Waitlists are closed!"
 
