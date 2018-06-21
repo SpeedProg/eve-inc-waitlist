@@ -275,7 +275,7 @@
 					<span id="wl-count-{{ wlist.id }}" class="badge badge-pill badge-secondary">0</span>
 					{% endif %}
 					{{wlist.displayTitle|e }}
-					<i class="ml-auto fa fa-minus-square float-right" id="wl-{{ wlist.id }}-tog-icon"></i>
+					<i class="my-auto ml-auto fa fa-minus-square float-right" id="wl-{{ wlist.id }}-tog-icon"></i>
 					</a>
 				</h4>
 			</div>
@@ -286,7 +286,9 @@
 	</div>
 	{% endfor %}
 	{% else %}
-	<p>{{ _('All Waitlists are closed!') }}</p>
+	<div class="col-12">
+		<p class="mr-3">{{ _('All Waitlists are closed!') }}</p>
+	</div>
 	{% endif %}
 </div>
 {% endblock %}
