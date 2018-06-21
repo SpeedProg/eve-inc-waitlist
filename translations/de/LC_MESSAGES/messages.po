@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2018-06-21 10:15+0200\n"
+"POT-Creation-Date: 2018-06-21 15:39+0200\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -14,7 +14,7 @@ msgstr ""
 "X-Generator: Zanata 4.4.5\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
 
-#: templates/about.html:14
+#: templates/about.html:15
 msgid ""
 "<a href=\"https://github.com/speedprog/eve-inc-waitlist\" target="
 "\"_blank\">Eve-Inc-Waitlist</a> Created by <a href=\"char:91495852\">Bruce "
@@ -24,7 +24,7 @@ msgstr ""
 "\"_blank\">Eve-Inc-Waitlist</a> erstellt von <a href=\"char:91495852\">Bruce "
 "Warhead</a> und <a href=\"char:93356698\">Beryl Slanjava</a>"
 
-#: templates/about.html:16
+#: templates/about.html:17
 msgid ""
 "<a href=\"https://github.com/quiescens/eve-ui\" target=\"_blank\">Fitting "
 "Display (Eve-UI)</a> and Fitting Stats by <a href=\"char:"
@@ -103,11 +103,11 @@ msgstr "Über"
 msgid "ISK Donations are appreciated"
 msgstr "ISK Spenden werden geschätzt"
 
-#: templates/help.html:14
+#: templates/help.html:15
 msgid "How do I enter the Waitlist?"
 msgstr "Wie komme ich auf die Warteliste?"
 
-#: templates/help.html:17
+#: templates/help.html:18
 msgid ""
 "In the eve client, go to the Ship Fitting Window.<br/>\n"
 " On the bottom right side is a Save button, click it.<br/>\n"
@@ -147,11 +147,11 @@ msgstr ""
 "auf der Warteliste steht und / oder noch von eine Wartelisten-Verwalter "
 "überprüft werden muss."
 
-#: templates/help.html:36
+#: templates/help.html:37
 msgid "How do Alarm Expressions work?"
 msgstr "Wie funktionieren die Warnungsausdrücke?"
 
-#: templates/help.html:39
+#: templates/help.html:40
 msgid ""
 "For expression evaluation <a href=\"https://github.com/silentmatt/expr-"
 "eval\" target=\"_blank\">expr-eval</a> is used.\n"
@@ -170,7 +170,7 @@ msgstr ""
 "weiteren erforderlich, denn die Verwendung von (Ausdruck) or (Ausdruck) ist "
 "das Gleiche wie die Verwendung von zwei Ausdrücken für eine Gruppe."
 
-#: templates/help.html:44
+#: templates/help.html:45
 msgid ""
 "To explain how the expressions work, first we are introducing the word "
 "operator.\n"
@@ -182,7 +182,7 @@ msgstr ""
 "Ein Operator ist etwas, das Eingabewerte nimmt und etwas damit tut und dann "
 "einen Ausgabewert liefert."
 
-#: templates/help.html:48
+#: templates/help.html:49
 msgid ""
 "For our usage we only need to look at unary and binary operators.\n"
 " Binary operators, take two arguments. Unary ones only take one. Now that we "
@@ -192,7 +192,7 @@ msgstr ""
 "Binäre Operatoren, nehmen zwei Argumente. Unäre nehmen nur einenes. Nachdem "
 "wir dies eingeführt haben, gehen wir nun zu einem Beispiel über."
 
-#: templates/help.html:52
+#: templates/help.html:53
 msgid ""
 "Our placeholder expression is <code>(xup == 0 and logi &lt; 2) or (xup == 2 "
 "and dps &lt;= 5)</code>.\n"
@@ -207,7 +207,7 @@ msgstr ""
 "Ausdrücke sind: (1)<code>(xup == 0 and logi &lt; 2)</code> und (2)<code>(xup "
 "== 2 and dps &lt;= 5)</code>."
 
-#: templates/help.html:56
+#: templates/help.html:57
 msgid ""
 "These two expressions are connected by the operator <code>or</code> which is "
 "a binary operator.\n"
@@ -222,7 +222,7 @@ msgstr ""
 "zu true auf, in allen anderen Fällen (beide sind false) wird zu false "
 "aufgelöst."
 
-#: templates/help.html:60
+#: templates/help.html:61
 msgid ""
 "Now taking a look at subexpression (1)<code>(xup == 0 and logi &lt; 2)</"
 "code> we see our placeholder variables <code>xup</code> and <code>logi</"
@@ -236,7 +236,7 @@ msgstr ""
 "Diese werden, bei jeder Auffrischung und daraus folgenden Auflösung des "
 "Ausdrucks,  mit Werten aus der Tabelle ersetzt "
 
-#: templates/help.html:64
+#: templates/help.html:65
 msgid ""
 "So here again we have two subexpressions inside this subexpression. "
 "<code>(xup == 0)</code> and <code>(logi &lt; 2)</code>."
@@ -244,7 +244,7 @@ msgstr ""
 "Hier haben wir wieder zwei Unterausdrücke in dem Unterausdruck. <code>(xup =="
 " 0)</code> and <code>(logi &lt; 2)</code>."
 
-#: templates/help.html:67
+#: templates/help.html:68
 msgid ""
 "We know these two are subexpressions like this because of association.\n"
 " You really don't need to care about this, if you don't know what it is.\n"
@@ -255,7 +255,7 @@ msgstr ""
 "Das muss dich aber nicht interessieren, falls sie nicht wissen was dies ist.\n"
 "Benutzen sie einfach <code>()</code> um jeden Ausdruck."
 
-#: templates/help.html:72
+#: templates/help.html:73
 msgid ""
 "Taking the first one <code>(xup == 0)</code> it uses the binary operator "
 "<code>==</code> which means \"equals\".\n"
@@ -270,7 +270,7 @@ msgstr ""
 "code> auf Gleichheit. Haben diese den selben Wert löst <code>==</code> nach "
 "true aufgelöst, sonst nach false."
 
-#: templates/help.html:77
+#: templates/help.html:78
 msgid ""
 "<code>(logi &lt; 2)</code> uses the binary operator <code>&lt;</code> "
 "\"lesser then\", with <code>logi</code> and <code>2</code> as arguments.\n"
@@ -282,7 +282,7 @@ msgstr ""
 " Dieser löst nach <code>true</code> auf, wenn <code>logi</code> (der Wert) "
 "kleiner als <code>2</code> ist."
 
-#: templates/help.html:81
+#: templates/help.html:82
 msgid ""
 "The common operators are: <code>==</code> equals, <code>!=</code> does not "
 "equal, <code>&gt;=</code> bigger or equal, <code>&lt;=</code> less then or "
@@ -373,6 +373,10 @@ msgstr ""
 "Diese Warteliste ist momentan geschlossen, es ist jedoch <a href="
 "\"%(url)\">eine andere Wartelist</a> offen."
 
+#: templates/index.html:242
+msgid "Events"
+msgstr "Veranstaltungen"
+
 #: templates/index.html:258
 #, python-format
 msgid ""
@@ -382,7 +386,7 @@ msgstr ""
 "<strong>Hilf uns!</strong> Wir hätten gerne <a href=\"%(url)s\">Rückmedlung</"
 "a> von dir!"
 
-#: templates/index.html:289 templates/xup-form.html:64
+#: templates/index.html:290 templates/xup-form.html:64
 msgid "All Waitlists are closed!"
 msgstr "Alle Wartelisten sind geschlossen!"
 
