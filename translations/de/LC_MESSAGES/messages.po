@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2018-06-21 15:39+0200\n"
+"POT-Creation-Date: 2018-06-21 15:56+0200\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -313,6 +313,7 @@ msgstr ""
 "Bedingungen festzulegen."
 
 #: templates/index.html:3 templates/settings/base.html:14
+#: waitlist/blueprints/settings/overview.py:260
 msgid "Overview"
 msgstr "Übersicht"
 
@@ -373,7 +374,7 @@ msgstr ""
 "Diese Warteliste ist momentan geschlossen, es ist jedoch <a href="
 "\"%(url)\">eine andere Wartelist</a> offen."
 
-#: templates/index.html:242
+#: templates/index.html:242 waitlist/blueprints/calendar/__init__.py:7
 msgid "Events"
 msgstr "Veranstaltungen"
 
@@ -558,7 +559,7 @@ msgstr "Überschrift"
 msgid "Remove Event"
 msgstr "Veranstaltung austragen"
 
-#: templates/feedback/index.html:3
+#: templates/feedback/index.html:3 waitlist/blueprints/feedback.py:87
 msgid "Feedback"
 msgstr "Rückmeldung"
 
@@ -757,6 +758,7 @@ msgstr "Aktiviert"
 
 #: templates/settings/accounts.html:3
 #: templates/waitlist/tools/history_search.html:40
+#: waitlist/blueprints/settings/accounts.py:421
 msgid "Accounts"
 msgstr "Konten"
 
@@ -878,6 +880,7 @@ msgid "Change"
 msgstr "Ändern"
 
 #: templates/settings/bans.html:3 templates/settings/whitelist.html:3
+#: waitlist/blueprints/settings/bans.py:324
 msgid "Bans"
 msgstr "Sperren"
 
@@ -920,6 +923,7 @@ msgid "Please select something on the left side"
 msgstr "Bitte auf der linken Seite auswählen"
 
 #: templates/settings/ccvotes.html:3
+#: waitlist/blueprints/settings/fleet_motd.py:55
 msgid "Fleet MOTD"
 msgstr "Flotten NDT"
 
@@ -942,6 +946,7 @@ msgid "Unique Voters for LM"
 msgstr "Eindeutige Stimmen für LM"
 
 #: templates/settings/fleet.html:3
+#: waitlist/blueprints/settings/fleetoptions.py:375
 msgid "Fleet Settings"
 msgstr "Flotten Einstellungen"
 
@@ -1073,6 +1078,7 @@ msgstr ""
 "Person bestimmt, 0=linemember,1=fc/t,2=lm/r,3=beides"
 
 #: templates/settings/inserts.html:10
+#: waitlist/blueprints/settings/inserts.py:40
 msgid "Page Inserts"
 msgstr "Seiten Einfügungen"
 
@@ -1086,6 +1092,7 @@ msgid "Save"
 msgstr "Speichern"
 
 #: templates/settings/sde.html:3
+#: waitlist/blueprints/settings/staticdataimport.py:103
 msgid "Static Data Import"
 msgstr "Einlesen Statischer Daten"
 
@@ -1172,6 +1179,7 @@ msgid "Add TS"
 msgstr "TS Hinzufügen"
 
 #: templates/settings/whitelist.html:23 templates/settings/whitelist.html:38
+#: waitlist/blueprints/settings/bans.py:325
 msgid "Whitelist"
 msgstr "Sperrungsausnahmen"
 
@@ -1284,6 +1292,7 @@ msgstr ""
 "<var>$sig$</var><br>"
 
 #: templates/settings/permissions/config.html:3
+#: waitlist/blueprints/settings/permissions.py:43
 msgid "Permissions"
 msgstr "Rechte"
 
@@ -1489,6 +1498,10 @@ msgid "Character with name %(char_name)s could not be found!"
 msgstr ""
 "Ein Charakter mit dem Namen $(char_name)s konnte nicht gefunden werden!"
 
+#: waitlist/blueprints/settings/accounts.py:422
+msgid "Own Settings"
+msgstr "Eigene Einstellungen"
+
 #: waitlist/blueprints/settings/accounts.py:516
 #, python-format
 msgid "Alt %(char_name)s was added"
@@ -1661,6 +1674,10 @@ msgstr "Ständigen Nachricht wurde gespeichert!"
 msgid "Other mail set!"
 msgstr "Anderen Nachricht wurde gespeichert!"
 
+#: waitlist/blueprints/settings/mail.py:69
+msgid "IG Mail Settings"
+msgstr "Spiele Mail Einstellungen"
+
 #: waitlist/blueprints/settings/staticdataimport.py:44
 msgid "Type IDs were updated!"
 msgstr "Typen IDs wurde geupdatet!"
@@ -1680,6 +1697,10 @@ msgstr "Stationen wurde geupdatet!"
 #: waitlist/blueprints/settings/staticdataimport.py:91
 msgid "Layouts were updated!"
 msgstr "Aufbaudaten wurden geupdatet!"
+
+#: waitlist/blueprints/settings/teamspeak.py:99
+msgid "TS Settings"
+msgstr "TS Einstellungen"
 
 #: waitlist/blueprints/trivia/submission.py:85
 msgid ""
