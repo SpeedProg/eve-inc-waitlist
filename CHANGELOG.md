@@ -1,4 +1,10 @@
 #Changelog
+* 1.5.0:
+  * Features
+    * Translation support, current languages are english and german
+      * Module infos are going to be loaded in the selected language too
+  * Fixes
+    * Some parts of the site not being readable on dark themes
 * 1.4.2:
   * Improvements
     * Community name is no longer hidden when menu collapses, also moved menu button to right side
