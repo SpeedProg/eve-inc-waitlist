@@ -21,4 +21,36 @@ var eveui_imageserver = function(image_ref) {
 			}
 		}
 	});
+
+	let last_lang = localStorage.getItem('last_lang');
+	if (!last_lang || last_lang != lang_code) {
+		localStorage.setItem('last_lang', lang_code);
+		$.ajax(`https://esi.tech.ccp.is/v1/status/`, {
+			dataType: 'json',
+				cache: true,
+		}).done(function (data) {
+			eve_version = data.server_version;
+			let open = indexedDB.open('eveui', eve_version);
+			let done = false;
+			open.onupgradeneeded = function (e) {
+				let db = open.result;
+				if (db.objectStoreNames.contains('cache')) {
+					db.deleteObjectStore('cache');
+				}
+				db.createObjectStore('cache', { keyPath: 'path' });
+				done = true;
+			};
+			open.onsuccess = function (event) {
+				if (done) {
+					return;
+				}
+				db = open.result;
+				let tx = db.transaction('cache', 'readwrite');
+				if (db.objectStoreNames.contains('cache')) {
+					let store = tx.objectStore('cache');
+					store.clear();
+				}
+			};
+		});
+	}
 }
