@@ -26,6 +26,7 @@ from waitlist.utility.swagger.eve.fleet import EveFleetEndpoint
 from waitlist.utility.swagger.eve.fleet.models import FleetMember
 from waitlist.utility.swagger.eve import ESIResponse
 from waitlist.utility.swagger.eve.fleet.responses import EveFleet
+from flask_babel import gettext
 
 bp = Blueprint('fleet', __name__)
 logger = logging.getLogger(__name__)
@@ -78,7 +79,8 @@ def setup_step_url():
     try:
         fleet_id: int = int(request.form.get('fleet-id'))
     except ValueError:
-        flask.flash(f"fleet-id={request.form.get('fleet-id')} was not valid.", "danger")
+        flask.flash(gettext("fleet-id=%(fleet_id)d was not valid.",
+                            fleet_id=request.form.get('fleet-id')), "danger")
         return redirect(url_for('fleetoptions.fleet'))
     fleet_type = request.form.get('fleet-type')
     if skip_setup == "no-setup":
@@ -218,14 +220,14 @@ def take_over_fleet():
 
     fleet_id = get_character_fleet_id(token, current_user.get_eve_id())
     if fleet_id is None:
-        flask.flash("You are not in a fleet, or didn't not provide rights to read them.", "danger")
+        flask.flash(gettext("You are not in a fleet, or didn't not provide rights to read them."), "danger")
         return redirect(url_for("fleetoptions.fleet"))
 
     fleet_ep: EveFleetEndpoint = EveFleetEndpoint(token, fleet_id)
 
     settings_resp: Union[EveFleet, ESIResponse] = fleet_ep.get_fleet_settings()
     if settings_resp.is_error():
-        flask.flash('You are not the boss of the fleet you are in.', 'danger')
+        flask.flash(gettext('You are not the boss of the fleet you are in.'), 'danger')
         return redirect(url_for("fleetoptions.fleet"))
 
     fleet = db.session.query(CrestFleet).get(fleet_id)

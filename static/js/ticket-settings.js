@@ -1,29 +1,28 @@
 'use strict';
 
-
 if (!waitlist) {
 	var waitlist = {};
 }
 
-waitlist.ticketsettings = (function (){
-	
+waitlist.ticketsettings = (function() {
+
 	var sendMail = waitlist.esi.ui.newmail;
 	var getMetaData = waitlist.base.getMetaData;
 	var displayMessage = waitlist.base.displayMessage;
-	
+
 	function getTicketElement(ticketId) {
 		var el = {
-				id: ticketId,
-				jqE: $('#fb-'+ticketId)
+		    id: ticketId,
+		    jqE: $('#fb-' + ticketId)
 		};
-		el.getTitle = function(){
+		el.getTitle = function() {
 			return $(":nth-child(4)", this.jqE).text();
 		};
-		
+
 		el.getMessage = function() {
 			return $(":nth-child(5)", this.jqE).text();
 		};
-		
+
 		el.getCharacterId = function() {
 			return this.jqE.attr('data-characterid');
 		};
@@ -39,42 +38,51 @@ waitlist.ticketsettings = (function (){
 		var message = ticketElement.getMessage();
 		var charID = ticketElement.getCharacterId();
 		var charName = ticketElement.getCharacterName();
-		openMailToCharacter(charID,
-				"Answer to your Waitlist Feedback",
-				`Hello ${charName},\nWe read your ticket:\n<font size="10" color="#ffffcc00">${$("<div>").text(title).html()}\n\n${$("<div>").text(message).html()}</font>\n\nregards,\n`
-				);
+		let title = $("<div>").text(title).html();
+		let message = $("<div>").text(message).html();
+		openMailToCharacter(
+			charID,
+			$.i18n('wl-fbmail-topic'),
+			$.i18n('wl-fbmail-message',	charName, title, message)
+		);
 	}
 
 	function openMailToCharacter(charId, subject, body) {
-		// [{"recipient_id": ID, "recipient_type": "alliance|character|corporation|mailing_list"}]
-		sendMail([{"recipient_id": charId, "recipient_type": "character"}], subject, body);
+		// [{"recipient_id": ID, "recipient_type":
+		// "alliance|character|corporation|mailing_list"}]
+		sendMail([
+			{
+			    "recipient_id": charId,
+			    "recipient_type": "character"
+			}
+		], subject, body);
 	}
 
 	function changeTicketStatus(ticketID, ticketStatus, successFunc) {
 		$.post({
-			'url': '/feedback/settings',
-			'data': {
-				'_csrf_token': getMetaData('csrf-token'),
-				'ticketID': ticketID,
-				'ticketStatus': ticketStatus
-			},
-			'error': function(data) {
-				var message = data.statusText;
-				if (typeof data.responseText !== 'undefined') {
-						message += ": " + data.responseText;
-				}
-				displayMessage(message, "danger");
-			},
-			'success': successFunc
+		    'url': '/feedback/settings',
+		    'data': {
+		        '_csrf_token': getMetaData('csrf-token'),
+		        'ticketID': ticketID,
+		        'ticketStatus': ticketStatus
+		    },
+		    'error': function(data) {
+			    var message = data.statusText;
+			    if (typeof data.responseText !== 'undefined') {
+				    message += ": " + data.responseText;
+			    }
+			    displayMessage(message, "danger");
+		    },
+		    'success': successFunc
 		});
 	}
-	
+
 	function sendMailClickedHandler(event) {
 		var target = $(event.currentTarget);
 		var ticketId = target.attr('data-ticketId');
 		sendTicketMail(ticketId);
 	}
-	
+
 	function changeTicketStatusClickedHandler(event) {
 		var target = $(event.currentTarget);
 		var ticketId = target.attr('data-ticketId');
@@ -83,14 +91,15 @@ waitlist.ticketsettings = (function (){
 			target.parent().parent().remove();
 		});
 	}
-	
+
 	function init() {
-		$('#ticket-table-body').on('click', '[data-action="sendTicketMail"]', sendMailClickedHandler);
-		$('#ticket-table-body').on('click', '[data-action="changeTicketStatus"]', changeTicketStatusClickedHandler);
+		$('#ticket-table-body').on('click', '[data-action="sendTicketMail"]',
+		    sendMailClickedHandler);
+		$('#ticket-table-body').on('click',
+		    '[data-action="changeTicketStatus"]',
+		    changeTicketStatusClickedHandler);
 	}
-	
-	
-    $(document).ready(init);
+
+	$(document).ready(init);
 	return {};
 })();
-

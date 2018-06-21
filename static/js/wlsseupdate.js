@@ -99,7 +99,7 @@ waitlist.sse = (function() {
 	}
 	
 	
-    $(document).ready(init);
+	$(document).ready(init);
 	return {
 	addEventListener: addEventListener
 	};

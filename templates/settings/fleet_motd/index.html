@@ -8,26 +8,26 @@
 {% block content %}
 <p>$ts$ gets replaced with the server address</p>
 <samp>
-TS: $ts$<br>
+{{ _('TS: $ts$') }}<br>
 </samp>
-<h4>HQ/AS MOTD</h4>
+<h4>{{ _('HQ/AS MOTD') }}</h4>
 <form method="post" action="{{url_for('settings_fmotds.change', type_='hq')}}">
 <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 <fieldset class="form-group">
-	<label for="hq-textarea">HQ/AS MOTD Template</label>
+	<label for="hq-textarea">{{ _('HQ/AS MOTD Template') }}</label>
 	<textarea name="motd" class="form-control" id="hq-textarea" rows="3">{{motds['hq']}}</textarea>
 </fieldset>
 <button type="submit" class="btn btn-primary">Save</button>
 </form>
 
 <br>
-<h4>VG MOTD</h4>
+<h4>{{ _('VG MOTD') }}</h4>
 <form method="post" action="{{url_for('settings_fmotds.change', type_='vg')}}">
 <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 <fieldset class="form-group">
-	<label for="vg-textarea">VG MOTD Template</label>
+	<label for="vg-textarea">{{ _('VG MOTD Template') }}</label>
 	<textarea name="motd" class="form-control" id="vg-textarea" rows="3">{{motds['vg']}}</textarea>
 </fieldset>
-<button type="submit" class="btn btn-primary">Save</button>
+<button type="submit" class="btn btn-primary">{{ _('Save') }}</button>
 </form>
 {% endblock content %}

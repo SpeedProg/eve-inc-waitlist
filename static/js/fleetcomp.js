@@ -55,7 +55,7 @@ waitlist.fleetcomp = (function() {
 			},
 			'error': function(data) {
 				var message = data.statusText;
-        if (typeof data.responseJSON !== 'undefined'
+				if (typeof data.responseJSON !== 'undefined'
 					&& typeof data.responseJSON.message !== 'undefined') {
 					message += ": " + data.responseJSON.message;
 				}
@@ -152,7 +152,7 @@ waitlist.fleetcomp = (function() {
 				function() {},
 				"text"
 			);
-			displayMessage("You should view "+ name + "'s fit before accepting it.", "danger");
+			displayMessage($.i18n('wl-warn-checkfit', name), "danger");
 		}
 	}
 
@@ -164,7 +164,7 @@ waitlist.fleetcomp = (function() {
 			moveEntryToWaitlists(wlId, entryId);
 		} else {
 			var name = document.getElementById(`entry-${wlId}-${entryId}`).dataset.username;
-			displayMessage("You should view all of "+ name + "'s fits before accepting them.", "danger");
+			displayMessage($.i18n('wl-warn-checkfits', name), "danger");
 			$.post(getMetaData('api-fail-approve'), 
 				{'_csrf_token': getMetaData('csrf-token')},
 				function() {},
@@ -262,9 +262,9 @@ waitlist.fleetcomp = (function() {
 
 	function onViewfit(event) {
 		const fit = event.currentTarget.offsetParent;
-        if (fit.dataset.viewed !== "y") {
-        	document.getElementById(fit.id).setAttribute("data-viewed", "y");
-        }
+		if (fit.dataset.viewed !== "y") {
+			document.getElementById(fit.id).setAttribute("data-viewed", "y");
+		}
 	}
 
 	function init() {

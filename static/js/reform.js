@@ -33,7 +33,7 @@ waitlist.reform = (function(){
 				if (typeof data.responseJSON !== 'undefined' && typeof data.responseJSON.message !== 'undefined') {
 					message += ": " + data.responseJSON.message;
 				}
-        else if (typeof data.responseText !== 'undefined') {
+				else if (typeof data.responseText !== 'undefined') {
 						message += ": " + data.responseText;
 				}
 				displayMessage(message, "danger");
