@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block container_data %}
-	<p>This trivia runs from {{ trivia.fromTime }} to {{ trivia.toTime }}</p>
+	<p>{{ _('This trivia runs from %(fromtime)s to %(totime)s', fromtime=format_datetime(trivia.fromTime), totime=format_datetime(trivia.toTime)) }}</p>
 	<p>{{ trivia.description|safe }}</p>
 	<form class="form" method="post" target="{{ url_for('trivia_submission.process_submission', trivia_id=trivia.triviaID) }}">
 	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
@@ -14,6 +14,6 @@
 		{% endif %}
 	</div>
 	{% endfor %}
-	<button type="submit" class="btn btn-primary">Submit Answers</button>
+	<button type="submit" class="btn btn-primary">{{ _('Submit Answers') }}</button>
 	</form>
 {% endblock %}

@@ -252,6 +252,8 @@ class Account(Base):
     disabled = Column('disabled', Boolean(name='disabled'), default=False, server_default=sql.expression.false())
     had_welcome_mail = Column('had_welcome_mail', Boolean(name='had_welcome_mail'),
                               default=False, server_default=sql.expression.false())
+    language = Column('language', String(10))
+
     '''
     refresh_token = Column(String(128), default=None)
     access_token = Column(String(128), default=None)
@@ -467,6 +469,7 @@ class Character(Base):
     teamspeak_poke = Column('teamspeak_poke', Boolean(name='teamspeak_poke'),
                             default=True, server_default="1", nullable=False)
     owner_hash = Column('owner_hash', Text)
+    language = Column('language', String(10))
 
     # this contains all SSOToken for this character
     # normally we only want the ones not associated with an account! we got a property for this

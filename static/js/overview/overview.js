@@ -2,7 +2,7 @@
 function GetChartElement() {
 	let content_frame = document.getElementById('chart-row');
 	let column = document.createElement('div');
-	column.setAttribute('class', 'col-6')
+	column.setAttribute('class', 'col-xl-6 col-lg-12')
 	content_frame.appendChild(column);
 	return column;
 }
@@ -23,7 +23,6 @@ function AddDistinctHullCharacterCombinations(seconds, title, swa_client) {
 						chartFrame,
 						undefined, {
 							'height': 400,
-							// 'width': 400,
 						}
 					);
 					let option = {
@@ -32,6 +31,9 @@ function AddDistinctHullCharacterCombinations(seconds, title, swa_client) {
 							top: 0,
 							left: 'center',
 							padding: 5,
+							textStyle: {
+								fontSize: 12,
+							},
 						},
 						tooltip: {},
 						series: [{
@@ -63,14 +65,12 @@ function AddDistinctHullCharacterCombinations(seconds, title, swa_client) {
 					} else if ('message' in event) {
 						msg = event.message;
 					}
-					waitlist.base.displayMessage(`Failed to get distinct hull character statistics: ${msg}`, "danger");
+					waitlist.base.displayMessage($.i18n('wl-overview-stat-error-hull-char', msg), "danger");
 				}
 			);
 		}
 	);
 }
-
-
 
 function GetApprovalTable(names) {
 	let table = document.createElement('table');
@@ -78,7 +78,7 @@ function GetApprovalTable(names) {
 	
 	let thead = document.createElement('thead');
 	let th = document.createElement('th');
-	th.textContent = 'Account';
+	th.textContent = $.i18n('wl-account');
 	thead.appendChild(th);
 	
 	let tbody = document.createElement('tbody');
@@ -125,6 +125,9 @@ function AddApprovedFitsByAccount(seconds, title, swa_client) {
 							top: 0,
 							left: 'center',
 							padding: 5,
+							textStyle: {
+								fontSize: 12,
+							},
 						},
 						tooltip: {
 							formatter: '{b}: {c}',
@@ -167,7 +170,7 @@ function AddApprovedFitsByAccount(seconds, title, swa_client) {
 					} else if ('message' in event) {
 						msg = event.message;
 					}
-					waitlist.base.displayMessage(`Failed to get approved fits by account statistics: ${msg}`, "danger");
+					waitlist.base.displayMessage($.i18n('wl-overview-stat-error-fit-by-acc', msg), "danger");
 				}
 			);
 		}
@@ -199,6 +202,9 @@ function AddJoinedMemebers(seconds, title, swa_client) {
 							top: 0,
 							left: 'center',
 							padding: 5,
+							textStyle: {
+								fontSize: 12,
+							},
 						},
 						tooltip: {
 							formatter: '{b}: {c}',
@@ -226,7 +232,15 @@ function AddJoinedMemebers(seconds, title, swa_client) {
 							type: 'line',
 							data: event.obj.yvalues,
 							itemStyle: {
-								color: '#61a0a8',
+								normal: {
+									color: '#61a0a8',
+								},
+								emphasis: {
+									areaStyle: {
+										color: '#71b0b8',
+										type: 'default',
+									},
+								},
 							}
 						}],
 					};
@@ -240,7 +254,7 @@ function AddJoinedMemebers(seconds, title, swa_client) {
 					} else if ('message' in event) {
 						msg = event.message;
 					}
-					waitlist.base.displayMessage(`Failed to get approved fits by account statistics: ${msg}`, "danger");
+					waitlist.base.displayMessage($.i18n('wl-overview-stat-error-fit-by-acc', msg), "danger");
 				}
 			);
 		}
@@ -257,9 +271,12 @@ function init_overview() {
 			return req;
 		}
 	});
-	AddApprovedFitsByAccount(2592000, 'Top 15 commanders with approves last 30d', swa_client);
-	AddDistinctHullCharacterCombinations(2592000, 'Top 15 distinct Char/Hull combinations last 30d', swa_client);
-	AddDistinctHullCharacterCombinations(86400, 'Top 15 distinct Char/Hull combinations last 24h', swa_client);
-	AddJoinedMemebers(123072000, 'Fleetjoins per month', swa_client);
+	// this is to make sure that the language data is there before we try to use it
+	i18nloaded.then(() => {
+		AddApprovedFitsByAccount(2592000, $.i18n('wl-overview-top-commader-time', 15, 30), swa_client);
+		AddDistinctHullCharacterCombinations(2592000, $.i18n("wl-overview-top-distinct-time", 15, 30), swa_client);
+		AddDistinctHullCharacterCombinations(86400, $.i18n("wl-overview-top-distinct-time", 15, 1), swa_client);
+		AddJoinedMemebers(123072000, $.i18n('wl-fleetjoins-per-month'), swa_client);
+	});
 }
 $(document).ready(init_overview);

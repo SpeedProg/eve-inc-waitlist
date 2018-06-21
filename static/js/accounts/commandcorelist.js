@@ -1,10 +1,10 @@
 EditableGrid.prototype.initializeGrid = function() {
-  this.setCellRenderer("Account Name", new AccountCellRenderer());
+	this.setCellRenderer("account-name", new AccountCellRenderer());
 };
 
 $(document).ready(function() {
-  let getMetaData = waitlist.base.getMetaData;
-  var canViewProfile = getMetaData('can-view-profile') === "True";
+	let getMetaData = waitlist.base.getMetaData;
+	var canViewProfile = getMetaData('can-view-profile') === "True";
 	var editableGrid = new EditableGrid(
 		"CommandCore",
 		{
@@ -13,30 +13,33 @@ $(document).ready(function() {
 			maxBars: 5
 		});
 
-	editableGrid.load({
-		metadata: [
-			{
-				name: "Account Name",
-				datatype: "string",
-				editable: false,
-				values: [{"value": "canViewProfile", "label": canViewProfile}]
-			}, {
-				name: "Roles",
-				datatype: "string",
-				editable: false
-			}, {
-				name: "Known Alts",
-				datatype: "string",
-				editable: false
-			}
-		]
-	});
-
-	editableGrid.attachToHTMLTable('commanderlist');
-	editableGrid.initializePaginator();
-	editableGrid.initializeGrid();
-	editableGrid.renderGrid();
-	$('#filter').on('keyup', function() {
-		editableGrid.filter($('#filter').val());
+	// make sure translations are loaded
+	i18nloaded.then(() => {
+		editableGrid.load({
+			metadata: [
+				{
+					name: "account-name",
+					datatype: "string",
+					editable: false,
+					values: [{"value": "canViewProfile", "label": canViewProfile}]
+				}, {
+					name: "roles",
+					datatype: "string",
+					editable: false
+				}, {
+					name: "alts",
+					datatype: "string",
+					editable: false
+				}
+			]
+		});
+	
+		editableGrid.attachToHTMLTable('commanderlist');
+		editableGrid.initializePaginator();
+		editableGrid.initializeGrid();
+		editableGrid.renderGrid();
+		$('#filter').on('keyup', function() {
+			editableGrid.filter($('#filter').val());
+		});
 	});
 });

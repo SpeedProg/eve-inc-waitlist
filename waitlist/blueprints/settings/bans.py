@@ -15,6 +15,7 @@ from waitlist.permissions import perm_manager
 from waitlist.storage.database import Ban, Whitelist, Character
 from waitlist.utility.eve_id_utils import get_character_by_name
 from waitlist.utility.utils import get_info_from_ban
+from flask_babel import lazy_gettext
 
 bp = Blueprint('bans', __name__)
 logger = logging.getLogger(__name__)
@@ -75,14 +76,16 @@ def bans_change():
             admin_char = get_character_by_name(ban_admin)
             if ban_id is None:
                 logger.error("Did not find ban target %s", ban_name)
-                flash("Could not find Character " + ban_name, "danger")
+                flash(gettext("Could not find Character %(ban_name)s",
+                              ban_name=ban_name), "danger")
                 continue
 
             admin_id = admin_char.get_eve_id()
 
             if ban_id is None or admin_id is None:
                 logger.error("Failed to correctly parse: %", target)
-                flash("Failed to correctly parse " + target, "danger")
+                flash(gettext("Failed to correctly parse %(target)s",
+                              target=target), "danger")
                 continue
 
             # check if ban already there
@@ -101,7 +104,7 @@ def bans_change():
             logger.info("%s is unbanning %s", current_user.username, target)
             eve_id = outgate.character.get_char_corp_all_id_by_name(target)
             if eve_id is None:
-                flash("Character/Corp/Alliance " + target + " does not exist!")
+                flash(gettext("Character/Corp/Alliance %(target)s does not exist!", target=target), 'danger')
             else:
                 # check that there is a ban
                 if db.session.query(Ban).filter(Ban.id == eve_id).count() > 0:
@@ -130,7 +133,8 @@ def bans_change_single():
         logger.info("Banning %s for %s as %s.", ban_name, reason, current_user.username)
         if ban_char is None:
             logger.error("Did not find ban target %s", ban_name)
-            flash("Could not find Character " + ban_name, "danger")
+            flash(gettext("Could not find Character %(name)s", name=ban_name),
+                  "danger")
             return
 
         eve_id = ban_char.get_eve_id()
@@ -138,7 +142,9 @@ def bans_change_single():
 
         if eve_id is None or admin_id is None:
             logger.error("Failed to correctly parse: %", target)
-            flash("Failed to correctly parse " + target, "danger")
+            flash(gettext("Failed to correctly parse %(target)s",
+                          target=target),
+                  "danger")
             return
 
         # check if ban already there
@@ -155,7 +161,7 @@ def bans_change_single():
         logger.info("%s is unbanning %s", current_user.username, target)
         eve_id = outgate.character.get_char_corp_all_id_by_name(target)
         if eve_id is None:
-            flash("Character/Corp/Alliance " + target + " does not exist!")
+            flash(gettext("Character/Corp/Alliance %(target)s does not exist!", target=target), 'danger')
         else:
             # check that there is a ban
             if db.session.query(Ban).filter(Ban.id == eve_id).count() > 0:
@@ -174,7 +180,8 @@ def bans_unban_single():
     logger.info("%s is unbanning %s", current_user.username, target)
     eve_id = outgate.character.get_char_corp_all_id_by_name(target)
     if eve_id is None:
-        flash("Character/Corp/Alliance " + target + " does not exist!")
+        flash(gettext("Character/Corp/Alliance %(target)s does not exist!",
+                      target=target), 'danger')
     else:
         # check that there is a ban
         if db.session.query(Ban).filter(Ban.id == eve_id).count() > 0:
@@ -246,7 +253,8 @@ def whitelist_by_name(whitelist_info, reason=""):
     admin_char = get_character_by_name(wl_admin)
     if wl_char is None:
         logger.error("Did not find whitelist target %s", wl_name)
-        flash("Could not find Character " + wl_name + " for whitelisting", "danger")
+        flash(gettext("Could not find Character %(wl_name)s for whitelisting",
+                      wl_name=wl_name), "danger")
         return
 
     eve_id = wl_char.get_eve_id()
@@ -254,7 +262,8 @@ def whitelist_by_name(whitelist_info, reason=""):
 
     if eve_id is None or admin_id is None:
         logger.error("Failed to correctly parse: %", target)
-        flash("Failed to correctly parse " + target, "danger")
+        flash(gettext("Failed to correctly parse %(target)s", target=target),
+              "danger")
         return
 
     # check if ban already there
@@ -273,7 +282,9 @@ def unwhitelist_by_name(char_name):
     logger.info("%s is unwhitelisting %s", current_user.username, target)
     eve_id = outgate.character.get_char_corp_all_id_by_name(target)
     if eve_id is None:
-        flash("Character/Corp/Alliance " + target + " does not exist!")
+        flash(gettext("Character/Corp/Alliance %(target)s does not exist!",
+                      target=target),
+              'danger')
     else:
         # check that there is a ban
         if db.session.query(Whitelist).filter(Whitelist.characterID == eve_id).count() > 0:
@@ -310,5 +321,5 @@ def whitelist_unlist():
     return redirect(url_for(".whitelist"))
 
 
-add_menu_entry('bans.bans', 'Bans', perm_manager.get_permission('bans_edit').can)
-add_menu_entry('bans.whitelist', 'Whitelist', perm_manager.get_permission('bans_edit').can)
+add_menu_entry('bans.bans', lazy_gettext('Bans'), perm_manager.get_permission('bans_edit').can)
+add_menu_entry('bans.whitelist', lazy_gettext('Whitelist'), perm_manager.get_permission('bans_edit').can)

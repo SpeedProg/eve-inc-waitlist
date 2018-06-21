@@ -28,14 +28,15 @@ Enter the character name of your main character as account name, then enter the 
 When asked for more characters just press enter without entering anything.
 Further admin accounts can be created over the account management on the website
 12. create a folder called `sde` in the waitlists base dir (this is where sde data uploads are saved)
-13. Start the waitlist with `python main.py` and visit it to login with the character that was setup as adming in the previous step.
-14. Now configure groups and permissions :)
-15. Import needed static data! You can find the interface for it under `Setting`->`Static Data Import`.
+13. Use the command `pybabel compile -d translations\` to compile the translation files.
+14. Start the waitlist with `python main.py` and visit it to login with the character that was setup as adming in the previous step.
+15. Now configure groups and permissions :)
+16. Import needed static data! You can find the interface for it under `Setting`->`Static Data Import`.
 The Eve Static Date Export can be found at [Eve Resources](https://developers.eveonline.com/resource/resources).
 Mandatory are: typeIDs.yaml, staStations.yaml and updating systems and constellations!
 The systems and constellations are updated via esi and can take quite a while.
 Updating systems and constellations can fail quietly, so check the error log afterwards.
-16. If you write any improvements committing code back to this project is very much appreciated!
+17. If you write any improvements committing code back to this project is very much appreciated!
 
 # SSO Callback
 You need to create an application on the [CCP 3rd Party Developer Page](https://developers.eveonline.com/applications).
@@ -71,7 +72,7 @@ Please edit the tex only and not the html! HTML modifications will not be accept
 # Upgrading
 
 ## Special Version Upgrades
-Pre 1.2.0:
+*Pre 1.2.0*:
 Prior to this version only MySQL(and MariaDB) where supported, because of this the needed migration script only supports these databases but should be easily adjustable for others.
 
 If you are upgrading from a version prior to 1.2.0 you need to upgrade you database up to 1.1.4 using the normal migration manager method.
@@ -86,6 +87,11 @@ I am just trying to drop them in case some one created them manually for some re
 
 After this you can download the current version and use the migration manager again.
 
+*1.5.0*:
+Translations where added, this means there is a new setup and upgrade step!
+
 
 ## Normal Upgrades
 run `python manager.py db upgrade` and make sure new options added to `config.cfg` are present in your config file.
+Some version add new dependencys so you should run `pip install -r requirements.txt` too.
+Run `pybabel compile -d translations\` to compile translations!

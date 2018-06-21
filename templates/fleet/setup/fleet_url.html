@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Fleet - Setup - Fleet Input{% endblock %}
+{% block title %}{{ _('Fleet') }} - {{ _('Setup') }} - {{ _('Fleet Input') }}{% endblock %}
 
 {% block head %}
 {{ super() }}
@@ -10,25 +10,15 @@
 <form action="{{url_for('fleet.setup_steps', step='url')}}" method="post">
 <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 <input type="hidden" name="fleet-id" id="fleet-id" value="{{fleetID}}">
-<fieldset class="form-group">
-	<label for="fleet-type">Fleet Type:</label>
-	<select class="form-control" id="fleet-type" name="fleet-type">
-		<option value="hq" selected>HQ/Assault</option>
-		<option value="vg">VG</option>
-	</select>
-</fieldset>
-<fieldset class="form-group pretty-dd">
-	<input type="checkbox" value="no-setup" name="skip-setup" id="skip-setup"/>
-	<div class="btn-group">
-		<label for="skip-setup" class="btn btn-sm btn-info">
-			<span><i class="fa fa-check"></i></span>
- 			<span><i class="fa fa-times"></i></span>
-		</label>
-	<label for="skip-setup" class="btn btn-sm btn-danger">
-		Skip Auto Fleet Setup
-	</label>
-	</div>
-</fieldset>
-<button type="submit" class="btn-primary btn">Next</button>
+<label for="fleet-type">{{ _('Fleet Type:') }}</label>
+<select autocomplete="off" class="custom-select" id="fleet-type" name="fleet-type">
+	<option value="hq" selected>{{ _('HQ/Assault') }}</option>
+	<option value="vg">{{ _('VG') }}</option>
+</select>
+<div class="custom-control custom-checkbox">
+	<input type="checkbox" class="custom-control-input" id="skip-setup" name="skip-setup">
+	<label class="custom-control-label" for="skip-setup">{{ _('Skip Auto Fleet Setup') }}</label>
+</div>
+<button type="submit" class="btn-primary btn">{{ _('Next') }}</button>
 </form>
 {% endblock %}

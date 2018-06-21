@@ -1,6 +1,6 @@
 {% extends "settings/base.html" %}
 
-{% block title %}Settings - Accounts{% endblock %}
+{% block title %}{{ _('Settings') }} - {{ _('Accounts') }}{% endblock %}
 
 {% block head %}
 <meta name="mail-resident-body" content="{{mails['resident'][0]}}">
@@ -28,11 +28,7 @@
 <script type="text/javascript" src="{{ ASSET_URL }}"></script>
 {% endassets %}
 
-{% assets filters="babili", output="gen/swagger-client.%(version)s.js", "js/swagger-client.min.js" %}
-<script type="text/javascript" src="{{ ASSET_URL }}"></script>
-{% endassets %}
-
-{% assets filters="babili", output="gen/acc-cc-list.%(version)s.js", "js/base.js", "js/eve-igb-wrapper.js",
+{% assets filters="babili", output="gen/acc-cc-list.%(version)s.js", "js/eve-igb-wrapper.js",
 "js/editablegrid/editablegrid_customrenderer.js", "js/accounts/accountslist-dom.js", "js/accounts/settings-accounts.js" %}
 <script type="text/javascript" src="{{ ASSET_URL }}"></script>
 {% endassets %}
@@ -44,30 +40,30 @@
 	<form class="form-inline" target="_blank" method="GET" action="{{url_for('accounts_v1.download_get_v1')}}">
 		<div class="custom-control custom-checkbox mr-2">
 			<input type="checkbox" class="custom-control-input" name="include_disabled" id="include_disabled_cbx">
-			<label for="include_disabled_cbx" class="custom-control-label">Disabled Accounts</label>
+			<label for="include_disabled_cbx" class="custom-control-label">{{ _('Disabled Accounts') }}</label>
 		</div>
 		<div class="custom-control custom-checkbox  mr-2">
 			<input type="checkbox" class="custom-control-input" name="include_alts" id="include_alts_cbx">
-			<label for="include_alts_cbx" class="custom-control-label">Alts</label>
+			<label for="include_alts_cbx" class="custom-control-label">{{ _('Alts') }}</label>
 		</div>
 		<div class="custom-control custom-checkbox  mr-2">
 			<input type="checkbox" class="custom-control-input" name="include_owner_hash" id="include_owner_hash_cbx">
-			<label for="include_owner_hash_cbx" class="custom-control-label">Owner Hash</label>
+			<label for="include_owner_hash_cbx" class="custom-control-label">{{ _('Owner Hash') }}</label>
 		</div>
 		<input type="checkbox" name="as_download" checked hidden="">
-		<button type="submit" class="btn btn.primary">Download Full Commander List</button>
+		<button type="submit" class="btn btn.primary">{{ _('Download Full Commander List') }}</button>
 	</form>
 </div>
 {% endif %}
 <div class="row mb-2">
 	<div class="btn-group" role="group" aria-label="Account Actions">
-		<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal-account-create">New Account</button>
+		<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal-account-create">{{ _('New Account') }}</button>
 	</div>
 </div>
 <div class="row">
 	<div class="input-group">
 		<div class="input-group-prepend">
-			<span class="input-group-text" id="filter-addon">Filter</span>
+			<span class="input-group-text" id="filter-addon">{{ _('Filter') }}</span>
 		</div>
 		<input class="form-control" type="text" id="filter"/>
 	</div>
@@ -76,25 +72,25 @@
 			<li class="page-item">
 				<a class="page-link" href="#" aria-label="First">
 					<span aria-hidden="true"><i class="fa fa-angle-double-left"></i></span>
-					<span class="sr-only">First</span>
+					<span class="sr-only">{{ _('First') }}</span>
 				</a>
 			</li>
 			<li class="page-item">
 				<a class="page-link" href="#" aria-label="Previous">
 					<span aria-hidden="true"><i class="fa fa-angle-left"></i></span>
-					<span class="sr-only">Previous</span>
+					<span class="sr-only">{{ _('Previous') }}</span>
 				</a>
 			</li>
 			<li class="page-item">
 				<a class="page-link" href="#" aria-label="Next">
 					<span aria-hidden="true"><i class="fa fa-angle-right"></i></span>
-					<span class="sr-only">Next</span>
+					<span class="sr-only">{{ _('Next') }}</span>
 				</a>
 			</li>
 			<li class="page-item">
 				<a class="page-link" href="#" aria-label="Next">
 					<span aria-hidden="true"><i class="fa fa-angle-double-right"></i></span>
-					<span class="sr-only">Last</span>
+					<span class="sr-only">{{ _('Last') }}</span>
 				</a>
 			</li>
 		</ul>
@@ -104,13 +100,12 @@
 	<table id="acctable" class="table">
 	<thead>
 		<tr>
-			<th>Actions</th>
-			<th>Status</th>
-			<th>Account Name</th>
-			<th>Roles</th>
-			<th>Current Char</th>
-			<th>Alts</th>
-			{# <th>Email</th> #}
+			<th>{{ _('Actions') }}</th>
+			<th>{{ _('Status') }}</th>
+			<th>{{ _('Account Name') }}</th>
+			<th>{{ _('Roles') }}</th>
+			<th>{{ _('Current Char') }}</th>
+			<th>{{ _('Alts') }}</th>
 			<th>#</th>
 		</tr>
 	</thead>
@@ -118,8 +113,12 @@
 		{% for acc in accounts %}
 		<tr id="account-{{acc.id}}">
 			<td>
-			<button type="button" class="btn btn-sm btn-warning" data-type="{%if acc.disabled%}acc-enable{%else%}acc-disable{%endif%}" data-id="{{acc.id}}">{%if acc.disabled%}Enable{%else%}Disable{%endif%}</button>
-			<button type="button" class="btn btn-sm btn-secondary" data-action="editAccount" data-accId="{{acc.id}}">Edit</button>
+			<button type="button" class="btn btn-sm btn-warning" data-type="{%if acc.disabled%}acc-enable{%else%}acc-disable{%endif%}" data-id="{{acc.id}}">
+			{%if acc.disabled%}{{ _('Enable') }}{%else%}{{ _('Disable') }}{%endif%}
+			</button>
+			<button type="button" class="btn btn-sm btn-secondary" data-action="editAccount" data-accId="{{acc.id}}">
+			{{ _('Edit') }}
+			</button>
 			{% if not acc.had_welcome_mail %}
 			{% set is_rbadge = ['1'] %}
 			{% set is_tbadge = ['1'] %}
@@ -132,15 +131,23 @@
 			{% endfor %}
 			{% set is_rbadge = (is_rbadge|length > 1) %}
 			{% set is_tbadge = (is_tbadge|length > 1) %}
-			<button type="button" class="btn btn-sm btn-info" data-action="sendAuthMail" data-characterid="{{acc.current_char_obj.id}}" data-token="{{acc.login_token}}" data-username="{{current_user.username}}" data-accusername="{{acc.username}}" data-userType="{% if is_tbadge %}tbadge{%elif is_rbadge%}resident{%else%}other{%endif%}">Auth Mail</button>
+			<button type="button" class="btn btn-sm btn-info" data-action="sendAuthMail" data-characterid="{{acc.current_char_obj.id}}"
+			data-token="{{acc.login_token}}" data-username="{{current_user.username}}" data-accusername="{{acc.username}}"
+			data-userType="{% if is_tbadge %}tbadge{%elif is_rbadge%}resident{%else%}other{%endif%}">{{ _('Mail') }}</button>
 			{% endif %}
 			</td>
-			<td id="acc-{{acc.id}}-status">{% if acc.disabled %}Deactivated{% else %}Active{% endif %}</td>
+			<td id="acc-{{acc.id}}-status">{% if acc.disabled %}{{ _('Deactivated') }}{% else %}{{ _('Active') }}{% endif %}</td>
 			<td id="acc-{{acc.id}}-name">{{ acc.username }}</td>
-			<td id="acc-{{acc.id}}-roles">{% if not acc.had_welcome_mail %}<span id="acc-{{acc.id}}-needsmail" class="badge badge-pill badge-info">New</span>{% endif %}{% for role in acc.roles %}{{role.name}}{% if not loop.last %}, {% endif %}{% endfor %}</td>
+			<td id="acc-{{acc.id}}-roles">
+				{% if not acc.had_welcome_mail %}
+					<span id="acc-{{acc.id}}-needsmail" class="badge badge-pill badge-info">New</span>
+				{% endif %}
+				{% for role in acc.roles %}
+					{{role.name}}{% if not loop.last %}, {% endif %}
+				{% endfor %}
+			</td>
 			<td id="acc-{{acc.id}}-cchar">{{ acc.current_char_obj.eve_name }}</td>
 			<td>{{acc.id}};{% for character in acc.characters %}{{character.id}}:{{character.eve_name}}{% if not loop.last %},{% endif %}{% endfor %}</td>
-			{# <td id="acc-{{acc.id}}-email">{% if acc.email is not none %}{{ acc.email }}{% endif %}</td> #}
 			<td id="acc-{{acc.id}}-id">{{ acc.id }}</td>
 		</tr>
 		{% endfor %}
@@ -154,37 +161,37 @@
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
-        <h4 class="modal-title" id="label-account-create">Create New Account</h4>
+        <h4 class="modal-title" id="label-account-create">{{ _('Create New Account') }}</h4>
       </div>
       <div class="modal-body">
       <form id="form-account-create" method="POST">
     	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
       	<fieldset class="form-group">
-      		<label for="acc-name">Account Name</label>
+      		<label for="acc-name">{{ _('Account Name') }}</label>
       		<input type="text" class="form-control" id="acc-name" name="account_name">
       	</fieldset>
       	<fieldset>
-      		<label for="account-roles">Roles</label>
-      		<select multiple="multiple" class="form-control" id="account-roles" name="account_roles">
+      		<label for="account-roles">{{ _('Roles') }}</label>
+      		<select autocomplete="off" multiple="multiple" class="form-control" id="account-roles" name="account_roles">
       			{% for role in roles %}
       			<option value="{{role.name}}">{{role.name}}</option>
       			{% endfor %}
       		</select>
       	</fieldset>
       	<fieldset class="form-group">
-      		<label for="acc-defchar">Default Character Name</label>
+      		<label for="acc-defchar">{{ _('Default Character Name') }}</label>
       		<input type="text" class="form-control" id="acc-defchar" name="default_char_name">
       	</fieldset>
       	<fieldset class="form-group">
-         <label for="acc-change-note">Add a Note</label>
+         <label for="acc-change-note">{{ _('Add a Note') }}</label>
          <input class="form-control" id="acc-change-note" type="text" name="change_note" />
         </fieldset>
       	<button id="account-create-submit" type="submit" class="btn btn-primary" hidden></button>
       </form>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        <label for="account-create-submit" class="btn btn-primary">Create</label>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ _('Close') }}</button>
+        <label for="account-create-submit" class="btn btn-primary">{{ _('Create') }}</label>
       </div>
     </div>
   </div>
@@ -197,38 +204,38 @@
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
-        <h4 class="modal-title" id="label-account-edit">Edit Account</h4>
+        <h4 class="modal-title" id="label-account-edit">{{ _('Edit Account') }}</h4>
       </div>
       <div class="modal-body">
       <form id="form-account-edit" action="{{url_for('accounts.account_edit')}}" method="POST">
 		<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
       	<input id="acc-edit-id" type="hidden" value="" name="account_id">
       	<fieldset class="form-group">
-      		<label for="acc-edit-name">Account Name</label>
+      		<label for="acc-edit-name">{{ _('Account Name') }}</label>
       		<input type="text" class="form-control" id="acc-edit-name" name="account_name">
       	</fieldset>
       	<fieldset class="form-group">
-      		<label for="acc-edit-cchar">Default Character</label>
+      		<label for="acc-edit-cchar">{{ _('Default Character') }}</label>
       		<input type="text" class="form-control" id="acc-edit-cchar" name="default_char_name">
       	</fieldset>
         <fieldset class="form-group">
-         <label for="acc-edit-roles">Roles</label>
-         <select multiple="multiple" class="form-control" id="acc-edit-roles" name="account_roles">
+         <label for="acc-edit-roles">{{ _('Roles') }}</label>
+         <select autocomplete="off" multiple="multiple" class="form-control" id="acc-edit-roles" name="account_roles">
           {% for role in roles %}
            <option value="{{role.name}}">{{role.name}}</option>
           {% endfor %}
          </select>
         </fieldset>
         <fieldset class="form-group">
-         <label for="acc-edit-change-note">Add a Note</label>
+         <label for="acc-edit-change-note">{{ _('Add a Note') }}</label>
          <input class="form-control" id="acc-edit-change-note" type="text" name="change_note" />
         </fieldset>
       	<button id="acc-edit-submit" type="submit" class="btn btn-primary" hidden></button>
       </form>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        <label for="acc-edit-submit" class="btn btn-primary">Change</label>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ _('Close') }}</button>
+        <label for="acc-edit-submit" class="btn btn-primary">{{ _('Change') }}</label>
       </div>
     </div>
   </div>

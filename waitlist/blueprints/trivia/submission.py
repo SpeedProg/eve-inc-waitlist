@@ -13,6 +13,7 @@ from flask_login import current_user, login_required
 
 from waitlist import db
 from waitlist.storage.database import TriviaSubmission, Trivia, TriviaSubmissionAnswer
+from flask_babel import gettext
 
 
 logger = logging.getLogger(__name__)
@@ -81,7 +82,7 @@ def process_submission(trivia_id: int) -> Optional[Response]:
 
     db.session.add(submission)
     db.session.commit()
-    flask.flash('Thank you for participating, winners will be announced after the trivia is finished', 'info')
+    flask.flash(gettext('Thank you for participating, winners will be announced after the trivia is finished'), 'info')
     return redirect(url_for('index'))
 
 

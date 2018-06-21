@@ -22,11 +22,11 @@ waitlist.calendar.settings = (function() {
 				async: true,
 				dataType: "text",
 				error: function() {
-					displayMessage("Deleting event failed", "danger");
+					displayMessage($.i18n('wl-calendar-settings-error-event-delete'), "danger");
 				},
 				method: "DELETE",
 				success: function() {
-					displayMessage("Event deleted", "success");
+					displayMessage($.i18n('wl-calendar-settings-event-deleted'), "success");
 					target.closest("tr").remove();
 				},
 				headers: {

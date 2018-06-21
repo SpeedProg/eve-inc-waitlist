@@ -3,7 +3,7 @@ from flask import Response, jsonify
 from waitlist import app
 from . import models
 
-from . import accounts, characters
+from . import accounts, characters, i18n
 from waitlist.blueprints.swagger_api import statistics
 
 
@@ -24,3 +24,4 @@ def error_handler_forbidden(ex: Exception) -> Response:
 app.register_blueprint(characters.bp_v1, url_prefix='/swa/v1/characters')
 app.register_blueprint(accounts.bp_v1, url_prefix='/swa/v1/accounts')
 app.register_blueprint(statistics.bp_v1, url_prefix='/swa/v1/statistics')
+app.register_blueprint(i18n.bp_v1, url_prefix='/swa/v1/i18n')

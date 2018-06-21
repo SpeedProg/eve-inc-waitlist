@@ -12,6 +12,7 @@ from waitlist import db
 from waitlist.blueprints.settings import add_menu_entry
 from waitlist.permissions import perm_manager
 from waitlist.storage.database import InvType, Character, Shipfit, HistoryEntry, HistoryFits, Account
+from flask_babel import gettext, lazy_gettext
 
 bp = Blueprint('settings_overview', __name__)
 logger = logging.getLogger(__name__)
@@ -256,4 +257,4 @@ def __get_query_result(dataset_id, query, column_count, cache_time_seconds):
     return result
 
 
-add_menu_entry('settings_overview.overview', 'Overview', lambda: True)
+add_menu_entry('settings_overview.overview', lazy_gettext('Overview'), lambda: True)
