@@ -154,7 +154,7 @@ template = {
 swag = Swagger(app, template=template)
 
 app.config['LANGUAGES'] = ['en', 'de']#
-app.config['BABEL_TRANSLATION_DIRECTORIES'] = 'F:/source/eclipseworkspaces/python/WTMWaitlistF/translations'
+app.config['BABEL_TRANSLATION_DIRECTORIES'] = '../translations'
 
 babel = Babel(app)
 
