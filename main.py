@@ -109,7 +109,7 @@ def run_server():
     wsgi_logger.addHandler(err_fh)
     wsgi_logger.addHandler(info_fh)
     wsgi_logger.addHandler(debug_fh)
-    wsgi_logger.setLevel(logging.INFO)
+    wsgi_logger.setLevel(logging.WARN)
     app.wsgi_app = ProxyFix(app.wsgi_app)
     server = WSGIServer((config.server_bind, config.server_port), app, log=wsgi_logger, error_log=wsgi_logger)
     server.serve_forever()
