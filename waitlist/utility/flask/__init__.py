@@ -206,7 +206,7 @@ def on_identity_loaded(_: Any, identity):
     # Set the identity user object
     identity.user = current_user
     # Add the UserNeed to the identity
-    logger.info("loading identity for %s", current_user)
+    logger.debug("loading identity for %s", current_user)
     if hasattr(current_user, 'id'):
         identity.provides.add(UserNeed(current_user.id))
 
@@ -214,7 +214,7 @@ def on_identity_loaded(_: Any, identity):
         if current_user.type == "account":  # it is an account, so it can have roles
             account = db.session.query(Account).filter(Account.id == current_user.id).first()
             for role in account.roles:
-                logger.info("Add role %s", role.name)
+                logger.debug("Add role %s", role.name)
                 identity.provides.add(RoleNeed(role.name))
 
 

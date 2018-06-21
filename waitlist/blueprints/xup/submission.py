@@ -37,9 +37,9 @@ def submit():
     _newFits = []
 
     fittings = request.form['fits']
-    logger.info("%s submitted %s", current_user.get_eve_name(), fittings)
+
     group_id = int(request.form['groupID'])
-    logger.info("%s submitted for group %s", current_user.get_eve_name(), group_id)
+    logger.info("%s submitted %s for group %d", current_user.get_eve_name(), fittings, group_id)
     eve_id = current_user.get_eve_id()
 
     group = db.session.query(WaitlistGroup).filter(WaitlistGroup.groupID == group_id).one()
@@ -338,7 +338,7 @@ def submit():
     logger.info("%s submitted %s fits to be checked by a fleetcomp", current_user.get_eve_name(), len(fits_ready))
 
     for fit in fits_ready:
-        logger.info("%s submits %s", current_user.get_eve_name(), fit.get_dna())
+        logger.debug("%s submits %s", current_user.get_eve_name(), fit.get_dna())
         wl_entry.fittings.append(fit)
 
     h_entry = create_history_object(current_user.get_eve_id(), HistoryEntry.EVENT_XUP, None, fits_ready)
