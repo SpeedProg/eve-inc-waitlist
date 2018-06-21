@@ -19,6 +19,7 @@ def fix_locale_and_get(lang_code: str, app: Any) -> Locale:
     try:
         if lang_code is None or lang_code not in app.config['LANGUAGES']:
             lang_code = request.accept_languages.best_match(app.config['LANGUAGES'])
+            logger.debug('lang_code is %s', lang_code)
             if lang_code is None:
                 lang_code = 'en'
             locale = Locale.parse(lang_code)
