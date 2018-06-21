@@ -107,7 +107,7 @@
 				</li>
 				{% if current_user.is_authenticated %}
 				<div class="dropdown ml-3">
-					<button class="btn btn-secondary dropdown-toggle btn-sm" type="button" id="mainDropdownMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+					<button class="btn btn-primary dropdown-toggle btn-sm" type="button" id="mainDropdownMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 						{% if current_user.get_eve_id() is not none %}<img class="profile-img-32" src="{{eve_image('Character/'+(current_user.get_eve_id()|string)+'_32', 'jpg')}}"> {% endif %}
 					</button>
 
