@@ -75,12 +75,12 @@
 					</select>
 					{% endif %}
 					<div class="custom-control custom-checkbox mr-2">
-						<input type="checkbox" class="custom-control-input" name="xup" id="xup-cbx" {% if group.enabled %}checked{% endif %}>
-						<label for="xup-cbx" class="custom-control-label"> {{ _('X-UP Open') }}</label>
+						<input type="checkbox" class="custom-control-input" name="xup" id="xup-cbx-{{group.groupID}}" {% if group.enabled %}checked{% endif %}>
+						<label for="xup-cbx-{{group.groupID}}" class="custom-control-label"> {{ _('X-UP Open') }}</label>
 					</div>
 					<div class="custom-control custom-checkbox mr-2">
-						<input type="checkbox" class="custom-control-input" name="influence" id="influence-cbx" {% if group.influence %}checked{% endif %}>
-						<label for="influence-cbx" class="custom-control-label"> {{ _('Influence') }}</label>
+						<input type="checkbox" class="custom-control-input" name="influence" id="influence-cbx-{{group.groupID}}" {% if group.influence %}checked{% endif %}>
+						<label for="influence-cbx-{{group.groupID}}" class="custom-control-label"> {{ _('Influence') }}</label>
 					</div>
 					<button type="submit" class="btn btn-sm btn-primary">{{ _('Set') }}</button>
 				</form>
