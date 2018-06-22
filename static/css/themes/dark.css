@@ -1866,7 +1866,7 @@ pre code {
 }
 
 .form-control:disabled, .form-control[readonly] {
-  background-color: #6c757d;
+  background-color: #bbc1c5;
   opacity: 1;
 }
 
@@ -3877,7 +3877,7 @@ input[type="button"].btn-block {
 
 .nav-tabs .nav-link.active,
 .nav-tabs .nav-item.show .nav-link {
-  color: #495057;
+  color: #f8f9fa;
   background-color: #495057;
   border-color: #dee2e6 #dee2e6 #495057;
 }
@@ -4841,7 +4841,7 @@ input[type="button"].btn-block {
 .jumbotron {
   padding: 2rem 1rem;
   margin-bottom: 2rem;
-  background-color: #e9ecef;
+  background-color: gray-600;
   border-radius: 0.3rem;
 }
 
@@ -8995,4 +8995,11 @@ a.text-dark:hover, a.text-dark:focus {
 #wl_hover table {
   background: #495057 !important;
   color: #f8f9fa !important;
+}
+
+input[type="button" i]:disabled, input[type="submit" i]:disabled,
+input[type="reset" i]:disabled, input[type="file" i]:disabled,
+button:disabled, optgroup:disabled,
+option:disabled, select[disabled] > option {
+  color: inherit;
 }
