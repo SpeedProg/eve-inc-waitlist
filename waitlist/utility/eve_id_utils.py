@@ -177,6 +177,7 @@ def is_char_banned(char: Character) -> Tuple[bool, str]:
         return False, ""
     except ApiException:
         logger.info("Failed to check if %d was banned, because of Api error", char.get_eve_id(), exc_info=1)
+        return False, ""
     except Exception:
         logger.error("Failed to check if %d was banned", char.get_eve_id(), exc_info=1)
         return False, ""
