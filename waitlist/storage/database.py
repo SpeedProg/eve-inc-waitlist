@@ -181,6 +181,9 @@ class SSOToken(Base):
 
             self.scopes = token_scopes
 
+    def __str__(self):
+        return self.__repr__()
+
     def __repr__(self):
         return f'<Token tokenID={self.tokenID} characterID={self.characterID} accountID={self.accountID} refresh_token={self.refresh_token}>'
 
@@ -1027,6 +1030,7 @@ class AccountNote(Base):
                 f' restriction_level={self.restriction_level}'
                 f' textPayload={self.textPayload}'
                 f' note={self.note}>')
+
 
 class RoleChangeEntry(Base):
     __tablename__ = "role_changes"
