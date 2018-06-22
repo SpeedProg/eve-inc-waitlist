@@ -3,11 +3,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2018-06-22 10:16+0200\n"
+"POT-Creation-Date: 2018-06-23 01:07+0200\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2018-06-22 08:22+0000\n"
+"PO-Revision-Date: 2018-06-22 11:11+0000\n"
 "Last-Translator: Constantin Wenger <constantin.wenger@googlemail.com>\n"
 "Language-Team: German\n"
 "Language: de\n"
@@ -427,6 +427,26 @@ msgstr "Caldari Kampfschiff Level"
 msgid "No Caldari BS"
 msgstr "Kein Caldari Kampfschiff"
 
+#: templates/xup-form.html:43 templates/xup-form.html:58
+msgid "1"
+msgstr "1"
+
+#: templates/xup-form.html:44 templates/xup-form.html:57
+msgid "2"
+msgstr "2"
+
+#: templates/xup-form.html:45 templates/xup-form.html:56
+msgid "3"
+msgstr "3"
+
+#: templates/xup-form.html:46 templates/xup-form.html:55
+msgid "4"
+msgstr "4"
+
+#: templates/xup-form.html:47 templates/xup-form.html:54
+msgid "5"
+msgstr "5"
+
 #: templates/xup-form.html:51
 msgid "Logistic Cruiser Level"
 msgstr "Logistikkreuzer Stufe"
@@ -434,6 +454,10 @@ msgstr "Logistikkreuzer Stufe"
 #: templates/xup-form.html:53
 msgid "No Logi"
 msgstr "Kein Support"
+
+#: templates/xup-form.html:61
+msgid "Enter On Waitlist"
+msgstr "Einschreiben"
 
 #: templates/xup.html:16
 msgid "X-UP is currently closed!"
