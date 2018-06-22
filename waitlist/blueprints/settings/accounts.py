@@ -34,6 +34,7 @@ import gevent
 import time
 from gevent.threading import Lock
 from flask_babel import gettext, lazy_gettext
+from waitlist.utility.outgate.exceptions import ApiException
 
 bp = Blueprint('accounts', __name__)
 logger = logging.getLogger(__name__)
@@ -59,43 +60,58 @@ def accounts():
         char_name = char_name.strip()
 
         note = request.form['change_note'].strip()
+        try:
+            char_info = outgate.character.get_info_by_name(char_name)
+            if char_info is None:
+                flash(gettext("A Character named %(char_name)s does not exist!", char_name=char_name), 'warning')
+            else:
+                char_id = char_info.id
+                acc = Account()
+                acc.username = acc_name
 
-        char_info = outgate.character.get_info_by_name(char_name)
-        if char_info is None:
-            flash(gettext("A Character named %(char_name)s does not exist!", char_name=char_name), 'warning')
-        else:
-            char_id = char_info.id
-            acc = Account()
-            acc.username = acc_name
+                acc.login_token = get_random_token(16)
 
-            acc.login_token = get_random_token(16)
+                if len(acc_roles) > 0:
+                    db_roles = db.session.query(
+                        Role
+                        ).filter(
+                            or_(
+                                Role.name == name for name in acc_roles
+                            )
+                        ).all()
+                    for role in db_roles:
+                        acc.roles.append(role)
 
-            if len(acc_roles) > 0:
-                db_roles = db.session.query(Role).filter(or_(Role.name == name for name in acc_roles)).all()
-                for role in db_roles:
-                    acc.roles.append(role)
+                db.session.add(acc)
 
-            db.session.add(acc)
+                # find out if there is a character like that in the database
+                character = db.session.query(
+                    Character).filter(Character.id == char_id).first()
 
-            # find out if there is a character like that in the database
-            character = db.session.query(Character).filter(Character.id == char_id).first()
+                if character is None:
+                    char_info: APICacheCharacterInfo = outgate.\
+                        character.get_info(char_id)
 
-            if character is None:
-                char_info: APICacheCharacterInfo = outgate.character.get_info(char_id)
-                character = Character()
-                character.eve_name = char_info.characterName
-                character.id = char_id
+                    character = Character()
+                    character.eve_name = char_info.characterName
+                    character.id = char_id
 
-            acc.characters.append(character)
+                acc.characters.append(character)
 
-            db.session.flush()
+                db.session.flush()
 
-            acc.current_char = char_id
+                acc.current_char = char_id
 
-            db.session.commit()
-            send_account_created(accounts, acc.id, current_user.id, acc_roles,
-                                 note)
-            send_alt_link_added(accounts, current_user.id, acc.id, character.id)
+                db.session.commit()
+                send_account_created(accounts, acc.id, current_user.id,
+                                     acc_roles,
+                                     note)
+                send_alt_link_added(accounts, current_user.id, acc.id,
+                                    character.id)
+        except ApiException as e:
+            flash(gettext("Could not execute action, ApiException %(ex)s", e),
+                  'danger')
+
     clean_alt_list()
     roles = db.session.query(Role).order_by(Role.name).all()
     accs = db.session.query(Account).order_by(asc(Account.disabled)).order_by(Account.username).all()
@@ -272,30 +288,34 @@ def account_edit():
             send_roles_changed(account_edit, acc.id, current_user.id, [], [x.name for x in roles_to_remove], note)
 
     if char_name is not None:
-        char_info = outgate.character.get_info_by_name(char_name)
-        if char_info is None:
-            flash(gettext("Character with name %(char_name)s could not be found!", char_name=char_name), 'danger')
-        else:
-            char_id = char_info.id
-            # find out if there is a character like that in the database
-            character = db.session.query(Character).filter(Character.id == char_id).first()
+        try:
+            char_info = outgate.character.get_info_by_name(char_name)
+            if char_info is None:
+                flash(gettext("Character with name %(char_name)s could not be found!", char_name=char_name), 'danger')
+            else:
+                char_id = char_info.id
+                # find out if there is a character like that in the database
+                character = db.session.query(Character).filter(Character.id == char_id).first()
 
-            if character is None:
-                # lets make sure we have the correct name (case)
-                char_info: APICacheCharacterInfo = outgate.character.get_info(char_id)
-                character = Character()
-                character.eve_name = char_info.characterName
-                character.id = char_id
+                if character is None:
+                    # lets make sure we have the correct name (case)
+                    char_info: APICacheCharacterInfo = outgate.character.get_info(char_id)
+                    character = Character()
+                    character.eve_name = char_info.characterName
+                    character.id = char_id
 
-            # check if character is linked to this account
-            link = db.session.query(linked_chars) \
-                .filter((linked_chars.c.id == acc_id) & (linked_chars.c.char_id == char_id)).first()
-            if link is None:
-                acc.characters.append(character)
-                send_alt_link_added(account_edit, current_user.id, acc.id, character.id)
+                # check if character is linked to this account
+                link = db.session.query(linked_chars) \
+                    .filter((linked_chars.c.id == acc_id) & (linked_chars.c.char_id == char_id)).first()
+                if link is None:
+                    acc.characters.append(character)
+                    send_alt_link_added(account_edit, current_user.id, acc.id, character.id)
 
-            db.session.flush()
-            acc.current_char = char_id
+                db.session.flush()
+                acc.current_char = char_id
+        except ApiException as e:
+            flash(gettext("Could not execute action, ApiException %(ex)s", e),
+                  'danger')
 
     db.session.commit()
     return redirect(url_for('.accounts'), code=303)
@@ -317,66 +337,83 @@ def account_self_edit():
         return flask.abort(400)
 
     if char_name is not None and (current_user.get_eve_name() is None or char_name != current_user.get_eve_name()):
-        char_info = outgate.character.get_info_by_name(char_name)
+        try:
+            char_info = outgate.character.get_info_by_name(char_name)
 
-        if char_info is None:
-            flash(gettext("Character with name %(char_name)s could not be found!", char_name=char_name), 'danger')
-        else:
-            char_id = char_info.id
-            # find out if there is a character like that in the database
-            character = db.session.query(Character).filter(Character.id == char_id).first()
+            if char_info is None:
+                flash(gettext(
+                    "Character with name %(char_name)s could not be found!",
+                    char_name=char_name), 'danger')
+            else:
+                char_id = char_info.id
+                # find out if there is a character like that in the database
+                character = db.session.query(Character).filter(
+                    Character.id == char_id).first()
 
-            if character is None:
-                # lets make sure we have the correct name (case)
-                char_info: APICacheCharacterInfo = outgate.character.get_info(char_id)
-                character = Character()
-                character.eve_name = char_info.characterName
-                character.id = char_id
+                if character is None:
+                    # lets make sure we have the correct name (case)
+                    char_info: APICacheCharacterInfo = outgate.\
+                        character.get_info(char_id)
+                    character = Character()
+                    character.eve_name = char_info.characterName
+                    character.id = char_id
 
-            # check if character is linked to this account
-            link = db.session.query(linked_chars) \
-                .filter((linked_chars.c.id == acc_id) & (linked_chars.c.char_id == char_id)).first()
-            if link is None:
-                if config.require_auth_for_chars:
-                    # this is a new link, lets redirect him to check if he owns the character after we saved the charid
-                    session['link_charid'] = character.id
-                    return get_sso_redirect("alt_verification", 'publicData')
-                else:
-                    acc.characters.append(character)
-                    send_alt_link_added(account_self_edit, current_user.id, acc.id, character.id)
-
-            db.session.flush()
-            if acc.current_char != char_id:
-                # we have a link and it is not the current char
-                if config.require_auth_for_chars:
-                    # we need authentication for char change so lets see if the token works
-                    auth_token: SSOToken = acc.get_a_sso_token_with_scopes([], char_id)
-
-                    # we need new auth
-                    if auth_token is None:
-                        logger.debug("Could not find a valid authorization for this character")
+                # check if character is linked to this account
+                link = db.session.query(linked_chars) \
+                    .filter(
+                        (linked_chars.c.id == acc_id) & (
+                            linked_chars.c.char_id == char_id)).first()
+                if link is None:
+                    if config.require_auth_for_chars:
+                        # this is a new link, lets redirect him
+                        # to check if he owns the character
+                        # after we saved the charid
                         session['link_charid'] = character.id
-                        return get_sso_redirect("alt_verification", 'publicData')
+                        return get_sso_redirect("alt_verification",
+                                                'publicData')
+                    else:
+                        acc.characters.append(character)
+                        send_alt_link_added(account_self_edit, current_user.id,
+                                            acc.id, character.id)
 
-                    auth_info = who_am_i(auth_token)
-                    # if we don't have this the token was invalid
-                    if 'CharacterOwnerHash' not in auth_info:
-                        logger.debug("CharacterOwnerHash was not in authorization info")
-                        db.session.delete(auth_token)
-                        db.session.commit()
-                        # let them re authenticate
-                        session['link_charid'] = character.id
-                        return get_sso_redirect("alt_verification", 'publicData')
+                db.session.flush()
+                if acc.current_char != char_id:
+                    # we have a link and it is not the current char
+                    if config.require_auth_for_chars:
+                        # we need authentication for char change
+                        # so lets see if the token works
+                        auth_token: SSOToken = acc.get_a_sso_token_with_scopes(
+                            [], char_id)
 
-                    if auth_info['CharacterOwnerHash'] != character.owner_hash:
-                        # owner hash does not match
-                        db.session.delete(auth_token)
-                        db.session.commit()
-                        session['link_charid'] = character.id
-                        logger.debug("Character owner_owner hash did not match")
-                        return get_sso_redirect("alt_verification", 'publicData')
+                        # we need new auth
+                        if auth_token is None:
+                            logger.debug("Could not find a valid authorization for this character")
+                            session['link_charid'] = character.id
+                            return get_sso_redirect("alt_verification",
+                                                    'publicData')
 
-                acc.current_char = char_id
+                        auth_info = who_am_i(auth_token)
+                        # if we don't have this the token was invalid
+                        if 'CharacterOwnerHash' not in auth_info:
+                            logger.debug("CharacterOwnerHash was not in authorization info")
+                            db.session.delete(auth_token)
+                            db.session.commit()
+                            # let them re authenticate
+                            session['link_charid'] = character.id
+                            return get_sso_redirect("alt_verification", 'publicData')
+
+                        if auth_info['CharacterOwnerHash'] != character.owner_hash:
+                            # owner hash does not match
+                            db.session.delete(auth_token)
+                            db.session.commit()
+                            session['link_charid'] = character.id
+                            logger.debug("Character owner_owner hash did not match")
+                            return get_sso_redirect("alt_verification", 'publicData')
+
+                    acc.current_char = char_id
+        except ApiException as e:
+            flash(gettext("Could not execute action, ApiException %(ex)s", e),
+                  'danger')
 
     db.session.commit()
     return redirect(url_for('.account_self'), code=303)
@@ -482,11 +519,15 @@ def alt_verification_handler(code: str) -> None:
 
         if character is None:
             # lets make sure we have the correct name (case)
-            char_info: APICacheCharacterInfo = outgate.character.get_info(char_id)
-            character = Character()
-            character.eve_name = char_info.characterName
-            character.id = char_id
-            character.owner_hash = owner_hash
+            try:
+                char_info: APICacheCharacterInfo = outgate.character.get_info(char_id)
+                character = Character()
+                character.eve_name = char_info.characterName
+                character.id = char_id
+                character.owner_hash = owner_hash
+            except ApiException:
+                flask.abort(500, gettext("There was an error contacting the API for character info character id = %(char_id)d.",
+                                         char_id=char_id))
         else:
             if character.owner_hash is None or character.owner_hash == '':
                 # first time accessing this character

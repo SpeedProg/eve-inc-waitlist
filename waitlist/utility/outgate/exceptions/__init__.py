@@ -1,14 +1,31 @@
 import logging
-from typing import Callable, Any, Optional, Sequence
+from typing import Callable, Any, Optional, Sequence, Dict
 
 from waitlist.utility.swagger.eve import ESIResponse
+from flask import jsonify
 
 logger = logging.getLogger(__name__)
 
 
 class ApiException(Exception):
-    """Base class for Api Exceptions"""
-    pass
+    """
+    This exception is thrown to the outside world.
+    """
+    def __init__(self, error_msg: str, http_code: int):
+        self.msg = error_msg
+        self.code = http_code
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            'msg': self.error_msg,
+            'code': self.http_code,
+            }
+
+    def __str__(self):
+        return jsonify(self.to_dict());
+
+    def __repr__(self):
+        return f'<GernericApiException code={self.code} msg={self.msg}>'
 
 
 class ESIException(ApiException):
@@ -17,6 +34,10 @@ class ESIException(ApiException):
     """
 
     def __init__(self, error_response: Optional[ESIResponse], call: Callable) -> None:
+        if error_response is None or not error_response.is_error():
+            super(ESIException, self).__init__('No Response provided', 500)
+        else:
+            super(ESIException, self).__init__(error_response.error(), error_response.code())
         self.__resp = error_response
         self.__call = call
 

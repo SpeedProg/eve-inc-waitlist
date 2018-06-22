@@ -4,7 +4,7 @@ from datetime import datetime
 from typing import List, Union, Optional, Any
 
 import flask
-from flask import render_template, url_for, request
+from flask import render_template, url_for, request, jsonify
 from flask_login import current_user, AnonymousUserMixin
 from flask_principal import Identity, UserNeed, RoleNeed, identity_loaded
 from werkzeug.utils import redirect
@@ -19,6 +19,8 @@ from waitlist.utility.login import invalidate_all_sessions_for_current_user
 from waitlist.utility.manager import owner_hash_check_manager
 from fileinput import filename
 from flask_babel import gettext
+from waitlist.utility.outgate.exceptions import ApiException
+from flask.wrappers import Response
 
 logger = logging.getLogger(__name__)
 
@@ -233,3 +235,10 @@ def jinja2_waittime_filter(value):
     current_utc = datetime.utcnow()
     waited_time = current_utc - value
     return str(int(math.floor(waited_time.total_seconds()/60)))
+
+
+@app.errorhandler(ApiException)
+def handle_invalid_usage(error: ApiException) -> Response:
+    response = jsonify(error.to_dict())
+    response.status_code = error.code
+    return response

@@ -25,6 +25,10 @@ def set_from_corp_info(self: APICacheCorporationInfo, info: CorporationInfo, cor
 
 
 def get_corp_info(corp_id: int, *args) -> APICacheCorporationInfo:
+    """
+    :throws ApiException if something went wrong during Api calls
+            and we can't recover to cache
+    """
     corp_cache: APICacheCorporationInfo = db.session.query(APICacheCorporationInfo) \
         .filter(APICacheCorporationInfo.id == corp_id).first()
 
