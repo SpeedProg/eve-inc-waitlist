@@ -3,11 +3,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2018-06-21 22:06+0200\n"
+"POT-Creation-Date: 2018-06-22 10:16+0200\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2018-06-21 08:08+0000\n"
+"PO-Revision-Date: 2018-06-22 08:22+0000\n"
 "Last-Translator: Constantin Wenger <constantin.wenger@googlemail.com>\n"
 "Language-Team: German\n"
 "Language: de\n"
@@ -759,7 +759,7 @@ msgstr "Aktiviert"
 
 #: templates/settings/accounts.html:3
 #: templates/waitlist/tools/history_search.html:40
-#: waitlist/blueprints/settings/accounts.py:421
+#: waitlist/blueprints/settings/accounts.py:458
 msgid "Accounts"
 msgstr "Konten"
 
@@ -881,7 +881,7 @@ msgid "Change"
 msgstr "Ändern"
 
 #: templates/settings/bans.html:3 templates/settings/whitelist.html:3
-#: waitlist/blueprints/settings/bans.py:324
+#: waitlist/blueprints/settings/bans.py:349
 msgid "Bans"
 msgstr "Sperren"
 
@@ -1180,7 +1180,7 @@ msgid "Add TS"
 msgstr "TS Hinzufügen"
 
 #: templates/settings/whitelist.html:23 templates/settings/whitelist.html:38
-#: waitlist/blueprints/settings/bans.py:325
+#: waitlist/blueprints/settings/bans.py:350
 msgid "Whitelist"
 msgstr "Sperrungsausnahmen"
 
@@ -1487,55 +1487,77 @@ msgstr ""
 msgid "You are not the boss of the fleet you are in."
 msgstr "Du bist nicht der Befehlsgeber der Flotte in der du dich befindest."
 
-#: waitlist/blueprints/settings/accounts.py:65
+#: waitlist/blueprints/settings/accounts.py:66
 #, python-format
 msgid "A Character named %(char_name)s does not exist!"
 msgstr "Es gibt keine Charakter mit dem Namen %(char_name)s!"
 
-#: waitlist/blueprints/settings/accounts.py:277
-#: waitlist/blueprints/settings/accounts.py:323
+#: waitlist/blueprints/settings/accounts.py:112
+#: waitlist/blueprints/settings/accounts.py:317
+#: waitlist/blueprints/settings/accounts.py:415
+#: waitlist/blueprints/settings/bans.py:116
+#: waitlist/blueprints/settings/bans.py:177
+#: waitlist/blueprints/settings/bans.py:201
+#: waitlist/blueprints/settings/bans.py:246
+#: waitlist/blueprints/settings/bans.py:328
+#: waitlist/blueprints/settings/bans.py:343
+#, python-format
+msgid "Could not execute action, ApiException %(ex)s"
+msgstr "Die Aktion konnte nicht durchgeführt werden, ApiException %(ex)s"
+
+#: waitlist/blueprints/settings/accounts.py:294
+#: waitlist/blueprints/settings/accounts.py:344
 #, python-format
 msgid "Character with name %(char_name)s could not be found!"
 msgstr ""
 "Ein Charakter mit dem Namen $(char_name)s konnte nicht gefunden werden!"
 
-#: waitlist/blueprints/settings/accounts.py:422
+#: waitlist/blueprints/settings/accounts.py:459
 msgid "Own Settings"
 msgstr "Eigene Einstellungen"
 
-#: waitlist/blueprints/settings/accounts.py:516
+#: waitlist/blueprints/settings/accounts.py:529
+#, python-format
+msgid ""
+"There was an error contacting the API for character info character id = "
+"%(char_id)d."
+msgstr ""
+"Währen der Verbindung zur API um Charakter id=%(char_id)d Informationen "
+"abzurufen trat ein Fehler auf."
+
+#: waitlist/blueprints/settings/accounts.py:557
 #, python-format
 msgid "Alt %(char_name)s was added"
 msgstr "Alternativer Charakter %(char_name)s wurde hinzugefügt"
 
-#: waitlist/blueprints/settings/bans.py:79
+#: waitlist/blueprints/settings/bans.py:81
 #, python-format
 msgid "Could not find Character %(ban_name)s"
 msgstr "Konnte Charakter %(ban_name)s nicht finden"
 
-#: waitlist/blueprints/settings/bans.py:87
-#: waitlist/blueprints/settings/bans.py:145
-#: waitlist/blueprints/settings/bans.py:265
+#: waitlist/blueprints/settings/bans.py:89
+#: waitlist/blueprints/settings/bans.py:151
+#: waitlist/blueprints/settings/bans.py:282
 #, python-format
 msgid "Failed to correctly parse %(target)s"
 msgstr ""
 "Es trat ein Fehler während der grammatikalischen analysieren von %(target)s "
 "auf"
 
-#: waitlist/blueprints/settings/bans.py:107
-#: waitlist/blueprints/settings/bans.py:164
-#: waitlist/blueprints/settings/bans.py:183
-#: waitlist/blueprints/settings/bans.py:285
+#: waitlist/blueprints/settings/bans.py:109
+#: waitlist/blueprints/settings/bans.py:170
+#: waitlist/blueprints/settings/bans.py:193
+#: waitlist/blueprints/settings/bans.py:302
 #, python-format
 msgid "Character/Corp/Alliance %(target)s does not exist!"
 msgstr "Charakter/Corporation/Alliance %(target)s existiert nicht!"
 
-#: waitlist/blueprints/settings/bans.py:136
+#: waitlist/blueprints/settings/bans.py:142
 #, python-format
 msgid "Could not find Character %(name)s"
 msgstr "Charakter %(name)s konnte nicht gefunden werden"
 
-#: waitlist/blueprints/settings/bans.py:256
+#: waitlist/blueprints/settings/bans.py:273
 #, python-format
 msgid "Could not find Character %(wl_name)s for whitelisting"
 msgstr "Konnte Charakter %(wl_name)s für Ausnahme nicht finden"
@@ -1739,7 +1761,7 @@ msgstr[1] ""
 "Du hast %(num)d Ausrüstungen zur Überprüfung durch einen Flotten-Verwalter "
 "gesendet, bevor du auf die Warteliste gesetzt wirst."
 
-#: waitlist/utility/flask/__init__.py:72
+#: waitlist/utility/flask/__init__.py:74
 #, python-format
 msgid ""
 "Your set current character %(eve_name)s was unset because the provided token "
