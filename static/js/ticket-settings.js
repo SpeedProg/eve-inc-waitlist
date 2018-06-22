@@ -39,7 +39,7 @@ waitlist.ticketsettings = (function() {
 		var charID = ticketElement.getCharacterId();
 		var charName = ticketElement.getCharacterName();
 		title = $("<div>").text(title).html();
-		let message = $("<div>").text(message).html();
+		message = $("<div>").text(message).html();
 		openMailToCharacter(
 			charID,
 			$.i18n('wl-fbmail-topic'),
