@@ -141,24 +141,6 @@ def invite_to_fleet():
     return resp
 
 
-def dumpclean(obj):
-    if type(obj) == dict:
-        for k, v in list(obj.items()):
-            if hasattr(v, '__iter__'):
-                print(k)
-                dumpclean(v)
-            else:
-                print('%s : %s' % (k, v))
-    elif type(obj) == list:
-        for v in obj:
-            if hasattr(v, '__iter__'):
-                dumpclean(v)
-            else:
-                print(v)
-    else:
-        print(obj)
-
-
 @bp.route("/fleet/movetosafety/", methods=['POST'])
 @login_required
 @perm_fleet_manage.require(http_exception=401)

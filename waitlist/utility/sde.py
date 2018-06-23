@@ -149,7 +149,7 @@ def add_constellation_info(const_id: int, esi_client: EsiClient) -> Optional[Tup
     try:
         api: App = get_api()
         const_request = api.op['get_universe_constellations_constellation_id'](constellation_id=const_id)
-        print(f"Requesting Const {const_id}")
+
         const_resp = esi_client.request(const_request)
         if const_resp.status != 200:
             logger.error(f'Could not get constellation info for id={const_id} status={const_resp.status}')
@@ -161,7 +161,6 @@ def add_constellation_info(const_id: int, esi_client: EsiClient) -> Optional[Tup
         db.session.commit()
         return None
     except Exception as e:
-        print(e)
         return const_id, esi_client
 
 
@@ -193,7 +192,6 @@ def add_system_info(system_id: int, esi_client: EsiClient) -> Optional[Tuple[int
     try:
         api: App = get_api()
         system_request = api.op['get_universe_systems_system_id'](system_id=system_id)
-        print(f"Requesting System {system_id}")
         system_resp = esi_client.request(system_request)
         if system_resp.status != 200:
             logger.error(f'Could not get systen info for id={system_id} status={system_resp.status}')
@@ -205,7 +203,6 @@ def add_system_info(system_id: int, esi_client: EsiClient) -> Optional[Tuple[int
         db.session.commit()
         return None
     except Exception as e:
-        print(e)
         return system_id, esi_client
 
 
