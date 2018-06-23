@@ -85,16 +85,8 @@ def accounts():
                 db.session.add(acc)
 
                 # find out if there is a character like that in the database
-                character = db.session.query(
-                    Character).filter(Character.id == char_id).first()
-
-                if character is None:
-                    char_info: APICacheCharacterInfo = outgate.\
-                        character.get_info(char_id)
-
-                    character = Character()
-                    character.eve_name = char_info.characterName
-                    character.id = char_id
+                # or create it
+                character = get_character_by_id(char_id)
 
                 acc.characters.append(character)
 
@@ -295,14 +287,8 @@ def account_edit():
             else:
                 char_id = char_info.id
                 # find out if there is a character like that in the database
-                character = db.session.query(Character).filter(Character.id == char_id).first()
-
-                if character is None:
-                    # lets make sure we have the correct name (case)
-                    char_info: APICacheCharacterInfo = outgate.character.get_info(char_id)
-                    character = Character()
-                    character.eve_name = char_info.characterName
-                    character.id = char_id
+                # or create it
+                character = get_character_by_id(char_id)
 
                 # check if character is linked to this account
                 link = db.session.query(linked_chars) \
@@ -347,16 +333,8 @@ def account_self_edit():
             else:
                 char_id = char_info.id
                 # find out if there is a character like that in the database
-                character = db.session.query(Character).filter(
-                    Character.id == char_id).first()
-
-                if character is None:
-                    # lets make sure we have the correct name (case)
-                    char_info: APICacheCharacterInfo = outgate.\
-                        character.get_info(char_id)
-                    character = Character()
-                    character.eve_name = char_info.characterName
-                    character.id = char_id
+                # or create one
+                character = get_character_by_id(char_id)
 
                 # check if character is linked to this account
                 link = db.session.query(linked_chars) \
@@ -514,30 +492,22 @@ def alt_verification_handler(code: str) -> None:
                 return redirect(url_for('accounts.account_self'), code=303)
 
         # we need to add the char
-        # try if he is already in db
-        character = db.session.query(Character).filter(Character.id == char_id).first()
+        # try if he is already in db or create him
+        try:
+            character = get_character_by_id(char_id)
+        except ApiException:
+            flask.abort(500, gettext("There was an error contacting the API for character info character id = %(char_id)d.",
+                                     char_id=char_id))
 
-        if character is None:
-            # lets make sure we have the correct name (case)
-            try:
-                char_info: APICacheCharacterInfo = outgate.character.get_info(char_id)
-                character = Character()
-                character.eve_name = char_info.characterName
-                character.id = char_id
-                character.owner_hash = owner_hash
-            except ApiException:
-                flask.abort(500, gettext("There was an error contacting the API for character info character id = %(char_id)d.",
-                                         char_id=char_id))
-        else:
-            if character.owner_hash is None or character.owner_hash == '':
-                # first time accessing this character
-                logger.info("Setting owner_hash for %s the first time", character)
-                character.owner_hash = owner_hash
+        if character.owner_hash is None or character.owner_hash == '':
+            # first time accessing this character
+            logger.info("Setting owner_hash for %s the first time", character)
+            character.owner_hash = owner_hash
 
-            if character.owner_hash != owner_hash:
-                character.owner_hash = owner_hash
-                invalidate_all_sessions_for_given_user(character)
-                logger.info("Setting new owner_hash for %s, invalidating all existing sessions", character)
+        if character.owner_hash != owner_hash:
+            character.owner_hash = owner_hash
+            invalidate_all_sessions_for_given_user(character)
+            logger.info("Setting new owner_hash for %s, invalidating all existing sessions", character)
 
         # delete any existing links (to other accounts)
         db.session.query(linked_chars) \
