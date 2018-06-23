@@ -134,8 +134,7 @@ app.config['SWAGGER'] = {
             'route': '/spec/v1/swagger.json',
             # rule_filter is optional
             # it is a callable to filter the views to extract
-            'rule_filter': lambda rule: (print(rule.endpoint) or
-                                         '_v1' in rule.endpoint),
+            'rule_filter': lambda rule: ('_v1' in rule.endpoint),
             # definition_filter is optional
             # it is a callable to filter the definition models to include
             'definition_filter': lambda definition: (
@@ -153,12 +152,10 @@ template = {
 
 swag = Swagger(app, template=template)
 
-app.config['LANGUAGES'] = ['en', 'de']#
+app.config['LANGUAGES'] = ['en', 'de']
 app.config['BABEL_TRANSLATION_DIRECTORIES'] = '../translations'
 
 babel = Babel(app)
-
-print(babel.list_translations())
 
 
 @babel.localeselector
