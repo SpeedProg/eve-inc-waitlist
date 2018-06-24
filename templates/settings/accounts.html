@@ -16,7 +16,7 @@
 <meta name="can-change-links" content="{{perm_manager.get_permission('change_character_links').can()}}">
 {{ super() }}
 
-{% assets filters="cssmin", output="gen/fileinput.%(version)s.css", "css/fileinput.css" %}
+{% assets filters="csscomp", output="gen/fileinput.%(version)s.css", "css/fileinput.css" %}
 <link rel="stylesheet" href="{{ ASSET_URL }}">
 {% endassets %}
 

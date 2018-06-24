@@ -6,7 +6,7 @@
 
 {% block head %}
 {{ super() }}
-{% assets filters="cssmin", output="gen/fileinput.%(version)s.css", "css/fileinput.css" %}
+{% assets filters="csscomp", output="gen/fileinput.%(version)s.css", "css/fileinput.css" %}
 <link rel="stylesheet" href="{{ ASSET_URL }}">
 {% endassets %}
 
@@ -70,7 +70,8 @@
 	</div>
 	<button type="submit" class="btn btn-primary">{{ _('Update Layouts') }}</button>
 </form>
-	<p>{{ _('This cvs file, needs to be data separated by tabs. and the first line need to contain the following separated by tabs instead of a space and comma:'+
+	<p>{{ _('This cvs file, needs to be data separated by tabs. and the first '
+	'line needs to contain the following separated by tabs instead of a space and comma: '
 	'Constellation, Headquarter System, Dockup') }}
 	</p>
 </div>

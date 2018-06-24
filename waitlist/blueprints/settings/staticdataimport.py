@@ -16,6 +16,7 @@ from waitlist import app
 from waitlist.permissions import perm_manager
 from waitlist.utility import sde
 from flask_babel import gettext, lazy_gettext
+from waitlist.utility.outgate.exceptions import ApiException
 
 bp = Blueprint('sde', __name__)
 logger = logging.getLogger(__name__)
@@ -32,16 +33,11 @@ perm_developer = perm_manager.get_permission('developer_tools')
 @login_required
 @perm_access.require(http_exception=401)
 def update_type_ids():
-    f = request.files['file']
-    if f and (f.filename.rsplit('.', 1)[1] == "bz2" or f.filename.rsplit('.', 1)[1] == "yaml"):
-        filename = secure_filename(f.filename)
-        dest_name = path.join(app.config['UPLOAD_FOLDER'], filename)
-        if path.isfile(dest_name):
-            os.remove(dest_name)
-        f.save(dest_name)
-        # start the update
-        sde.update_invtypes(dest_name)
+    try:
+        sde.update_invtypes()
         flash(gettext("Type IDs were updated!"), "success")
+    except ApiException as e:
+        flash(gettext('Could not execute action, ApiException %(ex)s', ex=e))
 
     return redirect(url_for('.sde_settings'))
 

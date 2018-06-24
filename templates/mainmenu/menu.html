@@ -1,0 +1,5 @@
+<ul class="navbar-nav justify-content-start mr-auto">
+{% for item in mainmenuitems %}
+	{{ item.render()|safe }}
+{% endfor %}
+</ul>

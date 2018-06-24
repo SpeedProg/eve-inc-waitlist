@@ -71,7 +71,7 @@ class ESIResponse(object):
         return f'<ESIResponse  code={self.code()} error={self.error()} expires={self.expires()}>'
 
 
-def make_error_response(resp: Any) -> ESIResponse:
+def get_error_msg_from_response(resp: Any) -> str:
     if resp.status == 520:  # monolith error
         if resp.data is None:
             data = json.loads(resp.raw.decode("utf-8"))
@@ -85,6 +85,12 @@ def make_error_response(resp: Any) -> ESIResponse:
     else:
         msg = resp.data['error'] if resp.data is not None and 'error' in resp.data else 'No error data send'
         logger.error('ESI responded with status %s and msg %s', resp.status, msg)
+
+    return msg
+
+
+def make_error_response(resp: Any) -> ESIResponse:
+    msg: str = get_error_msg_from_response(resp)
     return ESIResponse(get_expire_time(resp), resp.status, msg)
 
 

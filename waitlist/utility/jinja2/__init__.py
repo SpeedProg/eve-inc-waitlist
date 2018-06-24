@@ -11,6 +11,7 @@ from waitlist.utility import config
 from waitlist.utility.config import cdn_eveimg, cdn_eveimg_webp, cdn_eveimg_js
 from waitlist.utility.settings import sget_insert
 from waitlist.utility.i18n.locale import get_locale, get_langcode_from_locale
+from waitlist.utility.mainmenu.hooks import main_menu_items
 
 
 def eve_image(browser_webp: bool) -> Callable[[str, str], str]:
@@ -51,3 +52,8 @@ def inject_data() -> Dict[str, Any]:
                 title=config.title, config=config,
                 lang_code=get_langcode_from_locale(get_locale(app))
                 )
+
+
+@app.context_processor
+def menu_inject() -> Dict[str, Any]:
+    return {'mainmenuitems': main_menu_items}
