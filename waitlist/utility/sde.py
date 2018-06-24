@@ -16,68 +16,25 @@ import csv
 
 from waitlist.utility.swagger import get_api
 from waitlist.utility.swagger.eve import get_esi_client
+from waitlist.utility.outgate.universe.names import get_names_for_ids
 
 logger = logging.getLogger(__name__)
 
 
-def update_invtypes(filepath: str):
-    # this might be better off writing a specific parser for performance, yaml is really slow
-    inv_type = None
-    att_name = None
-    subatt_name = None
-    mapping_count = 0
-    filename = filepath
+def update_invtypes():
+    """
+    :throws ApiException is thrown if an error exists
+    """
+    invtypes = db.session.query(InvType).all()
+    invtype_ids = [inv.typeID for inv in invtypes]
 
-    if not path.isfile(filename):
-        return
+    data = get_names_for_ids(invtype_ids)
 
-    if filename.rsplit('.', 1)[1] == "yaml":
-        f = open(filename, 'rb')
-    elif filename.rsplit('.', 1)[1] == "bz2":
-        f = BZ2File(filename)
-    else:
-        return
+    for inv in invtypes:
+        if inv.typeID in data:
+            if inv.typeName != data[inv.typeID]:
+                inv.typeName = data[inv.typeID]
 
-    for ev in yaml.parse(f):
-        if isinstance(ev, MappingStartEvent):
-            mapping_count += 1
-        elif isinstance(ev, ScalarEvent):
-            if mapping_count == 1:
-                inv_type = InvType()
-                inv_type.typeID = int(ev.value)
-            if mapping_count == 2:
-                if att_name is None:
-                    att_name = ev.value
-                else:
-                    if att_name == "groupID":
-                        inv_type.groupID = int(ev.value)
-                    elif att_name == "marketGroupID":
-                        inv_type.marketGroupID = int(ev.value)
-
-                    att_name = None
-            if mapping_count == 3:
-                # when it gets where att_name should be the value of the upper thing
-                # should probably just put stuff into a list
-                if subatt_name is None:
-                    subatt_name = ev.value
-                else:  # we have the value
-                    if att_name == 'name' and subatt_name == 'en':
-                        inv_type.typeName = ev.value
-                    elif att_name == 'description' and subatt_name == 'en':
-                        inv_type.description = ev.value
-                    
-                    subatt_name = None
-        elif isinstance(ev, MappingEndEvent):
-            if mapping_count == 3:
-                att_name = None
-                subatt_name = None
-            elif mapping_count == 2:
-                att_name = None
-                db.session.merge(inv_type)
-
-            mapping_count -= 1
-    
-    f.close()
     db.session.commit()
     db.session.close()
 

@@ -4,13 +4,13 @@ from flask_assets import Environment
 
 def register_asset_bundles(assets: Environment):
     themes_dark = Bundle('css/themes/dark.css',
-                         filters='cssmin',
+                         filters='csscomp',
                          output='gen/themes/dark.%(version)s.css')
     themes_darkpurple = Bundle('css/themes/dark_purple.css',
-                               filters='cssmin',
+                               filters='csscomp',
                                output='gen/themes/dark_purple.%(version)s.css')
     themes_default = Bundle('css/themes/default.css',
-                            filters='cssmin',
+                            filters='csscomp',
                             output='gen/themes/default.%(version)s.css')
 
     i18n_de = Bundle('local/de.json', filters="jsonmin",

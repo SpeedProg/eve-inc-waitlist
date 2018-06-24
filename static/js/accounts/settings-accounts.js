@@ -107,7 +107,7 @@ waitlist.accounts = (function() {
 		let roles_node = document.getElementById('acc-'+accountId+'-roles');
 		let has_new_tag = (roles_node.childNodes.length > 0 && roles_node.childNodes[0].nodeName === "SPAN");
 		let roles = roles_node.textContent;
-		
+		roles = roles.replace(/[\t\n\r]/g, ''); // clean up tabs and newlines
 		// if it has a new tag remove the "New" from the beginning
 		if (has_new_tag){
 			roles = roles.slice(3)

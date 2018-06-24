@@ -113,7 +113,7 @@ def bans_change():
                         db.session.query(Ban).filter(Ban.id == eve_id).delete()
                         db.session.commit()
     except ApiException as e:
-        flash(gettext("Could not execute action, ApiException %(ex)s", e),
+        flash(gettext("Could not execute action, ApiException %(ex)s", ex=e),
               'danger')
 
     return redirect(url_for(".bans"))
@@ -174,7 +174,7 @@ def bans_change_single():
                     db.session.query(Ban).filter(Ban.id == eve_id).delete()
                     db.session.commit()
     except ApiException as e:
-        flash(gettext("Could not execute action, ApiException %(ex)s", e),
+        flash(gettext("Could not execute action, ApiException %(ex)s", ex=e),
               'danger')
 
     return redirect(url_for(".bans"))
@@ -198,7 +198,7 @@ def bans_unban_single():
                 db.session.query(Ban).filter(Ban.id == eve_id).delete()
                 db.session.commit()
     except ApiException as e:
-        flash(gettext("Could not execute action, ApiException %(ex)s", e),
+        flash(gettext("Could not execute action, ApiException %(ex)s", ex=e),
               'danger')
 
     return redirect(url_for(".bans"))
@@ -243,7 +243,7 @@ def whitelist_change():
             for target in targets:
                 unwhitelist_by_name(target)
     except ApiException as e:
-        flash(gettext("Could not execute action, ApiException %(ex)s", e),
+        flash(gettext("Could not execute action, ApiException %(ex)s", ex=e),
               'danger')
 
     return redirect(url_for(".whitelist"))
@@ -325,7 +325,7 @@ def whitelist_change_single():
         elif action == "unwhitelist":
             unwhitelist_by_name(target)
     except ApiException as e:
-        flash(gettext("Could not execute action, ApiException %(ex)s", e),
+        flash(gettext("Could not execute action, ApiException %(ex)s", ex=e),
               'danger')
 
     return redirect(url_for(".withelist"))
@@ -340,7 +340,7 @@ def whitelist_unlist():
     try:
         unwhitelist_by_name(target)
     except ApiException as e:
-        flash(gettext("Could not execute action, ApiException %(ex)s", e),
+        flash(gettext("Could not execute action, ApiException %(ex)s", ex=e),
               'danger')
 
     return redirect(url_for(".whitelist"))

@@ -101,7 +101,7 @@ def accounts():
                 send_alt_link_added(accounts, current_user.id, acc.id,
                                     character.id)
         except ApiException as e:
-            flash(gettext("Could not execute action, ApiException %(ex)s", e),
+            flash(gettext("Could not execute action, ApiException %(ex)s", ex=e),
                   'danger')
 
     clean_alt_list()
@@ -300,7 +300,7 @@ def account_edit():
                 db.session.flush()
                 acc.current_char = char_id
         except ApiException as e:
-            flash(gettext("Could not execute action, ApiException %(ex)s", e),
+            flash(gettext("Could not execute action, ApiException %(ex)s", ex=e),
                   'danger')
 
     db.session.commit()
@@ -390,7 +390,7 @@ def account_self_edit():
 
                     acc.current_char = char_id
         except ApiException as e:
-            flash(gettext("Could not execute action, ApiException %(ex)s", e),
+            flash(gettext("Could not execute action, ApiException %(ex)s", ex=e),
                   'danger')
 
     db.session.commit()

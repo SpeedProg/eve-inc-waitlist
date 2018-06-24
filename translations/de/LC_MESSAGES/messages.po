@@ -3,11 +3,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2018-06-23 01:07+0200\n"
+"POT-Creation-Date: 2018-06-24 14:14+0200\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2018-06-22 11:11+0000\n"
+"PO-Revision-Date: 2018-06-24 12:31+0000\n"
 "Last-Translator: Constantin Wenger <constantin.wenger@googlemail.com>\n"
 "Language-Team: German\n"
 "Language: de\n"
@@ -43,45 +43,40 @@ msgstr ""
 "<a href=\"http://caniuse.com/#feat=eventsource\">deinen Browser zu wechseln</"
 "a>"
 
-#: templates/base.html:67
+#: templates/base.html:68
 msgid "Toggle navigation"
 msgstr "Ein-/Ausblende Navigation"
 
-#: templates/base.html:73 templates/waitlist/tools/history_search.html:50
-#: templates/xup.html:3
-msgid "X-UP"
-msgstr "X-UP"
-
-#: templates/base.html:77 templates/waitlist/tools/commandcore_list.html:3
+#: templates/base.html:80 templates/waitlist/tools/commandcore_list.html:3
 #: templates/waitlist/tools/history_search.html:2
 msgid "Tools"
 msgstr "Werkzeuge"
 
-#: templates/base.html:79
+#: templates/base.html:82
 msgid "Custom Notifications"
 msgstr "Benutzerdefinierte Benachrichtigungen"
 
-#: templates/base.html:83 templates/fleet/reform/index.html:2
+#: templates/base.html:86 templates/fleet/reform/index.html:2
 msgid "Reform"
 msgstr "Wiedereinladen"
 
-#: templates/base.html:86
+#: templates/base.html:89
 msgid "Comp History"
 msgstr "Verwaltungsverlauf"
 
-#: templates/base.html:88
+#: templates/base.html:91
 msgid "Command Core List"
 msgstr "Kommandomitglieder Liste"
 
-#: templates/base.html:91
+#: templates/base.html:94
 msgid "Comp History Search"
 msgstr "Verwaltungsverlaufs Suche"
 
-#: templates/base.html:97
+#: templates/base.html:100
 msgid "Help"
 msgstr "Hilfe"
 
-#: templates/base.html:116 templates/calendar/settings.html:3
+#: templates/base.html:119 templates/calendar/settings.html:3
 #: templates/feedback/settings.html:3 templates/settings/accounts.html:3
 #: templates/settings/bans.html:3 templates/settings/base.html:3
 #: templates/settings/ccvotes.html:3 templates/settings/fleet.html:3
@@ -91,15 +86,15 @@ msgstr "Hilfe"
 msgid "Settings"
 msgstr "Einstellungen"
 
-#: templates/base.html:118 templates/logout.html:2
+#: templates/base.html:121 templates/logout.html:2
 msgid "Logout"
 msgstr "Abmelden"
 
-#: templates/base.html:119
+#: templates/base.html:122
 msgid "About"
 msgstr "Über"
 
-#: templates/base.html:151
+#: templates/base.html:154
 msgid "ISK Donations are appreciated"
 msgstr "ISK Spenden werden geschätzt"
 
@@ -459,6 +454,11 @@ msgstr "Kein Support"
 msgid "Enter On Waitlist"
 msgstr "Einschreiben"
 
+#: templates/waitlist/tools/history_search.html:50 templates/xup.html:3
+#: waitlist/blueprints/xup/menu.py:9
+msgid "X-UP"
+msgstr "X-UP"
+
 #: templates/xup.html:16
 msgid "X-UP is currently closed!"
 msgstr "Einschreibung ist momentan geschlossen!"
@@ -638,15 +638,14 @@ msgstr "Flotte"
 #: templates/fleet/reform/index.html:13
 msgid ""
 "<p>You can just copy and paste the ingame fleet channel member list into the "
-"field below.\n"
-"Then press Send Invites to start sending out the invites.\n"
-"People that are still in the old fleet will not get an invite of course.</p>\n"
-"<p>This will not trigger, notifications or pokes.</p>"
+"field below. Then press Send Invites to start sending out the invites. "
+"People that are still in the old fleet will not get an invite of course.</"
+"p><p>This will not trigger, notifications or pokes.</p>"
 msgstr ""
 "<p>Du kann die Flottenmitgliederliste aus dem Spiel in das Feld kopieren. "
 "Danach drücke Einladung Senden um die Charaktere in die Flotte einzuladen. "
-"Leute in der alten Flotte werden keine Einladung sehen können</p>\n"
-"<p>Dies sendet keine Benachrichtigungen oder Anstupser.</p>"
+"Leute in der alten Flotte werden keine Einladung sehen können</p><p>Dies "
+"sendet keine Benachrichtigungen oder Anstupser.</p>"
 
 #: templates/fleet/reform/index.html:20
 msgid "Start Invites"
@@ -783,7 +782,7 @@ msgstr "Aktiviert"
 
 #: templates/settings/accounts.html:3
 #: templates/waitlist/tools/history_search.html:40
-#: waitlist/blueprints/settings/accounts.py:458
+#: waitlist/blueprints/settings/accounts.py:436
 msgid "Accounts"
 msgstr "Konten"
 
@@ -1117,7 +1116,7 @@ msgid "Save"
 msgstr "Speichern"
 
 #: templates/settings/sde.html:3
-#: waitlist/blueprints/settings/staticdataimport.py:103
+#: waitlist/blueprints/settings/staticdataimport.py:99
 msgid "Static Data Import"
 msgstr "Einlesen Statischer Daten"
 
@@ -1142,6 +1141,16 @@ msgstr "Erneuere Stationen"
 #: templates/settings/sde.html:71
 msgid "Update Layouts"
 msgstr "Erneuere Zuweisungen"
+
+#: templates/settings/sde.html:73
+msgid ""
+"This cvs file, needs to be data separated by tabs. and the first line needs "
+"to contain the following separated by tabs instead of a space and comma: "
+"Constellation, Headquarter System, Dockup"
+msgstr ""
+"Diese CVS-Datei muss Tabs zwischen den Spalten haben und die erste Zeile "
+"muss Folgendes enthalten, mit Tabs anstatt dem Komma und Leerzeichen: "
+"Constellation, Headquarter System, Dockup"
 
 #: templates/settings/self.html:80
 msgid "Apply"
@@ -1357,16 +1366,14 @@ msgstr "Hier kannst du für deine bevorzugtes Kommandomitglied stimmen."
 #: templates/waitlist/ccvote.html:14
 msgid ""
 "You have 1 vote per type (FC/LM) per eveday. (means you get an other one "
-"after downtime)<br>\n"
-"So select your favorite FC and LM below.(If some one is FC and LM you can "
-"select them twice)<br>\n"
-"The voted FC/LM will get a price."
+"after downtime)<br>So select your favorite FC and LM below.(If some one is "
+"FC and LM you can select them twice)<br>The voted FC/LM will get a price."
 msgstr ""
 "Dir steht pro Tag eine Stimme per Kommandertyp zur Verfügung (FC/LM). (Nach "
 "dem Serverneustart steht dir eine weitere zur Verfügung)<br>Wähle deinen "
 "beliebtesten FC und LM hier. (Wenn jemand FC und LM ist kannst du ihn bei "
-"beidem wählen)<br>\n"
-"Der FC und LM mit den meisten Stimmen wird einen Preis gewinnen!"
+"beidem wählen)<br>Der FC und LM mit den meisten Stimmen wird einen Preis "
+"gewinnen!"
 
 #: templates/waitlist/ccvote.html:19
 msgid ""
@@ -1516,31 +1523,32 @@ msgstr "Du bist nicht der Befehlsgeber der Flotte in der du dich befindest."
 msgid "A Character named %(char_name)s does not exist!"
 msgstr "Es gibt keine Charakter mit dem Namen %(char_name)s!"
 
-#: waitlist/blueprints/settings/accounts.py:112
-#: waitlist/blueprints/settings/accounts.py:317
-#: waitlist/blueprints/settings/accounts.py:415
+#: waitlist/blueprints/settings/accounts.py:104
+#: waitlist/blueprints/settings/accounts.py:303
+#: waitlist/blueprints/settings/accounts.py:393
 #: waitlist/blueprints/settings/bans.py:116
 #: waitlist/blueprints/settings/bans.py:177
 #: waitlist/blueprints/settings/bans.py:201
 #: waitlist/blueprints/settings/bans.py:246
 #: waitlist/blueprints/settings/bans.py:328
 #: waitlist/blueprints/settings/bans.py:343
+#: waitlist/blueprints/settings/staticdataimport.py:40
 #, python-format
 msgid "Could not execute action, ApiException %(ex)s"
 msgstr "Die Aktion konnte nicht durchgeführt werden, ApiException %(ex)s"
 
-#: waitlist/blueprints/settings/accounts.py:294
-#: waitlist/blueprints/settings/accounts.py:344
+#: waitlist/blueprints/settings/accounts.py:286
+#: waitlist/blueprints/settings/accounts.py:330
 #, python-format
 msgid "Character with name %(char_name)s could not be found!"
 msgstr ""
 "Ein Charakter mit dem Namen $(char_name)s konnte nicht gefunden werden!"
 
-#: waitlist/blueprints/settings/accounts.py:459
+#: waitlist/blueprints/settings/accounts.py:437
 msgid "Own Settings"
 msgstr "Eigene Einstellungen"
 
-#: waitlist/blueprints/settings/accounts.py:529
+#: waitlist/blueprints/settings/accounts.py:499
 #, python-format
 msgid ""
 "There was an error contacting the API for character info character id = "
@@ -1549,7 +1557,7 @@ msgstr ""
 "Währen der Verbindung zur API um Charakter id=%(char_id)d Informationen "
 "abzurufen trat ein Fehler auf."
 
-#: waitlist/blueprints/settings/accounts.py:557
+#: waitlist/blueprints/settings/accounts.py:527
 #, python-format
 msgid "Alt %(char_name)s was added"
 msgstr "Alternativer Charakter %(char_name)s wurde hinzugefügt"
@@ -1725,23 +1733,23 @@ msgstr "Anderen Nachricht wurde gespeichert!"
 msgid "IG Mail Settings"
 msgstr "Spiele Mail Einstellungen"
 
-#: waitlist/blueprints/settings/staticdataimport.py:44
+#: waitlist/blueprints/settings/staticdataimport.py:38
 msgid "Type IDs were updated!"
 msgstr "Typen IDs wurde geupdatet!"
 
-#: waitlist/blueprints/settings/staticdataimport.py:54
+#: waitlist/blueprints/settings/staticdataimport.py:50
 msgid "Constellations where updated!"
 msgstr "Konstellationen wurde geupdatet!"
 
-#: waitlist/blueprints/settings/staticdataimport.py:56
+#: waitlist/blueprints/settings/staticdataimport.py:52
 msgid "Systems were updated!"
 msgstr "Systeme wurden geupdatet!"
 
-#: waitlist/blueprints/settings/staticdataimport.py:73
+#: waitlist/blueprints/settings/staticdataimport.py:69
 msgid "Stations were updated!"
 msgstr "Stationen wurde geupdatet!"
 
-#: waitlist/blueprints/settings/staticdataimport.py:91
+#: waitlist/blueprints/settings/staticdataimport.py:87
 msgid "Layouts were updated!"
 msgstr "Aufbaudaten wurden geupdatet!"
 
