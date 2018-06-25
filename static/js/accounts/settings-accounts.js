@@ -118,11 +118,12 @@ waitlist.accounts = (function() {
 		// this is more complicated
 		// $('#acc-edit-roles')
 		roles = roles.split(", ");
+		roles = roles.map(x => x.trim())
 		// map the roles he has to a dict so we can fast and easy check for them
 		// later
 		let has_roles = {};
-		for (let role in roles) {
-			has_roles[roles[role]] = true;
+		for (let idx in roles) {
+			has_roles[roles[idx]] = true;
 		}
 
 		let edit_roles_select = document.getElementById('acc-edit-roles');
