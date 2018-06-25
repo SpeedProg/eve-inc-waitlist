@@ -1,0 +1,14 @@
+<li class="nav-item dropdown {{ menu.classes }}">
+	<{{ menu.nodetag }} class="dropdown-toggle {{ menu.triggerclasses }}" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
+	{% if customhtml %}
+		{{ customhtml|safe }}
+	{% else %}
+		{% if menu.iconclass %}<i class="{{ menu.iconclass }}"></i> {% endif %}{{ menu.title }}
+	{% endif %}
+	</{{ menu.nodetag }}>
+	<div class="dropdown-menu {{ menu.dropclasses }}">
+		{% for subitem in menu.items %}
+		{{ subitem.render()|safe }}
+		{% endfor %}
+	</div>
+</li>
