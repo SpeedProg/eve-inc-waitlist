@@ -83,7 +83,7 @@ def get_error_msg_from_response(resp: Any) -> str:
 
         logger.debug('ESI responded with status Monolith 520 and msg %s', msg)
     else:
-        msg = resp.data['error'] if resp.data is not None and 'error' in resp.data else 'No error data send'
+        msg = resp.data['error'] if resp.data is not None and 'error' in resp.data else 'No error data send.  data='+json.dumps(resp.data)
         logger.error('ESI responded with status %s and msg %s', resp.status, msg)
 
     return msg
