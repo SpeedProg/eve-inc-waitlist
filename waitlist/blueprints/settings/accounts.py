@@ -35,6 +35,7 @@ import time
 from gevent.threading import Lock
 from flask_babel import gettext, lazy_gettext
 from waitlist.utility.outgate.exceptions import ApiException
+from sqlalchemy.exc import InvalidRequestError
 
 bp = Blueprint('accounts', __name__)
 logger = logging.getLogger(__name__)
@@ -171,8 +172,11 @@ def check_tokens_for_account(acc: Account) -> None:
 
             # the auth token is not valid AND we have a token
             # remove the invalid toekn
-            db.session.delete(token)
-            logger.debug("Deleted invalid token for %s on %s", char, acc)
+            try:
+                db.session.delete(token)
+                logger.debug("Deleted invalid token for %s on %s", char, acc)
+            except InvalidRequestError:
+                logger.debug('Failed to delete token %s', exc_info=True)
     except Exception:
         logger.exception("Failed while cleaning tokens for account %s", acc)
     finally:
