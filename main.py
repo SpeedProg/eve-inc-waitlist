@@ -1,8 +1,43 @@
 import gevent_patch_helper
 import logging
-from werkzeug.contrib.fixers import ProxyFix
 from logging.handlers import TimedRotatingFileHandler
+from waitlist.utility import config
+
+# setup logging
+class LogDedicatedLevelFilter(object):
+    def __init__(self, level):
+        self.__level = level
+
+    def filter(self, log_record):
+        return log_record.levelno == self.__level
+
+
+err_fh = TimedRotatingFileHandler(filename=config.error_log, when="midnight", interval=1, utc=True)
+info_fh = TimedRotatingFileHandler(filename=config.info_log, when="midnight", interval=1, utc=True)
+debug_fh = TimedRotatingFileHandler(filename=config.debug_log, when="midnight", interval=1, utc=True)
+
+formatter = logging\
+    .Formatter('%(asctime)s - %(name)s - %(levelname)s - %(funcName)s - %(lineno)d - %(message)s')
+err_fh.setFormatter(formatter)
+info_fh.setFormatter(formatter)
+debug_fh.setFormatter(formatter)
+
+info_fh.setLevel(logging.INFO)
+err_fh.setLevel(logging.ERROR)
+debug_fh.setLevel(logging.DEBUG)
+
+info_fh.addFilter(LogDedicatedLevelFilter(logging.INFO))
+debug_fh.addFilter(LogDedicatedLevelFilter(logging.DEBUG))
+
+waitlistlogger = logging.getLogger('waitlist')
+waitlistlogger.addHandler(err_fh)
+waitlistlogger.addHandler(info_fh)
+waitlistlogger.addHandler(debug_fh)
+waitlistlogger.setLevel(logging.INFO)
+
+from werkzeug.contrib.fixers import ProxyFix
 from gevent.pywsgi import WSGIServer
+
 from waitlist.blueprints.fittings import bp_waitlist
 from waitlist.blueprints.fc_sso import bp as fc_sso_bp
 from waitlist.blueprints.fleet import bp as fleet_bp
@@ -44,7 +79,6 @@ from waitlist.utility.flask import *
 
 # load base app routes
 from waitlist.blueprints import *
-
 
 app.register_blueprint(bp_waitlist)
 app.register_blueprint(feedback.feedback, url_prefix="/feedback")
@@ -91,18 +125,6 @@ app.register_blueprint(notification.bp, url_prefix="/notification")
 
 logger = logging.getLogger(__name__)
 
-err_fh = None
-info_fh = None
-debug_fh = None
-
-
-class LogDedicatedLevelFilter(object):
-    def __init__(self, level):
-        self.__level = level
-
-    def filter(self, log_record):
-        return log_record.levelno == self.__level
-
 
 def run_server():
     wsgi_logger = logging.getLogger("gevent.pywsgi.WSGIServer")
@@ -111,39 +133,17 @@ def run_server():
     wsgi_logger.addHandler(debug_fh)
     wsgi_logger.setLevel(logging.WARN)
     app.wsgi_app = ProxyFix(app.wsgi_app)
-    server = WSGIServer((config.server_bind, config.server_port), app, log=wsgi_logger, error_log=wsgi_logger)
+    server = WSGIServer((config.server_bind, config.server_port), app,
+                        log=wsgi_logger, error_log=wsgi_logger)
     server.serve_forever()
 
 
 if __name__ == '__main__':
-    err_fh = TimedRotatingFileHandler(filename=config.error_log, when="midnight", interval=1, utc=True)
-    info_fh = TimedRotatingFileHandler(filename=config.info_log, when="midnight", interval=1, utc=True)
-    debug_fh = TimedRotatingFileHandler(filename=config.debug_log, when="midnight", interval=1, utc=True)
-
-    formatter = logging\
-        .Formatter('%(asctime)s - %(name)s - %(levelname)s - %(pathname)s - %(funcName)s - %(lineno)d - %(message)s')
-    err_fh.setFormatter(formatter)
-    info_fh.setFormatter(formatter)
-    debug_fh.setFormatter(formatter)
-
-    info_fh.setLevel(logging.INFO)
-    err_fh.setLevel(logging.ERROR)
-    debug_fh.setLevel(logging.DEBUG)
-
-    info_fh.addFilter(LogDedicatedLevelFilter(logging.INFO))
-    debug_fh.addFilter(LogDedicatedLevelFilter(logging.DEBUG))
-
-    waitlistlogger = logging.getLogger("waitlist")
-    waitlistlogger.addHandler(err_fh)
-    waitlistlogger.addHandler(info_fh)
-    waitlistlogger.addHandler(debug_fh)
-    waitlistlogger.setLevel(logging.INFO)
-
     app.logger.addHandler(err_fh)
     app.logger.addHandler(info_fh)
     app.logger.addHandler(debug_fh)
     app.logger.setLevel(logging.INFO)
-    
+
     # app.run(host="0.0.0.0", port=81, debug=True)
 
     # connect account signal handler
