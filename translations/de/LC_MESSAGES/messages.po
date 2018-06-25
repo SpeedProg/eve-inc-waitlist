@@ -3,11 +3,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2018-06-24 14:14+0200\n"
+"POT-Creation-Date: 2018-06-25 20:55+0200\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2018-06-24 12:31+0000\n"
+"PO-Revision-Date: 2018-06-25 06:57+0000\n"
 "Last-Translator: Constantin Wenger <constantin.wenger@googlemail.com>\n"
 "Language-Team: German\n"
 "Language: de\n"
@@ -43,58 +43,7 @@ msgstr ""
 "<a href=\"http://caniuse.com/#feat=eventsource\">deinen Browser zu wechseln</"
 "a>"
 
-#: templates/base.html:68
-msgid "Toggle navigation"
-msgstr "Ein-/Ausblende Navigation"
-
-#: templates/base.html:80 templates/waitlist/tools/commandcore_list.html:3
-#: templates/waitlist/tools/history_search.html:2
-msgid "Tools"
-msgstr "Werkzeuge"
-
-#: templates/base.html:82
-msgid "Custom Notifications"
-msgstr "Benutzerdefinierte Benachrichtigungen"
-
-#: templates/base.html:86 templates/fleet/reform/index.html:2
-msgid "Reform"
-msgstr "Wiedereinladen"
-
-#: templates/base.html:89
-msgid "Comp History"
-msgstr "Verwaltungsverlauf"
-
-#: templates/base.html:91
-msgid "Command Core List"
-msgstr "Kommandomitglieder Liste"
-
-#: templates/base.html:94
-msgid "Comp History Search"
-msgstr "Verwaltungsverlaufs Suche"
-
-#: templates/base.html:100
-msgid "Help"
-msgstr "Hilfe"
-
-#: templates/base.html:119 templates/calendar/settings.html:3
-#: templates/feedback/settings.html:3 templates/settings/accounts.html:3
-#: templates/settings/bans.html:3 templates/settings/base.html:3
-#: templates/settings/ccvotes.html:3 templates/settings/fleet.html:3
-#: templates/settings/mail/index.html:3
-#: templates/settings/permissions/config.html:3 templates/settings/sde.html:3
-#: templates/settings/ts.html:3 templates/settings/whitelist.html:3
-msgid "Settings"
-msgstr "Einstellungen"
-
-#: templates/base.html:121 templates/logout.html:2
-msgid "Logout"
-msgstr "Abmelden"
-
-#: templates/base.html:122
-msgid "About"
-msgstr "Über"
-
-#: templates/base.html:154
+#: templates/base.html:92
 msgid "ISK Donations are appreciated"
 msgstr "ISK Spenden werden geschätzt"
 
@@ -387,6 +336,10 @@ msgstr ""
 msgid "All Waitlists are closed!"
 msgstr "Alle Wartelisten sind geschlossen!"
 
+#: templates/logout.html:2 waitlist/utility/mainmenu/config_loader.py:183
+msgid "Logout"
+msgstr "Abmelden"
+
 #: templates/logout.html:7
 msgid "You are now logged out!"
 msgstr "Sie wurden abgemeldet!"
@@ -455,7 +408,7 @@ msgid "Enter On Waitlist"
 msgstr "Einschreiben"
 
 #: templates/waitlist/tools/history_search.html:50 templates/xup.html:3
-#: waitlist/blueprints/xup/menu.py:9
+#: waitlist/utility/mainmenu/config_loader.py:189
 msgid "X-UP"
 msgstr "X-UP"
 
@@ -529,6 +482,16 @@ msgstr ""
 #: templates/account/unauthed_characters_form.html:30
 msgid "Authenticate"
 msgstr "Bestätigen"
+
+#: templates/calendar/settings.html:3 templates/feedback/settings.html:3
+#: templates/settings/accounts.html:3 templates/settings/bans.html:3
+#: templates/settings/base.html:3 templates/settings/ccvotes.html:3
+#: templates/settings/fleet.html:3 templates/settings/mail/index.html:3
+#: templates/settings/permissions/config.html:3 templates/settings/sde.html:3
+#: templates/settings/ts.html:3 templates/settings/whitelist.html:3
+#: waitlist/utility/mainmenu/config_loader.py:188
+msgid "Settings"
+msgstr "Einstellungen"
 
 #: templates/calendar/settings.html:3
 msgid "Calendar"
@@ -635,6 +598,11 @@ msgstr "Schließe Ticket"
 msgid "Fleet"
 msgstr "Flotte"
 
+#: templates/fleet/reform/index.html:2
+#: waitlist/utility/mainmenu/config_loader.py:191
+msgid "Reform"
+msgstr "Wiedereinladen"
+
 #: templates/fleet/reform/index.html:13
 msgid ""
 "<p>You can just copy and paste the ingame fleet channel member list into the "
@@ -721,6 +689,10 @@ msgstr "Wartelistenart"
 msgid "Change Type"
 msgstr "Art ändern"
 
+#: templates/mainmenu/navbar.html:3
+msgid "Toggle navigation"
+msgstr "Ein-/Ausblende Navigation"
+
 #: templates/notifications/alarm.html:3
 msgid "Alarm"
 msgstr "Alarm"
@@ -782,7 +754,7 @@ msgstr "Aktiviert"
 
 #: templates/settings/accounts.html:3
 #: templates/waitlist/tools/history_search.html:40
-#: waitlist/blueprints/settings/accounts.py:436
+#: waitlist/blueprints/settings/accounts.py:440
 msgid "Accounts"
 msgstr "Konten"
 
@@ -1418,6 +1390,12 @@ msgid "Static History"
 msgstr "Statischer Verlauf"
 
 #: templates/waitlist/tools/commandcore_list.html:3
+#: templates/waitlist/tools/history_search.html:2
+#: waitlist/utility/mainmenu/config_loader.py:182
+msgid "Tools"
+msgstr "Werkzeuge"
+
+#: templates/waitlist/tools/commandcore_list.html:3
 msgid "CommandCore List"
 msgstr "Kommandomitglieds Liste"
 
@@ -1518,14 +1496,14 @@ msgstr ""
 msgid "You are not the boss of the fleet you are in."
 msgstr "Du bist nicht der Befehlsgeber der Flotte in der du dich befindest."
 
-#: waitlist/blueprints/settings/accounts.py:66
+#: waitlist/blueprints/settings/accounts.py:67
 #, python-format
 msgid "A Character named %(char_name)s does not exist!"
 msgstr "Es gibt keine Charakter mit dem Namen %(char_name)s!"
 
-#: waitlist/blueprints/settings/accounts.py:104
-#: waitlist/blueprints/settings/accounts.py:303
-#: waitlist/blueprints/settings/accounts.py:393
+#: waitlist/blueprints/settings/accounts.py:105
+#: waitlist/blueprints/settings/accounts.py:307
+#: waitlist/blueprints/settings/accounts.py:397
 #: waitlist/blueprints/settings/bans.py:116
 #: waitlist/blueprints/settings/bans.py:177
 #: waitlist/blueprints/settings/bans.py:201
@@ -1537,18 +1515,18 @@ msgstr "Es gibt keine Charakter mit dem Namen %(char_name)s!"
 msgid "Could not execute action, ApiException %(ex)s"
 msgstr "Die Aktion konnte nicht durchgeführt werden, ApiException %(ex)s"
 
-#: waitlist/blueprints/settings/accounts.py:286
-#: waitlist/blueprints/settings/accounts.py:330
+#: waitlist/blueprints/settings/accounts.py:290
+#: waitlist/blueprints/settings/accounts.py:334
 #, python-format
 msgid "Character with name %(char_name)s could not be found!"
 msgstr ""
 "Ein Charakter mit dem Namen $(char_name)s konnte nicht gefunden werden!"
 
-#: waitlist/blueprints/settings/accounts.py:437
+#: waitlist/blueprints/settings/accounts.py:441
 msgid "Own Settings"
 msgstr "Eigene Einstellungen"
 
-#: waitlist/blueprints/settings/accounts.py:499
+#: waitlist/blueprints/settings/accounts.py:503
 #, python-format
 msgid ""
 "There was an error contacting the API for character info character id = "
@@ -1557,7 +1535,7 @@ msgstr ""
 "Währen der Verbindung zur API um Charakter id=%(char_id)d Informationen "
 "abzurufen trat ein Fehler auf."
 
-#: waitlist/blueprints/settings/accounts.py:527
+#: waitlist/blueprints/settings/accounts.py:531
 #, python-format
 msgid "Alt %(char_name)s was added"
 msgstr "Alternativer Charakter %(char_name)s wurde hinzugefügt"
@@ -1774,8 +1752,9 @@ msgid "Valid entries are scruffy [dps|logi|sniper,..]"
 msgstr "Erlaubte Einträge sind: scruffy [dps|logi|sniper,..]"
 
 #: waitlist/blueprints/xup/submission.py:111
-msgid "You were added as %(ship_type)"
-msgstr "Du wurdest als %(ship_type) hinzgefügt"
+#, python-format
+msgid "You were added as %(ship_type)s"
+msgstr "Du wurdest als %(ship_type)s hinzugefügt"
 
 #: waitlist/blueprints/xup/submission.py:200
 #: waitlist/blueprints/xup/submission.py:357
@@ -1821,4 +1800,28 @@ msgstr ""
 "Dein Charakter %(eve_name)s ist mit mehr als einem Wartelisten-Konto "
 "verbunden, bitte kontaktieren einen Administrator. Bis dies behoben wurde, "
 "wirst du als Besucher angemeldet."
+
+#: waitlist/utility/mainmenu/config_loader.py:181
+msgid "Help"
+msgstr "Hilfe"
+
+#: waitlist/utility/mainmenu/config_loader.py:184
+msgid "About"
+msgstr "Über"
+
+#: waitlist/utility/mainmenu/config_loader.py:185
+msgid "Command Core List"
+msgstr "Kommandomitglieder Liste"
+
+#: waitlist/utility/mainmenu/config_loader.py:186
+msgid "Comp History Search"
+msgstr "Verwaltungsverlaufs Suche"
+
+#: waitlist/utility/mainmenu/config_loader.py:187
+msgid "Custom Notifications"
+msgstr "Benutzerdefinierte Benachrichtigungen"
+
+#: waitlist/utility/mainmenu/config_loader.py:190
+msgid "Comp History"
+msgstr "Verwaltungsverlauf"
 
