@@ -108,7 +108,7 @@ def submit():
                 event = FitAddedSSE(group_id, queue.id, wl_entry.id, fit, True, wl_entry.user)
                 send_server_sent_event(event)
 
-        flash(gettext("You were added as %(ship_type)", ship_type=ship_type),
+        flash(gettext("You were added as %(ship_type)s", ship_type=ship_type),
               "success")
         return redirect(url_for('index') + "?groupId=" + str(group_id))
     # ### END SCRUFFY CODE
