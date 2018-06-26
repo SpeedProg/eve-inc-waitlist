@@ -3,11 +3,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2018-06-25 20:55+0200\n"
+"POT-Creation-Date: 2018-06-26 13:52+0200\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2018-06-25 06:57+0000\n"
+"PO-Revision-Date: 2018-06-26 11:55+0000\n"
 "Last-Translator: Constantin Wenger <constantin.wenger@googlemail.com>\n"
 "Language-Team: German\n"
 "Language: de\n"
@@ -336,7 +336,7 @@ msgstr ""
 msgid "All Waitlists are closed!"
 msgstr "Alle Wartelisten sind geschlossen!"
 
-#: templates/logout.html:2 waitlist/utility/mainmenu/config_loader.py:183
+#: templates/logout.html:2 waitlist/utility/mainmenu/config_loader.py:176
 msgid "Logout"
 msgstr "Abmelden"
 
@@ -408,7 +408,7 @@ msgid "Enter On Waitlist"
 msgstr "Einschreiben"
 
 #: templates/waitlist/tools/history_search.html:50 templates/xup.html:3
-#: waitlist/utility/mainmenu/config_loader.py:189
+#: waitlist/utility/mainmenu/config_loader.py:182
 msgid "X-UP"
 msgstr "X-UP"
 
@@ -489,7 +489,7 @@ msgstr "Bestätigen"
 #: templates/settings/fleet.html:3 templates/settings/mail/index.html:3
 #: templates/settings/permissions/config.html:3 templates/settings/sde.html:3
 #: templates/settings/ts.html:3 templates/settings/whitelist.html:3
-#: waitlist/utility/mainmenu/config_loader.py:188
+#: waitlist/utility/mainmenu/config_loader.py:181
 msgid "Settings"
 msgstr "Einstellungen"
 
@@ -599,7 +599,7 @@ msgid "Fleet"
 msgstr "Flotte"
 
 #: templates/fleet/reform/index.html:2
-#: waitlist/utility/mainmenu/config_loader.py:191
+#: waitlist/utility/mainmenu/config_loader.py:184
 msgid "Reform"
 msgstr "Wiedereinladen"
 
@@ -1391,7 +1391,7 @@ msgstr "Statischer Verlauf"
 
 #: templates/waitlist/tools/commandcore_list.html:3
 #: templates/waitlist/tools/history_search.html:2
-#: waitlist/utility/mainmenu/config_loader.py:182
+#: waitlist/utility/mainmenu/config_loader.py:175
 msgid "Tools"
 msgstr "Werkzeuge"
 
@@ -1801,27 +1801,31 @@ msgstr ""
 "verbunden, bitte kontaktieren einen Administrator. Bis dies behoben wurde, "
 "wirst du als Besucher angemeldet."
 
-#: waitlist/utility/mainmenu/config_loader.py:181
+#: waitlist/utility/mainmenu/config_loader.py:174
 msgid "Help"
 msgstr "Hilfe"
 
-#: waitlist/utility/mainmenu/config_loader.py:184
+#: waitlist/utility/mainmenu/config_loader.py:177
 msgid "About"
 msgstr "Über"
 
-#: waitlist/utility/mainmenu/config_loader.py:185
+#: waitlist/utility/mainmenu/config_loader.py:178
 msgid "Command Core List"
 msgstr "Kommandomitglieder Liste"
 
-#: waitlist/utility/mainmenu/config_loader.py:186
+#: waitlist/utility/mainmenu/config_loader.py:179
 msgid "Comp History Search"
 msgstr "Verwaltungsverlaufs Suche"
 
-#: waitlist/utility/mainmenu/config_loader.py:187
+#: waitlist/utility/mainmenu/config_loader.py:180
 msgid "Custom Notifications"
 msgstr "Benutzerdefinierte Benachrichtigungen"
 
-#: waitlist/utility/mainmenu/config_loader.py:190
+#: waitlist/utility/mainmenu/config_loader.py:183
 msgid "Comp History"
 msgstr "Verwaltungsverlauf"
+
+#: waitlist/utility/mainmenu/config_loader.py:185
+msgid "Not loggedin"
+msgstr "Abgemeldet"
 

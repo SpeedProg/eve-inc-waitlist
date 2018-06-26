@@ -51,15 +51,18 @@ def get_menu(section_name: str, section: Any) -> Optional[Menu]:
     classes: str = get('classes', section, 'justify-content-start')
     order = get('order', section, None)
     perms = get_perms('perms', section)
+    need_authenticated = get('need_authenticated', section, 'False').lower() == 'true'
+
     if identity is None:
         logger.error('Menu %s is missing required identity', section_name)
-    return Menu(identity, classes, order, perms)
+    return Menu(identity, classes, order, perms, need_authenticated)
 
 
 def get_dropdowndivider(section):
     order = get('order', section, None)
     perms = get_perms('perms', section)
-    return DropdownDivider(order, perms)
+    need_authenticated = get('need_authenticated', section, 'False').lower() == 'true'
+    return DropdownDivider(order, perms, need_authenticated)
 
 
 def get_dropdownitem_from_section(section_name, section):
@@ -69,15 +72,10 @@ def get_dropdownitem_from_section(section_name, section):
     url = get('url', section, None)
     iconclass = get('iconclass', section, '')
     order = get('order', section, None)
-    url_for = get('url_for', section, 'False')
-    if url_for.lower() == "true":
-        url_for = True
-    else:
-        url_for = False
-
+    url_for = get('url_for', section, 'False').lower() == 'true'
     perms = get_perms('perms', section)
-
     customtemplate = get('customtemplate', section, None)
+    need_authenticated = get('need_authenticated', section, 'False').lower() == 'true'
 
     if (title is None or url is None) and customtemplate is None:
         logger.error('DropdownMenuItem %s is missing required title or url',
@@ -87,7 +85,7 @@ def get_dropdownitem_from_section(section_name, section):
     return DropdownItem(title, classes, url, iconclass,
                         order, url_for, perms,
                         customtemplate,
-                        use_gettext
+                        use_gettext, need_authenticated
                         )
 
 
@@ -103,6 +101,7 @@ def get_dropdownmenu_from_section(section_name, section):
     nodetag = get('nodetag', section, 'a')
     dropclasses = get('dropclasses', section, '')
     triggerclasses = get('triggerclasses', section, 'nav-link')
+    need_authenticated = get('need_authenticated', section, 'False').lower() == 'true'
 
     if title is None and customtemplate is None:
         logger.error('DropdownMenu %s is missing a title or customtemplate',
@@ -111,7 +110,7 @@ def get_dropdownmenu_from_section(section_name, section):
 
     return DropdownMenu(identity, title, classes, iconclass, order, perms,
                         customtemplate, nodetag, dropclasses, triggerclasses,
-                        use_gettext)
+                        use_gettext, need_authenticated)
 
 
 def get_menuitem_from_section(section_name, section):
@@ -119,19 +118,12 @@ def get_menuitem_from_section(section_name, section):
     use_gettext = get('use_gettext', section, 'False').lower() == 'true'
     classes = get('classes', section, '')
     url = get('url', section, None)
-    url_for = get('url_for', section, 'False')
-    if url_for.lower() == "true":
-        url_for = True
-    else:
-        url_for = False
-
+    url_for = get('url_for', section, 'False').lower() == 'true'
     iconclass = get('iconclass', section, '')
-
     order = get('order', section, None)
-
     perms = get_perms('perms', section)
-
     customtemplate = get('customtemplate', section, None)
+    need_authenticated = get('need_authenticated', section, 'False').lower() == 'true'
 
     if url is None and customtemplate is None:
         logger.error('MenuItem %s is missing url or customtemplate',
@@ -146,7 +138,8 @@ def get_menuitem_from_section(section_name, section):
     return MenuItem(title, classes, url, iconclass=iconclass,
                     order=order, url_for=url_for, perms=perms,
                     customtemplate=customtemplate,
-                    use_gettext=use_gettext
+                    use_gettext=use_gettext,
+                    need_authenticated=need_authenticated
                     )
 
 
@@ -189,3 +182,4 @@ gettext('Settings')
 gettext('X-UP'),
 gettext('Comp History')
 gettext('Reform')
+gettext('Not loggedin')

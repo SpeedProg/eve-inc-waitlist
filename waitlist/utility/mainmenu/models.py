@@ -3,6 +3,7 @@ import logging
 from waitlist import permissions
 from typing import List, Optional, Dict, Union, Any
 from flask_babel import lazy_gettext
+from flask_login.utils import current_user
 
 
 logger = logging.getLogger(__name__)
@@ -20,7 +21,8 @@ class OrderedItem(object):
 class MenuItem(OrderedItem):
     def __init__(self, title, classes, url, iconclass=None, order=None,
                  url_for=False, perms=None, customtemplate=None,
-                 use_gettext=True):
+                 use_gettext=True,
+                 need_authenticated: bool=False):
         super(MenuItem, self).__init__(order)
         if use_gettext:
             self.title = lazy_gettext(title)
@@ -33,11 +35,15 @@ class MenuItem(OrderedItem):
         self.url_for = url_for
         self.perms = [] if perms is None else perms
         self.customtemplate = customtemplate
+        self.need_authenticated = need_authenticated
 
     def render(self):
         for perm_name in self.perms:
             if not permissions.perm_manager.get_permission(perm_name).can():
                 return ''
+
+        if self.need_authenticated and not current_user.is_authenticated:
+            return ''
 
         customhtml = None
         if self.customtemplate:
@@ -52,7 +58,8 @@ class MenuItem(OrderedItem):
 
 class Menu(OrderedItem):
     def __init__(self, identity: str, classes: str='justify-content-start',
-                 order: int=None, perms: List[str]=None):
+                 order: int=None, perms: List[str]=None,
+                 need_authenticated: bool=False):
         super(Menu, self).__init__(order)
         self.items = []
         self.identity = identity
@@ -62,6 +69,7 @@ class Menu(OrderedItem):
         self.__delayed_item_adds = dict()
         self.__delayed_menu_adds = dict()
         self.template = 'mainmenu/menu.html'
+        self.need_authenticated = need_authenticated
 
     def add_item(self, item: MenuItem, target_id: str=None):
         if target_id is None:
@@ -145,7 +153,10 @@ class Menu(OrderedItem):
     def render(self):
         for perm_name in self.perms:
             if not permissions.perm_manager.get_permission(perm_name).can():
-                return
+                return ''
+
+        if self.need_authenticated and not current_user.is_authenticated:
+            return ''
 
         return render_template(self.template,
                                menu=self)
@@ -155,8 +166,9 @@ class Menu(OrderedItem):
 
 
 class Navbar(Menu):
-    def __init__(self, identity: str, htmlid: str, brand: str=None):
-        super(Navbar, self).__init__(identity)
+    def __init__(self, identity: str, htmlid: str, brand: str=None,
+                 need_authenticated: bool=False):
+        super(Navbar, self).__init__(identity, need_authenticated)
         self.htmlid = htmlid
         self.brand = brand
         self.template = 'mainmenu/navbar.html'
@@ -171,8 +183,11 @@ class DropdownMenu(Menu):
                  iconclass: Optional[str]=None, order: Optional[int]=None,
                  perms: List[str]=None, customtemplate: Optional[str]=None,
                  nodetag: str='a', dropclasses: str='',
-                 triggerclasses: str='nav-link', use_gettext=True):
-        super(DropdownMenu, self).__init__(identity, classes, order, perms)
+                 triggerclasses: str='nav-link', use_gettext=True,
+                 need_authenticated: bool=False
+                 ):
+        super(DropdownMenu, self).__init__(identity, classes, order, perms,
+                                           need_authenticated)
         self.iconclass = iconclass
         if use_gettext:
             self.title = lazy_gettext(title)
@@ -199,14 +214,18 @@ class DropdownMenu(Menu):
 
 
 class DropdownDivider(MenuItem):
-    def __init__(self, order=None, perms=None):
+    def __init__(self, order=None, perms=None,
+                 need_authenticated: bool=False):
         super(DropdownDivider, self).__init__(None, None, None, order=order,
-                                              perms=perms)
+                                              perms=perms, need_authenticated=need_authenticated)
 
     def render(self):
         for perm_name in self.perms:
             if not permissions.perm_manager.get_permission(perm_name).can():
-                return
+                return ''
+
+        if self.need_authenticated and not current_user.is_authenticated:
+            return ''
 
         return '<div class="dropdown-divider"></div>'
 
@@ -214,8 +233,12 @@ class DropdownDivider(MenuItem):
 class DropdownItem(MenuItem):
     def __init__(self, title, classes, url, iconclass=None, order=None,
                  url_for=False, perms=None, customtemplate=None,
-                 use_gettext=True):
+                 use_gettext=True,
+                 need_authenticated: bool=False
+                 ):
         super(DropdownItem, self).__init__(title, classes, url, iconclass,
                                            order, url_for, perms,
-                                           customtemplate, use_gettext)
+                                           customtemplate, use_gettext,
+                                           need_authenticated
+                                           )
         self.template = 'mainmenu/dropdownitem.html'
