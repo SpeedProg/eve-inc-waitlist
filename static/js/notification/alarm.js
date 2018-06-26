@@ -242,8 +242,8 @@ waitlist.alarm = (function () {
 		// we can just call this every 5min to update stats
 		// or we use sse to update
 
-		// 5min == 300 000 ms
-		setInterval(updateCache, 300000);
+		// 30s == 30 000 ms
+		setInterval(updateCache, 30000);
 	}
 
 	$(document).ready(init);
