@@ -313,16 +313,17 @@ def invite(user_id: int, squad_id_list: Sequence[Tuple[int, int]]):
 
 
 def spawn_invite_check(character_id, group_id, fleet_id):
-    logger.info(f"Spawning invite check for character_id={character_id} group_id={group_id}"
+    logger.info(f"Spawning invite check timer for character_id={character_id} group_id={group_id}"
                 f" and fleet_id={fleet_id}")
     timer_id = (character_id, group_id, fleet_id)
     if timer_id in check_timers:  # this invite check is already running
         logger.info(f"There is already an invite check running for {timer_id}")
         return
-    logger.info(f"Starting timer for {timer_id}")
     check_timers[timer_id] = 0
-    t = Timer(20.0, check_invite_and_remove_timer, [character_id, group_id, fleet_id])
+    t = Timer(20.0, check_invite_and_remove_timer,
+              [character_id, group_id, fleet_id])
     t.start()
+    logger.debug(f'Started timer for {timer_id}')
 
 
 check_timers: Dict[Tuple[int, int, int], int] = dict()

@@ -137,8 +137,9 @@ class SSOToken(Base):
                 return False
 
             logger.exception(e)
-            logger.debug("%s invalid because of exception.", self)
-            return False
+            if hasattr(e, 'text'):
+                logger.error("%s valid because of exception. text = %s", self, e.text)
+            return True
 
     def expires_in(self) -> int:
         """ Get amount of seconds until expiry.

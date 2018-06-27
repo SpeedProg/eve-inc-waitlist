@@ -33,7 +33,19 @@ waitlistlogger = logging.getLogger('waitlist')
 waitlistlogger.addHandler(err_fh)
 waitlistlogger.addHandler(info_fh)
 waitlistlogger.addHandler(debug_fh)
-waitlistlogger.setLevel(logging.INFO)
+waitlistlogger.setLevel(logging.DEBUG)
+
+esipylogger = logging.getLogger('esipy')
+esipylogger.addHandler(err_fh)
+esipylogger.addHandler(info_fh)
+esipylogger.addHandler(debug_fh)
+esipylogger.setLevel(logging.DEBUG)
+
+flasklogger = logging.getLogger('flask')
+flasklogger.addHandler(err_fh)
+flasklogger.addHandler(info_fh)
+flasklogger.addHandler(debug_fh)
+flasklogger.setLevel(logging.WARN)
 
 from werkzeug.contrib.fixers import ProxyFix
 from gevent.pywsgi import WSGIServer
