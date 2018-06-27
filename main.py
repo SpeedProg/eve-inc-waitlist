@@ -2,14 +2,15 @@ import gevent_patch_helper
 import logging
 from logging.handlers import TimedRotatingFileHandler
 from waitlist.utility import config
+from typing import List
 
 # setup logging
 class LogDedicatedLevelFilter(object):
-    def __init__(self, level):
-        self.__level = level
+    def __init__(self, levels: List[int]):
+        self.__levels = levels
 
     def filter(self, log_record):
-        return log_record.levelno == self.__level
+        return log_record.levelno in self.__levels
 
 
 err_fh = TimedRotatingFileHandler(filename=config.error_log, when="midnight", interval=1, utc=True)
@@ -26,8 +27,8 @@ info_fh.setLevel(logging.INFO)
 err_fh.setLevel(logging.ERROR)
 debug_fh.setLevel(logging.DEBUG)
 
-info_fh.addFilter(LogDedicatedLevelFilter(logging.INFO))
-debug_fh.addFilter(LogDedicatedLevelFilter(logging.DEBUG))
+info_fh.addFilter(LogDedicatedLevelFilter([logging.INFO, logging.WARNING]))
+debug_fh.addFilter(LogDedicatedLevelFilter([logging.DEBUG]))
 
 waitlistlogger = logging.getLogger('waitlist')
 waitlistlogger.addHandler(err_fh)

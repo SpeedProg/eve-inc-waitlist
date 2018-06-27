@@ -254,7 +254,7 @@ def api_move_fit_to_waitlist():
     fit = db.session.query(Shipfit).filter(Shipfit.id == fit_id).first()
     # fit doesn't exist or is not in a waitlist, probably double trigger when moving some one
     if fit is None or fit.waitlist is None:
-        return "OK"
+        flask.abort(404, "This fit does not exist or not belong to a waitlist anymore!")
 
     entry = db.session.query(WaitlistEntry).filter(WaitlistEntry.id == fit.waitlist.id).first()
 
@@ -291,6 +291,11 @@ def api_move_fit_to_waitlist():
 
     wl_entry = db.session.query(WaitlistEntry).join(Waitlist) \
         .filter((WaitlistEntry.user == entry.user) & (Waitlist.id == waitlist.id)).first()
+
+    # is already on target
+    if fit.waitlist is not None and wl_entry is not None and fit.waitlist.id == wl_entry.id:
+        flask.abort(409, 'This fit was already moved')
+
     new_entry = False
     # if it doesn't exist create it
     if wl_entry is None:

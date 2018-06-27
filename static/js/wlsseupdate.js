@@ -32,7 +32,7 @@ waitlist.sse = (function() {
 		if (errorCount > 1) {
 			// refresh the page using json, to pull ALL the date, we might have
 			// missed sth
-			loadWaitlist();
+			waitlist.listdom.loadWaitlist();
 		}
 		errorCount = 0; // reset error counter
 	}
