@@ -95,8 +95,12 @@ def invite_to_fleet():
     # invite over crest and get back the status
     status = invite(character_id, squad_id_list)
 
-    resp = flask.jsonify({'status': status['status_code'], 'message': status['text']})
-    resp.status_code = status['status_code']
+    if status['status_code'] != 204:
+        resp = jsonify({'status': status['status_code'], 'message': status['text']})
+        resp.status_code = status['status_code']
+    else:
+        logger.info("Creating empty content response")
+        resp = make_response('', 204)
 
     if resp.status_code != 204:  # invite failed send no notifications
         if resp.status_code != 520:
@@ -133,11 +137,15 @@ def invite_to_fleet():
     logger.info("%s invited %s to fleet from %s.", current_user.username, character.eve_name, waitlist.group.groupName)
 
     # set a timer for 1min and 6s that checks if the person accepted the invite
-    logger.info("API Response for %s was %d", character.eve_name, resp.status_code)
+    logger.debug("API Response for %s was %d", character.eve_name, resp.status_code)
     if resp.status_code == 204:
-        spawn_invite_check(character_id, group_id, fleet.fleetID)
+        try:
+            spawn_invite_check(character_id, group_id, fleet.fleetID)
+        except Exception:
+            logger.exception('Failed to spawn invite check')
     else:
-        logger.info(f"Did not get 204 status, instead got {resp.status_code} no invite check spawned")
+        logger.debug(f"Did not get 204 status, instead got {resp.status_code} no invite check spawned")
+
     return resp
 
 
