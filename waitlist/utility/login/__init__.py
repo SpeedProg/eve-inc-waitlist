@@ -19,6 +19,7 @@ from waitlist.utility.eve_id_utils import get_character_by_id_and_name, is_char_
 from waitlist.utility.manager import OwnerHashCheckManager
 from waitlist.signal.signals import send_alt_link_removed
 from flask_babel import gettext
+from esipy.exceptions import APIException
 
 logger = logging.getLogger(__name__)
 
@@ -198,7 +199,12 @@ def login_accounts_by_alts_or_character(char: Character, owner_hash: str, token:
 
 
 def member_login_cb(code):
-    auth = authorize(code)
+    try:
+        auth = authorize(code)
+    except APIException:
+        logger.info('The provided SSO code=%s is invalid', code)
+        flask.abort(400, 'The provided SSO code is invalid!')
+
     refresh_token = auth['refresh_token']
     access_token = auth['access_token']
     expires_in = int(auth['expires_in'])
