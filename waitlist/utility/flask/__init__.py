@@ -53,38 +53,39 @@ def check_user_owner_hash():
     if not hasattr(user, 'type'):
         logger.debug("AnonymouseUserMixin no need to check hashes")
         return
+    try:
+        if user.type == 'account':
+            # if no auth for alts is required there is no reason to check the owner_hash
+            if not config.require_auth_for_chars:
+                logger.debug("Skipping owner_hash check because it is disabled in the configuration")
+                return
+            user: Account = user
+            # if there is NO main character set ignore the hash check
+            if user.current_char is None:
+                logger.debug("%s has no current character set, ignore owner_hash check.", user)
+                return
+    
+            if not owner_hash_check_manager.is_ownerhash_valid(user):
+                logger.info("owner_hash for %s was invalid. Removing connected character %s.", user, user.current_char_obj)
+                flask.flash(gettext(
+                    "Your set current character %(eve_name)s" +
+                    " was unset because the provided token got invalidated."+
+                    " Go to Own Settings to re-add.",
+                    eve_name=user.get_eve_name()),
+                    'danger')
+                user.current_char = None
+                db.session.commit()
+                return redirect(url_for('index'))
 
-    if user.type == 'account':
-        # if no auth for alts is required there is no reason to check the owner_hash
-        if not config.require_auth_for_chars:
-            logger.debug("Skipping owner_hash check because it is disabled in the configuration")
-            return
-        user: Account = user
-        # if there is NO main character set ignore the hash check
-        if user.current_char is None:
-            logger.debug("%s has no current character set, ignore owner_hash check.", user)
-            return
-
-        if not owner_hash_check_manager.is_ownerhash_valid(user):
-            logger.info("owner_hash for %s was invalid. Removing connected character %s.", user, user.current_char_obj)
-            flask.flash(gettext(
-                "Your set current character %(eve_name)s" +
-                " was unset because the provided token got invalidated."+
-                " Go to Own Settings to re-add.",
-                eve_name=user.get_eve_name()),
-                'danger')
-            user.current_char = None
-            db.session.commit()
-            return redirect(url_for('index'))
-
-    else:
-        if not owner_hash_check_manager.is_ownerhash_valid(user):
-            user.current_char = None
-            logger.info("owner_hash for %s was invalid. Invalidating all sessions and logging out.", user)
-            invalidate_all_sessions_for_current_user()
-            force_logout()
-            return redirect(url_for('index'))
-
+        else:
+            if not owner_hash_check_manager.is_ownerhash_valid(user):
+                user.current_char = None
+                logger.info("owner_hash for %s was invalid. Invalidating all sessions and logging out.", user)
+                invalidate_all_sessions_for_current_user()
+                force_logout()
+                return redirect(url_for('index'))
+    except Exception:
+        logger.exception('Exception during user owner_hash check!')
     # else
     logger.debug("Everything okay, the request can continue")
     return None

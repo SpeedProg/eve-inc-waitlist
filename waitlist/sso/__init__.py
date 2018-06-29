@@ -13,6 +13,9 @@ from flask_login import current_user
 from waitlist import db
 from waitlist.storage.database import SSOToken, EveApiScope
 from waitlist.utility import config
+from esipy.exceptions import APIException
+from json.decoder import JSONDecodeError
+from time import sleep
 
 logger = logging.getLogger(__name__)
 
@@ -49,8 +52,24 @@ def who_am_i(token: SSOToken) -> Dict:
                                         )
     security.update_token(token.info_for_esi_security())
 
-    return security.verify()
+    return repeated_verify(security)
 
+
+def repeated_verify(security: EsiSecurity, count: int=0,
+                    max_count: int=5) -> Dict:
+    """
+    Calls verify up to max times or untill there is no error
+    """
+    try:
+        security.verify()
+    except (APIException, JSONDecodeError) as e:
+        if count >= max_count:
+            logger.exception('Failed to verify because of repeated errors',
+                             exc_info=True)
+            raise e
+        else:
+            sleep(count**2)
+            return repeated_verify(security, count+1, max_count)
 
 def revoke(access_token: str = None, refresh_token: str = None) -> None:
     """{'access_token', 'refresh_token', 'expires_in'}"""
@@ -66,7 +85,7 @@ def revoke(access_token: str = None, refresh_token: str = None) -> None:
         }
         res = requests.post(url, params=params, headers=headers)
         if res.status_code != 200:
-            logger.exception(Exception(f"Access token revoke failed with status code { res.status_code }"))
+            logger.error('Access token revoke failed with status code %d', res.status_code)
 
     if refresh_token is not None:
         params = {
@@ -75,7 +94,7 @@ def revoke(access_token: str = None, refresh_token: str = None) -> None:
         }
         res = requests.post(url, params=params, headers=headers)
         if res.status_code != 200:
-            logger.exception(Exception(f"Refresh token revoke failed with status code { res.status_code }"))
+            logger.error('Refresh token revoke failed with status code %d', res.status_code)
 
 
 
