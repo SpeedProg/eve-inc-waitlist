@@ -84,9 +84,12 @@ def get_error_msg_from_response(resp: Any) -> str:
         logger.debug('ESI responded with status Monolith 520 and msg %s', msg)
     else:
         if resp.data is None:
-            if 'content-type' in resp.headers:
+            if resp.headers is not None and 'content-type' in resp.headers:
                 content_header = resp.headers['content-type']
             else:
+                logger.error('Headers was none=%s type.__name__=%s',
+                             str((resp.headers is None)),
+                             type(resp).__name__)
                 content_header = 'No content-type header'
 
             logger.debug("Data was not set for %s with content-type %s",

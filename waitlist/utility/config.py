@@ -5,7 +5,6 @@ from configparser import ConfigParser
 
 from waitlist.data import version
 from typing import Any, Tuple, List
-import logging
 
 
 def set_if_not_exists(self, section, option, value):
@@ -40,13 +39,6 @@ config.set_if_not_exists("app", "community_name", "IncWaitlist")
 config.set_if_not_exists("app", "user_agent", "Bruce Warhead: Eve Incursion Waitlist")
 config.set_if_not_exists("app", "domain", "localhost")
 config.set_if_not_exists("app", "using_proxy", "False")
-
-if not config.has_section("logging"):
-    config.add_section("logging")
-config.set_if_not_exists("logging", "error_file", "/var/log/pywaitlist/error.log")
-config.set_if_not_exists("logging", "info_file", "/var/log/pywaitlist/info.log")
-config.set_if_not_exists("logging", "access_file", "/var/log/pywaitlist/access.log")
-config.set_if_not_exists("logging", "debug_file", "/var/log/pywaitlist/debug.log")
 
 if not config.has_section("crest"):
     config.add_section("crest")
@@ -124,10 +116,6 @@ sqlalchemy_pool_recycle = config.getint("database", "sqlalchemy_pool_recycle")
 secret_key = base64.b64decode(config.get("app", "secret_key"))
 server_port = config.getint("app", "server_port")
 server_bind = config.get("app", "server_bind")
-error_log = config.get("logging", "error_file")
-info_log = config.get("logging", "info_file")
-access_log = config.get("logging", "access_file")
-debug_log = config.get("logging", "debug_file")
 
 crest_client_id = config.get("crest", "client_id")
 crest_client_secret = config.get("crest", "client_secret")
