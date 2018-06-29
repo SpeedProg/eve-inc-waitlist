@@ -83,8 +83,16 @@ def get_error_msg_from_response(resp: Any) -> str:
 
         logger.debug('ESI responded with status Monolith 520 and msg %s', msg)
     else:
+        if resp.data is None:
+            if 'content-type' in resp.headers:
+                content_header = resp.headers['content-type']
+            else:
+                content_header = 'No content-type header'
+
+            logger.debug("Data was not set for %s with content-type %s",
+                         resp.raw.decode("utf-8"), content_header)
         msg = resp.data['error'] if resp.data is not None and 'error' in resp.data else 'No error data send. data=' + resp.raw.decode("utf-8")
-        logger.error('ESI responded with status %s and msg %s', resp.status, msg)
+        logger.info('ESI responded with status %s and msg %s', resp.status, msg)
 
     return msg
 
@@ -94,13 +102,16 @@ def make_error_response(resp: Any) -> ESIResponse:
     return ESIResponse(get_expire_time(resp), resp.status, msg)
 
 
-def get_esi_client(token: Optional[SSOToken], noauth: bool = False) -> EsiClient:
-    return get_esi_client_for_account(token, noauth)
+def get_esi_client(token: Optional[SSOToken], noauth: bool = False,
+                   retry_request: bool=False) -> EsiClient:
+    return get_esi_client_for_account(token, noauth, retry_request)
 
 
-def get_esi_client_for_account(token: Optional[SSOToken], noauth: bool = False) -> EsiClient:
+def get_esi_client_for_account(token: Optional[SSOToken], noauth: bool = False,
+                               retry_request: bool=False) -> EsiClient:
     if noauth:
-        return EsiClient(timeout=20, headers={'User-Agent': config.user_agent}, cache=DummyCache())
+        return EsiClient(timeout=20, headers={'User-Agent': config.user_agent},
+                         cache=DummyCache(), retry_requests=retry_request)
 
     signal: Signal = Signal()
     signal.add_receiver(SSOToken.update_token_callback)
@@ -114,4 +125,7 @@ def get_esi_client_for_account(token: Optional[SSOToken], noauth: bool = False) 
         token_identifier=token.tokenID
     )
     security.update_token(token.info_for_esi_security())
-    return EsiClient(security, timeout=20, headers={'User-Agent': config.user_agent}, cache=DummyCache())
+    return EsiClient(security, timeout=20,
+                     headers={'User-Agent': config.user_agent},
+                     cache=DummyCache(),
+                     retry_requests=retry_request)

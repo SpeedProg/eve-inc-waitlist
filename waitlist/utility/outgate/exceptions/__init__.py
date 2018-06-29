@@ -17,8 +17,8 @@ class ApiException(Exception):
 
     def to_dict(self) -> Dict[str, Any]:
         return {
-            'msg': self.error_msg,
-            'code': self.http_code,
+            'msg': self.msg,
+            'code': self.code,
             }
 
     def __str__(self):
