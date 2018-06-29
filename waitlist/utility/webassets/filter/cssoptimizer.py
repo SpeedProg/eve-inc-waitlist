@@ -10,6 +10,9 @@ class CSSOptimizerFilter(ExternalTool):
 
     def output(self, _in, out, **kw):
         # prepare arguments
+        if config.node_bin == '':
+            out.write(_in.read())
+            return
 
         args = [config.node_bin + 'csso']
 

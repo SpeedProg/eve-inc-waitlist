@@ -16,6 +16,11 @@ class BabiliFilter(ExternalTool):
         super(BabiliFilter, self).setup()
 
     def output(self, _in, out, **kw):
+        # node not configured
+        if config.node_bin == '':
+            out.write(_in.read())
+            return
+
         # prepare arguments
         if self.presets:
             self.presets += ",minify"
