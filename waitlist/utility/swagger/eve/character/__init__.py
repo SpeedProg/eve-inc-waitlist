@@ -14,16 +14,19 @@ logger = logging.getLogger(__name__)
 class CharacterEndpoint(ESIEndpoint):
     def __init__(self) -> None:
         super().__init__()
-        self.esi_client: EsiClient = get_esi_client(None, True)
+        self.esi_client: EsiClient = get_esi_client(None, True,
+                                                    retry_request=True)
 
-    def get_character_info(self, char_id: int) -> Union[CharacterInfo, ESIResponse]:
+    def get_character_info(self, char_id: int) -> Union[
+            CharacterInfo,
+            ESIResponse]:
 
         try:
             resp = self.esi_client.request(self._api().op['get_characters_character_id'](character_id=char_id))
             if resp.status == 200:
                 return CharacterInfo(get_expire_time(resp), resp.status, None, resp.data)
             else:
-                logger.error(f'Got error requesting info for character={char_id}')
+                logger.info(f'Got error requesting info for character={char_id}')
                 return make_error_response(resp)
 
         except ReadTimeoutError as e:
