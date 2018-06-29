@@ -15,6 +15,8 @@ from waitlist.utility import config
 from waitlist.utility.utils import get_random_token
 from sqlalchemy.types import UnicodeText
 import json
+import inspect
+import traceback
 
 logger = logging.getLogger(__name__)
 
@@ -106,17 +108,23 @@ class SSOToken(Base):
 
         # if the access_token is still not expired return as valid
         if self.access_token_expires > datetime.utcnow()+timedelta(seconds=10):
-            logger.debug("%s valid because access_token_expires %s still in the future", self, self.access_token_expires)
+            logger.debug("%s valid because access_token_expires %s still more then 10s in the future",
+                         self, self.access_token_expires)
             return True
 
         # check that the token is valid
         security: EsiSecurity = EsiSecurity('', config.crest_client_id,
                                             config.crest_client_secret,
-                                            headers={'User-Agent': config.user_agent}
-                                            )
+                                            headers={
+                                                'User-Agent': config.user_agent
+                                            })
         security.update_token(self.info_for_esi_security())
 
         try:
+            frame = inspect.currentframe()
+            stack_trace = traceback.format_stack(frame)
+            logger.debug("Calling refresh on %r", self)
+            logger.debug(stack_trace[:-1])
             security.refresh()
             SSOToken.update_token_callback(token_identifier=self.tokenID, access_token=security.access_token,
                                            refresh_token=security.refresh_token, expires_at=security.token_expiry)

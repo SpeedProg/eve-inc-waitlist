@@ -24,7 +24,7 @@
 	"wl-notifiaction-xup-title": "Neuer Eintrag",
 	"wl-notifiaction-xup-body": "Neuer Eintrag von $1",
 	"wl-no-result-found": "Kein Ergebnis gefunden",
-	"wl-up-uppercase": "Eintrag",
+	"wl-xup-uppercase": "Eintrag",
 	"wl-remove-char": "Entferene Charakter von Wartelisten",
 	"wl-send-invite": "Einladung Gesendet",
 	"wl-remove-entry-from-xup": "Eintrag aus Einschreibung entfernen",

@@ -36,6 +36,7 @@ from gevent.threading import Lock
 from flask_babel import gettext, lazy_gettext
 from waitlist.utility.outgate.exceptions import ApiException
 from sqlalchemy.exc import InvalidRequestError
+from esipy.exceptions import APIException
 
 bp = Blueprint('accounts', __name__)
 logger = logging.getLogger(__name__)
@@ -373,8 +374,12 @@ def account_self_edit():
                             session['link_charid'] = character.id
                             return get_sso_redirect("alt_verification",
                                                     'publicData')
+                        try:
+                            auth_info = who_am_i(auth_token)
+                        except APIException:
+                            flash(gettext('Failed to get info for this character because of sso error'))
+                            redirect(url_for('.account_self'), code=303)
 
-                        auth_info = who_am_i(auth_token)
                         # if we don't have this the token was invalid
                         if 'CharacterOwnerHash' not in auth_info:
                             logger.debug("CharacterOwnerHash was not in authorization info")
