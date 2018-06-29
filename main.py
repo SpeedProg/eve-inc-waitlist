@@ -1,52 +1,20 @@
 import gevent_patch_helper
-import logging
-from logging.handlers import TimedRotatingFileHandler
-from waitlist.utility import config
-from typing import List
+import logging.config
+import os
+import json
 
 # setup logging
-class LogDedicatedLevelFilter(object):
-    def __init__(self, levels: List[int]):
-        self.__levels = levels
+logger_config = os.path.join('.', 'config', 'logger.base.json')
+if os.path.isfile(logger_config):
+    with open(logger_config, 'r') as fp:
+        cfg = json.load(fp)
+        logging.config.dictConfig(cfg)
 
-    def filter(self, log_record):
-        return log_record.levelno in self.__levels
-
-
-err_fh = TimedRotatingFileHandler(filename=config.error_log, when="midnight", interval=1, utc=True)
-info_fh = TimedRotatingFileHandler(filename=config.info_log, when="midnight", interval=1, utc=True)
-debug_fh = TimedRotatingFileHandler(filename=config.debug_log, when="midnight", interval=1, utc=True)
-
-formatter = logging\
-    .Formatter('%(asctime)s - %(name)s - %(levelname)s - %(funcName)s - %(lineno)d - %(message)s')
-err_fh.setFormatter(formatter)
-info_fh.setFormatter(formatter)
-debug_fh.setFormatter(formatter)
-
-info_fh.setLevel(logging.INFO)
-err_fh.setLevel(logging.ERROR)
-debug_fh.setLevel(logging.DEBUG)
-
-info_fh.addFilter(LogDedicatedLevelFilter([logging.INFO, logging.WARNING]))
-debug_fh.addFilter(LogDedicatedLevelFilter([logging.DEBUG]))
-
-waitlistlogger = logging.getLogger('waitlist')
-waitlistlogger.addHandler(err_fh)
-waitlistlogger.addHandler(info_fh)
-waitlistlogger.addHandler(debug_fh)
-waitlistlogger.setLevel(logging.DEBUG)
-
-esipylogger = logging.getLogger('esipy')
-esipylogger.addHandler(err_fh)
-esipylogger.addHandler(info_fh)
-esipylogger.addHandler(debug_fh)
-esipylogger.setLevel(logging.DEBUG)
-
-flasklogger = logging.getLogger('flask')
-flasklogger.addHandler(err_fh)
-flasklogger.addHandler(info_fh)
-flasklogger.addHandler(debug_fh)
-flasklogger.setLevel(logging.WARN)
+logger_config = os.path.join('.', 'config', 'logger.user.json')
+if os.path.isfile(logger_config):
+    with open(logger_config, 'r') as fp:
+        cfg = json.load(fp)
+        logging.config.dictConfig(cfg)
 
 from werkzeug.contrib.fixers import ProxyFix
 from gevent.pywsgi import WSGIServer
@@ -140,23 +108,14 @@ logger = logging.getLogger(__name__)
 
 
 def run_server():
-    wsgi_logger = logging.getLogger("gevent.pywsgi.WSGIServer")
-    wsgi_logger.addHandler(err_fh)
-    wsgi_logger.addHandler(info_fh)
-    wsgi_logger.addHandler(debug_fh)
-    wsgi_logger.setLevel(logging.WARN)
     app.wsgi_app = ProxyFix(app.wsgi_app)
+    wsgi_logger = logging.getLogger("gevent.pywsgi.WSGIServer")
     server = WSGIServer((config.server_bind, config.server_port), app,
                         log=wsgi_logger, error_log=wsgi_logger)
     server.serve_forever()
 
 
 if __name__ == '__main__':
-    app.logger.addHandler(err_fh)
-    app.logger.addHandler(info_fh)
-    app.logger.addHandler(debug_fh)
-    app.logger.setLevel(logging.INFO)
-
     # app.run(host="0.0.0.0", port=81, debug=True)
 
     # connect account signal handler
