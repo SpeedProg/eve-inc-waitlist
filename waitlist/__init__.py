@@ -27,7 +27,7 @@ from waitlist.utility.assets import register_asset_bundles
 from flask_babel import Babel
 from waitlist.utility.webassets.filter.json import JsonMinFilter
 from waitlist.utility.i18n.locale import get_locale, get_langcode_from_locale
-from waitlist.utility.webassets.filter.csscompressor import CompressorMinFilter
+from waitlist.utility.webassets.filter.cssoptimizer import CSSOptimizerFilter
 
 app = Flask(import_name=__name__, static_url_path="/static",
             static_folder="../static", template_folder=path.join("..", "templates"))
@@ -104,7 +104,7 @@ HTMLMIN(app)
 assets = Environment(app)
 register_filter(BabiliFilter)
 register_filter(JsonMinFilter)
-register_filter(CompressorMinFilter)
+register_filter(CSSOptimizerFilter)
 register_asset_bundles(assets)
 
 

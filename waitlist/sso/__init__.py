@@ -61,7 +61,7 @@ def repeated_verify(security: EsiSecurity, count: int=0,
     Calls verify up to max times or untill there is no error
     """
     try:
-        security.verify()
+        return security.verify()
     except (APIException, JSONDecodeError) as e:
         if count >= max_count:
             logger.exception('Failed to verify because of repeated errors',
@@ -70,6 +70,7 @@ def repeated_verify(security: EsiSecurity, count: int=0,
         else:
             sleep(count**2)
             return repeated_verify(security, count+1, max_count)
+
 
 def revoke(access_token: str = None, refresh_token: str = None) -> None:
     """{'access_token', 'refresh_token', 'expires_in'}"""
@@ -95,7 +96,6 @@ def revoke(access_token: str = None, refresh_token: str = None) -> None:
         res = requests.post(url, params=params, headers=headers)
         if res.status_code != 200:
             logger.error('Refresh token revoke failed with status code %d', res.status_code)
-
 
 
 def add_token(code):
