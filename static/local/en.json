@@ -74,5 +74,7 @@
 	"wl-alt-added": "Alt added",
 	"wl-please-wait": "Please wait...",
 	"wl-add-alt-placehonder": "Enter -> Add, Esc -> Cancel",
-	"wl-account": "Account"
+	"wl-account": "Account",
+	"wl-enable": "Enable",
+	"wl-disable": "Disable"
 }

@@ -74,5 +74,7 @@
 	"wl-alt-added": "Alt wurde hinzugefügt",
 	"wl-please-wait": "Bitte warte...",
 	"wl-add-alt-placehonder": "Eingabe -> Hinzufügen, Esc -> Abbrechen",
-	"wl-account": "Konto"
+	"wl-account": "Konto",
+	"wl-enable": "Aktivieren",
+	"wl-disable": "Deaktivieren"
 }

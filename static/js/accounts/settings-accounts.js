@@ -58,7 +58,7 @@ waitlist.accounts = (function() {
 			const td = $(td_status_field_id);
 			td.text('Active')
 			source.attr("data-type", "acc-disable");
-			source.text("Disable");
+			source.text($.i18n("wl-disable"));
 		});
 	}
 	
@@ -70,7 +70,7 @@ waitlist.accounts = (function() {
 			const td = $(td_status_field_id);
 			td.text('Deactivated')
 			source.attr("data-type", "acc-enable");
-			source.text("Enable");
+			source.text($.i18n("wl-enable"));
 		});
 	}
 	
