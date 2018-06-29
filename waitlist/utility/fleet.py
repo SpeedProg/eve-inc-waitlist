@@ -80,7 +80,7 @@ class FleetMemberInfo:
         return data
 
     def _get_data(self, fleet_id: int, account: Account) -> Optional[Dict[int, FleetMember]]:
-        token: Optional[SSOToken] = account.get_a_sso_token_with_scopes('esi-fleets.read_fleet.v1')
+        token: Optional[SSOToken] = account.get_a_sso_token_with_scopes(['esi-fleets.read_fleet.v1'])
         if token is None:
             logger.warning('No valid SSOToken found for %s', account)
             return None
