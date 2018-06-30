@@ -17,6 +17,7 @@ from sqlalchemy.types import UnicodeText
 import json
 import inspect
 import traceback
+from json.decoder import JSONDecodeError
 
 logger = logging.getLogger(__name__)
 
@@ -89,13 +90,16 @@ class SSOToken(Base):
         return True
 
     @staticmethod
-    def update_token_callback(token_identifier: int, access_token: str, refresh_token: str, expires_at: int,
+    def update_token_callback(token_identifier: int, access_token: str,
+                              refresh_token: str, expires_at: int,
                               **_: Dict[str, Any]) -> None:
         logger.debug("Updating token with id=%s", token_identifier)
         token: SSOToken = db.session.query(SSOToken).get(token_identifier)
         token.access_token = access_token
         token.refresh_token = refresh_token
         token.access_token_expires = datetime.utcfromtimestamp(expires_at)
+        expires_in: timedelta = token.access_token_expires - datetime.utcnow()
+        logger.debug('%s expires is in %ss', token, expires_in.total_seconds())
         db.session.commit()
 
     @property
@@ -111,6 +115,8 @@ class SSOToken(Base):
             logger.debug("%s valid because access_token_expires %s still more then 10s in the future",
                          self, self.access_token_expires)
             return True
+        logger.debug('%s needs to be refreshed because access_token_expires %s is less then 10s in the future',
+                     self, self.access_token_expires)
 
         # check that the token is valid
         security: EsiSecurity = EsiSecurity('', config.crest_client_id,
@@ -141,12 +147,13 @@ class SSOToken(Base):
                       (e.response['error'] == 'invalid_request' or
                        e.response['error'] == 'invalid_token')
             ):
-                logger.debug("%s invalid because of response %s.", self, e.response)
+                logger.debug('%s invalid because of response %s.', self, e.response)
                 return False
 
-            logger.exception(e)
-            if hasattr(e, 'text'):
-                logger.error("%s valid because of exception. text = %s", self, e.text)
+            logger.exception('%s valid because of exception.', exc_info=True)
+            return True
+        except JSONDecodeError as e:
+            logger.exception('%s valid because of invalid response by SSO server')
             return True
 
     def expires_in(self) -> int:
