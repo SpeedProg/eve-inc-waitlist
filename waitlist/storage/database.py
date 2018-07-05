@@ -17,7 +17,6 @@ from sqlalchemy.types import UnicodeText
 import json
 import inspect
 import traceback
-from json.decoder import JSONDecodeError
 
 logger = logging.getLogger(__name__)
 
@@ -151,9 +150,6 @@ class SSOToken(Base):
                 return False
 
             logger.exception('%s valid because of exception.', exc_info=True)
-            return True
-        except JSONDecodeError as e:
-            logger.exception('%s valid because of invalid response by SSO server')
             return True
 
     def expires_in(self) -> int:
