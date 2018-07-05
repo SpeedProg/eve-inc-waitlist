@@ -184,7 +184,7 @@ EditableGrid.prototype.init = function (name, config)
 	this.nbHeaderRows = 1;
 	this.lastSelectedRowIndex = -1;
 	this.currentPageIndex = 0;
-	this.currentFilter = null;
+	this.currentFilters = [];
 	this.currentContainerid = null; 
 	this.currentClassName = null; 
 	this.currentTableid = null;
@@ -211,7 +211,7 @@ EditableGrid.prototype.init = function (name, config)
 	this.currentPageIndex = this.localisset('pageIndex') ? parseInt(this.localget('pageIndex')) : 0;
 	this.sortedColumnName = this.localisset('sortColumnIndexOrName') ? this.localget('sortColumnIndexOrName') : -1;
 	this.sortDescending = this.localisset('sortColumnIndexOrName') && this.localisset('sortDescending') ? this.localget('sortDescending') == 'true' : false;
-	this.currentFilter = this.localisset('filter') ? this.localget('filter') : null;
+	this.currentFilters = this.localisset('filters') ? this.localget('filters') : [];
 };
 
 /**
@@ -475,7 +475,6 @@ EditableGrid.prototype._addUrlParameters = function(baseUrl, dataOnly)
 	// add pagination, filtering and sorting parameters to the base url
 	return baseUrl
 	+ "&page=" + (this.currentPageIndex + 1)
-	+ "&filter=" + (this.currentFilter ? encodeURIComponent(this.currentFilter) : "")
 	+ "&sort=" + (this.sortedColumnName && this.sortedColumnName != -1 ? encodeURIComponent(this.sortedColumnName) : "")
 	+ "&asc=" + (this.sortDescending ? 0 : 1)
 	+ (dataOnly ? '&data_only=1' : '');
@@ -1975,125 +1974,79 @@ EditableGrid.prototype.sort = function(columnIndexOrName, descending, backOnFirs
 };
 
 
+EditableGrid.prototype.addFilter = function(filter)
+{
+	if (!(filter instanceof Filter)) {
+		return;
+	}
+	this.currentFilters.push(filter);
+	this.filter();
+};
+
+EditableGrid.prototype.removeFilter = function(filter) {
+	if (!(filter instanceof Filter)) {
+		return;
+	}
+	let idx = this.currentFilters.indexOf(filter);
+	this.currentFilters.splice(idx, 1);
+	this.filter();
+};
+
+
 /**
  * Filter the content of the table
  * @param {String} filterString String string used to filter: all words must be found in the row
  * @param {Array} cols Columns to sort.  If cols is not specified, the filter will be done on all columns
  */
-EditableGrid.prototype.filter = function(filterString, cols)
+EditableGrid.prototype.filter = function()
 {
-  if (typeof filterString != 'undefined') {
-    this.currentFilter = filterString;
-    this.localset('filter', filterString);
-  }
+	let self = this;
+	// if filtering is done on server-side, we are done here
+	if (this.serverSide) return this.setPageIndex(0);
+	
+	if (this.currentFilters.length === 0) {
+		if (this.dataUnfiltered != null) {
+			this.data = this.dataUnfiltered;
+			this.dataUnfiltered = null;
+			for (var r = 0; r < this.getRowCount(); r++)
+				this.data[r].visible = true;
+			this.setPageIndex(0);
+			this.tableFiltered();
+		}
+		return;
+	}
 
-  // if filtering is done on server-side, we are done here
-  if (this.serverSide) return this.setPageIndex(0);
+	
+	
+	// work on unfiltered data
+	if (this.dataUnfiltered != null) this.data = this.dataUnfiltered;
+	
+	var rowCount = this.getRowCount();
+	var columnCount = typeof cols != 'undefined' ? cols.length  : this.getColumnCount();
+	
+	if (filter instanceof Filter) {
+		
+	}
+	
+	
+	this.data.forEach(e => e.visible = true);
 
-  // un-filter if no or empty filter set
-  if (this.currentFilter == null || this.currentFilter == "") {
-    if (this.dataUnfiltered != null) {
-      this.data = this.dataUnfiltered;
-      this.dataUnfiltered = null;
-      for (var r = 0; r < this.getRowCount(); r++) this.data[r].visible = true;
-      this.setPageIndex(0);
-      this.tableFiltered();
-    }
-    return;
-  }
+	// remove rows that don't pass every filter
+	this.data.forEach(function(row, index) {
+		if (!self.currentFilters.every(filter => filter.shouldInclude(row, index, self))) {
+			row.visible = false;
+		} else {
+			row.visible = true;
+		}
+	});
+	this.dataUnfiltered = this.data;
+	this.data = [];
+	// we want to keep the order
+	for (var r = 0; r < rowCount; r++) if (this.dataUnfiltered[r].visible) this.data.push(this.dataUnfiltered[r]);
 
-  var words = this.currentFilter.toLowerCase().split(" ");
-
-  // work on unfiltered data
-  if (this.dataUnfiltered != null) this.data = this.dataUnfiltered;
-
-  var rowCount = this.getRowCount();
-  var columnCount = typeof cols != 'undefined' ? cols.length  : this.getColumnCount();
-
-  for (var r = 0; r < rowCount; r++) {
-    var row = this.data[r];
-    row.visible = true;
-    var rowContent = "";
-
-    // add column values
-    for (var c = 0; c < columnCount; c++) {
-      if (this.getColumnType(c) == 'boolean') continue;
-      var displayValue = this.getDisplayValueAt(r, typeof cols != 'undefined'  ? cols[c] :  c);
-      var value = this.getValueAt(r, typeof cols != 'undefined'  ? cols[c] : c);
-      rowContent += displayValue + " " + (displayValue == value ? "" : value + " ");
-    }
-
-    // add attribute values
-    for (var attributeName in row) {
-      if (attributeName != "visible" && attributeName != "originalIndex" && attributeName != "columns") rowContent += row[attributeName];
-    }
-
-    // if row contents do not match one word in the filter, hide the row
-    for (var i = 0; i < words.length; i++) {
-      var word = words[i];
-      var match = false;
-
-      // a word starting with "!" means that we want a NON match
-      var invertMatch = word.startsWith("!");
-      if (invertMatch) word = word.substr(1);
-
-      // if word is of the form "colname/attributename=value" or "colname/attributename!=value", only this column/attribute is used
-      var colindex = -1;
-      var attributeName = null;
-      if (word.contains("!=")) {
-        var parts = word.split("!=");
-        colindex = this.getColumnIndex(parts[0]);
-        if (colindex >= 0) {
-          word = parts[1];
-          invertMatch = !invertMatch;
-        }
-        else if (typeof row[parts[0]] != 'undefined') {
-          attributeName = parts[0];
-          word = parts[1];
-          invertMatch = !invertMatch;
-        }
-      }
-      else if (word.contains("=")) {
-        var parts = word.split("=");
-        colindex = this.getColumnIndex(parts[0]);
-        if (colindex >= 0) word = parts[1];
-        else if (typeof row[parts[0]] != 'undefined') {
-          attributeName = parts[0];
-          word = parts[1];
-        }
-      }
-
-      // a word ending with "!" means that a column must match this word exactly
-      if (!word.endsWith("!")) {
-        if (colindex >= 0) match = (this.getValueAt(r, colindex) + ' ' + this.getDisplayValueAt(r, colindex)).trim().toLowerCase().indexOf(word) >= 0;
-        else if (attributeName !== null) match = (''+this.getRowAttribute(r, attributeName)).trim().toLowerCase().indexOf(word) >= 0;
-        else match = rowContent.toLowerCase().indexOf(word) >= 0;
-      }
-      else {
-        word = word.substr(0, word.length - 1);
-        if (colindex >= 0) match = (''+this.getDisplayValueAt(r, colindex)).trim().toLowerCase() == word || (''+this.getValueAt(r, colindex)).trim().toLowerCase() == word;
-        else if (attributeName !== null) match = (''+this.getRowAttribute(r, attributeName)).trim().toLowerCase() == word;
-        else for (var c = 0; c < columnCount; c++) {
-          if (this.getColumnType(typeof cols != 'undefined'  ? cols[c] : c) == 'boolean') continue;
-          if ((''+this.getDisplayValueAt(r, typeof cols != 'undefined'  ? cols[c] : c)).trim().toLowerCase() == word || (''+this.getValueAt(r, typeof cols != 'undefined'  ? cols[c] : c)).trim().toLowerCase() == word) match = true;
-        }
-      }
-
-      if (invertMatch ? match : !match) {
-        this.data[r].visible = false;
-        break;
-      }
-    }
-  }
-
-  // keep only visible rows in data
-  this.dataUnfiltered = this.data;
-  this.data = [];
-  for (var r = 0; r < rowCount; r++) if (this.dataUnfiltered[r].visible) this.data.push(this.dataUnfiltered[r]);
-
-  // refresh grid (back on first page) and callback
-  this.setPageIndex(0);
-  this.tableFiltered();
+	// refresh grid (back on first page) and callback
+	this.setPageIndex(0);
+	this.tableFiltered();
 };
 
 

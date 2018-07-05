@@ -784,3 +784,93 @@ function number_format (number, decimals, dec_point, thousands_sep) {
 							return s.join(dec);
 }
 
+class Filter {
+	constructor() {
+	}
+	
+	shouldInclude(row, index, grid) {
+		return true;
+	}
+}
+
+class StringFilter extends Filter {
+	constructor(filterString, cols) {
+		super();
+		this.words = filterString.toLowerCase().split(" ");
+		this.cols = cols;
+	}
+	
+	shouldInclude(row, index, grid) {
+		var rowContent = "";
+		var columnCount = typeof this.cols != 'undefined' ? this.cols.length  : grid.getColumnCount();
+
+		// add column values
+		for (var c = 0; c < columnCount; c++) {
+			if (grid.getColumnType(c) == 'boolean') continue;
+			var displayValue = grid.getDisplayValueAt(index, typeof cols != 'undefined'  ? cols[c] :  c);
+			var value = grid.getValueAt(index, typeof cols != 'undefined'  ? cols[c] : c);
+			rowContent += displayValue + " " + (displayValue == value ? "" : value + " ");
+		}
+		// add attribute values
+		for (var attributeName in row) {
+			if (attributeName != "visible" && attributeName != "originalIndex" && attributeName != "columns") rowContent += row[attributeName];
+		}
+
+		// if row contents do not match one word in the filter, hide the row
+		for (var i = 0; i < this.words.length; i++) {
+			var word = this.words[i];
+			var match = false;
+
+			// a word starting with "!" means that we want a NON match
+			var invertMatch = word.startsWith("!");
+			if (invertMatch) word = word.substr(1);
+
+			// if word is of the form "colname/attributename=value" or "colname/attributename!=value", only this column/attribute is used
+			var colindex = -1;
+			var attributeName = null;
+			if (word.contains("!=")) {
+				var parts = word.split("!=");
+				colindex = grid.getColumnIndex(parts[0]);
+				if (colindex >= 0) {
+					word = parts[1];
+					invertMatch = !invertMatch;
+				}
+				else if (typeof row[parts[0]] != 'undefined') {
+					attributeName = parts[0];
+					word = parts[1];
+					invertMatch = !invertMatch;
+				}
+			}
+			else if (word.contains("=")) {
+				var parts = word.split("=");
+				colindex = grid.getColumnIndex(parts[0]);
+				if (colindex >= 0) word = parts[1];
+				else if (typeof row[parts[0]] != 'undefined') {
+					attributeName = parts[0];
+					word = parts[1];
+				}
+			}
+		
+			// a word ending with "!" means that a column must match this word exactly
+			if (!word.endsWith("!")) {
+				if (colindex >= 0) match = (grid.getValueAt(r, colindex) + ' ' + grid.getDisplayValueAt(index, colindex)).trim().toLowerCase().indexOf(word) >= 0;
+				else if (attributeName !== null) match = (''+grid.getRowAttribute(index, attributeName)).trim().toLowerCase().indexOf(word) >= 0;
+				else match = rowContent.toLowerCase().indexOf(word) >= 0;
+			}
+			else {
+				word = word.substr(0, word.length - 1);
+				if (colindex >= 0) match = (''+grid.getDisplayValueAt(index, colindex)).trim().toLowerCase() == word || (''+grid.getValueAt(index, colindex)).trim().toLowerCase() == word;
+				else if (attributeName !== null) match = (''+grid.getRowAttribute(index, attributeName)).trim().toLowerCase() == word;
+				else for (var c = 0; c < columnCount; c++) {
+					if (this.getColumnType(typeof cols != 'undefined'  ? cols[c] : c) == 'boolean') continue;
+					if ((''+grid.getDisplayValueAt(index, typeof cols != 'undefined'  ? cols[c] : c)).trim().toLowerCase() == word || (''+grid.getValueAt(index, typeof cols != 'undefined'  ? cols[c] : c)).trim().toLowerCase() == word) match = true;
+				}
+			}
+		
+			if (invertMatch ? match : !match) {
+				return false;
+			}
+		}
+		return true;
+	}
+}
