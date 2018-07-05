@@ -14,7 +14,6 @@ from waitlist import db
 from waitlist.storage.database import SSOToken, EveApiScope
 from waitlist.utility import config
 from esipy.exceptions import APIException
-from json.decoder import JSONDecodeError
 from time import sleep
 
 logger = logging.getLogger(__name__)
@@ -62,7 +61,7 @@ def repeated_verify(security: EsiSecurity, count: int=0,
     """
     try:
         return security.verify()
-    except (APIException, JSONDecodeError) as e:
+    except APIException as e:
         if count >= max_count:
             logger.exception('Failed to verify because of repeated errors',
                              exc_info=True)
