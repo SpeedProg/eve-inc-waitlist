@@ -18,6 +18,9 @@ class RoleFilter extends Filter {
 			roles = roles.slice(3)
 		}
 		roles = roles.split(', ');
+		roles = roles.map(role => role.trim());
+		console.log(roles);
+		console.log(this.roleName);
 		return roles.includes(this.roleName);
 	}
 }

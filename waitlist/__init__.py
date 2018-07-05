@@ -108,7 +108,7 @@ register_filter(CSSOptimizerFilter)
 register_asset_bundles(assets)
 
 
-class MiniJSONEncoder(JSONEncoder):
+class MiniJSONEncoder(LazyJSONEncoder):
     """Minify JSON output."""
     item_separator = ','
     key_separator = ':'
@@ -117,7 +117,7 @@ class MiniJSONEncoder(JSONEncoder):
         if isinstance(obj, datetime):
             return obj.isoformat()+"Z"
         # Let the base class default method raise the TypeError
-        return LazyJSONEncoder.default(self, obj)
+        return super(MiniJSONEncoder, self).default(obj)
 
 
 app.json_encoder = MiniJSONEncoder

@@ -9,6 +9,7 @@ from waitlist.data.sse import FitAddedSSE, EntryAddedSSE, EntryRemovedSSE,\
 from flask.wrappers import Response
 
 from waitlist.permissions import perm_manager
+from waitlist import db
 
 bp = Blueprint('api_sse', __name__)
 logger = logging.getLogger(__name__)
@@ -47,29 +48,34 @@ def events():
     # userId can be None for accounts that have no character set currently
     options = {'userId': current_user.get_eve_id()}
 
-    logger.debug('User eveId=%d requesting=%s', current_user.get_eve_id(), event_group_strs)
+    logger.debug('User eveId=%d requesting=%s', current_user.get_eve_id(),
+                 event_group_strs)
     group_id_str = request.args.get('groupId', None)
     if group_id_str is not None:
         options['groupId'] = int(group_id_str)
-    
+
     if 'waitlistUpdates' in event_group_strs:
         logger.debug("adding waitlist update events, to subscription")
         if group_id_str is None:
             flask.abort(400, "No GroupId defined")
-        event_list += [FitAddedSSE, EntryAddedSSE, EntryRemovedSSE, FitRemovedSSE, InviteMissedSSE]
-        
+        event_list += [FitAddedSSE, EntryAddedSSE, EntryRemovedSSE,
+                       FitRemovedSSE, InviteMissedSSE]
+
     if 'statusChanged' in event_group_strs:
         logger.debug("Adding statusChanged event to subscription")
         event_list += [StatusChangedSSE]
 
     if 'gong' in event_group_strs:
         event_list += [GongSSE]
-    
+
     # is the subscriber allowed to see fits?
     options['shouldGetFits'] = perm_fits_view.can()
-        
+
     if len(event_list) <= 0:
         flask.abort("No valid eventgroups specified")
     subs = Subscription(event_list, options)
+
+    # make sure there is no sqlalchemy session anymore
+    db.session.remove()
 
     return Response(event_gen(subs), mimetype="text/event-stream")

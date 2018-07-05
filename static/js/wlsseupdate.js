@@ -18,10 +18,9 @@ waitlist.sse = (function() {
 		errorCount++;
 		if (errorCount < 2) { // our first error reconnect this instant
 			connectSSE();
-		} else if (errorCount >= 2 && errorCount <= 5) {  // 2-5 errors, try
-															// reconnect after
-															// 1s
-			setTimeout(connectSSE, 1000);
+		// error 2-5, try reconnect after 2s
+		} else if (errorCount >= 2 && errorCount <= 5) {
+			setTimeout(connectSSE, 2000);
 		} else { // > 5 errors try reconnect after 10s
 			setTimeout(connectSSE, 10000);
 		}

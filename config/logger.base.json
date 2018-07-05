@@ -53,7 +53,7 @@
             "handlers": ["error", "info", "debug"]
         },
         "esipy": {
-            "level": "ERROR",
+            "level": "WARNING",
             "handlers": ["error", "info", "debug"]
         },
         "flask": {
