@@ -27,9 +27,9 @@ class BabiliFilter(ExternalTool):
         else:
             self.presets = "minify"
         if self.extra_args:
-            self.extra_args.extend(['--no-babelrc', '--no-comments', '--plugins=transform-remove-console'])
+            self.extra_args.extend(['--no-babelrc', '--no-comments',])# '--plugins=transform-remove-console'])
         else:
-            self.extra_args = ['--no-babelrc', '--no-comments', '--plugins=transform-remove-console']
+            self.extra_args = ['--no-babelrc', '--no-comments']#, '--plugins=transform-remove-console']
 
         args = [config.node_bin + 'babel']
         if self.presets:

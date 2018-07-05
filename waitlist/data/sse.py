@@ -66,16 +66,18 @@ class Subscription(object):
         return event.encode(self)
 
 
-def add_subscription(subscription):
+def add_subscription(subscription: Subscription):
     if not isinstance(subscription, Subscription):
         raise TypeError("Not a Subscription Object")
     subscriptions.append(subscription)
+    logger.info('Adding subscription for %s', subscription.get_user_id())
 
 
 def remove_subscription(subscription):
     if not isinstance(subscription, Subscription):
         raise TypeError("Not a Subscription Object")
     subscriptions.remove(subscription)
+    logger.info('Removing subscription for %s', subscription.get_user_id())
 
 
 # this class should never be used only extended classes

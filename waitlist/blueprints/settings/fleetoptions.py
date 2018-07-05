@@ -297,7 +297,7 @@ def fleet_location_set(gid):
         else:
             group.dockup = get_station(name)
             logger.info("%s Dock was set to %s by %s", group.displayName, name, current_user.username)
-            flash(gettext("%(group_name) Dock was set to %(name)",
+            flash(gettext("%(group_name)s Dock was set to %(name)s",
                           group_name=group.displayName, name=name), "success")
 
     db.session.commit()

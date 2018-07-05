@@ -131,25 +131,41 @@ class SSOToken(Base):
             logger.debug("Calling refresh on %r", self)
             logger.debug(stack_trace[:-1])
             security.refresh()
-            SSOToken.update_token_callback(token_identifier=self.tokenID, access_token=security.access_token,
-                                           refresh_token=security.refresh_token, expires_at=security.token_expiry)
+            SSOToken.update_token_callback(token_identifier=self.tokenID,
+                                           access_token=security.access_token,
+                                           refresh_token=security.refresh_token,
+                                           expires_at=security.token_expiry)
             logger.debug("Token refresh worked")
             return True
         except APIException as e:
             # this probably happens because the token is invalid now
-            if ('message' in e.response and
-                    (e.response['message'] == 'invalid_token' or
-                     e.response['message'] == 'invalid_request')
-                )\
-                or\
-                ('error' in e.response and
-                      (e.response['error'] == 'invalid_request' or
-                       e.response['error'] == 'invalid_token')
-            ):
-                logger.debug('%s invalid because of response %s.', self, e.response)
-                return False
+            if ('content-type' in e.response_header
+               and 'application/json' in e.response_header['content-type']):
+                resp_data = json.loads(e.response)
+                if (
+                    (
+                        'message' in resp_data and
+                        (resp_data['message'] == 'invalid_token' or
+                         resp_data['message'] == 'invalid_request')
+                    )
+                    or
+                    (
+                        'error' in resp_data and
+                        (resp_data['error'] == 'invalid_request' or
+                         resp_data['error'] == 'invalid_token')
+                    )
+                   ):
+                    logger.debug('%s invalid because of response %s.', self,
+                                 resp_data)
+                    return False
 
-            logger.exception('%s valid because of exception.', exc_info=True)
+            logger.exception('%s valid because of exception. header=%s',
+                             self,
+                             e.response_header,
+                             exc_info=True)
+            return True
+        except Exception:
+            logger.exception('%s valid because of exception.', self)
             return True
 
     def expires_in(self) -> int:

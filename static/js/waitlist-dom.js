@@ -782,8 +782,8 @@ waitlist.listdom = (function(){
 		var fitLists = $('ol[id|="wl-fits"]');
 		fitLists.empty();
 		fitLists.each(function(idx, el){
-			var wlId = Number($(el).attr('id').replace('wl-fits-', ''));
-			updateWlEntryTagCount(wlid);
+			let wlId = Number($(el).attr('id').replace('wl-fits-', ''));
+			updateWlEntryTagCount(wlId);
 		});
 	}
 	

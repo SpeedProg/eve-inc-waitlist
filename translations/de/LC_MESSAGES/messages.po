@@ -3,11 +3,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2018-06-26 13:52+0200\n"
+"POT-Creation-Date: 2018-07-05 20:06+0200\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2018-06-29 07:43+0000\n"
+"PO-Revision-Date: 2018-07-05 06:09+0000\n"
 "Last-Translator: Constantin Wenger <constantin.wenger@googlemail.com>\n"
 "Language-Team: German\n"
 "Language: de\n"
@@ -523,7 +523,7 @@ msgid "Outstanding Events"
 msgstr "Bevorstehende Veranstaltungen"
 
 #: templates/calendar/settings.html:52 templates/feedback/settings.html:18
-#: templates/settings/accounts.html:103 templates/settings/bans.html:49
+#: templates/settings/accounts.html:122 templates/settings/bans.html:49
 #: templates/settings/fleet.html:209 templates/settings/whitelist.html:49
 #: templates/waitlist/tools/history_search.html:48
 msgid "Actions"
@@ -644,8 +644,8 @@ msgid "Skip Auto Fleet Setup"
 msgstr "Automatische Flotten Einrichtung überspringen"
 
 #: templates/fleet/setup/fleet_url.html:22 templates/fleet/setup/select.html:61
-#: templates/settings/accounts.html:87
-#: templates/waitlist/tools/commandcore_list.html:40
+#: templates/settings/accounts.html:105
+#: templates/waitlist/tools/commandcore_list.html:58
 msgid "Next"
 msgstr "Nächstes"
 
@@ -754,7 +754,7 @@ msgstr "Aktiviert"
 
 #: templates/settings/accounts.html:3
 #: templates/waitlist/tools/history_search.html:40
-#: waitlist/blueprints/settings/accounts.py:440
+#: waitlist/blueprints/settings/accounts.py:445
 msgid "Accounts"
 msgstr "Konten"
 
@@ -762,8 +762,8 @@ msgstr "Konten"
 msgid "Disabled Accounts"
 msgstr "Inaktive Konten"
 
-#: templates/settings/accounts.html:47 templates/settings/accounts.html:108
-#: templates/waitlist/tools/commandcore_list.html:56
+#: templates/settings/accounts.html:47 templates/settings/accounts.html:127
+#: templates/waitlist/tools/commandcore_list.html:77
 msgid "Alts"
 msgstr "Alternierende Charaktere"
 
@@ -779,99 +779,109 @@ msgstr "Lade Liste voll berechtigter Mitglieder herunter"
 msgid "New Account"
 msgstr "Neuer Account"
 
-#: templates/settings/accounts.html:66
-#: templates/waitlist/tools/commandcore_list.html:19
+#: templates/settings/accounts.html:67
+#: templates/waitlist/tools/commandcore_list.html:21
 msgid "Filter"
 msgstr "Suche"
 
 #: templates/settings/accounts.html:75
-#: templates/waitlist/tools/commandcore_list.html:28
-msgid "First"
-msgstr "Erstes"
+#: templates/waitlist/tools/commandcore_list.html:29
+msgid "Role Filter"
+msgstr "Rollen Filter"
 
-#: templates/settings/accounts.html:81
-#: templates/waitlist/tools/commandcore_list.html:34
-msgid "Previous"
-msgstr "Vorhergehendes"
+#: templates/settings/accounts.html:78
+#: templates/waitlist/tools/commandcore_list.html:32
+msgid "Please select..."
+msgstr "Bitte auswählen..."
 
 #: templates/settings/accounts.html:93
 #: templates/waitlist/tools/commandcore_list.html:46
+msgid "First"
+msgstr "Erstes"
+
+#: templates/settings/accounts.html:99
+#: templates/waitlist/tools/commandcore_list.html:52
+msgid "Previous"
+msgstr "Vorhergehendes"
+
+#: templates/settings/accounts.html:111
+#: templates/waitlist/tools/commandcore_list.html:64
 msgid "Last"
 msgstr "Letztes"
 
-#: templates/settings/accounts.html:104 templates/settings/fleet.html:61
+#: templates/settings/accounts.html:123 templates/settings/fleet.html:61
 msgid "Status"
 msgstr "Zustand"
 
-#: templates/settings/accounts.html:105 templates/settings/accounts.html:170
-#: templates/settings/accounts.html:214 templates/settings/self.html:64
-#: templates/waitlist/tools/commandcore_list.html:54
+#: templates/settings/accounts.html:124 templates/settings/accounts.html:189
+#: templates/settings/accounts.html:233 templates/settings/self.html:64
+#: templates/waitlist/tools/commandcore_list.html:75
 msgid "Account Name"
 msgstr "Konto Name"
 
-#: templates/settings/accounts.html:106 templates/settings/accounts.html:174
-#: templates/settings/accounts.html:222 templates/settings/self.html:68
-#: templates/waitlist/tools/commandcore_list.html:55
+#: templates/settings/accounts.html:125 templates/settings/accounts.html:193
+#: templates/settings/accounts.html:241 templates/settings/self.html:68
+#: templates/waitlist/tools/commandcore_list.html:76
 msgid "Roles"
 msgstr "Rollen"
 
-#: templates/settings/accounts.html:107
+#: templates/settings/accounts.html:126
 msgid "Current Char"
 msgstr "Aktiver Charakter"
 
-#: templates/settings/accounts.html:117
+#: templates/settings/accounts.html:136
 msgid "Enable"
 msgstr "Aktivieren"
 
-#: templates/settings/accounts.html:117
+#: templates/settings/accounts.html:136
 msgid "Disable"
 msgstr "Deaktivieren"
 
-#: templates/settings/accounts.html:120
+#: templates/settings/accounts.html:139
 msgid "Edit"
 msgstr "Ändern"
 
-#: templates/settings/accounts.html:136
+#: templates/settings/accounts.html:155
 msgid "Mail"
 msgstr "Nachricht"
 
-#: templates/settings/accounts.html:139
+#: templates/settings/accounts.html:158
 msgid "Deactivated"
 msgstr "Deaktiviert"
 
-#: templates/settings/accounts.html:139
+#: templates/settings/accounts.html:158
 msgid "Active"
 msgstr "Aktiv"
 
-#: templates/settings/accounts.html:164
+#: templates/settings/accounts.html:183
 msgid "Create New Account"
 msgstr "Erstelle ein neues Konto"
 
-#: templates/settings/accounts.html:182
+#: templates/settings/accounts.html:201
 msgid "Default Character Name"
 msgstr "Standard Charakter Name"
 
-#: templates/settings/accounts.html:186 templates/settings/accounts.html:230
+#: templates/settings/accounts.html:205 templates/settings/accounts.html:249
 msgid "Add a Note"
 msgstr "Füge eine Notiz hinzu"
 
-#: templates/settings/accounts.html:193 templates/settings/accounts.html:237
+#: templates/settings/accounts.html:212 templates/settings/accounts.html:256
 msgid "Close"
 msgstr "Schließen"
 
-#: templates/settings/accounts.html:194
+#: templates/settings/accounts.html:213
 msgid "Create"
 msgstr "Erstellen"
 
-#: templates/settings/accounts.html:207
+#: templates/settings/accounts.html:226
 msgid "Edit Account"
 msgstr "Konto ändern"
 
-#: templates/settings/accounts.html:218 templates/settings/self.html:76
+#: templates/settings/accounts.html:237 templates/settings/self.html:76
 msgid "Default Character"
 msgstr "Standard Charakter"
 
-#: templates/settings/accounts.html:238
+#: templates/settings/accounts.html:257
 msgid "Change"
 msgstr "Ändern"
 
@@ -1496,14 +1506,14 @@ msgstr ""
 msgid "You are not the boss of the fleet you are in."
 msgstr "Du bist nicht der Befehlsgeber der Flotte in der du dich befindest."
 
-#: waitlist/blueprints/settings/accounts.py:67
+#: waitlist/blueprints/settings/accounts.py:68
 #, python-format
 msgid "A Character named %(char_name)s does not exist!"
 msgstr "Es gibt keine Charakter mit dem Namen %(char_name)s!"
 
-#: waitlist/blueprints/settings/accounts.py:105
-#: waitlist/blueprints/settings/accounts.py:307
-#: waitlist/blueprints/settings/accounts.py:397
+#: waitlist/blueprints/settings/accounts.py:106
+#: waitlist/blueprints/settings/accounts.py:308
+#: waitlist/blueprints/settings/accounts.py:402
 #: waitlist/blueprints/settings/bans.py:116
 #: waitlist/blueprints/settings/bans.py:177
 #: waitlist/blueprints/settings/bans.py:201
@@ -1515,18 +1525,24 @@ msgstr "Es gibt keine Charakter mit dem Namen %(char_name)s!"
 msgid "Could not execute action, ApiException %(ex)s"
 msgstr "Die Aktion konnte nicht durchgeführt werden, ApiException %(ex)s"
 
-#: waitlist/blueprints/settings/accounts.py:290
-#: waitlist/blueprints/settings/accounts.py:334
+#: waitlist/blueprints/settings/accounts.py:291
+#: waitlist/blueprints/settings/accounts.py:335
 #, python-format
 msgid "Character with name %(char_name)s could not be found!"
 msgstr ""
 "Ein Charakter mit dem Namen $(char_name)s konnte nicht gefunden werden!"
 
-#: waitlist/blueprints/settings/accounts.py:441
+#: waitlist/blueprints/settings/accounts.py:380
+msgid "Failed to get info for this character because of sso error"
+msgstr ""
+"Das beschaffen der Info für diesen Charakter ist wegen eines SSO Fehlers "
+"fehlgeschlagen"
+
+#: waitlist/blueprints/settings/accounts.py:446
 msgid "Own Settings"
 msgstr "Eigene Einstellungen"
 
-#: waitlist/blueprints/settings/accounts.py:503
+#: waitlist/blueprints/settings/accounts.py:508
 #, python-format
 msgid ""
 "There was an error contacting the API for character info character id = "
@@ -1535,7 +1551,7 @@ msgstr ""
 "Währen der Verbindung zur API um Charakter id=%(char_id)d Informationen "
 "abzurufen trat ein Fehler auf."
 
-#: waitlist/blueprints/settings/accounts.py:531
+#: waitlist/blueprints/settings/accounts.py:536
 #, python-format
 msgid "Alt %(char_name)s was added"
 msgstr "Alternativer Charakter %(char_name)s wurde hinzugefügt"
@@ -1684,8 +1700,9 @@ msgid "All Docks were set to %(name)s"
 msgstr "Alle Basen wurde auf %(name)s gesetzt"
 
 #: waitlist/blueprints/settings/fleetoptions.py:300
-msgid "%(group_name) Dock was set to %(name)"
-msgstr "%(group_name) Basis wurde auf %(name) gesetzt"
+#, python-format
+msgid "%(group_name)s Dock was set to %(name)s"
+msgstr "%(group_name)s Basis wurde auf %(name)s gesetzt"
 
 #: waitlist/blueprints/settings/fleetoptions.py:360
 msgid "Waitlists were cleared!"
@@ -1782,7 +1799,7 @@ msgstr ""
 "nicht mehr funktioniert. Du kannst ihn unter Eigene Einstellungen wieder "
 "hinzufügen."
 
-#: waitlist/utility/login/__init__.py:150
+#: waitlist/utility/login/__init__.py:151
 msgid ""
 "You character seemed to have changed owner. You where removed as eligible "
 "character for account login."
@@ -1790,7 +1807,7 @@ msgstr ""
 "Dein Charakter scheint den Besitzer gewechselt zu haben. Er wurde als "
 "zugelassener Charakter für eine Kontoanmeldung entfernt."
 
-#: waitlist/utility/login/__init__.py:176
+#: waitlist/utility/login/__init__.py:177
 #, python-format
 msgid ""
 "Your character %(eve_name)s is connected to more than one Waitlist Account, "

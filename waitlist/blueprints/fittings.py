@@ -342,6 +342,8 @@ def api_move_fit_to_waitlist():
 @perm_dev.require(http_exception=401)
 def debug():
     output = f"Currently {len(subscriptions)} subscriptions."
+    for sub in subscriptions:
+        output += json.dumps(sub.options)
     output += json.dumps(fit_api.access_duration_track)
     return output
 
