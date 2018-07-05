@@ -29,7 +29,7 @@
 {% endassets %}
 
 {% assets filters="babili", output="gen/acc-cc-list.%(version)s.js", "js/eve-igb-wrapper.js",
-"js/editablegrid/editablegrid_customrenderer.js", "js/accounts/accountslist-dom.js", "js/accounts/settings-accounts.js" %}
+"js/editablegrid/editablegrid_customrenderer.js", "js/accounts/editablegrid_filter.js", "js/accounts/role_filter.js", "js/accounts/accountslist-dom.js", "js/accounts/settings-accounts.js" %}
 <script type="text/javascript" src="{{ ASSET_URL }}"></script>
 {% endassets %}
 {% endblock %}
@@ -61,12 +61,30 @@
 	</div>
 </div>
 <div class="row">
-	<div class="input-group">
-		<div class="input-group-prepend">
-			<span class="input-group-text" id="filter-addon">{{ _('Filter') }}</span>
+	<div class="col-8">
+		<div class="input-group">
+			<div class="input-group-prepend">
+				<span class="input-group-text">{{ _('Filter') }}</span>
+			</div>
+			<input class="form-control" type="text" id="filter"/>
 		</div>
-		<input class="form-control" type="text" id="filter"/>
 	</div>
+	<div class="col-4">
+		<div class="input-group">
+			<div class="input-group-prepend">
+				<span class="input-group-text">{{ _('Role Filter') }}</span>
+			</div>
+			<select class="custom-select" id="filterRole" autocomplete="off">
+				<option value="" selected>{{ _('Please select...') }}</option>
+				{% for role in roles %}
+				<option value="{{role.name}}">{{role.name}}</option>
+				{% endfor %}
+			</select>
+		</div>
+	</div>
+</div>
+<div class="row">
+	<div class="col-12">
 	<nav aria-label="Page navigation">
 		<ul class="pagination mb-0" id="paginator">
 			<li class="page-item">
@@ -95,6 +113,7 @@
 			</li>
 		</ul>
 	</nav>
+	</div>
 </div>
 <div class="row">
 	<table id="acctable" class="table">

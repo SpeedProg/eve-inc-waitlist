@@ -220,9 +220,13 @@ waitlist.accounts = (function() {
 		editableGrid.initializePaginator();
 		editableGrid.initializeGrid();
 		editableGrid.renderGrid();
+		let oldFilter = null;
 		$('#filter').on('keyup', function() {
-			editableGrid.filter($('#filter').val());
+			if (oldFilter != null) editableGrid.removeFilter(oldFilter);
+			oldFilter = new StringFilter($('#filter').val());
+			editableGrid.addFilter(oldFilter);
 		});
+		registerRoleFilterSelect(editableGrid, 'filterRole');
 	}
 	
 	function init() {

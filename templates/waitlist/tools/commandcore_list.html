@@ -8,62 +8,85 @@
 {% assets filters="babili", output="gen/editablegrid.%(version)s.js", "js/editablegrid/editablegrid.js", "js/editablegrid/editablegrid_utils.js", "js/editablegrid/editablegrid_renderers.js", "js/editablegrid/editablegrid_editors.js", "js/editablegrid/editablegrid_validators.js", "js/editablegrid/editablegrid_paginator.js" %}
 <script type="text/javascript" src="{{ ASSET_URL }}"></script>
 {% endassets %}
-{% assets filters="babili", output="gen/acc-cc-list.%(version)s.js", "js/editablegrid/editablegrid_customrenderer.js", "js/accounts/commandcorelist.js" %}
+{% assets filters="babili", output="gen/acc-cc-list.%(version)s.js", "js/editablegrid/editablegrid_customrenderer.js", "js/accounts/editablegrid_filter.js", "js/accounts/role_filter.js", "js/accounts/commandcorelist.js" %}
 <script type="text/javascript" src="{{ ASSET_URL }}"></script>
 {% endassets %}
 {% endblock %}
 
 {% block container_data %}
-<div class="input-group">
-	<div class="input-group-prepend">
-		<span class="input-group-text" id="filter-addon">{{ _('Filter') }}</span>
+<div class="row">
+	<div class="col-8">
+		<div class="input-group">
+			<div class="input-group-prepend">
+				<span class="input-group-text">{{ _('Filter') }}</span>
+			</div>
+			<input class="form-control" type="text" id="filter"/>
+		</div>
 	</div>
-	<input class="form-control" type="text" id="filter"/>
+	<div class="col-4">
+		<div class="input-group">
+			<div class="input-group-prepend">
+				<span class="input-group-text">{{ _('Role Filter') }}</span>
+			</div>
+			<select class="custom-select" id="filterRole" autocomplete="off">
+				<option value="" selected>{{ _('Please select...') }}</option>
+				{% for role in roles %}
+				<option value="{{role.displayName}}">{{role.displayName}}</option>
+				{% endfor %}
+			</select>
+		</div>
+	</div>
 </div>
-<nav aria-label="Page navigation">
-	<ul class="pagination" id="paginator">
-		<li class="page-item">
-			<a class="page-link" href="#" aria-label="First">
-				<span aria-hidden="true"><i class="fa fa-angle-double-left"></i></span>
-				<span class="sr-only">{{ _('First') }}</span>
-			</a>
-		</li>
-		<li class="page-item">
-			<a class="page-link" href="#" aria-label="Previous">
-				<span aria-hidden="true"><i class="fa fa-angle-left"></i></span>
-				<span class="sr-only">{{ _('Previous') }}</span>
-			</a>
-		</li>
-		<li class="page-item">
-			<a class="page-link" href="#" aria-label="Next">
-				<span aria-hidden="true"><i class="fa fa-angle-right"></i></span>
-				<span class="sr-only">{{ _('Next') }}</span>
-			</a>
-		</li>
-		<li class="page-item">
-			<a class="page-link" href="#" aria-label="Next">
-				<span aria-hidden="true"><i class="fa fa-angle-double-right"></i></span>
-				<span class="sr-only">{{ _('Last') }}</span>
-			</a>
-		</li>
-	</ul>
-</nav>
-<table class="table" id="commanderlist">
-<thead>
-	<tr>
-		<th>{{ _('Account Name') }}</th>
-		<th>{{ _('Roles') }}</th>
-		<th>{{ _('Alts') }}</th>
-	</tr>
-</thead>
-<tbody id="account-table-body">
-	{% for acc in accounts %}
-	<tr id="account-{{acc.id}}"{% if acc.disabled %} class="table-warning"{% endif %}>
-		<td id="acc-{{acc.id}}-name">{{ acc.username }}</td>
-		<td id="acc-{{acc.id}}-roles">{% for role in acc.roles %}{{role.displayName}}{% if not loop.last %}, {% endif %}{% endfor %}</td>
-		<td>{% for character in acc.characters %}{% if acc.get_token_for_charid(character.id) is not none %}{{character.eve_name}}{% if not loop.last %}, {% endif %}{% endif %}{% endfor %}</td>
-	</tr>
-	{% endfor %}
-</tbody>
-</table>
+<div class="row">
+	<nav class="col-12" aria-label="Page navigation">
+		<ul class="pagination" id="paginator">
+			<li class="page-item">
+				<a class="page-link" href="#" aria-label="First">
+					<span aria-hidden="true"><i class="fa fa-angle-double-left"></i></span>
+					<span class="sr-only">{{ _('First') }}</span>
+				</a>
+			</li>
+			<li class="page-item">
+				<a class="page-link" href="#" aria-label="Previous">
+					<span aria-hidden="true"><i class="fa fa-angle-left"></i></span>
+					<span class="sr-only">{{ _('Previous') }}</span>
+				</a>
+			</li>
+			<li class="page-item">
+				<a class="page-link" href="#" aria-label="Next">
+					<span aria-hidden="true"><i class="fa fa-angle-right"></i></span>
+					<span class="sr-only">{{ _('Next') }}</span>
+				</a>
+			</li>
+			<li class="page-item">
+				<a class="page-link" href="#" aria-label="Next">
+					<span aria-hidden="true"><i class="fa fa-angle-double-right"></i></span>
+					<span class="sr-only">{{ _('Last') }}</span>
+				</a>
+			</li>
+		</ul>
+	</nav>
+</div>
+<div class="row">
+	<div class="col-12">
+		<table class="table" id="commanderlist">
+		<thead>
+			<tr>
+				<th>{{ _('Account Name') }}</th>
+				<th>{{ _('Roles') }}</th>
+				<th>{{ _('Alts') }}</th>
+			</tr>
+		</thead>
+		<tbody id="account-table-body">
+			{% for acc in accounts %}
+			<tr id="account-{{acc.id}}"{% if acc.disabled %} class="table-warning"{% endif %}>
+				<td id="acc-{{acc.id}}-name">{{ acc.username }}</td>
+				<td id="acc-{{acc.id}}-roles">{% for role in acc.roles %}{{role.displayName}}{% if not loop.last %}, {% endif %}{% endfor %}</td>
+				<td>{% for character in acc.characters %}{% if acc.get_token_for_charid(character.id) is not none %}{{character.eve_name}}{% if not loop.last %}, {% endif %}{% endif %}{% endfor %}</td>
+			</tr>
+			{% endfor %}
+		</tbody>
+		</table>
+	</div>
+</div>
 {% endblock %}
