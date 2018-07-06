@@ -1,15 +1,17 @@
-from flask_login import login_required, current_user
+from flask_login import current_user
 from flask.globals import request
 from flask.blueprints import Blueprint
 import logging
 import flask
 from waitlist.data.sse import FitAddedSSE, EntryAddedSSE, EntryRemovedSSE,\
-    FitRemovedSSE, GongSSE, Subscription, add_subscription, remove_subscription,\
-    InviteMissedSSE, StatusChangedSSE
+    FitRemovedSSE, GongSSE, Subscription, add_subscription,\
+    remove_subscription,\
+    InviteMissedSSE, StatusChangedSSE, ReloadPageSSE
 from flask.wrappers import Response
 
 from waitlist.permissions import perm_manager
 from waitlist import db
+from time import sleep
 
 bp = Blueprint('api_sse', __name__)
 logger = logging.getLogger(__name__)
@@ -32,21 +34,45 @@ def event_gen(sub: Subscription):
         remove_subscription(sub)
 
 
+def reload_gen():
+        rpSse = ReloadPageSSE()
+        while True:
+            yield rpSse.encode(None)
+            sleep(1000)
+
+
 @bp.route("/", methods=["GET"])
-@login_required
 def events():
     """
     Available eventGroups:
     'waitlistUpdates', 'gong', 'statusChanged'
     """
+    connect_try = request.args.get('connect_try', None)
+
     event_groups_str = request.args.get('events', None)
     if event_groups_str is None:
         flask.abort(400, "No EventGroups defined")
 
     event_group_strs = event_groups_str.split(",")
     event_list = []
+    ip = request.headers.get('X-Real-IP', 'NoIP')
+
+    if not current_user.is_authenticated:
+        logger.info('SSE reconnection without login on try %s from %s',
+                    connect_try, ip)
+        return Response(reload_gen(), mimetype="text/event-stream")
+
     # userId can be None for accounts that have no character set currently
     options = {'userId': current_user.get_eve_id()}
+
+    try:
+        if connect_try is not None and int(connect_try) > 0:
+            logger.info('SSE reconnection for %s on try %s from %s', current_user,
+                        connect_try, ip)
+    except ValueError:
+        logger.error('SSE connection for %s with invalid connect_try %s from %s',
+                     current_user,
+                     connect_try, ip)
 
     logger.debug('User eveId=%d requesting=%s', current_user.get_eve_id(),
                  event_group_strs)

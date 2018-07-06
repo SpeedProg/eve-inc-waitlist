@@ -64,7 +64,7 @@ def check_user_owner_hash():
             if user.current_char is None:
                 logger.debug("%s has no current character set, ignore owner_hash check.", user)
                 return
-    
+
             if not owner_hash_check_manager.is_ownerhash_valid(user):
                 logger.info("owner_hash for %s was invalid. Removing connected character %s.", user, user.current_char_obj)
                 flask.flash(gettext(

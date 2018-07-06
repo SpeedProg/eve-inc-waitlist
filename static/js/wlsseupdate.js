@@ -6,6 +6,7 @@ if (!waitlist) {
 
 waitlist.sse = (function() {
 	let getMetaData = waitlist.base.getMetaData;
+	let displayMessage = waitlist.base.displayMessage;
 
 	let eventListeners = [];
 
@@ -17,14 +18,16 @@ waitlist.sse = (function() {
 		event.target.close();
 		errorCount++;
 		if (errorCount < 2) { // our first error reconnect this instant
-			connectSSE();
+			connectSSE(errorCount);
 		// error 2-5, try reconnect after 2s
 		} else if (errorCount >= 2 && errorCount <= 5) {
-			setTimeout(connectSSE, 2000);
-		} else { // > 5 errors try reconnect after 10s
-			setTimeout(connectSSE, 10000);
+			setTimeout(connectSSE.bind(null, errorCount), 2000);
+		} else if (errorCount >= 6 && errorCount <= 10) { // > 5 errors try reconnect after 10s
+			setTimeout(connectSSE.bind(null, errorCount), 10000);
+		// more then 10 reconnects don't try anymore
+		} else {
+			displayMessage($.i18n('wl-error-to-many-sse-errors'), 'danger');
 		}
-		event.target.close();
 	}
 
 	function handleSSEOpen() {
@@ -36,17 +39,17 @@ waitlist.sse = (function() {
 		errorCount = 0; // reset error counter
 	}
 
-	function connectSSE() {
+	function connectSSE(count = 0) {
 		let wlgroup = getMetaData('wl-group-id');
 		if(typeof wlgroup !== "undefined") {
-			eventSource = getSSE("waitlistUpdates,gong,statusChanged", wlgroup);
+			eventSource = getSSE("waitlistUpdates,gong,statusChanged", wlgroup, count);
 		} else {
-			eventSource = getSSE("statusChanged");
+			eventSource = getSSE("statusChanged", undefined, count);
 		}
 	}
 
-	function getSSE(events, groupId) {
-		let url = getMetaData('api-sse')+"?events="+encodeURIComponent(events);
+	function getSSE(events, groupId, count = 0) {
+		let url = getMetaData('api-sse')+"?events="+encodeURIComponent(events)+"&connect_try="+count;
 		if (typeof groupId !== "undefined") {
 			url += "&groupId="+encodeURIComponent(groupId);
 		}

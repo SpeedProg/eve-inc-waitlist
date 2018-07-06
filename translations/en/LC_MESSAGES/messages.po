@@ -3,11 +3,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2018-07-05 20:06+0200\n"
+"POT-Creation-Date: 2018-07-08 12:02+0200\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2018-07-05 06:10+0000\n"
+"PO-Revision-Date: 2018-07-08 10:56+0000\n"
 "Last-Translator: Constantin Wenger <constantin.wenger@googlemail.com>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -1491,6 +1491,27 @@ msgstr "You are not in a fleet, or didn't not provide rights to read them."
 #: waitlist/blueprints/fleet.py:230
 msgid "You are not the boss of the fleet you are in."
 msgstr "You are not the boss of the fleet you are in."
+
+#: waitlist/blueprints/api/fleet.py:52
+msgid "You are not associated with a fleet!"
+msgstr "You are not associated with a fleet!"
+
+#: waitlist/blueprints/api/fleet.py:59
+msgid "The character you tried to invite could not be found!"
+msgstr "The character you tried to invite could not be found!"
+
+#: waitlist/blueprints/api/fleet.py:92
+#, python-format
+msgid "Given waitlist ID=%(waitlist_id)d is not valid."
+msgstr "Given waitlist ID=%(waitlist_id)d is not valid."
+
+#: waitlist/blueprints/api/fleet.py:102
+msgid "You are not currently Boss of a Fleet"
+msgstr "You are not currently Boss of a Fleet"
+
+#: waitlist/blueprints/api/fleet.py:118
+msgid "Unknown Squad Type"
+msgstr "Unknown Squad Type"
 
 #: waitlist/blueprints/settings/accounts.py:68
 #, python-format

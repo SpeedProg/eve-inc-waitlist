@@ -76,5 +76,6 @@
 	"wl-add-alt-placehonder": "Eingabe -> Hinzufügen, Esc -> Abbrechen",
 	"wl-account": "Konto",
 	"wl-enable": "Aktivieren",
-	"wl-disable": "Deaktivieren"
+	"wl-disable": "Deaktivieren",
+	"wl-error-to-many-sse-errors": "Die SSE verbindung wurde zu oft unterbrochen, neuaufbau der verbindung wird eingestellt. WL wird nicht mehr geupdatet."
 }

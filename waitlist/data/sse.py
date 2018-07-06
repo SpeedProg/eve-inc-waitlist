@@ -296,3 +296,14 @@ class StatusChangedSSE(ServerSentEvent):
 
     def encode(self, sub: Subscription):
         return ServerSentEvent.encode(self, sub)
+
+
+class ReloadPageSSE(ServerSentEvent):
+    def __init__(self):
+        super(ReloadPageSSE, self).__init__('', 'reload')
+
+    def accepts(self, sub: Subscription):
+        return True
+
+    def encode(self, sub: Subscription):
+        return super(ReloadPageSSE, self).encode(sub)
