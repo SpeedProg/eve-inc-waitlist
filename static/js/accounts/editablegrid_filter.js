@@ -8,19 +8,22 @@ class RoleFilter extends Filter {
 		let roleIdx = grid.getColumnIndex('roles');
 		let roleString = row.columns[roleIdx];
 		let accId = row.id.substring(8);
-		let roles_node = document.getElementById('acc-' + accId + '-roles');
-
-		let has_new_tag = (roles_node.childNodes.length > 0 && roles_node.childNodes[0].nodeName === "SPAN");
+		console.log("Account Id: "+accId+ " RIdx: "+ ridx);
+		let value = grid.getValueAt(ridx, roleIdx);
+		let roles_node = $.parseHTML('<div>'+value+'</div>')[0];
+		
+		// remove the new node
+		if (roles_node.children.length > 0 && roles_node.children[0].nodeName === "SPAN") {
+			roles_node.children[0].remove()
+		}
 		let roles = roles_node.textContent;
 		roles = roles.replace(/[\t\n\r]/g, ''); // clean up tabs and newlines
-		// if it has a new tag remove the "New" from the beginning
-		if (has_new_tag){
-			roles = roles.slice(3)
-		}
 		roles = roles.split(', ');
 		roles = roles.map(role => role.trim());
 		console.log(roles);
-		console.log(this.roleName);
-		return roles.includes(this.roleName);
+		console.log("Role we want: " + this.roleName);
+		let should_include = roles.includes(this.roleName);
+		console.log("Should include " + should_include);
+		return should_include;
 	}
 }

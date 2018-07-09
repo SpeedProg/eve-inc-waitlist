@@ -155,9 +155,9 @@
 			data-userType="{% if is_tbadge %}tbadge{%elif is_rbadge%}resident{%else%}other{%endif%}">{{ _('Mail') }}</button>
 			{% endif %}
 			</td>
-			<td id="acc-{{acc.id}}-status">{% if acc.disabled %}{{ _('Deactivated') }}{% else %}{{ _('Active') }}{% endif %}</td>
-			<td id="acc-{{acc.id}}-name">{{ acc.username }}</td>
-			<td id="acc-{{acc.id}}-roles">
+			<td>{% if acc.disabled %}{{ _('Deactivated') }}{% else %}{{ _('Active') }}{% endif %}</td>
+			<td>{{ acc.username }}</td>
+			<td>
 				{% if not acc.had_welcome_mail %}
 					<span id="acc-{{acc.id}}-needsmail" class="badge badge-pill badge-info">New</span>
 				{% endif %}
@@ -165,9 +165,9 @@
 					{{role.name}}{% if not loop.last %}, {% endif %}
 				{% endfor %}
 			</td>
-			<td id="acc-{{acc.id}}-cchar">{{ acc.current_char_obj.eve_name }}</td>
+			<td>{{ acc.current_char_obj.eve_name }}</td>
 			<td>{{acc.id}};{% for character in acc.characters %}{{character.id}}:{{character.eve_name}}{% if not loop.last %},{% endif %}{% endfor %}</td>
-			<td id="acc-{{acc.id}}-id">{{ acc.id }}</td>
+			<td>{{ acc.id }}</td>
 		</tr>
 		{% endfor %}
 	</tbody>

@@ -1649,6 +1649,9 @@ EditableGrid.prototype._rendergrid = function(containerid, className, tableid)
 					rows[i].style.display = 'none';
 					rows[i].hidden_by_editablegrid = true;
 				}
+				// update these too, so we don't have dumplicated ids in DOM when done
+				rows[i].rowId = _data[i].id;
+				rows[i].id = this._getRowDOMId(rows[i].rowId);
 			}
 			else {
 				if (skipped < this.pageSize * _currentPageIndex) {
