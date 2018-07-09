@@ -171,7 +171,7 @@
 			<th scope="row">{{ _('Backseats') }}:</th>
 			<td colspan="2">
 			{% for backseat in group.backseats %}
-				<a href=char:{{backseat.current_char_obj.get_eve_id()}}">{{backseat.current_char_obj.get_eve_name()}}</a>
+				<a href=char:{{backseat.get_eve_id()}}">{{backseat.get_eve_name()}}</a>
 				<form action="{{url_for('fleetoptions.fleet_status_set', gid=group.groupID)}}" method="post" class="form-inline" style="display:inline;">
 				<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 				<input type="hidden" name="action" value="remove-backseat">
