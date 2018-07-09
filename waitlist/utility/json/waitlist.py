@@ -1,6 +1,7 @@
 from typing import Optional, Sequence
 
-from waitlist.storage.database import Waitlist, Character, Shipfit, WaitlistGroup, SolarSystem, Constellation, Station
+from waitlist.storage.database import Waitlist, Character, Shipfit, WaitlistGroup, SolarSystem, Constellation, Station,\
+    Account
 
 Optionalcharids = Optional[Sequence[int]]
 
@@ -97,19 +98,19 @@ def make_json_group(group: WaitlistGroup):
     }
 
 
-def make_json_fcs(fcs: Sequence[Character]):
-    return [make_json_fc(fc) for fc in fcs]
+def make_json_fcs(fcs: Sequence[Account]):
+    return [make_json_fc(fc) for fc in fcs if fc.current_char_obj is not None]
 
 
-def make_json_fc(fc: Character):
+def make_json_fc(fc: Account):
     return make_json_character(fc.current_char_obj)
 
 
 def make_json_managers(group: WaitlistGroup):
     if len(group.fleets) > 0:
-        return [make_json_character(fleet.comp) for fleet in group.fleets]
+        return [make_json_character(fleet.comp.current_char_obj) for fleet in group.fleets if fleet.comp is not None and fleet.comp.current_char_obj is not None]
     else:
-        return [make_json_character(manager.current_char_obj) for manager in group.manager]
+        return [make_json_character(manager.current_char_obj) for manager in group.manager if manager.current_char_obj is not None]
 
 
 def make_json_solar_system(system: SolarSystem):
