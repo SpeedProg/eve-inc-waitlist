@@ -43,7 +43,7 @@
 					<form action="{{url_for('fleetoptions.fleet_status_set', gid=group.groupID)}}" method="post" class="form-inline">
 						<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 						<input type="hidden" name="action" value="change_display_name">
-						{% if perm_manager.get_permission('fleet_custom_status').can() %}
+						{% if perm_manager.get_permission('fleet_custom_display_name_all').can() %}
 						<input title="What is this waiting list for? pvp fleet?" type="text" name="display_name" value="{{group.displayName}}" class="form-control form-control-sm">
 						{% else %}
 						<select autocomplete="off" class="form-control form-control-sm custom-select mr-3" id="displayname-{{group.groupID}}" name="display_name" required>
