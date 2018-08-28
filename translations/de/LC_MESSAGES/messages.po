@@ -3,15 +3,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2018-07-08 12:02+0200\n"
+"POT-Creation-Date: 2018-08-28 14:54+0200\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2018-07-08 10:53+0000\n"
+"PO-Revision-Date: 2018-08-28 12:58+0000\n"
 "Last-Translator: Constantin Wenger <constantin.wenger@googlemail.com>\n"
 "Language-Team: German\n"
 "Language: de\n"
-"X-Generator: Zanata 4.4.5\n"
+"X-Generator: Zanata 4.6.2\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
 
 #: templates/about.html:15
@@ -952,7 +952,7 @@ msgid "Unique Voters for LM"
 msgstr "Eindeutige Stimmen für LM"
 
 #: templates/settings/fleet.html:3
-#: waitlist/blueprints/settings/fleetoptions.py:375
+#: waitlist/blueprints/settings/fleetoptions.py:384
 msgid "Fleet Settings"
 msgstr "Flotten Einstellungen"
 
@@ -1676,57 +1676,61 @@ msgstr ""
 "Du hast keine unbeschränkten Anzeigennamen gegeben und hast keine "
 "Berechtigung beliebige Namen zu verwenden!"
 
-#: waitlist/blueprints/settings/fleetoptions.py:215
+#: waitlist/blueprints/settings/fleetoptions.py:198
+msgid "There can be no duplicate names for waitlists."
+msgstr "Jede Warteliste muss einen anderen Namen haben."
+
+#: waitlist/blueprints/settings/fleetoptions.py:224
 #, python-format
 msgid "%(name)s constellation does not exist! "
 msgstr "%(name)s Konstellation existiert nicht!"
 
-#: waitlist/blueprints/settings/fleetoptions.py:238
-#: waitlist/blueprints/settings/fleetoptions.py:259
+#: waitlist/blueprints/settings/fleetoptions.py:247
+#: waitlist/blueprints/settings/fleetoptions.py:268
 msgid "No Constellation Layout Data found!"
 msgstr "Keine Konstellationsaufbaudaten gefunden!"
 
-#: waitlist/blueprints/settings/fleetoptions.py:242
+#: waitlist/blueprints/settings/fleetoptions.py:251
 #, python-format
 msgid "All Constellations were set to %(name)s!"
 msgstr "All Konstellationen wurden auf %(name)s gesetzt!"
 
-#: waitlist/blueprints/settings/fleetoptions.py:263
+#: waitlist/blueprints/settings/fleetoptions.py:272
 #, python-format
 msgid "%(group_name)s Constellation was set to %(name)s"
 msgstr "%(group_name)s Konstellation wurde auf %(name)s gesetzt"
 
-#: waitlist/blueprints/settings/fleetoptions.py:269
+#: waitlist/blueprints/settings/fleetoptions.py:278
 #, python-format
 msgid "Invalid system name %(name)s"
 msgstr "Ungültiger Systemname %(name)s"
 
-#: waitlist/blueprints/settings/fleetoptions.py:278
+#: waitlist/blueprints/settings/fleetoptions.py:287
 #, python-format
 msgid "All Systems were set to %(name)s"
 msgstr "Alle Systeme wurden auf %(name)s gesetzt"
 
-#: waitlist/blueprints/settings/fleetoptions.py:282
+#: waitlist/blueprints/settings/fleetoptions.py:291
 #, python-format
 msgid "%(group_name)s System was set to %(name)s"
 msgstr "%(group_name)s System wurde auf %(name)s gesetzt"
 
-#: waitlist/blueprints/settings/fleetoptions.py:287
+#: waitlist/blueprints/settings/fleetoptions.py:296
 #, python-format
 msgid "Invalid station name: %(name)s"
 msgstr "Ungültiger Stationsname: %(name)s"
 
-#: waitlist/blueprints/settings/fleetoptions.py:296
+#: waitlist/blueprints/settings/fleetoptions.py:305
 #, python-format
 msgid "All Docks were set to %(name)s"
 msgstr "Alle Basen wurde auf %(name)s gesetzt"
 
-#: waitlist/blueprints/settings/fleetoptions.py:300
+#: waitlist/blueprints/settings/fleetoptions.py:309
 #, python-format
 msgid "%(group_name)s Dock was set to %(name)s"
 msgstr "%(group_name)s Basis wurde auf %(name)s gesetzt"
 
-#: waitlist/blueprints/settings/fleetoptions.py:360
+#: waitlist/blueprints/settings/fleetoptions.py:369
 msgid "Waitlists were cleared!"
 msgstr "All Wartelisten wurden geleert!"
 
