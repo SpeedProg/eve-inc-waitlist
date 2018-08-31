@@ -700,7 +700,7 @@ waitlist.listdom = (function(){
 		fcTD.empty();
 		for(let fc of groupStatus.fcs) {
 			// create the fc link
-			let fcA = $(`<a href="char:${fc.id}">${fc.name}</a>`);
+			let fcA = $(`<a href="char:${fc.id}" class="mr-3">${fc.name}</a>`);
 			fcTD.append(fcA);
 		}
 
@@ -742,7 +742,7 @@ waitlist.listdom = (function(){
 		managerTD.empty();
 		// we have connected crest fleets, use the managers from those
 		for(let manager of groupStatus.managers) {
-			var managerA = $(`<a href="char:${manager.id}">${manager.name}</a>`);
+			var managerA = $(`<a href="char:${manager.id}" class="mr-3">${manager.name}</a>`);
 			managerTD.append(managerA);
 		}
 		
