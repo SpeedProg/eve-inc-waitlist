@@ -93,6 +93,21 @@ waitlist.history.base = (function() {
 		return historyEntrySkeleton;
 	}
 	
+	/**
+	 * Take a string and return the same string
+	 * unless the string is "#System"
+	 * then return "Booby"(the bird)
+	 * @param old_name inventory type name
+	 * @returns old_name unless it is "#System" then it is replaced by "Booby"
+	 */
+	function filterShipName(old_name) {
+		if (old_name === "#System") {
+			return "Booby";
+		}
+		return old_name;
+	}
+	
+
 	function createFittingDOM(fit) {
 		var comment = "";
 		let skillsData = "";
@@ -106,10 +121,10 @@ waitlist.history.base = (function() {
 				skillsData = `3338:${bsResult[1]}`;
 			}
 		}
-		if (fit.ship_type === 1) {
-			return $.parseHTML(`<a href="#" class="booby-link">${fit.shipName}${comment}</a>`);
+		if (fit.ship_type === 0) {
+			return $.parseHTML(`<a href="#" class="booby-link">${filterShipName(fit.shipName)}${comment}</a>`);
 		} else {
-			return $.parseHTML(`<a href="#" class="fit-link" data-skills="${skillsData}" data-dna="${fit.shipType+':'+fit.modules}">${fit.shipName}${comment}</a>`);
+			return $.parseHTML(`<a href="#" class="fit-link" data-skills="${skillsData}" data-dna="${fit.shipType+':'+fit.modules}">${filterShipName(fit.shipName)}${comment}</a>`);
 		}
 	}
 	

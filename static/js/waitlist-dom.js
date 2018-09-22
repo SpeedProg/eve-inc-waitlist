@@ -304,6 +304,20 @@ waitlist.listdom = (function(){
 		}
 		
 	}
+
+	/**
+	 * Take a string and return the same string
+	 * unless the string is "#System"
+	 * then return "Booby"(the bird)
+	 * @param old_name inventory type name
+	 * @returns old_name unless it is "#System" then it is replaced by "Booby"
+	 */
+	function filterShipName(old_name) {
+		if (old_name === "#System") {
+			return "Booby";
+		}
+		return old_name;
+	}
 	
 	/**
 	 * Creat html entity of a fit
@@ -319,7 +333,7 @@ waitlist.listdom = (function(){
 	 */
 	function createFitDOM(fit, wlId, entryId, queue, username, userId) {
 		queue = typeof queue !== 'undefined' ? queue : false;
-		var isDummy = fit.shipType === 1;
+		var isDummy = fit.shipType === 0;
 		var approveButton = "", fitButtons = "",commentHTML = "";
 		// if user can manage fleet and if on x'ups
 		if (settings.can_manage && queue) {
@@ -347,7 +361,7 @@ waitlist.listdom = (function(){
 			commentHTML = `<div id="fit-${wlId}-${entryId}-${fit.id}-comment"><small>${fit.comment}</small></div>`;
 		}
 		// text html with ship name and comment
-		var textHTML = '<div class="wel-text-row-32-2">'+fit.shipName+commentHTML+'</div>';
+		var textHTML = '<div class="wel-text-row-32-2">'+filterShipName(fit.shipName)+commentHTML+'</div>';
 
 		var fitDOM = $('<li class="list-group-item" id="fit-'+wlId+"-"+entryId+"-"+fit.id+'" data-type="'+getTagFromJsonFit(fit)+'" role="button"></li>');
 
