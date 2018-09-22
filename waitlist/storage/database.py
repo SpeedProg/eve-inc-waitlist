@@ -17,6 +17,7 @@ from sqlalchemy.types import UnicodeText
 import json
 import inspect
 import traceback
+from waitlist.utility.constants import categories
 
 logger = logging.getLogger(__name__)
 
@@ -234,9 +235,32 @@ class Constellation(Base):
     constellationName = Column('constellation_name', String(100), index=True, unique=True)
 
 
+class InvCategory(Base):
+    __tablename__ = 'invcategory'
+    categoryID = Column('category_id', Integer, primary_key=True,
+                        autoincrement=False)
+    categoryName = Column('category_name', String(255))
+    published = Column('published', Boolean(name='is_published'))
+
+
+class InvGroup(Base):
+    __tablename__ = 'invgroup'
+    groupID = Column('group_id', Integer, primary_key=True,
+                     autoincrement=False)
+    groupName = Column('group_name', String(255))
+    published = Column('published', Boolean(name='is_published'))
+    categoryID = Column('category_id', Integer,
+                         ForeignKey(
+                             'invcategory.category_id',
+                             ondelete='CASCADE'))
+
+    category: InvCategory = relationship('InvCategory')
+
+
 class InvType(Base):
     __tablename__ = 'invtypes'
-    typeID = Column('type_id', Integer, primary_key=True, nullable=False)
+    typeID = Column('type_id', Integer, primary_key=True, nullable=False,
+                    autoincrement=False)
     groupID = Column('group_id', Integer, index=True)
     typeName = Column('type_name', String(100))
     description = Column('description', Text)
@@ -251,9 +275,80 @@ class InvType(Base):
     #    iconID = Column(BIGINT)
     #    soundID = Column(BIGINT)
 
+    group: InvGroup = relationship(
+        'InvGroup',
+        primaryjoin='foreign(InvType.groupID) == InvGroup.groupID')
+
+    dogma_attributes = relationship(
+        'InvTypeDogmaAttribute')
+
+    dogma_effects = relationship('InvTypeDogmaEffect')
+
+    @property
+    def IsCharge(self):
+        """ Is this a charge
+        """
+        if self.group is None:
+            return False
+        if self.group.categoryID is None:
+            return False
+
+        return self.group.categoryID == categories.charge
+
+    @property
+    def IsSubsystem(self):
+        """ Is a subsystem
+        """
+        if self.group is None:
+            return False
+        if self.group.categoryID is None:
+            return False
+
+        return self.group.categoryID == categories.subystem
+
+    @property
+    def IsRig(self):
+        """ Is a subsystem
+        """
+        if self.group is None:
+            return False
+
+        return self.group.groupName.startswith('Rig ')
+
+    @property
+    def IsDrone(self):
+        """ Is a Drone
+        """
+        if self.group is None:
+            return False
+        if self.group.categoryID is None:
+            return False
+
+        return self.group.categoryID == categories.drone
+
     def __repr__(self):
         return f'<InvType typeID={self.typeID} typeName={self.typeName} groupID={self.groupID}' \
                f' marketGroupID={self.marketGroupID} description={self.description}>'
+
+
+class InvTypeDogmaAttribute(Base):
+    __tablename__ = 'dogma_attributes'
+    typeID = Column('type_id', Integer,
+                    ForeignKey('invtypes.type_id',
+                               ondelete='CASCADE'),
+                    primary_key=True, autoincrement=False)
+    attributeID = Column('attribute_id', Integer, primary_key=True)
+    value = Column('value', Integer)
+
+
+class InvTypeDogmaEffect(Base):
+    __tablename__ = 'dogma_effect'
+    typeID = Column('type_id', Integer,
+                    ForeignKey('invtypes.type_id',
+                               ondelete='CASCADE'),
+                    primary_key=True, autoincrement=False)
+    effectID = Column('effect_id', Integer, primary_key=True, autoincrement=False)
+    isDefault = Column('is_default', Boolean(name='is_default'))
 
 
 class MarketGroup(Base):
@@ -773,7 +868,8 @@ class Shipfit(Base):
     __tablename__ = "fittings"
 
     id = Column('id', Integer, primary_key=True)
-    ship_type = Column('ship_type', Integer, ForeignKey(InvType.typeID))
+    ship_type = Column('ship_type', Integer, ForeignKey(InvType.typeID,
+                                                        onupdate='CASCADE'))
     modules = Column('modules', String(5000))
     comment = Column('comment', String(5000))
     wl_type = Column('wl_type', String(10))
@@ -1073,8 +1169,14 @@ class RoleChangeEntry(Base):
 
 class FitModule(Base):
     __tablename__ = 'fit_module'
-    fitID = Column('fit_id', Integer, ForeignKey(Shipfit.id), primary_key=True, nullable=False)
-    moduleID = Column('module_id', Integer, ForeignKey(InvType.typeID), primary_key=True, nullable=False)
+    fitID = Column('fit_id', Integer, ForeignKey(Shipfit.id), primary_key=True,
+                   nullable=False)
+    moduleID = Column('module_id', Integer,
+                      ForeignKey(InvType.typeID, onupdate='CASCADE'),
+                      primary_key=True, nullable=False)
+    # this won't exist in older fittings
+    locationFlag = Column('location_flag', Integer, nullable=False,
+                          primary_key=True, server_default=text('1000'))
     amount = Column('amount', Integer, default=1)
     module = relationship(InvType)
     fit = relationship(Shipfit)

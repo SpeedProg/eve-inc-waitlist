@@ -1,11 +1,7 @@
-from waitlist.utility.swagger.eve import get_esi_client, make_error_response,\
-    ESIResponse, get_expire_time
 from typing import List, Dict
-from waitlist.utility.swagger import get_api
 from waitlist.utility.outgate.exceptions import check_esi_response
 from time import sleep
 import logging
-from waitlist.utility.swagger.eve.universe.responses import ResolveIdsResponse
 from waitlist.utility.swagger.eve.universe import UniverseEndpoint
 from waitlist.utility.utils import chunks
 from waitlist.utility.swagger.eve.universe.models import NameItem
