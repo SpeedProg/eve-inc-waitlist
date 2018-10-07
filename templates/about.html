@@ -4,15 +4,17 @@
 
 {% block head %}
 {{ super() }}
-{%  assets filters="babili", output="gen/eveproxy.%(version)s.js", "js/base.js", "js/eveproxy.js" %}
+{%  assets filters="babili", output="gen/eveproxy.%(version)s.js", "js/eveproxy.js" %}
 	<script type="text/javascript" src="{{ ASSET_URL }}"></script>
 {% endassets %}
 {% include "libs/eve-ui.html"%}
 {% endblock %}
 {% block data %}
-	<p>
-	<a href="https://github.com/speedprog/eve-inc-waitlist" target="_blank">Eve-Inc-Waitlist</a> Created by <a href="char:91495852">Bruce Warhead</a> and <a href="char:93356698">Beryl Slanjava</a>
-	<br/>
-	<a href="https://github.com/quiescens/eve-ui" target="_blank">Fitting Display (Eve-UI)</a> and Fitting Stats by <a href="char:725396116">Quie'scens</a>
-	</p>
+	<div class="col-12">
+		<p>
+		{{ _('<a href="https://github.com/speedprog/eve-inc-waitlist" target="_blank">Eve-Inc-Waitlist</a> Created by <a href="char:91495852">Bruce Warhead</a> and <a href="char:93356698">Beryl Slanjava</a>') }}
+		<br/>
+		{{ _('<a href="https://github.com/quiescens/eve-ui" target="_blank">Fitting Display (Eve-UI)</a> and Fitting Stats by <a href="char:725396116">Quie\'scens</a>') }}
+		</p>
+	</div>
 {% endblock %}

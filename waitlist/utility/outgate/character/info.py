@@ -3,7 +3,8 @@ from datetime import datetime
 from typing import Optional, Tuple
 
 from waitlist.storage.database import APICacheCharacterInfo, APICacheCorporationInfo, SSOToken
-from waitlist.utility.outgate.exceptions import check_esi_response
+from waitlist.utility.outgate.exceptions import check_esi_response, ESIException,\
+    ApiException
 from waitlist.utility.swagger.eve.character import CharacterEndpoint, CharacterInfo
 from waitlist.utility.swagger.eve.search import SearchEndpoint, SearchResponse
 from waitlist import db
@@ -22,6 +23,9 @@ def set_from_character_info(self: APICacheCharacterInfo, info: CharacterInfo, ch
 
 
 def get_character_info(char_id: int, *args) -> APICacheCharacterInfo:
+    """
+    :throws ApiException if an error with the api occured
+    """
     char_cache: APICacheCharacterInfo = db.session.query(APICacheCharacterInfo) \
         .filter(APICacheCharacterInfo.id == char_id).first()
 
@@ -55,9 +59,9 @@ def get_character_info_by_name(name: str, *args) -> Optional[APICacheCharacterIn
     Get Info for a character by name
     :param name: character name to get the info for
     :return: APICacheCharacterInfo of the character or None if no character with this name can be found
+    :throws ApiException if a problem with the api occured
     """
     character = db.session.query(APICacheCharacterInfo).filter(APICacheCharacterInfo.characterName == name).first()
-
     if character is None:
         search_ep = SearchEndpoint()
         search_info: SearchResponse = check_esi_response(search_ep.public_search(name, ['character']),
@@ -82,6 +86,9 @@ def get_character_info_by_name(name: str, *args) -> Optional[APICacheCharacterIn
 
 
 def get_char_or_corp_or_alliance_id_by_name(name: str, *args) -> Optional[int]:
+    """
+    :throws ApiException if something goes wrong on the api
+    """
     search_ep = SearchEndpoint()
     search_results: SearchResponse = check_esi_response(
         search_ep.public_search(name, ['character', 'corporation', 'alliance']),
@@ -92,11 +99,12 @@ def get_char_or_corp_or_alliance_id_by_name(name: str, *args) -> Optional[int]:
     return ids[0]
 
 
-def get_char_affiliations(char_id: int, *_) -> Tuple[int, int]:
+def get_char_affiliations(char_id: int, *_) -> Optional[Tuple[int, int]]:
     """
     Get the id of a characters corporation and alliance
     :param char_id: characters id
-    :return: a Tuple[CorpID, AllianceID], alliance could ne None
+    :return a Tuple[CorpID, AllianceID], alliance could ne None
+    :throws ApiException if there was a problem with the api
     """
     char_info: APICacheCharacterInfo = get_character_info(char_id)
     corp_info: APICacheCorporationInfo = corporation.get_info(char_info.corporationID)

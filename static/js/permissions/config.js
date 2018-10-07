@@ -32,7 +32,7 @@ waitlist.permission.config = (function () {
 			async: true,
 			dataType: "text",
 			error: function() {
-				displayMessage("Setting Permission failed", "danger");
+				displayMessage($.i18n('wl-permissions-setting-failed'), "danger");
 			},
 			method: "POST",
 			headers: {

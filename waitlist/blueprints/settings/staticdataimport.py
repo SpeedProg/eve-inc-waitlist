@@ -15,6 +15,8 @@ from waitlist.blueprints.settings import add_menu_entry
 from waitlist import app
 from waitlist.permissions import perm_manager
 from waitlist.utility import sde
+from flask_babel import gettext, lazy_gettext
+from waitlist.utility.outgate.exceptions import ApiException
 
 bp = Blueprint('sde', __name__)
 logger = logging.getLogger(__name__)
@@ -31,16 +33,11 @@ perm_developer = perm_manager.get_permission('developer_tools')
 @login_required
 @perm_access.require(http_exception=401)
 def update_type_ids():
-    f = request.files['file']
-    if f and (f.filename.rsplit('.', 1)[1] == "bz2" or f.filename.rsplit('.', 1)[1] == "yaml"):
-        filename = secure_filename(f.filename)
-        dest_name = path.join(app.config['UPLOAD_FOLDER'], filename)
-        if path.isfile(dest_name):
-            os.remove(dest_name)
-        f.save(dest_name)
-        # start the update
-        sde.update_invtypes(dest_name)
-        flash("Type IDs were updated!", "success")
+    try:
+        sde.update_invtypes()
+        flash(gettext("Type IDs were updated!"), "success")
+    except ApiException as e:
+        flash(gettext('Could not execute action, ApiException %(ex)s', ex=e))
 
     return redirect(url_for('.sde_settings'))
 
@@ -50,9 +47,9 @@ def update_type_ids():
 @perm_access.require(http_exception=401)
 def update_map():
     sde.update_constellations()
-    flash("Constellations where updated!", "success")
+    flash(gettext("Constellations where updated!"), "success")
     sde.update_systems()
-    flash("Systems were updated!", "success")
+    flash(gettext("Systems were updated!"), "success")
     return redirect(url_for('.sde_settings'))
 
 
@@ -69,7 +66,7 @@ def update_stations():
         f.save(dest_name)
         # start the update
         sde.update_stations(dest_name)
-        flash("Stations were updated!", "success")
+        flash(gettext("Stations were updated!"), "success")
 
     return redirect(url_for('.sde_settings'))
 
@@ -87,7 +84,7 @@ def update_layouts():
         f.save(dest_name)
         # start the update
         sde.update_layouts(dest_name)
-        flash("Layouts were updated!", "success")
+        flash(gettext("Layouts were updated!"), "success")
 
     return redirect(url_for('.sde_settings'))
 
@@ -99,4 +96,4 @@ def sde_settings():
     return render_template("settings/sde.html")
 
 
-add_menu_entry('sde.sde_settings', 'Static Data Import', perm_access.can)
+add_menu_entry('sde.sde_settings', lazy_gettext('Static Data Import'), perm_access.can)

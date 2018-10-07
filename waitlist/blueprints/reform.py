@@ -5,6 +5,7 @@ from flask.templating import render_template
 
 from waitlist.permissions import perm_manager
 
+
 bp = Blueprint('fleet_reform', __name__)
 logger = logging.getLogger(__name__)
 

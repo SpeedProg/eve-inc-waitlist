@@ -1,0 +1,36 @@
+<nav class="navbar navbar-expand-md">
+	{% if menu.brand %}<a class="navbar-brand" href="/#">{{ menu.brand }}</a>{% endif %}
+	<button class="navbar-toggler navbar-toggler-right my-1" type="button" data-toggle="collapse" data-target="#{{ menu.htmlid }}" aria-label="{{ _('Toggle navigation') }}">
+		&#9776;
+	</button>
+	<div class="collapse navbar-collapse" id="{{ menu.htmlid }}">
+		{% for item in menu.items %}
+			{{ item.render()|safe }}
+		{% endfor %}
+		{#
+		<ul class="navbar-nav justify-content-end">
+			<li class="nav-item">
+				<select autocomplete="off" class="custom-select mt-1" id="lang-select">
+					<option value="de"{% if lang_code == "de" %} selected{% endif %}>Deutsch</option>
+					<option value="en"{% if lang_code == "en" %} selected{% endif %}>English</option>
+				</select>
+			</li>
+			{% if current_user.is_authenticated %}
+			<div class="dropdown ml-3">
+				<button class="btn btn-primary dropdown-toggle btn-sm" type="button" id="mainDropdownMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+					{% if current_user.get_eve_id() is not none %}<img class="profile-img-32" src="{{eve_image('Character/'+(current_user.get_eve_id()|string)+'_32', 'jpg')}}"> {% endif %}
+				</button>
+
+				<div class="dropdown-menu dropdown-menu-right">
+					{% if perm_manager.get_permission('settings_access').can() %}
+					<a class="dropdown-item" href="{{url_for('settings_overview.overview')}}"><i class="fa-cog"></i> {{_('Settings')}}</a>
+					{% endif %}
+					<a class="dropdown-item" href="{{url_for('logout')}}"><i class="fa-sign-out"></i> {{ _('Logout') }}</a>
+					<a class="dropdown-item" href="{{ url_for('about') }}"><i class="fa-info-circle"></i> {{_('About')}}</a>
+				</div>
+			</div>
+			{% endif %}
+		</ul>
+		#}
+	</div>
+</nav>

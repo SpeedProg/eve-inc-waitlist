@@ -1,43 +1,43 @@
 {% extends "base.html" %}
 
-{% block title %}Command Core Vote{% endblock %}
+{% block title %}{{ _('Command Core Vote') }}{% endblock %}
 
 {% block head %}
 {{ super() }}
 {% endblock %}
 {% block data %}
 <p>
-Hello, this is the Command Core Vote!<br>
-Here you can vote for your favorite Command Core Member.
+{{ _('Hello, this is the Command Core Vote!') }}<br>
+{{ _('Here you can vote for your favorite Command Core Member.') }}
 </p>
 <p>
-You have 1 vote per type (FC/LM) per eveday. (means you get an other one after downtime)<br>
-So select your favorite FC and LM below.(If some one is FC and LM you can select them twice)<br>
-The voted FC/LM will get a price.
+{{ _('You have 1 vote per type (FC/LM) per eveday. (means you get an other one after downtime)<br>'
+'So select your favorite FC and LM below.(If some one is FC and LM you can select them twice)<br>'
+'The voted FC/LM will get a price.') }}
 </p>
 <p class="bg-warn">
-If you only select a FC or only a LM your 2nd vote will be lost for the current day.
+{{ _('If you only select a FC or only a LM your 2nd vote will be lost for the current day.') }}
 </p>
 <form action="{{url_for('cc_vote.submit')}}" method="POST" class="form">
 <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 <fieldset class="form-group">
-<label for="fc-vote">Your favorite FC:</label>
-<select name="fc-vote" id="fc-vote" >
-<option selected value="-1">Please Select</option>/
+<label for="fc-vote">{{ _('Your favorite FC:') }}</label>
+<select autocomplete="off" name="fc-vote" id="fc-vote" >
+	<option selected value="-1">{{ _('Please Select') }}</option>/
 {% for fc in fcs %}
 	<option value="{{fc.id}}">{{fc.username}}</option>)
 {% endfor %}
 </select>
 </fieldset>
 <fieldset class="form-group">
-<label for="fc-vote">Your favorite LM:</label>
-<select name="lm-vote" id="lm-vote">
-<option selected value="-1">Please Select</option>/
+<label for="fc-vote">{{ _('Your favorite LM:') }}</label>
+<select autocomplete="off" name="lm-vote" id="lm-vote">
+	<option selected value="-1">{{ _('Please Select') }}</option>/
 {% for lm in lms %}
-	<option value="{{lm.id}}">{{lm.username}}</option>)
+	<option value="{{lm.id}}">{{ lm.username }}</option>)
 {% endfor %}
 </select>
 </fieldset>
-<button type="submit" class="btn btn-primary">Vote</button>
+<button type="submit" class="btn btn-primary">{{ _('Vote') }}</button>
 </form>
 {% endblock %}

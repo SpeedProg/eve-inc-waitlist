@@ -1,6 +1,6 @@
 {% extends "settings/base.html" %}
 
-{% block title %}Settings - Bans{% endblock %}
+{% block title %}{{ _('Settings') }} - {{ _('Bans') }}{% endblock %}
 
 {% block head %}
 {{ super() }}
@@ -13,14 +13,14 @@
 		<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 		<input name="change" value="whitelist" hidden>
 		<div class="form-group mr-3">
-			<label class="mr-1" for="eve_name">Names</label>
+			<label class="mr-1" for="eve_name">{{ _('Names') }}</label>
 			<textarea rows="1" class="form-control" name="target" id="eve_name"></textarea>
 		</div>
 		<div class="form-group mr-3">
-			<label class="mr-1" for="reason">Reason</label>
+			<label class="mr-1" for="reason">{{ _('Reason') }}</label>
 			<input type="text" class="form-control" name="reason" id="reason">
 		</div>
-		<button type="submit" class="btn btn-danger">Whitelist</button>
+		<button type="submit" class="btn btn-danger">{{ _('Whitelist') }}</button>
 	</form>
 	{% endif %}
 	{% if perm_manager.get_permission('bans_edit').can() and not perm_manager.get_permission('bans_edit_multiple').can() %}
@@ -28,25 +28,25 @@
 		<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 		<input type="hidden" name="change" value="ban">
 		<div class="form-group">
-			<label for="eve_name">Name</label>
+			<label for="eve_name">{{ _('Name') }}</label>
 			<input type="text" class="form-control" name="target" id="eve_name">
 		</div>
 		<div class="form-group">
-			<label for="reason">Reason</label>
+			<label for="reason">{{ _('Reason') }}</label>
 			<input type="text" class="form-control" name="reason" id="reason">
 		</div>
-		<button type="submit" class="btn btn-danger">Whitelist</button>
+		<button type="submit" class="btn btn-danger">{{ _('Whitelist') }}</button>
 	</form>
 	{% endif %}
 </div>
 <table class="table">
 <thead>
 	<tr>
-		<th>Char ID</th>
-		<th>Character Name</th>
-		<th>Reason</th>
-		<th>By</th>
-		<th>Actions</th>
+		<th>{{ _('Char ID') }}</th>
+		<th>{{ _('Character Name') }}</th>
+		<th>{{ _('Reason') }}</th>
+		<th>{{ _('By') }}</th>
+		<th>{{ _('Actions') }}</th>
 	</tr>
 </thead>
 <tbody>
@@ -60,7 +60,7 @@
 		<form name="unbanform" action="{{url_for('bans.whitelist_unlist')}}" method="post">
 		<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 		<input name="target" value="{{ban.character.eve_name}}" hidden>
-		<button type="submit" class="btn btn-sm btn-warning">Unwhitelist</button>
+		<button type="submit" class="btn btn-sm btn-warning">{{ _('Unwhitelist') }}</button>
 		</form>
 		</td>
 	</tr>

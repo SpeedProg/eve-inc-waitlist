@@ -20,19 +20,30 @@ waitlist.listdom = (function(){
 		var type = "default";
 		switch (name) {
 		case "B":
+			type = "success";
+			name = $.i18n('wl-tag-basilisk');
+			break;
 		case "S":
+			type = "success";
+			name = $.i18n('wl-tag-scimitar');
+			break;
 		case "LOGI":
 			type = "success";
+			name = $.i18n('wl-tag-logi');
 			break;
 		case "DPS":
 			type = "danger";
+			name = $.i18n('wl-tag-dps')
 			break;
 		case "SNI":
 			type = "warning";
+			name = $.i18n('wl-tag-sniper')
 			break;
 		default:
 			type = "secondary";
 		}
+		
+		
 		return $.parseHTML(`<span class="badge badge-pill badge-${type}">${name}</span>`);
 	}
 	
@@ -107,7 +118,7 @@ waitlist.listdom = (function(){
 		// if the current user can view fits and or it is this character and
 		// this entry is a rookie
 		if ((settings.can_view_fits || entry.character.id === settings.user_id) && entry.character.newbro) {
-			newBroTag = ' <span class="badge badge-pill badge-info">New</span>';
+			newBroTag = ' <span class="badge badge-pill badge-info">'+$.i18n('wl-new')+'</span>';
 		}
 		var cTime = new Date(Date.now());
 		var xupTime = new Date(Date.parse(entry.time));
@@ -122,7 +133,7 @@ waitlist.listdom = (function(){
 				oldInvites =
 				`<div class="missed-invites d-inline" data-userId="${entry.character.id}">
 					<div class="missed-invites-number d-inline">${entry.missedInvites}</div>
-					<i class="fa fa-bed" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="Missed Invites"></i>
+					<i class="fa fa-bed" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="${$.i18n('wl-missed-invites')}"></i>
 				</div>`;
 			} else {
 				oldInvites = `<div class="missed-invites d-inline" data-userId="${entry.character.id}"></div>`;
@@ -137,7 +148,8 @@ waitlist.listdom = (function(){
 		var imgHTML;
 		if (entry.character.id === null) {
 			imgHTML = `<img class="img-32" src="${settings.anno_icon}">`;
-			charHref = '#'; // change the href to not call quies script because we have no id
+			charHref = '#'; // change the href to not call quies script because
+							// we have no id
 		} else {
 			imgHTML = `<img class="img-32" src="${eve_image("Character/"+entry.character.id+"_32", "jpg")}">`;
 		}
@@ -145,7 +157,7 @@ waitlist.listdom = (function(){
 		let wardecHTML = '';
 		if (settings.can_view_fits || entry.character.id === settings.user_id) {
 		  wardecHTML = `<img height="15px" width="15px" class="float-right mt-1 mr-1" src="https://wars.feralfedo.com/characters/${entry.character.id}/img/"
-		   data-toggle="tooltip" data-placement="top" title="red = valid target, orange = soon to be valid target, error = error happened">`;
+		   data-toggle="tooltip" data-placement="top" title="${$.i18n('wl-wardec-desc')}">`;
 		}
 		
 		var charRow = $(`<a href="${charHref}"${charInserts}>
@@ -166,7 +178,7 @@ waitlist.listdom = (function(){
 			}
 		}
 		var buttonHTML = "";
-		const dropdownButton = `<button type="button" data-toggle="collapse" data-target="#fittings-${entry.id}-col" class="btn btn-primary"><span class="fitdd">Fits</span></button>`;
+		const dropdownButton = `<button type="button" data-toggle="collapse" data-target="#fittings-${entry.id}-col" class="btn btn-primary"><span class="fitdd">${$.i18n('wl-fits')}</span></button>`;
 		if (settings.can_manage) { // fleet comp
 			var button1, button4, convoButton = "";
 			const notificationButton = `<button type="button" class="btn btn-success" data-action="sendNotification" data-characterid="${entry.character.id}" data-wlId="${wlid}"><i class="fa fa-bell-o"></i></button>`;
@@ -292,6 +304,20 @@ waitlist.listdom = (function(){
 		}
 		
 	}
+
+	/**
+	 * Take a string and return the same string
+	 * unless the string is "#System"
+	 * then return "Booby"(the bird)
+	 * @param old_name inventory type name
+	 * @returns old_name unless it is "#System" then it is replaced by "Booby"
+	 */
+	function filterShipName(old_name) {
+		if (old_name === "#System") {
+			return "Booby";
+		}
+		return old_name;
+	}
 	
 	/**
 	 * Creat html entity of a fit
@@ -299,14 +325,15 @@ waitlist.listdom = (function(){
 	 * @param fit fit object as received from the api
 	 * @param wlId id of the waitlist this fit is in
 	 * @param entryId id of the entry this fit belongs to
-	 * @param queue if the entry is in the initial queue or one of the other lists
+	 * @param queue if the entry is in the initial queue or one of the other
+	 *            lists
 	 * @param username character name the entry belongs to
 	 * @param userId character id the entry belongs to
 	 * @returns {HTMLElement} the fit's DOM
 	 */
 	function createFitDOM(fit, wlId, entryId, queue, username, userId) {
 		queue = typeof queue !== 'undefined' ? queue : false;
-		var isDummy = fit.shipType === 1;
+		var isDummy = fit.shipType === 0;
 		var approveButton = "", fitButtons = "",commentHTML = "";
 		// if user can manage fleet and if on x'ups
 		if (settings.can_manage && queue) {
@@ -316,10 +343,10 @@ waitlist.listdom = (function(){
 		// if user is looking at their own entry
 		if (settings.user_id === userId) {
 			// remove own fit
-			fitButtons = '<button type="button" class="btn btn-mini btn-danger" data-action="remove-own-fit" data-fit='+fit.id+' data-wlId='+wlId+' data-entryId='+entryId+'><i class="fa fa-times"></i> Fit</button>';
+			fitButtons = '<button type="button" class="btn btn-mini btn-danger" data-action="remove-own-fit" data-fit='+fit.id+' data-wlId='+wlId+' data-entryId='+entryId+'><i class="fa fa-times"></i> ' + $.i18n('wl-fit') + '</button>';
 			if (queue) {
 				// update fit (only displayed if in x'up)
-				fitButtons += '<button type="button" class="btn btn-mini btn-danger" data-action="update-fit" data-fit="'+fit.id+'" class="btn btn-warning">Update</button>';
+				fitButtons += '<button type="button" class="btn btn-mini btn-danger" data-action="update-fit" data-fit="'+fit.id+'" class="btn btn-warning">' + $.i18n("wl-update") + '</button>';
 			}
 		}
 		// button group
@@ -334,7 +361,7 @@ waitlist.listdom = (function(){
 			commentHTML = `<div id="fit-${wlId}-${entryId}-${fit.id}-comment"><small>${fit.comment}</small></div>`;
 		}
 		// text html with ship name and comment
-		var textHTML = '<div class="wel-text-row-32-2">'+fit.shipName+commentHTML+'</div>';
+		var textHTML = '<div class="wel-text-row-32-2">'+filterShipName(fit.shipName)+commentHTML+'</div>';
 
 		var fitDOM = $('<li class="list-group-item" id="fit-'+wlId+"-"+entryId+"-"+fit.id+'" data-type="'+getTagFromJsonFit(fit)+'" role="button"></li>');
 
@@ -356,7 +383,7 @@ waitlist.listdom = (function(){
 		fitDOM.append($(baseHTML)
 					.append(fitContainer)
 					);
-        return fitDOM;
+		return fitDOM;
 	}
 	
 	/**
@@ -461,7 +488,7 @@ waitlist.listdom = (function(){
 					}
 				} else {
 					let invElement = $('.missed-invites', jEntries[0]);
-					let counterElement = $.parseHTML("<div class='missed-invites-number d-inline'>"+entry.missedInvites+'</div> <i class="fa fa-bed" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="Missed Invites"></i>');
+					let counterElement = $.parseHTML("<div class='missed-invites-number d-inline'>"+entry.missedInvites+'</div> <i class="fa fa-bed" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="' + $.i18n('wl-missed-invites') + '"></i>');
 					invElement.append(counterElement);
 				}
 			} else {
@@ -642,7 +669,7 @@ waitlist.listdom = (function(){
 			var cTime = new Date(Date.now());
 			var xupTime = new Date(Date.parse(waitElement.attr('data-time')));
 			var waitTimeMinutes = Math.max(0, Math.floor((cTime - xupTime)/60000));
-			waitElement.text(waitTimeMinutes+" min ago");
+			waitElement.text($.i18n('wl-min-ago', waitTimeMinutes));
 		});
 	}
 
@@ -661,7 +688,8 @@ waitlist.listdom = (function(){
 				countEl.text(count+1);
 			} else {
 				// he didn't miss invites yet, no DOM
-				el.append($(`<div class="missed-invites-number d-inline">${count+1}</div> <i class="fa fa-bed" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="Missed Invites"></i>`));
+				el.append($(`<div class="missed-invites-number d-inline">${count+1}</div> <i class="fa fa-bed" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="${$.i18n('wl-missed-invites')}"></i>`));
+				
 			}
 		});
 	}
@@ -670,16 +698,13 @@ waitlist.listdom = (function(){
 	
 	// status update start
 	/**
-	 * @param groupStatus
-	 *        {
-	 *         groupID=INT, status=STR, influence=BOOL,
-	 *         constellation={constellationID=INT,constellationName=STR},
-	 *         solarSystem={systemID=INT,systemName=STR},
-	 *         station={stationID=INT, stationName=STR},
-	 *         fcs=[{id=INT,name=STR,newbro=BOOL}...],
-	 *         managers=[{id=INT,name=STR,newbro=BOOL}...],
-	 *         fleets=[{grouID=INT, comp={id=INT,name=STR,newbro=BOOL}}...]
-	 *        }
+	 * @param groupStatus { groupID=INT, status=STR, influence=BOOL,
+	 *            constellation={constellationID=INT,constellationName=STR},
+	 *            solarSystem={systemID=INT,systemName=STR},
+	 *            station={stationID=INT, stationName=STR},
+	 *            fcs=[{id=INT,name=STR,newbro=BOOL}...],
+	 *            managers=[{id=INT,name=STR,newbro=BOOL}...],
+	 *            fleets=[{grouID=INT, comp={id=INT,name=STR,newbro=BOOL}}...] }
 	 */
 	
 	function setStatusDom(groupStatus) {
@@ -689,7 +714,7 @@ waitlist.listdom = (function(){
 		fcTD.empty();
 		for(let fc of groupStatus.fcs) {
 			// create the fc link
-			let fcA = $(`<a href="char:${fc.id}">${fc.name}</a>`);
+			let fcA = $(`<a href="char:${fc.id}" class="mr-3">${fc.name}</a>`);
 			fcTD.append(fcA);
 		}
 
@@ -729,9 +754,9 @@ waitlist.listdom = (function(){
 		// update managers
 		var managerTD = $(`#grp-${groupStatus.groupID}-manager`);
 		managerTD.empty();
-		//  we have connected crest fleets, use the managers from those
+		// we have connected crest fleets, use the managers from those
 		for(let manager of groupStatus.managers) {
-			var managerA = $(`<a href="char:${manager.id}">${manager.name}</a>`);
+			var managerA = $(`<a href="char:${manager.id}" class="mr-3">${manager.name}</a>`);
 			managerTD.append(managerA);
 		}
 		
@@ -740,17 +765,25 @@ waitlist.listdom = (function(){
 		statusDiv.empty();
 		if (groupStatus.enabled) {
 			if (groupStatus.status) {
-				statusDiv.text(groupStatus.status+' ');
+				// lets see if an translation exists
+				let translation_key = `wl-liststatus-${groupStatus.status}`;
+				let translated_status = $.i18n(translation_key);
+				// no translation exists
+				if (translated_status === translation_key) {
+					translated_status = groupStatus.status;
+				}
+				
+				statusDiv.text(translated_status+' ');
 				if (groupStatus.influence) {
 					let influenceLink = getMetaData('influence-link');
-					statusDiv.append($(`<a id='influence-link' class=".no-collapse" href="${influenceLink}" target="_blank">Fit for Influence</a>`));
+					statusDiv.append($(`<a id='influence-link' class=".no-collapse" href="${influenceLink}" target="_blank">${$.i18n('wl-fit-influence')}</a>`));
 					$('#influence-link').on('click', function (e) {
 						e.stopPropagation();
 					});
 				}
 			}
 		} else {
-			statusDiv.html('This waitlist is currently closed however there might be <a href="/" id="status-link">another</a> open!');
+			statusDiv.html($.i18n('wl-list-closed'));
 			$('#status-link').on('click', function (e) {
 				e.stopPropagation();
 			});
@@ -763,8 +796,8 @@ waitlist.listdom = (function(){
 		var fitLists = $('ol[id|="wl-fits"]');
 		fitLists.empty();
 		fitLists.each(function(idx, el){
-			var wlId = Number($(el).attr('id').replace('wl-fits-', ''));
-	        updateWlEntryTagCount(wlid);
+			let wlId = Number($(el).attr('id').replace('wl-fits-', ''));
+			updateWlEntryTagCount(wlId);
 		});
 	}
 	
@@ -780,7 +813,7 @@ waitlist.listdom = (function(){
 	}
 
 	
-    $(document).ready(init);
+	$(document).ready(init);
 	return {
 		loadWaitlist: refreshWl,
 		addFitToDom: addFitToDom,

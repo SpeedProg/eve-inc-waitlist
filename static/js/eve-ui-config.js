@@ -6,10 +6,7 @@ var eveui_imageserver = function(image_ref) {
 	return eve_image(encodeURI(image_ref), 'png');
 };
 // fix for getting names for modules from ccp api that are in the users browser language
-$.ajaxSetup({
-	beforeSend: function(xhr, settings) {
-		if (settings.url.includes('/universe/types/')) {
-			xhr.setRequestHeader('Accept-Language', 'en-us, en;q=0.9');
-		}
-	}
-});
+eveui_accept_language = document.getElementById('lang-code').getAttribute('content');
+if (eveui_accept_language.startsWith('en_') || eveui_accept_language == 'en') {
+	eveui_accept_language = 'en_us';
+}

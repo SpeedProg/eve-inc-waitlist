@@ -59,7 +59,9 @@ waitlist.gong = (function() {
 			gongbutton.checked = true;
 			gongClicked();
 		} else {
-			displayMessage("To get informed when you are invited please enable browser notifications in the top right.", "info", false, "gong-alert");
+			i18nloaded.then(() => {
+				displayMessage($.i18n('wl-gong-info'), "info", false, "gong-alert");
+			});
 			gongAlert = "y";
 		}
 	}

@@ -10,6 +10,7 @@ from flask.helpers import url_for
 from waitlist import db
 from waitlist.storage.database import Account, CCVote, Role
 from sqlalchemy.sql.expression import asc
+from flask_babel import gettext
 
 bp = Blueprint('cc_vote', __name__)
 logger = logging.getLogger(__name__)
@@ -63,7 +64,7 @@ def submit():
     if lm_vote == -1:
         lm_vote = None
     add_vote(current_user.get_eve_id(), fc_vote, lm_vote)
-    flask.flash("Thank you for voting, you can vote again after the next eve downtime!", "success")
+    flask.flash(gettext("Thank you for voting, you can vote again after the next eve downtime!"), "success")
     return redirect(url_for('index'))
 
 
@@ -104,6 +105,6 @@ def get_serverday_start():
     today = utc_current.date()
     c_time = utc_current.time()
     # if we are over 11:00:00 we need the current day, else we need the previous day
-    if c_time < time(11, 00, 00):
+    if c_time < time(11, 0, 0):
         today = today - timedelta(1)
-    return datetime.combine(today, time(11, 00, 00))
+    return datetime.combine(today, time(11, 0, 0))

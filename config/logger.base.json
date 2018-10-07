@@ -1,0 +1,72 @@
+{
+    "version": 1,
+    "formatters": {
+        "main": {
+            "format": "%(asctime)s - %(name)s - %(levelname)s - %(funcName)s - %(lineno)d - %(message)s"
+        }
+    },
+    "handlers": {
+        "error": {
+            "class": "logging.handlers.TimedRotatingFileHandler",
+            "filename": "/var/log/pywaitlist/error.log",
+            "formatter": "main",
+            "level": "ERROR",
+            "when": "midnight",
+            "interval":1,
+            "utc": true
+        },
+        "info": {
+            "class": "logging.handlers.TimedRotatingFileHandler",
+            "filename": "/var/log/pywaitlist/info.log",
+            "formatter": "main",
+            "level": "INFO",
+            "filters": ["info_and_warning"],
+            "when": "midnight",
+            "interval":1,
+            "utc": true
+        },
+        "debug": {
+            "class": "logging.handlers.TimedRotatingFileHandler",
+            "filename": "/var/log/pywaitlist/debug.log",
+            "formatter": "main",
+            "level": "DEBUG",
+            "filters": ["only_debug"],
+            "when": "midnight",
+            "interval":1,
+            "utc": true
+        }
+    },
+    "filters": {
+        "only_debug": {
+            "()": "waitlist.utility.logging.LogDedicatedLevelFilter",
+            "levels": ["DEBUG"]
+        },
+        "info_and_warning": {
+            "()": "waitlist.utility.logging.LogDedicatedLevelFilter",
+            "levels": ["INFO", "WARNING"]
+        }
+    },
+    "loggers": {
+        "waitlist": {
+            "level": "ERROR",
+            "filters": [],
+            "handlers": ["error", "info", "debug"]
+        },
+        "esipy": {
+            "level": "WARNING",
+            "handlers": ["error", "info", "debug"]
+        },
+        "flask": {
+            "level": "ERROR",
+            "handlers": ["error", "info", "debug"]
+        },
+        "flask.app": {
+            "level": "INFO",
+            "handlers": ["error", "info", "debug"]
+        },
+        "gevent.pywsgi.WSGIServer": {
+            "handlers": ["error", "info", "debug"],
+            "level": "WARNING"
+        }
+    }
+}

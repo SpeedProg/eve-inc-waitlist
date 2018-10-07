@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Settings{% endblock %}
+{% block title %}{{ _('Settings') }}{% endblock %}
 
 {% block head %}
 {{ super() }}
@@ -8,10 +8,10 @@
 
 {% block container_data %}
 <div class="row">
-	<div class="col-md-3 col-lg-2 sidebar" id="sidebar">
+	<div class="col-md-4 col-lg-2 sidebar" id="sidebar">
 		<ul class="nav nav-pills flex-column">
 		<li class="nav-item">
-			<a class="nav-link {% if request.endpoint == 'settings_overview.overview' %}active{% endif %}" href="{{url_for('settings_overview.overview')}}">Overview</a>
+			<a class="nav-link {% if request.endpoint == 'settings_overview.overview' %}active{% endif %}" href="{{url_for('settings_overview.overview')}}">{{ _('Overview') }}</a>
 		</li>
 		{% for endpoint, name, perm in settings_menu if (not endpoint == 'settings_overview.overview' and perm()) %}
 		<li class="nav-item">
@@ -20,10 +20,10 @@
 		{% endfor %}
 		</ul>
 	</div>
-	<div class="col-md-9 col-lg-10 content" id="main">
+	<div class="col-md-8 col-lg-10 content" id="main">
 	{% block raw_content %}
 	<div class="row flex-column">
-	{% block content %}<p> Please select something on the left side </p>{% endblock %}
+	{% block content %}<p> {{ _('Please select something on the left side') }} </p>{% endblock %}
 	</div>
 	{% endblock %}
 	</div>
@@ -32,7 +32,9 @@
 	<div class="col-10">
 		&copy; Copyright 2016-2018+ by <a href="char:91495852">Bruce Warhead</a>.
 	</div>
+	<div class="col-2">
 	{% include 'partials/themes_selector.html' %}
+	</div>
 </footer >
 {% endblock %}
 

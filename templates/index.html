@@ -1,4 +1,7 @@
-{% extends "base.html" %} {% block title %}Overview{% endblock %}
+{% extends "base.html" %}
+
+{% block title %}{{ _('Overview') }}{% endblock %}
+
 {% block head %}
 <meta name="url-self-remove-all" content="{{url_for('api_fittings.self_remove_all')}}">
 <meta name="user-id" content="{{ current_user.get_eve_id() }}">
@@ -39,7 +42,7 @@
 
 {{ super() }}
 
-{% assets filters="babili", output="gen/setup.%(version)s.js", "js/base.js",
+{% assets filters="babili", output="gen/setup.%(version)s.js",
 "js/dropdown.js", "js/eveproxy.js", "js/waitlist-dom.js", "js/wlsseupdate.js", "js/sse-dom.js",
 "js/dnasetup.js", "js/calendar/index.js" %}
 <script type="text/javascript" src="{{ ASSET_URL }}"></script>
@@ -84,18 +87,18 @@
 	<div class="row flex-column">
 	<div id="alert-area-base">
 	{% with messages = get_flashed_messages(with_categories=true) %}
-  		{% if messages %}
-  		{% for category, message in messages %}
+			{% if messages %}
+			{% for category, message in messages %}
 		{% if category == "error" %} {% set category = "danger" %}{% endif %}
 
-  		<div class="alert alert-{{category}} alert-dismissible" role="alert">
-  			<button type="button" class="close" data-dismiss="alert" aria-label="Close">
-    			<span aria-hidden="true">&times;</span>
-  			</button>
-  			<p class="text-center">{{message}}</p>
-  		</div>
-  		{% endfor %}
-  		{% endif %}
+			<div class="alert alert-{{category}} alert-dismissible" role="alert">
+				<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+				<p class="text-center">{{message}}</p>
+			</div>
+			{% endfor %}
+			{% endif %}
 	{% endwith %}
 	</div>
 	</div>
@@ -116,23 +119,23 @@
 	{% if perm_manager.get_permission('fleet_management').can() and current_user.fleet is none%}
 	<div class="alert alert-info" role="alert">
 		<p class="text-center">
-			You are not associated with any fleet, you can change this in <a
-				href="{{url_for('fleetoptions.fleet')}}">Fleet Settings</a>
+			{{ _('You are not associated with any fleet, you can change this in <a
+ href="%(url)s">Fleet Settings</a>', url=url_for('fleetoptions.fleet')) }}
 		</p>
 	</div>
 	{% endif %}
 	{% if ts and is_on_wl %}
 	<div class="alert alert-info" role="alert">
 		<p class="text-center">
-			Please join Teamspeak, your character name must match <b>exactly</b>
-			(case sensitive)<br>TS3 Server: {{ts.displayHost}}{% if
-			ts.displayPort != 9987 %}:{{ts.displayPort}}{% endif %}
+			{{ _('Please join Teamspeak, your character name must match <b>exactly</b>
+ (case sensitive)<br>TS3 Server:') }} {{ts.displayHost}}{% if
+ ts.displayPort != 9987 %}:{{ts.displayPort}}{% endif %}
 		</p>
 	</div>
 	{% endif %}
   	{% if ccvote_on %}
 	<div class="alert alert-info" role="alert">
-  		<p class="text-center"><a href="/ccvote">Vote your favorite Command Core Member HERE</a></p>
+  		<p class="text-center"><a href="/ccvote">{{ _('Vote your favorite Command Core Member HERE') }}</a></p>
   	</div>
   	{% endif %}
 </div>
@@ -148,6 +151,28 @@
 				{% endif %}
 			</li>
 			{% endfor %}
+			{% if is_on_wl %}
+			<li id="gong" class="nav-item ml-auto wlb">
+				<div class="mr-2 form-group pretty-dd">
+					<input type="checkbox" name="gongbutton" id="gongbutton"/>
+					<div class="btn-group">
+						<label for="gongbutton" class="nav-link btn btn-sm btn-info">
+							<span><i class="fa fa-bell-o"></i></span>
+							<span><i class="fa fa-bell-slash-o"></i></span>
+						</label>
+						<label for="gongbutton" class="nav-link btn btn-sm btn-danger">
+							{{ _('Browser') }}
+						</label>
+					</div>
+				</div>
+			</li>
+			<li class="nav-item mr-2 wlb">
+				<button type="button" class="nav-link btn btn-info btn-sm" data-action="test-poke">{{_('Test TS')}} <i class="fa-bell-o"></i></button>
+			</li>
+			<li class="nav-item wlb">
+				<button type="button" class="nav-link btn btn-danger btn-sm" data-action="removeSelfFromWaitlists"><i class="fa-user-times"></i> {{_('Leave Waitlists')}}</button>
+			<li>
+			{% endif %}
 		</ul>
 	</div>
 </div>
@@ -163,7 +188,7 @@
 				<table class="table-sm">
 					<tbody>
 						<tr>
-							<th scope="row">Fleet Manager</th>
+							<th scope="row">{{_('Fleet Manager')}}</th>
 							<td id="grp-{{group.groupID}}-manager">
 							</td>
 						</tr>
@@ -180,17 +205,17 @@
 							</td>
 						</tr>
 						<tr>
-							<th scope="row">Constellation</th>
+							<th scope="row">{{ _('Constellation') }}</th>
 							<td id="grp-{{group.groupID}}-const">
 							</td>
 						</tr>
 						<tr>
-							<th scope="row">Dockup</th>
+							<th scope="row">{{ _('Dockup') }}</th>
 							<td id="grp-{{group.groupID}}-dockup">
 							</td>
 						</tr>
 						<tr>
-							<th scope="row">HQ System</th>
+							<th scope="row">{{ _('HQ System') }}</th>
 							<td id="grp-{{group.groupID}}-system">
 							</td>
 						</tr>
@@ -202,8 +227,9 @@
 	<div class="col-md-6">
 		{% if not group.enabled %}
 		<div class="alert alert-warning" role="alert">
-			<p class="text-sm-center">This waitlist is currently closed however
-			<a href="{{url_for('index')}}">another</a> is open!</p>
+			<p class="text-sm-center">{{ _('This waitlist is currently closed however
+ <a href="%(url)s">another</a> is open!', url=url_for('index')) }}
+		</p>
 		</div>
 		{% endif %}
 		{% if is_on_wl %}
@@ -213,7 +239,7 @@
 		{% if events|length > 0 %}
 		<div id="events" class="card mb-0">
 			<div data-toggle="collapse" data-target="#events-body" class="card-header" role="button">
-				<div class="h5 mb-0" >Events{%if events|length > 1%}<i id="events-tog-icon" class="fa float-right fa-plus-square"></i>{% endif %}</div>
+				<div class="h5 mb-0" >{{ _('Events') }}{%if events|length > 1%}<i id="events-tog-icon" class="fa float-right fa-plus-square"></i>{% endif %}</div>
 			</div>
 			<div class="alert alert-info mb-0" role="alert">
 				<p class="text-sm-left mb-0">{{ events[0].eventTime }} : <a href="#" data-toggle="popover" data-placement="top" data-trigger="hover" data-content="{{events[0].eventDescription}}">{{ events[0].eventTitle }}</a> by {{ events[0].creator.username }}</p>
@@ -229,8 +255,8 @@
 		{% endif %}
 		<div class="alert alert-info" role="alert">
 			<p class="text-sm-center mb-0">
-				<strong>Help us!</strong> We would like your <a
-					href="{{url_for('feedback.index')}}">feedback</a>!
+				{{ _('<strong>Help us!</strong> We would like your <a href="%(url)s">feedback</a>!',
+				url=url_for('feedback.index')) }}
 			</p>
 		</div>
 	</div>
@@ -249,7 +275,7 @@
 					<span id="wl-count-{{ wlist.id }}" class="badge badge-pill badge-secondary">0</span>
 					{% endif %}
 					{{wlist.displayTitle|e }}
-					<i class="ml-auto fa fa-minus-square float-right" id="wl-{{ wlist.id }}-tog-icon"></i>
+					<i class="my-auto ml-auto fa fa-minus-square float-right" id="wl-{{ wlist.id }}-tog-icon"></i>
 					</a>
 				</h4>
 			</div>
@@ -260,7 +286,9 @@
 	</div>
 	{% endfor %}
 	{% else %}
-	<p>All Waitlists are closed!</p>
+	<div class="col-12">
+		<p class="mr-3">{{ _('All Waitlists are closed!') }}</p>
+	</div>
 	{% endif %}
 </div>
 {% endblock %}

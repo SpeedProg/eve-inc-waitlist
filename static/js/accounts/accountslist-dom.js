@@ -8,6 +8,57 @@ let swa_client = SwaggerClient(
 	}
 );
 
+class AccountRow {
+	constructor(accountId, grid) {
+		this.accountId = accountId;
+		this.id = `account-${accountId}`
+		this.element = document.getElementById(this.id);
+		this.grid = grid;
+	}
+	
+	set status(value) {
+		this.setColumn('status', value)
+		this.grid.refreshGrid();
+	}
+	
+	get name() {
+		return this.getColumn('account-name');
+	}
+	
+	get defaultCharName() {
+		return this.getColumn('current-character');
+	}
+	
+	get rolesIdx() {
+		return this.getColumnIdx('roles');
+	}
+	
+	getColumnIdx(name) {
+		return this.grid.getColumnIndex(name);
+
+	}
+	
+	getColumn(name) {
+		let data = this.grid.dataUnfiltered != null ? this.grid.dataUnfiltered : this.grid.data;
+		// find the data row
+		let rowdata = data.find(e => e.id == this.id);
+		console.log("Get columnIdex for "+name);
+		console.log(rowdata);
+		console.log(this.grid);
+		let columnIndex = this.grid.getColumnIndex(name);
+		console.log('Got idx '+columnIndex+' for '+name);
+		return rowdata.columns[columnIndex];
+	}
+	
+	setColumn(name, value) {
+		let griddata = this.grid.dataUnfiltered != null ? this.grid.dataUnfiltered : this.grid.data;
+		// find the data row
+		let rowdata = griddata.find(e => e.id == this.id);
+		let columIndex = this.grid.getColumnIndex(name);
+		rowdata.columns[columnIndex] = value;
+	}
+}
+
 class AltEntry {
 	constructor(account_id, character_id, character_name, can_change_link) {
 		if (account_id instanceof HTMLElement) {
@@ -231,7 +282,7 @@ class AltsList {
 			let input_field = document.createElement('input');
 			input_field.setAttribute('type', 'text');
 			input_field.setAttribute('class', 'form-control');
-			input_field.setAttribute('placeholder', 'Enter -> Add, Esc -> Cancel');
+			input_field.setAttribute('placeholder', $.i18n('wl-add-alt-placehonder'));
 
 			alts_list.element.appendChild(input_field);
 			input_field = $(input_field);
@@ -239,11 +290,11 @@ class AltsList {
 			input_field.on('keyup', function(e) {
 				if(e.keyCode == 13) { // enter
 					let char_name = e.currentTarget.value;
-					e.currentTarget.value = "Please wait...";
+					e.currentTarget.value = $.i18n('wl-please-wait');
 					client.apis.Accounts.post_accounts_account_id({'account_id': account_id,
 						'character_identifier': {'character_name': char_name}})
 						.then(function(event) {
-							waitlist.base.displayMessage("Alt added", "success");
+							waitlist.base.displayMessage($.i18n('wl-alt-added'), "success");
 							input_field.remove();
 							alts_list.addAltByData(event.obj.character_id, event.obj.character_name);
 						})
@@ -251,9 +302,9 @@ class AltsList {
 							if (typeof(event.response) !== "undefined" &&
 								typeof(event.response.obj) !== "undefined" &&
 								typeof(event.response.obj.error) !== "undefined"){
-								waitlist.base.displayMessage("Failed to add alt: "+event.response.obj.error, "danger");
+								waitlist.base.displayMessage($.i18n('wl-add-alt-failed', ' :' + event.response.obj.error), "danger");
 							} else {
-								waitlist.base.displayMessage("Failed to add alt", "danger");
+								waitlist.base.displayMessage($.i18n('wl-add-alt-failed', ''), "danger");
 							}
 							input_field.remove();
 						});

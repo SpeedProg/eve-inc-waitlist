@@ -121,7 +121,6 @@ class PermissionManager(object):
     def add_role(name: str, display_name: str) -> None:
         # lets check if this role exists
         if PermissionManager.role_exists(name):
-            print("Role {name} already exists")
             return
 
         role = Role(name=name, displayName=display_name)

@@ -17,7 +17,7 @@ def make_connection():
     teamspeak_id = sget_active_ts_id()
     if teamspeak_id is None:
         return None
-    
+
     teamspeak = db.session.query(TeamspeakDatum).get(teamspeak_id)
     try:
         con = TS3Connection(teamspeak.host, teamspeak.port)

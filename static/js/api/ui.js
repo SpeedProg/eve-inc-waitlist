@@ -4,7 +4,7 @@ if (!waitlist) {
 	var waitlist = {};
 	waitlist.esi = {};
 } else if (!waitlist.esi) {
-    waitlist.esi = {};
+	waitlist.esi = {};
 }
 
 /**
@@ -12,9 +12,9 @@ if (!waitlist) {
  */
 waitlist.esi.ui = (function() {
 
-    var urls = {
+	var urls = {
 		esi_ui_newmail: waitlist.base.getMetaData('api-esi-ui-newmail'),
-        esi_ui_auth: waitlist.base.getMetaData('api-esi-ui-auth')
+		esi_ui_auth: waitlist.base.getMetaData('api-esi-ui-auth')
 	};
 
 	/**
@@ -24,7 +24,7 @@ waitlist.esi.ui = (function() {
 	 * @param subject Mails Subject
 	 * @param body Mails Body
 	 */
-    function open_newmail(receipients, subject, body) {
+	function open_newmail(receipients, subject, body) {
 		/*
 		* mailRecipients => JSON String recipients=[{"recipient_id": ID, "recipient_type": "alliance|character|corporation|mailing_list"}]
 		* mailBody => String
@@ -49,9 +49,9 @@ waitlist.esi.ui = (function() {
 				waitlist.base.displayMessage(message, "danger");
 			}
 		});
-    }
+	}
 
-    return {
+	return {
 		newmail: open_newmail,
 	};
 })();

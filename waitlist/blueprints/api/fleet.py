@@ -19,6 +19,7 @@ from waitlist.utility.eve_id_utils import get_character_by_name
 from flask.helpers import make_response
 from waitlist.ts3.connection import move_to_safety_channel
 from waitlist.utility.settings import sget_active_ts_id
+from flask_babel import gettext
 
 bp = Blueprint('api_fleet', __name__)
 logger = logging.getLogger(__name__)
@@ -44,12 +45,31 @@ def remove_fleet(fleet_id: int):
 def fleet_actions_invite(name: str):
     character = get_character_by_name(name)
     fleet = current_user.fleet
-    logger.info("%s invites %s by name to fleet %d", current_user.username, name, fleet.fleetID)
-    status = invite(character.id, [(fleet.dpsWingID, fleet.dpsSquadID), (fleet.otherWingID, fleet.otherSquadID),
-                                   (fleet.sniperWingID, fleet.sniperSquadID), (fleet.logiWingID, fleet.logiSquadID)])
-    h_entry = create_history_object(character.get_eve_id(), HistoryEntry.EVENT_COMP_INV_BY_NAME, current_user.id)
+
+    if fleet is None:
+        logger.info("%s tried to invite someone by name while he has no fleet",
+                    current_user)
+        flask.abort(428, gettext('You are not associated with a fleet!'))
+
+    if character is None:
+        logger.info('%s tried to inviate character with name=%s who does not exist.',
+                    current_user,
+                    name)
+        flask.abort(400,
+                    gettext('The character you tried to invite could not be found!'))
+
+    logger.info("%s invites %s by name to fleet %d", current_user.username,
+                name, fleet.fleetID)
+    status = invite(character.id, [(fleet.dpsWingID, fleet.dpsSquadID),
+                                   (fleet.otherWingID, fleet.otherSquadID),
+                                   (fleet.sniperWingID, fleet.sniperSquadID),
+                                   (fleet.logiWingID, fleet.logiSquadID)])
+    h_entry = create_history_object(character.get_eve_id(),
+                                    HistoryEntry.EVENT_COMP_INV_BY_NAME,
+                                    current_user.id)
     db.session.add(h_entry)
-    resp = flask.jsonify({'status': status['status_code'], 'message': status['text']})
+    resp = flask.jsonify({'status': status['status_code'],
+                          'message': status['text']})
     resp.status_code = status['status_code']
     return resp
 
@@ -68,13 +88,18 @@ def invite_to_fleet():
     # lets check that the given wl exists
     if waitlist is None:
         logger.error("Given waitlist ID=%d is not valid.", waitlist_id)
-        flask.abort(400, f"Given waitlist ID=%d is not valid.")
+        resp = jsonify(status_code=428,
+                       message=gettext('Given waitlist ID=%(waitlist_id)d is not valid.',
+                                       waitlist_id=waitlist_id))
+        resp.status_code = 428
+        return resp
 
     squad_type = waitlist.name
     logger.info("Invited %s by %s into %s", character.eve_name, current_user.username, squad_type)
     if current_user.fleet is None:
         logger.info("%s is currently not not boss of a fleet, he can't invite people.", current_user.username)
-        resp = jsonify(status_code=409, message="You are not currently Boss of a Fleet")
+        resp = jsonify(status_code=409,
+                       message=gettext('You are not currently Boss of a Fleet'))
         resp.status_code = 409
         return resp
     fleet = current_user.fleet
@@ -90,13 +115,17 @@ def invite_to_fleet():
         squad_id_list = [(fleet.sniperWingID, fleet.sniperSquadID), (fleet.otherWingID, fleet.otherSquadID),
                          (fleet.dpsWingID, fleet.dpsSquadID), (fleet.logiWingID, fleet.logiSquadID)]
     else:
-        return Response(flask.jsonify({'message': 'Unknown Squad Type'}), 415)
+        return Response(flask.jsonify({'message': gettext('Unknown Squad Type')}), 415)
 
     # invite over crest and get back the status
     status = invite(character_id, squad_id_list)
 
-    resp = flask.jsonify({'status': status['status_code'], 'message': status['text']})
-    resp.status_code = status['status_code']
+    if status['status_code'] != 204:
+        resp = jsonify({'status': status['status_code'], 'message': status['text']})
+        resp.status_code = status['status_code']
+    else:
+        logger.info("Creating empty content response")
+        resp = make_response('', 204)
 
     if resp.status_code != 204:  # invite failed send no notifications
         if resp.status_code != 520:
@@ -133,30 +162,16 @@ def invite_to_fleet():
     logger.info("%s invited %s to fleet from %s.", current_user.username, character.eve_name, waitlist.group.groupName)
 
     # set a timer for 1min and 6s that checks if the person accepted the invite
-    logger.info("API Response for %s was %d", character.eve_name, resp.status_code)
+    logger.debug("API Response for %s was %d", character.eve_name, resp.status_code)
     if resp.status_code == 204:
-        spawn_invite_check(character_id, group_id, fleet.fleetID)
+        try:
+            spawn_invite_check(character_id, group_id, fleet.fleetID)
+        except Exception:
+            logger.exception('Failed to spawn invite check')
     else:
-        logger.info(f"Did not get 204 status, instead got {resp.status_code} no invite check spawned")
+        logger.debug(f"Did not get 204 status, instead got {resp.status_code} no invite check spawned")
+
     return resp
-
-
-def dumpclean(obj):
-    if type(obj) == dict:
-        for k, v in list(obj.items()):
-            if hasattr(v, '__iter__'):
-                print(k)
-                dumpclean(v)
-            else:
-                print('%s : %s' % (k, v))
-    elif type(obj) == list:
-        for v in obj:
-            if hasattr(v, '__iter__'):
-                dumpclean(v)
-            else:
-                print(v)
-    else:
-        print(obj)
 
 
 @bp.route("/fleet/movetosafety/", methods=['POST'])

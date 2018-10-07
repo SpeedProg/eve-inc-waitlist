@@ -4,6 +4,7 @@
 .profile-img-32 {
     width: 32px;
     height: 32px;
+    vertical-align: inherit;
 }
 .pretty-dd {
     margin-bottom: 0;

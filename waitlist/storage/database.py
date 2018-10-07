@@ -15,6 +15,9 @@ from waitlist.utility import config
 from waitlist.utility.utils import get_random_token
 from sqlalchemy.types import UnicodeText
 import json
+import inspect
+import traceback
+from waitlist.utility.constants import categories
 
 logger = logging.getLogger(__name__)
 
@@ -87,13 +90,16 @@ class SSOToken(Base):
         return True
 
     @staticmethod
-    def update_token_callback(token_identifier: int, access_token: str, refresh_token: str, expires_at: int,
+    def update_token_callback(token_identifier: int, access_token: str,
+                              refresh_token: str, expires_at: int,
                               **_: Dict[str, Any]) -> None:
         logger.debug("Updating token with id=%s", token_identifier)
         token: SSOToken = db.session.query(SSOToken).get(token_identifier)
         token.access_token = access_token
         token.refresh_token = refresh_token
         token.access_token_expires = datetime.utcfromtimestamp(expires_at)
+        expires_in: timedelta = token.access_token_expires - datetime.utcnow()
+        logger.debug('%s expires is in %ss', token, expires_in.total_seconds())
         db.session.commit()
 
     @property
@@ -106,39 +112,62 @@ class SSOToken(Base):
 
         # if the access_token is still not expired return as valid
         if self.access_token_expires > datetime.utcnow()+timedelta(seconds=10):
-            logger.debug("%s valid because access_token_expires %s still in the future", self, self.access_token_expires)
+            logger.debug("%s valid because access_token_expires %s still more then 10s in the future",
+                         self, self.access_token_expires)
             return True
+        logger.debug('%s needs to be refreshed because access_token_expires %s is less then 10s in the future',
+                     self, self.access_token_expires)
 
         # check that the token is valid
         security: EsiSecurity = EsiSecurity('', config.crest_client_id,
                                             config.crest_client_secret,
-                                            headers={'User-Agent': config.user_agent}
-                                            )
+                                            headers={
+                                                'User-Agent': config.user_agent
+                                            })
         security.update_token(self.info_for_esi_security())
 
         try:
+            frame = inspect.currentframe()
+            stack_trace = traceback.format_stack(frame)
+            logger.debug("Calling refresh on %r", self)
+            logger.debug(stack_trace[:-1])
             security.refresh()
-            SSOToken.update_token_callback(token_identifier=self.tokenID, access_token=security.access_token,
-                                           refresh_token=security.refresh_token, expires_at=security.token_expiry)
+            SSOToken.update_token_callback(token_identifier=self.tokenID,
+                                           access_token=security.access_token,
+                                           refresh_token=security.refresh_token,
+                                           expires_at=security.token_expiry)
             logger.debug("Token refresh worked")
             return True
         except APIException as e:
             # this probably happens because the token is invalid now
-            if ('message' in e.response and
-                    (e.response['message'] == 'invalid_token' or
-                     e.response['message'] == 'invalid_request')
-                )\
-                or\
-                ('error' in e.response and
-                      (e.response['error'] == 'invalid_request' or
-                       e.response['error'] == 'invalid_token')
-            ):
-                logger.debug("%s invalid because of response %s.", self, e.response)
-                return False
+            if ('content-type' in e.response_header
+               and 'application/json' in e.response_header['content-type']):
+                resp_data = json.loads(e.response)
+                if (
+                    (
+                        'message' in resp_data and
+                        (resp_data['message'] == 'invalid_token' or
+                         resp_data['message'] == 'invalid_request')
+                    )
+                    or
+                    (
+                        'error' in resp_data and
+                        (resp_data['error'] == 'invalid_request' or
+                         resp_data['error'] == 'invalid_token')
+                    )
+                   ):
+                    logger.debug('%s invalid because of response %s.', self,
+                                 resp_data)
+                    return False
 
-            logger.exception(e)
-            logger.debug("%s invalid because of exception.", self)
-            return False
+            logger.exception('%s valid because of exception. header=%s',
+                             self,
+                             e.response_header,
+                             exc_info=True)
+            return True
+        except Exception:
+            logger.exception('%s valid because of exception.', self)
+            return True
 
     def expires_in(self) -> int:
         """ Get amount of seconds until expiry.
@@ -181,6 +210,9 @@ class SSOToken(Base):
 
             self.scopes = token_scopes
 
+    def __str__(self):
+        return self.__repr__()
+
     def __repr__(self):
         return f'<Token tokenID={self.tokenID} characterID={self.characterID} accountID={self.accountID} refresh_token={self.refresh_token}>'
 
@@ -203,9 +235,32 @@ class Constellation(Base):
     constellationName = Column('constellation_name', String(100), index=True, unique=True)
 
 
+class InvCategory(Base):
+    __tablename__ = 'invcategory'
+    categoryID = Column('category_id', Integer, primary_key=True,
+                        autoincrement=False)
+    categoryName = Column('category_name', String(255))
+    published = Column('published', Boolean(name='is_published'))
+
+
+class InvGroup(Base):
+    __tablename__ = 'invgroup'
+    groupID = Column('group_id', Integer, primary_key=True,
+                     autoincrement=False)
+    groupName = Column('group_name', String(255))
+    published = Column('published', Boolean(name='is_published'))
+    categoryID = Column('category_id', Integer,
+                         ForeignKey(
+                             'invcategory.category_id',
+                             ondelete='CASCADE'))
+
+    category: InvCategory = relationship('InvCategory')
+
+
 class InvType(Base):
     __tablename__ = 'invtypes'
-    typeID = Column('type_id', Integer, primary_key=True, nullable=False)
+    typeID = Column('type_id', Integer, primary_key=True, nullable=False,
+                    autoincrement=False)
     groupID = Column('group_id', Integer, index=True)
     typeName = Column('type_name', String(100))
     description = Column('description', Text)
@@ -220,9 +275,80 @@ class InvType(Base):
     #    iconID = Column(BIGINT)
     #    soundID = Column(BIGINT)
 
+    group: InvGroup = relationship(
+        'InvGroup',
+        primaryjoin='foreign(InvType.groupID) == InvGroup.groupID')
+
+    dogma_attributes = relationship(
+        'InvTypeDogmaAttribute')
+
+    dogma_effects = relationship('InvTypeDogmaEffect')
+
+    @property
+    def IsCharge(self):
+        """ Is this a charge
+        """
+        if self.group is None:
+            return False
+        if self.group.categoryID is None:
+            return False
+
+        return self.group.categoryID == categories.charge
+
+    @property
+    def IsSubsystem(self):
+        """ Is a subsystem
+        """
+        if self.group is None:
+            return False
+        if self.group.categoryID is None:
+            return False
+
+        return self.group.categoryID == categories.subystem
+
+    @property
+    def IsRig(self):
+        """ Is a subsystem
+        """
+        if self.group is None:
+            return False
+
+        return self.group.groupName.startswith('Rig ')
+
+    @property
+    def IsDrone(self):
+        """ Is a Drone
+        """
+        if self.group is None:
+            return False
+        if self.group.categoryID is None:
+            return False
+
+        return self.group.categoryID == categories.drone
+
     def __repr__(self):
         return f'<InvType typeID={self.typeID} typeName={self.typeName} groupID={self.groupID}' \
                f' marketGroupID={self.marketGroupID} description={self.description}>'
+
+
+class InvTypeDogmaAttribute(Base):
+    __tablename__ = 'dogma_attributes'
+    typeID = Column('type_id', Integer,
+                    ForeignKey('invtypes.type_id',
+                               ondelete='CASCADE'),
+                    primary_key=True, autoincrement=False)
+    attributeID = Column('attribute_id', Integer, primary_key=True)
+    value = Column('value', Integer)
+
+
+class InvTypeDogmaEffect(Base):
+    __tablename__ = 'dogma_effect'
+    typeID = Column('type_id', Integer,
+                    ForeignKey('invtypes.type_id',
+                               ondelete='CASCADE'),
+                    primary_key=True, autoincrement=False)
+    effectID = Column('effect_id', Integer, primary_key=True, autoincrement=False)
+    isDefault = Column('is_default', Boolean(name='is_default'))
 
 
 class MarketGroup(Base):
@@ -252,6 +378,8 @@ class Account(Base):
     disabled = Column('disabled', Boolean(name='disabled'), default=False, server_default=sql.expression.false())
     had_welcome_mail = Column('had_welcome_mail', Boolean(name='had_welcome_mail'),
                               default=False, server_default=sql.expression.false())
+    language = Column('language', String(10))
+
     '''
     refresh_token = Column(String(128), default=None)
     access_token = Column(String(128), default=None)
@@ -467,6 +595,7 @@ class Character(Base):
     teamspeak_poke = Column('teamspeak_poke', Boolean(name='teamspeak_poke'),
                             default=True, server_default="1", nullable=False)
     owner_hash = Column('owner_hash', Text)
+    language = Column('language', String(10))
 
     # this contains all SSOToken for this character
     # normally we only want the ones not associated with an account! we got a property for this
@@ -739,7 +868,8 @@ class Shipfit(Base):
     __tablename__ = "fittings"
 
     id = Column('id', Integer, primary_key=True)
-    ship_type = Column('ship_type', Integer, ForeignKey(InvType.typeID))
+    ship_type = Column('ship_type', Integer, ForeignKey(InvType.typeID,
+                                                        onupdate='CASCADE'))
     modules = Column('modules', String(5000))
     comment = Column('comment', String(5000))
     wl_type = Column('wl_type', String(10))
@@ -1025,6 +1155,7 @@ class AccountNote(Base):
                 f' textPayload={self.textPayload}'
                 f' note={self.note}>')
 
+
 class RoleChangeEntry(Base):
     __tablename__ = "role_changes"
     roleChangeID = Column('role_change_id', Integer, primary_key=True)
@@ -1038,8 +1169,14 @@ class RoleChangeEntry(Base):
 
 class FitModule(Base):
     __tablename__ = 'fit_module'
-    fitID = Column('fit_id', Integer, ForeignKey(Shipfit.id), primary_key=True, nullable=False)
-    moduleID = Column('module_id', Integer, ForeignKey(InvType.typeID), primary_key=True, nullable=False)
+    fitID = Column('fit_id', Integer, ForeignKey(Shipfit.id), primary_key=True,
+                   nullable=False)
+    moduleID = Column('module_id', Integer,
+                      ForeignKey(InvType.typeID, onupdate='CASCADE'),
+                      primary_key=True, nullable=False)
+    # this won't exist in older fittings
+    locationFlag = Column('location_flag', Integer, nullable=False,
+                          primary_key=True, server_default=text('1000'))
     amount = Column('amount', Integer, default=1)
     module = relationship(InvType)
     fit = relationship(Shipfit)

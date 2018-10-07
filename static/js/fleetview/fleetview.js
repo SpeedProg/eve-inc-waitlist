@@ -13,7 +13,7 @@ waitlist.fleetview = (function(){
 		const request = indexedDB.open("eve-api-cache", 2);
 	// setup handler to ask user why it failed :>
 		request.onerror = function (event) {
-			alert("IndexDB is needed to cache character/ship information. Why didn't you allow my web app to use IndexedDB?!");
+			alert($.i18n("wl-fleetview-error-indexdb"));
 		};
 	// if we succeed opening it lets register a general error handler
 		request.onsuccess = function (event) {
@@ -21,7 +21,7 @@ waitlist.fleetview = (function(){
 			db.onerror = function (event) {
 				// Generic error handler for all errors targeted at this database's
 				// requests!
-				alert("Database error: " + event.target.errorCode);
+				alert($.i18n('wl-fleetview-error-db', event.target.errorCode));
 			};
 			// aright we are done, lets call the next code
 			initializeSite();
@@ -293,26 +293,26 @@ waitlist.fleetview = (function(){
 	}
 
 	function getCharacterInfo(characterID) {
-    return window.clientv4.apis.Character.get_characters_character_id({character_id: characterID}, {responseContentType: 'application/json'});
+		return window.clientv4.apis.Character.get_characters_character_id({character_id: characterID}, {responseContentType: 'application/json'});
 	}
 
 	$(document).ready(function() {
 		window.clientv4 = new SwaggerClient("https://esi.tech.ccp.is/v4/swagger.json")
-    .catch(
-      function (event) {
-				console.log("SwaggerError");
-				console.log(event);
+		.catch((event) => {
+			console.log("SwaggerError");
+			console.log(event);
 			}
-    );
+		);
 
 		window.clientv2 = new SwaggerClient("https://esi.tech.ccp.is/v2/swagger.json")
-		.catch(
-      function (event) {
+		.catch((event) => {
 				console.log("SwaggerError");
 				console.log(event);
 			}
-    );
-
-		setupDB();
+		);
+		// make sure translations are loaded
+		i18nloaded.then(() => {
+			setupDB();
+		});
 	});
 })();

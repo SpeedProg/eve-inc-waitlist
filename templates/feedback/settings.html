@@ -1,12 +1,12 @@
 {% extends "settings/base.html" %}
 
-{% block title %}Settings - Tickets{% endblock %}
+{% block title %}{{ _('Settings') }} - {{ _('Tickets') }}{% endblock %}
 
 {% block head %}
 <meta name="api-esi-ui-newmail" content="{{url_for('api_ui.post_esi_openwindow_newmail')}}">
 <meta name="api-esi-ui-auth" content="{{ url_for('api_ui.auth') }}">
 {{ super() }}
-{% assets filters="babili", output="gen/ticket.%(version)s.js", "js/base.js", "js/api/ui.js", "js/ticket-settings.js" %}
+{% assets filters="babili", output="gen/ticket.%(version)s.js", "js/api/ui.js", "js/ticket-settings.js" %}
 <script type="text/javascript" src="{{ ASSET_URL }}"></script>
 {% endassets %}
 {% endblock %}
@@ -15,11 +15,11 @@
 <table class="table">
 <thead>
 	<tr>
-		<th>Actions</th>
-		<th>Time</th>
-		<th>Character Name</th>
-		<th>Title</th>
-		<th>Message</th>
+		<th>{{ _('Actions') }}</th>
+		<th>{{ _('Time') }}</th>
+		<th>{{ _('Character Name') }}</th>
+		<th>{{ _('Title') }}</th>
+		<th>{{ _('Message') }}</th>
 	</tr>
 </thead>
 
@@ -27,13 +27,13 @@
 	{% for fb in tickets %}
 	<tr id="fb-{{ fb.id }}" data-characterid="{{fb.character.id}}">
 		<td id="fb-{{fb.id}}-actions">
-			<button type="button" class="btn btn-sm btn-info" data-action="sendTicketMail" data-ticketId="{{fb.id}}">Open Answer Mail</button>
-			<button type="button" class="btn btn-sm btn-info" data-action="changeTicketStatus" data-ticketId="{{fb.id}}" data-newStatus="close">Close Ticket</button>
+			<button type="button" class="btn btn-sm btn-info" data-action="sendTicketMail" data-ticketId="{{fb.id}}">{{ _('Open Answer Mail') }}</button>
+			<button type="button" class="btn btn-sm btn-info" data-action="changeTicketStatus" data-ticketId="{{fb.id}}" data-newStatus="close">{{ _('Close Ticket') }}</button>
 		</td>
 		<td id="fb-{{fb.id}}-time">{{ fb.time }}</td>
 		<td id="fb-{{fb.id}}-name">{{ fb.character.eve_name }}</td>
 		<td id="fb-{{fb.id}}-title">{{ fb.title }}</td>
-		<td id="fb-{{fb.id}}-message">{{ fb.message }}</td>
+		<td id="fb-{{fb.id}}-message">{% autoescape false %}{{ fb.message|e|replace('\n', '<br>') }}{% endautoescape %}</td>
 	</tr>
 	{% endfor %}
 </tbody>

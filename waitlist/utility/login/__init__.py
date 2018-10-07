@@ -18,6 +18,8 @@ from waitlist.utility import config
 from waitlist.utility.eve_id_utils import get_character_by_id_and_name, is_char_banned
 from waitlist.utility.manager import OwnerHashCheckManager
 from waitlist.signal.signals import send_alt_link_removed
+from flask_babel import gettext
+from esipy.exceptions import APIException
 
 logger = logging.getLogger(__name__)
 
@@ -145,8 +147,12 @@ def login_accounts_by_alts_or_character(char: Character, owner_hash: str, token:
         if char.owner_hash != owner_hash:
             logger.debug("Character owner_hash for %s did not match."
                          " Invalidating all sessions and removing character as alt from all accounts.", char)
-            flask.flash("You character seemed to have changed owner."
-                        " You where removed as eligible character for account login.", 'danger')
+            flask.flash(
+                gettext(
+                    "You character seemed to have changed owner." +
+                    " You where removed as eligible character " +
+                    "for account login."),
+                'danger')
             invalidate_all_sessions_for_given_user(char)
             if len(char.accounts) > 0:
                 # TODO: send signal here that an alt is removed from this account
@@ -162,9 +168,14 @@ def login_accounts_by_alts_or_character(char: Character, owner_hash: str, token:
 
             if len(char.accounts) > 1:  # this character is connected with more then 1 account
                 logger.error("%s connected to multiple accounts, logging in as character.", char)
-                flask.flash(f"Your character {char.get_eve_name()} is connected to more than one Waitlist Account,"
-                            f" please contact an Administrator."
-                            f" Meanwhile, you are logged in as a normal character.", "danger")
+                flask.flash(
+                    gettext("Your character %(eve_name)s is connected"
+                            " to more than one Waitlist Account,"
+                            " please contact an Administrator."
+                            " Meanwhile, you are logged in as"
+                            " a normal character.",
+                            eve_name=char.get_eve_name()),
+                    "danger")
 
                 return login_character(char, owner_hash, token)
 
@@ -188,7 +199,12 @@ def login_accounts_by_alts_or_character(char: Character, owner_hash: str, token:
 
 
 def member_login_cb(code):
-    auth = authorize(code)
+    try:
+        auth = authorize(code)
+    except APIException:
+        logger.info('The provided SSO code=%s is invalid', code)
+        flask.abort(400, 'The provided SSO code is invalid!')
+
     refresh_token = auth['refresh_token']
     access_token = auth['access_token']
     expires_in = int(auth['expires_in'])

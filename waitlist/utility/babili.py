@@ -16,15 +16,22 @@ class BabiliFilter(ExternalTool):
         super(BabiliFilter, self).setup()
 
     def output(self, _in, out, **kw):
+        # node not configured
+        if config.node_bin == '':
+            out.write(_in.read())
+            return
+
         # prepare arguments
         if self.presets:
             self.presets += ",minify"
         else:
             self.presets = "minify"
         if self.extra_args:
-            self.extra_args.extend(['--no-babelrc', '--no-comments', '--plugins=transform-remove-console'])
+            self.extra_args.extend(['--no-babelrc', '--no-comments',
+                                    '--plugins=transform-remove-console'])
         else:
-            self.extra_args = ['--no-babelrc', '--no-comments', '--plugins=transform-remove-console']
+            self.extra_args = ['--no-babelrc', '--no-comments',
+                               '--plugins=transform-remove-console']
 
         args = [config.node_bin + 'babel']
         if self.presets:

@@ -9,10 +9,7 @@
  integrity="sha256-q4eNahhjrmTWF+LAesQ+rDagZhwcegBpS7qE0UAjJx4="
  crossorigin="anonymous"></script>
 
-	{% assets filters="babili", output="gen/swagger-client.%(version)s.js", "js/swagger-client.min.js" %}
-<script type="text/javascript" src="{{ ASSET_URL }}"></script>
-	{% endassets %}
-	{% assets filters="babili", output="gen/settings.overview.%(version)s.js", "js/base.js",
+	{% assets filters="babili", output="gen/settings.overview.%(version)s.js",
 	"js/overview/overview.js" %}
 <script type="text/javascript" src="{{ ASSET_URL }}"></script>
 	{% endassets %}

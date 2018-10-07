@@ -1,0 +1,1874 @@
+# Constantin Wenger <constantin.wenger@googlemail.com>, 2018. #zanata
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2018-08-28 14:54+0200\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"PO-Revision-Date: 2018-08-28 12:58+0000\n"
+"Last-Translator: Constantin Wenger <constantin.wenger@googlemail.com>\n"
+"Language-Team: German\n"
+"Language: de\n"
+"X-Generator: Zanata 4.6.2\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+
+#: templates/about.html:15
+msgid ""
+"<a href=\"https://github.com/speedprog/eve-inc-waitlist\" target="
+"\"_blank\">Eve-Inc-Waitlist</a> Created by <a href=\"char:91495852\">Bruce "
+"Warhead</a> and <a href=\"char:93356698\">Beryl Slanjava</a>"
+msgstr ""
+"<a href=\"https://github.com/speedprog/eve-inc-waitlist\" target="
+"\"_blank\">Eve-Inc-Waitlist</a> erstellt von <a href=\"char:91495852\">Bruce "
+"Warhead</a> und <a href=\"char:93356698\">Beryl Slanjava</a>"
+
+#: templates/about.html:17
+msgid ""
+"<a href=\"https://github.com/quiescens/eve-ui\" target=\"_blank\">Fitting "
+"Display (Eve-UI)</a> and Fitting Stats by <a href=\"char:"
+"725396116\">Quie'scens</a>"
+msgstr ""
+"<a href=\"https://github.com/quiescens/eve-ui\" target="
+"\"_blank\">Ausrüstungsanzeige (Eve-UI)</a> und Ausrüstungsstatistiken by <a "
+"href=\"char:725396116\">Quie'scens</a>"
+
+#: templates/base.html:58
+msgid ""
+"We have had to disable <strong>features</strong> please consider upgrading "
+"your<a href=\"http://caniuse.com/#feat=eventsource\"> browser</a>"
+msgstr ""
+"Wir musten <strong>Funktionen</strong> abschalten, bitte denke darüber nach "
+"<a href=\"http://caniuse.com/#feat=eventsource\">deinen Browser zu wechseln</"
+"a>"
+
+#: templates/base.html:92
+msgid "ISK Donations are appreciated"
+msgstr "ISK Spenden werden geschätzt"
+
+#: templates/help.html:15
+msgid "How do I enter the Waitlist?"
+msgstr "Wie komme ich auf die Warteliste?"
+
+#: templates/help.html:18
+msgid ""
+"In the eve client, go to the Ship Fitting Window.<br/>\n"
+" On the bottom right side is a Save button, click it.<br/>\n"
+" A Fitting Management window will open, that has a Copy to Clipboard button "
+"at the bottom, click it.<br/>\n"
+" Now you are ready to switch to the Waitlist Website.<br/>\n"
+" At the top there is a link X-UP, open the link.\n"
+" In the big text field, below Fittings, press Ctrl+V or right click and "
+"select Paste.<br/>\n"
+" Now at the bottom, if you are flying one of these ships: Rokh, Rattlesnake, "
+"Scorpion Navy Issue, please select your Caldari Battleship Level.<br/>\n"
+" If you are flying a Logistics Ship, namely Basilisk or Scimitar, please "
+"select your Logistics Cruiser Level too.<br/>\n"
+" Now you can press Enter on Waitlist.<br/>\n"
+" Your Fittings will now be queued up for review by a Waitlist Manager before "
+"you are put on the Waitlist.<br/>\n"
+" You will be send back to the index page, where you can see who is on the "
+"Waitlist, and/or in the queue, to be review by a Waitlist Manager."
+msgstr ""
+"Gehen Sie im eve client zum Fenster \"Ausrüstung\". <br/>\n"
+"Klicken Sie rechts unten auf die Schaltfläche Speichern unter. <br/>\n"
+" Es öffnet sich das Fenster \"Ausrüstungsverwaltung\", das eine Schaltfläche "
+"In Zwischenablage kopieren enthält, Klicken Sie auf diese Schaltfläche. <br/"
+">\n"
+" Jetzt können Sie zur Wartelisten-Website wechseln. <br/>\n"
+"Oben befindet sich ein Link X-UP, den Link öffnen.\n"
+" In der großes Textfeld, unter Ausrüstung, drücken Sie Strg + V oder presse "
+"die rechte Maustaste und wähle Einfügen. <br/> \n"
+" Wenn Sie nun eines dieser Schiffe fliegen: Rokh, Rattelsnake, Scorpion Navy "
+"Issue, wählen Sie bitte Ihre Caldari Schlachtschiff-Level. <br/>\n"
+" Wenn du einen Logistikkreuzer fliegst, nämlich Basilisk oder Scimitar, "
+"wähle bitte auch deinen Logistikkreuzer-Level aus. <br/>\n"
+" Jetzt kannst du die Anfrage absenden. <br/>\n"
+" Ihre Ausrüstungen werden nun zur Überprüfung durch einen Wartelisten-"
+"Verwalter eingereiht, bevor Sie auf die Warteliste gesetzt werden. <br/>\n"
+" Sie werden zurück zur Indexseite gesendet, auf der Sie sehen können, wer "
+"auf der Warteliste steht und / oder noch von eine Wartelisten-Verwalter "
+"überprüft werden muss."
+
+#: templates/help.html:37
+msgid "How do Alarm Expressions work?"
+msgstr "Wie funktionieren die Warnungsausdrücke?"
+
+#: templates/help.html:40
+msgid ""
+"For expression evaluation <a href=\"https://github.com/silentmatt/expr-"
+"eval\" target=\"_blank\">expr-eval</a> is used.\n"
+" The variables, <code>open, xup, logi, dps, sniper, other</code> are "
+"provided, open being a boolean(true/false) while the others are numbers.\n"
+" You can have one expression per Waitlist Group, there is no need for more "
+"then one, because using (expression) or (expression) would be the same as "
+"using two expression for one group."
+msgstr ""
+"Für die Ausdrucksauswertung wird <a href=\"https://github.com/silentmatt/"
+"expr-eval\" target=\"_blank\"> expr-eval </a> verwendet.\n"
+" Die Variablen  <code>open, xup, logi, dps, sniper, other</code> werden "
+"bereitgestellt, open ist ein boolescher Wert (true / false), während die "
+"anderen Zahlen sind. \n"
+" Sie können einen Ausdruck pro Wartelistengruppe haben, es sind keine "
+"weiteren erforderlich, denn die Verwendung von (Ausdruck) or (Ausdruck) ist "
+"das Gleiche wie die Verwendung von zwei Ausdrücken für eine Gruppe."
+
+#: templates/help.html:45
+msgid ""
+"To explain how the expressions work, first we are introducing the word "
+"operator.\n"
+" An operator is something that takes input values, and does something witht "
+"them, then providing an output value."
+msgstr ""
+"Um zu erklären, wie die Ausdrücke funktionieren, führen wir zuerst den das "
+"Wort Operator ein.\n"
+"Ein Operator ist etwas, das Eingabewerte nimmt und etwas damit tut und dann "
+"einen Ausgabewert liefert."
+
+#: templates/help.html:49
+msgid ""
+"For our usage we only need to look at unary and binary operators.\n"
+" Binary operators, take two arguments. Unary ones only take one. Now that we "
+"have established this we are going to move on to an example."
+msgstr ""
+"Für unsere Verwendung müssen wir nur unäre und binäre Operatoren betrachten.\n"
+"Binäre Operatoren, nehmen zwei Argumente. Unäre nehmen nur einenes. Nachdem "
+"wir dies eingeführt haben, gehen wir nun zu einem Beispiel über."
+
+#: templates/help.html:53
+msgid ""
+"Our placeholder expression is <code>(xup == 0 and logi &lt; 2) or (xup == 2 "
+"and dps &lt;= 5)</code>.\n"
+" This expression is split on two subexpressions, made by <code>()</code>, a "
+"grouping operator, which are (1)<code>(xup == 0 and logi &lt; 2)</code> and "
+"(2)<code>(xup == 2 and dps &lt;= 5)</code>."
+msgstr ""
+"User Platzhalterausdruck ist <code>(xup == 0 and logi &lt; 2) or (xup == 2 "
+"and dps &lt;= 5)</code>.\n"
+" Dieser Ausdruck besteht aus zwei Unterausdrücken, diese Unterausdrücken "
+"werden begrenzt durch <code>()</code>, ein  Gruppierungsoperator, diese zwei "
+"Ausdrücke sind: (1)<code>(xup == 0 and logi &lt; 2)</code> und (2)<code>(xup "
+"== 2 and dps &lt;= 5)</code>."
+
+#: templates/help.html:57
+msgid ""
+"These two expressions are connected by the operator <code>or</code> which is "
+"a binary operator.\n"
+" The <code>or</code> operator works like this: It takes the two given "
+"arguments, and if either is true, it solves to true in all other cases (both "
+"are false) it solves to false."
+msgstr ""
+"Diese zwei Ausdrücke sind mit dem Operator  <code>or</code> verbunden, "
+"welcher ein binärer Operator ist.\n"
+"Der <code>or</code> Operator funktioniert wie folgt:\n"
+"Es nimmt zwei gegebene Argumente, und wenn eines davon true ist dann löst er "
+"zu true auf, in allen anderen Fällen (beide sind false) wird zu false "
+"aufgelöst."
+
+#: templates/help.html:61
+msgid ""
+"Now taking a look at subexpression (1)<code>(xup == 0 and logi &lt; 2)</"
+"code> we see our placeholder variables <code>xup</code> and <code>logi</"
+"code>.\n"
+" They will be replaced with our values from the table, on every update and "
+"following evaluation of the expressions."
+msgstr ""
+"Wenn wir nun den Unterausdruck (1)<code>(xup == 0 and logi &lt; 2)</code> "
+"betrachten, sehen wir unsere Platzhaltervariablen <code>xup</code> and "
+"<code>logi</code>.\n"
+"Diese werden, bei jeder Auffrischung und daraus folgenden Auflösung des "
+"Ausdrucks,  mit Werten aus der Tabelle ersetzt "
+
+#: templates/help.html:65
+msgid ""
+"So here again we have two subexpressions inside this subexpression. "
+"<code>(xup == 0)</code> and <code>(logi &lt; 2)</code>."
+msgstr ""
+"Hier haben wir wieder zwei Unterausdrücke in dem Unterausdruck. <code>(xup =="
+" 0)</code> and <code>(logi &lt; 2)</code>."
+
+#: templates/help.html:68
+msgid ""
+"We know these two are subexpressions like this because of association.\n"
+" You really don't need to care about this, if you don't know what it is.\n"
+" Just put all your expressions in <code>()</code> and you don't need to know "
+"what it is."
+msgstr ""
+"Wir wissen das dies zwei Unterausdrucke sind durch den Rang von Operatoren.\n"
+"Das muss dich aber nicht interessieren, falls sie nicht wissen was dies ist.\n"
+"Benutzen sie einfach <code>()</code> um jeden Ausdruck."
+
+#: templates/help.html:73
+msgid ""
+"Taking the first one <code>(xup == 0)</code> it uses the binary operator "
+"<code>==</code> which means \"equals\".\n"
+" And so check if both arguments <code>xup</code> and <code>0</code> are "
+"equal.\n"
+" If this is the case the operator <code>==</code> resolves to true, "
+"otherwise false."
+msgstr ""
+"Wenn wir den ersten <code>(xup == 0)</code> betrachten, benutzt dieser den "
+"binären Operator <code>==</code> welcher auf Gleichheit prüft.\n"
+"Also überprüft dieser die beiden Argumente <code>xup</code> und <code>0</"
+"code> auf Gleichheit. Haben diese den selben Wert löst <code>==</code> nach "
+"true aufgelöst, sonst nach false."
+
+#: templates/help.html:78
+msgid ""
+"<code>(logi &lt; 2)</code> uses the binary operator <code>&lt;</code> "
+"\"lesser then\", with <code>logi</code> and <code>2</code> as arguments.\n"
+" And so evaluates to <code>true</code>, if <code>logi</code> (the "
+"replacement value) is less then <code>2</code>."
+msgstr ""
+"<code>(logi &lt; 2)</code> benutzt den binären Operator <code>&lt;</code> "
+"\"weniger als\", mit <code>logi</code> und <code>2</code> als Argumente.\n"
+" Dieser löst nach <code>true</code> auf, wenn <code>logi</code> (der Wert) "
+"kleiner als <code>2</code> ist."
+
+#: templates/help.html:82
+msgid ""
+"The common operators are: <code>==</code> equals, <code>!=</code> does not "
+"equal, <code>&gt;=</code> bigger or equal, <code>&lt;=</code> less then or "
+"equal\n"
+" <code>&gt;</code> greater then, <code>&lt;</code> less then\n"
+" And to connect these expressions, the operators:\n"
+" <code>and</code> and <code>or</code>. Keep in mind the \"or\" is a \"true "
+"or\", not the way it often is used in language, it is not an \"either or\". "
+"On this \"or\" both can be true.\n"
+" There are other also useful operators, that can be used you can find them "
+"under <a href=\"https://github.com/silentmatt/expr-eval\" target="
+"\"_blank\">expr-eval</a>.\n"
+" But the ones introduced here, should be enough to write decent notification "
+"logic and should cover most use cases."
+msgstr ""
+"Die wichtigsten Operatoren sind: <code>==</code> gleich, <code>!=</code> "
+"ungleich, <code>&gt;=</code> größer oder gleich, <code>&lt;=</code> kleiner "
+"oder gleich, <code>&gt;</code> größer, <code>&lt;</code> kleiner.\n"
+"Und um diese Operatoren zu verknüpfen die Operatoren:\n"
+" <code>and</code> und, und <code>or</code> oder.\n"
+"Behalte dabei im Hinterkopf, dass das \"or\" ein richtiges oder ist, nicht "
+"ein entweder oder wie es of sprachlich gebraucht wird. Mit diesem \"or\" "
+"beide Argumente können wahr sein und es wird immer noch zu Wahr aufgelöst.\n"
+"Es gibt noch weitere nützliche Operatoren, du kannst dieser auf <a href="
+"\"https://github.com/silentmatt/expr-eval\" target=\"_blank\">expr-eval</a> "
+"nachschauen.\n"
+"Aber die hier vorgestellten sollten ausreichend sein um gute Alarm "
+"Bedingungen festzulegen."
+
+#: templates/index.html:3 templates/settings/base.html:14
+#: waitlist/blueprints/settings/overview.py:260
+msgid "Overview"
+msgstr "Übersicht"
+
+#: templates/index.html:122
+#, python-format
+msgid ""
+"You are not associated with any fleet, you can change this in <a\n"
+" href=\"%(url)s\">Fleet Settings</a>"
+msgstr ""
+"Sie sind nicht mit einer Flotte verknüpft, sie können dies in <a\n"
+" href=\"%(url)s\">Flotten Einstellungen</a> ändern"
+
+#: templates/index.html:130
+msgid ""
+"Please join Teamspeak, your character name must match <b>exactly</b>\n"
+" (case sensitive)<br>TS3 Server:"
+msgstr ""
+"Bitte trete Teamspeak bei, dein Charaktername muss <b>genau</b> wie im Game "
+"geschrieben sein. (Groß-/Kleinschreibung beachten)<br>TS3 Server:"
+
+#: templates/index.html:138
+msgid "Vote your favorite Command Core Member HERE"
+msgstr "Gebe HIER diene Stimme für das beliebteste Kommandomitglied ab."
+
+#: templates/index.html:164
+msgid "Browser"
+msgstr "Browser"
+
+#: templates/index.html:170
+msgid "Test TS"
+msgstr "Teste TS"
+
+#: templates/index.html:173
+msgid "Leave Waitlists"
+msgstr "Warteliste verlassen"
+
+#: templates/index.html:191 templates/settings/fleet.html:111
+msgid "Fleet Manager"
+msgstr "Flotten Verwalter"
+
+#: templates/index.html:208 templates/settings/fleet.html:134
+msgid "Constellation"
+msgstr "Konstellation"
+
+#: templates/index.html:213 templates/settings/fleet.html:146
+msgid "Dockup"
+msgstr "Basis"
+
+#: templates/index.html:218
+msgid "HQ System"
+msgstr "HQ System"
+
+#: templates/index.html:230
+#, python-format
+msgid ""
+"This waitlist is currently closed however\n"
+" <a href=\"%(url)s\">another</a> is open!"
+msgstr ""
+"Diese Warteliste ist momentan geschlossen, es ist jedoch <a href="
+"\"%(url)s\">eine andere Wartelist</a> offen."
+
+#: templates/index.html:242 waitlist/blueprints/calendar/__init__.py:7
+msgid "Events"
+msgstr "Veranstaltungen"
+
+#: templates/index.html:258
+#, python-format
+msgid ""
+"<strong>Help us!</strong> We would like your <a href=\"%(url)s\">feedback</"
+"a>!"
+msgstr ""
+"<strong>Hilf uns!</strong> Wir hätten gerne <a href=\"%(url)s\">Rückmedlung</"
+"a> von dir!"
+
+#: templates/index.html:290 templates/xup-form.html:64
+msgid "All Waitlists are closed!"
+msgstr "Alle Wartelisten sind geschlossen!"
+
+#: templates/logout.html:2 waitlist/utility/mainmenu/config_loader.py:176
+msgid "Logout"
+msgstr "Abmelden"
+
+#: templates/logout.html:7
+msgid "You are now logged out!"
+msgstr "Sie wurden abgemeldet!"
+
+#: templates/xup-form.html:2
+msgid "FC, WHAT DO?"
+msgstr "FC, WAS MUSS ICH MACHEN?"
+
+#: templates/xup-form.html:14
+#, python-format
+msgid "I am new to %(title)s or Incursions"
+msgstr "Ich bin neu bei %(title)s oder Sansha-Überfällen"
+
+#: templates/xup-form.html:20
+msgid "Fleet to x-up for"
+msgstr "Flotte für die man sich einschreibt"
+
+#: templates/xup-form.html:33
+msgid "Poke me on TS (exact charactername required, case sensitive)"
+msgstr ""
+"Auf TS anstupsen (exakter Name wie im Spiel benötigt, Groß-/Kleinschreibung "
+"beachten)"
+
+#: templates/xup-form.html:36
+msgid "Fittings"
+msgstr "Ausrüstungen"
+
+#: templates/xup-form.html:40
+msgid "Caldari Battleship Level"
+msgstr "Caldari Kampfschiff Level"
+
+#: templates/xup-form.html:42
+msgid "No Caldari BS"
+msgstr "Kein Caldari Kampfschiff"
+
+#: templates/xup-form.html:43 templates/xup-form.html:58
+msgid "1"
+msgstr "1"
+
+#: templates/xup-form.html:44 templates/xup-form.html:57
+msgid "2"
+msgstr "2"
+
+#: templates/xup-form.html:45 templates/xup-form.html:56
+msgid "3"
+msgstr "3"
+
+#: templates/xup-form.html:46 templates/xup-form.html:55
+msgid "4"
+msgstr "4"
+
+#: templates/xup-form.html:47 templates/xup-form.html:54
+msgid "5"
+msgstr "5"
+
+#: templates/xup-form.html:51
+msgid "Logistic Cruiser Level"
+msgstr "Logistikkreuzer Stufe"
+
+#: templates/xup-form.html:53
+msgid "No Logi"
+msgstr "Kein Support"
+
+#: templates/xup-form.html:61
+msgid "Enter On Waitlist"
+msgstr "Einschreiben"
+
+#: templates/waitlist/tools/history_search.html:50 templates/xup.html:3
+#: waitlist/utility/mainmenu/config_loader.py:182
+msgid "X-UP"
+msgstr "X-UP"
+
+#: templates/xup.html:16
+msgid "X-UP is currently closed!"
+msgstr "Einschreibung ist momentan geschlossen!"
+
+#: templates/account/profile.html:3
+#: templates/account/unauthed_characters_form.html:3
+#: templates/waitlist/history.html:39 templates/waitlist/history_cut.html:43
+#: templates/waitlist/tools/history_search.html:99
+msgid "Account"
+msgstr "Konto"
+
+#: templates/account/profile.html:3
+msgid "Profile"
+msgstr "Profil"
+
+#: templates/account/profile.html:17
+msgid "Date Time"
+msgstr "Datum Uhrzeit"
+
+#: templates/account/profile.html:18
+msgid "Noted By"
+msgstr "Eingetragen von"
+
+#: templates/account/profile.html:19 templates/account/profile.html:56
+msgid "Note"
+msgstr "Notiz"
+
+#: templates/account/profile.html:20
+msgid "Role Changes"
+msgstr "Rollen Veränderungen"
+
+#: templates/account/profile.html:43
+msgid "View Restriction"
+msgstr "Anzeige Beschränkung"
+
+#: templates/account/profile.html:45 templates/partials/themes_selector.html:2
+msgid "Default"
+msgstr "Standard"
+
+#: templates/account/profile.html:47
+msgid "Council"
+msgstr "Rat"
+
+#: templates/account/profile.html:50
+msgid "Leadership"
+msgstr "Führung"
+
+#: templates/account/profile.html:53
+msgid "Restrict who can see this message"
+msgstr "Beschränke wer diese Nachricht sehen kann"
+
+#: templates/account/profile.html:59
+msgid "Add Note"
+msgstr "Notiz hinzufügen"
+
+#: templates/account/unauthed_characters_form.html:3
+msgid "Unauthorized Characters"
+msgstr "Nicht bestätigte Charaktere"
+
+#: templates/account/unauthed_characters_form.html:13
+msgid ""
+"To continue using your account, you need to authenticate all connected "
+"characters, they are listed below."
+msgstr ""
+"Um dein Konto weiter benutzen zu können, musst du alle verlinkten Charaktere "
+"bestätigen."
+
+#: templates/account/unauthed_characters_form.html:30
+msgid "Authenticate"
+msgstr "Bestätigen"
+
+#: templates/calendar/settings.html:3 templates/feedback/settings.html:3
+#: templates/settings/accounts.html:3 templates/settings/bans.html:3
+#: templates/settings/base.html:3 templates/settings/ccvotes.html:3
+#: templates/settings/fleet.html:3 templates/settings/mail/index.html:3
+#: templates/settings/permissions/config.html:3 templates/settings/sde.html:3
+#: templates/settings/ts.html:3 templates/settings/whitelist.html:3
+#: waitlist/utility/mainmenu/config_loader.py:181
+msgid "Settings"
+msgstr "Einstellungen"
+
+#: templates/calendar/settings.html:3
+msgid "Calendar"
+msgstr "Kalender"
+
+#: templates/calendar/settings.html:18 templates/calendar/settings.html:52
+msgid "Category"
+msgstr "Kategorie"
+
+#: templates/calendar/settings.html:26
+msgid "When (UTC - EveTime)"
+msgstr "Wann (UTC - Eve Zeit)"
+
+#: templates/calendar/settings.html:32
+msgid "UTC"
+msgstr "UTC"
+
+#: templates/calendar/settings.html:38 templates/calendar/settings.html:52
+#: templates/settings/fleet.html:171
+msgid "Backseats"
+msgstr "Überwacher"
+
+#: templates/calendar/settings.html:45
+msgid "Submit Event"
+msgstr "Veranstaltung Eintragen"
+
+#: templates/calendar/settings.html:50
+msgid "Outstanding Events"
+msgstr "Bevorstehende Veranstaltungen"
+
+#: templates/calendar/settings.html:52 templates/feedback/settings.html:18
+#: templates/settings/accounts.html:122 templates/settings/bans.html:49
+#: templates/settings/fleet.html:209 templates/settings/whitelist.html:49
+#: templates/waitlist/tools/history_search.html:48
+msgid "Actions"
+msgstr "Aktionen"
+
+#: templates/calendar/settings.html:52
+msgid "Creator"
+msgstr "Ersteller"
+
+#: templates/calendar/settings.html:52 templates/feedback/settings.html:19
+#: templates/waitlist/history.html:39 templates/waitlist/history_cut.html:43
+#: templates/waitlist/tools/history_search.html:99
+msgid "Time"
+msgstr "Zeit"
+
+#: templates/calendar/settings.html:52 templates/feedback/settings.html:21
+msgid "Title"
+msgstr "Überschrift"
+
+#: templates/calendar/settings.html:60
+msgid "Remove Event"
+msgstr "Veranstaltung austragen"
+
+#: templates/feedback/index.html:3 waitlist/blueprints/feedback.py:87
+msgid "Feedback"
+msgstr "Rückmeldung"
+
+#: templates/feedback/index.html:14
+msgid "Feedback Title"
+msgstr "Rückmeldungs Überschrift"
+
+#: templates/feedback/index.html:15
+msgid "Short feedback sumup (max 50chars)"
+msgstr "Rückmeldungs Zusammenfassung (maximal 50 Zeichen)"
+
+#: templates/feedback/index.html:18
+msgid "Additional Feedback"
+msgstr "Zusätzliche Rückmeldung"
+
+#: templates/feedback/index.html:19
+msgid "Write additional information for us here"
+msgstr "Schreibe zusätzliche Informationen für uns hier"
+
+#: templates/feedback/index.html:21
+msgid "Send Feedback"
+msgstr "Rückmeldung abschicken"
+
+#: templates/feedback/settings.html:3
+msgid "Tickets"
+msgstr "Tickets"
+
+#: templates/feedback/settings.html:20 templates/settings/bans.html:46
+#: templates/settings/whitelist.html:46
+msgid "Character Name"
+msgstr "Charakter Name"
+
+#: templates/feedback/settings.html:22
+msgid "Message"
+msgstr "Nachricht"
+
+#: templates/feedback/settings.html:30
+msgid "Open Answer Mail"
+msgstr "Öffne Antwortnachricht"
+
+#: templates/feedback/settings.html:31
+msgid "Close Ticket"
+msgstr "Schließe Ticket"
+
+#: templates/fleet/reform/index.html:2 templates/fleet/setup/fleet_url.html:3
+#: templates/fleet/setup/select.html:3
+#: templates/fleet/takeover/change-group-form.html:3
+msgid "Fleet"
+msgstr "Flotte"
+
+#: templates/fleet/reform/index.html:2
+#: waitlist/utility/mainmenu/config_loader.py:184
+msgid "Reform"
+msgstr "Wiedereinladen"
+
+#: templates/fleet/reform/index.html:13
+msgid ""
+"<p>You can just copy and paste the ingame fleet channel member list into the "
+"field below. Then press Send Invites to start sending out the invites. "
+"People that are still in the old fleet will not get an invite of course.</"
+"p><p>This will not trigger, notifications or pokes.</p>"
+msgstr ""
+"<p>Du kann die Flottenmitgliederliste aus dem Spiel in das Feld kopieren. "
+"Danach drücke Einladung Senden um die Charaktere in die Flotte einzuladen. "
+"Leute in der alten Flotte werden keine Einladung sehen können</p><p>Dies "
+"sendet keine Benachrichtigungen oder Anstupser.</p>"
+
+#: templates/fleet/reform/index.html:20
+msgid "Start Invites"
+msgstr "Einladungen Absenden"
+
+#: templates/fleet/setup/fleet_url.html:3 templates/fleet/setup/select.html:3
+msgid "Setup"
+msgstr "Einrichtung"
+
+#: templates/fleet/setup/fleet_url.html:3
+msgid "Fleet Input"
+msgstr "Flotten Eingabe"
+
+#: templates/fleet/setup/fleet_url.html:13
+msgid "Fleet Type:"
+msgstr "Flotten Art:"
+
+#: templates/fleet/setup/fleet_url.html:15
+msgid "HQ/Assault"
+msgstr "HQ/Angriff"
+
+#: templates/fleet/setup/fleet_url.html:16
+msgid "VG"
+msgstr "VH"
+
+#: templates/fleet/setup/fleet_url.html:20
+msgid "Skip Auto Fleet Setup"
+msgstr "Automatische Flotten Einrichtung überspringen"
+
+#: templates/fleet/setup/fleet_url.html:22 templates/fleet/setup/select.html:61
+#: templates/settings/accounts.html:105
+#: templates/waitlist/tools/commandcore_list.html:58
+msgid "Next"
+msgstr "Nächstes"
+
+#: templates/fleet/setup/select.html:3
+msgid "Select Squads"
+msgstr "Gruppe Auswählen"
+
+#: templates/fleet/setup/select.html:14
+msgid "Waitlist Group"
+msgstr "Wartelisten Gruppe"
+
+#: templates/fleet/setup/select.html:22
+msgid "Logi Squad"
+msgstr "Support Gruppe"
+
+#: templates/fleet/setup/select.html:32
+msgid "Sniper Squad"
+msgstr "Scharfschütze Gruppe"
+
+#: templates/fleet/setup/select.html:42
+msgid "DPS Squad"
+msgstr "Schadens Gruppe"
+
+#: templates/fleet/setup/select.html:52
+msgid "Overflow Squad"
+msgstr "Überlauf Gruppe"
+
+#: templates/fleet/takeover/change-group-form.html:3
+msgid "Takeover"
+msgstr "Übernehmen"
+
+#: templates/fleet/takeover/change-group-form.html:3
+msgid "Change Fleet Group"
+msgstr "Flotten Gruppe ändern"
+
+#: templates/fleet/takeover/change-group-form.html:13
+msgid "Waitlist Type"
+msgstr "Wartelistenart"
+
+#: templates/fleet/takeover/change-group-form.html:20
+msgid "Change Type"
+msgstr "Art ändern"
+
+#: templates/mainmenu/navbar.html:3
+msgid "Toggle navigation"
+msgstr "Ein-/Ausblende Navigation"
+
+#: templates/notifications/alarm.html:3
+msgid "Alarm"
+msgstr "Alarm"
+
+#: templates/notifications/alarm.html:26
+msgid "WL Group"
+msgstr "WL Gruppe"
+
+#: templates/notifications/alarm.html:26
+msgid "open"
+msgstr "offen"
+
+#: templates/notifications/alarm.html:26
+msgid "xup"
+msgstr "Einschreibung"
+
+#: templates/notifications/alarm.html:26
+msgid "logi"
+msgstr "Support"
+
+#: templates/notifications/alarm.html:26
+msgid "dps"
+msgstr "Schaden"
+
+#: templates/notifications/alarm.html:26
+msgid "sniper"
+msgstr "Scharfschütze"
+
+#: templates/notifications/alarm.html:26
+msgid "other"
+msgstr "Andere"
+
+#: templates/notifications/alarm.html:36
+msgid "Expression Target"
+msgstr "Ausdrucksziel"
+
+#: templates/notifications/alarm.html:40
+#: templates/settings/permissions/config.html:26
+msgid "Add"
+msgstr "Hinzufügen"
+
+#: templates/notifications/alarm.html:47 templates/waitlist/history.html:39
+#: templates/waitlist/history_cut.html:43
+#: templates/waitlist/tools/history_search.html:99
+msgid "Target"
+msgstr "Ziel"
+
+#: templates/notifications/alarm.html:47
+msgid "Expression"
+msgstr "Ausdruck"
+
+#: templates/notifications/alarm.html:47
+msgid "Need Help?"
+msgstr "Brauchst du Hilfe?"
+
+#: templates/notifications/alarm.html:47
+msgid "Enabled"
+msgstr "Aktiviert"
+
+#: templates/settings/accounts.html:3
+#: templates/waitlist/tools/history_search.html:40
+#: waitlist/blueprints/settings/accounts.py:445
+msgid "Accounts"
+msgstr "Konten"
+
+#: templates/settings/accounts.html:43
+msgid "Disabled Accounts"
+msgstr "Inaktive Konten"
+
+#: templates/settings/accounts.html:47 templates/settings/accounts.html:127
+#: templates/waitlist/tools/commandcore_list.html:77
+msgid "Alts"
+msgstr "Alternierende Charaktere"
+
+#: templates/settings/accounts.html:51
+msgid "Owner Hash"
+msgstr "Besitzer Prüfsumme"
+
+#: templates/settings/accounts.html:54
+msgid "Download Full Commander List"
+msgstr "Lade Liste voll berechtigter Mitglieder herunter"
+
+#: templates/settings/accounts.html:60
+msgid "New Account"
+msgstr "Neuer Account"
+
+#: templates/settings/accounts.html:67
+#: templates/waitlist/tools/commandcore_list.html:21
+msgid "Filter"
+msgstr "Suche"
+
+#: templates/settings/accounts.html:75
+#: templates/waitlist/tools/commandcore_list.html:29
+msgid "Role Filter"
+msgstr "Rollen Filter"
+
+#: templates/settings/accounts.html:78
+#: templates/waitlist/tools/commandcore_list.html:32
+msgid "Please select..."
+msgstr "Bitte auswählen..."
+
+#: templates/settings/accounts.html:93
+#: templates/waitlist/tools/commandcore_list.html:46
+msgid "First"
+msgstr "Erstes"
+
+#: templates/settings/accounts.html:99
+#: templates/waitlist/tools/commandcore_list.html:52
+msgid "Previous"
+msgstr "Vorhergehendes"
+
+#: templates/settings/accounts.html:111
+#: templates/waitlist/tools/commandcore_list.html:64
+msgid "Last"
+msgstr "Letztes"
+
+#: templates/settings/accounts.html:123 templates/settings/fleet.html:61
+msgid "Status"
+msgstr "Zustand"
+
+#: templates/settings/accounts.html:124 templates/settings/accounts.html:189
+#: templates/settings/accounts.html:233 templates/settings/self.html:64
+#: templates/waitlist/tools/commandcore_list.html:75
+msgid "Account Name"
+msgstr "Konto Name"
+
+#: templates/settings/accounts.html:125 templates/settings/accounts.html:193
+#: templates/settings/accounts.html:241 templates/settings/self.html:68
+#: templates/waitlist/tools/commandcore_list.html:76
+msgid "Roles"
+msgstr "Rollen"
+
+#: templates/settings/accounts.html:126
+msgid "Current Char"
+msgstr "Aktiver Charakter"
+
+#: templates/settings/accounts.html:136
+msgid "Enable"
+msgstr "Aktivieren"
+
+#: templates/settings/accounts.html:136
+msgid "Disable"
+msgstr "Deaktivieren"
+
+#: templates/settings/accounts.html:139
+msgid "Edit"
+msgstr "Ändern"
+
+#: templates/settings/accounts.html:155
+msgid "Mail"
+msgstr "Nachricht"
+
+#: templates/settings/accounts.html:158
+msgid "Deactivated"
+msgstr "Deaktiviert"
+
+#: templates/settings/accounts.html:158
+msgid "Active"
+msgstr "Aktiv"
+
+#: templates/settings/accounts.html:183
+msgid "Create New Account"
+msgstr "Erstelle ein neues Konto"
+
+#: templates/settings/accounts.html:201
+msgid "Default Character Name"
+msgstr "Standard Charakter Name"
+
+#: templates/settings/accounts.html:205 templates/settings/accounts.html:249
+msgid "Add a Note"
+msgstr "Füge eine Notiz hinzu"
+
+#: templates/settings/accounts.html:212 templates/settings/accounts.html:256
+msgid "Close"
+msgstr "Schließen"
+
+#: templates/settings/accounts.html:213
+msgid "Create"
+msgstr "Erstellen"
+
+#: templates/settings/accounts.html:226
+msgid "Edit Account"
+msgstr "Konto ändern"
+
+#: templates/settings/accounts.html:237 templates/settings/self.html:76
+msgid "Default Character"
+msgstr "Standard Charakter"
+
+#: templates/settings/accounts.html:257
+msgid "Change"
+msgstr "Ändern"
+
+#: templates/settings/bans.html:3 templates/settings/whitelist.html:3
+#: waitlist/blueprints/settings/bans.py:349
+msgid "Bans"
+msgstr "Sperren"
+
+#: templates/settings/bans.html:10
+msgid "Add Ban Actionbar"
+msgstr "Aktionsleiste für Sperren"
+
+#: templates/settings/bans.html:16 templates/settings/whitelist.html:16
+msgid "Names"
+msgstr "Namen"
+
+#: templates/settings/bans.html:20 templates/settings/bans.html:35
+#: templates/settings/bans.html:47 templates/settings/whitelist.html:20
+#: templates/settings/whitelist.html:35 templates/settings/whitelist.html:47
+msgid "Reason"
+msgstr "Begründung"
+
+#: templates/settings/bans.html:23 templates/settings/bans.html:38
+msgid "Ban"
+msgstr "Sperre"
+
+#: templates/settings/bans.html:31 templates/settings/whitelist.html:31
+msgid "Name"
+msgstr "Name"
+
+#: templates/settings/bans.html:45 templates/settings/whitelist.html:45
+msgid "Char ID"
+msgstr "Charakter ID"
+
+#: templates/settings/bans.html:48 templates/settings/whitelist.html:48
+msgid "By"
+msgstr "Von"
+
+#: templates/settings/bans.html:63
+msgid "Unban"
+msgstr "Sperre Aufheben"
+
+#: templates/settings/base.html:26
+msgid "Please select something on the left side"
+msgstr "Bitte auf der linken Seite auswählen"
+
+#: templates/settings/ccvotes.html:3
+#: waitlist/blueprints/settings/fleet_motd.py:55
+msgid "Fleet MOTD"
+msgstr "Flotten NDT"
+
+#: templates/settings/ccvotes.html:12 templates/settings/ccvotes.html:23
+#: templates/settings/ccvotes.html:34 templates/settings/ccvotes.html:45
+msgid "Username"
+msgstr "Benutzername"
+
+#: templates/settings/ccvotes.html:12 templates/settings/ccvotes.html:23
+#: templates/settings/ccvotes.html:34 templates/settings/ccvotes.html:45
+msgid "Votes"
+msgstr "Stimmen"
+
+#: templates/settings/ccvotes.html:32
+msgid "Unique Voters for FC"
+msgstr "Eindeutige Stimmen für FC"
+
+#: templates/settings/ccvotes.html:43
+msgid "Unique Voters for LM"
+msgstr "Eindeutige Stimmen für LM"
+
+#: templates/settings/fleet.html:3
+#: waitlist/blueprints/settings/fleetoptions.py:384
+msgid "Fleet Settings"
+msgstr "Flotten Einstellungen"
+
+#: templates/settings/fleet.html:26
+msgid "Hide Names"
+msgstr "Name verstecken"
+
+#: templates/settings/fleet.html:34
+msgid "Clear This Groups lists!"
+msgstr "Die Wartelisten dieser Gruppe leeren!"
+
+#: templates/settings/fleet.html:40 templates/settings/ts.html:49
+msgid "Display Name"
+msgstr "Anzeigename"
+
+#: templates/settings/fleet.html:50 templates/waitlist/ccvote.html:26
+#: templates/waitlist/ccvote.html:35
+msgid "Please Select"
+msgstr "Bitte auswählen"
+
+#: templates/settings/fleet.html:51
+msgid "Headquarter"
+msgstr "Hauptquartier"
+
+#: templates/settings/fleet.html:52
+msgid "Assault"
+msgstr "Angriff"
+
+#: templates/settings/fleet.html:53
+msgid "Vanguard"
+msgstr "Vorhut"
+
+#: templates/settings/fleet.html:56
+msgid "Change Display Name"
+msgstr "Darstellungsnamen ändern"
+
+#: templates/settings/fleet.html:72
+msgid "Down"
+msgstr "Kein Betrieb"
+
+#: templates/settings/fleet.html:73
+msgid "Forming"
+msgstr "Aufstellen"
+
+#: templates/settings/fleet.html:74
+msgid "Running"
+msgstr "Betrieb"
+
+#: templates/settings/fleet.html:79
+msgid "X-UP Open"
+msgstr "Einschreibung geöffnet"
+
+#: templates/settings/fleet.html:83
+msgid "Influence"
+msgstr "Einfluss"
+
+#: templates/settings/fleet.html:85 templates/settings/fleet.html:141
+#: templates/settings/fleet.html:153 templates/settings/fleet.html:165
+msgid "Set"
+msgstr "Anwenden"
+
+#: templates/settings/fleet.html:90
+msgid "FC"
+msgstr "FC"
+
+#: templates/settings/fleet.html:106 templates/settings/fleet.html:128
+#: templates/settings/fleet.html:186
+msgid "Add Self"
+msgstr "Sich selbst hinzufügen"
+
+#: templates/settings/fleet.html:135
+msgid "Not Set"
+msgstr "Nicht eingetragen"
+
+#: templates/settings/fleet.html:196
+msgid "Check In"
+msgstr "Einchecken"
+
+#: templates/settings/fleet.html:201
+msgid "Register for Fleet"
+msgstr "Für die Flotte registrieren"
+
+#: templates/settings/fleet.html:204
+msgid "Take over a Fleet"
+msgstr "Flotte übernehmen"
+
+#: templates/settings/fleet.html:209
+msgid "Fleet ID"
+msgstr "Flotten ID"
+
+#: templates/settings/fleet.html:209
+msgid "Current Fleet Comp"
+msgstr "Momentaner Flotten-Verwalter"
+
+#: templates/settings/fleet.html:214
+msgid "None"
+msgstr "Niemand"
+
+#: templates/settings/fleet.html:216
+msgid "Remove"
+msgstr "Entfernen"
+
+#: templates/settings/fleet.html:217
+msgid "Change Fleet Type"
+msgstr "Flottenart ändern"
+
+#: templates/settings/fleet.html:218
+msgid "Change Squads"
+msgstr "Gruppen ändern"
+
+#: templates/settings/fleet.html:219
+msgid "Safety"
+msgstr "Sicherheit"
+
+#: templates/settings/fleet.html:241
+msgid "No"
+msgstr "Nein"
+
+#: templates/settings/fleet.html:242
+msgid "Yes"
+msgstr "Ja"
+
+#: templates/settings/inserts.html:9
+msgid ""
+"<var>$type$</var> gets replaced with number representing the type of a "
+"person, 0=linemember,1=fc/t,2=lm/r,3=both"
+msgstr ""
+"<var>$type</var> wird mit einer Zahl ersetzt die den Befehlshaber Typ einer "
+"Person bestimmt, 0=linemember,1=fc/t,2=lm/r,3=beides"
+
+#: templates/settings/inserts.html:10
+#: waitlist/blueprints/settings/inserts.py:40
+msgid "Page Inserts"
+msgstr "Seiten Einfügungen"
+
+#: templates/settings/inserts.html:14
+msgid "Header Insert"
+msgstr "Kopfteil Einfügungen"
+
+#: templates/settings/fleet_motd/index.html:31
+#: templates/settings/inserts.html:17 templates/settings/mail/index.html:82
+msgid "Save"
+msgstr "Speichern"
+
+#: templates/settings/sde.html:3
+#: waitlist/blueprints/settings/staticdataimport.py:99
+msgid "Static Data Import"
+msgstr "Einlesen Statischer Daten"
+
+#: templates/settings/sde.html:21
+msgid "All files can be bz2 compressed if uploaded with extension .bz2"
+msgstr ""
+"Alle Dateien können bz2 komprimiert sein wenn sie mit der Endung .bz2 "
+"hochgeladen werden"
+
+#: templates/settings/sde.html:35
+msgid "Update typeIDs"
+msgstr "Erneuere die typeIDs"
+
+#: templates/settings/sde.html:41
+msgid "Update Systems and Constellations"
+msgstr "Erneuere Systeme und Konstellationen"
+
+#: templates/settings/sde.html:56
+msgid "Update Stations"
+msgstr "Erneuere Stationen"
+
+#: templates/settings/sde.html:71
+msgid "Update Layouts"
+msgstr "Erneuere Zuweisungen"
+
+#: templates/settings/sde.html:73
+msgid ""
+"This cvs file, needs to be data separated by tabs. and the first line needs "
+"to contain the following separated by tabs instead of a space and comma: "
+"Constellation, Headquarter System, Dockup"
+msgstr ""
+"Diese CVS-Datei muss Tabs zwischen den Spalten haben und die erste Zeile "
+"muss Folgendes enthalten, mit Tabs anstatt dem Komma und Leerzeichen: "
+"Constellation, Headquarter System, Dockup"
+
+#: templates/settings/self.html:80
+msgid "Apply"
+msgstr "Anwenden"
+
+#: templates/settings/ts.html:3
+msgid "Teamspeak"
+msgstr "Teamspeak"
+
+#: templates/settings/ts.html:25
+msgid "Change TS"
+msgstr "TS Ändern"
+
+#: templates/settings/ts.html:43
+msgid "Remove TS"
+msgstr "TS Entfernen"
+
+#: templates/settings/ts.html:53
+msgid "Internal Host"
+msgstr "Interner Host"
+
+#: templates/settings/ts.html:57
+msgid "Internal Port"
+msgstr "Interner Port"
+
+#: templates/settings/ts.html:61
+msgid "Display Host"
+msgstr "Anzeige Host"
+
+#: templates/settings/ts.html:65
+msgid "Display Port"
+msgstr "Anzeige Port"
+
+#: templates/settings/ts.html:69
+msgid "Query Name"
+msgstr "Telnet Query Name"
+
+#: templates/settings/ts.html:73
+msgid "Query Password"
+msgstr "Telnet Query Passwort"
+
+#: templates/settings/ts.html:77
+msgid "Server ID"
+msgstr "Server ID"
+
+#: templates/settings/ts.html:81
+msgid "Channel ID"
+msgstr "Kanal ID"
+
+#: templates/settings/ts.html:85
+msgid "Client Name"
+msgstr "Klient Name"
+
+#: templates/settings/ts.html:89
+msgid "Safety ChannelID"
+msgstr "Sicherheits-Kanal ID"
+
+#: templates/settings/ts.html:92
+msgid "Add TS"
+msgstr "TS Hinzufügen"
+
+#: templates/settings/whitelist.html:23 templates/settings/whitelist.html:38
+#: waitlist/blueprints/settings/bans.py:350
+msgid "Whitelist"
+msgstr "Sperrungsausnahmen"
+
+#: templates/settings/whitelist.html:63
+msgid "Unwhitelist"
+msgstr "Ausnahme entfernen"
+
+#: templates/settings/fleet_motd/index.html:11
+msgid "TS: $ts$"
+msgstr "TS: $ts$"
+
+#: templates/settings/fleet_motd/index.html:13
+msgid "HQ/AS MOTD"
+msgstr "HQ/AG NDT"
+
+#: templates/settings/fleet_motd/index.html:17
+msgid "HQ/AS MOTD Template"
+msgstr "HQ/AG NDT Vorlage"
+
+#: templates/settings/fleet_motd/index.html:24
+msgid "VG MOTD"
+msgstr "VH NDT"
+
+#: templates/settings/fleet_motd/index.html:28
+msgid "VG MOTD Template"
+msgstr "VH NDT Vorlage"
+
+#: templates/settings/fleetspy/spy.html:20
+msgid "Choose..."
+msgstr "Wähle..."
+
+#: templates/settings/mail/index.html:3
+msgid "IG Mail"
+msgstr "Im Spiel Nachricht"
+
+#: templates/settings/mail/index.html:11
+msgid "Default Mail"
+msgstr "Standard Mail"
+
+#: templates/settings/mail/index.html:15 templates/settings/mail/index.html:40
+#: templates/settings/mail/index.html:65
+msgid "Mail Topic"
+msgstr "Nachrichten Thema"
+
+#: templates/settings/mail/index.html:19 templates/settings/mail/index.html:44
+#: templates/settings/mail/index.html:69
+msgid ""
+"Mail Content $link$ gets replaced with auth link url, $sig$ with the sending "
+"users name, $recv$ with the receivers name"
+msgstr ""
+"Im Nachrichteninhalt wird $link$ mit einem Authentifizierungs-Link ersetzt, "
+"$sig$ Benutzername des Abschickenden, $recv$ mit dem Namen des Empfängers."
+
+#: templates/settings/mail/index.html:24
+msgid ""
+"Hello <var>$recv$</var>,<br>\n"
+"welcome to the Community program!<br>\n"
+"your  &lt;a href=&quot;<var>$link$</var>&quot;&gt;Login Link&lt;/a&gt; save "
+"it as a bookmark!<br>\n"
+"<br>\n"
+"sincerely<br>\n"
+"<var>$sig$</var><br>"
+msgstr ""
+"Hallo <var>$recv$</var>,<br>\n"
+"Willkommen im Gemeinschafts-Programm!<br>\n"
+"Dein  &lt;a href=&quot;<var>$link$</var>&quot;&gt;Anmelde Link&lt;/a&gt; "
+"Speichere ihn als Lesezeichen!<br>\n"
+"<br>\n"
+"mit freundlichen Grüßen,<br>\n"
+"<var>$sig$</var><br>"
+
+#: templates/settings/mail/index.html:49
+msgid ""
+"Hello <var>$recv$</var>,<br>\n"
+"welcome to the T-Badge program!<br>\n"
+"your  &lt;a href=&quot;<var>$link$</var>&quot;&gt;Login Link&lt;/a&gt; save "
+"it as a bookmark!<br>\n"
+"<br>\n"
+"sincerely<br>\n"
+"<var>$sig$</var><br>"
+msgstr ""
+"Hallo <var>$recv$</var>,<br>\n"
+"Willkommen im  Training Flotten-Kommandeur Programm!<br>\n"
+"Dein  &lt;a href=&quot;<var>$link$</var>&quot;&gt;Anmelde Link&lt;/a&gt; "
+"Speichere ihn als Lesezeichen!<br>\n"
+"<br>\n"
+"mit freundlichen Grüßen,<br>\n"
+"<var>$sig$</var><br>"
+
+#: templates/settings/mail/index.html:61
+msgid "Resident Mail"
+msgstr "Ständigen Nachricht"
+
+#: templates/settings/mail/index.html:74
+msgid ""
+"Hello <var>$recv$</var>,<br>\n"
+"welcome to the R-Badge program!<br>\n"
+"your  &lt;a href=&quot;<var>$link$</var>&quot;&gt;Login Link&lt;/a&gt; save "
+"it as a bookmark!<br>\n"
+"<br>\n"
+"sincerely<br>\n"
+"<var>$sig$</var><br>"
+msgstr ""
+"Hallo <var>$recv$</var>,<br>\n"
+"Willkommen im  Training Logistik-Meister -Programm!<br>\n"
+"Dein  &lt;a href=&quot;<var>$link$</var>&quot;&gt;Anmelde Link&lt;/a&gt; "
+"Speichere ihn als Lesezeichen!<br>\n"
+"<br>\n"
+"mit freundlichen Grüßen,<br>\n"
+"<var>$sig$</var><br>"
+
+#: templates/settings/permissions/config.html:3
+#: waitlist/blueprints/settings/permissions.py:43
+msgid "Permissions"
+msgstr "Rechte"
+
+#: templates/settings/permissions/config.html:19
+msgid "Role Name"
+msgstr "Rollen Name"
+
+#: templates/settings/permissions/config.html:23
+msgid "Role Display Name"
+msgstr "Rollen Anzeigename"
+
+#: templates/settings/permissions/config.html:39
+msgid "Permission"
+msgstr "Recht"
+
+#: templates/trivia/index.html:3
+#, python-format
+msgid "This trivia runs from %(fromtime)s to %(totime)s"
+msgstr "Dieses Quiz geht von %(fromtime)s bis %(totime)s"
+
+#: templates/trivia/index.html:17
+msgid "Submit Answers"
+msgstr "Antwort Absenden"
+
+#: templates/waitlist/ccvote.html:3
+msgid "Command Core Vote"
+msgstr "Kommandomitglied Abstimmung"
+
+#: templates/waitlist/ccvote.html:10
+msgid "Hello, this is the Command Core Vote!"
+msgstr "Hallo, dies ist die Kommandomitglied Abstimmung!"
+
+#: templates/waitlist/ccvote.html:11
+msgid "Here you can vote for your favorite Command Core Member."
+msgstr "Hier kannst du für deine bevorzugtes Kommandomitglied stimmen."
+
+#: templates/waitlist/ccvote.html:14
+msgid ""
+"You have 1 vote per type (FC/LM) per eveday. (means you get an other one "
+"after downtime)<br>So select your favorite FC and LM below.(If some one is "
+"FC and LM you can select them twice)<br>The voted FC/LM will get a price."
+msgstr ""
+"Dir steht pro Tag eine Stimme per Kommandertyp zur Verfügung (FC/LM). (Nach "
+"dem Serverneustart steht dir eine weitere zur Verfügung)<br>Wähle deinen "
+"beliebtesten FC und LM hier. (Wenn jemand FC und LM ist kannst du ihn bei "
+"beidem wählen)<br>Der FC und LM mit den meisten Stimmen wird einen Preis "
+"gewinnen!"
+
+#: templates/waitlist/ccvote.html:19
+msgid ""
+"If you only select a FC or only a LM your 2nd vote will be lost for the "
+"current day."
+msgstr ""
+"Falls du nur einen FC oder nur einen LM auswählst, dann ist deine 2. Stimme "
+"für diesen Tag verloren."
+
+#: templates/waitlist/ccvote.html:24
+msgid "Your favorite FC:"
+msgstr "Deine beliebtester FC:"
+
+#: templates/waitlist/ccvote.html:33
+msgid "Your favorite LM:"
+msgstr "Dein beliebtester LM:"
+
+#: templates/waitlist/ccvote.html:41
+msgid "Vote"
+msgstr "Stimme"
+
+#: templates/waitlist/history.html:2
+msgid "History"
+msgstr "Verlauf"
+
+#: templates/waitlist/history.html:28
+msgid "Only Show Approvals"
+msgstr "Zeige nur Bestätigungen"
+
+#: templates/waitlist/history.html:39 templates/waitlist/history_cut.html:43
+#: templates/waitlist/tools/history_search.html:99
+msgid "Action"
+msgstr "Handlung"
+
+#: templates/waitlist/history.html:39 templates/waitlist/history_cut.html:43
+#: templates/waitlist/tools/history_search.html:99
+msgid "Associated Fits"
+msgstr "Zugeordnete Ausrüstungen"
+
+#: templates/waitlist/history_cut.html:25
+msgid "Static History"
+msgstr "Statischer Verlauf"
+
+#: templates/waitlist/tools/commandcore_list.html:3
+#: templates/waitlist/tools/history_search.html:2
+#: waitlist/utility/mainmenu/config_loader.py:175
+msgid "Tools"
+msgstr "Werkzeuge"
+
+#: templates/waitlist/tools/commandcore_list.html:3
+msgid "CommandCore List"
+msgstr "Kommandomitglieds Liste"
+
+#: templates/waitlist/tools/history_search.html:2
+msgid "History Search"
+msgstr "Verlaufssuche"
+
+#: templates/waitlist/tools/history_search.html:44
+msgid "Characters"
+msgstr "Charaktäre"
+
+#: templates/waitlist/tools/history_search.html:51
+msgid "Removed a Character from Waitlists"
+msgstr "Entferne einen Charakter von der Warteliste"
+
+#: templates/waitlist/tools/history_search.html:52
+msgid "Send Invitation to Character"
+msgstr "Sende eine Einladung an den Charakter"
+
+#: templates/waitlist/tools/history_search.html:53
+msgid "Removed Entry from X-UPs"
+msgstr "Hat einen Eintrag aus den Einschreibungen entfernt"
+
+#: templates/waitlist/tools/history_search.html:54
+msgid "Removed own fit"
+msgstr "Eigene Ausrüstung entfernt"
+
+#: templates/waitlist/tools/history_search.html:55
+msgid "Removed himself from all lists"
+msgstr "Hat sich selbst von allen Listen entfernt"
+
+#: templates/waitlist/tools/history_search.html:56
+msgid "Approved X-UP entry"
+msgstr "Einschreibung bestätigt"
+
+#: templates/waitlist/tools/history_search.html:57
+msgid "Approved Single Fit"
+msgstr "Einzelne Ausrüstung bestätigt"
+
+#: templates/waitlist/tools/history_search.html:58
+msgid "Send Notification to Character"
+msgstr "Benachrichtigung an Charakter gesendet"
+
+#: templates/waitlist/tools/history_search.html:59
+msgid "Player was removed after found in fleet"
+msgstr "Spieler wurde nach Auffindung in der Flotte entfernt"
+
+#: templates/waitlist/tools/history_search.html:60
+msgid "Player missed his invite"
+msgstr "Spiele hat seine Einladung verpasst"
+
+#: templates/waitlist/tools/history_search.html:61
+msgid "Player removed himself from X-UPs"
+msgstr "Spieler hat sich selbst von der Einschreibung entfernt"
+
+#: templates/waitlist/tools/history_search.html:62
+msgid "Player was invited by Name(Reform Tool?)"
+msgstr "Spieler wurde per Namen eingeladen(Reform Werkzeug?)"
+
+#: templates/waitlist/tools/history_search.html:67
+msgid "From"
+msgstr "Von"
+
+#: templates/waitlist/tools/history_search.html:79
+msgid "To"
+msgstr "Bis"
+
+#: templates/waitlist/tools/history_search.html:92
+msgid "Get Info"
+msgstr "Lade Info"
+
+#: waitlist/blueprints/__init__.py:97
+msgid "Tokens where removed, please use the EVE SSO"
+msgstr "Zugangsschlüssel wurden entfernt, bitte benutzen den EVE SSO Login"
+
+#: waitlist/blueprints/cc_vote.py:67
+msgid "Thank you for voting, you can vote again after the next eve downtime!"
+msgstr ""
+"Danke das du deine Stimme abgegeben hast, du kannst sie das nächste mal nach "
+"dem nächsten Serverneustart abgeben!"
+
+#: waitlist/blueprints/feedback.py:61
+msgid "Thank You for your feedback!"
+msgstr "Danke für deine Rückmeldung"
+
+#: waitlist/blueprints/fleet.py:83
+#, python-format
+msgid "fleet-id=%(fleet_id)d was not valid."
+msgstr "fleet-id=%(fleet_id)d war ungültig."
+
+#: waitlist/blueprints/fleet.py:223
+msgid "You are not in a fleet, or didn't not provide rights to read them."
+msgstr ""
+"Du befindest dich nicht in einer Flotte, oder hast die Rechte sie zu lesen "
+"nicht zur Verfügung gestellt."
+
+#: waitlist/blueprints/fleet.py:230
+msgid "You are not the boss of the fleet you are in."
+msgstr "Du bist nicht der Befehlsgeber der Flotte in der du dich befindest."
+
+#: waitlist/blueprints/api/fleet.py:52
+msgid "You are not associated with a fleet!"
+msgstr "Sie sind nicht mit einer Flotte verknüpft!"
+
+#: waitlist/blueprints/api/fleet.py:59
+msgid "The character you tried to invite could not be found!"
+msgstr ""
+"Der Charakter den sie ein einladen wollten konnte nicht gefunden werden!"
+
+#: waitlist/blueprints/api/fleet.py:92
+#, python-format
+msgid "Given waitlist ID=%(waitlist_id)d is not valid."
+msgstr "Die Wartelisten ID=%(waitlist_id)d existiert nicht!"
+
+#: waitlist/blueprints/api/fleet.py:102
+msgid "You are not currently Boss of a Fleet"
+msgstr "Du bist nicht der Befehlsgeber einer Flotte"
+
+#: waitlist/blueprints/api/fleet.py:118
+msgid "Unknown Squad Type"
+msgstr "Unbekannter Gruppen-Typ"
+
+#: waitlist/blueprints/settings/accounts.py:68
+#, python-format
+msgid "A Character named %(char_name)s does not exist!"
+msgstr "Es gibt keine Charakter mit dem Namen %(char_name)s!"
+
+#: waitlist/blueprints/settings/accounts.py:106
+#: waitlist/blueprints/settings/accounts.py:308
+#: waitlist/blueprints/settings/accounts.py:402
+#: waitlist/blueprints/settings/bans.py:116
+#: waitlist/blueprints/settings/bans.py:177
+#: waitlist/blueprints/settings/bans.py:201
+#: waitlist/blueprints/settings/bans.py:246
+#: waitlist/blueprints/settings/bans.py:328
+#: waitlist/blueprints/settings/bans.py:343
+#: waitlist/blueprints/settings/staticdataimport.py:40
+#, python-format
+msgid "Could not execute action, ApiException %(ex)s"
+msgstr "Die Aktion konnte nicht durchgeführt werden, ApiException %(ex)s"
+
+#: waitlist/blueprints/settings/accounts.py:291
+#: waitlist/blueprints/settings/accounts.py:335
+#, python-format
+msgid "Character with name %(char_name)s could not be found!"
+msgstr ""
+"Ein Charakter mit dem Namen $(char_name)s konnte nicht gefunden werden!"
+
+#: waitlist/blueprints/settings/accounts.py:380
+msgid "Failed to get info for this character because of sso error"
+msgstr ""
+"Das beschaffen der Info für diesen Charakter ist wegen eines SSO Fehlers "
+"fehlgeschlagen"
+
+#: waitlist/blueprints/settings/accounts.py:446
+msgid "Own Settings"
+msgstr "Eigene Einstellungen"
+
+#: waitlist/blueprints/settings/accounts.py:508
+#, python-format
+msgid ""
+"There was an error contacting the API for character info character id = "
+"%(char_id)d."
+msgstr ""
+"Währen der Verbindung zur API um Charakter id=%(char_id)d Informationen "
+"abzurufen trat ein Fehler auf."
+
+#: waitlist/blueprints/settings/accounts.py:536
+#, python-format
+msgid "Alt %(char_name)s was added"
+msgstr "Alternativer Charakter %(char_name)s wurde hinzugefügt"
+
+#: waitlist/blueprints/settings/bans.py:81
+#, python-format
+msgid "Could not find Character %(ban_name)s"
+msgstr "Konnte Charakter %(ban_name)s nicht finden"
+
+#: waitlist/blueprints/settings/bans.py:89
+#: waitlist/blueprints/settings/bans.py:151
+#: waitlist/blueprints/settings/bans.py:282
+#, python-format
+msgid "Failed to correctly parse %(target)s"
+msgstr ""
+"Es trat ein Fehler während der grammatikalischen analysieren von %(target)s "
+"auf"
+
+#: waitlist/blueprints/settings/bans.py:109
+#: waitlist/blueprints/settings/bans.py:170
+#: waitlist/blueprints/settings/bans.py:193
+#: waitlist/blueprints/settings/bans.py:302
+#, python-format
+msgid "Character/Corp/Alliance %(target)s does not exist!"
+msgstr "Charakter/Corporation/Alliance %(target)s existiert nicht!"
+
+#: waitlist/blueprints/settings/bans.py:142
+#, python-format
+msgid "Could not find Character %(name)s"
+msgstr "Charakter %(name)s konnte nicht gefunden werden"
+
+#: waitlist/blueprints/settings/bans.py:273
+#, python-format
+msgid "Could not find Character %(wl_name)s for whitelisting"
+msgstr "Konnte Charakter %(wl_name)s für Ausnahme nicht finden"
+
+#: waitlist/blueprints/settings/fleet_motd.py:47
+msgid "HQ MOTD Saved"
+msgstr "HQ NDT gespeichert"
+
+#: waitlist/blueprints/settings/fleet_motd.py:51
+msgid "VG MOTD Saved"
+msgstr "VH NDT gespeichert"
+
+#: waitlist/blueprints/settings/fleetoptions.py:79
+#: waitlist/blueprints/settings/fleetoptions.py:86
+#, python-format
+msgid "Status was set to %(text)s, xup is %(xup_text)s"
+msgstr "Zustand wurde auf %(text)s gesetzt, Einschreibung ist %(xup_text)s"
+
+#: waitlist/blueprints/settings/fleetoptions.py:91
+#, python-format
+msgid "You do not have the rights to change the status to %(text)s"
+msgstr ""
+"Du hast nicht die erforderlichen Berechtigungen um den Status zu %(text)s zu "
+"ändern."
+
+#: waitlist/blueprints/settings/fleetoptions.py:93
+#, python-format
+msgid "XUP is now %(xup_text)s"
+msgstr "Einschreibung ist nun %(xup_text)s"
+
+#: waitlist/blueprints/settings/fleetoptions.py:102
+#, python-format
+msgid "You added your self to FCs %(eve_name)s"
+msgstr "Du hast dich selbst als FC hinzufügt %(eve_name)s"
+
+#: waitlist/blueprints/settings/fleetoptions.py:110
+#, python-format
+msgid "You added your self to manager %(eve_name)s"
+msgstr "Du hast dich als Verwalter hinzugefügt %(eve_name)s"
+
+#: waitlist/blueprints/settings/fleetoptions.py:143
+#, python-format
+msgid "You added your self as Backseat %(eve_name)s"
+msgstr "Du hast dich selbst als Backseat hinzugefügt %(eve_name)s"
+
+#: waitlist/blueprints/settings/fleetoptions.py:166
+#, python-format
+msgid "Your activity report has been submitted %(user_name)s"
+msgstr "Dein Aktivitätsbericht wurde eingereicht %(user_name)s"
+
+#: waitlist/blueprints/settings/fleetoptions.py:172
+#, python-format
+msgid ""
+"%(username)s has no permissions to set a custom display name for a waitlist!"
+msgstr ""
+"%(username)s hat keine Berechtigung einen Maßgeschneiderten Anzeigenamen für "
+"eine Warteliste zu setzen!"
+
+#: waitlist/blueprints/settings/fleetoptions.py:182
+msgid "No valid new display name given (given was None)"
+msgstr "Kein erlaubter neuer Anzeigenahme gegeben (gegeben wurde None)"
+
+#: waitlist/blueprints/settings/fleetoptions.py:189
+msgid ""
+"You gave no unrestricted display name and do not have the power to set "
+"arbitrary names!"
+msgstr ""
+"Du hast keine unbeschränkten Anzeigennamen gegeben und hast keine "
+"Berechtigung beliebige Namen zu verwenden!"
+
+#: waitlist/blueprints/settings/fleetoptions.py:198
+msgid "There can be no duplicate names for waitlists."
+msgstr "Jede Warteliste muss einen anderen Namen haben."
+
+#: waitlist/blueprints/settings/fleetoptions.py:224
+#, python-format
+msgid "%(name)s constellation does not exist! "
+msgstr "%(name)s Konstellation existiert nicht!"
+
+#: waitlist/blueprints/settings/fleetoptions.py:247
+#: waitlist/blueprints/settings/fleetoptions.py:268
+msgid "No Constellation Layout Data found!"
+msgstr "Keine Konstellationsaufbaudaten gefunden!"
+
+#: waitlist/blueprints/settings/fleetoptions.py:251
+#, python-format
+msgid "All Constellations were set to %(name)s!"
+msgstr "All Konstellationen wurden auf %(name)s gesetzt!"
+
+#: waitlist/blueprints/settings/fleetoptions.py:272
+#, python-format
+msgid "%(group_name)s Constellation was set to %(name)s"
+msgstr "%(group_name)s Konstellation wurde auf %(name)s gesetzt"
+
+#: waitlist/blueprints/settings/fleetoptions.py:278
+#, python-format
+msgid "Invalid system name %(name)s"
+msgstr "Ungültiger Systemname %(name)s"
+
+#: waitlist/blueprints/settings/fleetoptions.py:287
+#, python-format
+msgid "All Systems were set to %(name)s"
+msgstr "Alle Systeme wurden auf %(name)s gesetzt"
+
+#: waitlist/blueprints/settings/fleetoptions.py:291
+#, python-format
+msgid "%(group_name)s System was set to %(name)s"
+msgstr "%(group_name)s System wurde auf %(name)s gesetzt"
+
+#: waitlist/blueprints/settings/fleetoptions.py:296
+#, python-format
+msgid "Invalid station name: %(name)s"
+msgstr "Ungültiger Stationsname: %(name)s"
+
+#: waitlist/blueprints/settings/fleetoptions.py:305
+#, python-format
+msgid "All Docks were set to %(name)s"
+msgstr "Alle Basen wurde auf %(name)s gesetzt"
+
+#: waitlist/blueprints/settings/fleetoptions.py:309
+#, python-format
+msgid "%(group_name)s Dock was set to %(name)s"
+msgstr "%(group_name)s Basis wurde auf %(name)s gesetzt"
+
+#: waitlist/blueprints/settings/fleetoptions.py:369
+msgid "Waitlists were cleared!"
+msgstr "All Wartelisten wurden geleert!"
+
+#: waitlist/blueprints/settings/inserts.py:36
+msgid "Header Insert Saved"
+msgstr "Kopfeinschub wurde gespeichert!"
+
+#: waitlist/blueprints/settings/mail.py:53
+msgid "T-Badge mail set!"
+msgstr "T-Abzeichen Nachricht festgelegt!"
+
+#: waitlist/blueprints/settings/mail.py:59
+msgid "Resident mail set!"
+msgstr "Ständigen Nachricht wurde gespeichert!"
+
+#: waitlist/blueprints/settings/mail.py:65
+msgid "Other mail set!"
+msgstr "Anderen Nachricht wurde gespeichert!"
+
+#: waitlist/blueprints/settings/mail.py:69
+msgid "IG Mail Settings"
+msgstr "Spiele Mail Einstellungen"
+
+#: waitlist/blueprints/settings/staticdataimport.py:38
+msgid "Type IDs were updated!"
+msgstr "Typen IDs wurde geupdatet!"
+
+#: waitlist/blueprints/settings/staticdataimport.py:50
+msgid "Constellations where updated!"
+msgstr "Konstellationen wurde geupdatet!"
+
+#: waitlist/blueprints/settings/staticdataimport.py:52
+msgid "Systems were updated!"
+msgstr "Systeme wurden geupdatet!"
+
+#: waitlist/blueprints/settings/staticdataimport.py:69
+msgid "Stations were updated!"
+msgstr "Stationen wurde geupdatet!"
+
+#: waitlist/blueprints/settings/staticdataimport.py:87
+msgid "Layouts were updated!"
+msgstr "Aufbaudaten wurden geupdatet!"
+
+#: waitlist/blueprints/settings/teamspeak.py:99
+msgid "TS Settings"
+msgstr "TS Einstellungen"
+
+#: waitlist/blueprints/trivia/submission.py:85
+msgid ""
+"Thank you for participating, winners will be announced after the trivia is "
+"finished"
+msgstr ""
+"Danke für deine Teilnahme, die Gewinner werden bekannt gegeben nachdem das "
+"Quiz beendet wurde."
+
+#: waitlist/blueprints/xup/submission.py:49
+msgid "X-UP is disabled!!!"
+msgstr "Einschreibung ist Deaktiviert"
+
+#: waitlist/blueprints/xup/submission.py:75
+msgid "Valid entries are scruffy [dps|logi|sniper,..]"
+msgstr "Erlaubte Einträge sind: scruffy [dps|logi|sniper,..]"
+
+#: waitlist/blueprints/xup/submission.py:111
+#, python-format
+msgid "You were added as %(ship_type)s"
+msgstr "Du wurdest als %(ship_type)s hinzugefügt"
+
+#: waitlist/blueprints/xup/submission.py:200
+#: waitlist/blueprints/xup/submission.py:357
+#, python-format
+msgid ""
+"You submitted one fit to be check by a fleet comp before getting on the "
+"waitlist."
+msgid_plural ""
+"You submitted %(num)d fits to be check by a fleet comp before getting on the "
+"waitlist."
+msgstr[0] ""
+"Du hast eine Ausrüstung zur Überprüfung durch einen Flotten-Verwalter "
+"gesendet, bevor du auf die Warteliste gesetzt wirst."
+msgstr[1] ""
+"Du hast %(num)d Ausrüstungen zur Überprüfung durch einen Flotten-Verwalter "
+"gesendet, bevor du auf die Warteliste gesetzt wirst."
+
+#: waitlist/utility/flask/__init__.py:74
+#, python-format
+msgid ""
+"Your set current character %(eve_name)s was unset because the provided token "
+"got invalidated. Go to Own Settings to re-add."
+msgstr ""
+"Dein momentan aktiver Charakter %(eve_name)s wurde entfernt weil das Token "
+"nicht mehr funktioniert. Du kannst ihn unter Eigene Einstellungen wieder "
+"hinzufügen."
+
+#: waitlist/utility/login/__init__.py:151
+msgid ""
+"You character seemed to have changed owner. You where removed as eligible "
+"character for account login."
+msgstr ""
+"Dein Charakter scheint den Besitzer gewechselt zu haben. Er wurde als "
+"zugelassener Charakter für eine Kontoanmeldung entfernt."
+
+#: waitlist/utility/login/__init__.py:177
+#, python-format
+msgid ""
+"Your character %(eve_name)s is connected to more than one Waitlist Account, "
+"please contact an Administrator. Meanwhile, you are logged in as a normal "
+"character."
+msgstr ""
+"Dein Charakter %(eve_name)s ist mit mehr als einem Wartelisten-Konto "
+"verbunden, bitte kontaktieren einen Administrator. Bis dies behoben wurde, "
+"wirst du als Besucher angemeldet."
+
+#: waitlist/utility/mainmenu/config_loader.py:174
+msgid "Help"
+msgstr "Hilfe"
+
+#: waitlist/utility/mainmenu/config_loader.py:177
+msgid "About"
+msgstr "Über"
+
+#: waitlist/utility/mainmenu/config_loader.py:178
+msgid "Command Core List"
+msgstr "Kommandomitglieder Liste"
+
+#: waitlist/utility/mainmenu/config_loader.py:179
+msgid "Comp History Search"
+msgstr "Verwaltungsverlaufs Suche"
+
+#: waitlist/utility/mainmenu/config_loader.py:180
+msgid "Custom Notifications"
+msgstr "Benutzerdefinierte Benachrichtigungen"
+
+#: waitlist/utility/mainmenu/config_loader.py:183
+msgid "Comp History"
+msgstr "Verwaltungsverlauf"
+
+#: waitlist/utility/mainmenu/config_loader.py:185
+msgid "Not loggedin"
+msgstr "Abgemeldet"
+

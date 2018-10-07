@@ -1,20 +1,49 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="">
 <head>
 <meta charset="utf-8">
+<meta id="lang-code" name="lang" content="{{ lang_code }}">
 <meta name="csrf-token" content="{{csrf_token()}}">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <meta name="eve-image-server" content="{{eve_proxy_js}}">
 <meta name="eve-image-server-webp" content="{{eve_cdn_webp}}">
 <meta name="browser-webp" content="{{browserSupportsWebp}}">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"
+ integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.i18n/1.0.4/jquery.i18n.min.js"
+ integrity="sha256-fAF2ycOzitW9kHLEpnZMdqZgsFcq9hzANcyOj9nxlNo="
+ crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.i18n/1.0.4/jquery.i18n.messagestore.min.js"
+ integrity="sha256-E4N7my5ObrBG26FZC2Suynu+fwHG9avmBi93Kb4V0Ls="
+ crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.i18n/1.0.4/jquery.i18n.language.min.js"
+ integrity="sha256-E/HNS4jjzEwivvzyf/iSJgaa8Dbp0FzSpMOXZSfLPZI="
+ crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.i18n/1.0.4/jquery.i18n.emitter.bidi.min.js"
+ integrity="sha256-gcsIExDfAjDpIthC0ZMjGdMnv5UUOdebxef6r4gYm/E="
+ crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.i18n/1.0.4/jquery.i18n.emitter.min.js"
+ integrity="sha256-5S4KtKHthvOilcDP4WPmt75A0a0gKOXUMYAJP/WL5m4="
+ crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.i18n/1.0.4/jquery.i18n.fallbacks.min.js"
+ integrity="sha256-brY06NeoMeTfADA4nNMnLBEySMMpw9ZNM+5b9OX5A3o="
+ crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.i18n/1.0.4/jquery.i18n.parser.min.js"
+ integrity="sha256-A3LDPpIRAyNGb+a5LM+yBEuexEZdMueehi49pHxLS9g="
+ crossorigin="anonymous"></script>
 <script type="text/javascript" id="themeloader">
 {% include 'partials/themes.js' %}
 </script>
+<script type="text/javascript" id="translationloader">
+{% include 'partials/i18n.js' %}
+</script>
 {% block head %}
-{% assets filters="cssmin", output="gen/setup.%(version)s.css", "css/base.css", "css/waitlist.css", "css/font.css" %}
+{% assets filters="babili", output="gen/base.%(version)s.js", "js/swagger-client.min.js", "js/base.js" %}
+<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
+{% assets filters="csscomp", output="gen/setup.%(version)s.css", "css/base.css", "css/waitlist.css", "css/font.css" %}
 <link rel="stylesheet" href="{{ ASSET_URL }}">
 {% endassets %}
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js" integrity="sha384-cs/chFZiN24E4KMATLdqdvsezGxaGsi4hLGOzlXwp5UZB1LY//20VyM2taTB4QvJ" crossorigin="anonymous"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T" crossorigin="anonymous"></script>
 	
@@ -26,91 +55,16 @@
 <script type="text/javascript">
 	$(function () {
 		if (!window.EventSource) {
-			waitlist.base.displayMessage('We have had to disable <strong>features</strong> please consider upgrading your<a href="http://caniuse.com/#feat=eventsource"> browser', 'danger', true);
+			waitlist.base.displayMessage('{{_('We have had to disable <strong>features</strong> please consider'
+				' upgrading your<a href="http://caniuse.com/#feat=eventsource"> browser</a>') }}', 'danger', true);
 		}
 	});
 </script>
 </head>
 <body>
-	<nav class="navbar navbar-expand-md">
 	{% block menu %}
-		<a class="navbar-brand" href="/#">{{ title }}</a>
-		<button class="navbar-toggler navbar-toggler-right my-1" type="button" data-toggle="collapse" data-target="#mainNavbar" aria-label="Toggle navigation">
-			&#9776;
-		</button>
-		<div class="collapse navbar-collapse" id="mainNavbar">
-			<ul class="navbar-nav justify-content-start mr-auto">
-				<li class="nav-item">
-					<a class="nav-link" href="{{url_for('index')}}">Home</a>
-				</li>
-				<li class="nav-item">
-					<a class="nav-link bg-success" href="{{url_for('xup.index')}}">X-UP</a>
-				</li>
-
-				<li class="nav-item dropdown">
-					<a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Tools</a>
-					<div class="dropdown-menu">
-						<a class="dropdown-item" href="{{url_for('notification.alarm_idx')}}">Custom Notifications</a>
-						<div class="dropdown-divider"></div>
-						{% if perm_manager.get_permission('commandcore').can() %}
-							{% if perm_manager.get_permission('fleet_management').can() %}
-							<a class="dropdown-item" href="{{url_for('fleet_reform.index')}}">Reform</a>
-							{% endif %}
-							{% if perm_manager.get_permission('comphistory_view').can() %}
-							<a class="dropdown-item" href="{{url_for('fittings.history_default')}}">Comp History</a>
-							{% endif %}
-							<a class="dropdown-item" href="{{url_for('accounts_cc.accounts')}}">Command Core List</a>
-							{% if perm_manager.get_permission('comphistory_search').can() %}
-							<div class="dropdown-divider"></div>
-							<a class="dropdown-item" href="{{url_for('comp_history_search.index')}}">Comp History Search</a>
-							{% endif %}
-						{% endif %}
-					</div>
-				</li>
-				{% if perm_manager.get_permission('settings_access').can() %}
-				<li class="nav-item">
-					<a class="nav-link" href="{{url_for('settings_overview.overview')}}">Settings</a>
-				</li>
-				{% endif %}
-				<li class="nav-item">
-					<a class="nav-link" href="{{url_for('site_help')}}">Help</a>
-				</li>
-				<li class="nav-item">
-					<a class="nav-link" href="{{ url_for('about') }}">About</a>
-				</li>
-				{% if current_user.is_authenticated %}
-				<li class="nav-item">
-					<a class="nav-link" href="{{url_for('logout')}}">{% if current_user.get_eve_id() is not none %}<img class="profile-img-32" src="{{eve_image('Character/'+(current_user.get_eve_id()|string)+'_32', 'jpg')}}"> {% endif %}Logout</a>
-				</li>
-				{% endif %}
-			</ul>
-			<ul class="navbar-nav justify-content-end">
-				{% if is_on_wl and is_index %}
-				<li id="gong" class="nav-item wlb">
-					<div class="mr-2 form-group pretty-dd">
-						<input type="checkbox" name="gongbutton" id="gongbutton"/>
-						<div class="btn-group">
-							<label for="gongbutton" class="nav-link btn btn-sm btn-info">
-								<span><i class="fa fa-check"></i></span>
-								<span><i class="fa fa-times"></i></span>
-							</label>
-							<label for="gongbutton" class="nav-link btn btn-sm btn-danger">
-								Browser Notifications
-							</label>
-						</div>
-					</div>
-				</li>
-				<li class="nav-item wlb mr-2">
-					<button type="button" class="nav-link btn btn-danger btn-sm" data-action="test-poke">Test TS Poke</button>
-				</li>
-				<li class="nav-item wlb">
-					<button type="button" class="nav-link btn btn-danger btn-sm" data-action="removeSelfFromWaitlists">Leave Waitlists</button>
-				</li>
-				{% endif %}
-			</ul>
-		</div>
+	{{ main_nav.render()|safe }}
 	{% endblock %}
-	</nav>
 	{%  block alert_base %}
 	<div id="alert-area-base">
 	{% with messages = get_flashed_messages(with_categories=true) %}
@@ -133,12 +87,14 @@
 		{% endblock %}
 	</div>
 	{% block footer %}
-	<footer class="footer container-fluid">
+	<footer class="container-fluid">
 		<div class="row justify-content-left">
-		<div class="col-10">&copy; Copyright 2016-2018+ by <a href="char:91495852">Bruce Warhead ISK Donations are appreciated</a> v{{version}}.<br/>
-		EVE Online and the EVE logo are the registered trademarks of CCP hf. All rights are reserved worldwide. All other trademarks are the property of their respective owners. EVE Online, the EVE logo, EVE and all associated logos and designs are the intellectual property of CCP hf. All artwork, screenshots, characters, vehicles, storylines, world facts or other recognizable features of the intellectual property relating to these trademarks are likewise the intellectual property of CCP hf. CCP hf. has granted permission to Bruce Warhead to use EVE Online and all associated logos and designs for promotional and information purposes on its website but does not endorse, and is not in any way affiliated with, Bruce Warhead. CCP is in no way responsible for the content on or functioning of this website, nor can it be liable for any damage arising from the use of this website.
-		</div>
-		{% include 'partials/themes_selector.html' %}
+			<div class="col-10 footer">&copy; Copyright 2016-2018+ by <a href="char:91495852">Bruce Warhead {{_('ISK Donations are appreciated')}}</a> v{{version}}.<br/>
+			EVE Online and the EVE logo are the registered trademarks of CCP hf. All rights are reserved worldwide. All other trademarks are the property of their respective owners. EVE Online, the EVE logo, EVE and all associated logos and designs are the intellectual property of CCP hf. All artwork, screenshots, characters, vehicles, storylines, world facts or other recognizable features of the intellectual property relating to these trademarks are likewise the intellectual property of CCP hf. CCP hf. has granted permission to Bruce Warhead to use EVE Online and all associated logos and designs for promotional and information purposes on its website but does not endorse, and is not in any way affiliated with, Bruce Warhead. CCP is in no way responsible for the content on or functioning of this website, nor can it be liable for any damage arising from the use of this website.
+			</div>
+			<div class="col-2">
+			{% include 'partials/themes_selector.html' %}
+			</div>
 		</div>
 	</footer>
 	{% endblock %}
