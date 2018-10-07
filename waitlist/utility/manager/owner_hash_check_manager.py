@@ -5,6 +5,7 @@ from typing import Dict, Union, Optional
 from waitlist import db
 from waitlist.sso import who_am_i
 from waitlist.storage.database import Account, Character, SSOToken
+from esipy.exceptions import APIException
 
 logger = logging.getLogger(__name__)
 
@@ -115,8 +116,7 @@ class OwnerHashCheckManager(object):
     @staticmethod
     def is_auth_valid_for_token(token: Optional[SSOToken]) -> bool:
         """
-        Checks if a token still works, returns an EsiSecurity object that .refresh() was used on
-        or None if the token doesn't work anymore
+        Checks if a token still works
         :param token: a token to check or None
         :return: True if the token is still valid otherwise False
         """

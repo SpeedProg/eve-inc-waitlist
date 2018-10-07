@@ -63,7 +63,6 @@ def post_index():
         flask.abort(400, 'Event time or date was not specified')
 
     backseat_ids: List[int] = []
-    print(backseats_string)
     for backseat_string in backseats_string:
         backseat_ids.append(int(backseat_string))
 

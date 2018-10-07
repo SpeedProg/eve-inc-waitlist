@@ -4,7 +4,7 @@ from datetime import datetime
 from typing import List, Union, Optional, Any
 
 import flask
-from flask import render_template, url_for, request
+from flask import render_template, url_for, request, jsonify
 from flask_login import current_user, AnonymousUserMixin
 from flask_principal import Identity, UserNeed, RoleNeed, identity_loaded
 from werkzeug.utils import redirect
@@ -18,6 +18,9 @@ from waitlist.utility.eve_id_utils import is_char_banned, get_account_from_db, g
 from waitlist.utility.login import invalidate_all_sessions_for_current_user
 from waitlist.utility.manager import owner_hash_check_manager
 from fileinput import filename
+from flask_babel import gettext
+from waitlist.utility.outgate.exceptions import ApiException
+from flask.wrappers import Response
 
 logger = logging.getLogger(__name__)
 
@@ -50,35 +53,39 @@ def check_user_owner_hash():
     if not hasattr(user, 'type'):
         logger.debug("AnonymouseUserMixin no need to check hashes")
         return
+    try:
+        if user.type == 'account':
+            # if no auth for alts is required there is no reason to check the owner_hash
+            if not config.require_auth_for_chars:
+                logger.debug("Skipping owner_hash check because it is disabled in the configuration")
+                return
+            user: Account = user
+            # if there is NO main character set ignore the hash check
+            if user.current_char is None:
+                logger.debug("%s has no current character set, ignore owner_hash check.", user)
+                return
 
-    if user.type == 'account':
-        # if no auth for alts is required there is no reason to check the owner_hash
-        if not config.require_auth_for_chars:
-            logger.debug("Skipping owner_hash check because it is disabled in the configuration")
-            return
-        user: Account = user
-        # if there is NO main character set ignore the hash check
-        if user.current_char is None:
-            logger.debug("%s has no current character set, ignore owner_hash check.", user)
-            return
+            if not owner_hash_check_manager.is_ownerhash_valid(user):
+                logger.info("owner_hash for %s was invalid. Removing connected character %s.", user, user.current_char_obj)
+                flask.flash(gettext(
+                    "Your set current character %(eve_name)s" +
+                    " was unset because the provided token got invalidated."+
+                    " Go to Own Settings to re-add.",
+                    eve_name=user.get_eve_name()),
+                    'danger')
+                user.current_char = None
+                db.session.commit()
+                return redirect(url_for('index'))
 
-        if not owner_hash_check_manager.is_ownerhash_valid(user):
-            logger.info("owner_hash for %s was invalid. Removing connected character %s.", user, user.current_char_obj)
-            flask.flash(f"Your set current character {user.get_eve_name()}"
-                        f" was unset because the provided token got invalidated."
-                        f" Go to Own Settings to re-add.", 'danger')
-            user.current_char = None
-            db.session.commit()
-            return redirect(url_for('index'))
-
-    else:
-        if not owner_hash_check_manager.is_ownerhash_valid(user):
-            user.current_char = None
-            logger.info("owner_hash for %s was invalid. Invalidating all sessions and logging out.", user)
-            invalidate_all_sessions_for_current_user()
-            force_logout()
-            return redirect(url_for('index'))
-
+        else:
+            if not owner_hash_check_manager.is_ownerhash_valid(user):
+                user.current_char = None
+                logger.info("owner_hash for %s was invalid. Invalidating all sessions and logging out.", user)
+                invalidate_all_sessions_for_current_user()
+                force_logout()
+                return redirect(url_for('index'))
+    except Exception:
+        logger.exception('Exception during user owner_hash check!')
     # else
     logger.debug("Everything okay, the request can continue")
     return None
@@ -202,7 +209,7 @@ def on_identity_loaded(_: Any, identity):
     # Set the identity user object
     identity.user = current_user
     # Add the UserNeed to the identity
-    logger.info("loading identity for %s", current_user)
+    logger.debug("loading identity for %s", current_user)
     if hasattr(current_user, 'id'):
         identity.provides.add(UserNeed(current_user.id))
 
@@ -210,7 +217,7 @@ def on_identity_loaded(_: Any, identity):
         if current_user.type == "account":  # it is an account, so it can have roles
             account = db.session.query(Account).filter(Account.id == current_user.id).first()
             for role in account.roles:
-                logger.info("Add role %s", role.name)
+                logger.debug("Add role %s", role.name)
                 identity.provides.add(RoleNeed(role.name))
 
 
@@ -229,3 +236,10 @@ def jinja2_waittime_filter(value):
     current_utc = datetime.utcnow()
     waited_time = current_utc - value
     return str(int(math.floor(waited_time.total_seconds()/60)))
+
+
+@app.errorhandler(ApiException)
+def handle_invalid_usage(error: ApiException) -> Response:
+    response = jsonify(error.to_dict())
+    response.status_code = error.code
+    return response

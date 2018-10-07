@@ -1,15 +1,15 @@
 {% extends "settings/base.html" %}
 
-{% block title %}Settings - Fleet Settings{% endblock %}
+{% block title %}{{ _('Settings') }} - {{ _('Fleet Settings') }}{% endblock %}
 
 {% block head %}
 {{ super() }}
 <meta name="api-fleet-remove" content="{{url_for('api_fleet.remove_fleet', fleet_id=-1)}}"/>
 <meta name="api-movetosafety" content="{{url_for('api_fleet.move_fleetmembers_to_safety')}}">
-{% assets filters="cssmin", output="gen/fleetsettings-typeahead.%(version)s.css", "css/typeaheadjs.css", "css/settings-fleet.css" %}
+{% assets filters="csscomp", output="gen/fleetsettings-typeahead.%(version)s.css", "css/typeaheadjs.css", "css/settings-fleet.css" %}
     <link rel="stylesheet" href="{{ ASSET_URL }}">
 {% endassets %}
-{% assets filters="babili", output="gen/fleetsettings.%(version)s.js", "js/base.js", "js/fleet-settings.js" %}
+{% assets filters="babili", output="gen/fleetsettings.%(version)s.js", "js/fleet-settings.js" %}
 <script type="text/javascript" src="{{ ASSET_URL }}"></script>
 {% endassets %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.11.1/typeahead.bundle.min.js" integrity="sha256-RWiU4omUU7tQ2M3wmRQNW9UL50MB4CucbRPCbsQv+X0=" crossorigin="anonymous"></script>
@@ -23,7 +23,7 @@
 	<div class="row">
 		<div class="custom-control custom-checkbox mr-2">
 			<input type="checkbox" class="custom-control-input" name="scramble" id="scramble-cbx" {% if scramble %}checked{% endif %}>
-			<label for="scramble-cbx" class="custom-control-label">Hide Names</label>
+			<label for="scramble-cbx" class="custom-control-label">{{ _('Hide Names') }}</label>
 		</div>
 	</div>
 {% for group in groups %}
@@ -31,34 +31,34 @@
 		<form class="form-inline hidden" id="clearwaitlistform-{{group.groupID}}" action="{{url_for('fleetoptions.clear_waitlist', gid=group.groupID)}}" method="post">
 		<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 		</form>
-		<button data-toggle="modal" data-target="#remove-diag" data-type="clearWaitlist" class="btn btn-sm btn-danger" data-id="{{group.groupID}}">Clear This Groups lists!</button>
+		<button data-toggle="modal" data-target="#remove-diag" data-type="clearWaitlist" class="btn btn-sm btn-danger" data-id="{{group.groupID}}">{{ _('Clear This Groups lists!') }}</button>
 		<div class="card">
 		  <div class="card-block">
 			<table class="table table-sm">
 			<tbody>
 			<tr>
-				<th scope="row">Display Name</th>
+				<th scope="row">{{ _('Display Name') }}</th>
 				<td>{{group.displayName}}</td>
 				<td>
 					<form action="{{url_for('fleetoptions.fleet_status_set', gid=group.groupID)}}" method="post" class="form-inline">
 						<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 						<input type="hidden" name="action" value="change_display_name">
-						{% if perm_manager.get_permission('fleet_custom_status').can() %}
+						{% if perm_manager.get_permission('fleet_custom_display_name_all').can() %}
 						<input title="What is this waiting list for? pvp fleet?" type="text" name="display_name" value="{{group.displayName}}" class="form-control form-control-sm">
 						{% else %}
-						<select class="form-control form-control-sm custom-select mr-3" id="displayname-{{group.groupID}}" name="display_name" required>
-							<option value="">Please Select</option>
-							<option value="Headquarter"{% if group.displayName == "Headquater" %} selected{% endif %}>Headquarter</option>
-							<option value="Assault"{% if group.displayName == "Assault" %} selected{% endif %}>Assault</option>
-							<option value="Vanguard"{% if group.displayName == "Vanguard" %} selected{% endif %}>Vanguard</option>
+						<select autocomplete="off" class="form-control form-control-sm custom-select mr-3" id="displayname-{{group.groupID}}" name="display_name" required>
+							<option value="">{{ _('Please Select') }}</option>
+							<option value="Headquarter"{% if group.displayName == "Headquater" %} selected{% endif %}>{{ _('Headquarter') }}</option>
+							<option value="Assault"{% if group.displayName == "Assault" %} selected{% endif %}>{{ _('Assault') }}</option>
+							<option value="Vanguard"{% if group.displayName == "Vanguard" %} selected{% endif %}>{{ _('Vanguard') }}</option>
 						</select>
 						{% endif %}
-						<button type="submit" class="btn btn-sm btn-primary">Change Display Name</button>
+						<button type="submit" class="btn btn-sm btn-primary">{{ _('Change Display Name') }}</button>
 					</form>
 				</td>
 			</tr>
 			<tr>
-				<th scope="row">Status</th>
+				<th scope="row">{{ _('Status') }}</th>
 				<td>{{group.status}}</td>
 				<td>
 				<form action="{{url_for('fleetoptions.fleet_status_set', gid=group.groupID)}}" method="post" class="form-inline">
@@ -67,27 +67,27 @@
 					{% if perm_manager.get_permission('fleet_custom_status').can() %}
 					<input type="text" name="status" value="{{group.status}}" class="form-control form-control-sm mr-3">
 					{% else %}
-					<select class="form-control form-control-sm custom-select mr-3" id="status-{{group.groupID}}" name="status" required>
+					<select autocomplete="off" class="form-control form-control-sm custom-select mr-3" id="status-{{group.groupID}}" name="status" required>
 						<option value="">Please Select</option>
-						<option value="Down"{% if group.status == "Down" %} selected{% endif %}>Down</option>
-						<option value="Forming"{% if group.status == "Forming" %} selected{% endif %}>Forming</option>
-						<option value="Running"{% if group.status == "Running" %} selected{% endif %}>Running</option>
+						<option value="Down"{% if group.status == "Down" %} selected{% endif %}>{{ _('Down') }}</option>
+						<option value="Forming"{% if group.status == "Forming" %} selected{% endif %}>{{ _('Forming') }}</option>
+						<option value="Running"{% if group.status == "Running" %} selected{% endif %}>{{ _('Running') }}</option>
 					</select>
 					{% endif %}
 					<div class="custom-control custom-checkbox mr-2">
-						<input type="checkbox" class="custom-control-input" name="xup" id="xup-cbx" {% if group.enabled %}checked{% endif %}>
-						<label for="xup-cbx" class="custom-control-label"> X-UP Open</label>
+						<input type="checkbox" class="custom-control-input" name="xup" id="xup-cbx-{{group.groupID}}" {% if group.enabled %}checked{% endif %}>
+						<label for="xup-cbx-{{group.groupID}}" class="custom-control-label"> {{ _('X-UP Open') }}</label>
 					</div>
 					<div class="custom-control custom-checkbox mr-2">
-						<input type="checkbox" class="custom-control-input" name="influence" id="influence-cbx" {% if group.influence %}checked{% endif %}>
-						<label for="influence-cbx" class="custom-control-label"> Influence</label>
+						<input type="checkbox" class="custom-control-input" name="influence" id="influence-cbx-{{group.groupID}}" {% if group.influence %}checked{% endif %}>
+						<label for="influence-cbx-{{group.groupID}}" class="custom-control-label"> {{ _('Influence') }}</label>
 					</div>
-					<button type="submit" class="btn btn-sm btn-primary">Set</button>
+					<button type="submit" class="btn btn-sm btn-primary">{{ _('Set') }}</button>
 				</form>
 				</td>
 			</tr>
 			<tr>
-				<th scope="row">FC</th>
+				<th scope="row">{{ _('FC') }}</th>
 				<td>
 				{% for fc in group.fcs %}
 				<a href="char:{{fc.get_eve_id()}}">{{fc.get_eve_name()}}</a>
@@ -103,12 +103,12 @@
 				<form action="{{url_for('fleetoptions.fleet_status_set', gid=group.groupID)}}" method="post" class="form-inline">
 				<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 				<input type="hidden" name="action" value="fc">
-				<button type="submit" class="btn btn-sm btn-primary">Add Self</button>
+				<button type="submit" class="btn btn-sm btn-primary">{{ _('Add Self') }}</button>
 				</form>
 				</td>
 			</tr>
 			<tr>
-				<th scope="row">Fleet Manager</th>
+				<th scope="row">{{ _('Fleet Manager') }}</th>
 				<td>
 				{% for manager in group.manager %}
 				<a href="char:{{manager.get_eve_id()}}">{{manager.get_eve_name()}}</a>
@@ -125,32 +125,32 @@
 				<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 				<input type="hidden" name="action" value="manager">
 				<!-- <input type="text" name="name" value="{{user.get_eve_name()}}"> -->
-				<button type="submit" class="btn btn-sm btn-primary">Add Self</button>
+				<button type="submit" class="btn btn-sm btn-primary">{{ _('Add Self') }}</button>
 				</form>
 				</td>
 			</tr>
 			{% if perm_manager.get_permission('fleet_location_edit').can() %}
 			<tr>
-				<th scope="row">Constellation</th>
-				<td>{% if group.constellation is not none %}<a href="#">{{group.constellation.constellationName}}</a>{% else %}Not Set{% endif %}</td>
+				<th scope="row">{{ _('Constellation') }}</th>
+				<td>{% if group.constellation is not none %}<a href="#">{{group.constellation.constellationName}}</a>{% else %}{{ _('Not Set') }}{% endif %}</td>
 				<td>
 				<form action="{{url_for('fleetoptions.fleet_location_set', gid=group.groupID)}}" method="post" class="form-inline">
 				<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 				<input type="hidden" name="action" value="constellation">
 				<input id="con-typeahead-{{group.groupID}}" class="form-control form-control-sm typeahead con-typeahead" type="text" name="name">
-				<button type="submit" class="btn btn-sm btn-primary">Set</button>
+				<button type="submit" class="btn btn-sm btn-primary">{{ _('Set') }}</button>
 				</form>
 				</td>
 			</tr>
 			<tr>
-				<th scope="row">Dockup</th>
+				<th scope="row">{{ _('Dockup') }}</th>
 				<td>{% if group.dockup is not none %}<a href="#">{{group.dockup.stationName}}</a>{% else %}Not Set{% endif %}</td>
 				<td>
 				<form action="{{url_for('fleetoptions.fleet_location_set', gid=group.groupID)}}" method="post" class="form-inline">
 				<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 				<input type="hidden" name="action" value="dock">
 				<input id="dock-typeahead-{{group.groupID}}" class="form-control form-control-sm typeahead dock-typeahead" type="text" name="name">
-				<button type="submit" class="btn btn-sm btn-primary">Set</button>
+				<button type="submit" class="btn btn-sm btn-primary">{{ _('Set') }}</button>
 				</form>
 				</td>
 			</tr>
@@ -162,16 +162,16 @@
 				<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 				<input type="hidden" name="action" value="system">
 				<input id="hq-typeahead-{{group.groupID}}" class="form-control form-control-sm typeahead hq-typeahead" type="text" name="name">
-				<button type="submit" class="btn btn-sm btn-primary">Set</button>
+				<button type="submit" class="btn btn-sm btn-primary">{{ _('Set') }}</button>
 				</form>
 				</td>
 			</tr>
 			{% endif %}
 			<tr>
-			<th scope="row">Backseats:</th>
+			<th scope="row">{{ _('Backseats') }}:</th>
 			<td colspan="2">
 			{% for backseat in group.backseats %}
-				<a href=char:{{backseat.current_char_obj.get_eve_id()}}">{{backseat.current_char_obj.get_eve_name()}}</a>
+				<a href=char:{{backseat.get_eve_id()}}">{{backseat.get_eve_name()}}</a>
 				<form action="{{url_for('fleetoptions.fleet_status_set', gid=group.groupID)}}" method="post" class="form-inline" style="display:inline;">
 				<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 				<input type="hidden" name="action" value="remove-backseat">
@@ -183,7 +183,7 @@
 				<form action="{{url_for('fleetoptions.fleet_status_set', gid=group.groupID)}}" method="post" class="form-inline" style="display:inline;">
 				<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 				<input type="hidden" name="action" value="add-backseat">
-				<button type="submit" class="btn btn-sm btn-primary">Add Self</button>
+				<button type="submit" class="btn btn-sm btn-primary">{{ _('Add Self') }}</button>
 				</form>
 			</td>
 			</tr>
@@ -193,30 +193,30 @@
 					<form action="{{url_for('fleetoptions.fleet_status_set', gid=group.groupID)}}" method="post" class="form-inline" style="display:inline;">
 						<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 						<input type="hidden" name="action" value="check-in">
-						<button type="submit" class="btn btn-sm btn-primary">Check In</button>
+						<button type="submit" class="btn btn-sm btn-primary">{{ _('Check In') }}</button>
 					</form>
 				</td>
 			</tr>
 			<tr>
-				<th scope="row">Register for Fleet</th>
+				<th scope="row">{{ _('Register for Fleet') }}</th>
 				<td colspan="2">
 					<form>
-					<a href="{{url_for('fleet.take_over_fleet')}}" class="btn btn-sm btn-primary">Take over a Fleet</a>
+					<a href="{{url_for('fleet.take_over_fleet')}}" class="btn btn-sm btn-primary">{{ _('Take over a Fleet') }}</a>
 					</form>
 				</td>
 			</tr>
 			<tr>
-			<th>Fleet ID</th><th>Current Fleet Comp</th><th>Actions</th>
+			<th>{{ _('Fleet ID') }}</th><th>{{ _('Current Fleet Comp') }}</th><th>{{ _('Actions') }}</th>
 			</tr>
 			{% for fleet in group.fleets %}
 			<tr id="fleet-{{fleet.fleetID}}">
 				<td>{{fleet.fleetID}}</td>
-				<td>{% if fleet.comp %}<a href="javascript:IGBW.showInfo(1377, {{fleet.comp.get_eve_id()}});">{{fleet.comp.get_eve_name()}}</a>{% else %}{{None}}{% endif %}</td>
+				<td>{% if fleet.comp %}<a href="javascript:IGBW.showInfo(1377, {{fleet.comp.get_eve_id()}});">{{fleet.comp.get_eve_name()}}</a>{% else %}{{ _('None') }}{% endif %}</td>
 				<td>
-					<button class="btn btn-danger btn-sm" data-type="remove-fleet" data-id="{{fleet.fleetID}}">Remove</button>
-					<a href="{{url_for('fleet.change_type', fleet_id=fleet.fleetID)}}" class="btn btn-sm btn-warning">Change Fleet Type</a>
-					<a href="{{url_for('fleet.change_setup', fleet_id=fleet.fleetID)}}" class="btn btn-sm btn-danger">Change Squads</a>
-					<button data-action="moveToSafety" data-fleetId="{{fleet.fleetID}}" class="btn btn-sm btn-danger">Safety</button>
+					<button class="btn btn-danger btn-sm" data-type="remove-fleet" data-id="{{fleet.fleetID}}">{{ _('Remove') }}</button>
+					<a href="{{url_for('fleet.change_type', fleet_id=fleet.fleetID)}}" class="btn btn-sm btn-warning">{{ _('Change Fleet Type') }}</a>
+					<a href="{{url_for('fleet.change_setup', fleet_id=fleet.fleetID)}}" class="btn btn-sm btn-danger">{{ _('Change Squads') }}</a>
+					<button data-action="moveToSafety" data-fleetId="{{fleet.fleetID}}" class="btn btn-sm btn-danger">{{ _('Safety') }}</button>
 				</td>
 			</tr>
 			{% endfor %}
@@ -238,8 +238,8 @@
       <div class="modal-body" id="remove-diag-body">
       </div>
       <div class="modal-footer">
-          <button type="button" class="btn btn-success" data-dismiss="modal">No</button>
-          <button type="button" class="btn btn-danger" id="remove-diag-accept">Yes</button>
+          <button type="button" class="btn btn-success" data-dismiss="modal">{{ _('No') }}</button>
+          <button type="button" class="btn btn-danger" id="remove-diag-accept">{{ _('Yes') }}</button>
       </div>
     </div>
   </div>

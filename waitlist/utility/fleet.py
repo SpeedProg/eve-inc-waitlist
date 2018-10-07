@@ -28,7 +28,7 @@ class FleetMemberInfo:
     def __init__(self):
         self._cached_until: Dict[int, datetime] = {}
         self._lastmembers: Dict[int, Dict[int, FleetMember]] = {}
-    
+
     def get_fleet_members(self, fleet_id: int, account: Account) -> Optional[Dict[int, FleetMember]]:
         return self._get_data(fleet_id, account)
 
@@ -78,10 +78,11 @@ class FleetMemberInfo:
         for member in response.fleet_members():
             data[member.character_id()] = member
         return data
-    
+
     def _get_data(self, fleet_id: int, account: Account) -> Optional[Dict[int, FleetMember]]:
-        token: Optional[SSOToken] = account.get_a_sso_token_with_scopes(esi_scopes.fleetcomp_scopes)
+        token: Optional[SSOToken] = account.get_a_sso_token_with_scopes(['esi-fleets.read_fleet.v1'])
         if token is None:
+            logger.warning('No valid SSOToken found for %s', account)
             return None
 
         fleet_api = EveFleetEndpoint(token, fleet_id, get_esi_client_for_account(token))
@@ -104,12 +105,12 @@ class FleetMemberInfo:
         else:
             logger.debug("Cache hit for %d and account %s", fleet_id, account.username)
         return self._lastmembers[fleet_id]
-    
+
     def get_cache_data(self, fleet_id) -> Optional[Dict[int, FleetMember]]:
         if fleet_id in self._lastmembers:
             return self._lastmembers[fleet_id]
         return None
-    
+
     def _is_expired(self, fleet_id, utcnow) -> bool:
         if fleet_id not in self._cached_until:
             return True
@@ -119,7 +120,7 @@ class FleetMemberInfo:
                 return False
             else:
                 return True
-    
+
     def _update_cache(self, fleet_id: int, response: EveFleetMembers) -> None:
         self._lastmembers[fleet_id] = self._to_members_map(response)
         self._cached_until[fleet_id] = response.expires()
@@ -313,16 +314,17 @@ def invite(user_id: int, squad_id_list: Sequence[Tuple[int, int]]):
 
 
 def spawn_invite_check(character_id, group_id, fleet_id):
-    logger.info(f"Spawning invite check for character_id={character_id} group_id={group_id}"
+    logger.info(f"Spawning invite check timer for character_id={character_id} group_id={group_id}"
                 f" and fleet_id={fleet_id}")
     timer_id = (character_id, group_id, fleet_id)
     if timer_id in check_timers:  # this invite check is already running
         logger.info(f"There is already an invite check running for {timer_id}")
         return
-    logger.info(f"Starting timer for {timer_id}")
     check_timers[timer_id] = 0
-    t = Timer(20.0, check_invite_and_remove_timer, [character_id, group_id, fleet_id])
+    t = Timer(20.0, check_invite_and_remove_timer,
+              [character_id, group_id, fleet_id])
     t.start()
+    logger.debug(f'Started timer for {timer_id}')
 
 
 check_timers: Dict[Tuple[int, int, int], int] = dict()
@@ -364,14 +366,15 @@ def check_invite_and_remove_timer(char_id: int, group_id: int, fleet_id: int):
                     (WaitlistEntry.waitlist_id != group.xuplist.id)
                     ).all()
 
-        if char_id in member:  # he is in the fleet
+        if member is not None and char_id in member:  # he is in the fleet
             logger.info("Member %s found in members", char_id)
             fittings = []
             for entry in waitlist_entries:
                 fittings.extend(entry.fittings)
 
             for entry in waitlist_entries:
-                event = EntryRemovedSSE(entry.waitlist.group.groupID, entry.waitlist_id, entry.id)
+                event = EntryRemovedSSE(entry.waitlist.group.groupID,
+                                        entry.waitlist_id, entry.id)
                 _events.append(event)
 
             db.session.query(WaitlistEntry).filter(

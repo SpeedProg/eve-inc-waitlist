@@ -14,6 +14,7 @@ from waitlist.permissions import perm_manager
 from waitlist.storage.database import TeamspeakDatum
 from waitlist.ts3.connection import change_connection
 from waitlist.utility.settings import sget_active_ts_id, sset_active_ts_id
+from flask_babel import gettext, lazy_gettext
 
 bp = Blueprint('teamspeak', __name__)
 logger = logging.getLogger(__name__)
@@ -95,4 +96,4 @@ def teamspeak_change():
     return redirect(url_for("teamspeak.teamspeak"))
 
 
-add_menu_entry('teamspeak.teamspeak', 'TS Settings', perm_view_server.can)
+add_menu_entry('teamspeak.teamspeak', lazy_gettext('TS Settings'), perm_view_server.can)

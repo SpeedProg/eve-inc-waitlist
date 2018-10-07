@@ -1,5 +1,5 @@
 <div class="col-md-12" id="x-up">
-<a href="https://i.imgur.com/6KvLvt8.gif" target="_blank">FC, WHAT DO?</a>
+<a href="https://i.imgur.com/6KvLvt8.gif" target="_blank">{{ _('FC, WHAT DO?') }}</a>
 {% if group is not none %}
 {% if update %}
 <form action="{{url_for('xup.update_submit')}}" method="post">
@@ -11,14 +11,14 @@
 <fieldset class="form-group bg-danger">
 <label {% if not newbro %}hidden{%endif%}>
 <input type="checkbox" name="newbro" {% if newbro %}checked{% endif %}>
-I am new to {{ title }} or Incursions</label>
+{{ _('I am new to %(title)s or Incursions', title=title) }}</label>
 </fieldset>
 {% if is_index %}
 <input type="hidden" name="groupID" id="groupID" value="{{group.groupID}}">
 {% else %}
 <fieldset class="form-group">
-	<label for="group">Fleet to x-up for</label>
-	<select class="form-control" id="group" name="groupID">
+	<label for="group">{{ _('Fleet to x-up for') }}</label>
+	<select autocomplete="off" class="form-control" id="group" name="groupID">
 		<option value="{{group.groupID}}">{{group.displayName}}</option>
 		{% for grp in groups %}
 		{% if grp.groupID != group.groupID %}
@@ -30,37 +30,37 @@ I am new to {{ title }} or Incursions</label>
 {% endif %}
 <label>
   <input type="checkbox" name="pokeMe" value="on"{% if current_user.poke_me %} checked{% endif %}>
-  Poke me on TS (exact charactername required, case sensitive)
+  {{ _('Poke me on TS (exact charactername required, case sensitive)') }}
 </label>
 <fieldset class="form-group">
-<label for="fittings">Fittings</label>
+<label for="fittings">{{ _('Fittings') }}</label>
 <textarea class="form-control" id="fittings" name="fits" rows="10" cols="50" placeholder="Post your fittings here" required></textarea>
 </fieldset>
 <fieldset class="form-group" id="grp-cbslvl">
-	<label for="cbs">Caldari Battleship Level</label>
-	<select class="form-control" id="cbs" name="cbs">
-		<option value=""{% if current_user.cbs_level == 0 %} selected{% endif %}>No Caldari BS</option>
-		<option value="1"{% if current_user.cbs_level == 1 %} selected{% endif %}>1</option>
-		<option value="2"{% if current_user.cbs_level == 2 %} selected{% endif %}>2</option>
-		<option value="3"{% if current_user.cbs_level == 3 %} selected{% endif %}>3</option>
-		<option value="4"{% if current_user.cbs_level == 4 %} selected{% endif %}>4</option>
-		<option value="5"{% if current_user.cbs_level == 5 %} selected{% endif %}>5</option>
+	<label for="cbs">{{ _('Caldari Battleship Level') }}</label>
+	<select autocomplete="off" class="form-control" id="cbs" name="cbs">
+		<option value=""{% if current_user.cbs_level == 0 %} selected{% endif %}>{{ _('No Caldari BS') }}</option>
+		<option value="1"{% if current_user.cbs_level == 1 %} selected{% endif %}>{{ _('1') }}</option>
+		<option value="2"{% if current_user.cbs_level == 2 %} selected{% endif %}>{{ _('2') }}</option>
+		<option value="3"{% if current_user.cbs_level == 3 %} selected{% endif %}>{{ _('3') }}</option>
+		<option value="4"{% if current_user.cbs_level == 4 %} selected{% endif %}>{{ _('4') }}</option>
+		<option value="5"{% if current_user.cbs_level == 5 %} selected{% endif %}>{{ _('5') }}</option>
 	</select>
 </fieldset>
 <fieldset class="form-group" id="grp-logilvl">
-	<label for="logi">Logistic Cruiser Level</label>
-	<select class="form-control" id="logi" name="logi">
-		<option value=""{% if current_user.lc_level == 0 %} selected{% endif %}>No Logi</option>
-		<option value="5"{% if current_user.lc_level == 5 %} selected{% endif %}>5</option>
-		<option value="4"{% if current_user.lc_level == 4 %} selected{% endif %}>4</option>
-		<option value="3"{% if current_user.lc_level == 3 %} selected{% endif %}>3</option>
-		<option value="2"{% if current_user.lc_level == 2 %} selected{% endif %}>2</option>
-		<option value="1"{% if current_user.lc_level == 1 %} selected{% endif %}>1</option>
+	<label for="logi">{{ _('Logistic Cruiser Level') }}</label>
+	<select autocomplete="off" class="form-control" id="logi" name="logi">
+		<option value=""{% if current_user.lc_level == 0 %} selected{% endif %}>{{ _('No Logi') }}</option>
+		<option value="5"{% if current_user.lc_level == 5 %} selected{% endif %}>{{ _('5') }}</option>
+		<option value="4"{% if current_user.lc_level == 4 %} selected{% endif %}>{{ _('4') }}</option>
+		<option value="3"{% if current_user.lc_level == 3 %} selected{% endif %}>{{ _('3') }}</option>
+		<option value="2"{% if current_user.lc_level == 2 %} selected{% endif %}>{{ _('2') }}</option>
+		<option value="1"{% if current_user.lc_level == 1 %} selected{% endif %}>{{ _('1') }}</option>
 	</select>
 </fieldset>
-<button type="submit" class="btn btn-primary">Enter On Waitlist</button>
+<button type="submit" class="btn btn-primary">{{ _('Enter On Waitlist') }}</button>
 </form>
 {% else %}
-<p>All Waitlists are closed!</p>
+<p>{{ _('All Waitlists are closed!') }}</p>
 {% endif %}
 </div>

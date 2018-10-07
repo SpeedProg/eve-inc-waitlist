@@ -28,7 +28,7 @@ waitlist.history.historysearch = (function() {
 			var hbody = $('#historybody');
 			hbody.empty();
 			if (data.history.length <= 0) {
-				hbody.append('<td cospan="5">No Results Found</td>');
+				hbody.append('<td cospan="5">'+$.i18n('wl-no-result-found')+'</td>');
 				return;
 			}
 			for (var i = 0; i < data.history.length; i++) {

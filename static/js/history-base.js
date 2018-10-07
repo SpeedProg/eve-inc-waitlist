@@ -28,37 +28,37 @@ waitlist.history.base = (function() {
 	function resolveAction(action) {
 		switch (action) {
 		case "xup":
-			return "X-UP";
+			return $.i18n('wl-xup-uppercase');
 		case "comp_rm_pl":
-			return "Removed a Character from Waitlists";
+			return $.i18n('wl-remove-char');
 		case "comp_inv_pl":
-			return "Send Invitation to Character";
+			return $.i18n('wl-send-invite');
 		case "comp_rm_etr":
-			return "Removed Entry from X-UPs";
+			return $.i18n('wl-remove-entry-from-xup');
 		case "self_rm_fit":
-			return "Removed own fit";
+			return $.i18n('wl-remove-own-fit');
 		case "self_rm_entry":
-			return "Removed own entry";
+			return $.i18n('wl-remove-own-entry');
 		case "self_rm_wls_all":
-			return "Removed himself from all lists";
+			return $.i18n('wl-remove-self-all-lists');
 		case "comp_mv_xup_etr":
-			return "Approved X-UP entry";
+			return $.i18n('wl-approved-xup-entry');
 		case "comp_mv_xup_fit":
-			return "Approved Single Fit";
+			return $.i18n('wl-approved-single-fit');
 		case "comp_send_noti":
-			return "Send Notification to Character";
+			return $.i18n('wl-sent-notification-to-char');
 		case "set_fc":
-			return "Was set as FC";
+			return $.i18n('wl-was-set-as-fc');
 		case "set_fcomp":
-			return "Was set as Fleet Comp";
+			return $.i18n('wl-was-set-as-fleetcomp');
 		case "auto_rm_pl":
-			return "Player was removed after found in fleet";
+			return $.i18n('wl-auto-removed-after-found-in-fleet');
 		case "auto_inv_missed":
-			return "Player missed his invite";
+			return $.i18n('wl-missed-his-invite');
 		case "self_rm_etr":
-			return "Player removed himself from X-UPs";
+			return $.i18n('wl-player-removed-himself-from-xups');
 		case "comp_inv_by_name":
-			return "Player was invited by Name(Reform Tool?)";
+			return $.i18n('wl-player-invited-by-name');
 		default:
 			return action;
 		}
@@ -85,7 +85,7 @@ waitlist.history.base = (function() {
 		targetA.text(entry.target.name);
 
 		if (entry.target.newbro) {
-			targetTD.prepend('<span class="badge badge-pill badge-info">New</span> ');
+			targetTD.prepend(`<span class="badge badge-pill badge-info">${$.i18n('wl-new')}</span> `);
 		}
 		for (var i=0; i < entry.fittings.length; i++) {
 			fittingsTD.append(createFittingDOM(entry.fittings[i]));
@@ -93,6 +93,21 @@ waitlist.history.base = (function() {
 		return historyEntrySkeleton;
 	}
 	
+	/**
+	 * Take a string and return the same string
+	 * unless the string is "#System"
+	 * then return "Booby"(the bird)
+	 * @param old_name inventory type name
+	 * @returns old_name unless it is "#System" then it is replaced by "Booby"
+	 */
+	function filterShipName(old_name) {
+		if (old_name === "#System") {
+			return "Booby";
+		}
+		return old_name;
+	}
+	
+
 	function createFittingDOM(fit) {
 		var comment = "";
 		let skillsData = "";
@@ -106,10 +121,10 @@ waitlist.history.base = (function() {
 				skillsData = `3338:${bsResult[1]}`;
 			}
 		}
-		if (fit.ship_type === 1) {
-			return $.parseHTML(`<a href="#" class="booby-link">${fit.shipName}${comment}</a>`);
+		if (fit.ship_type === 0) {
+			return $.parseHTML(`<a href="#" class="booby-link">${filterShipName(fit.shipName)}${comment}</a>`);
 		} else {
-			return $.parseHTML(`<a href="#" class="fit-link" data-skills="${skillsData}" data-dna="${fit.shipType+':'+fit.modules}">${fit.shipName}${comment}</a>`);
+			return $.parseHTML(`<a href="#" class="fit-link" data-skills="${skillsData}" data-dna="${fit.shipType+':'+fit.modules}">${filterShipName(fit.shipName)}${comment}</a>`);
 		}
 	}
 	

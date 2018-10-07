@@ -67,8 +67,11 @@ class ESIResponse(object):
     def error(self) -> Optional[str]:
         return self.__error
 
+    def __repr__(self):
+        return f'<ESIResponse  code={self.code()} error={self.error()} expires={self.expires()}>'
 
-def make_error_response(resp: Any) -> ESIResponse:
+
+def get_error_msg_from_response(resp: Any) -> str:
     if resp.status == 520:  # monolith error
         if resp.data is None:
             data = json.loads(resp.raw.decode("utf-8"))
@@ -80,18 +83,39 @@ def make_error_response(resp: Any) -> ESIResponse:
 
         logger.debug('ESI responded with status Monolith 520 and msg %s', msg)
     else:
-        msg = resp.data['error'] if resp.data is not None and 'error' in resp.data else 'No error data send'
-        logger.error('ESI responded with status %s and msg %s', resp.status, msg)
+        if resp.data is None:
+            if hasattr(resp, 'headers') and resp.headers is not None and 'content-type' in resp.headers:
+                content_header = resp.headers['content-type']
+            else:
+                has_header = hasattr(resp, 'headers') and resp.headers is not None
+                logger.error('Headers was none=%s type.__name__=%s',
+                             has_header,
+                             type(resp).__name__)
+                content_header = 'No content-type header'
+
+            logger.debug("Data was not set for %s with content-type %s",
+                         resp.raw.decode("utf-8"), content_header)
+        msg = resp.data['error'] if resp.data is not None and 'error' in resp.data else 'No error data send. data=' + resp.raw.decode("utf-8")
+        logger.info('ESI responded with status %s and msg %s', resp.status, msg)
+
+    return msg
+
+
+def make_error_response(resp: Any) -> ESIResponse:
+    msg: str = get_error_msg_from_response(resp)
     return ESIResponse(get_expire_time(resp), resp.status, msg)
 
 
-def get_esi_client(token: Optional[SSOToken], noauth: bool = False) -> EsiClient:
-    return get_esi_client_for_account(token, noauth)
+def get_esi_client(token: Optional[SSOToken], noauth: bool = False,
+                   retry_request: bool=False) -> EsiClient:
+    return get_esi_client_for_account(token, noauth, retry_request)
 
 
-def get_esi_client_for_account(token: Optional[SSOToken], noauth: bool = False) -> EsiClient:
+def get_esi_client_for_account(token: Optional[SSOToken], noauth: bool = False,
+                               retry_request: bool=False) -> EsiClient:
     if noauth:
-        return EsiClient(timeout=10, headers={'User-Agent': config.user_agent}, cache=DummyCache())
+        return EsiClient(timeout=20, headers={'User-Agent': config.user_agent},
+                         cache=DummyCache(), retry_requests=retry_request)
 
     signal: Signal = Signal()
     signal.add_receiver(SSOToken.update_token_callback)
@@ -105,4 +129,7 @@ def get_esi_client_for_account(token: Optional[SSOToken], noauth: bool = False) 
         token_identifier=token.tokenID
     )
     security.update_token(token.info_for_esi_security())
-    return EsiClient(security, timeout=10, headers={'User-Agent': config.user_agent}, cache=DummyCache())
+    return EsiClient(security, timeout=20,
+                     headers={'User-Agent': config.user_agent},
+                     cache=DummyCache(),
+                     retry_requests=retry_request)

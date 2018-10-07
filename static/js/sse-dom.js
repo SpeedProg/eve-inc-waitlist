@@ -66,9 +66,9 @@ waitlist.sse_dom = (function () {
 		if (!("Notification" in window)) {
 			return;
 		}
-		let title = "New X-UP";
+		let title = $.i18n('wl-notifiaction-xup-title');
 		let options = {
-			'body': `New X-UP from ${data.entry.character.name}`
+			'body': $.i18n('wl-notifiaction-xup-body', data.entry.character.name)
 		};
 		// if we have permission
 		if (Notification.permission === "granted") {
@@ -83,6 +83,10 @@ waitlist.sse_dom = (function () {
 			});
 		}
 	}
+	
+	function reloadListener(event) {
+		window.location.reload(true);
+	}
 
 	sse.addEventListener("fit-added", fitAddedListener);
 	sse.addEventListener("fit-removed", fitRemovedListener);
@@ -93,11 +97,16 @@ waitlist.sse_dom = (function () {
 	sse.addEventListener("invite-missed", missedInviteListener);
 
 	sse.addEventListener("status-changed", statusChangedListener);
+	
+	sse.addEventListener("reload", reloadListener);
 
 	function init() {
-	  settings.can_manage = getMetaData('can-fleetcomp') === "True";
-		loadWaitlist();
+		settings.can_manage = getMetaData('can-fleetcomp') === "True";
 		$('body').tooltip({selector: '[data-toggle=tooltip]'});
+		// make sure translations are loaded
+		i18nloaded.then(() => {
+			loadWaitlist();
+		});
 	}
 
 	$(document).ready(init);

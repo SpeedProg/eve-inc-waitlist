@@ -22,7 +22,7 @@
 	{% endif %}
 {%- endmacro %}
 
-{% block title %}Static History{% endblock %}
+{% block title %}{{ _('Static History') }}{% endblock %}
 
 {% block head %}
 {{ super() }}
@@ -40,7 +40,7 @@
 <div class="row">
 <table style="font-size: 0.5em" class="table table-sm">
 <thead>
-<th>Time</th><th>Action</th><th>Account</th><th>Target</th><th>Associated Fits</th>
+<th>{{ _('Time') }}</th><th>{{ _('Action') }}</th><th>{{ _('Account') }}</th><th>{{ _('Target') }}</th><th>{{ _('Associated Fits') }}</th>
 </thead>
 {% for hEl in history %}
 	<tr>

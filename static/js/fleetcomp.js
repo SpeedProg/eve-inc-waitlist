@@ -55,7 +55,7 @@ waitlist.fleetcomp = (function() {
 			},
 			'error': function(data) {
 				var message = data.statusText;
-        if (typeof data.responseJSON !== 'undefined'
+				if (typeof data.responseJSON !== 'undefined'
 					&& typeof data.responseJSON.message !== 'undefined') {
 					message += ": " + data.responseJSON.message;
 				}
@@ -118,12 +118,21 @@ waitlist.fleetcomp = (function() {
 				fit_id_str += ",";
 			}
 		});
-		$.post(getMetaData('api-move-entry-to-wls'), {
-			'entryId': entryId,
-			'fitIds': fit_id_str,
-			'_csrf_token': getMetaData('csrf-token')
-		}, function() {
-		}, "text");
+		$.post({
+			'url': getMetaData('api-move-entry-to-wls'),
+			'data': {
+				'entryId': entryId,
+				'fitIds': fit_id_str,
+				'_csrf_token': getMetaData('csrf-token')
+			},
+			'dataType': 'text',
+		})
+		.fail(function(jqXHR, textStatus, errorThrown) {
+			if(jqXHR.status = 404) {
+				// something is wrong we should reload the waitlist!
+				waitlist.listdom.loadWaitlist();
+			}
+		});
 	}
 
 	/**
@@ -151,8 +160,17 @@ waitlist.fleetcomp = (function() {
 				{'_csrf_token': getMetaData('csrf-token')},
 				function() {},
 				"text"
-			);
-			displayMessage("You should view "+ name + "'s fit before accepting it.", "danger");
+			)
+			.fail(function(jqXHR, textStatus, errorThrown) {
+				if(jqXHR.status = 404 || jqXHR.status == 404) {
+					// 409 => fit already on target list
+					// 404 => fit doesn't exist
+					// this fit was already approved so something is wrong
+					// reload the lists
+					waitlist.listdom.loadWaitlist();
+				}
+			});
+			displayMessage($.i18n('wl-warn-checkfit', name), "danger");
 		}
 	}
 
@@ -164,7 +182,7 @@ waitlist.fleetcomp = (function() {
 			moveEntryToWaitlists(wlId, entryId);
 		} else {
 			var name = document.getElementById(`entry-${wlId}-${entryId}`).dataset.username;
-			displayMessage("You should view all of "+ name + "'s fits before accepting them.", "danger");
+			displayMessage($.i18n('wl-warn-checkfits', name), "danger");
 			$.post(getMetaData('api-fail-approve'), 
 				{'_csrf_token': getMetaData('csrf-token')},
 				function() {},
@@ -262,9 +280,9 @@ waitlist.fleetcomp = (function() {
 
 	function onViewfit(event) {
 		const fit = event.currentTarget.offsetParent;
-        if (fit.dataset.viewed !== "y") {
-        	document.getElementById(fit.id).setAttribute("data-viewed", "y");
-        }
+		if (fit.dataset.viewed !== "y") {
+			document.getElementById(fit.id).setAttribute("data-viewed", "y");
+		}
 	}
 
 	function init() {
