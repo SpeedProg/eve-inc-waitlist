@@ -24,7 +24,7 @@
 	"wl-notifiaction-xup-title": "New X-UP",
 	"wl-notifiaction-xup-body": "New X-UP from $1",
 	"wl-no-result-found": "No Results Found",
-	"wl-up-uppercase": "X-UP",
+	"wl-xup-uppercase": "X-UP",
 	"wl-remove-char": "Removed a Character from Waitlists",
 	"wl-send-invite": "Send Invitation to Character",
 	"wl-remove-entry-from-xup": "Removed Entry from X-UPs",
@@ -74,5 +74,8 @@
 	"wl-alt-added": "Alt added",
 	"wl-please-wait": "Please wait...",
 	"wl-add-alt-placehonder": "Enter -> Add, Esc -> Cancel",
-	"wl-account": "Account"
+	"wl-account": "Account",
+	"wl-enable": "Enable",
+	"wl-disable": "Disable",
+	"wl-error-to-many-sse-errors": "Your SSE connection go terminated to often, stopping reconnect. WL will not update anymore."
 }

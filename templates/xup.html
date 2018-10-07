@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}X-UP{{ _('X-UP') }}{% endblock %}
+{% block title %}{{ _('X-UP') }}{% endblock %}
 
 {% block head %}
 {{ super() }}
@@ -13,6 +13,6 @@
 {% if groups|length > 0 %}
 	{% include "xup-form.html" with context %}
 {% else %}
-<p>X-UP is currently closed!{{ _('X-UP is currently closed!') }}</p>
+<p>{{ _('X-UP is currently closed!') }}</p>
 {% endif %}
 {% endblock %}

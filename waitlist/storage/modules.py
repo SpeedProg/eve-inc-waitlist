@@ -24,9 +24,10 @@ dps_ships = {17740: "Vindicator", 24688: "Rokh", 24690: "Hyperion",
              645: "Dominix", 17728: "Megathron Navy Issue", 33820: "Barghest",
              17918: "Rattlesnake", 17738: "Machariel", 17920: "Bhaalgorn",
              24694: "Maelstrom", 32311: "Typhoon Fleet Issue", 17732: "Tempest Fleet Issue",
+             47271: "Leshark"
              }
-t3c_ships = {29990: "Loki"}
+t3c_ships = {29990: "Loki", 29984: "Tengu"}
 
-weapongroups = {'dps': {"Pulse Lasers": None, "Blasters": None, "Missile Launchers": None, "Autocannons": None},
+weapongroups = {'dps': {"Pulse Lasers": None, "Blasters": None, "Missile Launchers": None, "Autocannons": None, 'Entropic Disintegrators': None},
                 'sniper': {"Beam Lasers": None, "Railguns": None, "Artillery Cannons": None}
                 }

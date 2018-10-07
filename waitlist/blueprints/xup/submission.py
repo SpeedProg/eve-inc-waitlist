@@ -7,17 +7,20 @@ import re
 
 from waitlist.blueprints.api.fittings.self import self_remove_fit
 from waitlist.data.names import WaitlistNames
-from waitlist.data.sse import EntryAddedSSE, send_server_sent_event, FitAddedSSE
-from waitlist.storage.database import WaitlistGroup, WaitlistEntry, Shipfit, InvType, FitModule,\
-    MarketGroup, HistoryEntry
-from waitlist.storage.modules import resist_ships, logi_ships, sniper_ships, sniper_weapons, dps_weapons, weapongroups,\
-    dps_ships, t3c_ships
-from waitlist.utility.database_utils import parse_eft
+from waitlist.data.sse import EntryAddedSSE, send_server_sent_event,\
+    FitAddedSSE
+from waitlist.storage.database import WaitlistGroup, WaitlistEntry, Shipfit,\
+    InvType, FitModule, MarketGroup, HistoryEntry
+from waitlist.storage.modules import resist_ships, logi_ships, sniper_ships,\
+    sniper_weapons, dps_weapons, weapongroups, dps_ships, t3c_ships
 from waitlist.utility.history_utils import create_history_object
-from waitlist.utility.utils import get_fit_format, create_mod_map
+from waitlist.utility.fitting_utils import get_fit_format, parse_dna_fitting,\
+    parse_eft
 from waitlist import db
 from . import bp
 from flask_babel import gettext, ngettext
+from typing import Dict, List, Tuple
+from waitlist.utility.constants import location_flags
 
 logger = logging.getLogger(__name__)
 
@@ -37,9 +40,9 @@ def submit():
     _newFits = []
 
     fittings = request.form['fits']
-    logger.info("%s submitted %s", current_user.get_eve_name(), fittings)
+
     group_id = int(request.form['groupID'])
-    logger.info("%s submitted for group %s", current_user.get_eve_name(), group_id)
+    logger.info("%s submitted %s for group %d", current_user.get_eve_name(), fittings, group_id)
     eve_id = current_user.get_eve_id()
 
     group = db.session.query(WaitlistGroup).filter(WaitlistGroup.groupID == group_id).one()
@@ -89,7 +92,7 @@ def submit():
 
         for stype in ship_types:
             fit = Shipfit()
-            fit.ship_type = 1  # #System >.>
+            fit.ship_type = 0  # #System >.>
             fit.wl_type = stype
             fit.modules = ':'
             wl_entry.fittings.append(fit)
@@ -108,7 +111,7 @@ def submit():
                 event = FitAddedSSE(group_id, queue.id, wl_entry.id, fit, True, wl_entry.user)
                 send_server_sent_event(event)
 
-        flash(gettext("You were added as %(ship_type)", ship_type=ship_type),
+        flash(gettext("You were added as %(ship_type)s", ship_type=ship_type),
               "success")
         return redirect(url_for('index') + "?groupId=" + str(group_id))
     # ### END SCRUFFY CODE
@@ -172,24 +175,29 @@ def submit():
         # parse chat links
         lines = fittings.split('\n')
         for line in lines:
-            fit_iter = re.finditer("<url=fitting:(\d+):((?:\d+;\d+:)+:)>", line)
+            fit_iter = re.finditer(
+                "<url=fitting:(\d+):((?:\d+_{0,1};\d+:)+:)>",
+                line)
             for fitMatch in fit_iter:
                 ship_type = int(fitMatch.group(1))
                 dna_fit = fitMatch.group(2)
                 fit = Shipfit()
                 fit.ship_type = ship_type
                 fit.modules = dna_fit
-                mod_map = create_mod_map(dna_fit)
-                for modid in mod_map:
-                    mod = mod_map[modid]
+                mod_list = parse_dna_fitting(dna_fit)
+                for location_flag, mod_map in enumerate(mod_list):
+                    for mod_id in mod_map:
+                        mod = mod_map[mod_id]
 
-                    # lets check the value actually exists
-                    inv_type = db.session.query(InvType).get(mod[0])
-                    if inv_type is None:
-                        raise ValueError('No module with ID=' + str(mod[0]))
+                        # lets check the value actually exists
+                        inv_type = db.session.query(InvType).get(mod[0])
+                        if inv_type is None:
+                            raise ValueError(
+                                'No module with ID=' + str(mod[0]))
 
-                    db_module = FitModule(moduleID=mod[0], amount=mod[1])
-                    fit.moduleslist.append(db_module)
+                        db_module = FitModule(moduleID=mod[0], amount=mod[1],
+                                              locationFlag=location_flag)
+                        fit.moduleslist.append(db_module)
                 fits.append(fit)
 
     fit_count = len(fits)
@@ -242,9 +250,9 @@ def submit():
 
     # split his fits into types for the different waitlist_entries
     for fit in fits:
-        mod_map = dict()
+        mod_list: List[Dict[int, Tuple(int, int)]]
         try:
-            mod_map = create_mod_map(fit.modules)
+            mod_list = parse_dna_fitting(fit.modules)
         except ValueError:
             abort(400, "Invalid module amounts")
         # check that ship is an allowed ship
@@ -265,33 +273,50 @@ def submit():
             continue
 
         # filter out mods that don't exist at least 4 times
-        # this way we avoid checking everything or choosing the wrong weapon on ships that have 7turrents + 1launcher
+        # this way we avoid checking everything or choosing the wrong weapon
+        # on ships that have 7turrents + 1launcher
         possible_weapons = []
-        for mod in mod_map:
-            if mod_map[mod][1] >= 4:
+        high_slot_mod_map = mod_list[location_flags.HIGH_SLOT]
+        for mod in high_slot_mod_map:
+            if high_slot_mod_map[mod][1] >= 4:
                 possible_weapons.append(mod)
+            else:
+                # precursor weapons only use 1 turret
+                inv_type: InvType = db.session.query(InvType).get(mod)
+                if inv_type is None:
+                    continue
+                if inv_type.group.groupName == 'Precursor Weapon':
+                    possible_weapons.append(mod)
 
         weapon_type = "None"
         for weapon in possible_weapons:
+            inv_type: InvType = db.session.query(InvType).get(mod)
+            if inv_type.group.groupName == 'Precursor Weapon':
+                weapon_type = WaitlistNames.dps
+                break
             if weapon in sniper_weapons:
                 weapon_type = WaitlistNames.sniper
                 break
             if weapon in dps_weapons:
                 weapon_type = WaitlistNames.dps
                 break
+            if inv_type.group.groupName in ['Remote Shield Booster',
+                                            'Remote Armor Repairer']:
+                weapon_type = WaitlistNames.logi
+                break
 
         if weapon_type == "None":
             # try to decide by market group
             for weapon in possible_weapons:
-                weapon_db = db.session.query(InvType).filter(InvType.typeID == weapon).first()
+                weapon_db = db.session.query(InvType).get(weapon)
                 if weapon_db is None:
                     continue
-                market_group = db.session.query(MarketGroup).filter(
-                    MarketGroup.marketGroupID == weapon_db.marketGroupID).first()
+                market_group = db.session.query(MarketGroup).get(
+                    weapon_db.marketGroupID)
                 if market_group is None:
                     continue
-                parent_group = db.session.query(MarketGroup).filter(
-                    MarketGroup.marketGroupID == market_group.parentGroupID).first()
+                parent_group = db.session.query(MarketGroup).get(
+                    market_group.parentGroupID)
                 if parent_group is None:
                     continue
 
@@ -308,15 +333,8 @@ def submit():
             fit.wl_type = WaitlistNames.other
             fits_ready.append(fit)
             continue
-
-        # ships with sniper weapons put on sniper wl
-        if weapon_type == WaitlistNames.sniper:
-            fit.wl_type = WaitlistNames.sniper
-            fits_ready.append(fit)
-            continue
-
-        if weapon_type == WaitlistNames.dps:
-            fit.wl_type = WaitlistNames.dps
+        else:
+            fit.wl_type = weapon_type
             fits_ready.append(fit)
             continue
 
@@ -338,7 +356,7 @@ def submit():
     logger.info("%s submitted %s fits to be checked by a fleetcomp", current_user.get_eve_name(), len(fits_ready))
 
     for fit in fits_ready:
-        logger.info("%s submits %s", current_user.get_eve_name(), fit.get_dna())
+        logger.debug("%s submits %s", current_user.get_eve_name(), fit.get_dna())
         wl_entry.fittings.append(fit)
 
     h_entry = create_history_object(current_user.get_eve_id(), HistoryEntry.EVENT_XUP, None, fits_ready)

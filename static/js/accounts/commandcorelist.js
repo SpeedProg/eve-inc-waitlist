@@ -3,6 +3,7 @@ EditableGrid.prototype.initializeGrid = function() {
 };
 
 $(document).ready(function() {
+	var oldFilter = null;
 	let getMetaData = waitlist.base.getMetaData;
 	var canViewProfile = getMetaData('can-view-profile') === "True";
 	var editableGrid = new EditableGrid(
@@ -39,7 +40,10 @@ $(document).ready(function() {
 		editableGrid.initializeGrid();
 		editableGrid.renderGrid();
 		$('#filter').on('keyup', function() {
-			editableGrid.filter($('#filter').val());
+			if (oldFilter != null) editableGrid.removeFilter(oldFilter);
+			oldFilter = new StringFilter($('#filter').val());
+			editableGrid.addFilter(oldFilter);
 		});
+		registerRoleFilterSelect(editableGrid, 'filterRole');
 	});
 });

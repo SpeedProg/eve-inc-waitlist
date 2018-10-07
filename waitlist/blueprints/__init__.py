@@ -18,7 +18,7 @@ from waitlist import app, db
 from waitlist.storage.database import WaitlistGroup, TeamspeakDatum, CalendarEvent, WaitlistEntry, Account, Trivia
 from waitlist.utility.settings import sget_active_ts_id
 
-from flask_babel import _
+from flask_babel import _, lazy_gettext
 from flask.helpers import flash
 
 logger = logging.getLogger(__name__)

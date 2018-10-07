@@ -1,0 +1,5 @@
+<ul class="navbar-nav {{ menu.classes }}">
+{% for item in menu.items %}
+	{{ item.render()|safe }}
+{% endfor %}
+</ul>

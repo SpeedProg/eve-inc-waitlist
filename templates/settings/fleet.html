@@ -6,7 +6,7 @@
 {{ super() }}
 <meta name="api-fleet-remove" content="{{url_for('api_fleet.remove_fleet', fleet_id=-1)}}"/>
 <meta name="api-movetosafety" content="{{url_for('api_fleet.move_fleetmembers_to_safety')}}">
-{% assets filters="cssmin", output="gen/fleetsettings-typeahead.%(version)s.css", "css/typeaheadjs.css", "css/settings-fleet.css" %}
+{% assets filters="csscomp", output="gen/fleetsettings-typeahead.%(version)s.css", "css/typeaheadjs.css", "css/settings-fleet.css" %}
     <link rel="stylesheet" href="{{ ASSET_URL }}">
 {% endassets %}
 {% assets filters="babili", output="gen/fleetsettings.%(version)s.js", "js/fleet-settings.js" %}
@@ -43,7 +43,7 @@
 					<form action="{{url_for('fleetoptions.fleet_status_set', gid=group.groupID)}}" method="post" class="form-inline">
 						<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 						<input type="hidden" name="action" value="change_display_name">
-						{% if perm_manager.get_permission('fleet_custom_status').can() %}
+						{% if perm_manager.get_permission('fleet_custom_display_name_all').can() %}
 						<input title="What is this waiting list for? pvp fleet?" type="text" name="display_name" value="{{group.displayName}}" class="form-control form-control-sm">
 						{% else %}
 						<select autocomplete="off" class="form-control form-control-sm custom-select mr-3" id="displayname-{{group.groupID}}" name="display_name" required>
@@ -75,12 +75,12 @@
 					</select>
 					{% endif %}
 					<div class="custom-control custom-checkbox mr-2">
-						<input type="checkbox" class="custom-control-input" name="xup" id="xup-cbx" {% if group.enabled %}checked{% endif %}>
-						<label for="xup-cbx" class="custom-control-label"> {{ _('X-UP Open') }}</label>
+						<input type="checkbox" class="custom-control-input" name="xup" id="xup-cbx-{{group.groupID}}" {% if group.enabled %}checked{% endif %}>
+						<label for="xup-cbx-{{group.groupID}}" class="custom-control-label"> {{ _('X-UP Open') }}</label>
 					</div>
 					<div class="custom-control custom-checkbox mr-2">
-						<input type="checkbox" class="custom-control-input" name="influence" id="influence-cbx" {% if group.influence %}checked{% endif %}>
-						<label for="influence-cbx" class="custom-control-label"> {{ _('Influence') }}</label>
+						<input type="checkbox" class="custom-control-input" name="influence" id="influence-cbx-{{group.groupID}}" {% if group.influence %}checked{% endif %}>
+						<label for="influence-cbx-{{group.groupID}}" class="custom-control-label"> {{ _('Influence') }}</label>
 					</div>
 					<button type="submit" class="btn btn-sm btn-primary">{{ _('Set') }}</button>
 				</form>
@@ -171,7 +171,7 @@
 			<th scope="row">{{ _('Backseats') }}:</th>
 			<td colspan="2">
 			{% for backseat in group.backseats %}
-				<a href=char:{{backseat.current_char_obj.get_eve_id()}}">{{backseat.current_char_obj.get_eve_name()}}</a>
+				<a href=char:{{backseat.get_eve_id()}}">{{backseat.get_eve_name()}}</a>
 				<form action="{{url_for('fleetoptions.fleet_status_set', gid=group.groupID)}}" method="post" class="form-inline" style="display:inline;">
 				<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 				<input type="hidden" name="action" value="remove-backseat">

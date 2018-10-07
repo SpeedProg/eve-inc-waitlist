@@ -4,11 +4,14 @@ if (!waitlist) {
 	var waitlist = {};
 }
 
+
 waitlist.accounts = (function() {
 	var getMetaData = waitlist.base.getMetaData;
 	var displayMessage = waitlist.base.displayMessage;
 	
 	var sendMail = waitlist.IGBW.sendMail;
+	
+	let grid = null;
 
 	function disableAccount(accountId, onsuccess){
 		var settings = {
@@ -54,11 +57,10 @@ waitlist.accounts = (function() {
 		var source = $(event.currentTarget);
 		var id = Number(source.data('id'));
 		enableAccount(id, function() {
-			const td_status_field_id = "#account-"+id+"-status";
-			const td = $(td_status_field_id);
-			td.text('Active')
+			let accountRow = new AccountRow(id, grid);
+			accountRow.status = 'Active';
 			source.attr("data-type", "acc-disable");
-			source.text("Disable");
+			source.text($.i18n("wl-disable"));
 		});
 	}
 	
@@ -66,11 +68,10 @@ waitlist.accounts = (function() {
 		var source = $(event.currentTarget);
 		var id = Number(source.data('id'));
 		disableAccount(id, function() {
-			const td_status_field_id = "#account-"+id+"-status";
-			const td = $(td_status_field_id);
-			td.text('Deactivated')
+			let accountRow = new AccountRow(id, grid);
+			accountRow.status = 'Deactivated';
 			source.attr("data-type", "acc-enable");
-			source.text("Enable");
+			source.text($.i18n("wl-enable"));
 		});
 	}
 	
@@ -103,26 +104,30 @@ waitlist.accounts = (function() {
 	}
 
 	function editAccount(accountId) {
-		let name = $('#acc-'+accountId+"-name > a").text();
-		let roles_node = document.getElementById('acc-'+accountId+'-roles');
-		let has_new_tag = (roles_node.childNodes.length > 0 && roles_node.childNodes[0].nodeName === "SPAN");
-		let roles = roles_node.textContent;
+		let account_node = document.getElementById(`account-${accountId}`);
+		let account_row = new AccountRow(accountId, grid);
+		let name = account_row.name;		
 		
+		let roles_node = account_node.children[account_row.rolesIdx];
+		let has_new_tag = (roles_node.children.length > 0 && roles_node.children[0].nodeName === "SPAN");
+		let roles = roles_node.textContent;
+		roles = roles.replace(/[\t\n\r]/g, ''); // clean up tabs and newlines
 		// if it has a new tag remove the "New" from the beginning
 		if (has_new_tag){
 			roles = roles.slice(3)
 		}
 		
-		let default_char_name = $('#acc-'+accountId+'-cchar').text();
+		let default_char_name = account_row.defaultCharName;
 		$('#acc-edit-name').val(name);
 		// this is more complicated
 		// $('#acc-edit-roles')
 		roles = roles.split(", ");
+		roles = roles.map(x => x.trim())
 		// map the roles he has to a dict so we can fast and easy check for them
 		// later
 		let has_roles = {};
-		for (let role in roles) {
-			has_roles[roles[role]] = true;
+		for (let idx in roles) {
+			has_roles[roles[idx]] = true;
 		}
 
 		let edit_roles_select = document.getElementById('acc-edit-roles');
@@ -169,7 +174,7 @@ waitlist.accounts = (function() {
 	}
 	
 	function setUpTable() {
-		var editableGrid = new EditableGrid(
+		grid = new EditableGrid(
 			"Accounts",
 			{
 				enableSort: true,
@@ -179,7 +184,7 @@ waitlist.accounts = (function() {
 			$.parseHTML('<i class="fa fa-arrow-down" aria-hidden="true"></i>')[0],
 			$.parseHTML('<i class="fa fa-arrow-up" aria-hidden="true"></i>')[0]);
 
-		editableGrid.load({
+		grid.load({
 			metadata: [
 				{
 					name: 'actions',
@@ -215,13 +220,17 @@ waitlist.accounts = (function() {
 			]
 		});
 
-		editableGrid.attachToHTMLTable('acctable');
-		editableGrid.initializePaginator();
-		editableGrid.initializeGrid();
-		editableGrid.renderGrid();
+		grid.attachToHTMLTable('acctable');
+		grid.initializePaginator();
+		grid.initializeGrid();
+		grid.renderGrid();
+		let oldFilter = null;
 		$('#filter').on('keyup', function() {
-			editableGrid.filter($('#filter').val());
+			if (oldFilter != null) grid.removeFilter(oldFilter);
+			oldFilter = new StringFilter($('#filter').val());
+			grid.addFilter(oldFilter);
 		});
+		registerRoleFilterSelect(grid, 'filterRole');
 	}
 	
 	function init() {

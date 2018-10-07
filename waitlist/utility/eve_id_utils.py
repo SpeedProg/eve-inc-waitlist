@@ -12,6 +12,7 @@ from waitlist.utility.swagger import get_api
 from waitlist.utility.swagger.eve import get_esi_client
 from waitlist.utility.swagger.eve.search import SearchEndpoint, SearchResponse
 from threading import Lock
+from waitlist.utility.outgate.exceptions import ApiException
 
 logger = logging.getLogger(__name__)
 
@@ -112,6 +113,9 @@ def get_character_by_id_and_name(eve_id: int, eve_name: str) -> Character:
 
 
 def get_character_by_id(eve_character_id: int) -> Character:
+    """
+    :throws ApiException if there was a problem contacting the api
+    """
     with character_check_lock:
         character: Character = get_char_from_db(eve_character_id)
         if character is None:
@@ -135,10 +139,13 @@ def is_charid_whitelisted(character_id: int) -> bool:
 
 
 def get_character_by_name(eve_name: str) -> Optional[Character]:
-    eve_info = outgate.character.get_info_by_name(eve_name)
-    if eve_info is None:
+    try:
+        eve_info = outgate.character.get_info_by_name(eve_name)
+        if eve_info is None:
+            return None
+        return get_character_by_id_and_name(eve_info.id, eve_name)
+    except ApiException:
         return None
-    return get_character_by_id_and_name(eve_info.id, eve_name)
 
 
 def is_char_banned(char: Character) -> Tuple[bool, str]:
@@ -167,6 +174,10 @@ def is_char_banned(char: Character) -> Tuple[bool, str]:
         if alli_banned:
             return True, "Alliance"
         
+        return False, ""
+    except ApiException as e:
+        logger.info("Failed to check if %d was banned, because of Api error, code=%d msg=%s",
+                    char.get_eve_id(), e.code, e.msg)
         return False, ""
     except Exception:
         logger.error("Failed to check if %d was banned", char.get_eve_id(), exc_info=1)

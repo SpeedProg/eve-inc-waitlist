@@ -1,0 +1,7 @@
+{% if customhtml %}
+	{{ customhtml|safe }}
+{% else %}
+	<a class="dropdown-item" href="{% if item.url_for %}{{url_for(item.url)}}{% else %}{{item.url}}{% endif %}">
+	{% if item.iconclass %}<i class="{{item.iconclass}}"></i> {% endif %}{{item.title}}
+	</a>
+{% endif %}

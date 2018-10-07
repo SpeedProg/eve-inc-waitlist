@@ -6,19 +6,7 @@ var eveui_imageserver = function(image_ref) {
 	return eve_image(encodeURI(image_ref), 'png');
 };
 // fix for getting names for modules from ccp api that are in the users browser language
-{
-	let lang_code = document.getElementById('lang-code').getAttribute('content');
-	
-	// esi only knows en_us (maybe it accepts en_* too but lets better be sure
-	if (lang_code.startsWith('en_') || lang_code == 'en') {
-		lang_code = 'en_us';
-	}
-
-	$.ajaxSetup({
-		beforeSend: function(xhr, settings) {
-			if (settings.url.includes('/universe/types/')) {
-				xhr.setRequestHeader('Accept-Language', lang_code);
-			}
-		}
-	});
+eveui_accept_language = document.getElementById('lang-code').getAttribute('content');
+if (eveui_accept_language.startsWith('en_') || eveui_accept_language == 'en') {
+	eveui_accept_language = 'en_us';
 }

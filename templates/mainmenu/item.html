@@ -1,0 +1,7 @@
+<li class="nav-item">
+	{% if customhtml %}
+		{{ customhtml|safe }}
+	{% else %}
+		<a class="nav-link {{item.classes}}" href="{% if item.url_for %}{{url_for(item.url)}}{% else %}{{item.url}}{% endif %}">{% if item.iconclass %}<i class="{{item.iconclass}}"></i> {% endif %}{{ item.title }}</a>
+	{% endif %}
+</li>
