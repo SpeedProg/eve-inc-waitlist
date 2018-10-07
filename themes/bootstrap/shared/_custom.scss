@@ -1,0 +1,25 @@
+.wl_base .error {
+  color: $warning !important;
+}
+
+.eveui_window {
+  background: $body-bg !important;
+  color: $body-color !important;
+}
+
+.eveui_title {
+  background: $body-bg !important;
+  color: $body-color !important;
+}
+
+#wl_hover table {
+	background: $body-bg !important;
+	color: $body-color !important;
+}
+
+input[type="button" i]:disabled, input[type="submit" i]:disabled,
+input[type="reset" i]:disabled, input[type="file" i]:disabled,
+button:disabled, optgroup:disabled,
+option:disabled, select[disabled] > option {
+	color: inherit;
+}

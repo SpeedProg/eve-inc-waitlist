@@ -41,7 +41,7 @@
 {% assets filters="babili", output="gen/base.%(version)s.js", "js/swagger-client.min.js", "js/base.js" %}
 <script type="text/javascript" src="{{ ASSET_URL }}"></script>
 {% endassets %}
-{% assets filters="cssmin", output="gen/setup.%(version)s.css", "css/base.css", "css/waitlist.css", "css/font.css" %}
+{% assets filters="csscomp", output="gen/setup.%(version)s.css", "css/base.css", "css/waitlist.css", "css/font.css" %}
 <link rel="stylesheet" href="{{ ASSET_URL }}">
 {% endassets %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js" integrity="sha384-cs/chFZiN24E4KMATLdqdvsezGxaGsi4hLGOzlXwp5UZB1LY//20VyM2taTB4QvJ" crossorigin="anonymous"></script>
@@ -55,75 +55,16 @@
 <script type="text/javascript">
 	$(function () {
 		if (!window.EventSource) {
-			waitlist.base.displayMessage('{{_('We have had to disable <strong>features</strong> please consider upgrading your<a href="http://caniuse.com/#feat=eventsource"> browser</a>')}}', 'danger', true);
+			waitlist.base.displayMessage('{{_('We have had to disable <strong>features</strong> please consider'
+				' upgrading your<a href="http://caniuse.com/#feat=eventsource"> browser</a>') }}', 'danger', true);
 		}
 	});
 </script>
 </head>
 <body>
-	<nav class="navbar navbar-expand-md">
 	{% block menu %}
-		<a class="navbar-brand" href="/#">{{ title }}</a>
-		<button class="navbar-toggler navbar-toggler-right my-1" type="button" data-toggle="collapse" data-target="#mainNavbar" aria-label="{{ _('Toggle navigation') }}">
-			&#9776;
-		</button>
-		<div class="collapse navbar-collapse" id="mainNavbar">
-			<ul class="navbar-nav justify-content-start mr-auto">
-				<li class="nav-item">
-					<a class="nav-link bg-success" href="{{url_for('xup.index')}}"><i class="fa-user-plus"></i> {{_('X-UP')}}</a>
-				</li>
-
-				<li class="nav-item dropdown">
-					<a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false"><i class="fa-wrench"></i> {{ _('Tools') }}</a>
-					<div class="dropdown-menu">
-						<a class="dropdown-item" href="{{url_for('notification.alarm_idx')}}"><i class="fa-bell-o"></i> {{_('Custom Notifications')}}</a>
-						<div class="dropdown-divider"></div>
-						{% if perm_manager.get_permission('commandcore').can() %}
-							{% if perm_manager.get_permission('fleet_management').can() %}
-							<a class="dropdown-item" href="{{url_for('fleet_reform.index')}}"><i class="fa-undo"></i> {{_('Reform')}}</a>
-							{% endif %}
-							{% if perm_manager.get_permission('comphistory_view').can() %}
-							<a class="dropdown-item" href="{{url_for('fittings.history_default')}}"><i class="fa-history"></i> {{_('Comp History')}}</a>
-							{% endif %}
-							<a class="dropdown-item" href="{{url_for('accounts_cc.accounts')}}"><i class="fa-list"></i> {{_('Command Core List')}}</a>
-							{% if perm_manager.get_permission('comphistory_search').can() %}
-							<div class="dropdown-divider"></div>
-							<a class="dropdown-item" href="{{url_for('comp_history_search.index')}}"><i class="fa-search"></i> {{_('Comp History Search')}}</a>
-							{% endif %}
-						{% endif %}
-					</div>
-				</li>
-				<li class="nav-item">
-					<a class="nav-link" href="{{url_for('site_help')}}"><i class="fa-question-circle-o"></i> {{_('Help')}}</a>
-				</li>
-
-			</ul>
-			<ul class="navbar-nav justify-content-end">
-				<li class="nav-item">
-					<select autocomplete="off" class="custom-select mt-1" id="lang-select">
-						<option value="de"{% if lang_code == "de" %} selected{% endif %}>Deutsch</option>
-						<option value="en"{% if lang_code == "en" %} selected{% endif %}>English</option>
-					</select>
-				</li>
-				{% if current_user.is_authenticated %}
-				<div class="dropdown ml-3">
-					<button class="btn btn-primary dropdown-toggle btn-sm" type="button" id="mainDropdownMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-						{% if current_user.get_eve_id() is not none %}<img class="profile-img-32" src="{{eve_image('Character/'+(current_user.get_eve_id()|string)+'_32', 'jpg')}}"> {% endif %}
-					</button>
-
-					<div class="dropdown-menu dropdown-menu-right">
-						{% if perm_manager.get_permission('settings_access').can() %}
-						<a class="dropdown-item" href="{{url_for('settings_overview.overview')}}"><i class="fa-cog"></i> {{_('Settings')}}</a>
-						{% endif %}
-						<a class="dropdown-item" href="{{url_for('logout')}}"><i class="fa-sign-out"></i> {{ _('Logout') }}</a>
-						<a class="dropdown-item" href="{{ url_for('about') }}"><i class="fa-info-circle"></i> {{_('About')}}</a>
-					</div>
-				</div>
-				{% endif %}
-			</ul>
-		</div>
+	{{ main_nav.render()|safe }}
 	{% endblock %}
-	</nav>
 	{%  block alert_base %}
 	<div id="alert-area-base">
 	{% with messages = get_flashed_messages(with_categories=true) %}

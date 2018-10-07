@@ -4,7 +4,7 @@ EditableGrid.prototype.updatePaginator = function() {
 	// get interval
 	var interval = this.getSlidingPageInterval(this.maxBars);
 	if (interval === null){
-		return;
+		interval = {startPageIndex: 0, endPageIndex: 0};
 	}
 
 	// get pages in interval (with links except for the current page)

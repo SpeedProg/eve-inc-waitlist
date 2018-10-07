@@ -1,6 +1,8 @@
 from typing import Callable, Tuple, List
 
 from waitlist import app
+from flask_babel import lazy_gettext
+from flask.helpers import url_for
 
 __settings_menu: List[Tuple[str, str, Callable[[], bool]]] = []
 

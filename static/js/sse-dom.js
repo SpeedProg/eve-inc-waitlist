@@ -83,6 +83,10 @@ waitlist.sse_dom = (function () {
 			});
 		}
 	}
+	
+	function reloadListener(event) {
+		window.location.reload(true);
+	}
 
 	sse.addEventListener("fit-added", fitAddedListener);
 	sse.addEventListener("fit-removed", fitRemovedListener);
@@ -93,6 +97,8 @@ waitlist.sse_dom = (function () {
 	sse.addEventListener("invite-missed", missedInviteListener);
 
 	sse.addEventListener("status-changed", statusChangedListener);
+	
+	sse.addEventListener("reload", reloadListener);
 
 	function init() {
 		settings.can_manage = getMetaData('can-fleetcomp') === "True";

@@ -42,8 +42,8 @@ waitlist.fsettings = (function() {
 					clearWaitlist(gid);
 				});
 				
-				$("#remove-diag-body").text('wl-clear-list-warning-body');
-				$("#remove-diag-label").text('wl-clear-list-warning-label');
+				$("#remove-diag-body").text($.i18n('wl-clear-list-warning-body'));
+				$("#remove-diag-label").text($.i18n('wl-clear-list-warning-label'));
 			}
 		});
 	}

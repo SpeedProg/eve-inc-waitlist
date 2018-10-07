@@ -18,7 +18,6 @@ def locale_put_v1() -> Response:
     file: locale_put_v1.yml
     """
     locale_string = request.data.decode('utf-8')
-    print(locale_string)
     try:
         Locale.parse(locale_string)
     except (ValueError, UnknownLocaleError):

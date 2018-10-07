@@ -190,6 +190,15 @@ def fleet_status_set(gid: int) -> Response:
                   "danger")
             return redirect(url_for(".fleet"), code=303)
 
+        # check if an other list already has this name
+        if db.session.query(
+            db.session.query(WaitlistGroup).filter(
+                WaitlistGroup.displayName == display_name).exists()).scalar():
+            flash(
+                gettext("There can be no duplicate names for waitlists."),
+                "danger")
+            return redirect(url_for(".fleet"), code=303)
+
         # we checked that we are allowed to do this, let do it and logg it
         group.displayName = display_name
         logging.info(f"{current_user.username} set the displayName of group with id={group.groupID} to {display_name}")
@@ -297,7 +306,7 @@ def fleet_location_set(gid):
         else:
             group.dockup = get_station(name)
             logger.info("%s Dock was set to %s by %s", group.displayName, name, current_user.username)
-            flash(gettext("%(group_name) Dock was set to %(name)",
+            flash(gettext("%(group_name)s Dock was set to %(name)s",
                           group_name=group.displayName, name=name), "success")
 
     db.session.commit()

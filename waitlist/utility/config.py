@@ -4,6 +4,7 @@ from os import makedirs
 from configparser import ConfigParser
 
 from waitlist.data import version
+from typing import Any, Tuple, List
 
 
 def set_if_not_exists(self, section, option, value):
@@ -21,7 +22,7 @@ else:
     # make sure the directory exists
     if not os.path.isdir(os.path.join(".", "config")):
         makedirs(os.path.join(".", "config"))
-    
+
 # database section
 if not config.has_section("database"):
     config.add_section("database")
@@ -38,13 +39,6 @@ config.set_if_not_exists("app", "community_name", "IncWaitlist")
 config.set_if_not_exists("app", "user_agent", "Bruce Warhead: Eve Incursion Waitlist")
 config.set_if_not_exists("app", "domain", "localhost")
 config.set_if_not_exists("app", "using_proxy", "False")
-
-if not config.has_section("logging"):
-    config.add_section("logging")
-config.set_if_not_exists("logging", "error_file", "/var/log/pywaitlist/error.log")
-config.set_if_not_exists("logging", "info_file", "/var/log/pywaitlist/info.log")
-config.set_if_not_exists("logging", "access_file", "/var/log/pywaitlist/access.log")
-config.set_if_not_exists("logging", "debug_file", "/var/log/pywaitlist/debug.log")
 
 if not config.has_section("crest"):
     config.add_section("crest")
@@ -122,10 +116,6 @@ sqlalchemy_pool_recycle = config.getint("database", "sqlalchemy_pool_recycle")
 secret_key = base64.b64decode(config.get("app", "secret_key"))
 server_port = config.getint("app", "server_port")
 server_bind = config.get("app", "server_bind")
-error_log = config.get("logging", "error_file")
-info_log = config.get("logging", "info_file")
-access_log = config.get("logging", "access_file")
-debug_log = config.get("logging", "debug_file")
 
 crest_client_id = config.get("crest", "client_id")
 crest_client_secret = config.get("crest", "client_secret")
@@ -154,3 +144,49 @@ using_proxy = config.get("app", "using_proxy") == "True"
 
 overview_show_count_for_approvals = config.get("overview", "show_count_for_approvals") == "True"
 
+
+"""
+The following content is for reading menus
+"""
+
+# lets try to load the user menu config first
+menu_user_config_path = os.path.join('.', 'config', 'menu.user.cfg')
+menu_base_config_path = os.path.join('.', 'config', 'menu.base.cfg')
+
+user_config = ConfigParser()
+if not os.path.isfile(menu_user_config_path):
+    user_config['settings'] = {}
+    user_config['settings']['load_base'] = "True"
+    with open(menu_user_config_path, 'w') as cfgfp:
+        user_config.write(cfgfp)
+else:
+    user_config.read(menu_user_config_path)
+
+# lets figure out if we should load base cfg
+should_load_base = user_config['settings']['load_base'] == "True"
+
+base_config = None
+if should_load_base:
+    if os.path.isfile(menu_base_config_path):
+        base_config = ConfigParser()
+        base_config.read(menu_base_config_path)
+
+
+def is_menu_section(section_name):
+    return section_name.startswith('menu::')
+
+
+menu_adds: List[Tuple[str, Any]] = []
+
+# load base first
+if base_config:
+    for section_name in base_config.sections():
+        if is_menu_section(section_name):
+            section = base_config[section_name]
+            menu_adds.append((section_name, section))
+
+# now load user config
+for section_name in user_config.sections():
+    if is_menu_section(section_name):
+        section = user_config[section_name]
+        menu_adds.append((section_name, section))

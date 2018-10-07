@@ -8,6 +8,57 @@ let swa_client = SwaggerClient(
 	}
 );
 
+class AccountRow {
+	constructor(accountId, grid) {
+		this.accountId = accountId;
+		this.id = `account-${accountId}`
+		this.element = document.getElementById(this.id);
+		this.grid = grid;
+	}
+	
+	set status(value) {
+		this.setColumn('status', value)
+		this.grid.refreshGrid();
+	}
+	
+	get name() {
+		return this.getColumn('account-name');
+	}
+	
+	get defaultCharName() {
+		return this.getColumn('current-character');
+	}
+	
+	get rolesIdx() {
+		return this.getColumnIdx('roles');
+	}
+	
+	getColumnIdx(name) {
+		return this.grid.getColumnIndex(name);
+
+	}
+	
+	getColumn(name) {
+		let data = this.grid.dataUnfiltered != null ? this.grid.dataUnfiltered : this.grid.data;
+		// find the data row
+		let rowdata = data.find(e => e.id == this.id);
+		console.log("Get columnIdex for "+name);
+		console.log(rowdata);
+		console.log(this.grid);
+		let columnIndex = this.grid.getColumnIndex(name);
+		console.log('Got idx '+columnIndex+' for '+name);
+		return rowdata.columns[columnIndex];
+	}
+	
+	setColumn(name, value) {
+		let griddata = this.grid.dataUnfiltered != null ? this.grid.dataUnfiltered : this.grid.data;
+		// find the data row
+		let rowdata = griddata.find(e => e.id == this.id);
+		let columIndex = this.grid.getColumnIndex(name);
+		rowdata.columns[columnIndex] = value;
+	}
+}
+
 class AltEntry {
 	constructor(account_id, character_id, character_name, can_change_link) {
 		if (account_id instanceof HTMLElement) {

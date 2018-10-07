@@ -33,7 +33,7 @@
 		<td id="fb-{{fb.id}}-time">{{ fb.time }}</td>
 		<td id="fb-{{fb.id}}-name">{{ fb.character.eve_name }}</td>
 		<td id="fb-{{fb.id}}-title">{{ fb.title }}</td>
-		<td id="fb-{{fb.id}}-message">{{ fb.message }}</td>
+		<td id="fb-{{fb.id}}-message">{% autoescape false %}{{ fb.message|e|replace('\n', '<br>') }}{% endautoescape %}</td>
 	</tr>
 	{% endfor %}
 </tbody>

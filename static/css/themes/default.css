@@ -8996,3 +8996,10 @@ a.text-dark:hover, a.text-dark:focus {
   background: #fff !important;
   color: #212529 !important;
 }
+
+input[type="button" i]:disabled, input[type="submit" i]:disabled,
+input[type="reset" i]:disabled, input[type="file" i]:disabled,
+button:disabled, optgroup:disabled,
+option:disabled, select[disabled] > option {
+  color: inherit;
+}

@@ -27,10 +27,15 @@ from waitlist.utility.assets import register_asset_bundles
 from flask_babel import Babel
 from waitlist.utility.webassets.filter.json import JsonMinFilter
 from waitlist.utility.i18n.locale import get_locale, get_langcode_from_locale
+from waitlist.utility.webassets.filter.cssoptimizer import CSSOptimizerFilter
 
 app = Flask(import_name=__name__, static_url_path="/static",
             static_folder="../static", template_folder=path.join("..", "templates"))
 app.secret_key = config.secret_key
+
+# set jinja2 options
+app.jinja_env.lstrip_blocks = True
+app.jinja_env.trim_blocks = True
 
 # flask config
 app.config['SESSION_TYPE'] = 'filesystem'
@@ -99,10 +104,11 @@ HTMLMIN(app)
 assets = Environment(app)
 register_filter(BabiliFilter)
 register_filter(JsonMinFilter)
+register_filter(CSSOptimizerFilter)
 register_asset_bundles(assets)
 
 
-class MiniJSONEncoder(JSONEncoder):
+class MiniJSONEncoder(LazyJSONEncoder):
     """Minify JSON output."""
     item_separator = ','
     key_separator = ':'
@@ -111,7 +117,7 @@ class MiniJSONEncoder(JSONEncoder):
         if isinstance(obj, datetime):
             return obj.isoformat()+"Z"
         # Let the base class default method raise the TypeError
-        return LazyJSONEncoder.default(self, obj)
+        return super(MiniJSONEncoder, self).default(obj)
 
 
 app.json_encoder = MiniJSONEncoder
@@ -134,8 +140,7 @@ app.config['SWAGGER'] = {
             'route': '/spec/v1/swagger.json',
             # rule_filter is optional
             # it is a callable to filter the views to extract
-            'rule_filter': lambda rule: (print(rule.endpoint) or
-                                         '_v1' in rule.endpoint),
+            'rule_filter': lambda rule: ('_v1' in rule.endpoint),
             # definition_filter is optional
             # it is a callable to filter the definition models to include
             'definition_filter': lambda definition: (
@@ -153,12 +158,10 @@ template = {
 
 swag = Swagger(app, template=template)
 
-app.config['LANGUAGES'] = ['en', 'de']#
-app.config['BABEL_TRANSLATION_DIRECTORIES'] = 'F:/source/eclipseworkspaces/python/WTMWaitlistF/translations'
+app.config['LANGUAGES'] = ['en', 'de']
+app.config['BABEL_TRANSLATION_DIRECTORIES'] = '../translations'
 
 babel = Babel(app)
-
-print(babel.list_translations())
 
 
 @babel.localeselector

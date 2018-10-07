@@ -12,8 +12,8 @@ waitlist.ticketsettings = (function() {
 
 	function getTicketElement(ticketId) {
 		var el = {
-		    id: ticketId,
-		    jqE: $('#fb-' + ticketId)
+			id: ticketId,
+			jqE: $('#fb-' + ticketId)
 		};
 		el.getTitle = function() {
 			return $(":nth-child(4)", this.jqE).text();
@@ -34,12 +34,12 @@ waitlist.ticketsettings = (function() {
 
 	function sendTicketMail(ticketId) {
 		var ticketElement = getTicketElement(ticketId);
-		var title = ticketElement.getTitle();
+		let title = ticketElement.getTitle();
 		var message = ticketElement.getMessage();
 		var charID = ticketElement.getCharacterId();
 		var charName = ticketElement.getCharacterName();
-		let title = $("<div>").text(title).html();
-		let message = $("<div>").text(message).html();
+		title = $("<div>").text(title).html();
+		message = $("<div>").text(message).html();
 		openMailToCharacter(
 			charID,
 			$.i18n('wl-fbmail-topic'),
@@ -52,28 +52,28 @@ waitlist.ticketsettings = (function() {
 		// "alliance|character|corporation|mailing_list"}]
 		sendMail([
 			{
-			    "recipient_id": charId,
-			    "recipient_type": "character"
+				"recipient_id": charId,
+				"recipient_type": "character"
 			}
 		], subject, body);
 	}
 
 	function changeTicketStatus(ticketID, ticketStatus, successFunc) {
 		$.post({
-		    'url': '/feedback/settings',
-		    'data': {
-		        '_csrf_token': getMetaData('csrf-token'),
-		        'ticketID': ticketID,
-		        'ticketStatus': ticketStatus
-		    },
-		    'error': function(data) {
-			    var message = data.statusText;
-			    if (typeof data.responseText !== 'undefined') {
-				    message += ": " + data.responseText;
-			    }
-			    displayMessage(message, "danger");
-		    },
-		    'success': successFunc
+			'url': '/feedback/settings',
+			'data': {
+				'_csrf_token': getMetaData('csrf-token'),
+				'ticketID': ticketID,
+				'ticketStatus': ticketStatus
+			},
+			'error': function(data) {
+				var message = data.statusText;
+				if (typeof data.responseText !== 'undefined') {
+					message += ": " + data.responseText;
+				}
+				displayMessage(message, "danger");
+			},
+			'success': successFunc
 		});
 	}
 
@@ -94,10 +94,10 @@ waitlist.ticketsettings = (function() {
 
 	function init() {
 		$('#ticket-table-body').on('click', '[data-action="sendTicketMail"]',
-		    sendMailClickedHandler);
+			sendMailClickedHandler);
 		$('#ticket-table-body').on('click',
-		    '[data-action="changeTicketStatus"]',
-		    changeTicketStatusClickedHandler);
+			'[data-action="changeTicketStatus"]',
+			changeTicketStatusClickedHandler);
 	}
 
 	$(document).ready(init);

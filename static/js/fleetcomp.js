@@ -118,12 +118,21 @@ waitlist.fleetcomp = (function() {
 				fit_id_str += ",";
 			}
 		});
-		$.post(getMetaData('api-move-entry-to-wls'), {
-			'entryId': entryId,
-			'fitIds': fit_id_str,
-			'_csrf_token': getMetaData('csrf-token')
-		}, function() {
-		}, "text");
+		$.post({
+			'url': getMetaData('api-move-entry-to-wls'),
+			'data': {
+				'entryId': entryId,
+				'fitIds': fit_id_str,
+				'_csrf_token': getMetaData('csrf-token')
+			},
+			'dataType': 'text',
+		})
+		.fail(function(jqXHR, textStatus, errorThrown) {
+			if(jqXHR.status = 404) {
+				// something is wrong we should reload the waitlist!
+				waitlist.listdom.loadWaitlist();
+			}
+		});
 	}
 
 	/**
@@ -151,7 +160,16 @@ waitlist.fleetcomp = (function() {
 				{'_csrf_token': getMetaData('csrf-token')},
 				function() {},
 				"text"
-			);
+			)
+			.fail(function(jqXHR, textStatus, errorThrown) {
+				if(jqXHR.status = 404 || jqXHR.status == 404) {
+					// 409 => fit already on target list
+					// 404 => fit doesn't exist
+					// this fit was already approved so something is wrong
+					// reload the lists
+					waitlist.listdom.loadWaitlist();
+				}
+			});
 			displayMessage($.i18n('wl-warn-checkfit', name), "danger");
 		}
 	}

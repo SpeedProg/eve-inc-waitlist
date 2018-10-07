@@ -15,7 +15,8 @@ from waitlist.permissions import perm_manager
 from waitlist.storage.database import Ban, Whitelist, Character
 from waitlist.utility.eve_id_utils import get_character_by_name
 from waitlist.utility.utils import get_info_from_ban
-from flask_babel import lazy_gettext
+from flask_babel import lazy_gettext, gettext
+from waitlist.utility.outgate.exceptions import ApiException
 
 bp = Blueprint('bans', __name__)
 logger = logging.getLogger(__name__)
@@ -50,57 +51,119 @@ def bans_change():
 
     targets = target.split("\n")
 
-    # pre-cache names for a faster api to not hit request limit
-    names_to_cache = []
-    for line in targets:
-        line = line.strip()
-        ban_name, _, ban_admin = get_info_from_ban(line)
-        names_to_cache.append(ban_name)
-        if ban_admin is not None:
-            names_to_cache.append(ban_admin)
+    try:
+        # pre-cache names for a faster api to not hit request limit
+        names_to_cache = []
+        for line in targets:
+            line = line.strip()
+            ban_name, _, ban_admin = get_info_from_ban(line)
+            names_to_cache.append(ban_name)
+            if ban_admin is not None:
+                names_to_cache.append(ban_admin)
 
-    if action == "ban":
-        for target in targets:
-            target = target.strip()
+        if action == "ban":
+            for target in targets:
+                target = target.strip()
 
-            ban_name, ban_reason, ban_admin = get_info_from_ban(target)
+                ban_name, ban_reason, ban_admin = get_info_from_ban(target)
 
-            if ban_reason is None:
-                ban_reason = reason
+                if ban_reason is None:
+                    ban_reason = reason
 
-            if ban_admin is None:
-                ban_admin = current_user.get_eve_name()
+                if ban_admin is None:
+                    ban_admin = current_user.get_eve_name()
 
-            logger.info("Banning %s for %s by %s as %s.", ban_name, ban_reason, ban_admin, current_user.username)
-            ban_id = outgate.character.get_char_corp_all_id_by_name(ban_name)
+                logger.info("Banning %s for %s by %s as %s.", ban_name, ban_reason, ban_admin, current_user.username)
+                ban_id = outgate.character.get_char_corp_all_id_by_name(ban_name)
+                admin_char = get_character_by_name(ban_admin)
+                if ban_id is None:
+                    logger.error("Did not find ban target %s", ban_name)
+                    flash(gettext("Could not find Character %(ban_name)s",
+                                  ban_name=ban_name), "danger")
+                    continue
+
+                admin_id = admin_char.get_eve_id()
+
+                if ban_id is None or admin_id is None:
+                    logger.error("Failed to correctly parse: %", target)
+                    flash(gettext("Failed to correctly parse %(target)s",
+                                  target=target), "danger")
+                    continue
+
+                # check if ban already there
+                if db.session.query(Ban).filter(Ban.id == ban_id).count() == 0:
+                    # ban him
+                    new_ban = Ban()
+                    new_ban.id = ban_id
+                    new_ban.name = ban_name
+                    new_ban.reason = ban_reason
+                    new_ban.admin = admin_id
+                    db.session.add(new_ban)
+                    db.session.commit()
+        elif action == "unban":
+            for target in targets:
+                target = target.strip()
+                logger.info("%s is unbanning %s", current_user.username, target)
+                eve_id = outgate.character.get_char_corp_all_id_by_name(target)
+                if eve_id is None:
+                    flash(gettext("Character/Corp/Alliance %(target)s does not exist!", target=target), 'danger')
+                else:
+                    # check that there is a ban
+                    if db.session.query(Ban).filter(Ban.id == eve_id).count() > 0:
+                        db.session.query(Ban).filter(Ban.id == eve_id).delete()
+                        db.session.commit()
+    except ApiException as e:
+        flash(gettext("Could not execute action, ApiException %(ex)s", ex=e),
+              'danger')
+
+    return redirect(url_for(".bans"))
+
+
+@bp.route("/bans_change_single", methods=["POST"])
+@login_required
+@perm_manager.require('bans_edit')
+def bans_change_single():
+    try:
+        action = request.form['change']  # ban, unban
+        target = request.form['target']  # name of target
+    
+        target = target.strip()
+    
+        ban_admin = current_user.get_eve_name()
+        ban_name = target
+    
+        if action == "ban":
+            reason = request.form['reason']  # reason for ban
+            ban_char = get_character_by_name(ban_name)
             admin_char = get_character_by_name(ban_admin)
-            if ban_id is None:
+            logger.info("Banning %s for %s as %s.", ban_name, reason, current_user.username)
+            if ban_char is None:
                 logger.error("Did not find ban target %s", ban_name)
-                flash(gettext("Could not find Character %(ban_name)s",
-                              ban_name=ban_name), "danger")
-                continue
-
+                flash(gettext("Could not find Character %(name)s", name=ban_name),
+                      "danger")
+                return
+    
+            eve_id = ban_char.get_eve_id()
             admin_id = admin_char.get_eve_id()
-
-            if ban_id is None or admin_id is None:
+    
+            if eve_id is None or admin_id is None:
                 logger.error("Failed to correctly parse: %", target)
                 flash(gettext("Failed to correctly parse %(target)s",
-                              target=target), "danger")
-                continue
-
+                              target=target),
+                      "danger")
+                return
+    
             # check if ban already there
-            if db.session.query(Ban).filter(Ban.id == ban_id).count() == 0:
+            if db.session.query(Ban).filter(Ban.id == eve_id).count() == 0:
                 # ban him
                 new_ban = Ban()
-                new_ban.id = ban_id
+                new_ban.id = eve_id
                 new_ban.name = ban_name
-                new_ban.reason = ban_reason
+                new_ban.reason = reason
                 new_ban.admin = admin_id
                 db.session.add(new_ban)
                 db.session.commit()
-    elif action == "unban":
-        for target in targets:
-            target = target.strip()
+        elif action == "unban":
             logger.info("%s is unbanning %s", current_user.username, target)
             eve_id = outgate.character.get_char_corp_all_id_by_name(target)
             if eve_id is None:
@@ -110,63 +173,9 @@ def bans_change():
                 if db.session.query(Ban).filter(Ban.id == eve_id).count() > 0:
                     db.session.query(Ban).filter(Ban.id == eve_id).delete()
                     db.session.commit()
-
-    return redirect(url_for(".bans"))
-
-
-@bp.route("/bans_change_single", methods=["POST"])
-@login_required
-@perm_manager.require('bans_edit')
-def bans_change_single():
-    action = request.form['change']  # ban, unban
-    target = request.form['target']  # name of target
-
-    target = target.strip()
-
-    ban_admin = current_user.get_eve_name()
-    ban_name = target
-
-    if action == "ban":
-        reason = request.form['reason']  # reason for ban
-        ban_char = get_character_by_name(ban_name)
-        admin_char = get_character_by_name(ban_admin)
-        logger.info("Banning %s for %s as %s.", ban_name, reason, current_user.username)
-        if ban_char is None:
-            logger.error("Did not find ban target %s", ban_name)
-            flash(gettext("Could not find Character %(name)s", name=ban_name),
-                  "danger")
-            return
-
-        eve_id = ban_char.get_eve_id()
-        admin_id = admin_char.get_eve_id()
-
-        if eve_id is None or admin_id is None:
-            logger.error("Failed to correctly parse: %", target)
-            flash(gettext("Failed to correctly parse %(target)s",
-                          target=target),
-                  "danger")
-            return
-
-        # check if ban already there
-        if db.session.query(Ban).filter(Ban.id == eve_id).count() == 0:
-            # ban him
-            new_ban = Ban()
-            new_ban.id = eve_id
-            new_ban.name = ban_name
-            new_ban.reason = reason
-            new_ban.admin = admin_id
-            db.session.add(new_ban)
-            db.session.commit()
-    elif action == "unban":
-        logger.info("%s is unbanning %s", current_user.username, target)
-        eve_id = outgate.character.get_char_corp_all_id_by_name(target)
-        if eve_id is None:
-            flash(gettext("Character/Corp/Alliance %(target)s does not exist!", target=target), 'danger')
-        else:
-            # check that there is a ban
-            if db.session.query(Ban).filter(Ban.id == eve_id).count() > 0:
-                db.session.query(Ban).filter(Ban.id == eve_id).delete()
-                db.session.commit()
+    except ApiException as e:
+        flash(gettext("Could not execute action, ApiException %(ex)s", ex=e),
+              'danger')
 
     return redirect(url_for(".bans"))
 
@@ -178,15 +187,19 @@ def bans_unban_single():
     target = request.form['target']  # name of target
     target = target.strip()
     logger.info("%s is unbanning %s", current_user.username, target)
-    eve_id = outgate.character.get_char_corp_all_id_by_name(target)
-    if eve_id is None:
-        flash(gettext("Character/Corp/Alliance %(target)s does not exist!",
-                      target=target), 'danger')
-    else:
-        # check that there is a ban
-        if db.session.query(Ban).filter(Ban.id == eve_id).count() > 0:
-            db.session.query(Ban).filter(Ban.id == eve_id).delete()
-            db.session.commit()
+    try:
+        eve_id = outgate.character.get_char_corp_all_id_by_name(target)
+        if eve_id is None:
+            flash(gettext("Character/Corp/Alliance %(target)s does not exist!",
+                          target=target), 'danger')
+        else:
+            # check that there is a ban
+            if db.session.query(Ban).filter(Ban.id == eve_id).count() > 0:
+                db.session.query(Ban).filter(Ban.id == eve_id).delete()
+                db.session.commit()
+    except ApiException as e:
+        flash(gettext("Could not execute action, ApiException %(ex)s", ex=e),
+              'danger')
 
     return redirect(url_for(".bans"))
 
@@ -221,13 +234,17 @@ def whitelist_change():
         if wl_admin is not None:
             names_to_cache.append(wl_admin)
 
-    if action == "whitelist":
-        for target in targets:
-            whitelist_by_name(target, reason)
+    try:
+        if action == "whitelist":
+            for target in targets:
+                whitelist_by_name(target, reason)
 
-    elif action == "unwhitelist":
-        for target in targets:
-            unwhitelist_by_name(target)
+        elif action == "unwhitelist":
+            for target in targets:
+                unwhitelist_by_name(target)
+    except ApiException as e:
+        flash(gettext("Could not execute action, ApiException %(ex)s", ex=e),
+              'danger')
 
     return redirect(url_for(".whitelist"))
 
@@ -301,11 +318,15 @@ def whitelist_change_single():
 
     target = target.strip()
 
-    if action == "whitelist":
-        reason = request.form['reason']  # reason for ban
-        whitelist_by_name(target, reason)
-    elif action == "unwhitelist":
-        unwhitelist_by_name(target)
+    try:
+        if action == "whitelist":
+            reason = request.form['reason']  # reason for ban
+            whitelist_by_name(target, reason)
+        elif action == "unwhitelist":
+            unwhitelist_by_name(target)
+    except ApiException as e:
+        flash(gettext("Could not execute action, ApiException %(ex)s", ex=e),
+              'danger')
 
     return redirect(url_for(".withelist"))
 
@@ -316,7 +337,11 @@ def whitelist_change_single():
 def whitelist_unlist():
     target = request.form['target']  # name of target
     target = target.strip()
-    unwhitelist_by_name(target)
+    try:
+        unwhitelist_by_name(target)
+    except ApiException as e:
+        flash(gettext("Could not execute action, ApiException %(ex)s", ex=e),
+              'danger')
 
     return redirect(url_for(".whitelist"))
 
