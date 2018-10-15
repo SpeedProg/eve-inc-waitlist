@@ -278,14 +278,16 @@ def submit():
         possible_weapons = []
         high_slot_mod_map = mod_list[location_flags.HIGH_SLOT]
         for mod in high_slot_mod_map:
+            inv_type: InvType = db.session.query(InvType).get(mod)
             if high_slot_mod_map[mod][1] >= 4:
+                logger.info('Adding %s as possible weapon', inv_type.typeName)
                 possible_weapons.append(mod)
             else:
                 # precursor weapons only use 1 turret
-                inv_type: InvType = db.session.query(InvType).get(mod)
                 if inv_type is None:
                     continue
                 if inv_type.group.groupName == 'Precursor Weapon':
+                    logger.info('Adding %s Precursor Weapon as possible weapon', inv_type.typeName)
                     possible_weapons.append(mod)
 
         weapon_type = "None"
