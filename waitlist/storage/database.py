@@ -1125,7 +1125,7 @@ class AccountNote(Base):
     accountID = Column('account_id', Integer, ForeignKey(Account.id),
                        nullable=False)
     byAccountID = Column('by_account_id', Integer, ForeignKey(Account.id),
-                         nullable=False)
+                         nullable=True)
     note = Column('note', Text, nullable=True, default=None)
     time = Column('time', DateTime, default=datetime.utcnow, index=True)
     restriction_level = Column('restriction_level', SmallInteger, default=50,
