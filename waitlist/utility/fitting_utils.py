@@ -238,7 +238,7 @@ def parse_dna_fitting(dna_string: str) -> List[Dict[int, List[int]]]:
 def get_location_flag(inv_type: InvType) -> Optional[int]:
     """Returns the value for a slot or none if no slot
     """
-    if inv_type.IsCharge:
+    if inv_type.IsCharge or inv_type.IsBooster:
         return location_flags.CARGO_SLOT
     if inv_type.IsDrone:
         return location_flags.DRONEBAY_SLOT
