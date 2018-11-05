@@ -75,7 +75,7 @@ def get_error_msg_from_response(resp: Any) -> str:
     if resp.status == 520:  # monolith error
         if resp.data is None:
             data = json.loads(resp.raw.decode("utf-8"))
-            msg = data['error'] if data is not None and 'error' in data else 'No error data send'
+            msg = data['error'] if data is not None and 'error' in data else 'No error data received'
         elif resp.data is not None and 'error' in resp.data:
             msg = resp.data['error']
         else:
@@ -95,7 +95,7 @@ def get_error_msg_from_response(resp: Any) -> str:
 
             logger.debug("Data was not set for %s with content-type %s",
                          resp.raw.decode("utf-8"), content_header)
-        msg = resp.data['error'] if resp.data is not None and 'error' in resp.data else 'No error data send. data=' + resp.raw.decode("utf-8")
+        msg = resp.data['error'] if resp.data is not None and 'error' in resp.data else 'No error data received. data=' + resp.raw.decode("utf-8")
         logger.info('ESI responded with status %s and msg %s', resp.status, msg)
 
     return msg
