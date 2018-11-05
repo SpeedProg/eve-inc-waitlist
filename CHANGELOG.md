@@ -3,8 +3,13 @@
   * Features
     * Translation support, current languages are english and german
       * Module infos are going to be loaded in the selected language too
+    * Adjusted parsing of ingame fits for changed made to the game
+    * Updated fit display library to a version that supports the ingame fit format changes too
   * Fixes
     * Some parts of the site not being readable on dark themes
+    * Roles not properly getting selected in config dialog
+    * Fixed sometimes displaying input for display name of waitlists when the user didn't have permission to change it
+    * Fixed missing space between multiple fleetmaners/fcs
 * 1.4.2:
   * Improvements
     * Community name is no longer hidden when menu collapses, also moved menu button to right side
