@@ -278,26 +278,28 @@ def submit():
         possible_weapons = []
         high_slot_mod_map = mod_list[location_flags.HIGH_SLOT]
         for mod in high_slot_mod_map:
+            inv_type: InvType = db.session.query(InvType).get(mod)
             if high_slot_mod_map[mod][1] >= 4:
+                logger.info('Adding %s as possible weapon', inv_type.typeName)
                 possible_weapons.append(mod)
             else:
                 # precursor weapons only use 1 turret
-                inv_type: InvType = db.session.query(InvType).get(mod)
                 if inv_type is None:
                     continue
                 if inv_type.group.groupName == 'Precursor Weapon':
+                    logger.info('Adding %s Precursor Weapon as possible weapon', inv_type.typeName)
                     possible_weapons.append(mod)
 
         weapon_type = "None"
-        for weapon in possible_weapons:
-            inv_type: InvType = db.session.query(InvType).get(mod)
+        for mod_id in possible_weapons:
+            inv_type: InvType = db.session.query(InvType).get(mod_id)
             if inv_type.group.groupName == 'Precursor Weapon':
                 weapon_type = WaitlistNames.dps
                 break
-            if weapon in sniper_weapons:
+            if mod_id in sniper_weapons:
                 weapon_type = WaitlistNames.sniper
                 break
-            if weapon in dps_weapons:
+            if mod_id in dps_weapons:
                 weapon_type = WaitlistNames.dps
                 break
             if inv_type.group.groupName in ['Remote Shield Booster',
@@ -307,8 +309,8 @@ def submit():
 
         if weapon_type == "None":
             # try to decide by market group
-            for weapon in possible_weapons:
-                weapon_db = db.session.query(InvType).get(weapon)
+            for mod_id in possible_weapons:
+                weapon_db = db.session.query(InvType).get(mod_id)
                 if weapon_db is None:
                     continue
                 market_group = db.session.query(MarketGroup).get(

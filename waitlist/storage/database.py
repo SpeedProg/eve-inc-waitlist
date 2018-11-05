@@ -17,7 +17,7 @@ from sqlalchemy.types import UnicodeText
 import json
 import inspect
 import traceback
-from waitlist.utility.constants import categories
+from waitlist.utility.constants import categories, groups
 
 logger = logging.getLogger(__name__)
 
@@ -294,6 +294,15 @@ class InvType(Base):
             return False
 
         return self.group.categoryID == categories.charge
+
+    @property
+    def IsBooster(self):
+        """ Is this a booster
+        """
+        if self.groupID is None:
+            return False
+
+        return self.groupID == groups.booster
 
     @property
     def IsSubsystem(self):
@@ -1116,7 +1125,7 @@ class AccountNote(Base):
     accountID = Column('account_id', Integer, ForeignKey(Account.id),
                        nullable=False)
     byAccountID = Column('by_account_id', Integer, ForeignKey(Account.id),
-                         nullable=False)
+                         nullable=True)
     note = Column('note', Text, nullable=True, default=None)
     time = Column('time', DateTime, default=datetime.utcnow, index=True)
     restriction_level = Column('restriction_level', SmallInteger, default=50,
