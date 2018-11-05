@@ -1,4 +1,9 @@
 #Changelog
+* 1.5.1:
+  * Fixes:
+    * Fixed an exception because of wrong restriction on database scheme
+    * Improved an error message
+    * Wrong iteration over weapon mods which caused unintended categorisation of fits
 * 1.5.0:
   * Features
     * Translation support, current languages are english and german
