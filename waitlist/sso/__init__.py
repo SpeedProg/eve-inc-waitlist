@@ -62,6 +62,12 @@ def repeated_verify(security: EsiSecurity, count: int=0,
     try:
         return security.verify()
     except APIException as e:
+        if e.response.decode('utf-8').contains('SSO JSON failure'):
+            logger.error('SSO JSON Failure, trying workaround...')
+            resp = security.refresh()
+            security.signal_token_updated.send(
+                token_identifier=security.token_identifier,
+                **resp)
         if count >= max_count:
             logger.exception('Failed to verify because of repeated errors',
                              exc_info=True)
