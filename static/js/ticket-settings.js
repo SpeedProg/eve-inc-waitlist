@@ -43,7 +43,7 @@ waitlist.ticketsettings = (function() {
 		openMailToCharacter(
 			charID,
 			$.i18n('wl-fbmail-topic'),
-			$.i18n('wl-fbmail-message',	charName, title, message)
+			$.i18n('wl-fbmail-body', charName, title, message)
 		);
 	}
 
