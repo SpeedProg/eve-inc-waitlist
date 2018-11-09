@@ -1,4 +1,9 @@
 #Changelog
+* 1.5.2:
+  * Fixes:
+    * Fixed feedbackmessage using the wrong localization identifier
+    * Fixed some problems with parsing error messages because of unversioned changes to status codes from ccps api
+    * Added some workaround for errors caused by failed internals responses between esi and sso, since ccp doesn't seem to see and really need to investigate this fast
 * 1.5.1:
   * Fixes:
     * Fixed an exception because of wrong restriction on database scheme
