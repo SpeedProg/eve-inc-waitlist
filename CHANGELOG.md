@@ -1,4 +1,7 @@
 #Changelog
+* 1.5.3:
+  * Fixes:
+    * Fixed exception during ESI error handling, by calling a none existant method
 * 1.5.2:
   * Fixes:
     * Fixed feedbackmessage using the wrong localization identifier
