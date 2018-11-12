@@ -62,7 +62,7 @@ def repeated_verify(security: EsiSecurity, count: int=0,
     try:
         return security.verify()
     except APIException as e:
-        if e.response.decode('utf-8').contains('SSO JSON failure'):
+        if 'SSO JSON failure' in e.response.decode('utf-8'):
             logger.error('SSO JSON Failure, trying workaround...')
             resp = security.refresh()
             security.signal_token_updated.send(
