@@ -1,4 +1,7 @@
 #Changelog
+* 1.5.4:
+  * Fixes:
+    * Corrected error in databases scheme to represent dogma attributes, which blocked imports
 * 1.5.3:
   * Fixes:
     * Fixed exception during ESI error handling, by calling a none existant method
