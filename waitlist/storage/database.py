@@ -335,6 +335,16 @@ class InvType(Base):
 
         return self.group.categoryID == categories.drone
 
+    @property
+    def IsFighter(self):
+        """ Is a Fighter
+        """
+        if self.group is None:
+            return False
+        if self.group.categoryID is None:
+            return False
+        return self.group.categoryID == categories.fighter
+
     def __repr__(self):
         return f'<InvType typeID={self.typeID} typeName={self.typeName} groupID={self.groupID}' \
                f' marketGroupID={self.marketGroupID} description={self.description}>'
