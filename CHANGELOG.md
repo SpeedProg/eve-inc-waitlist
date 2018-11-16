@@ -1,4 +1,8 @@
 #Changelog
+* 1.5.5:
+  * Improvements:
+    * Added rules for sorting titans/supers into dps
+    * Added ability to parse Fighters (which are officially not included in EFT format as documented by ccp)
 * 1.5.4:
   * Fixes:
     * Corrected error in databases scheme to represent dogma attributes, which blocked imports
