@@ -15,12 +15,13 @@ from waitlist.storage.modules import resist_ships, logi_ships, sniper_ships,\
     sniper_weapons, dps_weapons, weapongroups, dps_ships, t3c_ships
 from waitlist.utility.history_utils import create_history_object
 from waitlist.utility.fitting_utils import get_fit_format, parse_dna_fitting,\
-    parse_eft
+    parse_eft, is_logi_hull, is_allowed_hull, is_dps_by_group,\
+    is_sniper_by_group
 from waitlist import db
 from . import bp
 from flask_babel import gettext, ngettext
 from typing import Dict, List, Tuple
-from waitlist.utility.constants import location_flags
+from waitlist.utility.constants import location_flags, groups
 
 logger = logging.getLogger(__name__)
 
@@ -258,14 +259,12 @@ def submit():
         # check that ship is an allowed ship
 
         # it is a logi put on logi wl
-        if fit.ship_type in logi_ships:
+        if is_logi_hull(fit.ship_type):
             fit.wl_type = WaitlistNames.logi
             fits_ready.append(fit)
             continue
 
-        is_allowed = False
-        if fit.ship_type in sniper_ships or fit.ship_type in dps_ships or fit.ship_type in t3c_ships:
-            is_allowed = True
+        is_allowed = is_allowed_hull(fit.ship_type)
 
         if not is_allowed:  # not an allowed ship, push it on other list :P
             fit.wl_type = WaitlistNames.other
@@ -279,7 +278,11 @@ def submit():
         high_slot_mod_map = mod_list[location_flags.HIGH_SLOT]
         for mod in high_slot_mod_map:
             inv_type: InvType = db.session.query(InvType).get(mod)
-            if high_slot_mod_map[mod][1] >= 4:
+            if high_slot_mod_map[mod][1] >= 4 or (
+                    inv_type.groupID in [groups.remote_armor_repairer,
+                                         groups.remote_shield_booster]
+                    and 'Capital' in inv_type.typeName
+                    ):
                 logger.info('Adding %s as possible weapon', inv_type.typeName)
                 possible_weapons.append(mod)
             else:
@@ -331,6 +334,12 @@ def submit():
                     break
 
                     # ships with no valid weapons put on other wl
+        if weapon_type == "None":
+            if is_dps_by_group(fit.ship_type):
+                weapon_type = WaitlistNames.dps
+            elif is_sniper_by_group(fit.ship_type):
+                weapon_type = WaitlistNames.sniper
+
         if weapon_type == "None":
             fit.wl_type = WaitlistNames.other
             fits_ready.append(fit)

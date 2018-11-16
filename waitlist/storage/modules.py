@@ -26,7 +26,18 @@ dps_ships = {17740: "Vindicator", 24688: "Rokh", 24690: "Hyperion",
              24694: "Maelstrom", 32311: "Typhoon Fleet Issue", 17732: "Tempest Fleet Issue",
              47271: "Leshark"
              }
+
+dps_groups = {659: 'Supercarrier', 30: 'Titan'}
+logi_groups = {1538: 'Force Auxiliary'}
+sniper_groups = {}
+
 t3c_ships = {29990: "Loki", 29984: "Tengu"}
+
+none_logi_ships = {}
+none_logi_ships.update(sniper_ships)
+none_logi_ships.update(dps_ships)
+none_logi_ships.update(resist_ships)
+none_logi_ships.update(t3c_ships)
 
 weapongroups = {'dps': {"Pulse Lasers": None, "Blasters": None, "Missile Launchers": None, "Autocannons": None, 'Entropic Disintegrators': None},
                 'sniper': {"Beam Lasers": None, "Railguns": None, "Artillery Cannons": None}

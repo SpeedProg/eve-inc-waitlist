@@ -5,6 +5,8 @@ from waitlist import db
 import logging
 import re
 from waitlist.utility.eve_id_utils import get_item_id
+from waitlist.storage.modules import logi_ships, logi_groups, none_logi_ships,\
+    dps_groups, sniper_groups
 
 logger = logging.getLogger(__name__)
 
@@ -12,7 +14,7 @@ logger = logging.getLogger(__name__)
 def parse_eft(lines: List[str]) -> Shipfit:
         slot_list: List[Dict[int, List[int]]] = [dict(), dict(), dict(),
                                                  dict(), dict(), dict(),
-                                                 dict()]
+                                                 dict(), dict()]
         if len(lines) < 2:
             return None
 
@@ -42,7 +44,7 @@ def parse_eft(lines: List[str]) -> Shipfit:
         sections = [location_flags.LOW_SLOT, location_flags.MID_SLOT,
                     location_flags.HIGH_SLOT, location_flags.RIG_SLOT,
                     location_flags.SUBYSTEM_SLOT, location_flags.DRONEBAY_SLOT,
-                    location_flags.CARGO_SLOT]
+                    location_flags.CARGO_SLOT, location_flags.FIGHTERS_SLOT]
 
         section_idx = 0  # 'low'
         # used to store a list of items
@@ -74,7 +76,7 @@ def parse_eft(lines: List[str]) -> Shipfit:
                 i += 1
                 continue
 
-            # check if it contains a xNUMBER and is by that drone or cargo
+            # check if it contains a xNUMBER and is by that drone/fighter or cargo
             is_cargo = re.match(".*x\d+$", line) is not None
             logger.debug("%s is_cargo = %s", line, is_cargo)
 
@@ -82,7 +84,8 @@ def parse_eft(lines: List[str]) -> Shipfit:
                 mod_info = line.rsplit(" x", 2)
                 mod_name = mod_info[0]
                 mod_amount = int(mod_info[1])
-            elif sections[section_idx] == location_flags.DRONEBAY_SLOT:
+            elif sections[section_idx] in [location_flags.DRONEBAY_SLOT,
+                                           location_flags.FIGHTERS_SLOT]:
                 # because of how pyfa and ingame format are different
                 # we might endup here while really being in cargo...
                 mod_info = line.rsplit(" x", 2)
@@ -112,7 +115,7 @@ def parse_eft(lines: List[str]) -> Shipfit:
                     slot_list[sections[section_idx]] = dict()
                     slot_list[location_flags.CARGO_SLOT] = mod_map
                     # and change our index
-                    section_idx = 6
+                    section_idx = location_flags.CARGO_SLOT
 
             mod_map = slot_list[sections[section_idx]]
 
@@ -142,7 +145,7 @@ def parse_eft(lines: List[str]) -> Shipfit:
                 db_module = FitModule(moduleID=mod[0], locationFlag=idx,
                                       amount=mod[1])
                 fit.moduleslist.append(db_module)
-
+        logger.debug('SlotList: %r', slot_list)
         fit.modules = create_dna_string(slot_list)
 
         return fit
@@ -154,12 +157,15 @@ def create_dna_string(slot_list: List[Dict[int, List[int]]]):
     # charges are contained under cargo together with other items
     dna_order = [location_flags.SUBYSTEM_SLOT, location_flags.HIGH_SLOT,
                  location_flags.MID_SLOT, location_flags.LOW_SLOT,
-                 location_flags.RIG_SLOT, location_flags.DRONEBAY_SLOT]
+                 location_flags.RIG_SLOT, location_flags.DRONEBAY_SLOT,
+                 location_flags.FIGHTERS_SLOT]
     for slot_id in dna_order:
+        logger.debug('SLOTID: %d', slot_id)
         mod_map = slot_list[slot_id]
         sub_dna = ''
         for mod_id in mod_map:
             mod = mod_map[mod_id]
+            logger.debug('ModId: %d ModAmount: %d', mod[0], mod[1])
             sub_dna += str(mod[0]) + ';' + str(mod[1]) + ':'
 
         dna += sub_dna
@@ -197,7 +203,7 @@ def parse_dna_fitting(dna_string: str) -> List[Dict[int, List[int]]]:
     """
     slot_list: List[Dict[int, List[int]]] = [dict(), dict(), dict(),
                                              dict(), dict(),
-                                             dict(), dict()]
+                                             dict(), dict(), dict()]
     mods = dna_string.split(':')
     for mod in mods:
         if not mod:
@@ -215,15 +221,19 @@ def parse_dna_fitting(dna_string: str) -> List[Dict[int, List[int]]]:
         else:
             raise ValueError("Mod did not contain an amount")
 
-        inv_type = db.session.query(InvType).get(mod_id)
-        if inv_type is None:
-            raise ValueError("InvType with id=" + mod_id + " not found")
+        if is_cargo_module:
+            location_flag = location_flags.CARGO_SLOT
+        else:
+            inv_type = db.session.query(InvType).get(mod_id)
+            if inv_type is None:
+                raise ValueError("InvType with id=" + mod_id + " not found")
 
-        location_flag = get_location_flag(inv_type)
-        if location_flag is None:
-            logger.error("No locationflag found for InvType with typeID=%d",
-                         inv_type.typeID)
-            continue
+            location_flag = get_location_flag(inv_type)
+            if location_flag is None:
+                logger.error("No locationflag found for"
+                             + " InvType with typeID=%d",
+                             inv_type.typeID)
+                continue
 
         mod_map = slot_list[location_flag]
         if mod_id in mod_map:
@@ -242,6 +252,9 @@ def get_location_flag(inv_type: InvType) -> Optional[int]:
         return location_flags.CARGO_SLOT
     if inv_type.IsDrone:
         return location_flags.DRONEBAY_SLOT
+    if inv_type.IsFighter:
+        return location_flags.FIGHTERS_SLOT
+
     for dogma_effect in inv_type.dogma_effects:
         if dogma_effect.effectID == effects.POWER_SLOT_HIGH:
             return location_flags.HIGH_SLOT
@@ -262,3 +275,37 @@ def get_fit_format(line):
         return "eft"
     else:  # just consider everyhting else dna
         return "dna"
+
+
+def is_logi_hull(type_id: int):
+    if type_id in logi_ships:
+        return True
+    inv_type: InvType = db.session.query(InvType).get(type_id)
+    if inv_type.groupID in logi_groups and type_id not in none_logi_ships:
+        return True
+    return False
+
+
+def is_allowed_hull(type_id: int):
+    if type_id in none_logi_ships or type_id in logi_ships:
+        return True
+    inv_type: InvType = db.session.query(InvType).get(type_id)
+    if inv_type.groupID in logi_groups or (
+        inv_type.groupID in dps_groups) or (
+            inv_type.groupID in sniper_groups):
+        return True
+    return False
+
+
+def is_dps_by_group(type_id: int):
+    inv_type: InvType = db.session.query(InvType).get(type_id)
+    if inv_type.groupID in dps_groups:
+        return True
+    return False
+
+
+def is_sniper_by_group(type_id: int):
+    inv_type: InvType = db.session.query(InvType).get(type_id)
+    if inv_type.groupID in sniper_groups:
+        return True
+    return False
