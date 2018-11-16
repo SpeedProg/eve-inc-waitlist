@@ -5,6 +5,8 @@ from waitlist import db
 import logging
 import re
 from waitlist.utility.eve_id_utils import get_item_id
+from waitlist.storage.modules import logi_ships, logi_groups, none_logi_ships,\
+    dps_groups, sniper_groups
 
 logger = logging.getLogger(__name__)
 
@@ -273,3 +275,37 @@ def get_fit_format(line):
         return "eft"
     else:  # just consider everyhting else dna
         return "dna"
+
+
+def is_logi_hull(type_id: int):
+    if type_id in logi_ships:
+        return True
+    inv_type: InvType = db.session.query(InvType).get(type_id)
+    if inv_type.groupID in logi_groups and type_id not in none_logi_ships:
+        return True
+    return False
+
+
+def is_allowed_hull(type_id: int):
+    if type_id in none_logi_ships or type_id in logi_ships:
+        return True
+    inv_type: InvType = db.session.query(InvType).get(type_id)
+    if inv_type.groupID in logi_groups or (
+        inv_type.groupID in dps_groups) or (
+            inv_type.groupID in sniper_groups):
+        return True
+    return False
+
+
+def is_dps_by_group(type_id: int):
+    inv_type: InvType = db.session.query(InvType).get(type_id)
+    if inv_type.groupID in dps_groups:
+        return True
+    return False
+
+
+def is_sniper_by_group(type_id: int):
+    inv_type: InvType = db.session.query(InvType).get(type_id)
+    if inv_type.groupID in sniper_groups:
+        return True
+    return False
