@@ -347,7 +347,7 @@ class InvTypeDogmaAttribute(Base):
                                ondelete='CASCADE'),
                     primary_key=True, autoincrement=False)
     attributeID = Column('attribute_id', Integer, primary_key=True)
-    value = Column('value', Integer)
+    value = Column('value', Float)
 
 
 class InvTypeDogmaEffect(Base):
