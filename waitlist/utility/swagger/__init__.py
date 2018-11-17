@@ -14,5 +14,5 @@ def header_to_datetime(header) -> datetime:
 def get_api() -> App:
     global cached_api
     if cached_api is None:
-        cached_api = App.create('resources/swagger.json')
+        cached_api = App.create('static/swagger.json')
     return cached_api
