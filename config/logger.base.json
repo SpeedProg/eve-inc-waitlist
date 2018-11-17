@@ -8,7 +8,7 @@
     "handlers": {
         "error": {
             "class": "logging.handlers.TimedRotatingFileHandler",
-            "filename": "/var/log/pywaitlist/error.log",
+            "filename": "error.log",
             "formatter": "main",
             "level": "ERROR",
             "when": "midnight",
@@ -17,7 +17,7 @@
         },
         "info": {
             "class": "logging.handlers.TimedRotatingFileHandler",
-            "filename": "/var/log/pywaitlist/info.log",
+            "filename": "info.log",
             "formatter": "main",
             "level": "INFO",
             "filters": ["info_and_warning"],
@@ -27,7 +27,7 @@
         },
         "debug": {
             "class": "logging.handlers.TimedRotatingFileHandler",
-            "filename": "/var/log/pywaitlist/debug.log",
+            "filename": "debug.log",
             "formatter": "main",
             "level": "DEBUG",
             "filters": ["only_debug"],
