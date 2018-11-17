@@ -27,7 +27,7 @@ dps_ships = {17740: "Vindicator", 24688: "Rokh", 24690: "Hyperion",
              47271: "Leshark"
              }
 
-dps_groups = {659: 'Supercarrier', 30: 'Titan'}
+dps_groups = {659: 'Supercarrier', 30: 'Titan', 547: 'Carrier'}
 logi_groups = {1538: 'Force Auxiliary'}
 sniper_groups = {}
 

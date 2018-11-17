@@ -23,15 +23,6 @@
 <div class="row mb-3">
 <form class="form-inline" action="{{url_for('sde.update_type_ids')}}" method="post" enctype="multipart/form-data">
 	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
-	<div class="input-group mr-1">
-		<div class="input-group-prepend">
-			<span class="input-group-text">typeIDs.yaml</span>
-		</div>
-		<div class="custom-file">
-			<input type="file" name="file" data-target="#typeid-file-label" class="custom-file-input" id="typeid-file">
-			<label id="typeid-file-label" class="custom-file-label" data-content="Choose file..." for="typeid-file"></label>
-		</div>
-	</div>
 	<button type="submit" class="btn btn-primary">{{ _('Update typeIDs') }}</button>
 </form>
 </div>
