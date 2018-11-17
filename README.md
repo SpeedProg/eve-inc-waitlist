@@ -13,7 +13,7 @@ For library licenses see licenses folder
 
 
 # Installation
-1. install python 3.6
+1. install python >=3.6
 2. install all the requirements by doing pip install -r requirements.txt
 3. install your database connection library
 4. run `python main.py` to create a default confige file
@@ -22,19 +22,19 @@ For library licenses see licenses folder
 7. open `config\config.cfg` in your favorite text editor
 8. configure the settings in the `config.cfg`
 9. run `python manager.py db upgrade` which creates the database schema
-10. run `python setup_basic.py` to create needed scopes
-11. execute `python create_admin.py` to create the initial admin account.
+10. execute `python create_admin.py` to create the initial admin account.
 Enter the character name of your main character as account name, then enter the same name as character to associate.
 When asked for more characters just press enter without entering anything.
 Further admin accounts can be created over the account management on the website
-12. create a folder called `sde` in the waitlists base dir (this is where sde data uploads are saved)
-13. Use the command `pybabel compile -d translations` to compile the translation files.
+11. create a folder called `sde` in the waitlists base dir (this is where sde data uploads are saved)
+12. Use the command `pybabel compile -d translations` to compile the translation files.
+13. Got to `static\js\config\` and create a `stattool_config.js` (an example file is in there with the options)
 14. Start the waitlist with `python main.py` and visit it to login with the character that was setup as adming in the previous step.
 15. Now configure groups and permissions :)
 16. Import needed static data! You can find the interface for it under `Setting`->`Static Data Import`.
 The Eve Static Date Export can be found at [Eve Resources](https://developers.eveonline.com/resource/resources).
-Mandatory are: typeIDs.yaml, staStations.yaml and updating systems and constellations!
-The systems and constellations are updated via esi and can take quite a while.
+Mandatory are: staStations.yaml and upating typeIds, systems and constellations!
+The typeIds, systems and constellations are updated via esi and can take quite a while.
 Updating systems and constellations can fail quietly, so check the error log afterwards.
 17. If you write any improvements committing code back to this project is very much appreciated!
 
