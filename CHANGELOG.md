@@ -1,4 +1,12 @@
 #Changelog
+* 1.5.6:
+  * Improvements:
+    * Carriers added to dps group
+    * Removed now useless fileinput for TypeIds update
+  * Fixes:
+    * Fixed fleet view not working
+  * Changes:
+    * Made default logfile location the cwd
 * 1.5.5:
   * Improvements:
     * Added rules for sorting titans/supers into dps
