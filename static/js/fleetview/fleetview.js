@@ -4,6 +4,8 @@ if (!waitlist) {
 }
 
 waitlist.fleetview = (function(){
+	let exports = {}; // going to hold our exports
+	
 	let getMetaData = waitlist.base.getMetaData;
 	// holds the index database we are using
 	let db;
@@ -187,7 +189,7 @@ waitlist.fleetview = (function(){
 			if (notFoundIds.length > 0) {
 				const promis = getShipInfo(notFoundIds);
 				promis.then(function(value) {
-					value.forEach(function (element) {
+					value.body.forEach(function (element) {
 						const nameData = element;
 						const shipStore = db.transaction('ships', 'readwrite').objectStore('ships');
 						shipStore.add(nameData).onsuccess = function (event) {
@@ -257,7 +259,7 @@ waitlist.fleetview = (function(){
 			if (!('result' in event.target) || event.target.result === undefined) {
 				const promis = getCharacterInfo(charID);
 				promis.then(function(value) {
-					const character = value;
+					const character = value.body;
 					character.characterID = charID;
 					const characterStore = db.transaction('characters', 'readwrite').objectStore('characters');
 					characterStore.add(character).onsuccess = function (event) {
@@ -289,25 +291,21 @@ waitlist.fleetview = (function(){
 	}
 
 	function getShipInfo(shipIDs) {
-		return window.clientv2.apis.Universe.post_universe_names({ids: shipIDs}, {responseContentType: 'application/json'});
+		return exports.esi_client.apis.Universe.post_universe_names({ids: shipIDs}, {responseContentType: 'application/json'});
 	}
 
 	function getCharacterInfo(characterID) {
-		return window.clientv4.apis.Character.get_characters_character_id({character_id: characterID}, {responseContentType: 'application/json'});
+		return exports.esi_client.apis.Character.get_characters_character_id({character_id: characterID}, {responseContentType: 'application/json'});
 	}
 
 	$(document).ready(function() {
-		window.clientv4 = new SwaggerClient("https://esi.tech.ccp.is/v4/swagger.json")
+		new SwaggerClient(getMetaData('local-esi-json'))
+		.then((client) => {
+			exports.esi_client = client;
+		})
 		.catch((event) => {
 			console.log("SwaggerError");
 			console.log(event);
-			}
-		);
-
-		window.clientv2 = new SwaggerClient("https://esi.tech.ccp.is/v2/swagger.json")
-		.catch((event) => {
-				console.log("SwaggerError");
-				console.log(event);
 			}
 		);
 		// make sure translations are loaded
@@ -315,4 +313,5 @@ waitlist.fleetview = (function(){
 			setupDB();
 		});
 	});
+	return exports;
 })();
