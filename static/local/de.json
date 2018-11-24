@@ -77,5 +77,9 @@
 	"wl-account": "Konto",
 	"wl-enable": "Aktivieren",
 	"wl-disable": "Deaktivieren",
-	"wl-error-to-many-sse-errors": "Die SSE verbindung wurde zu oft unterbrochen, neuaufbau der verbindung wird eingestellt. WL wird nicht mehr geupdatet."
+	"wl-error-to-many-sse-errors": "Die SSE verbindung wurde zu oft unterbrochen, neuaufbau der verbindung wird eingestellt. WL wird nicht mehr geupdatet.",
+	"wl-edit": "Bearbeiten",
+	"wl-welcome-mail-button-text": "Mail",
+	"wl-account-status-active": "Aktiviert",
+	"wl-account-status-deactivated": "Deaktiviert"
 }
