@@ -7,8 +7,7 @@ from typing import Callable, Dict, Any
 from waitlist import app
 from waitlist.data.version import version
 from waitlist.permissions import perm_manager
-from waitlist.utility import config
-from waitlist.utility.config import cdn_eveimg, cdn_eveimg_webp, cdn_eveimg_js
+from waitlist.utility.config import cdn_eveimg, cdn_eveimg_webp, cdn_eveimg_js, influence_link, title
 from waitlist.utility.settings import sget_insert
 from waitlist.utility.i18n.locale import get_locale, get_langcode_from_locale
 from waitlist.utility.mainmenu import main_nav
@@ -39,8 +38,7 @@ def inject_data() -> Dict[str, Any]:
                 perm_manager=perm_manager, header_insert=header_insert,
                 eve_proxy_js=cdn_eveimg_js, eve_cdn_webp=cdn_eveimg_webp,
                 browserSupportsWebp=req_supports_webp, eve_image=eve_image_macro,
-                influence_link=config.influence_link, is_account=is_account,
-                title=config.title, config=config,
-                lang_code=get_langcode_from_locale(get_locale(app)),
+                influence_link=influence_link, is_account=is_account,
+                title=title, lang_code=get_langcode_from_locale(get_locale(app)),
                 main_nav=main_nav
                 )

@@ -14,6 +14,8 @@ from waitlist.permissions import perm_manager
 from waitlist.storage.database import InvType, Character, Shipfit, HistoryEntry, HistoryFits, Account
 from flask_babel import gettext, lazy_gettext
 
+from waitlist.utility.config import overview_show_count_for_approvals
+
 bp = Blueprint('settings_overview', __name__)
 logger = logging.getLogger(__name__)
 
@@ -70,8 +72,7 @@ def overview():
             __create_table_cell_data('If you have ideas for other stats, use the feedback function.', [], [], [])
         )
     ]
-
-    return render_template('settings/overview.html', stats=stats)
+    return render_template('settings/overview.html', stats=stats, show_count_for_approvals=overview_show_count_for_approvals)
 
 
 def query_wrapper(fnc, duration):

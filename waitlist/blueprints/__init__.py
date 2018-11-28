@@ -13,6 +13,7 @@ from flask_principal import identity_changed, Identity, AnonymousIdentity
 from flask_login import login_required, current_user, login_user, logout_user
 
 from waitlist.utility import config
+from waitlist.utility.config import stattool_enabled, stattool_uri, stattool_sri
 
 from waitlist import app, db
 from waitlist.storage.database import WaitlistGroup, TeamspeakDatum, CalendarEvent, WaitlistEntry, Account, Trivia
@@ -85,7 +86,8 @@ def index():
 
     return render_template("index.html", lists=wlists, user=current_user, is_index=True, is_on_wl=is_on_wl(),
                            newbro=new_bro, group=group, groups=activegroups, ts=active_ts_setting, events=events,
-                           trivias=trivias, ccvote_on=cc_vote_on)
+                           trivias=trivias, ccvote_on=cc_vote_on,
+                           stattool_enabled=stattool_enabled, stattool_uri=stattool_uri, stattool_sri=stattool_sri)
 
 
 @app.route("/help", methods=["GET"])
