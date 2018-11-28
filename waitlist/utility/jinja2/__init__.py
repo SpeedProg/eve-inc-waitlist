@@ -23,6 +23,10 @@ def eve_image(browser_webp: bool) -> Callable[[str, str], str]:
     return _eve_image
 
 
+def get_header_insert():
+    return sget_insert('header')
+
+
 # set if it is the igb
 @app.context_processor
 def inject_data() -> Dict[str, Any]:
@@ -30,12 +34,10 @@ def inject_data() -> Dict[str, Any]:
     if hasattr(current_user, 'type'):
         is_account = (current_user.type == "account")
 
-    header_insert = sget_insert('header')
-
     req_supports_webp = 'image/webp' in request.headers.get('accept', '')
     eve_image_macro: Callable[[str, str], str] = eve_image(req_supports_webp)
     return dict(version=version,
-                perm_manager=perm_manager, header_insert=header_insert,
+                perm_manager=perm_manager, get_header_insert=get_header_insert,
                 eve_proxy_js=cdn_eveimg_js, eve_cdn_webp=cdn_eveimg_webp,
                 browserSupportsWebp=req_supports_webp, eve_image=eve_image_macro,
                 influence_link=influence_link, is_account=is_account,
