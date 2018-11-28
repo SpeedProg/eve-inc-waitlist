@@ -33,18 +33,12 @@ def inject_data() -> Dict[str, Any]:
 
     header_insert = sget_insert('header')
 
-    current_time: datetime = datetime.utcnow()
-    end_time: datetime = datetime(2016, 8, 7, 11, 0, 0)
-    start_time: datetime = datetime(2016, 7, 4, 11, 0, 0)
-    cc_vote_on: bool = ((start_time < current_time) and (current_time < end_time))
-
     req_supports_webp = 'image/webp' in request.headers.get('accept', '')
     eve_image_macro: Callable[[str, str], str] = eve_image(req_supports_webp)
     return dict(version=version,
                 perm_manager=perm_manager, header_insert=header_insert,
                 eve_proxy_js=cdn_eveimg_js, eve_cdn_webp=cdn_eveimg_webp,
-                browserSupportsWebp=req_supports_webp,
-                eve_image=eve_image_macro, ccvote_on=cc_vote_on,
+                browserSupportsWebp=req_supports_webp, eve_image=eve_image_macro,
                 influence_link=config.influence_link, is_account=is_account,
                 title=config.title, config=config,
                 lang_code=get_langcode_from_locale(get_locale(app)),
