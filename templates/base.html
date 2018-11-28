@@ -49,6 +49,7 @@
 	
 <title>{% block title %}{% endblock %}</title>
 {% endblock %}
+{% set header_insert = get_header_insert() %}
 {% if header_insert is not none %}
 {{header_insert|safe}}
 {% endif %}
