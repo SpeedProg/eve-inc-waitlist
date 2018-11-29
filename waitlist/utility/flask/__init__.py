@@ -11,7 +11,7 @@ from werkzeug.utils import redirect
 
 from waitlist import principals, app, db, login_manager
 from waitlist.blueprints.fc_sso import get_sso_redirect
-from waitlist.storage.database import Account, Character
+from waitlist.storage.database import Account, Character, Role, roles
 from waitlist.utility import config
 from waitlist.utility.account import force_logout
 from waitlist.utility.eve_id_utils import is_char_banned, get_account_from_db, get_char_from_db
@@ -215,8 +215,8 @@ def on_identity_loaded(_: Any, identity):
 
     if hasattr(current_user, "type"):  # it is a custom user class
         if current_user.type == "account":  # it is an account, so it can have roles
-            account = db.session.query(Account).filter(Account.id == current_user.id).first()
-            for role in account.roles:
+            acc_roles = db.session.query(Role.name).join(roles).filter(roles.c.account_id == current_user.id).all()
+            for role in acc_roles:
                 logger.debug("Add role %s", role.name)
                 identity.provides.add(RoleNeed(role.name))
 
