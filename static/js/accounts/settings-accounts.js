@@ -58,9 +58,7 @@ waitlist.accounts = (function() {
 		var id = Number(source.data('id'));
 		enableAccount(id, function() {
 			let accountRow = new AccountRow(id, grid);
-			accountRow.status = 'Active';
-			source.attr("data-type", "acc-disable");
-			source.text($.i18n("wl-disable"));
+			accountRow.status = $.i18n('wl-account-status-active');
 		});
 	}
 	
@@ -69,9 +67,7 @@ waitlist.accounts = (function() {
 		var id = Number(source.data('id'));
 		disableAccount(id, function() {
 			let accountRow = new AccountRow(id, grid);
-			accountRow.status = 'Deactivated';
-			source.attr("data-type", "acc-enable");
-			source.text($.i18n("wl-enable"));
+			accountRow.status = $.i18n('wl-account-status-deactivated');
 		});
 	}
 	
@@ -188,8 +184,9 @@ waitlist.accounts = (function() {
 			metadata: [
 				{
 					name: 'actions',
-					datatype: "html",
-					editable: false
+					datatype: "string",
+					editable: false,
+					values: [{"value": "rolesColumnName", "label": "roles"}]
 				}, {
 					name: 'status',
 					datatype: "string",
@@ -249,4 +246,5 @@ waitlist.accounts = (function() {
 EditableGrid.prototype.initializeGrid = function() {
 	this.setCellRenderer('account-name', new AccountCellRenderer());
 	this.setCellRenderer('alts', new AltCellRenderer());
+	this.setCellRenderer('actions', new ActionCellRenderer());
 };
