@@ -11,7 +11,7 @@ from werkzeug.utils import redirect
 
 from waitlist import principals, app, db, login_manager
 from waitlist.blueprints.fc_sso import get_sso_redirect
-from waitlist.storage.database import Account, Character
+from waitlist.storage.database import Account, Character, Role, roles, SSOToken
 from waitlist.utility import config
 from waitlist.utility.account import force_logout
 from waitlist.utility.eve_id_utils import is_char_banned, get_account_from_db, get_char_from_db
@@ -21,6 +21,8 @@ from fileinput import filename
 from flask_babel import gettext
 from waitlist.utility.outgate.exceptions import ApiException
 from flask.wrappers import Response
+
+from sqlalchemy import distinct
 
 logger = logging.getLogger(__name__)
 
@@ -131,21 +133,15 @@ def check_all_alts_authorized():
                      request.path, allowed_endpoints)
         return None
 
-    unauthed_chars: List[Character] = []
     # check all the chars are authorized
     # basically there is a sso token for all the alts
+    accountSSOTokenCharacterIDs = db.session.query(distinct(SSOToken.characterID)).\
+        filter(SSOToken.accountID == current_user.id)
 
-    # TODO: this could be done with an sql query
-    for character in user.characters:
-        found_key: bool = False
-        for sso_token in user. ssoTokens:
-            if sso_token.characterID == character.id:
-                found_key = True
-                break
-
-        if not found_key:
-            unauthed_chars.append(character)
-
+    unauthed_chars: List[Character] = db.session.query(Character).\
+        join(Account.characters).\
+        filter(Account.id == current_user.id, Character.id.notin_(accountSSOTokenCharacterIDs)).\
+        all()
     # we found at least 1 not authed character
     if len(unauthed_chars) > 0:
         return get_view_to_unauthed_character_list(unauthed_chars)
@@ -215,8 +211,8 @@ def on_identity_loaded(_: Any, identity):
 
     if hasattr(current_user, "type"):  # it is a custom user class
         if current_user.type == "account":  # it is an account, so it can have roles
-            account = db.session.query(Account).filter(Account.id == current_user.id).first()
-            for role in account.roles:
+            acc_roles = db.session.query(Role.name).join(roles).filter(roles.c.account_id == current_user.id).all()
+            for role in acc_roles:
                 logger.debug("Add role %s", role.name)
                 identity.provides.add(RoleNeed(role.name))
 
