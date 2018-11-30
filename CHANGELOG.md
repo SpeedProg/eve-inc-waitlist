@@ -1,4 +1,5 @@
 #Changelog
+* 1.6.0:
 * 1.5.6:
   * Improvements:
     * Carriers added to dps group
