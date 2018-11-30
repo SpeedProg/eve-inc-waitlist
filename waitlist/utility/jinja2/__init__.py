@@ -7,8 +7,7 @@ from typing import Callable, Dict, Any
 from waitlist import app
 from waitlist.data.version import version
 from waitlist.permissions import perm_manager
-from waitlist.utility import config
-from waitlist.utility.config import cdn_eveimg, cdn_eveimg_webp, cdn_eveimg_js
+from waitlist.utility.config import cdn_eveimg, cdn_eveimg_webp, cdn_eveimg_js, influence_link, title
 from waitlist.utility.settings import sget_insert
 from waitlist.utility.i18n.locale import get_locale, get_langcode_from_locale
 from waitlist.utility.mainmenu import main_nav
@@ -24,6 +23,10 @@ def eve_image(browser_webp: bool) -> Callable[[str, str], str]:
     return _eve_image
 
 
+def get_header_insert():
+    return sget_insert('header')
+
+
 # set if it is the igb
 @app.context_processor
 def inject_data() -> Dict[str, Any]:
@@ -31,26 +34,13 @@ def inject_data() -> Dict[str, Any]:
     if hasattr(current_user, 'type'):
         is_account = (current_user.type == "account")
 
-    header_insert = sget_insert('header')
-
-    current_time: datetime = datetime.utcnow()
-    end_time: datetime = datetime(2016, 8, 7, 11, 0, 0)
-    start_time: datetime = datetime(2016, 7, 4, 11, 0, 0)
-    cc_vote_on: bool = ((start_time < current_time) and (current_time < end_time))
-
-    if request.headers.get('accept') is not None and (
-     'image/webp' in request.headers.get('accept')):
-        req_supports_webp = True
-    else:
-        req_supports_webp = False
+    req_supports_webp = 'image/webp' in request.headers.get('accept', '')
     eve_image_macro: Callable[[str, str], str] = eve_image(req_supports_webp)
     return dict(version=version,
-                perm_manager=perm_manager, header_insert=header_insert,
+                perm_manager=perm_manager, get_header_insert=get_header_insert,
                 eve_proxy_js=cdn_eveimg_js, eve_cdn_webp=cdn_eveimg_webp,
-                browserSupportsWebp=req_supports_webp,
-                eve_image=eve_image_macro, ccvote_on=cc_vote_on,
-                influence_link=config.influence_link, is_account=is_account,
-                title=config.title, config=config,
-                lang_code=get_langcode_from_locale(get_locale(app)),
+                browserSupportsWebp=req_supports_webp, eve_image=eve_image_macro,
+                influence_link=influence_link, is_account=is_account,
+                title=title, lang_code=get_langcode_from_locale(get_locale(app)),
                 main_nav=main_nav
                 )
