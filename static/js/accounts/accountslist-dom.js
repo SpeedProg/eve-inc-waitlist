@@ -1,13 +1,3 @@
-let swa_client = SwaggerClient(
-	{
-		url: "/spec/v1/swagger.json",
-		requestInterceptor : function(req) {
-			req.headers['X-CSRFToken'] = waitlist.base.getMetaData('csrf-token');
-			return req;
-		}
-	}
-);
-
 class AccountRow {
 	constructor(accountId, grid) {
 		this.accountId = accountId;
@@ -138,7 +128,7 @@ class AltEntry {
 	remove_alt_button_handler(event) {
 		let alt_entry = this;
 		console.log(`Removing characterId=${this.character_id} from accountId=${this.account_id}`);
-		swa_client.then(
+		waitlist.base.client.then(
 			function(client) {
 				client.apis.Accounts.delete_accounts_account_id({'account_id': alt_entry.account_id,
 					'character_id': alt_entry.character_id,
@@ -289,7 +279,7 @@ class AltsList {
 
 	add_button_handler(event) {
 		let alts_list = this;
-		swa_client.then(function(client){
+		waitlist.base.client.then(function(client){
 			let account_id = alts_list.account_id;
 
 			let input_field = document.createElement('input');
