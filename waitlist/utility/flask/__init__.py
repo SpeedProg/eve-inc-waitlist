@@ -143,7 +143,7 @@ def check_all_alts_authorized():
         filter(Account.id == current_user.id, Character.id.notin_(accountSSOTokenCharacterIDs)).\
         all()
     # we found at least 1 not authed character
-    if len(unauthed_chars) > 0:       
+    if len(unauthed_chars) > 0:
         return get_view_to_unauthed_character_list(unauthed_chars)
 
     # we have no unauthed characters
