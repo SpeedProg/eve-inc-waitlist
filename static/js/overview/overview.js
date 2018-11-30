@@ -7,8 +7,8 @@ function GetChartElement() {
 	return column;
 }
 
-function AddDistinctHullCharacterCombinations(seconds, title, swa_client) {
-	swa_client.then(
+function AddDistinctHullCharacterCombinations(seconds, title) {
+	waitlist.base.client.then(
 		function(client) {
 			client.apis.Statistics.get_statistics_distinct_hull_character({
 				'duration_seconds': seconds,
@@ -94,8 +94,8 @@ function GetApprovalTable(names) {
 	return table;
 }
 
-function AddApprovedFitsByAccount(seconds, title, swa_client) {
-	swa_client.then(
+function AddApprovedFitsByAccount(seconds, title) {
+	waitlist.base.client.then(
 		function(client) {
 			client.apis.Statistics.get_approved_fits_by_account({
 				'duration_seconds': seconds,
@@ -177,8 +177,8 @@ function AddApprovedFitsByAccount(seconds, title, swa_client) {
 	);
 }
 
-function AddJoinedMemebers(seconds, title, swa_client) {
-	swa_client.then(
+function AddJoinedMemebers(seconds, title) {
+	waitlist.base.client.then(
 		function(client) {
 			client.apis.Statistics.get_joined_members({
 				'duration_seconds': seconds,
@@ -263,20 +263,12 @@ function AddJoinedMemebers(seconds, title, swa_client) {
 
 
 function init_overview() {
-
-	let swa_client = SwaggerClient({
-		url: "/spec/v1/swagger.json",
-		requestInterceptor: function(req) {
-			req.headers['X-CSRFToken'] = waitlist.base.getMetaData('csrf-token');
-			return req;
-		}
-	});
 	// this is to make sure that the language data is there before we try to use it
 	i18nloaded.then(() => {
-		AddApprovedFitsByAccount(2592000, $.i18n('wl-overview-top-commader-time', 15, 30), swa_client);
-		AddDistinctHullCharacterCombinations(2592000, $.i18n("wl-overview-top-distinct-time", 15, 30), swa_client);
-		AddDistinctHullCharacterCombinations(86400, $.i18n("wl-overview-top-distinct-time", 15, 1), swa_client);
-		AddJoinedMemebers(123072000, $.i18n('wl-fleetjoins-per-month'), swa_client);
+		AddApprovedFitsByAccount(2592000, $.i18n('wl-overview-top-commader-time', 15, 30));
+		AddDistinctHullCharacterCombinations(2592000, $.i18n("wl-overview-top-distinct-time", 15, 30));
+		AddDistinctHullCharacterCombinations(86400, $.i18n("wl-overview-top-distinct-time", 15, 1));
+		AddJoinedMemebers(123072000, $.i18n('wl-fleetjoins-per-month'));
 	});
 }
 $(document).ready(init_overview);
