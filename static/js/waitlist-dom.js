@@ -788,8 +788,6 @@ waitlist.listdom = (function(){
 				e.stopPropagation();
 			});
 		}
-		statusDiv.append($('<i id="status-tog-icon" class="fa fa-plus-square float-right"></i>'));
-		
 	}
 	
 	function clearWaitlists() {

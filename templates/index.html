@@ -43,7 +43,7 @@
 {{ super() }}
 
 {% assets filters="babili", output="gen/setup.%(version)s.js",
-"js/dropdown.js", "js/eveproxy.js", "js/waitlist-dom.js", "js/wlsseupdate.js", "js/sse-dom.js",
+"js/eveproxy.js", "js/waitlist-dom.js", "js/wlsseupdate.js", "js/sse-dom.js",
 "js/dnasetup.js", "js/calendar/index.js", "js/persist-details.js" %}
 <script type="text/javascript" src="{{ ASSET_URL }}"></script>
 {% endassets %}
@@ -179,11 +179,10 @@
 <div class="row">
 	<div class="col-md-6">
 		<div id="status" class="card mb-0">
-			<div data-toggle="collapse" data-target="#status-body"
-				class="card-header" role="button">
-					<div class="h5 mb-0" id="grp-{{group.groupID}}-status">
-					</div>
-			</div>
+			<h5 data-toggle="collapse" data-target="#status-body"
+				class="card-header toggler after-fa d-flex" role="button">
+				<span id="grp-{{group.groupID}}-status"></span>
+			</h5>
 			<div class="">
 				<table class="table-sm">
 					<tbody>
@@ -195,8 +194,7 @@
 					</tbody>
 				</table>
 			</div>
-			<div id="status-body" class="collapse"
-				data-tog-icon="#status-tog-icon">
+			<div id="status-body" class="collapse">
 				<table class="table-sm">
 					<tbody>
 						<tr hidden=hidden>
@@ -238,19 +236,19 @@
 		{# Calendar Events #}
 		{% if events|length > 0 %}
 		<div id="events" class="card mb-0">
-			<div data-toggle="collapse" data-target="#events-body" class="card-header" role="button">
-				<div class="h5 mb-0" >{{ _('Events') }}{%if events|length > 1%}<i id="events-tog-icon" class="fa float-right fa-plus-square"></i>{% endif %}</div>
-			</div>
+			<h5 class="card-header toggler after-fa d-flex" {% if events|length > 1 %}data-toggle="collapse" data-target="#events-body" role="button"{% endif %}>
+				{{ _('Events') }}
+			</h5>
 			<div class="alert alert-info mb-0" role="alert">
 				<p class="text-sm-left mb-0">{{ events[0].eventTime }} : <a href="#" data-toggle="popover" data-placement="top" data-trigger="hover" data-content="{{events[0].eventDescription}}">{{ events[0].eventTitle }}</a> by {{ events[0].creator.username }}</p>
 			</div>
-			<div id="events-body" class="collapse" data-tog-icon="#events-tog-icon">
-				{% for event in events %}
-					{% if not loop.first %}
-						<div class="alert alert-info mb-0" role="alert"><p class="text-sm-left mb-0">{{ event.eventTime }} : <a href="#" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="{{event.eventDescription}}">{{ event.eventTitle }}</a> by {{ event.creator.username }}</p></div>
-					{% endif %}
+			{% if events|length > 1 %}
+			<div id="events-body" class="collapse">
+				{% for event in events[1:] %}
+				<div class="alert alert-info mb-0" role="alert"><p class="text-sm-left mb-0">{{ event.eventTime }} : <a href="#" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="{{event.eventDescription}}">{{ event.eventTitle }}</a> by {{ event.creator.username }}</p></div>
 				{% endfor %}
 			</div>
+			{% endif %}
 		</div>
 		{% endif %}
 		<div class="alert alert-info" role="alert">
