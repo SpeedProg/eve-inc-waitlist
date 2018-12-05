@@ -447,10 +447,10 @@ waitlist.listdom = (function(){
 	 * @param wlid id of the waitlist
 	 */
 	function updateWlEntryTagCount(wlid) {
-		const countElement = document.getElementById('wl-count-'+wlid);
-		if (countElement) {
-			countElement.textContent = $('#wl-fits-' + wlid)[0].childNodes.length;
-		}
+		const
+		countElement = document.getElementById("wl-count-" + wlid),
+		wlEntries = document.getElementById("wl-fits-" + wlid);
+		countElement.textContent = wlEntries.children.length;
 	}
 
 	// json update only related stuff down here
