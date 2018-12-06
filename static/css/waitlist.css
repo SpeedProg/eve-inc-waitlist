@@ -41,3 +41,25 @@ p.text-center {
 [role=button] {
     cursor:pointer
 }
+  
+details.card > summary {
+    outline: none;
+}
+details.card > summary::-webkit-details-marker {
+    display: none;
+}
+
+details.card > .list-group.list-group-flush > :first-child {
+    border-top: 1px solid #dee2e6 !important;
+}
+
+.card-header.toggler[data-toggle="collapse"]::after,
+details.card.toggler > summary.card-header::after {
+    margin-left: auto;
+    content: "\e90a";
+}
+
+.card-header.toggler[data-toggle="collapse"][aria-expanded="true"]::after,
+details[open].card.toggler > summary.card-header::after {
+    content: "\e903";
+}
