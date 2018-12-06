@@ -43,8 +43,8 @@
 {{ super() }}
 
 {% assets filters="babili", output="gen/setup.%(version)s.js",
-"js/dropdown.js", "js/eveproxy.js", "js/waitlist-dom.js", "js/wlsseupdate.js", "js/sse-dom.js",
-"js/dnasetup.js", "js/calendar/index.js" %}
+"js/eveproxy.js", "js/waitlist-dom.js", "js/wlsseupdate.js", "js/sse-dom.js",
+"js/dnasetup.js", "js/calendar/index.js", "js/persist-details.js" %}
 <script type="text/javascript" src="{{ ASSET_URL }}"></script>
 {% endassets %}
 
@@ -179,11 +179,10 @@
 <div class="row">
 	<div class="col-md-6">
 		<div id="status" class="card mb-0">
-			<div data-toggle="collapse" data-target="#status-body"
-				class="card-header" role="button">
-					<div class="h5 mb-0" id="grp-{{group.groupID}}-status">
-					</div>
-			</div>
+			<h5 data-toggle="collapse" data-target="#status-body"
+				class="card-header toggler after-fa d-flex" role="button">
+				<span id="grp-{{group.groupID}}-status"></span>
+			</h5>
 			<div class="">
 				<table class="table-sm">
 					<tbody>
@@ -195,8 +194,7 @@
 					</tbody>
 				</table>
 			</div>
-			<div id="status-body" class="collapse"
-				data-tog-icon="#status-tog-icon">
+			<div id="status-body" class="collapse">
 				<table class="table-sm">
 					<tbody>
 						<tr hidden=hidden>
@@ -238,19 +236,19 @@
 		{# Calendar Events #}
 		{% if events|length > 0 %}
 		<div id="events" class="card mb-0">
-			<div data-toggle="collapse" data-target="#events-body" class="card-header" role="button">
-				<div class="h5 mb-0" >{{ _('Events') }}{%if events|length > 1%}<i id="events-tog-icon" class="fa float-right fa-plus-square"></i>{% endif %}</div>
-			</div>
+			<h5 class="card-header toggler after-fa d-flex" {% if events|length > 1 %}data-toggle="collapse" data-target="#events-body" role="button"{% endif %}>
+				{{ _('Events') }}
+			</h5>
 			<div class="alert alert-info mb-0" role="alert">
 				<p class="text-sm-left mb-0">{{ events[0].eventTime }} : <a href="#" data-toggle="popover" data-placement="top" data-trigger="hover" data-content="{{events[0].eventDescription}}">{{ events[0].eventTitle }}</a> by {{ events[0].creator.username }}</p>
 			</div>
-			<div id="events-body" class="collapse" data-tog-icon="#events-tog-icon">
-				{% for event in events %}
-					{% if not loop.first %}
-						<div class="alert alert-info mb-0" role="alert"><p class="text-sm-left mb-0">{{ event.eventTime }} : <a href="#" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="{{event.eventDescription}}">{{ event.eventTitle }}</a> by {{ event.creator.username }}</p></div>
-					{% endif %}
+			{% if events|length > 1 %}
+			<div id="events-body" class="collapse">
+				{% for event in events[1:] %}
+				<div class="alert alert-info mb-0" role="alert"><p class="text-sm-left mb-0">{{ event.eventTime }} : <a href="#" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="{{event.eventDescription}}">{{ event.eventTitle }}</a> by {{ event.creator.username }}</p></div>
 				{% endfor %}
 			</div>
+			{% endif %}
 		</div>
 		{% endif %}
 		<div class="alert alert-info" role="alert">
@@ -263,26 +261,14 @@
 </div>
 <div class="row" id="waitlists">
 	{% for wlist in lists %}
-	<div class="col-md-3" id="wl-{{ wlist.id }}">
-		<div class="card">
-			<div class="card-header p-0" id="wl-heading-{{ wlist.id }}">
-				<h4 class="card-title m-0">
-					<a class="list-group-item text-uppercase d-flex flex-row justify-content-start" data-toggle="collapse"
-						data-parent="#wl-{{ wlist.id }}-tog"
-						data-target="#wl-fits-col-{{ wlist.id }}" aria-expanded="true"
-						aria-controls="wl-fits-{{ wlist.id }}" role="button">
-					{% if perm_manager.get_permission('fleet_management').can() %}
-					<span id="wl-count-{{ wlist.id }}" class="badge badge-pill badge-secondary">0</span>
-					{% endif %}
-					{{wlist.displayTitle|e }}
-					<i class="my-auto ml-auto fa fa-minus-square float-right" id="wl-{{ wlist.id }}-tog-icon"></i>
-					</a>
-				</h4>
-			</div>
-			<div data-tog-icon="#wl-{{ wlist.id }}-tog-icon" class="collapse show" id="wl-fits-col-{{ wlist.id }}" >
-				<ol class="list-group" id="wl-fits-{{ wlist.id }}" aria-labelledby="wl-heading-{{ wlist.id }}"></ol>
-			</div>
-		</div>
+	<div class="col-md-3">
+		<details id="wl-{{ wlist.id }}" class="card mb-1 toggler" data-action="persist" data-default="open" open>
+			<summary class="card-header h4 text-uppercase border-0 p-1 d-flex align-items-center after-fa">
+				<span id="wl-count-{{ wlist.id }}" class="badge badge-pill badge-secondary">0</span>
+				{{wlist.displayTitle|e }}
+			</summary>
+			<ol class="list-group list-group-flush" id="wl-fits-{{ wlist.id }}"></ol>
+		</details>
 	</div>
 	{% endfor %}
 	{% else %}
