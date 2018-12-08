@@ -8,5 +8,5 @@ var eveui_imageserver = function(image_ref) {
 // fix for getting names for modules from ccp api that are in the users browser language
 eveui_accept_language = document.documentElement.getAttribute('lang');
 if (eveui_accept_language.startsWith('en_') || eveui_accept_language == 'en') {
-	eveui_accept_language = 'en_us';
+	eveui_accept_language = 'en-us';
 }
