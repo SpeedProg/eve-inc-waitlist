@@ -1,4 +1,5 @@
-<script>
+'use strict';
+
 $(document).ready(function() {
 	var calbsgrp = document.getElementById('grp-cbslvl');
 	var logilvlgrp = document.getElementById('grp-logilvl');
@@ -29,5 +30,3 @@ $(document).ready(function() {
 	fakeEv.target.addEventListener('input', checkExtra, false);
 	checkExtra(fakeEv);
 });
-
-</script>
