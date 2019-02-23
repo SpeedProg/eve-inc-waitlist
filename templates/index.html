@@ -59,7 +59,9 @@
 		{% endif %}
 
 		{% if group and (not is_on_wl) and (not (perm_manager.get_permission('fleet_management').can() or perm_manager.get_permission('fits_view').can())) and group.enabled %}
-			{% include "xup-form.js" %}
+			{% assets filters="babili",	output="gen/xup-form.%(version)s.js", "js/xup-form.js" %}
+				<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+			{% endassets %}
 		{% endif %}
 
 		{% if is_on_wl %}

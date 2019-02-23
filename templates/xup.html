@@ -5,7 +5,9 @@
 {% block head %}
 {{ super() }}
 {% if groups|length > 0 %}
-{% include "xup-form.js" %}
+{% assets filters="babili",	output="gen/xup-form.%(version)s.js", "js/xup-form.js" %}
+	<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
 {% endif %}
 {% endblock %}
 
