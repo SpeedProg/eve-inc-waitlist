@@ -81,5 +81,6 @@
 	"wl-edit": "Bearbeiten",
 	"wl-welcome-mail-button-text": "Mail",
 	"wl-account-status-active": "Aktiviert",
-	"wl-account-status-deactivated": "Deaktiviert"
+	"wl-account-status-deactivated": "Deaktiviert",
+	"wl-browser-warning-sse": "Wir musten <strong>Funktionen</strong> abschalten, bitte denke darüber nach <a href=\"https://caniuse.com/#feat=eventsource\">deinen Browser zu wechseln</a>."
 }
