@@ -52,14 +52,6 @@
 {% if header_insert is not none %}
 {{header_insert|safe}}
 {% endif %}
-<script type="text/javascript">
-	$(function () {
-		if (!window.EventSource) {
-			waitlist.base.displayMessage('{{_('We have had to disable <strong>features</strong> please consider'
-				' upgrading your<a href="http://caniuse.com/#feat=eventsource"> browser</a>') }}', 'danger', true);
-		}
-	});
-</script>
 </head>
 <body>
 	{% block menu %}
