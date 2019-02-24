@@ -73,9 +73,14 @@ waitlist.base = (() => {
 		}
 	}
 
-	$(document).ready(() =>
+	$(document).ready(() => {
 		document.getElementById("lang-select")
-			.addEventListener("change", handleLanguageSelection));
+			.addEventListener("change", handleLanguageSelection);
+
+		if (!window.EventSource) {
+			waitlist.base.displayMessage($.i18n('wl-browser-warning-sse'), 'danger', true);
+		}
+	});
 
 	return base;
 })();
