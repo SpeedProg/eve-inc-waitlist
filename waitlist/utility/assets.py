@@ -1,4 +1,6 @@
+from os import path
 from webassets.bundle import Bundle
+from webassets.ext.jinja2 import Jinja2Loader
 from flask_assets import Environment
 
 
@@ -26,3 +28,21 @@ def register_asset_bundles(assets: Environment):
         'i18n.en': i18n_en,
     }
     assets.register(bundles)
+
+    # bundles in templates should be preparsed when not auto building bundles
+    if not assets.auto_build:
+
+        # get the template directories of app and blueprints
+        template_dirs = [path.join(assets.app.root_path, assets.app.template_folder)]
+        template_dirs.extend(
+           path.join(blueprint.root_path, blueprint.template_folder)
+           for blueprint in assets.app.blueprints.values()
+           if blueprint.template_folder is not None
+        )
+
+        # load bundles from templates
+        bundles = Jinja2Loader(assets, template_dirs, [assets.app.jinja_env])\
+            .load_bundles()
+
+        # register bundles with asset environment
+        assets.add(*[bundle for bundle in bundles if not bundle.is_container])
