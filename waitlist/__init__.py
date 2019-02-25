@@ -102,11 +102,15 @@ HTMLMIN(app)
 
 # init assets environment
 assets = Environment(app)
+assets.auto_build = (config.debug_enabled or config.auto_build)
 register_filter(BabiliFilter)
 register_filter(JsonMinFilter)
 register_filter(CSSOptimizerFilter)
 register_asset_bundles(assets)
 
+if not assets.auto_build:
+    for bundle in assets:
+        bundle.build()
 
 class MiniJSONEncoder(LazyJSONEncoder):
     """Minify JSON output."""

@@ -39,6 +39,7 @@ config.set_if_not_exists("app", "community_name", "IncWaitlist")
 config.set_if_not_exists("app", "user_agent", "Bruce Warhead: Eve Incursion Waitlist")
 config.set_if_not_exists("app", "domain", "localhost")
 config.set_if_not_exists("app", "using_proxy", "False")
+config.set_if_not_exists("app", "auto_build", "False")
 
 if not config.has_section("crest"):
     config.add_section("crest")
@@ -141,6 +142,7 @@ user_agent = config.get("app", "user_agent")+"/"+version.version
 
 domain = config.get("app", "domain")
 using_proxy = config.get("app", "using_proxy") == "True"
+auto_build =  config.get("app", "auto_build") == "True"
 
 overview_show_count_for_approvals = config.get("overview", "show_count_for_approvals") == "True"
 
