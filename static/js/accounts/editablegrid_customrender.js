@@ -12,7 +12,7 @@ ActionCellRenderer.prototype.render = function(cell, value)
 	let roles_column_name = this.column.optionValuesForRender["rolesColumnName"];
 	
 	// we don't know in what row we actually are
-	actions = new Actions(cell, value, roles_column_name, this.editablegrid, null);
+	let actions = new Actions(cell, value, roles_column_name, this.editablegrid, null);
 	
 	let account_id = actions.account_id;
 	let disabled = actions.disabled;
