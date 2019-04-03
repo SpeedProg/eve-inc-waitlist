@@ -23,7 +23,12 @@ def make_connection():
         con = TS3Connection(teamspeak.host, teamspeak.port)
         con.login(client_login_name=teamspeak.queryName, client_login_password=teamspeak.queryPassword)
         con.use(sid=teamspeak.serverID)
-        con.clientupdate(CLIENT_NICKNAME=teamspeak.clientName)
+        try:
+            con.clientupdate(CLIENT_NICKNAME=teamspeak.clientName)
+        except TS3QueryError as ex:
+            # this means we already have the right name
+            # newer versions of ts server name without ip
+            pass
         try:
             con.clientmove(cid=teamspeak.channelID, clid=0)
         except TS3QueryError as ex:
