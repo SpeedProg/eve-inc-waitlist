@@ -66,7 +66,7 @@ perm_fits_view = perm_manager.get_permission('fits_view')
 def send_notification(player_id):
     waitlist_id = int(request.form['waitlistID'])
     send_notifiaction_to_player(player_id, waitlist_id, "The FC is looking for you")
-    return make_response("Notification send", 200)
+    return make_response("Notification send", 200, {"Content-Type": "text/plain; charset=utf-8"})
 
 
 @bp.route("/waitlists/", methods=["GET"])
