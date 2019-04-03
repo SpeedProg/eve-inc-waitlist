@@ -1,7 +1,7 @@
 from waitlist.utility.constants import location_flags, effects
 from typing import List, Dict, Optional
 from waitlist.storage.database import InvType, Shipfit, FitModule
-from waitlist import db
+from waitlist.base import db
 import logging
 import re
 from waitlist.utility.eve_id_utils import get_item_id

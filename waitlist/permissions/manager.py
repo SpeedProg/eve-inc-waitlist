@@ -3,7 +3,7 @@ from typing import Dict, Sequence
 import logging
 from flask_principal import RoleNeed, Permission, IdentityContext
 
-from waitlist import db
+from waitlist.base import db
 from waitlist.storage.database import Permission as DBPermission, Role
 
 logger = logging.getLogger(__name__)

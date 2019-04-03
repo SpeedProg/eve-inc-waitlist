@@ -2,7 +2,7 @@ from multiprocessing import Process, JoinableQueue
 from typing import List, Union
 
 from waitlist.storage.database import Shipfit, InvType, FitModule
-from waitlist import db, manager
+from waitlist.base import db, manager
 
 
 if __name__ == '___main__':

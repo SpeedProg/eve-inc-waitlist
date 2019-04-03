@@ -17,7 +17,7 @@ from waitlist.utility.history_utils import create_history_object
 from waitlist.utility.fitting_utils import get_fit_format, parse_dna_fitting,\
     parse_eft, is_logi_hull, is_allowed_hull, is_dps_by_group,\
     is_sniper_by_group
-from waitlist import db
+from waitlist.base import db
 from . import bp
 from flask_babel import gettext, ngettext
 from typing import Dict, List, Tuple

@@ -2,7 +2,7 @@ import logging
 from datetime import datetime, timezone, timedelta
 from typing import Dict, Union, Optional
 
-from waitlist import db
+from waitlist.base import db
 from waitlist.sso import who_am_i
 from waitlist.storage.database import Account, Character, SSOToken
 from esipy.exceptions import APIException

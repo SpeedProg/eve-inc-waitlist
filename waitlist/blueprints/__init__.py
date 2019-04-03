@@ -15,7 +15,7 @@ from flask_login import login_required, current_user, login_user, logout_user
 from waitlist.utility import config
 from waitlist.utility.config import stattool_enabled, stattool_uri, stattool_sri
 
-from waitlist import app, db
+from waitlist.base import app, db
 from waitlist.storage.database import WaitlistGroup, TeamspeakDatum, CalendarEvent, WaitlistEntry, Account, Trivia
 from waitlist.utility.settings import sget_active_ts_id
 

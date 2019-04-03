@@ -5,7 +5,7 @@ from esipy import EsiClient
 from waitlist.utility import outgate
 from waitlist.storage.database import Constellation, SolarSystem, Station,\
     InvType, Account, Character, Ban, Whitelist
-from waitlist import db
+from waitlist.base import db
 import logging
 
 from waitlist.utility.swagger import get_api

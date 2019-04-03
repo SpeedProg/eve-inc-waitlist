@@ -7,7 +7,7 @@ from flask.globals import request
 import flask
 from werkzeug.utils import redirect
 from flask.helpers import url_for
-from waitlist import db
+from waitlist.base import db
 from waitlist.storage.database import Account, CCVote, Role
 from sqlalchemy.sql.expression import asc
 from flask_babel import gettext

@@ -10,7 +10,7 @@ import sqlalchemy as sa
 from waitlist.storage.database import AccountNote, Character
 from waitlist.utility.constants import account_notes
 import re
-from waitlist import app, convention
+from waitlist.base import app, convention
 from sqlalchemy.sql.schema import MetaData
 from flask_sqlalchemy import SQLAlchemy
 
