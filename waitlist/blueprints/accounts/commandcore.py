@@ -4,7 +4,7 @@ from flask.blueprints import Blueprint
 from waitlist.blueprints.settings.accounts import clean_alt_list
 from waitlist.permissions import perm_manager
 from flask_login import login_required
-from waitlist import db
+from waitlist.base import db
 from waitlist.storage.database import Account, Role
 from flask.templating import render_template
 

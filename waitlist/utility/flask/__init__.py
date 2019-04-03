@@ -9,7 +9,7 @@ from flask_login import current_user, AnonymousUserMixin
 from flask_principal import Identity, UserNeed, RoleNeed, identity_loaded
 from werkzeug.utils import redirect
 
-from waitlist import principals, app, db, login_manager
+from waitlist.base import principals, app, db, login_manager
 from waitlist.blueprints.fc_sso import get_sso_redirect
 from waitlist.storage.database import Account, Character, Role, roles, SSOToken
 from waitlist.utility import config

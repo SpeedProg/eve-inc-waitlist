@@ -1,5 +1,5 @@
 # inject the lib folder before everything else
-from waitlist import db
+from waitlist.base import db
 from waitlist.data.names import WaitlistNames
 from waitlist.storage.database import Waitlist, WaitlistGroup
 

@@ -4,7 +4,7 @@ from datetime import datetime
 from waitlist.storage.database import APICacheAllianceInfo
 from waitlist.utility.outgate.exceptions import check_esi_response
 from waitlist.utility.swagger.eve.alliance import AllianceEndpoint, AllianceInfo
-from waitlist import db
+from waitlist.base import db
 
 logger = logging.getLogger(__name__)
 

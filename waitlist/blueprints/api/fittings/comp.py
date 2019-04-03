@@ -6,7 +6,7 @@ from waitlist.data.sse import EntryRemovedSSE, send_server_sent_event
 from waitlist.permissions import perm_manager
 from waitlist.storage.database import WaitlistGroup, WaitlistEntry, HistoryEntry, Character
 from waitlist.utility.history_utils import create_history_object
-from waitlist import db
+from waitlist.base import db
 from . import bp
 import flask
 

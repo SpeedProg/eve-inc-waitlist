@@ -1,7 +1,7 @@
 import datetime
 from waitlist.storage.database import HistoryEntry, Account, Character,\
     HistoryFits, Shipfit, InvType
-from waitlist import db
+from waitlist.base import db
 from sqlalchemy import and_, or_, func
 from typing import Any, Dict, Union, List, Callable, ClassVar
 from builtins import classmethod, staticmethod

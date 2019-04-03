@@ -1,6 +1,6 @@
 from flask import Response, jsonify
 
-from waitlist import app
+from waitlist.base import app
 from . import models
 
 from . import accounts, characters, i18n

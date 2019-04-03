@@ -12,7 +12,7 @@ from os import path
 from werkzeug.utils import secure_filename, redirect
 
 from waitlist.blueprints.settings import add_menu_entry
-from waitlist import app
+from waitlist.base import app
 from waitlist.permissions import perm_manager
 from waitlist.utility import sde
 from flask_babel import gettext, lazy_gettext

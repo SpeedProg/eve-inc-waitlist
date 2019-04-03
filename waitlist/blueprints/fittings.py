@@ -13,7 +13,7 @@ from werkzeug.utils import redirect
 from flask.helpers import url_for
 from flask.templating import render_template
 from datetime import datetime, timedelta
-from waitlist import db
+from waitlist.base import db
 from waitlist.data.sse import subscriptions, EntryAddedSSE, \
     send_server_sent_event, FitAddedSSE, FitRemovedSSE, EntryRemovedSSE
 import flask

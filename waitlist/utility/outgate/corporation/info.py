@@ -1,7 +1,7 @@
 import logging
 from datetime import datetime
 
-from waitlist import db
+from waitlist.base import db
 from waitlist.storage.database import APICacheCorporationInfo
 from waitlist.utility.outgate.exceptions import ESIException, check_esi_response
 from waitlist.utility.swagger.eve.corporation import CorporationEndpoint, CorporationInfo

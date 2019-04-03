@@ -4,7 +4,7 @@ from flask import request
 from flask_login import current_user
 from typing import Callable, Dict, Any
 
-from waitlist import app
+from waitlist.base import app
 from waitlist.data.version import version
 from waitlist.permissions import perm_manager
 from waitlist.utility.config import cdn_eveimg, cdn_eveimg_webp, cdn_eveimg_js, influence_link, title

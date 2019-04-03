@@ -4,7 +4,7 @@ from flask_login import current_user
 from time import sleep
 import logging
 from threading import Timer
-from waitlist import db
+from waitlist.base import db
 from waitlist.storage.database import WaitlistGroup, CrestFleet, WaitlistEntry, \
     HistoryEntry, Character, TeamspeakDatum, Account, SSOToken
 from datetime import datetime, timedelta

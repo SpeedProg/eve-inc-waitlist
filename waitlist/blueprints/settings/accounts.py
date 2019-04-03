@@ -13,7 +13,7 @@ from flask_login import login_required, current_user
 from sqlalchemy import asc
 from sqlalchemy import or_
 
-from waitlist import db
+from waitlist.base import db
 from waitlist.blueprints.fc_sso import get_sso_redirect, add_sso_handler
 from waitlist.blueprints.settings import add_menu_entry
 from waitlist.permissions import perm_manager

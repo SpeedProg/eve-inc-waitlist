@@ -10,7 +10,7 @@ from sqlalchemy import Enum
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.sql.schema import Table, ForeignKey, CheckConstraint, UniqueConstraint
 
-from waitlist import db
+from waitlist.base import db
 from waitlist.utility import config
 from waitlist.utility.utils import get_random_token
 from sqlalchemy.types import UnicodeText

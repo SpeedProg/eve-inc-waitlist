@@ -4,7 +4,7 @@ import logging
 from waitlist.utility import config
 from waitlist.utility.settings import sget_active_ts_id
 from waitlist.storage.database import TeamspeakDatum
-from waitlist import db
+from waitlist.base import db
 from time import sleep
 
 logger = logging.getLogger(__name__)
