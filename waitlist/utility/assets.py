@@ -1,6 +1,6 @@
 from os import path
 from webassets.bundle import Bundle
-from webassets.ext.jinja2 import Jinja2Loader
+from waitlist.utility.webassets.loader.jinja2 import Jinja2Loader
 from flask_assets import Environment
 
 
