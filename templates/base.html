@@ -33,9 +33,9 @@
 <script type="text/javascript" id="themeloader">
 {% include 'partials/themes.js' %}
 </script>
-<script type="text/javascript" id="translationloader">
-{% include 'partials/i18n.js' %}
-</script>
+{% assets lang_code %}
+<script src="{{ ASSET_URL }}"></script>
+{% endassets %}
 {% block head %}
 {% assets filters="babili", output="gen/base.%(version)s.js", "js/swagger-client.min.js", "js/base.js" %}
 <script type="text/javascript" src="{{ ASSET_URL }}"></script>
