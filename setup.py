@@ -6,7 +6,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="EVE Incursion waitlist",
-    version="1.6.0-rc2",
+    version="1.6.0-rc5",
     author="SpeedProg",
     author_email="speedprogde@googlemail.com",
     description="Waitlist geared towards EveOnline Incursion Groups",
@@ -23,7 +23,7 @@ setuptools.setup(
     [console_scripts]
     waitlist = waitlist.entry:main
     [babel.extractors]
-    waitlist_themes = waitlist_babel.themes_extractor:extract
+    waitlist_themes = waitlist.utility.babel.themes_extractor:extract
     """
 )
 
