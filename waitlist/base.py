@@ -25,7 +25,6 @@ from flask_limiter.util import get_ipaddr
 from flask.globals import request
 from waitlist.utility.assets import register_asset_bundles
 from flask_babel import Babel
-from waitlist.utility.webassets.filter.json import JsonMinFilter
 from waitlist.utility.i18n.locale import get_locale, get_langcode_from_locale
 from waitlist.utility.webassets.filter.cssoptimizer import CSSOptimizerFilter
 
@@ -114,7 +113,6 @@ HTMLMIN(app)
 assets = Environment(app)
 assets.auto_build = (config.debug_enabled or config.auto_build)
 register_filter(BabiliFilter)
-register_filter(JsonMinFilter)
 register_filter(CSSOptimizerFilter)
 register_asset_bundles(assets)
 
