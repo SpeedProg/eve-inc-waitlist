@@ -64,8 +64,18 @@ app.config['ASSETS_DEBUG'] = config.assets_debug
 # flask HTMLMIN config
 app.config['MINIFY_PAGE'] = config.html_min
 
-# naming conventions for sql
+# language config
+app.config['LANGUAGES'] = ['en', 'de']
+app.config['BABEL_TRANSLATION_DIRECTORIES'] = '../translations'
 
+babel = Babel(app)
+
+@babel.localeselector
+def babel_localeselection():
+    return get_langcode_from_locale(get_locale(app))
+
+
+# naming conventions for sql
 convention = {
   "ix": "ix_%(column_0_label)s",
   "uq": "uq_%(table_name)s_%(column_0_name)s",
@@ -162,12 +172,3 @@ template = {
 
 swag = Swagger(app, template=template)
 
-app.config['LANGUAGES'] = ['en', 'de']
-app.config['BABEL_TRANSLATION_DIRECTORIES'] = '../translations'
-
-babel = Babel(app)
-
-
-@babel.localeselector
-def babel_localeselection():
-    return get_langcode_from_locale(get_locale(app))

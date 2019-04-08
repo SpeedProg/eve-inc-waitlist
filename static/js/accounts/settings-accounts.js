@@ -233,10 +233,7 @@ waitlist.accounts = (function() {
 	function init() {
 		noclick();
 		setUpEventhandlers();
-		// make sure language data is loaded
-		i18nloaded.then(() => {
-			setUpTable();
-		});
+		setUpTable();
 	}
 
 	$(document).ready(init);
