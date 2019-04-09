@@ -309,3 +309,56 @@ def is_sniper_by_group(type_id: int):
     if inv_type.groupID in sniper_groups:
         return True
     return False
+
+def get_weapon_type_by_typeid(type_id: int):
+"""Get the weapon_type for the given type_id
+Returns: WaitlistNames.dps, WaitlistNames.sniper, WaitlistNames.logi or None
+"""
+        weapon_type = None
+        for mod_id in possible_weapons:
+            inv_type: InvType = db.session.query(InvType).get(type_id)
+            if inv_type.group.groupName == 'Precursor Weapon':
+                weapon_type = WaitlistNames.dps
+                break
+            if mod_id in sniper_weapons:
+                weapon_type = WaitlistNames.sniper
+                break
+            if mod_id in dps_weapons:
+                weapon_type = WaitlistNames.dps
+                break
+            if inv_type.group.groupName in ['Remote Shield Booster',
+                                            'Remote Armor Repairer']:
+                weapon_type = WaitlistNames.logi
+                break
+
+        if weapon_type == "None":
+            # try to decide by market group
+            for mod_id in possible_weapons:
+                weapon_db = db.session.query(InvType).get(type_id)
+                if weapon_db is None:
+                    continue
+                market_group = db.session.query(MarketGroup).get(
+                    weapon_db.marketGroupID)
+                if market_group is None:
+                    continue
+                parent_group = db.session.query(MarketGroup).get(
+                    market_group.parentGroupID)
+                if parent_group is None:
+                    continue
+
+                # we have a parent market group
+                if parent_group.marketGroupName in weapongroups['dps']:
+                    weapon_type = WaitlistNames.dps
+                    break
+                if parent_group.marketGroupName in weapongroups['sniper']:
+                    weapon_type = WaitlistNames.sniper
+                    break
+
+                    # ships with no valid weapons put on other wl
+        if weapon_type == None:
+            if is_dps_by_group(fit.ship_type):
+                weapon_type = WaitlistNames.dps
+            elif is_sniper_by_group(fit.ship_type):
+                weapon_type = WaitlistNames.sniper
+        return weapon_type
+
