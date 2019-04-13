@@ -1,5 +1,5 @@
 <select autocomplete="off" id="theme-selector" class="custom-select">
-	<option value="default">{{ _('Default') }}</option>
-	<option value="dark">Dark</option>
-	<option value="dark_purple">Dark Purple</option>
+	{% for theme in themes %}
+	<option value="{{ theme.id }}">{{ _(theme.name) }}</option>
+	{% endfor %}
 </select>
