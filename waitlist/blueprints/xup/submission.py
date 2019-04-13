@@ -16,12 +16,13 @@ from waitlist.storage.modules import resist_ships, logi_ships, sniper_ships,\
 from waitlist.utility.history_utils import create_history_object
 from waitlist.utility.fitting_utils import get_fit_format, parse_dna_fitting,\
     parse_eft, is_logi_hull, is_allowed_hull, is_dps_by_group,\
-    is_sniper_by_group
+    is_sniper_by_group, get_weapon_type_by_typeid
 from waitlist.base import db
 from . import bp
 from flask_babel import gettext, ngettext
 from typing import Dict, List, Tuple
 from waitlist.utility.constants import location_flags, groups
+import operator
 
 logger = logging.getLogger(__name__)
 
@@ -271,76 +272,23 @@ def submit():
             fits_ready.append(fit)
             continue
 
-        # filter out mods that don't exist at least 4 times
-        # this way we avoid checking everything or choosing the wrong weapon
-        # on ships that have 7turrents + 1launcher
-        possible_weapons = []
+        possible_weapon_types = dict()
+        # lets collect all weapons, no matter the amount
+        # then categorize them
+        # and choose the category with the most weapons
+        
         high_slot_mod_map = mod_list[location_flags.HIGH_SLOT]
         for mod in high_slot_mod_map:
-            inv_type: InvType = db.session.query(InvType).get(mod)
-            if high_slot_mod_map[mod][1] >= 4 or (
-                    inv_type.groupID in [groups.remote_armor_repairer,
-                                         groups.remote_shield_booster]
-                    and 'Capital' in inv_type.typeName
-                    ):
-                logger.info('Adding %s as possible weapon', inv_type.typeName)
-                possible_weapons.append(mod)
-            else:
-                # precursor weapons only use 1 turret
-                if inv_type is None:
-                    continue
-                if inv_type.group.groupName == 'Precursor Weapon':
-                    logger.info('Adding %s Precursor Weapon as possible weapon', inv_type.typeName)
-                    possible_weapons.append(mod)
+            weapon_type = get_weapon_type_by_typeid(mod)
+            if (weapon_type is not None):
+                if weapon_type not in possible_weapon_types:
+                    possible_weapon_types[weapon_type] = 0
 
-        weapon_type = "None"
-        for mod_id in possible_weapons:
-            inv_type: InvType = db.session.query(InvType).get(mod_id)
-            if inv_type.group.groupName == 'Precursor Weapon':
-                weapon_type = WaitlistNames.dps
-                break
-            if mod_id in sniper_weapons:
-                weapon_type = WaitlistNames.sniper
-                break
-            if mod_id in dps_weapons:
-                weapon_type = WaitlistNames.dps
-                break
-            if inv_type.group.groupName in ['Remote Shield Booster',
-                                            'Remote Armor Repairer']:
-                weapon_type = WaitlistNames.logi
-                break
+                possible_weapon_types[weapon_type] += high_slot_mod_map[mod][1]
 
-        if weapon_type == "None":
-            # try to decide by market group
-            for mod_id in possible_weapons:
-                weapon_db = db.session.query(InvType).get(mod_id)
-                if weapon_db is None:
-                    continue
-                market_group = db.session.query(MarketGroup).get(
-                    weapon_db.marketGroupID)
-                if market_group is None:
-                    continue
-                parent_group = db.session.query(MarketGroup).get(
-                    market_group.parentGroupID)
-                if parent_group is None:
-                    continue
+        weapon_type = max(possible_weapon_types.iteritems(), key=operator.itemgetter(1), default=(None, None))[0]
 
-                # we have a parent market group
-                if parent_group.marketGroupName in weapongroups['dps']:
-                    weapon_type = WaitlistNames.dps
-                    break
-                if parent_group.marketGroupName in weapongroups['sniper']:
-                    weapon_type = WaitlistNames.sniper
-                    break
-
-                    # ships with no valid weapons put on other wl
-        if weapon_type == "None":
-            if is_dps_by_group(fit.ship_type):
-                weapon_type = WaitlistNames.dps
-            elif is_sniper_by_group(fit.ship_type):
-                weapon_type = WaitlistNames.sniper
-
-        if weapon_type == "None":
+        if weapon_type is None:
             fit.wl_type = WaitlistNames.other
             fits_ready.append(fit)
             continue
