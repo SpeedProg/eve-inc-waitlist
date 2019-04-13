@@ -263,12 +263,9 @@ function AddJoinedMemebers(seconds, title) {
 
 
 function init_overview() {
-	// this is to make sure that the language data is there before we try to use it
-	i18nloaded.then(() => {
-		AddApprovedFitsByAccount(2592000, $.i18n('wl-overview-top-commader-time', 15, 30));
-		AddDistinctHullCharacterCombinations(2592000, $.i18n("wl-overview-top-distinct-time", 15, 30));
-		AddDistinctHullCharacterCombinations(86400, $.i18n("wl-overview-top-distinct-time", 15, 1));
-		AddJoinedMemebers(123072000, $.i18n('wl-fleetjoins-per-month'));
-	});
+	AddApprovedFitsByAccount(2592000, $.i18n('wl-overview-top-commader-time', 15, 30));
+	AddDistinctHullCharacterCombinations(2592000, $.i18n("wl-overview-top-distinct-time", 15, 30));
+	AddDistinctHullCharacterCombinations(86400, $.i18n("wl-overview-top-distinct-time", 15, 1));
+	AddJoinedMemebers(123072000, $.i18n('wl-fleetjoins-per-month'));
 }
 $(document).ready(init_overview);
