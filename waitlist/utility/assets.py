@@ -1,29 +1,15 @@
 import json
 from os import path
 from webassets.bundle import Bundle
+from webassets.utils import hash_func
 from waitlist.utility.webassets.loader.jinja2 import Jinja2Loader
 from waitlist.utility.webassets.filter.jinja2 import CacheableJinja2Filter
 from flask_assets import Environment
 
 
 def register_asset_bundles(assets: Environment):
-    themes_dark = Bundle('css/themes/dark.css',
-                         filters='csscomp',
-                         output='gen/themes/dark.%(version)s.css')
-    themes_darkpurple = Bundle('css/themes/dark_purple.css',
-                               filters='csscomp',
-                               output='gen/themes/dark_purple.%(version)s.css')
-    themes_default = Bundle('css/themes/default.css',
-                            filters='csscomp',
-                            output='gen/themes/default.%(version)s.css')
-
-    bundles = {
-        'themes.dark': themes_dark,
-        'themes.dark_purple': themes_darkpurple,
-        'themes.default': themes_default,
-    }
-    assets.register(bundles)
-
+    ThemeBundle(assets)
+    
     translations = []
     for locale in assets.app.babel_instance.list_translations():
         LocaleJinja2Bundle(
@@ -86,4 +72,44 @@ class LocaleJinja2Bundle():
             if not ('@metadata' in lang and 'locale' in lang['@metadata']):
                 raise Exception('unable to validate {} as locale file for {}'.format(self.path, self.lang_code))
             return lang
+
+
+class ThemeBundle():
+
+    def __init__(self, assets: Environment):
+        with open('./config/themes.json', 'r') as fp:
+            self.config = json.load(fp)
+        assets.app.jinja_env.globals.update(themes=self.config)
+
+        self.assets = assets
+        self.hash = hash_func(self.config)
+
+        for theme in self.config:
+            if 'paths' in theme:
+                self.assets.register(
+                    'theme_' + theme['id'],
+                    theme['paths'],
+                    filters='csscomp',
+                    output='gen/themes/' + theme['id'] + '.%(version)s.css',
+                )
+
+        self.assets.register(
+            'themes.js',
+            ['static/js/themes.js'],
+            filters=(
+                CacheableJinja2Filter(self, assets.app.jinja_env),
+                'babili',
+            ),
+            output='gen/themes.%(version)s.js',
+        )
+
+    def unique(self):
+        hashset = [self.hash]
+        for theme in self.config:
+            if theme['paths']:
+                hashset.append(self.assets['theme_' + theme['id']].urls())
+        return hashset
+
+    def context(self):
+        return {}
 
