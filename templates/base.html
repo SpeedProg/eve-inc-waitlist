@@ -7,10 +7,13 @@
 <meta name="eve-image-server" content="{{eve_proxy_js}}">
 <meta name="eve-image-server-webp" content="{{eve_cdn_webp}}">
 <meta name="browser-webp" content="{{browserSupportsWebp}}">
+{% assets 'themes.js' %}
+<script src="{{ ASSET_URL }}"></script>
+{% endassets %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"
  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
  crossorigin="anonymous"></script>
- <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.i18n/1.0.5/jquery.i18n.min.js"
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.i18n/1.0.5/jquery.i18n.min.js"
  integrity="sha256-a57FJT1vfxYpqPhdhvt5rDlIpkzBooUezMu233mfx/0="
  crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.i18n/1.0.5/jquery.i18n.messagestore.min.js"
@@ -31,12 +34,9 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.i18n/1.0.5/jquery.i18n.parser.min.js"
  integrity="sha256-kI2ykUeqvOkYUt9ljoBTKYcZD1Z8AR/9Olj1d27n+e8="
  crossorigin="anonymous"></script>
-<script type="text/javascript" id="themeloader">
-{% include 'partials/themes.js' %}
-</script>
-<script type="text/javascript" id="translationloader">
-{% include 'partials/i18n.js' %}
-</script>
+{% assets lang_code %}
+<script src="{{ ASSET_URL }}"></script>
+{% endassets %}
 {% block head %}
 {% assets filters="babili", output="gen/base.%(version)s.js", "js/swagger-client.min.js", "js/base.js" %}
 <script type="text/javascript" src="{{ ASSET_URL }}"></script>
