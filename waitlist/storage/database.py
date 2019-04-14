@@ -727,6 +727,10 @@ class Character(Base):
     def __hash__(self) -> int:
         return self.id
 
+permission_roles = Table('permission_roles', Base.metadata,
+                         Column('permission', Integer, ForeignKey('permissions.id')),
+                         Column('role', Integer, ForeignKey('roles.id'))
+                         )
 
 class Role(Base):
     """
@@ -738,14 +742,12 @@ class Role(Base):
     name = Column('name', String(50), unique=True)
     displayName = Column('display_name', String(150), unique=False)
 
+    permissions_granted = relationship("Permission",
+                                      secondary=permission_roles,
+                                      back_populates="roles_needed")
+
     def __repr__(self):
         return "<Role %r>" % self.name
-
-
-permission_roles = Table('permission_roles', Base.metadata,
-                         Column('permission', Integer, ForeignKey('permissions.id')),
-                         Column('role', Integer, ForeignKey(Role.id))
-                         )
 
 
 class Permission(Base):
@@ -757,7 +759,9 @@ class Permission(Base):
     id = Column('id', Integer, primary_key=True)
     name = Column('name', String(150), unique=True)
 
-    roles_needed = relationship("Role", secondary=permission_roles)
+    roles_needed = relationship("Role",
+                                secondary=permission_roles,
+                                back_populates="permissions_granted")
 
     def __repr__(self):
         return f'<Permission id={self.id} name={self.name}'
