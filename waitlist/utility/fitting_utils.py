@@ -12,143 +12,143 @@ logger = logging.getLogger(__name__)
 
 
 def parse_eft(lines: List[str]) -> Shipfit:
-        slot_list: List[Dict[int, List[int]]] = [dict(), dict(), dict(),
-                                                 dict(), dict(), dict(),
-                                                 dict(), dict()]
-        if len(lines) < 2:
-            return None
+    slot_list: List[Dict[int, List[int]]] = [dict(), dict(), dict(),
+                                             dict(), dict(), dict(),
+                                             dict(), dict()]
+    if len(lines) < 2:
+        return None
 
-        fit = Shipfit()
-        # take [Vindicator, VeniVindiVG] remove the [] and split at ,
-        info = lines[0][1:-1].split(",", 1)
-        if len(info) < 2:
-            return None
+    fit = Shipfit()
+    # take [Vindicator, VeniVindiVG] remove the [] and split at ,
+    info = lines[0][1:-1].split(",", 1)
+    if len(info) < 2:
+        return None
 
-        ship_type = info[0]  # I only care about what ship it is
+    ship_type = info[0]  # I only care about what ship it is
 
-        ship_id = get_item_id(ship_type)
-        if ship_id == -1:
-            return None
-        fit.ship_type = ship_id
+    ship_id = get_item_id(ship_type)
+    if ship_id == -1:
+        return None
+    fit.ship_type = ship_id
 
-        # the 2nd line is empty if it is a pyfa fit!
-        # the 2nd line has something if it is ingame fit!
-        second_line = lines[1].strip()
+    # the 2nd line is empty if it is a pyfa fit!
+    # the 2nd line has something if it is ingame fit!
+    second_line = lines[1].strip()
 
-        is_pyfa = ((not second_line) or second_line == '')
+    is_pyfa = ((not second_line) or second_line == '')
 
-        # the cargo slot there twice because ingame client
-        # does 2 empty lines after subystem and before dronebay
-        # and pyfa only does 1
-        # so now with pyfa
-        sections = [location_flags.LOW_SLOT, location_flags.MID_SLOT,
-                    location_flags.HIGH_SLOT, location_flags.RIG_SLOT,
-                    location_flags.SUBYSTEM_SLOT, location_flags.DRONEBAY_SLOT,
-                    location_flags.CARGO_SLOT, location_flags.FIGHTERS_SLOT]
+    # the cargo slot there twice because ingame client
+    # does 2 empty lines after subystem and before dronebay
+    # and pyfa only does 1
+    # so now with pyfa
+    sections = [location_flags.LOW_SLOT, location_flags.MID_SLOT,
+                location_flags.HIGH_SLOT, location_flags.RIG_SLOT,
+                location_flags.SUBYSTEM_SLOT, location_flags.DRONEBAY_SLOT,
+                location_flags.CARGO_SLOT, location_flags.FIGHTERS_SLOT]
 
-        section_idx = 0  # 'low'
-        # used to store a list of items
-        # that we want to remember we created
-        # start at 3rd line for pyfa and at 2nd for ingame
-        i = 2 if is_pyfa else 1
-        while i < len(lines):
+    section_idx = 0  # 'low'
+    # used to store a list of items
+    # that we want to remember we created
+    # start at 3rd line for pyfa and at 2nd for ingame
+    i = 2 if is_pyfa else 1
+    while i < len(lines):
 
-            line = lines[i].strip()
-            logger.info('SectionIdx: %d Line: %s', section_idx, line)
-            # an empty line indicates changing to the next section
-            if not line or line == '':
-                section_idx = section_idx + 1
-                # to reach this ingame fit needs 2 new lines
-                # pyfa fit only 1
-                if section_idx == location_flags.DRONEBAY_SLOT:
-                    # if we are on ingame fit and next line is empty
-                    # skip next line (ingame has 2 newline before drones
-                    if not is_pyfa:
-                        next_line = lines[i+1].strip()
-                        if not next_line or next_line == '':
-                            i += 1
+        line = lines[i].strip()
+        logger.info('SectionIdx: %d Line: %s', section_idx, line)
+        # an empty line indicates changing to the next section
+        if not line or line == '':
+            section_idx = section_idx + 1
+            # to reach this ingame fit needs 2 new lines
+            # pyfa fit only 1
+            if section_idx == location_flags.DRONEBAY_SLOT:
+                # if we are on ingame fit and next line is empty
+                # skip next line (ingame has 2 newline before drones
+                if not is_pyfa:
+                    next_line = lines[i+1].strip()
+                    if not next_line or next_line == '':
+                        i += 1
 
-                i += 1
-                continue
-
-            # check if it is an empty slot
-            if re.match("\[[\w\s]+\]$", line):
-                i += 1
-                continue
-
-            # check if it contains a xNUMBER and is by that drone/fighter or cargo
-            is_cargo = re.match(".*x\d+$", line) is not None
-            logger.debug("%s is_cargo = %s", line, is_cargo)
-
-            if sections[section_idx] == location_flags.CARGO_SLOT:
-                mod_info = line.rsplit(" x", 2)
-                mod_name = mod_info[0]
-                mod_amount = int(mod_info[1])
-            elif sections[section_idx] in [location_flags.DRONEBAY_SLOT,
-                                           location_flags.FIGHTERS_SLOT]:
-                # because of how pyfa and ingame format are different
-                # we might endup here while really being in cargo...
-                mod_info = line.rsplit(" x", 2)
-                mod_name = mod_info[0]
-                mod_amount = int(mod_info[1])
-            else:
-                if line.endswith("/OFFLINE"):
-                    line = line[:-8]
-                # might contain charge after a ', ' we can ignore this
-                name_parts = line.split(", ")
-                mod_name = name_parts[0]
-                mod_amount = 1
-
-            mod_id = get_item_id(mod_name)
-            if mod_id == -1:  # items was not in database
-                i += 1
-                continue
-
-            if sections[section_idx] == location_flags.DRONEBAY_SLOT:
-                # check here if this item is really a drone
-                inv_type: InvType = db.session.query(InvType).get(mod_id)
-                if not inv_type.IsDrone:
-                    # if this is no drone, we 100% where in cargo
-                    # and this was no ingame export
-                    # move the collected data to the cargo slot
-                    mod_map = slot_list[sections[section_idx]]
-                    slot_list[sections[section_idx]] = dict()
-                    slot_list[location_flags.CARGO_SLOT] = mod_map
-                    # and change our index
-                    section_idx = location_flags.CARGO_SLOT
-
-            mod_map = slot_list[sections[section_idx]]
-
-            if mod_id in mod_map:
-                mod_entry = mod_map[mod_id]
-            else:  # if the module is not in the map create it
-                mod_entry = [mod_id, 0]
-                mod_map[mod_id] = mod_entry
-
-            mod_entry[1] += mod_amount
             i += 1
+            continue
 
-        for idx, mod_map in enumerate(slot_list):
-            for modid in mod_map:
-                mod = mod_map[modid]
-                # lets set amounts to max signed int,
-                # because it is not really imporant
-                # some one was manually making those values up anyway
-                if mod[1] > 2147483647 or mod[1] < 0:
-                    mod[1] = 2147483647
+        # check if it is an empty slot
+        if re.match("\[[\w\s]+\]$", line):
+            i += 1
+            continue
 
-                # lets check the value actually exists
-                inv_type = db.session.query(InvType).get(mod[0])
-                if inv_type is None:
-                    raise ValueError('No module with ID='+str(mod[0]))
+        # check if it contains a xNUMBER and is by that drone/fighter or cargo
+        is_cargo = re.match(".*x\d+$", line) is not None
+        logger.debug("%s is_cargo = %s", line, is_cargo)
 
-                db_module = FitModule(moduleID=mod[0], locationFlag=idx,
-                                      amount=mod[1])
-                fit.moduleslist.append(db_module)
-        logger.debug('SlotList: %r', slot_list)
-        fit.modules = create_dna_string(slot_list)
+        if sections[section_idx] == location_flags.CARGO_SLOT:
+            mod_info = line.rsplit(" x", 2)
+            mod_name = mod_info[0]
+            mod_amount = int(mod_info[1])
+        elif sections[section_idx] in [location_flags.DRONEBAY_SLOT,
+                                       location_flags.FIGHTERS_SLOT]:
+            # because of how pyfa and ingame format are different
+            # we might endup here while really being in cargo...
+            mod_info = line.rsplit(" x", 2)
+            mod_name = mod_info[0]
+            mod_amount = int(mod_info[1])
+        else:
+            if line.endswith("/OFFLINE"):
+                line = line[:-8]
+            # might contain charge after a ', ' we can ignore this
+            name_parts = line.split(", ")
+            mod_name = name_parts[0]
+            mod_amount = 1
 
-        return fit
+        mod_id = get_item_id(mod_name)
+        if mod_id == -1:  # items was not in database
+            i += 1
+            continue
+
+        if sections[section_idx] == location_flags.DRONEBAY_SLOT:
+            # check here if this item is really a drone
+            inv_type: InvType = db.session.query(InvType).get(mod_id)
+            if not inv_type.IsDrone:
+                # if this is no drone, we 100% where in cargo
+                # and this was no ingame export
+                # move the collected data to the cargo slot
+                mod_map = slot_list[sections[section_idx]]
+                slot_list[sections[section_idx]] = dict()
+                slot_list[location_flags.CARGO_SLOT] = mod_map
+                # and change our index
+                section_idx = location_flags.CARGO_SLOT
+
+        mod_map = slot_list[sections[section_idx]]
+
+        if mod_id in mod_map:
+            mod_entry = mod_map[mod_id]
+        else:  # if the module is not in the map create it
+            mod_entry = [mod_id, 0]
+            mod_map[mod_id] = mod_entry
+
+        mod_entry[1] += mod_amount
+        i += 1
+
+    for idx, mod_map in enumerate(slot_list):
+        for modid in mod_map:
+            mod = mod_map[modid]
+            # lets set amounts to max signed int,
+            # because it is not really imporant
+            # some one was manually making those values up anyway
+            if mod[1] > 2147483647 or mod[1] < 0:
+                mod[1] = 2147483647
+
+            # lets check the value actually exists
+            inv_type = db.session.query(InvType).get(mod[0])
+            if inv_type is None:
+                raise ValueError('No module with ID='+str(mod[0]))
+
+            db_module = FitModule(moduleID=mod[0], locationFlag=idx,
+                                  amount=mod[1])
+            fit.moduleslist.append(db_module)
+    logger.debug('SlotList: %r', slot_list)
+    fit.modules = create_dna_string(slot_list)
+
+    return fit
 
 
 def create_dna_string(slot_list: List[Dict[int, List[int]]]):
@@ -311,54 +311,54 @@ def is_sniper_by_group(type_id: int):
     return False
 
 def get_weapon_type_by_typeid(type_id: int):
-"""Get the weapon_type for the given type_id
-Returns: WaitlistNames.dps, WaitlistNames.sniper, WaitlistNames.logi or None
-"""
-        weapon_type = None
+    """Get the weapon_type for the given type_id
+    Returns: WaitlistNames.dps, WaitlistNames.sniper, WaitlistNames.logi or None
+    """
+    weapon_type = None
+    for mod_id in possible_weapons:
+        inv_type: InvType = db.session.query(InvType).get(type_id)
+        if inv_type.group.groupName == 'Precursor Weapon':
+            weapon_type = WaitlistNames.dps
+            break
+        if mod_id in sniper_weapons:
+            weapon_type = WaitlistNames.sniper
+            break
+        if mod_id in dps_weapons:
+            weapon_type = WaitlistNames.dps
+            break
+        if inv_type.group.groupName in ['Remote Shield Booster',
+                                        'Remote Armor Repairer']:
+            weapon_type = WaitlistNames.logi
+            break
+
+    if weapon_type == "None":
+        # try to decide by market group
         for mod_id in possible_weapons:
-            inv_type: InvType = db.session.query(InvType).get(type_id)
-            if inv_type.group.groupName == 'Precursor Weapon':
+            weapon_db = db.session.query(InvType).get(type_id)
+            if weapon_db is None:
+                continue
+            market_group = db.session.query(MarketGroup).get(
+                weapon_db.marketGroupID)
+            if market_group is None:
+                continue
+            parent_group = db.session.query(MarketGroup).get(
+                market_group.parentGroupID)
+            if parent_group is None:
+                continue
+
+            # we have a parent market group
+            if parent_group.marketGroupName in weapongroups['dps']:
                 weapon_type = WaitlistNames.dps
                 break
-            if mod_id in sniper_weapons:
+            if parent_group.marketGroupName in weapongroups['sniper']:
                 weapon_type = WaitlistNames.sniper
                 break
-            if mod_id in dps_weapons:
-                weapon_type = WaitlistNames.dps
-                break
-            if inv_type.group.groupName in ['Remote Shield Booster',
-                                            'Remote Armor Repairer']:
-                weapon_type = WaitlistNames.logi
-                break
 
-        if weapon_type == "None":
-            # try to decide by market group
-            for mod_id in possible_weapons:
-                weapon_db = db.session.query(InvType).get(type_id)
-                if weapon_db is None:
-                    continue
-                market_group = db.session.query(MarketGroup).get(
-                    weapon_db.marketGroupID)
-                if market_group is None:
-                    continue
-                parent_group = db.session.query(MarketGroup).get(
-                    market_group.parentGroupID)
-                if parent_group is None:
-                    continue
-
-                # we have a parent market group
-                if parent_group.marketGroupName in weapongroups['dps']:
-                    weapon_type = WaitlistNames.dps
-                    break
-                if parent_group.marketGroupName in weapongroups['sniper']:
-                    weapon_type = WaitlistNames.sniper
-                    break
-
-                    # ships with no valid weapons put on other wl
-        if weapon_type == None:
-            if is_dps_by_group(fit.ship_type):
-                weapon_type = WaitlistNames.dps
-            elif is_sniper_by_group(fit.ship_type):
-                weapon_type = WaitlistNames.sniper
-        return weapon_type
+                # ships with no valid weapons put on other wl
+    if weapon_type == None:
+        if is_dps_by_group(fit.ship_type):
+            weapon_type = WaitlistNames.dps
+        elif is_sniper_by_group(fit.ship_type):
+            weapon_type = WaitlistNames.sniper
+    return weapon_type
 
