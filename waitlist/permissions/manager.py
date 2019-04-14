@@ -1,4 +1,4 @@
-from typing import Dict, Sequence
+from typing import Dict, Sequence, Optional
 
 import logging
 from flask_principal import RoleNeed, Permission, IdentityContext
@@ -140,6 +140,13 @@ class PermissionManager(object):
         db.session.delete(role)
         db.session.commit()
         return True
+
+    @staticmethod
+    def get_role(role_id: int) -> Optional[Role]:
+      """Get a role by id
+         returns: the role or None
+      """
+      return db.session.query(Role).get(role_id)
 
     def get_permissions(self) -> Dict[str, AddPermission]:
         return self.__permissions

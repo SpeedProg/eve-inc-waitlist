@@ -11,7 +11,8 @@
 {% endblock %}
 
 {% block raw_content %}
-
+  {% set roles = perm_manager.get_roles() %}
+  {% set perms = perm_manager.get_permissions() %}
 	<div class="row">
 	<form class="form-inline" action="{{ url_for('settings_permissions.add_role') }}" method="POST" autocomplete="off">
 		<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
@@ -41,8 +42,6 @@
 		<!-- Make a table down wards permissions and to the right roles
 		 unticking and ticking instantly triggers a ajax call that changes it
 		 -->
-	{% set roles = perm_manager.get_roles() %}
-	{% set perms = perm_manager.get_permissions() %}
 	<div class="row">
 		<div class="col-lg-12">
 			<table class="table table-hover table-sm table-responsive">
