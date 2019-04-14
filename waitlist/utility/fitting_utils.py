@@ -1,12 +1,13 @@
 from waitlist.utility.constants import location_flags, effects
 from typing import List, Dict, Optional
-from waitlist.storage.database import InvType, Shipfit, FitModule
+from waitlist.storage.database import InvType, Shipfit, FitModule, MarketGroup
 from waitlist.base import db
+from waitlist.data.names import WaitlistNames
 import logging
 import re
 from waitlist.utility.eve_id_utils import get_item_id
 from waitlist.storage.modules import logi_ships, logi_groups, none_logi_ships,\
-    dps_groups, sniper_groups
+    dps_groups, sniper_groups, sniper_weapons, dps_weapons
 
 logger = logging.getLogger(__name__)
 
@@ -314,51 +315,46 @@ def get_weapon_type_by_typeid(type_id: int):
     """Get the weapon_type for the given type_id
     Returns: WaitlistNames.dps, WaitlistNames.sniper, WaitlistNames.logi or None
     """
-    weapon_type = None
-    for mod_id in possible_weapons:
-        inv_type: InvType = db.session.query(InvType).get(type_id)
-        if inv_type.group.groupName == 'Precursor Weapon':
-            weapon_type = WaitlistNames.dps
-            break
-        if mod_id in sniper_weapons:
-            weapon_type = WaitlistNames.sniper
-            break
-        if mod_id in dps_weapons:
-            weapon_type = WaitlistNames.dps
-            break
-        if inv_type.group.groupName in ['Remote Shield Booster',
-                                        'Remote Armor Repairer']:
-            weapon_type = WaitlistNames.logi
-            break
+    inv_type: InvType = db.session.query(InvType).get(type_id)
+    if inv_type is None:
+        logger.debug('TypeId = %d does not exist', type_id)
+        return None
 
-    if weapon_type == "None":
-        # try to decide by market group
-        for mod_id in possible_weapons:
-            weapon_db = db.session.query(InvType).get(type_id)
-            if weapon_db is None:
-                continue
-            market_group = db.session.query(MarketGroup).get(
-                weapon_db.marketGroupID)
-            if market_group is None:
-                continue
-            parent_group = db.session.query(MarketGroup).get(
-                market_group.parentGroupID)
-            if parent_group is None:
-                continue
+    if inv_type.group.groupName == 'Precursor Weapon':
+        return WaitlistNames.dps
+    if type_id in sniper_weapons:
+        return WaitlistNames.sniper
 
+    if type_id in dps_weapons:
+        return WaitlistNames.dps
+
+    if inv_type.group.groupName in ['Remote Shield Booster',
+                                    'Remote Armor Repairer']:
+        return WaitlistNames.logi
+
+    # try to decide by market group
+    market_group = db.session.query(MarketGroup).get(
+        inv_type.marketGroupID)
+    if market_group is not None:
+        parent_group = db.session.query(MarketGroup).get(
+            market_group.parentGroupID)
+        if parent_group is not None:
             # we have a parent market group
             if parent_group.marketGroupName in weapongroups['dps']:
-                weapon_type = WaitlistNames.dps
-                break
+                return WaitlistNames.dps
             if parent_group.marketGroupName in weapongroups['sniper']:
-                weapon_type = WaitlistNames.sniper
-                break
+                return WaitlistNames.sniper
+    
+    return None
 
-                # ships with no valid weapons put on other wl
-    if weapon_type == None:
-        if is_dps_by_group(fit.ship_type):
-            weapon_type = WaitlistNames.dps
-        elif is_sniper_by_group(fit.ship_type):
-            weapon_type = WaitlistNames.sniper
-    return weapon_type
+def get_waitlist_type_by_ship_typeid(type_id: int):
+    """Get the waitlist type by ship type id
+       returns WaitlistNames.dps, WaitlistNames.sniper or None
+    """
+    # ships with no valid weapons put on other wl
+    if is_dps_by_group(type_id):
+        return WaitlistNames.dps
+    elif is_sniper_by_group(type_id):
+        return WaitlistNames.sniper
+    return None
 
