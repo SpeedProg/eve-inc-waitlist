@@ -741,8 +741,8 @@ class Role(Base):
     id = Column('id', Integer, primary_key=True)
     name = Column('name', String(50), unique=True)
     displayName = Column('display_name', String(150), unique=False)
-    
-    permission_granted = relationship("Permission",
+
+    permissions_granted = relationship("Permission",
                                       secondary=permission_roles,
                                       back_populates="roles_needed")
 
