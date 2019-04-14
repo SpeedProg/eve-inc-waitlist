@@ -16,7 +16,7 @@ from waitlist.storage.modules import resist_ships, logi_ships, sniper_ships,\
 from waitlist.utility.history_utils import create_history_object
 from waitlist.utility.fitting_utils import get_fit_format, parse_dna_fitting,\
     parse_eft, is_logi_hull, is_allowed_hull, is_dps_by_group,\
-    is_sniper_by_group, get_weapon_type_by_typeid
+    is_sniper_by_group, get_weapon_type_by_typeid, get_waitlist_type_by_ship_typeid
 from waitlist.base import db
 from . import bp
 from flask_babel import gettext, ngettext
@@ -286,7 +286,9 @@ def submit():
 
                 possible_weapon_types[weapon_type] += high_slot_mod_map[mod][1]
 
-        weapon_type = max(possible_weapon_types.iteritems(), key=operator.itemgetter(1), default=(None, None))[0]
+        weapon_type = max(possible_weapon_types.items(), key=operator.itemgetter(1), default=(None, None))[0]
+        if weapon_type is None:
+            weapon_type = get_waitlist_type_by_ship_typeid(fit.ship_type)
 
         if weapon_type is None:
             fit.wl_type = WaitlistNames.other
