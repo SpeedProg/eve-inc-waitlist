@@ -7,7 +7,7 @@ import logging
 import re
 from waitlist.utility.eve_id_utils import get_item_id
 from waitlist.storage.modules import logi_ships, logi_groups, none_logi_ships,\
-    dps_groups, sniper_groups, sniper_weapons, dps_weapons
+    dps_groups, sniper_groups, sniper_weapons, dps_weapons, weapongroups
 
 logger = logging.getLogger(__name__)
 
