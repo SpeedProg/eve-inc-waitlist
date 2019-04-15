@@ -12,7 +12,7 @@ from flask.globals import request
 from flask_login import login_required, current_user
 from sqlalchemy import or_
 
-from waitlist import db
+from waitlist.base import db
 from waitlist.permissions import perm_manager
 from waitlist.storage.database import Account, CalendarEvent, CalendarEventCategory
 import flask

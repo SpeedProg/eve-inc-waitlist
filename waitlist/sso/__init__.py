@@ -10,7 +10,7 @@ from esipy import EsiSecurity
 from esipy.events import Signal
 from flask_login import current_user
 
-from waitlist import db
+from waitlist.base import db
 from waitlist.storage.database import SSOToken, EveApiScope
 from waitlist.utility import config
 from esipy.exceptions import APIException

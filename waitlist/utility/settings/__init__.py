@@ -1,5 +1,5 @@
 import logging
-from waitlist import db
+from waitlist.base import db
 from waitlist.storage.database import Setting
 logger = logging.getLogger(__name__)
 

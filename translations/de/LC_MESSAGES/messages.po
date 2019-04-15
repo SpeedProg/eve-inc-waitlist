@@ -1,18 +1,31 @@
 # Constantin Wenger <constantin.wenger@googlemail.com>, 2018. #zanata
+# Constantin Wenger <constantin.wenger@googlemail.com>, 2019. #zanata
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2018-08-28 14:54+0200\n"
+"POT-Creation-Date: 2019-04-15 12:35+0200\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2018-08-28 12:58+0000\n"
+"PO-Revision-Date: 2019-04-15 10:48+0000\n"
 "Last-Translator: Constantin Wenger <constantin.wenger@googlemail.com>\n"
 "Language-Team: German\n"
 "Language: de\n"
 "X-Generator: Zanata 4.6.2\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
+
+#: config/themes.example.json
+msgid "Standard"
+msgstr "Standard"
+
+#: config/themes.example.json
+msgid "Dark"
+msgstr "Dunkel"
+
+#: config/themes.example.json
+msgid "Dark Purple"
+msgstr "Dunkel-Violett"
 
 #: templates/about.html:15
 msgid ""
@@ -34,16 +47,7 @@ msgstr ""
 "\"_blank\">Ausrüstungsanzeige (Eve-UI)</a> und Ausrüstungsstatistiken by <a "
 "href=\"char:725396116\">Quie'scens</a>"
 
-#: templates/base.html:58
-msgid ""
-"We have had to disable <strong>features</strong> please consider upgrading "
-"your<a href=\"http://caniuse.com/#feat=eventsource\"> browser</a>"
-msgstr ""
-"Wir musten <strong>Funktionen</strong> abschalten, bitte denke darüber nach "
-"<a href=\"http://caniuse.com/#feat=eventsource\">deinen Browser zu wechseln</"
-"a>"
-
-#: templates/base.html:92
+#: templates/base.html:88
 msgid "ISK Donations are appreciated"
 msgstr "ISK Spenden werden geschätzt"
 
@@ -257,11 +261,12 @@ msgstr ""
 "Bedingungen festzulegen."
 
 #: templates/index.html:3 templates/settings/base.html:14
-#: waitlist/blueprints/settings/overview.py:260
+#: templates/settings/fleetspy/spy.html:3
+#: waitlist/blueprints/settings/overview.py:22
 msgid "Overview"
 msgstr "Übersicht"
 
-#: templates/index.html:122
+#: templates/index.html:124
 #, python-format
 msgid ""
 "You are not associated with any fleet, you can change this in <a\n"
@@ -270,7 +275,7 @@ msgstr ""
 "Sie sind nicht mit einer Flotte verknüpft, sie können dies in <a\n"
 " href=\"%(url)s\">Flotten Einstellungen</a> ändern"
 
-#: templates/index.html:130
+#: templates/index.html:132
 msgid ""
 "Please join Teamspeak, your character name must match <b>exactly</b>\n"
 " (case sensitive)<br>TS3 Server:"
@@ -278,23 +283,23 @@ msgstr ""
 "Bitte trete Teamspeak bei, dein Charaktername muss <b>genau</b> wie im Game "
 "geschrieben sein. (Groß-/Kleinschreibung beachten)<br>TS3 Server:"
 
-#: templates/index.html:138
+#: templates/index.html:140
 msgid "Vote your favorite Command Core Member HERE"
 msgstr "Gebe HIER diene Stimme für das beliebteste Kommandomitglied ab."
 
-#: templates/index.html:164
+#: templates/index.html:166
 msgid "Browser"
 msgstr "Browser"
 
-#: templates/index.html:170
+#: templates/index.html:172
 msgid "Test TS"
 msgstr "Teste TS"
 
-#: templates/index.html:173
+#: templates/index.html:175
 msgid "Leave Waitlists"
 msgstr "Warteliste verlassen"
 
-#: templates/index.html:191 templates/settings/fleet.html:111
+#: templates/index.html:192 templates/settings/fleet.html:111
 msgid "Fleet Manager"
 msgstr "Flotten Verwalter"
 
@@ -332,7 +337,7 @@ msgstr ""
 "<strong>Hilf uns!</strong> Wir hätten gerne <a href=\"%(url)s\">Rückmedlung</"
 "a> von dir!"
 
-#: templates/index.html:290 templates/xup-form.html:64
+#: templates/index.html:278 templates/xup-form.html:64
 msgid "All Waitlists are closed!"
 msgstr "Alle Wartelisten sind geschlossen!"
 
@@ -412,7 +417,7 @@ msgstr "Einschreiben"
 msgid "X-UP"
 msgstr "X-UP"
 
-#: templates/xup.html:16
+#: templates/xup.html:18
 msgid "X-UP is currently closed!"
 msgstr "Einschreibung ist momentan geschlossen!"
 
@@ -435,7 +440,7 @@ msgstr "Datum Uhrzeit"
 msgid "Noted By"
 msgstr "Eingetragen von"
 
-#: templates/account/profile.html:19 templates/account/profile.html:56
+#: templates/account/profile.html:19 templates/account/profile.html:68
 msgid "Note"
 msgstr "Notiz"
 
@@ -443,27 +448,27 @@ msgstr "Notiz"
 msgid "Role Changes"
 msgstr "Rollen Veränderungen"
 
-#: templates/account/profile.html:43
+#: templates/account/profile.html:55
 msgid "View Restriction"
 msgstr "Anzeige Beschränkung"
 
-#: templates/account/profile.html:45 templates/partials/themes_selector.html:2
+#: templates/account/profile.html:57
 msgid "Default"
 msgstr "Standard"
 
-#: templates/account/profile.html:47
+#: templates/account/profile.html:59
 msgid "Council"
 msgstr "Rat"
 
-#: templates/account/profile.html:50
+#: templates/account/profile.html:62
 msgid "Leadership"
 msgstr "Führung"
 
-#: templates/account/profile.html:53
+#: templates/account/profile.html:65
 msgid "Restrict who can see this message"
 msgstr "Beschränke wer diese Nachricht sehen kann"
 
-#: templates/account/profile.html:59
+#: templates/account/profile.html:71
 msgid "Add Note"
 msgstr "Notiz hinzufügen"
 
@@ -497,53 +502,53 @@ msgstr "Einstellungen"
 msgid "Calendar"
 msgstr "Kalender"
 
-#: templates/calendar/settings.html:18 templates/calendar/settings.html:52
+#: templates/calendar/settings.html:20 templates/calendar/settings.html:54
 msgid "Category"
 msgstr "Kategorie"
 
-#: templates/calendar/settings.html:26
+#: templates/calendar/settings.html:28
 msgid "When (UTC - EveTime)"
 msgstr "Wann (UTC - Eve Zeit)"
 
-#: templates/calendar/settings.html:32
+#: templates/calendar/settings.html:34
 msgid "UTC"
 msgstr "UTC"
 
-#: templates/calendar/settings.html:38 templates/calendar/settings.html:52
+#: templates/calendar/settings.html:40 templates/calendar/settings.html:54
 #: templates/settings/fleet.html:171
 msgid "Backseats"
 msgstr "Überwacher"
 
-#: templates/calendar/settings.html:45
+#: templates/calendar/settings.html:47
 msgid "Submit Event"
 msgstr "Veranstaltung Eintragen"
 
-#: templates/calendar/settings.html:50
+#: templates/calendar/settings.html:52
 msgid "Outstanding Events"
 msgstr "Bevorstehende Veranstaltungen"
 
-#: templates/calendar/settings.html:52 templates/feedback/settings.html:18
+#: templates/calendar/settings.html:54 templates/feedback/settings.html:18
 #: templates/settings/accounts.html:122 templates/settings/bans.html:49
 #: templates/settings/fleet.html:209 templates/settings/whitelist.html:49
 #: templates/waitlist/tools/history_search.html:48
 msgid "Actions"
 msgstr "Aktionen"
 
-#: templates/calendar/settings.html:52
+#: templates/calendar/settings.html:54
 msgid "Creator"
 msgstr "Ersteller"
 
-#: templates/calendar/settings.html:52 templates/feedback/settings.html:19
+#: templates/calendar/settings.html:54 templates/feedback/settings.html:19
 #: templates/waitlist/history.html:39 templates/waitlist/history_cut.html:43
 #: templates/waitlist/tools/history_search.html:99
 msgid "Time"
 msgstr "Zeit"
 
-#: templates/calendar/settings.html:52 templates/feedback/settings.html:21
+#: templates/calendar/settings.html:54 templates/feedback/settings.html:21
 msgid "Title"
 msgstr "Überschrift"
 
-#: templates/calendar/settings.html:60
+#: templates/calendar/settings.html:62
 msgid "Remove Event"
 msgstr "Veranstaltung austragen"
 
@@ -697,58 +702,58 @@ msgstr "Ein-/Ausblende Navigation"
 msgid "Alarm"
 msgstr "Alarm"
 
-#: templates/notifications/alarm.html:26
+#: templates/notifications/alarm.html:28
 msgid "WL Group"
 msgstr "WL Gruppe"
 
-#: templates/notifications/alarm.html:26
+#: templates/notifications/alarm.html:28
 msgid "open"
 msgstr "offen"
 
-#: templates/notifications/alarm.html:26
+#: templates/notifications/alarm.html:28
 msgid "xup"
 msgstr "Einschreibung"
 
-#: templates/notifications/alarm.html:26
+#: templates/notifications/alarm.html:28
 msgid "logi"
 msgstr "Support"
 
-#: templates/notifications/alarm.html:26
+#: templates/notifications/alarm.html:28
 msgid "dps"
 msgstr "Schaden"
 
-#: templates/notifications/alarm.html:26
+#: templates/notifications/alarm.html:28
 msgid "sniper"
 msgstr "Scharfschütze"
 
-#: templates/notifications/alarm.html:26
+#: templates/notifications/alarm.html:28
 msgid "other"
 msgstr "Andere"
 
-#: templates/notifications/alarm.html:36
+#: templates/notifications/alarm.html:38
 msgid "Expression Target"
 msgstr "Ausdrucksziel"
 
-#: templates/notifications/alarm.html:40
-#: templates/settings/permissions/config.html:26
+#: templates/notifications/alarm.html:42
+#: templates/settings/permissions/config.html:27
 msgid "Add"
 msgstr "Hinzufügen"
 
-#: templates/notifications/alarm.html:47 templates/waitlist/history.html:39
+#: templates/notifications/alarm.html:49 templates/waitlist/history.html:39
 #: templates/waitlist/history_cut.html:43
 #: templates/waitlist/tools/history_search.html:99
 msgid "Target"
 msgstr "Ziel"
 
-#: templates/notifications/alarm.html:47
+#: templates/notifications/alarm.html:49
 msgid "Expression"
 msgstr "Ausdruck"
 
-#: templates/notifications/alarm.html:47
+#: templates/notifications/alarm.html:49
 msgid "Need Help?"
 msgstr "Brauchst du Hilfe?"
 
-#: templates/notifications/alarm.html:47
+#: templates/notifications/alarm.html:49
 msgid "Enabled"
 msgstr "Aktiviert"
 
@@ -813,14 +818,14 @@ msgstr "Letztes"
 msgid "Status"
 msgstr "Zustand"
 
-#: templates/settings/accounts.html:124 templates/settings/accounts.html:189
-#: templates/settings/accounts.html:233 templates/settings/self.html:64
+#: templates/settings/accounts.html:124 templates/settings/accounts.html:166
+#: templates/settings/accounts.html:210 templates/settings/self.html:64
 #: templates/waitlist/tools/commandcore_list.html:75
 msgid "Account Name"
 msgstr "Konto Name"
 
-#: templates/settings/accounts.html:125 templates/settings/accounts.html:193
-#: templates/settings/accounts.html:241 templates/settings/self.html:68
+#: templates/settings/accounts.html:125 templates/settings/accounts.html:170
+#: templates/settings/accounts.html:218 templates/settings/self.html:68
 #: templates/waitlist/tools/commandcore_list.html:76
 msgid "Roles"
 msgstr "Rollen"
@@ -829,59 +834,43 @@ msgstr "Rollen"
 msgid "Current Char"
 msgstr "Aktiver Charakter"
 
-#: templates/settings/accounts.html:136
-msgid "Enable"
-msgstr "Aktivieren"
-
-#: templates/settings/accounts.html:136
-msgid "Disable"
-msgstr "Deaktivieren"
-
-#: templates/settings/accounts.html:139
-msgid "Edit"
-msgstr "Ändern"
-
-#: templates/settings/accounts.html:155
-msgid "Mail"
-msgstr "Nachricht"
-
-#: templates/settings/accounts.html:158
+#: templates/settings/accounts.html:135
 msgid "Deactivated"
 msgstr "Deaktiviert"
 
-#: templates/settings/accounts.html:158
+#: templates/settings/accounts.html:135
 msgid "Active"
 msgstr "Aktiv"
 
-#: templates/settings/accounts.html:183
+#: templates/settings/accounts.html:160
 msgid "Create New Account"
 msgstr "Erstelle ein neues Konto"
 
-#: templates/settings/accounts.html:201
+#: templates/settings/accounts.html:178
 msgid "Default Character Name"
 msgstr "Standard Charakter Name"
 
-#: templates/settings/accounts.html:205 templates/settings/accounts.html:249
+#: templates/settings/accounts.html:182 templates/settings/accounts.html:226
 msgid "Add a Note"
 msgstr "Füge eine Notiz hinzu"
 
-#: templates/settings/accounts.html:212 templates/settings/accounts.html:256
+#: templates/settings/accounts.html:189 templates/settings/accounts.html:233
 msgid "Close"
 msgstr "Schließen"
 
-#: templates/settings/accounts.html:213
+#: templates/settings/accounts.html:190
 msgid "Create"
 msgstr "Erstellen"
 
-#: templates/settings/accounts.html:226
+#: templates/settings/accounts.html:203
 msgid "Edit Account"
 msgstr "Konto ändern"
 
-#: templates/settings/accounts.html:237 templates/settings/self.html:76
+#: templates/settings/accounts.html:214 templates/settings/self.html:76
 msgid "Default Character"
 msgstr "Standard Charakter"
 
-#: templates/settings/accounts.html:257
+#: templates/settings/accounts.html:234
 msgid "Change"
 msgstr "Ändern"
 
@@ -1052,6 +1041,7 @@ msgid "None"
 msgstr "Niemand"
 
 #: templates/settings/fleet.html:216
+#: templates/settings/permissions/config.html:39
 msgid "Remove"
 msgstr "Entfernen"
 
@@ -1108,23 +1098,23 @@ msgstr ""
 "Alle Dateien können bz2 komprimiert sein wenn sie mit der Endung .bz2 "
 "hochgeladen werden"
 
-#: templates/settings/sde.html:35
+#: templates/settings/sde.html:26
 msgid "Update typeIDs"
 msgstr "Erneuere die typeIDs"
 
-#: templates/settings/sde.html:41
+#: templates/settings/sde.html:32
 msgid "Update Systems and Constellations"
 msgstr "Erneuere Systeme und Konstellationen"
 
-#: templates/settings/sde.html:56
+#: templates/settings/sde.html:47
 msgid "Update Stations"
 msgstr "Erneuere Stationen"
 
-#: templates/settings/sde.html:71
+#: templates/settings/sde.html:62
 msgid "Update Layouts"
 msgstr "Erneuere Zuweisungen"
 
-#: templates/settings/sde.html:73
+#: templates/settings/sde.html:64
 msgid ""
 "This cvs file, needs to be data separated by tabs. and the first line needs "
 "to contain the following separated by tabs instead of a space and comma: "
@@ -1223,7 +1213,7 @@ msgstr "VH NDT"
 msgid "VG MOTD Template"
 msgstr "VH NDT Vorlage"
 
-#: templates/settings/fleetspy/spy.html:20
+#: templates/settings/fleetspy/spy.html:19
 msgid "Choose..."
 msgstr "Wähle..."
 
@@ -1308,19 +1298,20 @@ msgstr ""
 "<var>$sig$</var><br>"
 
 #: templates/settings/permissions/config.html:3
-#: waitlist/blueprints/settings/permissions.py:43
+#: waitlist/blueprints/settings/permissions.py:44
 msgid "Permissions"
 msgstr "Rechte"
 
-#: templates/settings/permissions/config.html:19
+#: templates/settings/permissions/config.html:20
 msgid "Role Name"
 msgstr "Rollen Name"
 
-#: templates/settings/permissions/config.html:23
+#: templates/settings/permissions/config.html:24
+#: templates/settings/permissions/config.html:32
 msgid "Role Display Name"
 msgstr "Rollen Anzeigename"
 
-#: templates/settings/permissions/config.html:39
+#: templates/settings/permissions/config.html:50
 msgid "Permission"
 msgstr "Recht"
 
@@ -1477,7 +1468,7 @@ msgstr "Bis"
 msgid "Get Info"
 msgstr "Lade Info"
 
-#: waitlist/blueprints/__init__.py:97
+#: waitlist/blueprints/__init__.py:107
 msgid "Tokens where removed, please use the EVE SSO"
 msgstr "Zugangsschlüssel wurden entfernt, bitte benutzen den EVE SSO Login"
 
@@ -1754,6 +1745,25 @@ msgstr "Anderen Nachricht wurde gespeichert!"
 msgid "IG Mail Settings"
 msgstr "Spiele Mail Einstellungen"
 
+#: waitlist/blueprints/settings/permissions.py:54
+#, python-format
+msgid "Role with id=%(role_id)d was not found, failed to delete"
+msgstr ""
+"Es wurde keine Rolle mit id=%(role_id)d gefunden und konnte daher nicht "
+"gelöscht werden"
+
+#: waitlist/blueprints/settings/permissions.py:63
+#, python-format
+msgid "Role with id=%(role_id)d was deleted"
+msgstr "Rolle mit id=%(role_id)d wurde gelöscht"
+
+#: waitlist/blueprints/settings/permissions.py:70
+#, python-format
+msgid "There was an unknown error deleting Role with id=%(role_id)d"
+msgstr ""
+"Es gab einen Fehler während versucht wurde die Rolle mit id=%(role_id)d zu "
+"löschen"
+
 #: waitlist/blueprints/settings/staticdataimport.py:38
 msgid "Type IDs were updated!"
 msgstr "Typen IDs wurde geupdatet!"
@@ -1786,21 +1796,21 @@ msgstr ""
 "Danke für deine Teilnahme, die Gewinner werden bekannt gegeben nachdem das "
 "Quiz beendet wurde."
 
-#: waitlist/blueprints/xup/submission.py:49
+#: waitlist/blueprints/xup/submission.py:54
 msgid "X-UP is disabled!!!"
 msgstr "Einschreibung ist Deaktiviert"
 
-#: waitlist/blueprints/xup/submission.py:75
+#: waitlist/blueprints/xup/submission.py:80
 msgid "Valid entries are scruffy [dps|logi|sniper,..]"
 msgstr "Erlaubte Einträge sind: scruffy [dps|logi|sniper,..]"
 
-#: waitlist/blueprints/xup/submission.py:111
+#: waitlist/blueprints/xup/submission.py:116
 #, python-format
 msgid "You were added as %(ship_type)s"
 msgstr "Du wurdest als %(ship_type)s hinzugefügt"
 
-#: waitlist/blueprints/xup/submission.py:200
-#: waitlist/blueprints/xup/submission.py:357
+#: waitlist/blueprints/xup/submission.py:210
+#: waitlist/blueprints/xup/submission.py:336
 #, python-format
 msgid ""
 "You submitted one fit to be check by a fleet comp before getting on the "
@@ -1815,7 +1825,7 @@ msgstr[1] ""
 "Du hast %(num)d Ausrüstungen zur Überprüfung durch einen Flotten-Verwalter "
 "gesendet, bevor du auf die Warteliste gesetzt wirst."
 
-#: waitlist/utility/flask/__init__.py:74
+#: waitlist/utility/flask/__init__.py:76
 #, python-format
 msgid ""
 "Your set current character %(eve_name)s was unset because the provided token "

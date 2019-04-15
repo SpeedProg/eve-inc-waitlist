@@ -5,7 +5,7 @@ from flask.templating import render_template
 
 from waitlist.permissions import perm_manager
 from waitlist.storage.database import CCVote, Account
-from waitlist import db
+from waitlist.base import db
 from sqlalchemy.sql.functions import func
 
 bp = Blueprint('settings_ccvote', __name__)

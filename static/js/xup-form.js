@@ -1,4 +1,5 @@
-<script>
+'use strict';
+
 $(document).ready(function() {
 	var calbsgrp = document.getElementById('grp-cbslvl');
 	var logilvlgrp = document.getElementById('grp-logilvl');
@@ -11,10 +12,10 @@ $(document).ready(function() {
 		var currentText = textarea.val();
 		if (resist_regex.test(currentText)) {
 			$(calbsgrp).show();
-			logi_select.required=true;
+			cbs_select.required=true;
 		} else {
 			$(calbsgrp).hide();
-			logi_select.required=false;
+			cbs_select.required=false;
 		}
 		if (logi_regex.test(currentText)) {
 			$(logilvlgrp).show();
@@ -29,5 +30,3 @@ $(document).ready(function() {
 	fakeEv.target.addEventListener('input', checkExtra, false);
 	checkExtra(fakeEv);
 });
-
-</script>

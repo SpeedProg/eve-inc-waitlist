@@ -1,7 +1,7 @@
 from flask import Response, request, make_response, jsonify
 from flask_login import login_required
 
-from waitlist import db
+from waitlist.base import db
 from waitlist.blueprints.swagger_api.characters import bp_v1
 from waitlist.blueprints.swagger_api.models import errors
 from waitlist.permissions import perm_manager

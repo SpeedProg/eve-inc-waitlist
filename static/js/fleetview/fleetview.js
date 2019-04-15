@@ -308,10 +308,7 @@ waitlist.fleetview = (function(){
 			console.log(event);
 			}
 		);
-		// make sure translations are loaded
-		i18nloaded.then(() => {
-			setupDB();
-		});
+		setupDB();
 	});
 	return exports;
 })();

@@ -9,7 +9,7 @@ from flask_login import current_user, login_required
 from sqlalchemy import asc
 
 from waitlist.utility import outgate
-from waitlist import db
+from waitlist.base import db
 from waitlist.blueprints.settings import add_menu_entry
 from waitlist.permissions import perm_manager
 from waitlist.storage.database import Ban, Whitelist, Character
