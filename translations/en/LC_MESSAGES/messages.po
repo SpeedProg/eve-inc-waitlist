@@ -1,18 +1,31 @@
 # Constantin Wenger <constantin.wenger@googlemail.com>, 2018. #zanata
+# Constantin Wenger <constantin.wenger@googlemail.com>, 2019. #zanata
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2018-08-28 14:54+0200\n"
+"POT-Creation-Date: 2019-04-15 12:35+0200\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2018-08-28 12:59+0000\n"
+"PO-Revision-Date: 2019-04-15 10:46+0000\n"
 "Last-Translator: Constantin Wenger <constantin.wenger@googlemail.com>\n"
 "Language-Team: English\n"
 "Language: en\n"
 "X-Generator: Zanata 4.6.2\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
+
+#: config/themes.example.json
+msgid "Standard"
+msgstr "Standard"
+
+#: config/themes.example.json
+msgid "Dark"
+msgstr "Dark"
+
+#: config/themes.example.json
+msgid "Dark Purple"
+msgstr "Dark Purple"
 
 #: templates/about.html:15
 msgid ""
@@ -34,15 +47,7 @@ msgstr ""
 "Display (Eve-UI)</a> and Fitting Stats by <a href=\"char:"
 "725396116\">Quie'scens</a>"
 
-#: templates/base.html:58
-msgid ""
-"We have had to disable <strong>features</strong> please consider upgrading "
-"your<a href=\"http://caniuse.com/#feat=eventsource\"> browser</a>"
-msgstr ""
-"We have had to disable <strong>features</strong> please consider upgrading "
-"your<a href=\"http://caniuse.com/#feat=eventsource\"> browser</a>"
-
-#: templates/base.html:92
+#: templates/base.html:88
 msgid "ISK Donations are appreciated"
 msgstr "ISK Donations are appreciated"
 
@@ -253,11 +258,12 @@ msgstr ""
 "logic and should cover most use cases."
 
 #: templates/index.html:3 templates/settings/base.html:14
-#: waitlist/blueprints/settings/overview.py:260
+#: templates/settings/fleetspy/spy.html:3
+#: waitlist/blueprints/settings/overview.py:22
 msgid "Overview"
 msgstr "Overview"
 
-#: templates/index.html:122
+#: templates/index.html:124
 #, python-format
 msgid ""
 "You are not associated with any fleet, you can change this in <a\n"
@@ -266,7 +272,7 @@ msgstr ""
 "You are not associated with any fleet, you can change this in <a\n"
 " href=\"%(url)s\">Fleet Settings</a>"
 
-#: templates/index.html:130
+#: templates/index.html:132
 msgid ""
 "Please join Teamspeak, your character name must match <b>exactly</b>\n"
 " (case sensitive)<br>TS3 Server:"
@@ -274,23 +280,23 @@ msgstr ""
 "Please join Teamspeak, your character name must match <b>exactly</b>\n"
 " (case sensitive)<br>TS3 Server:"
 
-#: templates/index.html:138
+#: templates/index.html:140
 msgid "Vote your favorite Command Core Member HERE"
 msgstr "Vote your favorite Command Core Member HERE"
 
-#: templates/index.html:164
+#: templates/index.html:166
 msgid "Browser"
 msgstr "Browser"
 
-#: templates/index.html:170
+#: templates/index.html:172
 msgid "Test TS"
 msgstr "Test TS"
 
-#: templates/index.html:173
+#: templates/index.html:175
 msgid "Leave Waitlists"
 msgstr "Leave Waitlists"
 
-#: templates/index.html:191 templates/settings/fleet.html:111
+#: templates/index.html:192 templates/settings/fleet.html:111
 msgid "Fleet Manager"
 msgstr "Fleet Manager"
 
@@ -328,7 +334,7 @@ msgstr ""
 "<strong>Help us!</strong> We would like your <a href=\"%(url)s\">feedback</"
 "a>!"
 
-#: templates/index.html:290 templates/xup-form.html:64
+#: templates/index.html:278 templates/xup-form.html:64
 msgid "All Waitlists are closed!"
 msgstr "All Waitlists are closed!"
 
@@ -406,7 +412,7 @@ msgstr "Enter On Waitlist"
 msgid "X-UP"
 msgstr "X-UP"
 
-#: templates/xup.html:16
+#: templates/xup.html:18
 msgid "X-UP is currently closed!"
 msgstr "X-UP is currently closed!"
 
@@ -429,7 +435,7 @@ msgstr "Date Time"
 msgid "Noted By"
 msgstr "Noted By"
 
-#: templates/account/profile.html:19 templates/account/profile.html:56
+#: templates/account/profile.html:19 templates/account/profile.html:68
 msgid "Note"
 msgstr "Note"
 
@@ -437,27 +443,27 @@ msgstr "Note"
 msgid "Role Changes"
 msgstr "Role Changes"
 
-#: templates/account/profile.html:43
+#: templates/account/profile.html:55
 msgid "View Restriction"
 msgstr "View Restriction"
 
-#: templates/account/profile.html:45 templates/partials/themes_selector.html:2
+#: templates/account/profile.html:57
 msgid "Default"
 msgstr "Default"
 
-#: templates/account/profile.html:47
+#: templates/account/profile.html:59
 msgid "Council"
 msgstr "Council"
 
-#: templates/account/profile.html:50
+#: templates/account/profile.html:62
 msgid "Leadership"
 msgstr "Leadership"
 
-#: templates/account/profile.html:53
+#: templates/account/profile.html:65
 msgid "Restrict who can see this message"
 msgstr "Restrict who can see this message"
 
-#: templates/account/profile.html:59
+#: templates/account/profile.html:71
 msgid "Add Note"
 msgstr "Add Note"
 
@@ -491,53 +497,53 @@ msgstr "Settings"
 msgid "Calendar"
 msgstr "Calendar"
 
-#: templates/calendar/settings.html:18 templates/calendar/settings.html:52
+#: templates/calendar/settings.html:20 templates/calendar/settings.html:54
 msgid "Category"
 msgstr "Category"
 
-#: templates/calendar/settings.html:26
+#: templates/calendar/settings.html:28
 msgid "When (UTC - EveTime)"
 msgstr "When (UTC - EveTime)"
 
-#: templates/calendar/settings.html:32
+#: templates/calendar/settings.html:34
 msgid "UTC"
 msgstr "UTC"
 
-#: templates/calendar/settings.html:38 templates/calendar/settings.html:52
+#: templates/calendar/settings.html:40 templates/calendar/settings.html:54
 #: templates/settings/fleet.html:171
 msgid "Backseats"
 msgstr "Backseats"
 
-#: templates/calendar/settings.html:45
+#: templates/calendar/settings.html:47
 msgid "Submit Event"
 msgstr "Submit Event"
 
-#: templates/calendar/settings.html:50
+#: templates/calendar/settings.html:52
 msgid "Outstanding Events"
 msgstr "Outstanding Events"
 
-#: templates/calendar/settings.html:52 templates/feedback/settings.html:18
+#: templates/calendar/settings.html:54 templates/feedback/settings.html:18
 #: templates/settings/accounts.html:122 templates/settings/bans.html:49
 #: templates/settings/fleet.html:209 templates/settings/whitelist.html:49
 #: templates/waitlist/tools/history_search.html:48
 msgid "Actions"
 msgstr "Actions"
 
-#: templates/calendar/settings.html:52
+#: templates/calendar/settings.html:54
 msgid "Creator"
 msgstr "Creator"
 
-#: templates/calendar/settings.html:52 templates/feedback/settings.html:19
+#: templates/calendar/settings.html:54 templates/feedback/settings.html:19
 #: templates/waitlist/history.html:39 templates/waitlist/history_cut.html:43
 #: templates/waitlist/tools/history_search.html:99
 msgid "Time"
 msgstr "Time"
 
-#: templates/calendar/settings.html:52 templates/feedback/settings.html:21
+#: templates/calendar/settings.html:54 templates/feedback/settings.html:21
 msgid "Title"
 msgstr "Title"
 
-#: templates/calendar/settings.html:60
+#: templates/calendar/settings.html:62
 msgid "Remove Event"
 msgstr "Remove Event"
 
@@ -691,58 +697,58 @@ msgstr "Toggle navigation"
 msgid "Alarm"
 msgstr "Alarm"
 
-#: templates/notifications/alarm.html:26
+#: templates/notifications/alarm.html:28
 msgid "WL Group"
 msgstr "WL Group"
 
-#: templates/notifications/alarm.html:26
+#: templates/notifications/alarm.html:28
 msgid "open"
 msgstr "open"
 
-#: templates/notifications/alarm.html:26
+#: templates/notifications/alarm.html:28
 msgid "xup"
 msgstr "xup"
 
-#: templates/notifications/alarm.html:26
+#: templates/notifications/alarm.html:28
 msgid "logi"
 msgstr "logi"
 
-#: templates/notifications/alarm.html:26
+#: templates/notifications/alarm.html:28
 msgid "dps"
 msgstr "dps"
 
-#: templates/notifications/alarm.html:26
+#: templates/notifications/alarm.html:28
 msgid "sniper"
 msgstr "sniper"
 
-#: templates/notifications/alarm.html:26
+#: templates/notifications/alarm.html:28
 msgid "other"
 msgstr "other"
 
-#: templates/notifications/alarm.html:36
+#: templates/notifications/alarm.html:38
 msgid "Expression Target"
 msgstr "Expression Target"
 
-#: templates/notifications/alarm.html:40
-#: templates/settings/permissions/config.html:26
+#: templates/notifications/alarm.html:42
+#: templates/settings/permissions/config.html:27
 msgid "Add"
 msgstr "Add"
 
-#: templates/notifications/alarm.html:47 templates/waitlist/history.html:39
+#: templates/notifications/alarm.html:49 templates/waitlist/history.html:39
 #: templates/waitlist/history_cut.html:43
 #: templates/waitlist/tools/history_search.html:99
 msgid "Target"
 msgstr "Target"
 
-#: templates/notifications/alarm.html:47
+#: templates/notifications/alarm.html:49
 msgid "Expression"
 msgstr "Expression"
 
-#: templates/notifications/alarm.html:47
+#: templates/notifications/alarm.html:49
 msgid "Need Help?"
 msgstr "Need Help?"
 
-#: templates/notifications/alarm.html:47
+#: templates/notifications/alarm.html:49
 msgid "Enabled"
 msgstr "Enabled"
 
@@ -807,14 +813,14 @@ msgstr "Last"
 msgid "Status"
 msgstr "Status"
 
-#: templates/settings/accounts.html:124 templates/settings/accounts.html:189
-#: templates/settings/accounts.html:233 templates/settings/self.html:64
+#: templates/settings/accounts.html:124 templates/settings/accounts.html:166
+#: templates/settings/accounts.html:210 templates/settings/self.html:64
 #: templates/waitlist/tools/commandcore_list.html:75
 msgid "Account Name"
 msgstr "Account Name"
 
-#: templates/settings/accounts.html:125 templates/settings/accounts.html:193
-#: templates/settings/accounts.html:241 templates/settings/self.html:68
+#: templates/settings/accounts.html:125 templates/settings/accounts.html:170
+#: templates/settings/accounts.html:218 templates/settings/self.html:68
 #: templates/waitlist/tools/commandcore_list.html:76
 msgid "Roles"
 msgstr "Roles"
@@ -823,59 +829,43 @@ msgstr "Roles"
 msgid "Current Char"
 msgstr "Current Char"
 
-#: templates/settings/accounts.html:136
-msgid "Enable"
-msgstr "Enable"
-
-#: templates/settings/accounts.html:136
-msgid "Disable"
-msgstr "Disable"
-
-#: templates/settings/accounts.html:139
-msgid "Edit"
-msgstr "Edit"
-
-#: templates/settings/accounts.html:155
-msgid "Mail"
-msgstr "Mail"
-
-#: templates/settings/accounts.html:158
+#: templates/settings/accounts.html:135
 msgid "Deactivated"
 msgstr "Deactivated"
 
-#: templates/settings/accounts.html:158
+#: templates/settings/accounts.html:135
 msgid "Active"
 msgstr "Active"
 
-#: templates/settings/accounts.html:183
+#: templates/settings/accounts.html:160
 msgid "Create New Account"
 msgstr "Create New Account"
 
-#: templates/settings/accounts.html:201
+#: templates/settings/accounts.html:178
 msgid "Default Character Name"
 msgstr "Default Character Name"
 
-#: templates/settings/accounts.html:205 templates/settings/accounts.html:249
+#: templates/settings/accounts.html:182 templates/settings/accounts.html:226
 msgid "Add a Note"
 msgstr "Add a Note"
 
-#: templates/settings/accounts.html:212 templates/settings/accounts.html:256
+#: templates/settings/accounts.html:189 templates/settings/accounts.html:233
 msgid "Close"
 msgstr "Close"
 
-#: templates/settings/accounts.html:213
+#: templates/settings/accounts.html:190
 msgid "Create"
 msgstr "Create"
 
-#: templates/settings/accounts.html:226
+#: templates/settings/accounts.html:203
 msgid "Edit Account"
 msgstr "Edit Account"
 
-#: templates/settings/accounts.html:237 templates/settings/self.html:76
+#: templates/settings/accounts.html:214 templates/settings/self.html:76
 msgid "Default Character"
 msgstr "Default Character"
 
-#: templates/settings/accounts.html:257
+#: templates/settings/accounts.html:234
 msgid "Change"
 msgstr "Change"
 
@@ -1046,6 +1036,7 @@ msgid "None"
 msgstr "None"
 
 #: templates/settings/fleet.html:216
+#: templates/settings/permissions/config.html:39
 msgid "Remove"
 msgstr "Remove"
 
@@ -1100,23 +1091,23 @@ msgstr "Static Data Import"
 msgid "All files can be bz2 compressed if uploaded with extension .bz2"
 msgstr "All files can be bz2 compressed if uploaded with extension .bz2"
 
-#: templates/settings/sde.html:35
+#: templates/settings/sde.html:26
 msgid "Update typeIDs"
 msgstr "Update typeIDs"
 
-#: templates/settings/sde.html:41
+#: templates/settings/sde.html:32
 msgid "Update Systems and Constellations"
 msgstr "Update Systems and Constellations"
 
-#: templates/settings/sde.html:56
+#: templates/settings/sde.html:47
 msgid "Update Stations"
 msgstr "Update Stations"
 
-#: templates/settings/sde.html:71
+#: templates/settings/sde.html:62
 msgid "Update Layouts"
 msgstr "Update Layouts"
 
-#: templates/settings/sde.html:73
+#: templates/settings/sde.html:64
 msgid ""
 "This cvs file, needs to be data separated by tabs. and the first line needs "
 "to contain the following separated by tabs instead of a space and comma: "
@@ -1215,7 +1206,7 @@ msgstr "VG MOTD"
 msgid "VG MOTD Template"
 msgstr "VG MOTD Template"
 
-#: templates/settings/fleetspy/spy.html:20
+#: templates/settings/fleetspy/spy.html:19
 msgid "Choose..."
 msgstr "Choose..."
 
@@ -1300,19 +1291,20 @@ msgstr ""
 "<var>$sig$</var><br>"
 
 #: templates/settings/permissions/config.html:3
-#: waitlist/blueprints/settings/permissions.py:43
+#: waitlist/blueprints/settings/permissions.py:44
 msgid "Permissions"
 msgstr "Permissions"
 
-#: templates/settings/permissions/config.html:19
+#: templates/settings/permissions/config.html:20
 msgid "Role Name"
 msgstr "Role Name"
 
-#: templates/settings/permissions/config.html:23
+#: templates/settings/permissions/config.html:24
+#: templates/settings/permissions/config.html:32
 msgid "Role Display Name"
 msgstr "Role Display Name"
 
-#: templates/settings/permissions/config.html:39
+#: templates/settings/permissions/config.html:50
 msgid "Permission"
 msgstr "Permission"
 
@@ -1467,7 +1459,7 @@ msgstr "To"
 msgid "Get Info"
 msgstr "Get Info"
 
-#: waitlist/blueprints/__init__.py:97
+#: waitlist/blueprints/__init__.py:107
 msgid "Tokens where removed, please use the EVE SSO"
 msgstr "Tokens where removed, please use the EVE SSO"
 
@@ -1731,6 +1723,21 @@ msgstr "Other mail set!"
 msgid "IG Mail Settings"
 msgstr "IG Mail Settings"
 
+#: waitlist/blueprints/settings/permissions.py:54
+#, python-format
+msgid "Role with id=%(role_id)d was not found, failed to delete"
+msgstr "Role with id=%(role_id)d was not found, failed to delete"
+
+#: waitlist/blueprints/settings/permissions.py:63
+#, python-format
+msgid "Role with id=%(role_id)d was deleted"
+msgstr "Role with id=%(role_id)d was deleted"
+
+#: waitlist/blueprints/settings/permissions.py:70
+#, python-format
+msgid "There was an unknown error deleting Role with id=%(role_id)d"
+msgstr "There was an unknown error deleting Role with id=%(role_id)d"
+
 #: waitlist/blueprints/settings/staticdataimport.py:38
 msgid "Type IDs were updated!"
 msgstr "Type IDs were updated!"
@@ -1763,21 +1770,21 @@ msgstr ""
 "Thank you for participating, winners will be announced after the trivia is "
 "finished"
 
-#: waitlist/blueprints/xup/submission.py:49
+#: waitlist/blueprints/xup/submission.py:54
 msgid "X-UP is disabled!!!"
 msgstr "X-UP is disabled!!!"
 
-#: waitlist/blueprints/xup/submission.py:75
+#: waitlist/blueprints/xup/submission.py:80
 msgid "Valid entries are scruffy [dps|logi|sniper,..]"
 msgstr "Valid entries are scruffy [dps|logi|sniper,..]"
 
-#: waitlist/blueprints/xup/submission.py:111
+#: waitlist/blueprints/xup/submission.py:116
 #, python-format
 msgid "You were added as %(ship_type)s"
 msgstr "You were added as %(ship_type)s"
 
-#: waitlist/blueprints/xup/submission.py:200
-#: waitlist/blueprints/xup/submission.py:357
+#: waitlist/blueprints/xup/submission.py:210
+#: waitlist/blueprints/xup/submission.py:336
 #, python-format
 msgid ""
 "You submitted one fit to be check by a fleet comp before getting on the "
@@ -1792,7 +1799,7 @@ msgstr[1] ""
 "You submitted %(num)d fits to be check by a fleet comp before getting on the "
 "waitlist."
 
-#: waitlist/utility/flask/__init__.py:74
+#: waitlist/utility/flask/__init__.py:76
 #, python-format
 msgid ""
 "Your set current character %(eve_name)s was unset because the provided token "

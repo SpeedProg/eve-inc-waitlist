@@ -1,4 +1,4 @@
-from waitlist import db
+from waitlist.base import db
 from waitlist.storage.database import AccountNote
 from waitlist.utility.constants import account_notes
 from typing import Optional

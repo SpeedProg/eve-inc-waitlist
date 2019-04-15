@@ -1,5 +1,5 @@
 from waitlist.storage.database import AccountNote, Character
-from waitlist import db
+from waitlist.base import db
 from ...signals import alt_link_added_sig, alt_link_removed_sig
 from waitlist.utility.constants import account_notes
 

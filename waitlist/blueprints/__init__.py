@@ -13,8 +13,9 @@ from flask_principal import identity_changed, Identity, AnonymousIdentity
 from flask_login import login_required, current_user, login_user, logout_user
 
 from waitlist.utility import config
+from waitlist.utility.config import stattool_enabled, stattool_uri, stattool_sri
 
-from waitlist import app, db
+from waitlist.base import app, db
 from waitlist.storage.database import WaitlistGroup, TeamspeakDatum, CalendarEvent, WaitlistEntry, Account, Trivia
 from waitlist.utility.settings import sget_active_ts_id
 
@@ -33,6 +34,14 @@ def is_on_wl():
 @app.route('/', methods=['GET'])
 @login_required
 def index():
+    """
+    current_time: datetime = datetime.utcnow()
+    end_time: datetime = datetime(2016, 8, 7, 11, 0, 0)
+    start_time: datetime = datetime(2016, 7, 4, 11, 0, 0)
+    cc_vote_on: bool = ((start_time < current_time) and (current_time < end_time))
+    """
+    cc_vote_on: bool = False
+
     if 'groupId' in request.args:
         group_id = int(request.args.get('groupId'))
         group = db.session.query(WaitlistGroup).get(group_id)
@@ -42,7 +51,7 @@ def index():
             WaitlistGroup.ordering).first()
 
     if group is None:
-        return render_template("index.html", is_index=True)
+        return render_template("index.html", is_index=True, ccvote_on=cc_vote_on)
 
     new_bro = current_user.is_new
 
@@ -77,7 +86,8 @@ def index():
 
     return render_template("index.html", lists=wlists, user=current_user, is_index=True, is_on_wl=is_on_wl(),
                            newbro=new_bro, group=group, groups=activegroups, ts=active_ts_setting, events=events,
-                           trivias=trivias)
+                           trivias=trivias, ccvote_on=cc_vote_on,
+                           stattool_enabled=stattool_enabled, stattool_uri=stattool_uri, stattool_sri=stattool_sri)
 
 
 @app.route("/help", methods=["GET"])

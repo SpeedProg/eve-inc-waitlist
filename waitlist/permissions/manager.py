@@ -1,10 +1,12 @@
-from typing import Dict, Sequence
+from typing import Dict, Sequence, Optional
 
 import logging
 from flask_principal import RoleNeed, Permission, IdentityContext
 
-from waitlist import db
+from waitlist.base import db
 from waitlist.storage.database import Permission as DBPermission, Role
+from abc import abstractstaticmethod
+from sqlalchemy.orm.exc import NoResultFound
 
 logger = logging.getLogger(__name__)
 
@@ -126,6 +128,25 @@ class PermissionManager(object):
         role = Role(name=name, displayName=display_name)
         db.session.add(role)
         db.session.commit()
+    
+    @staticmethod
+    def remove_role(role_id: int) -> bool:
+        """Remove role from the database
+        returns: True if it was deleted, False if it never existed
+        """
+        role: Role = db.session.query(Role).get(role_id)
+        if role is None:
+            return False # this role did not exist in the first place
+        db.session.delete(role)
+        db.session.commit()
+        return True
+
+    @staticmethod
+    def get_role(role_id: int) -> Optional[Role]:
+      """Get a role by id
+         returns: the role or None
+      """
+      return db.session.query(Role).get(role_id)
 
     def get_permissions(self) -> Dict[str, AddPermission]:
         return self.__permissions

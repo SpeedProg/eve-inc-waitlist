@@ -3,7 +3,7 @@ from flask import Blueprint
 from flask import render_template
 from flask_login import login_required
 
-from waitlist import db
+from waitlist.base import db
 from waitlist.permissions import perm_manager
 from waitlist.storage.database import CrestFleet
 

@@ -1,7 +1,7 @@
 from . import bp_v1
 from flask.wrappers import Response
 from flask_login.utils import login_required, current_user
-from waitlist import db
+from waitlist.base import db
 from flask.globals import request
 from babel.core import Locale, UnknownLocaleError
 from flask import jsonify

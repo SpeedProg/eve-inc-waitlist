@@ -103,10 +103,7 @@ waitlist.sse_dom = (function () {
 	function init() {
 		settings.can_manage = getMetaData('can-fleetcomp') === "True";
 		$('body').tooltip({selector: '[data-toggle=tooltip]'});
-		// make sure translations are loaded
-		i18nloaded.then(() => {
-			loadWaitlist();
-		});
+		loadWaitlist();
 	}
 
 	$(document).ready(init);

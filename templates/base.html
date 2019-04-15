@@ -1,42 +1,42 @@
 <!DOCTYPE html>
-<html lang="">
+<html lang="{{ lang_code }}">
 <head>
 <meta charset="utf-8">
-<meta id="lang-code" name="lang" content="{{ lang_code }}">
 <meta name="csrf-token" content="{{csrf_token()}}">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <meta name="eve-image-server" content="{{eve_proxy_js}}">
 <meta name="eve-image-server-webp" content="{{eve_cdn_webp}}">
 <meta name="browser-webp" content="{{browserSupportsWebp}}">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"
- integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.i18n/1.0.4/jquery.i18n.min.js"
- integrity="sha256-fAF2ycOzitW9kHLEpnZMdqZgsFcq9hzANcyOj9nxlNo="
+{% assets 'themes.js' %}
+<script src="{{ ASSET_URL }}"></script>
+{% endassets %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"
+ integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
  crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.i18n/1.0.4/jquery.i18n.messagestore.min.js"
- integrity="sha256-E4N7my5ObrBG26FZC2Suynu+fwHG9avmBi93Kb4V0Ls="
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.i18n/1.0.5/jquery.i18n.min.js"
+ integrity="sha256-a57FJT1vfxYpqPhdhvt5rDlIpkzBooUezMu233mfx/0="
  crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.i18n/1.0.4/jquery.i18n.language.min.js"
- integrity="sha256-E/HNS4jjzEwivvzyf/iSJgaa8Dbp0FzSpMOXZSfLPZI="
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.i18n/1.0.5/jquery.i18n.messagestore.min.js"
+ integrity="sha256-mnmAZ20bByyKZAXa5gp9Dmf4cM09GYS+zfTIxf2vVcI="
  crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.i18n/1.0.4/jquery.i18n.emitter.bidi.min.js"
- integrity="sha256-gcsIExDfAjDpIthC0ZMjGdMnv5UUOdebxef6r4gYm/E="
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.i18n/1.0.5/jquery.i18n.language.min.js"
+ integrity="sha256-XwK6dqWht76wxmrLI24FCH1dsSGqHlH97Cbx3zqDh7w="
  crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.i18n/1.0.4/jquery.i18n.emitter.min.js"
- integrity="sha256-5S4KtKHthvOilcDP4WPmt75A0a0gKOXUMYAJP/WL5m4="
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.i18n/1.0.5/jquery.i18n.emitter.bidi.min.js"
+ integrity="sha256-gtc2Tvs5/k9I3Q28OZ/CP7TzCHANC8wUbJZQVE989Do="
  crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.i18n/1.0.4/jquery.i18n.fallbacks.min.js"
- integrity="sha256-brY06NeoMeTfADA4nNMnLBEySMMpw9ZNM+5b9OX5A3o="
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.i18n/1.0.5/jquery.i18n.emitter.min.js"
+ integrity="sha256-peC3VADC2wZVOfJbwM3KR8LztNXEoZX/mef+YrrUCfU="
  crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.i18n/1.0.4/jquery.i18n.parser.min.js"
- integrity="sha256-A3LDPpIRAyNGb+a5LM+yBEuexEZdMueehi49pHxLS9g="
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.i18n/1.0.5/jquery.i18n.fallbacks.min.js"
+ integrity="sha256-JYNCT/waNdj6h/SOcUqOmluIEjQakFz54nrbkd44Kj0="
  crossorigin="anonymous"></script>
-<script type="text/javascript" id="themeloader">
-{% include 'partials/themes.js' %}
-</script>
-<script type="text/javascript" id="translationloader">
-{% include 'partials/i18n.js' %}
-</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.i18n/1.0.5/jquery.i18n.parser.min.js"
+ integrity="sha256-kI2ykUeqvOkYUt9ljoBTKYcZD1Z8AR/9Olj1d27n+e8="
+ crossorigin="anonymous"></script>
+{% assets lang_code %}
+<script src="{{ ASSET_URL }}"></script>
+{% endassets %}
 {% block head %}
 {% assets filters="babili", output="gen/base.%(version)s.js", "js/swagger-client.min.js", "js/base.js" %}
 <script type="text/javascript" src="{{ ASSET_URL }}"></script>
@@ -44,22 +44,18 @@
 {% assets filters="csscomp", output="gen/setup.%(version)s.css", "css/base.css", "css/waitlist.css", "css/font.css" %}
 <link rel="stylesheet" href="{{ ASSET_URL }}">
 {% endassets %}
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js" integrity="sha384-cs/chFZiN24E4KMATLdqdvsezGxaGsi4hLGOzlXwp5UZB1LY//20VyM2taTB4QvJ" crossorigin="anonymous"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T" crossorigin="anonymous"></script>
-	
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+ integrity="sha256-ZvOgfh+ptkpoa2Y4HkRY28ir89u/+VRyDE7sB7hEEcI="
+ crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/js/bootstrap.min.js"
+ integrity="sha256-CjSoeELFOcH0/uxWu6mC/Vlrc1AARqbm/jiiImDGV3s="
+ crossorigin="anonymous"></script>
 <title>{% block title %}{% endblock %}</title>
 {% endblock %}
+{% set header_insert = get_header_insert() %}
 {% if header_insert is not none %}
 {{header_insert|safe}}
 {% endif %}
-<script type="text/javascript">
-	$(function () {
-		if (!window.EventSource) {
-			waitlist.base.displayMessage('{{_('We have had to disable <strong>features</strong> please consider'
-				' upgrading your<a href="http://caniuse.com/#feat=eventsource"> browser</a>') }}', 'danger', true);
-		}
-	});
-</script>
 </head>
 <body>
 	{% block menu %}

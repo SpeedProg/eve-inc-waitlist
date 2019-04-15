@@ -1,7 +1,7 @@
 # inject the lib folder before everything else
 from typing import Optional
 
-from waitlist import db
+from waitlist.base import db
 from waitlist.permissions.manager import StaticRoles
 from waitlist.storage.database import Account, Character, Role, APICacheCharacterInfo
 from waitlist.utility.utils import get_random_token

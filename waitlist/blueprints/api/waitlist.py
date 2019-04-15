@@ -2,7 +2,7 @@
 from flask.views import MethodView
 from flask.blueprints import Blueprint
 import logging
-from waitlist import db, limiter
+from waitlist.base import db, limiter
 from waitlist.storage.database import WaitlistGroup, Waitlist
 from flask import jsonify
 from waitlist.utility.json import make_json_groups, make_json_group, make_json_waitlists_base_data,\

@@ -12,7 +12,7 @@ from flask.templating import render_template
 from flask_login import login_required, current_user
 from werkzeug.utils import redirect
 
-from waitlist import db
+from waitlist.base import db
 from waitlist.blueprints.fc_sso import get_sso_redirect, add_sso_handler
 from waitlist.permissions import perm_manager
 from waitlist.sso import add_token

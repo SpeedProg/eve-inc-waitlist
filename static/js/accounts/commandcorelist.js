@@ -14,36 +14,33 @@ $(document).ready(function() {
 			maxBars: 5
 		});
 
-	// make sure translations are loaded
-	i18nloaded.then(() => {
-		editableGrid.load({
-			metadata: [
-				{
-					name: "account-name",
-					datatype: "string",
-					editable: false,
-					values: [{"value": "canViewProfile", "label": canViewProfile}]
-				}, {
-					name: "roles",
-					datatype: "string",
-					editable: false
-				}, {
-					name: "alts",
-					datatype: "string",
-					editable: false
-				}
-			]
-		});
-	
-		editableGrid.attachToHTMLTable('commanderlist');
-		editableGrid.initializePaginator();
-		editableGrid.initializeGrid();
-		editableGrid.renderGrid();
-		$('#filter').on('keyup', function() {
-			if (oldFilter != null) editableGrid.removeFilter(oldFilter);
-			oldFilter = new StringFilter($('#filter').val());
-			editableGrid.addFilter(oldFilter);
-		});
-		registerRoleFilterSelect(editableGrid, 'filterRole');
+	editableGrid.load({
+		metadata: [
+			{
+				name: "account-name",
+				datatype: "string",
+				editable: false,
+				values: [{"value": "canViewProfile", "label": canViewProfile}]
+			}, {
+				name: "roles",
+				datatype: "string",
+				editable: false
+			}, {
+				name: "alts",
+				datatype: "string",
+				editable: false
+			}
+		]
 	});
+
+	editableGrid.attachToHTMLTable('commanderlist');
+	editableGrid.initializePaginator();
+	editableGrid.initializeGrid();
+	editableGrid.renderGrid();
+	$('#filter').on('keyup', function() {
+		if (oldFilter != null) editableGrid.removeFilter(oldFilter);
+		oldFilter = new StringFilter($('#filter').val());
+		editableGrid.addFilter(oldFilter);
+	});
+	registerRoleFilterSelect(editableGrid, 'filterRole');
 });

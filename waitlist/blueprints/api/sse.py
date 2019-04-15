@@ -10,7 +10,7 @@ from waitlist.data.sse import FitAddedSSE, EntryAddedSSE, EntryRemovedSSE,\
 from flask.wrappers import Response
 
 from waitlist.permissions import perm_manager
-from waitlist import db
+from waitlist.base import db
 from time import sleep
 
 bp = Blueprint('api_sse', __name__)

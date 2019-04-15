@@ -4,7 +4,7 @@ import logging
 from waitlist.permissions import perm_manager
 from flask_login import login_required
 from flask.globals import request
-from waitlist import db
+from waitlist.base import db
 from waitlist.storage.database import HistoryEntry, Character, Account
 from flask import jsonify
 from waitlist.utility.json import make_history_json

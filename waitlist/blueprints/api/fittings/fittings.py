@@ -7,7 +7,7 @@ from flask_login import login_required, current_user
 from waitlist.permissions import perm_manager
 from flask.globals import request
 from waitlist.utility.notifications import send_notification as send_notifiaction_to_player
-from waitlist import db
+from waitlist.base import db
 from waitlist.storage.database import WaitlistGroup, HistoryEntry
 from waitlist.utility.json import make_json_wl, make_history_json
 from flask.json import jsonify

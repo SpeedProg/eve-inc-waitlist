@@ -6,7 +6,9 @@
 	<meta name="api-waitlists" content="{{url_for('api_waitlists.wlbasedata')}}">
 	<meta name="api-groups" content="{{url_for('api_waitlists.groups')}}">
 {{ super() }}
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/expr-eval/1.0.1/bundle.min.js" integrity="sha256-R6r1M1yfa1MKl+m/J4ieun+1bZKH2KBNVEyTEsF4kNA=" crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/expr-eval/1.2.2/bundle.min.js"
+	 integrity="sha256-gxDC0Kj8YuraZGZCPc2o3dPW7fI7iZkZpeMYEM07SAk="
+	 crossorigin="anonymous"></script>
 	{% assets filters="babili", output="gen/alarm.%(version)s.js", "js/notification/alarm.js" %}
 	<script type="text/javascript" src="{{ ASSET_URL }}"></script>
 	{% endassets %}
