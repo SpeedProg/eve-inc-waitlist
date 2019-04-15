@@ -1,4 +1,8 @@
 #Changelog
+* 1.6.1:
+  * Fixes:
+    * Fixed missing include that prevent some fittings from getting submitted
+    * Fixed account page or command core page not working because they used the same bundle name
 * 1.6.0:
   * Features:
     * Added option to delete a role
