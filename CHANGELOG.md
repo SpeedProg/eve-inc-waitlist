@@ -1,5 +1,23 @@
 #Changelog
 * 1.6.0:
+  * Features:
+    * Added option to delete a role
+    * Added commandline argument to create/update config file, without starting the waitlist
+  * Fixes:
+    * Account Status (deactivate/activate) button does now update its state after getting clicked
+    * Fixed language code sent to ESI
+    * Fixed not setting the required attribute for the resisthulls skill input
+    * Fixed some problems with detecting the correct waitlist group for ships that use multiple different guns
+  * Improvements:
+    * Various performance related improvements
+    * Various HTML cleanups
+    * Changed the way events are rendered on the front page, to make the html look cleaner
+    * Removed some dead code
+    * Various improvements to the way translations are handled
+  * Changes:
+    * The entry count for each list is now displayed to all users
+    * Disabled assets autorebuild by default since it is simply not working correctly
+    * Role changes are now logged as database relation and as json blob, should a role be deleted the json blob remains
 * 1.5.6:
   * Improvements:
     * Carriers added to dps group
