@@ -14,7 +14,7 @@ def get_locale(app):
 
 
 def fix_locale_and_get(lang_code: str, app: Any) -> Locale:
-    from waitlist import db
+    from waitlist.base import db
     logger.debug('lang_code: %s', lang_code)
     try:
         if lang_code is None or lang_code not in app.config['LANGUAGES']:

@@ -28,7 +28,19 @@
 					<td>{{note.time}}</td>
 					<td>{{note.by.username}}</td>
 					<td>{{note_renderer(note)}}</td>
-					<td>{% for rolechange in note.role_changes %}{%if rolechange.added%}+{% else %}-{% endif %}{{rolechange.role.displayName}}{%if not loop.last %}, {% endif %}{% endfor %}</td>
+					<td>
+					{% if note.type == "account_roles_changed" and note.jsonPayload %}
+					  {% if "added" in note.jsonPayload %}
+					    {% for display_name in note.jsonPayload["added"] %}+{{display_name}}{%if not loop.last %}, {% endif %}{% endfor %}
+					  {% endif %}
+					  {% if "removed" in note.jsonPayload %}
+					    {% if "added" in note.jsonPayload %}, {% endif %}
+					    {% for display_name in note.jsonPayload["removed"] %}-{{display_name}}{%if not loop.last %}, {% endif %}{% endfor %}
+					  {% endif %}
+					{% else %}
+					  {% for rolechange in note.role_changes %}{%if rolechange.added%}+{% else %}-{% endif %}{{rolechange.role.displayName}}{%if not loop.last %}, {% endif %}{% endfor %}
+					{% endif %}
+					</td>
 				</tr>
 				{% endfor %}
 			{% endif %}

@@ -7,7 +7,7 @@ from waitlist.utility.outgate.exceptions import check_esi_response, ESIException
     ApiException
 from waitlist.utility.swagger.eve.character import CharacterEndpoint, CharacterInfo
 from waitlist.utility.swagger.eve.search import SearchEndpoint, SearchResponse
-from waitlist import db
+from waitlist.base import db
 from waitlist.utility.outgate import corporation
 
 logger = logging.getLogger(__name__)

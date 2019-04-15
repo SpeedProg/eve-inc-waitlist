@@ -16,7 +16,7 @@ from sqlalchemy import text, Column, String
 from sqlalchemy.engine import ResultProxy, RowProxy
 from alembic import op
 
-from waitlist import db
+from waitlist.base import db
 
 # modify these values
 database_name = "waitlist"

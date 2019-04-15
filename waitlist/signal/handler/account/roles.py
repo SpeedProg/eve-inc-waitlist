@@ -1,9 +1,9 @@
 from waitlist.permissions import perm_manager
-from ... import roles_changed_sig, role_created_sig
+from ... import roles_changed_sig, role_created_sig, role_removed_sig
 from typing import Iterable, Sequence, Any
 from waitlist.storage.database import AccountNote, Role, RoleChangeEntry,\
     Account
-from waitlist import db
+from waitlist.base import db
 from sqlalchemy.sql.expression import or_
 from waitlist.utility.constants import account_notes
 
@@ -22,20 +22,30 @@ def on_roles_changed_history_entry(_, to_id: int, by_id: int,
         return
     history_entry = AccountNote(accountID=to_id, byAccountID=by_id, note=note,
                                 type=account_notes.TYPE_ACCOUNT_ROLES_CHANGED)
+    role_changes_dict = dict()
+
     if len(added_roles) > 0:
         db_roles = db.session.query(Role).filter(
             or_(Role.name == name for name in added_roles)).all()
+        role_changes_dict['added'] = []
         for role in db_roles:
             # get role from db
             role_change = RoleChangeEntry(added=True, role=role)
             history_entry.role_changes.append(role_change)
+            role_changes_dict['added'].append(role.displayName)
 
     if len(removed_roles) > 0:
         db_roles = db.session.query(Role).filter(
             or_(Role.name == name for name in removed_roles)).all()
+        role_changes_dict['removed'] = []
         for role in db_roles:
             role_change = RoleChangeEntry(added=False, role=role)
             history_entry.role_changes.append(role_change)
+            role_changes_dict['removed'].append(role.displayName)
+
+    if len(role_changes_dict) > 0:
+      history_entry.jsonPayload = role_changes_dict
+
     db.session.add(history_entry)
     db.session.commit()
 
@@ -72,7 +82,26 @@ def on_role_created_history_entry(_: Any, by_id: int, role_name: str,
     db.session.commit()
 
 
+def on_role_removed_history_entry(_: Any, by_id: int, role_name: str,
+                                  role_display_name: str) -> None:
+
+    if by_id is None or role_name is None or role_display_name is None:
+        return
+
+    note: AccountNote = AccountNote(accountID=by_id, byAccountID=by_id,
+                                    restriction_level=1000,
+                                    type=account_notes.TYPE_ROLE_REMOVED)
+    note.jsonPayload = {
+        'role_name': role_name,
+        'role_display_name': role_display_name
+    }
+    db.session.add(note)
+    db.session.commit()
+
+
 def connect() -> None:
     roles_changed_sig.connect(on_roles_changed_history_entry)
     roles_changed_sig.connect(on_roles_changed_check_welcome_mail)
     role_created_sig.connect(on_role_created_history_entry)
+    role_removed_sig.connect(on_role_removed_history_entry)
+

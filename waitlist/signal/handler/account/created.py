@@ -1,7 +1,7 @@
 from ... import account_created_sig
 from waitlist.storage.database import AccountNote, Role, RoleChangeEntry
 from typing import Sequence
-from waitlist import db
+from waitlist.base import db
 from sqlalchemy.sql.expression import or_
 from waitlist.utility.constants import account_notes
 

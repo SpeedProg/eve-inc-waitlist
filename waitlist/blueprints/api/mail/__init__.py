@@ -15,7 +15,7 @@ from werkzeug.utils import redirect
 from waitlist.blueprints.fc_sso import add_sso_handler, get_sso_redirect
 from waitlist.storage.database import Account, AccountNote, SSOToken
 from sqlalchemy import or_
-from waitlist import db
+from waitlist.base import db
 from waitlist.utility.constants import account_notes
 from waitlist.signal.handler import account
 bp = Blueprint('api_mail', __name__)

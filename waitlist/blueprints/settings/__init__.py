@@ -1,6 +1,6 @@
 from typing import Callable, Tuple, List
 
-from waitlist import app
+from waitlist.base import app
 from flask_babel import lazy_gettext
 from flask.helpers import url_for
 

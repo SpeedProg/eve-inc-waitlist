@@ -8,7 +8,7 @@ from flask import request
 from flask import url_for
 from flask_login import login_required
 
-from waitlist import db
+from waitlist.base import db
 from waitlist.blueprints.settings import add_menu_entry
 from waitlist.permissions import perm_manager
 from waitlist.storage.database import TeamspeakDatum

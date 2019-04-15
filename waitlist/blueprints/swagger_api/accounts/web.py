@@ -3,7 +3,7 @@ import logging
 from flask import Response, make_response, jsonify, request
 from flask_login import login_required
 
-from waitlist import db
+from waitlist.base import db
 from waitlist.permissions import perm_manager
 from waitlist.storage.database import Account, Character
 from waitlist.utility.eve_id_utils import get_character_by_id,\

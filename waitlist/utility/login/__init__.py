@@ -10,7 +10,7 @@ from flask import url_for
 from flask_login import login_user, current_user
 from flask_principal import identity_changed, Identity
 
-from waitlist import db
+from waitlist.base import db
 from waitlist.blueprints.fc_sso import get_sso_redirect, add_sso_handler
 from waitlist.sso import authorize, who_am_i, revoke
 from waitlist.storage.database import Account, Character, SSOToken

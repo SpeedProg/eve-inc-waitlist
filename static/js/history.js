@@ -29,11 +29,8 @@ waitlist.history.comphistory = (function() {
 			});
 	}
 	function init() {
-		// this is to make sure that the language data is there before we try to use it
-		i18nloaded.then(() => {
 		refresh();
 		setInterval(refresh, 10000);
-		});
 	}
 
 	$(document).ready(init);

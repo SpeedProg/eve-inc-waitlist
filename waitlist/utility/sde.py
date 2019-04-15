@@ -10,7 +10,7 @@ import yaml
 from waitlist.storage.database import InvType, Station, Constellation,\
     SolarSystem, IncursionLayout, InvCategory, InvGroup,\
     InvTypeDogmaAttribute, InvTypeDogmaEffect
-from waitlist import db
+from waitlist.base import db
 from os import path, PathLike
 import csv
 

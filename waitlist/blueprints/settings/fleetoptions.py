@@ -16,7 +16,7 @@ from flask import Blueprint
 from flask import render_template
 from flask_login import current_user, login_required
 
-from waitlist import db
+from waitlist.base import db
 from waitlist.storage.database import WaitlistGroup, Account, IncursionLayout, Station, SolarSystem, Constellation, \
     WaitlistEntry
 from waitlist.utility.eve_id_utils import get_constellation, get_system, get_station

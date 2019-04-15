@@ -1,23 +1,22 @@
-let swa_client = SwaggerClient(
-	{
-		url: "/spec/v1/swagger.json",
-		requestInterceptor : function(req) {
-			req.headers['X-CSRFToken'] = waitlist.base.getMetaData('csrf-token');
-			return req;
-		}
-	}
-);
-
 class AccountRow {
 	constructor(accountId, grid) {
 		this.accountId = accountId;
-		this.id = `account-${accountId}`
+		this.id = `account-${accountId}`;
 		this.element = document.getElementById(this.id);
 		this.grid = grid;
 	}
 	
 	set status(value) {
-		this.setColumn('status', value)
+		this.setColumn('status', value);
+		let rowData = this.getThisRowData();
+		if (value == $.i18n('wl-account-status-active') || value == $.i18n('wl-account-status-deactivated')) {
+			let columnIdx = this.grid.getColumnIndex('actions');
+			let actionsTd = this.grid.getCell(rowData.originalIndex, columnIdx);
+			let rowIdx = this.grid.getRowIndex(this.id);
+			let actionCell = new Actions(actionsTd, rowData.columns[columnIdx], 'roles', this.grid, rowIdx);
+			actionCell.disabled = value == $.i18n('wl-account-status-deactivated');
+			//Actions(this.grid.getCell())
+		}
 		this.grid.refreshGrid();
 	}
 	
@@ -39,9 +38,7 @@ class AccountRow {
 	}
 	
 	getColumn(name) {
-		let data = this.grid.dataUnfiltered != null ? this.grid.dataUnfiltered : this.grid.data;
-		// find the data row
-		let rowdata = data.find(e => e.id == this.id);
+		let rowdata = this.getThisRowData();
 		console.log("Get columnIdex for "+name);
 		console.log(rowdata);
 		console.log(this.grid);
@@ -50,11 +47,17 @@ class AccountRow {
 		return rowdata.columns[columnIndex];
 	}
 	
+	getThisRowData() {
+		let data = this.grid.dataUnfiltered != null ? this.grid.dataUnfiltered : this.grid.data;
+		// find the data row
+		return data.find(e => e.id == this.id);
+	}
+	
 	setColumn(name, value) {
 		let griddata = this.grid.dataUnfiltered != null ? this.grid.dataUnfiltered : this.grid.data;
 		// find the data row
 		let rowdata = griddata.find(e => e.id == this.id);
-		let columIndex = this.grid.getColumnIndex(name);
+		let columnIndex = this.grid.getColumnIndex(name);
 		rowdata.columns[columnIndex] = value;
 	}
 }
@@ -125,7 +128,7 @@ class AltEntry {
 	remove_alt_button_handler(event) {
 		let alt_entry = this;
 		console.log(`Removing characterId=${this.character_id} from accountId=${this.account_id}`);
-		swa_client.then(
+		waitlist.base.client.then(
 			function(client) {
 				client.apis.Accounts.delete_accounts_account_id({'account_id': alt_entry.account_id,
 					'character_id': alt_entry.character_id,
@@ -276,7 +279,7 @@ class AltsList {
 
 	add_button_handler(event) {
 		let alts_list = this;
-		swa_client.then(function(client){
+		waitlist.base.client.then(function(client){
 			let account_id = alts_list.account_id;
 
 			let input_field = document.createElement('input');
@@ -340,6 +343,60 @@ class AltsList {
 			alts_list.appendChild(this.add_button);
 		}
 		return alts_list;
+	}
+
+}
+
+class Actions {
+	constructor(table_data_node, text_value, roles_column_name, grid, rowIdx) {
+		this.grid = grid;
+		this.rowIdx = rowIdx;
+		this.td = table_data_node;
+		this.text = text_value;
+		this.roles_name = roles_column_name;
+		
+		let account_info = this.text.split(':');
+		this._acc_id = Number(account_info[0]);
+		this._disabled = account_info[1].toLowerCase() == 'true';
+		this._had_welcome_mail = account_info[2].toLowerCase() == 'true';
+		this._target_id = Number(account_info[3]);
+	}
+	
+	get account_id() {
+		return this._acc_id;
+	}
+	
+	get disabled() {
+		return this._disabled;
+	}
+	
+	set disabled(value) {
+		this._disabled = value;
+		this.update_text_value();
+	}
+	
+	get had_mail() {
+		return this._had_welcome_mail
+	}
+	
+	get target_id() {
+		return this._target_id;
+	}
+	
+	get sender_name() {
+		return this.td.getAttribute('data-sender');
+	}
+	
+	get target_name() {
+		return this.td.getAttribute('data-user');
+	}
+	
+	update_text_value() {
+		// if we don't know what row we are in we can't update data
+		if (this.rowIdx == null) return;
+		this.text = `${this._acc_id}:${this._disabled ? "True": "False" }:${this._had_welcome_mail ? "True": "False" }:${this._target_id}`;
+		console.log(this.text);
+		this.grid.setValueAt(this.rowIdx, this.grid.getColumnIndex('actions'), this.text);
 	}
 
 }

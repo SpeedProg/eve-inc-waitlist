@@ -12,15 +12,8 @@ class BabiliFilter(ExternalTool):
         'run_in_debug': 'BABEL_RUN_IN_DEBUG',
     }
 
-    def setup(self):
-        super(BabiliFilter, self).setup()
-
-    def output(self, _in, out, **kw):
-        # node not configured
-        if config.node_bin == '':
-            out.write(_in.read())
-            return
-
+    def __init__(self, **kwargs):
+        super(BabiliFilter, self).__init__(**kwargs)
         # prepare arguments
         if self.presets:
             self.presets += ",minify"
@@ -32,6 +25,12 @@ class BabiliFilter(ExternalTool):
         else:
             self.extra_args = ['--no-babelrc', '--no-comments',
                                '--plugins=transform-remove-console']
+
+    def output(self, _in, out, **kw):
+        # node not configured
+        if config.node_bin == '':
+            out.write(_in.read())
+            return
 
         args = [config.node_bin + 'babel']
         if self.presets:

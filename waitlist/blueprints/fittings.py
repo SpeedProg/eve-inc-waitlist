@@ -13,13 +13,15 @@ from werkzeug.utils import redirect
 from flask.helpers import url_for
 from flask.templating import render_template
 from datetime import datetime, timedelta
-from waitlist import db
+from waitlist.base import db
 from waitlist.data.sse import subscriptions, EntryAddedSSE, \
     send_server_sent_event, FitAddedSSE, FitRemovedSSE, EntryRemovedSSE
 import flask
 from sqlalchemy.sql.expression import desc
 from waitlist.utility.history_utils import create_history_object
 from waitlist.blueprints.api import fittings as fit_api
+
+from waitlist.utility.config import stattool_enabled, stattool_uri, stattool_sri
 
 bp_waitlist = Blueprint('fittings', __name__)
 logger = logging.getLogger(__name__)
@@ -351,8 +353,9 @@ def debug():
 @bp_waitlist.route("/history/")
 @login_required
 @perm_comp_view.require(http_exception=401)
-def history_default():
-    return render_template("waitlist/history.html")
+def history_default():  
+    return render_template("waitlist/history.html",
+        stattool_enabled=stattool_enabled, stattool_uri=stattool_uri, stattool_sri=stattool_sri)
 
 
 @bp_waitlist.route("/history/<int:min_mins>/<int:max_mins>")
@@ -360,7 +363,8 @@ def history_default():
 @perm_comp_view.require(http_exception=401)
 def history(min_mins: int, max_mins: int):
     if max_mins <= min_mins:
-        return render_template("waitlist/history_cut.html", history=[])
+        return render_template("waitlist/history_cut.html", history=[],
+            stattool_enabled=stattool_enabled, stattool_uri=stattool_uri, stattool_sri=stattool_sri)
     # only officer and leadership can go back more then 4h
     if max_mins > 240 and not (perm_comp_unlimited.can()):
         redirect(url_for("fittings.history", min_mins=min_mins, max_mins=240))
@@ -371,4 +375,5 @@ def history(min_mins: int, max_mins: int):
     history_entries = db.session.query(HistoryEntry) \
         .filter((HistoryEntry.time <= min_time) & (HistoryEntry.time > max_time)) \
         .order_by(desc(HistoryEntry.time)).limit(1000).all()
-    return render_template("waitlist/history_cut.html", history=history_entries)
+    return render_template("waitlist/history_cut.html", history=history_entries,
+        stattool_enabled=stattool_enabled, stattool_uri=stattool_uri, stattool_sri=stattool_sri)

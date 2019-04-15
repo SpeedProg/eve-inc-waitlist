@@ -50,7 +50,11 @@ def render_note_text(note: AccountNote) -> str:
                 f'Mail Subject: {subject} Mail Body: {body}')
     elif note.type == account_notes.TYPE_ROLE_CREATED:
         return (f'Created Role with name={note.jsonPayload["role_name"]} '
-                f'and display name={note.jsonPayload["display_name"]}')
+                f'and display name={note.jsonPayload["role_display_name"]}')
+    elif note.type == account_notes.TYPE_ROLE_REMOVED:
+        return (f'Removed Role with name={note.jsonPayload["role_name"]} '
+                f'and display name={note.jsonPayload["role_display_name"]}')
+
     elif note.type == account_notes.TYPE_SENT_ACCOUNT_MAIL:
 
         character: Character = get_character_by_id(
