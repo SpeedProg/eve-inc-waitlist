@@ -2,7 +2,7 @@ import logging
 from flask.blueprints import Blueprint
 from waitlist.permissions import perm_manager
 from flask_login import login_required, current_user
-from waitlist import db
+from waitlist.base import db
 from waitlist.storage.database import Account, AccountNote
 from flask.templating import render_template
 import flask

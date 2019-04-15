@@ -1,0 +1,1 @@
+$.i18n({locale:"{{ lang_code }}"}).load({{ lang_json|safe }},"{{ lang_code }}");

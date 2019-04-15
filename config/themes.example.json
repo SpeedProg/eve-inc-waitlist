@@ -1,0 +1,14 @@
+[{"id": "default",
+  "name": "Standard",
+  "paths": ["css/themes/default.css"],
+  "default": true
+ },
+ {"id": "dark",
+   "name": "Dark",
+   "paths": ["css/themes/dark.css"]
+ },
+ {"id": "dark_purple",
+  "name": "Dark Purple",
+  "paths": ["css/themes/dark_purple.css"]
+ }
+]

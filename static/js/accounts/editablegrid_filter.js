@@ -10,7 +10,16 @@ class RoleFilter extends Filter {
 		let accId = row.id.substring(8);
 		console.log("Account Id: "+accId+ " RIdx: "+ ridx);
 		let value = grid.getValueAt(ridx, roleIdx);
-		let roles_node = $.parseHTML('<div>'+value+'</div>')[0];
+		let roles = RoleFilter.rolesGridValueToList(value);
+		console.log(roles);
+		console.log("Role we want: " + this.roleName);
+		let should_include = roles.includes(this.roleName);
+		console.log("Should include " + should_include);
+		return should_include;
+	}
+	
+	static rolesGridValueToList(grid_value) {
+		let roles_node = $.parseHTML('<div>'+grid_value+'</div>')[0];
 		
 		// remove the new node
 		if (roles_node.children.length > 0 && roles_node.children[0].nodeName === "SPAN") {
@@ -20,10 +29,6 @@ class RoleFilter extends Filter {
 		roles = roles.replace(/[\t\n\r]/g, ''); // clean up tabs and newlines
 		roles = roles.split(', ');
 		roles = roles.map(role => role.trim());
-		console.log(roles);
-		console.log("Role we want: " + this.roleName);
-		let should_include = roles.includes(this.roleName);
-		console.log("Should include " + should_include);
-		return should_include;
+		return roles;
 	}
 }

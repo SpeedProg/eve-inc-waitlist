@@ -77,5 +77,10 @@
 	"wl-account": "Account",
 	"wl-enable": "Enable",
 	"wl-disable": "Disable",
-	"wl-error-to-many-sse-errors": "Your SSE connection go terminated to often, stopping reconnect. WL will not update anymore."
+	"wl-error-to-many-sse-errors": "Your SSE connection terminated too often, stopping reconnect. WL will not update anymore.",
+	"wl-edit": "Edit",
+	"wl-welcome-mail-button-text": "Mail",
+	"wl-account-status-active": "Active",
+	"wl-account-status-deactivated": "Deactivated",
+	"wl-browser-warning-sse": "We had to disable <strong>features</strong> please consider upgrading your<a href=\"https://caniuse.com/#feat=eventsource\"> browser</a>."
 }

@@ -59,9 +59,7 @@ waitlist.gong = (function() {
 			gongbutton.checked = true;
 			gongClicked();
 		} else {
-			i18nloaded.then(() => {
-				displayMessage($.i18n('wl-gong-info'), "info", false, "gong-alert");
-			});
+			displayMessage($.i18n('wl-gong-info'), "info", false, "gong-alert");
 			gongAlert = "y";
 		}
 	}

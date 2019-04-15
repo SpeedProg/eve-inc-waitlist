@@ -12,7 +12,7 @@ from waitlist.utility.notifications import send_notification
 from waitlist.utility.history_utils import create_history_object
 from waitlist.utility.fleet import spawn_invite_check, invite, member_info
 from flask.json import jsonify
-from waitlist import db
+from waitlist.base import db
 from datetime import datetime
 from flask.wrappers import Response
 from waitlist.utility.eve_id_utils import get_character_by_name

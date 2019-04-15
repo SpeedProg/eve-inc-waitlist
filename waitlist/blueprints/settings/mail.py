@@ -13,7 +13,7 @@ from waitlist.utility.settings import sget_resident_mail,\
 from flask.globals import request
 from flask.helpers import flash, url_for
 from werkzeug.utils import redirect
-from waitlist import app
+from waitlist.base import app
 from flask_babel import gettext, lazy_gettext
 
 bp = Blueprint('settings_mail', __name__)

@@ -9,7 +9,7 @@ from flask.helpers import flash, url_for, make_response
 from waitlist.blueprints.settings import add_menu_entry
 from waitlist.permissions import perm_manager
 from waitlist.storage.database import Ticket
-from waitlist import db
+from waitlist.base import db
 import flask
 from datetime import datetime, timedelta
 from sqlalchemy.sql.expression import desc

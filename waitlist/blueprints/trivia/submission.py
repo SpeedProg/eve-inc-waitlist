@@ -11,7 +11,7 @@ from flask import request
 from flask import url_for
 from flask_login import current_user, login_required
 
-from waitlist import db
+from waitlist.base import db
 from waitlist.storage.database import TriviaSubmission, Trivia, TriviaSubmissionAnswer
 from flask_babel import gettext
 

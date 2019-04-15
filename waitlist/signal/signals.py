@@ -2,6 +2,7 @@ from blinker.base import Namespace
 from typing import Any, Optional
 SIG_ROLES_EDITED = 'roles-edited'
 SIG_ROLES_ADDED = 'roles-added'
+SIG_ROLES_REMOVED = 'roles-removed'
 SIG_ACC_CREATED = 'acc-created'
 SIG_ACC_STATUS_CHANGE = 'acc-status-change'
 
@@ -26,6 +27,9 @@ account_status_change_sig = waitlist_bps.\
 role_created_sig = waitlist_bps.\
     signal(SIG_ROLES_ADDED,
            'Called when a new role is created')
+role_removed_sig = waitlist_bps.\
+    signal(SIG_ROLES_REMOVED,
+           'Called when a role is removed')
 
 alt_link_removed_sig = waitlist_bps.\
     signal(SIG_ALT_LINK_REMOVED,
@@ -46,6 +50,11 @@ def send_roles_changed(sender, to_id, by_id, added_roles, removed_roles, note):
 
 def send_role_created(sender, by_id, role_name, role_display_name):
     role_created_sig.send(sender, by_id=by_id, role_name=role_name,
+                          role_display_name=role_display_name)
+
+
+def send_role_removed(sender, by_id, role_name, role_display_name):
+    role_removed_sig.send(sender, by_id=by_id, role_name=role_name,
                           role_display_name=role_display_name)
 
 
@@ -77,3 +86,4 @@ def send_account_name_change(sender: Any, by_id: int, account_id: int,
     account_name_change_sig.send(sender, by_id=by_id, account_id=account_id,
                                  old_name=old_name, new_name=new_name,
                                  note=note)
+

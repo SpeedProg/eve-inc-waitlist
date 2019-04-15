@@ -1,6 +1,6 @@
 from typing import Dict
 
-from waitlist import swag
+from waitlist.base import swag
 
 
 @swag.definition('ErrorNotFound', tags=['v1_model'])

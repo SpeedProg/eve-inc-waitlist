@@ -6,7 +6,7 @@ import logging
 from waitlist.data.sse import FitRemovedSSE, EntryRemovedSSE, send_server_sent_event
 from waitlist.storage.database import Shipfit, WaitlistEntry, HistoryEntry
 from waitlist.utility.history_utils import create_history_object
-from waitlist import db
+from waitlist.base import db
 from . import bp
 
 logger = logging.getLogger(__name__)
