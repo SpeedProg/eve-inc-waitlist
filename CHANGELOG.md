@@ -1,4 +1,9 @@
 #Changelog
+* 1.6.3:
+  * Fixes:
+    * Dropping some more sql connections, as soon as they are not needed anymore
+    * removed some delays in esi calls
+    * Removed potential permanent loop trying to tell an SSE client to refresh the page
 * 1.6.2:
   * Fixes:
     * Fixed some problems with refreshing tokens
