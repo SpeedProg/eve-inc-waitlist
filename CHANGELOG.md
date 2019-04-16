@@ -1,4 +1,7 @@
 #Changelog
+* 1.6.4:
+  * Fixes:
+    * fixed error that could get the waitlist SSE connection to reconnect indefinitely
 * 1.6.3:
   * Fixes:
     * Dropping some more sql connections, as soon as they are not needed anymore
