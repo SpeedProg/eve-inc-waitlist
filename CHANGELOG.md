@@ -1,4 +1,7 @@
 #Changelog
+* 1.6.2:
+  * Fixes:
+    * Fixed some problems with refreshing tokens
 * 1.6.1:
   * Fixes:
     * Fixed missing include that prevent some fittings from getting submitted
