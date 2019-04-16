@@ -30,7 +30,6 @@ def __get_names_for_ids(ep: UniverseEndpoint, id_list: List[int], count=1,
 
     if resp.is_error():
         if count <= 5:
-            sleep(count**2)
             return __get_names_for_ids(id_list, count+1, args)
         # this will just throw an ApiException
         return check_esi_response(resp,
