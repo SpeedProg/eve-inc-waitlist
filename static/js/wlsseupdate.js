@@ -14,6 +14,9 @@ waitlist.sse = (function() {
 	
 	let eventSource;
 	let errorCount = 0;
+	
+	// we use this to track if we open successfully connections way to fast
+	let lastSseOpen = new Date();
 	function handleSSEError(event) {
 		event.target.close();
 		errorCount++;
@@ -31,12 +34,19 @@ waitlist.sse = (function() {
 	}
 
 	function handleSSEOpen() {
-		if (errorCount > 1) {
-			// refresh the page using json, to pull ALL the date, we might have
-			// missed sth
-			waitlist.listdom.loadWaitlist();
+	  let currentTS = new Date();
+	  if (currentTS - lastSseOpen < 1800) {
+  	  // we are reconnecting way to fast
+  	  errorCount = 11;
+	  } else {
+	    if (errorCount > 1) {
+		    // refresh the page using json, to pull ALL the date, we might have
+		    // missed sth
+		    waitlist.listdom.loadWaitlist();
+	    }
+	    errorCount = 0; // reset error counter
 		}
-		errorCount = 0; // reset error counter
+		lastSseOpen = currentTS;
 	}
 
 	function connectSSE(count = 0) {
@@ -49,6 +59,7 @@ waitlist.sse = (function() {
 	}
 
 	function getSSE(events, groupId, count = 0) {
+    console.log("getSSE");
 		let url = getMetaData('api-sse')+"?events="+encodeURIComponent(events)+"&connect_try="+count;
 		if (typeof groupId !== "undefined") {
 			url += "&groupId="+encodeURIComponent(groupId);

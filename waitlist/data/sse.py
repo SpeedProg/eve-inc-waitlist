@@ -98,8 +98,8 @@ class ServerSentEvent(object):
 
     def encode(self, sub):
         if not self.data:
-            logger.debug("No Data Set")
-            return ""
+            logger.error("No Data Set")
+            raise RuntimeError("Data not set for SSE event")
 
         lines = ["%s: %s" % (k, self.get_value(v))
                  for k, v in list(self.desc_map.items()) if hasattr(self, v) and self.get_value(v)]
@@ -300,7 +300,7 @@ class StatusChangedSSE(ServerSentEvent):
 
 class ReloadPageSSE(ServerSentEvent):
     def __init__(self):
-        super(ReloadPageSSE, self).__init__('', 'reload')
+        super(ReloadPageSSE, self).__init__(True, 'reload')
 
     def accepts(self, sub: Subscription):
         return True
