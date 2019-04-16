@@ -36,9 +36,7 @@ def event_gen(sub: Subscription):
 
 def reload_gen():
         rpSse = ReloadPageSSE()
-        while True:
-            yield rpSse.encode(None)
-            sleep(1000)
+        yield rpSse.encode(None)
 
 
 @bp.route("/", methods=["GET"])
@@ -60,6 +58,7 @@ def events():
     if not current_user.is_authenticated:
         logger.info('SSE reconnection without login on try %s from %s',
                     connect_try, ip)
+        db.session.remove() # make sure there is no db session anymore
         return Response(reload_gen(), mimetype="text/event-stream")
 
     # userId can be None for accounts that have no character set currently
