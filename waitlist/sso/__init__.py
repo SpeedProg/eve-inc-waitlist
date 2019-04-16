@@ -32,17 +32,17 @@ def authorize(code: str) -> Dict:
     return security.auth(code)
 
 
-def token_arguement_update_cb(access_token: str, refresh_token: str, expires_at: int,
+def token_argument_update_cb(access_token: str, refresh_token: str, expires_in: int,
                               token_identifier: SSOToken, **_: Dict[str, Any]):
     token_identifier.refresh_token = refresh_token
     token_identifier.access_token = access_token
-    token_identifier.access_token_expires = datetime.utcfromtimestamp(expires_at)
+    token_identifier.access_token_expires = datetime.now() + timedelta(seconds=(expires_in-10))
     logger.debug("Set access_token_expires to %s", token_identifier.access_token_expires)
 
 
 def who_am_i(token: SSOToken) -> Dict:
     signal = Signal()
-    signal.add_receiver(token_arguement_update_cb)
+    signal.add_receiver(token_argument_update_cb)
 
     security: EsiSecurity = EsiSecurity('', config.crest_client_id, config.crest_client_secret,
                                         headers={'User-Agent': config.user_agent},
