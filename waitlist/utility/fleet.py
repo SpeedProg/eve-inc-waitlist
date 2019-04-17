@@ -96,6 +96,9 @@ class FleetMemberInfo:
                     logger.debug("%s Got Fleet Members", account.username)
                     self._update_cache(fleet_id, data)
                     logger.debug("%s Successfully updated Fleet Members", account.username)
+                elif data.code() == 404 or data.code() == 403:
+                    logger.info("Failed to get Fleetmembers from API because access was denied code[%d] msg[%s]", data.code(), data.error())
+                    return self.get_cache_data(fleet_id)
                 else:
                     logger.error("Failed to get Fleetmembers from API code[%d] msg[%s]", data.code(), data.error())
                     return self.get_cache_data(fleet_id)
