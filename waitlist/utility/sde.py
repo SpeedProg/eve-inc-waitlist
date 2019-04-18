@@ -2,7 +2,8 @@ import logging
 from bz2 import BZ2File
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import Union, Optional, Tuple, List
-
+from collections import deque
+from sqlalchemy.sql import exists
 import flask
 from esipy import EsiClient
 from yaml.events import MappingStartEvent, ScalarEvent, MappingEndEvent
@@ -36,7 +37,7 @@ def update_market_groups():
     groups_resp: MarketGroupsResponse = ep.get_groups()
 
     upstream_group_ids = set(groups_resp.data)
-    db_marketgroup_ids = set(db.session.query(MarketGroup.marketGroupID).all())
+    db_marketgroup_ids = { gid for gid, in db.session.query(MarketGroup.marketGroupID) }
     not_in_upstream = db_marketgroup_ids - upstream_group_ids
     not_in_db = upstream_group_ids - db_marketgroup_ids
     in_db_and_upstream = upstream_group_ids.intersection(db_marketgroup_ids)
