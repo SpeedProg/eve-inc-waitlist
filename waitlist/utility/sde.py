@@ -101,6 +101,85 @@ def update_market_groups():
     db.session.bulk_update_mappings(MarketGroup, mg_update_list)
 
 
+def add_marketgroup_by_id_to_database(market_group_id: int):
+    """Adds a MarketGroup to database
+       This does not commit!
+    """
+    if market_group_id is None:
+        logger.warning('add_marketgroup_by_id_to_database was called with None')
+        return
+
+    if db.session.query(exists().where(MarketGroup.marketGroupID == market_group_id)).scalar():
+        return
+
+    ep: MarketEndpoint = MarketEndpoint()
+    resp: MarketGroupResponse = ep.get_group(market_group_id)
+    current: MarketGroupResponse = resp
+    # this will hold the groups and their parents
+    # starting with the lowest child
+    # so they need to be added in reverse order to database
+    groups_to_add: List[MarketGroupResponse] = []
+    cur.append(resp)
+    # we have the path to root if it has no parent or parent is already in database
+    while current.parent_id is not None and not db.session.query(exists().where(MarketGroup.marketGroupID == current.parent_id)):
+        reps = ep.get_group(current.parent_id)
+        parents_to_add.append(current)
+        current = resp
+
+    bulk_data = deque(maxlen=len(groups_to_add))
+    for group in groups_to_add:
+        bulk_data.appendleft(dict(
+            marketGroupID=group.id,
+            parentGroupID=group.parent_id,
+            marketGroupName=group.name,
+            description=group.description,
+            iconID=0, # this is not in esi
+            hasTypes=(len(group.types) > 0)
+        ))
+    db.session.bulk_insert_mappings(MarketGroup, bulk_data)
+
+def add_invgroup_by_id_to_database(invgroup_id: int):
+    """Adds a InvGroup to database
+       This does not commit!
+    """
+    if invgroup_id is None:
+        logger.warning('add_invgroup_by_id_to_database was called with None')
+        return
+
+    if db.session.query(exists().where(InvGroup.groupID == invgroup_id)).scalar():
+        return
+    ep: UniverseEndpoint = UniverseEndpoint()
+    resp: GroupResponse = ep.get_group(invgroup_id)
+    add_invcategory_by_id_to_database(resp.invcategory_id)
+
+    group: InvGroup = InvGroup(
+        groupID=resp.id,
+        groupName=resp.name,
+        published=resp.published,
+        categoryID=resp.category_id,
+    )
+    db.session.add(group)
+
+def add_invcategory_by_id_to_database(invcategory_id: int):
+    """Adds a InvCategory to datase
+       This does not commit!
+    """
+    if invcategory_id is None:
+        logger.warning('add_invcategory_by_id_to_database was called with None as argument')
+        return
+
+    if db.session.query(exists().where(InvCategory.categoryID == invcategory_id)).scalar():
+        return
+
+    ep: UniverseEndpoint = UniverseEndpoint()
+    resp: CategoryResponse = ep.get_category(invcategory_id)
+    cat: InvCategory = InvCategory(
+        categoryID=resp.id,
+        categoryName=resp.name,
+        published=resp.published
+    )
+    db.session.add(cat)
+
 def add_type_by_id_to_database(type_id: int):
     """Add a new type by id to database
        only call this if you are sure the type does not exist
@@ -108,6 +187,10 @@ def add_type_by_id_to_database(type_id: int):
     """
     ep: UniverseEndpoint = UniverseEndpoint()
     resp = ep.get_type(type_id)
+
+    # add foreign key objects if we don't have them
+    add_marketgroup_by_id_to_database(resp.market_group_id)
+    add_invgroup_by_id_to_database(resp.group_id)
 
     type_db: InvType = InvType(
         typeID=resp.type_id,
