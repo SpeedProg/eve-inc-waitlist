@@ -58,7 +58,7 @@ def get_item_id(name: str) -> int:
                           marketGroupID=market_group_id)
 
             db.session.merge(item)
-        else
+        else:
             add_type_by_id_to_database(item_data.type_id)
 
         db.session.commit()
