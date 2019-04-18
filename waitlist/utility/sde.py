@@ -1,7 +1,7 @@
 import logging
 from bz2 import BZ2File
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from typing import Union, Optional, Tuple
+from typing import Union, Optional, Tuple, List
 
 import flask
 from esipy import EsiClient
@@ -9,7 +9,7 @@ from yaml.events import MappingStartEvent, ScalarEvent, MappingEndEvent
 import yaml
 from waitlist.storage.database import InvType, Station, Constellation,\
     SolarSystem, IncursionLayout, InvCategory, InvGroup,\
-    InvTypeDogmaAttribute, InvTypeDogmaEffect
+    InvTypeDogmaAttribute, InvTypeDogmaEffect, MarketGroup
 from waitlist.base import db
 from os import path, PathLike
 import csv
@@ -17,13 +17,94 @@ import csv
 from waitlist.utility.swagger import get_api
 from waitlist.utility.swagger.eve import get_esi_client
 from waitlist.utility.swagger.eve.universe import UniverseEndpoint
+from waitlist.utility.swagger.eve.market import MarketEndpoint, MarketGroupResponse
 from waitlist.utility.utils import chunks
 import time
 
 logger = logging.getLogger(__name__)
 
+def get_descendents(responses: List[MarketGroupResponse], parent_id: int) -> List[MarketGroupResponse]:
+    descendents: List[MarketGroupResponse] = [resp for resp in responses if resp.parent_id == parent_id]
+    return descendents
+
+def update_market_groups():
+    """This updates all MarketGroups
+    No Commit is done
+    """
+    logger.debug('update_market_groups')
+    ep: MarketEndpoint = MarketEndpoint()
+    groups_resp: MarketGroupsResponse = ep.get_groups()
+
+    upstream_group_ids = set(groups_resp.data)
+    db_marketgroup_ids = set(db.session.query(MarketGroup.marketGroupID).all())
+    not_in_upstream = db_marketgroup_ids - upstream_group_ids
+    not_in_db = upstream_group_ids - db_marketgroup_ids
+    in_db_and_upstream = upstream_group_ids.intersection(db_marketgroup_ids)
+    logger.debug('upstream: %r db: %r', upstream_group_ids, db_marketgroup_ids)
+    logger.debug('not upstream: %r not_db: %r both: %r', not_in_upstream, not_in_db, in_db_and_upstream)
+    # lets delete marketgroups what don't exist anymore first
+    logger.info("Deleting market groups: %r", not_in_upstream)
+    # this can't be done by 'evaluate' so we use 'fetch'
+    db.session.query(MarketGroup)\
+        .filter(MarketGroup.marketGroupID.in_(not_in_upstream))\
+        .delete(synchronize_session='fetch')
+
+
+    market_group_responses: List[MarketGroupResponse] = []
+    ids_that_need_checking = list(not_in_db)
+    ids_that_need_checking.extend(in_db_and_upstream)
+    for mg_id_chunk in chunks(ids_that_need_checking, 1000):
+        market_group_responses.extend(ep.get_group_multi(mg_id_chunk))
+
+    # now go through them hierarchically
+    base_groups: List[MarketGroupResponse] = []
+    for market_group_resp in market_group_responses:
+        if market_group_resp.parent_id is None:
+            base_groups.append(market_group_resp)
+
+    # now we can walk them all from the base
+    mg_add_list = []
+    mg_update_list = []
+    stack = []
+    for base_market_group in base_groups:
+        stack.append(base_market_group)
+        while len(stack) > 0:
+            current = stack.pop()
+            if current.id in not_in_db:
+                mg_add_list.append(dict(
+                    marketGroupID=current.id,
+                    parentGroupID=current.parent_id,
+                    marketGroupName=current.name,
+                    description=current.description,
+                    iconID=0,
+                    hasTypes=(len(current.types) > 0)
+                ))
+            elif current.id in in_db_and_upstream:
+                mg_update_list.append(dict(
+                    marketGroupID=current.id,
+                    parentGroupID=current.parent_id,
+                    marketGroupName=current.name,
+                    description=current.description,
+                    iconID=0,
+                    hasTypes=(len(current.types) > 0)
+                ))
+
+            for desc in get_descendents(market_group_responses, current.id):
+                stack.append(desc)
+
+
+
+
+    logger.debug('Inserting MarketGroups: %r', mg_add_list)
+    logger.debug('Updating MarketGroups: %r', mg_update_list)
+    db.session.bulk_insert_mappings(MarketGroup, mg_add_list)
+    db.session.bulk_update_mappings(MarketGroup, mg_update_list)
+
 
 def update_categories_and_groups():
+    """This updates Inventory Categories and Groups
+    No Commit is done
+    """
     ep: UniverseEndpoint = UniverseEndpoint()
 
     categories_start = time.time()
@@ -50,8 +131,6 @@ def update_categories_and_groups():
             InvCategory.categoryID == cat_id).delete(
                 synchronize_session='evaluate')
 
-    db.session.commit()
-
     update_categories: List[Dict[str, Any]] = []
     insert_categories: List[Dict[str, Any]] = []
     for cat_chunk in chunks(upstream_cat_ids, 1000):
@@ -76,7 +155,6 @@ def update_categories_and_groups():
     logger.debug('Update: %r', update_categories)
     db.session.bulk_update_mappings(InvCategory, update_categories)
     db.session.bulk_insert_mappings(InvCategory, insert_categories)
-    db.session.commit()
 
     categories_end = time.time()
     logger.info('Categories updated in %s',
@@ -127,7 +205,6 @@ def update_categories_and_groups():
     logger.debug('Update: %r', update_groups)
     db.session.bulk_update_mappings(InvGroup, update_groups)
     db.session.bulk_insert_mappings(InvGroup, insert_groups)
-    db.session.commit()
 
     groups_end = time.time()
     logger.info('Groups updated in %s',
@@ -140,6 +217,7 @@ def update_invtypes():
     """
     all_start = time.time()
     ep: UniverseEndpoint = UniverseEndpoint()
+    update_market_groups()
     update_categories_and_groups()
 
     types_start = time.time()
@@ -180,8 +258,6 @@ def update_invtypes():
         db.session.query(InvType).filter(
             InvType.typeID == invtype_id).delete(
                 synchronize_session='evaluate')
-
-    db.session.commit()
 
     # lets update these in 1k chunks a time
     for typeid_chunk in chunks(existing_inv_ids, 5000):
