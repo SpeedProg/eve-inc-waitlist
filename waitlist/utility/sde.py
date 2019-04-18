@@ -101,6 +101,41 @@ def update_market_groups():
     db.session.bulk_update_mappings(MarketGroup, mg_update_list)
 
 
+def add_type_by_id_to_database(type_id: int):
+    """Add a new type by id to database
+       only call this if you are sure the type does not exist
+       This does not call commit!
+    """
+    ep: UniverseEndpoint = UniverseEndpoint()
+    resp = ep.get_type(type_id)
+
+    type_db: InvType = InvType(
+        typeID=resp.type_id,
+        groupID=resp.group_id,
+        typeName=resp.name,
+        description=resp.description,
+        marketGroupID=resp.market_group_id)
+
+    db.session.add(type_db)
+
+    if resp.dogma_attributes is not None:
+        for attr_info in resp.dogma_attributes:
+            dogma_attr = InvTypeDogmaAttribute(
+                typeID=resp.type_id,
+                attributeID=attr_info['attribute_id'],
+                value=attr_info['value'])
+            db.session.add(dogma_attr)
+
+
+            if resp.dogma_effects is not None:
+                for effect in resp.dogma_effects:
+                    effect_data = InvTypeDogmaEffect(
+                        typeID=resp.type_id,
+                        effectID=effect['effect_id'],
+                        isDefault=effect['is_default'])
+                    db.session.add(effect_data)
+
+
 def update_categories_and_groups():
     """This updates Inventory Categories and Groups
     No Commit is done
