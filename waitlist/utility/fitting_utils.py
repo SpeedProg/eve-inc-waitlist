@@ -1,3 +1,5 @@
+import operator
+from sqlalchemy import literal
 from waitlist.utility.constants import location_flags, effects
 from typing import List, Dict, Optional
 from waitlist.storage.database import InvType, Shipfit, FitModule,\
@@ -362,22 +364,84 @@ def get_waitlist_type_by_ship_typeid(type_id: int):
 SHIP_CHECK_TYPEID = 1
 SHIP_CHECK_INVGROUP = 2
 SHIP_CHECK_MARKETGROUP = 3
+MODULE_CHECK_TYPEID = 4
+MODULE_CHECK_MARKETGROUP = 5
 
-def get_waitlist_type_for_ship_type(waitlist_group_id: int, ship_type_id: int) -> str:
+def get_waitlist_type_for_ship_type(check_collection: ShipCheckCollection, ship_type_id: int) -> Optional[str]:
+    ship_type: InvType = db.session.query(InvType).get(ship_type_id)
+    # collect market groups
+    market_group_ids = []
+    m_group: MarketGroup = ship_type.market_group
+    while m_group is not None:
+        market_group_ids.append(m_group.marketGroupID)
+        m_group = m_group.parent
+
+    for check in check_collection.checks:
+        if check.checkType == SHIP_CHECK_TYPEID:
+            if db.session.query(check.check_types.filter(InvType.typeID == ship_type.typeID).exists()).scalar():
+                return check.checkTarget
+        elif check.checkType == SHIP_CHECK_INVGROUP:
+            if db.session.query(check.check_groups.filter(InvGroup.groupID == ship_type.groupID).exists()).scalar():
+                return check.checkTarget
+        elif check.checkType == SHIP_CHECK_MARKETGROUP:
+            if db.session.query(check.check_market_groups.filter(MarketGroup.marketGroupID.in_(market_group_ids)).exists()).scalar():
+                return check.checkTarget
+
+    return None
+
+
+def get_waitlist_type_for_modules(check_collection: ShipCheckCollection, fit: Shipfit) -> Optional[str]:
+    mod_list: List[Dict[int, Tuple(int, int)]] = parse_dna_fitting(fit.modules)
+    mod_ids = [mod_id in mod_list[location_flags.HIGH_SLOT]]
+    # prepare marketgroup list for every module, we need it later on
+    market_groups = dict()
+    for mod_id in mod_list[HIGH_SLOT]:
+        if mod_id not in market_group:
+            invtype: InvType = db.session.query(InvType).get(mod_id)
+            m_group: MarketGroup = invtype.market_group
+            while m_group is not None:
+                market_groups[mod_id].append(m_group.marketGroupID)
+                m_group = m_group.parent
+
+    # for modules we need to hit every module once or never
+    result_count_map = dict()
+    for check in check_collection:
+        if check.checkType not in result_count_map:
+            result_count_map[check.checkType] = 0
+        modifier = 1 if check.modifier is None else check.modifier
+        if check.checkType == MODULE_CHECK_TYPEID:
+            remaining_mods = []
+            type_ids = {type_obj.typeID for type_obj in check.check_types}
+            for mod_id in mod_ids:
+                if mod_id in type_ids:
+                    result_count_map[check.checkType] += modifier
+                else:
+                    remaining_mods.append(mod_id)
+            mod_ids = remaining_mods
+        elif check.checkType == MODULE_CHECK_MARKETGROUP:
+            remaining_mods = []
+            group_ids = {group_obj.marketGroupID for group_obj in check.check_market_groups}
+            for mod_id in mod_ids:
+                mgs_for_mod = set(market_groups[mod_id])
+                if mgs_for_mod.intersection(group_ids) > 0:
+                    result_count_map[check.checkType] += modifier
+                else:
+                    remaining_mods.append(mod_id)
+            mod_ids = remaining_mods
+
+    return max(result_count_map.items(), key=operator.itemgetter(1), default=(None, None))[0]
+
+
+def get_waitlist_type_for_fit(fit: Shipfit, waitlist_group_id: int) -> str:
+    # modlist[SLOT_INDEX][TYPE_ID][TYPE_ID][AMOUNT]
     check_collection: ShipCheckCollection = db.session.query(ShipCheckCollection).filter(
         ShipCheckCollection.waitlistGroupID == waitlist_group_id
     ).one()
-    ship_type: InvType = db.session.query(InvType).get(ship_type_id)
-    # collect market groups
-    market_groups = []
-    market_group.append(ship_type.marketGroupID)
-    for check in check_collection.checks:
-        if check.checkType == SHIP_CHECK_TYPEID:
-            if check.check_types.any(InvType.typeID == ship_type.typeID):
-                return check.checkTarget
-        elif check.checkType == SHIP_CHECK_INVGROUP:
-            if check.check_groups.any(InvGroup.groupID == ship_type.groupID):
-                return check.checkTarget
-        elif check.checkType = SHIP_CHECK_MARKETGROUP:
-            if check.check_market_groups.any(MarketGroup == ship_type.)
+
+    ship_wl_type = get_waitlist_type_for_ship_type(check_collection, fit.ship_type)
+    if ship_wl_type is None:
+        ship_wl_type = get_waitlist_type_for_modules(check_collection, fit)
+        if ship_wl_type is None:
+            return check_collection.defaultTarget.id
+    return ship_wl_type
 

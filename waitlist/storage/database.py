@@ -5,7 +5,7 @@ from typing import List, Optional, Union, Dict, Any
 from esipy import EsiSecurity
 from esipy.exceptions import APIException
 from sqlalchemy import Column, Integer, String, SmallInteger, BIGINT, Boolean, DateTime, Index, \
-    sql, BigInteger, text, Float, Text
+    sql, BigInteger, text, Float, Text, Numeric
 from sqlalchemy import Enum
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.sql.schema import Table, ForeignKey, CheckConstraint, UniqueConstraint
@@ -287,6 +287,10 @@ class InvType(Base):
     group: InvGroup = relationship(
         'InvGroup',
         primaryjoin='foreign(InvType.groupID) == InvGroup.groupID')
+
+    market_group: 'MarketGroup' = relationship(
+        'MarketGroup'
+    )
 
     dogma_attributes = relationship(
         'InvTypeDogmaAttribute')
@@ -1340,8 +1344,14 @@ class ShipCheckCollection(Base):
                                                 ondelete='CASCADE',
                                                 onupdate='CASCADE'),
                                      unique=True)
-    checks = relationship('ShipCheck', back_populates='collection', order_by='asc(ShipCheck.order)')
+    defaultTargetID: Column = Column('default_target_id', Integer,
+                                     ForeignKey(Waitlist.id,
+                                                ondelete='CASCADE',
+                                                onupdate='CASCADE')
+                                     )
 
+    checks = relationship('ShipCheck', back_populates='collection', order_by='asc(ShipCheck.order)')
+    defaultTarget: Waitlist = relationship('Waitlist')
 
 ship_check_invtypes = Table('ship_check_invtypes',
                      Base.metadata,
@@ -1361,7 +1371,7 @@ ship_check_groups = Table(
            ForeignKey('ship_check.check_id',
                       onupdate='CASCADE', ondelete='CASCADE')),
     Column('group_id', Integer,
-           ForeignKey('invgroups.group_id',
+           ForeignKey('invgroup.group_id',
                       onupdate='CASCADE', ondelete='CASCADE'))
 )
 
@@ -1378,7 +1388,7 @@ ship_check_marketgroups = Table(
 )
 
 
-class ShipCheck(Base)
+class ShipCheck(Base):
     __tablename__: str = 'ship_check'
     checkID: Column = Column('check_id', Integer, primary_key=True)
     collectionID: Column = Column(
@@ -1392,8 +1402,7 @@ class ShipCheck(Base)
                               nullable=True)
 
     collection = relationship('ShipCheckCollection', back_populates='checks')
-    check_types = relationship('InvType', secondary='ship_check_invtypes')
-    check_groups = relationship('InvGroup', secondary='ship_check_groups')
-    check_market_groups = relationship('MarketGroup', secondary='ship_check_marketgroups')
-# TODO: Add marketgroups for module checks
+    check_types = relationship('InvType', secondary='ship_check_invtypes', lazy='dynamic')
+    check_groups = relationship('InvGroup', secondary='ship_check_groups', lazy='dynamic')
+    check_market_groups = relationship('MarketGroup', secondary='ship_check_marketgroups', lazy='dynamic')
 

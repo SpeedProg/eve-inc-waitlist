@@ -16,7 +16,8 @@ from waitlist.storage.modules import resist_ships, logi_ships, sniper_ships,\
 from waitlist.utility.history_utils import create_history_object
 from waitlist.utility.fitting_utils import get_fit_format, parse_dna_fitting,\
     parse_eft, is_logi_hull, is_allowed_hull, is_dps_by_group,\
-    is_sniper_by_group, get_weapon_type_by_typeid, get_waitlist_type_by_ship_typeid
+    is_sniper_by_group, get_weapon_type_by_typeid, get_waitlist_type_by_ship_typeid,\
+    get_waitlist_type_for_fit
 from waitlist.base import db
 from . import bp
 from flask_babel import gettext, ngettext
@@ -252,6 +253,10 @@ def submit():
 
     # split his fits into types for the different waitlist_entries
     for fit in fits:
+        wl_type = get_waitlist_type_for_fit(fit, group_id)
+        fit.wl_type = wl_type
+        fits_ready.append(fit)
+        """
         mod_list: List[Dict[int, Tuple(int, int)]]
         try:
             mod_list = parse_dna_fitting(fit.modules)
@@ -298,6 +303,7 @@ def submit():
             fit.wl_type = weapon_type
             fits_ready.append(fit)
             continue
+        """
 
     """
     #this stuff is needed somewhere else now
