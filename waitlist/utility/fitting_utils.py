@@ -1,6 +1,7 @@
 from waitlist.utility.constants import location_flags, effects
 from typing import List, Dict, Optional
-from waitlist.storage.database import InvType, Shipfit, FitModule, MarketGroup
+from waitlist.storage.database import InvType, Shipfit, FitModule,\
+    MarketGroup, ShipCheckCollection, ShipCheck
 from waitlist.base import db
 from waitlist.data.names import WaitlistNames
 import logging
@@ -344,7 +345,7 @@ def get_weapon_type_by_typeid(type_id: int):
                 return WaitlistNames.dps
             if parent_group.marketGroupName in weapongroups['sniper']:
                 return WaitlistNames.sniper
-    
+
     return None
 
 def get_waitlist_type_by_ship_typeid(type_id: int):
@@ -357,4 +358,26 @@ def get_waitlist_type_by_ship_typeid(type_id: int):
     elif is_sniper_by_group(type_id):
         return WaitlistNames.sniper
     return None
+
+SHIP_CHECK_TYPEID = 1
+SHIP_CHECK_INVGROUP = 2
+SHIP_CHECK_MARKETGROUP = 3
+
+def get_waitlist_type_for_ship_type(waitlist_group_id: int, ship_type_id: int) -> str:
+    check_collection: ShipCheckCollection = db.session.query(ShipCheckCollection).filter(
+        ShipCheckCollection.waitlistGroupID == waitlist_group_id
+    ).one()
+    ship_type: InvType = db.session.query(InvType).get(ship_type_id)
+    # collect market groups
+    market_groups = []
+    market_group.append(ship_type.marketGroupID)
+    for check in check_collection.checks:
+        if check.checkType == SHIP_CHECK_TYPEID:
+            if check.check_types.any(InvType.typeID == ship_type.typeID):
+                return check.checkTarget
+        elif check.checkType == SHIP_CHECK_INVGROUP:
+            if check.check_groups.any(InvGroup.groupID == ship_type.groupID):
+                return check.checkTarget
+        elif check.checkType = SHIP_CHECK_MARKETGROUP:
+            if check.check_market_groups.any(MarketGroup == ship_type.)
 
