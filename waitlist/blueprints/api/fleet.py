@@ -129,7 +129,7 @@ def invite_to_fleet():
 
     if resp.status_code != 204:  # invite failed send no notifications
         if resp.status_code != 520:
-            logger.error("Invited %s by %s into %s failed, status_code %s message %s",
+            logger.info("Invited %s by %s into %s failed, status_code %s message %s",
                          character.eve_name, current_user.username, squad_type,
                          resp.status_code, status['text'])
         return resp
@@ -144,7 +144,7 @@ def invite_to_fleet():
     wl_entry = db.session.query(WaitlistEntry) \
         .filter((WaitlistEntry.waitlist_id == waitlist_id) & (WaitlistEntry.user == character_id)).first()
     if wl_entry is None:
-        logger.error("Waitlist Entry with ID=%d does not exist!", waitlist_id)
+        logger.info("Waitlist Entry with ID=%d does not exist!", waitlist_id)
         return resp
 
     db.session.add(h_entry)

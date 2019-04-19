@@ -1,4 +1,9 @@
 #Changelog
+* 1.6.5:
+  * Improvements:
+    * Added import of market groups
+  * Changes:
+    * Changed loglevel of some messages
 * 1.6.4:
   * Fixes:
     * fixed error that could get the waitlist SSE connection to reconnect indefinitely

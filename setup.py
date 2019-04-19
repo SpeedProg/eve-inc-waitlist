@@ -6,7 +6,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="EVE Incursion waitlist",
-    version="1.6.4",
+    version="1.6.5",
     author="SpeedProg",
     author_email="speedprogde@googlemail.com",
     description="Waitlist geared towards EveOnline Incursion Groups",
