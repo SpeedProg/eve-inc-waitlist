@@ -388,6 +388,8 @@ class MarketGroup(Base):
     iconID = Column('icon_id', Integer)
     hasTypes = Column('has_types', Boolean(name='has_types'))
 
+    parent = relationship("MarketGroup", remote_side=[marketGroupID])
+
 
 class Account(Base):
     """
@@ -774,7 +776,6 @@ class Permission(Base):
 
     def __repr__(self):
         return f'<Permission id={self.id} name={self.name}'
-
 
 class Waitlist(Base):
     """
@@ -1328,3 +1329,71 @@ class TriviaSubmissionAnswer(Base):
 
     submission = relationship(TriviaSubmission, back_populates='answers')
     question = relationship(TriviaQuestion)
+
+
+class ShipCheckCollection(Base):
+    __tablename__: str = 'ship_check_collection'
+    checkCollectionID: Column = Column('collection_id', Integer, primary_key=True)
+    checkCollectionName: Column = Column('collection_name', String(50))
+    waitlistGroupID: Column = Column('waitlist_group_id', Integer,
+                                     ForeignKey(WaitlistGroup.groupID,
+                                                ondelete='CASCADE',
+                                                onupdate='CASCADE'),
+                                     unique=True)
+    checks = relationship('ShipCheck', back_populates='collection', order_by='asc(ShipCheck.order)')
+
+
+ship_check_invtypes = Table('ship_check_invtypes',
+                     Base.metadata,
+                     Column('check_id', Integer,
+                            ForeignKey('ship_check.check_id',
+                                       onupdate="CASCADE", ondelete="CASCADE")),
+                     Column('type_id', Integer,
+                            ForeignKey('invtypes.type_id',
+                                       onupdate="CASCADE", ondelete="CASCADE"))
+                     )
+
+
+ship_check_groups = Table(
+    'ship_check_groups',
+    Base.metadata,
+    Column('check_id', Integer,
+           ForeignKey('ship_check.check_id',
+                      onupdate='CASCADE', ondelete='CASCADE')),
+    Column('group_id', Integer,
+           ForeignKey('invgroups.group_id',
+                      onupdate='CASCADE', ondelete='CASCADE'))
+)
+
+
+ship_check_marketgroups = Table(
+    'ship_check_marketgroups',
+    Base.metadata,
+    Column('check_id', Integer,
+           ForeignKey('ship_check.check_id',
+                      onupdate='CASCADE', ondelete='CASCADE')),
+    Column('market_group_id', Integer,
+           ForeignKey('invmarketgroups.market_group_id',
+                      onupdate='CASCADE', ondelete='CASCADE'))
+)
+
+
+class ShipCheck(Base)
+    __tablename__: str = 'ship_check'
+    checkID: Column = Column('check_id', Integer, primary_key=True)
+    collectionID: Column = Column(
+        'collection_id', Integer,
+        ForeignKey('ship_check_collection.collection_id',
+                   ondelete='SET NULL', onupdate='CASCADE'), nullable=True)
+    checkTarget = Column('check_target', String(20))
+    checkType: Column = Column('check_type', Integer)
+    order: Column = Column('order', Integer)
+    modifier: Column = Column('modifier', Numeric(precision=5, scale=2),
+                              nullable=True)
+
+    collection = relationship('ShipCheckCollection', back_populates='checks')
+    check_types = relationship('InvType', secondary='ship_check_invtypes')
+    check_groups = relationship('InvGroup', secondary='ship_check_groups')
+    check_market_groups = relationship('MarketGroup', secondary='ship_check_marketgroups')
+# TODO: Add marketgroups for module checks
+
