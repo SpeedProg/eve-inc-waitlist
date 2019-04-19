@@ -1,15 +1,16 @@
 import logging
 from bz2 import BZ2File
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from typing import Union, Optional, Tuple
-
+from typing import Union, Optional, Tuple, List
+from collections import deque
+from sqlalchemy.sql import exists
 import flask
 from esipy import EsiClient
 from yaml.events import MappingStartEvent, ScalarEvent, MappingEndEvent
 import yaml
 from waitlist.storage.database import InvType, Station, Constellation,\
     SolarSystem, IncursionLayout, InvCategory, InvGroup,\
-    InvTypeDogmaAttribute, InvTypeDogmaEffect
+    InvTypeDogmaAttribute, InvTypeDogmaEffect, MarketGroup
 from waitlist.base import db
 from os import path, PathLike
 import csv
@@ -17,13 +18,212 @@ import csv
 from waitlist.utility.swagger import get_api
 from waitlist.utility.swagger.eve import get_esi_client
 from waitlist.utility.swagger.eve.universe import UniverseEndpoint
+from waitlist.utility.swagger.eve.market import MarketEndpoint, MarketGroupResponse
 from waitlist.utility.utils import chunks
 import time
 
 logger = logging.getLogger(__name__)
 
+def get_descendents(responses: List[MarketGroupResponse], parent_id: int) -> List[MarketGroupResponse]:
+    descendents: List[MarketGroupResponse] = [resp for resp in responses if resp.parent_id == parent_id]
+    return descendents
+
+def update_market_groups():
+    """This updates all MarketGroups
+    No Commit is done
+    """
+    logger.debug('update_market_groups')
+    ep: MarketEndpoint = MarketEndpoint()
+    groups_resp: MarketGroupsResponse = ep.get_groups()
+
+    upstream_group_ids = set(groups_resp.data)
+    db_marketgroup_ids = { gid for gid, in db.session.query(MarketGroup.marketGroupID) }
+    not_in_upstream = db_marketgroup_ids - upstream_group_ids
+    not_in_db = upstream_group_ids - db_marketgroup_ids
+    in_db_and_upstream = upstream_group_ids.intersection(db_marketgroup_ids)
+    logger.debug('upstream: %r db: %r', upstream_group_ids, db_marketgroup_ids)
+    logger.debug('not upstream: %r not_db: %r both: %r', not_in_upstream, not_in_db, in_db_and_upstream)
+    # lets delete marketgroups what don't exist anymore first
+    logger.info("Deleting market groups: %r", not_in_upstream)
+    # this can't be done by 'evaluate' so we use 'fetch'
+    db.session.query(MarketGroup)\
+        .filter(MarketGroup.marketGroupID.in_(not_in_upstream))\
+        .delete(synchronize_session='fetch')
+
+
+    market_group_responses: List[MarketGroupResponse] = []
+    ids_that_need_checking = list(not_in_db)
+    ids_that_need_checking.extend(in_db_and_upstream)
+    for mg_id_chunk in chunks(ids_that_need_checking, 1000):
+        market_group_responses.extend(ep.get_group_multi(mg_id_chunk))
+
+    # now go through them hierarchically
+    base_groups: List[MarketGroupResponse] = []
+    for market_group_resp in market_group_responses:
+        if market_group_resp.parent_id is None:
+            base_groups.append(market_group_resp)
+
+    # now we can walk them all from the base
+    mg_add_list = []
+    mg_update_list = []
+    stack = []
+    for base_market_group in base_groups:
+        stack.append(base_market_group)
+        while len(stack) > 0:
+            current = stack.pop()
+            if current.id in not_in_db:
+                mg_add_list.append(dict(
+                    marketGroupID=current.id,
+                    parentGroupID=current.parent_id,
+                    marketGroupName=current.name,
+                    description=current.description,
+                    iconID=0,
+                    hasTypes=(len(current.types) > 0)
+                ))
+            elif current.id in in_db_and_upstream:
+                mg_update_list.append(dict(
+                    marketGroupID=current.id,
+                    parentGroupID=current.parent_id,
+                    marketGroupName=current.name,
+                    description=current.description,
+                    iconID=0,
+                    hasTypes=(len(current.types) > 0)
+                ))
+
+            for desc in get_descendents(market_group_responses, current.id):
+                stack.append(desc)
+
+
+
+
+    logger.debug('Inserting MarketGroups: %r', mg_add_list)
+    logger.debug('Updating MarketGroups: %r', mg_update_list)
+    db.session.bulk_insert_mappings(MarketGroup, mg_add_list)
+    db.session.bulk_update_mappings(MarketGroup, mg_update_list)
+
+
+def add_marketgroup_by_id_to_database(market_group_id: int):
+    """Adds a MarketGroup to database
+       This does not commit!
+    """
+    if market_group_id is None:
+        logger.warning('add_marketgroup_by_id_to_database was called with None')
+        return
+
+    if db.session.query(exists().where(MarketGroup.marketGroupID == market_group_id)).scalar():
+        return
+
+    ep: MarketEndpoint = MarketEndpoint()
+    resp: MarketGroupResponse = ep.get_group(market_group_id)
+    current: MarketGroupResponse = resp
+    # this will hold the groups and their parents
+    # starting with the lowest child
+    # so they need to be added in reverse order to database
+    groups_to_add: List[MarketGroupResponse] = []
+    cur.append(resp)
+    # we have the path to root if it has no parent or parent is already in database
+    while current.parent_id is not None and not db.session.query(exists().where(MarketGroup.marketGroupID == current.parent_id)):
+        reps = ep.get_group(current.parent_id)
+        parents_to_add.append(current)
+        current = resp
+
+    bulk_data = deque(maxlen=len(groups_to_add))
+    for group in groups_to_add:
+        bulk_data.appendleft(dict(
+            marketGroupID=group.id,
+            parentGroupID=group.parent_id,
+            marketGroupName=group.name,
+            description=group.description,
+            iconID=0, # this is not in esi
+            hasTypes=(len(group.types) > 0)
+        ))
+    db.session.bulk_insert_mappings(MarketGroup, bulk_data)
+
+def add_invgroup_by_id_to_database(invgroup_id: int):
+    """Adds a InvGroup to database
+       This does not commit!
+    """
+    if invgroup_id is None:
+        logger.warning('add_invgroup_by_id_to_database was called with None')
+        return
+
+    if db.session.query(exists().where(InvGroup.groupID == invgroup_id)).scalar():
+        return
+    ep: UniverseEndpoint = UniverseEndpoint()
+    resp: GroupResponse = ep.get_group(invgroup_id)
+    add_invcategory_by_id_to_database(resp.invcategory_id)
+
+    group: InvGroup = InvGroup(
+        groupID=resp.id,
+        groupName=resp.name,
+        published=resp.published,
+        categoryID=resp.category_id,
+    )
+    db.session.add(group)
+
+def add_invcategory_by_id_to_database(invcategory_id: int):
+    """Adds a InvCategory to datase
+       This does not commit!
+    """
+    if invcategory_id is None:
+        logger.warning('add_invcategory_by_id_to_database was called with None as argument')
+        return
+
+    if db.session.query(exists().where(InvCategory.categoryID == invcategory_id)).scalar():
+        return
+
+    ep: UniverseEndpoint = UniverseEndpoint()
+    resp: CategoryResponse = ep.get_category(invcategory_id)
+    cat: InvCategory = InvCategory(
+        categoryID=resp.id,
+        categoryName=resp.name,
+        published=resp.published
+    )
+    db.session.add(cat)
+
+def add_type_by_id_to_database(type_id: int):
+    """Add a new type by id to database
+       only call this if you are sure the type does not exist
+       This does not call commit!
+    """
+    ep: UniverseEndpoint = UniverseEndpoint()
+    resp = ep.get_type(type_id)
+
+    # add foreign key objects if we don't have them
+    add_marketgroup_by_id_to_database(resp.market_group_id)
+    add_invgroup_by_id_to_database(resp.group_id)
+
+    type_db: InvType = InvType(
+        typeID=resp.type_id,
+        groupID=resp.group_id,
+        typeName=resp.name,
+        description=resp.description,
+        marketGroupID=resp.market_group_id)
+
+    db.session.add(type_db)
+
+    if resp.dogma_attributes is not None:
+        for attr_info in resp.dogma_attributes:
+            dogma_attr = InvTypeDogmaAttribute(
+                typeID=resp.type_id,
+                attributeID=attr_info['attribute_id'],
+                value=attr_info['value'])
+            db.session.add(dogma_attr)
+
+
+            if resp.dogma_effects is not None:
+                for effect in resp.dogma_effects:
+                    effect_data = InvTypeDogmaEffect(
+                        typeID=resp.type_id,
+                        effectID=effect['effect_id'],
+                        isDefault=effect['is_default'])
+                    db.session.add(effect_data)
+
 
 def update_categories_and_groups():
+    """This updates Inventory Categories and Groups
+    No Commit is done
+    """
     ep: UniverseEndpoint = UniverseEndpoint()
 
     categories_start = time.time()
@@ -50,8 +250,6 @@ def update_categories_and_groups():
             InvCategory.categoryID == cat_id).delete(
                 synchronize_session='evaluate')
 
-    db.session.commit()
-
     update_categories: List[Dict[str, Any]] = []
     insert_categories: List[Dict[str, Any]] = []
     for cat_chunk in chunks(upstream_cat_ids, 1000):
@@ -76,7 +274,6 @@ def update_categories_and_groups():
     logger.debug('Update: %r', update_categories)
     db.session.bulk_update_mappings(InvCategory, update_categories)
     db.session.bulk_insert_mappings(InvCategory, insert_categories)
-    db.session.commit()
 
     categories_end = time.time()
     logger.info('Categories updated in %s',
@@ -127,7 +324,6 @@ def update_categories_and_groups():
     logger.debug('Update: %r', update_groups)
     db.session.bulk_update_mappings(InvGroup, update_groups)
     db.session.bulk_insert_mappings(InvGroup, insert_groups)
-    db.session.commit()
 
     groups_end = time.time()
     logger.info('Groups updated in %s',
@@ -140,6 +336,7 @@ def update_invtypes():
     """
     all_start = time.time()
     ep: UniverseEndpoint = UniverseEndpoint()
+    update_market_groups()
     update_categories_and_groups()
 
     types_start = time.time()
@@ -180,8 +377,6 @@ def update_invtypes():
         db.session.query(InvType).filter(
             InvType.typeID == invtype_id).delete(
                 synchronize_session='evaluate')
-
-    db.session.commit()
 
     # lets update these in 1k chunks a time
     for typeid_chunk in chunks(existing_inv_ids, 5000):

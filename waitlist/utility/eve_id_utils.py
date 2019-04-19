@@ -3,6 +3,7 @@ from typing import Optional, Tuple
 from esipy import EsiClient
 
 from waitlist.utility import outgate
+from waitlist.utility.sde import add_type_by_id_to_database
 from waitlist.storage.database import Constellation, SolarSystem, Station,\
     InvType, Account, Character, Ban, Whitelist
 from waitlist.base import db
@@ -49,12 +50,17 @@ def get_item_id(name: str) -> int:
             market_group_id = item_data.market_group_id
         except (KeyError, AttributeError):
             pass  # it should stay None
+        current_type: InvType = db.session.query(InvType).get(item_data.type_id)
+        # Was it only renamed?
+        if current_type is not None:
+            item = InvType(typeID=item_data.type_id, groupID=item_data.group_id,
+                           typeName=item_data.name, description=item_data.description,
+                          marketGroupID=market_group_id)
 
-        item = InvType(typeID=item_data.type_id, groupID=item_data.group_id,
-                       typeName=item_data.name, description=item_data.description,
-                       marketGroupID=market_group_id)
+            db.session.merge(item)
+        else:
+            add_type_by_id_to_database(item_data.type_id)
 
-        db.session.merge(item)
         db.session.commit()
         logger.info(f'Added new {item}')
         return item.typeID

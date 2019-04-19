@@ -261,7 +261,12 @@ class InvType(Base):
     __tablename__ = 'invtypes'
     typeID = Column('type_id', Integer, primary_key=True, nullable=False,
                     autoincrement=False)
-    groupID = Column('group_id', Integer, index=True)
+    groupID = Column('group_id', Integer,
+                     ForeignKey(
+                         'invgroup.group_id',
+                         ondelete='CASCADE',
+                         onupdate='CASCADE'),
+                     index=True)
     typeName = Column('type_name', String(100))
     description = Column('description', Text)
     #    mass = Column(DOUBLE)
@@ -271,7 +276,11 @@ class InvType(Base):
     #    raceID = Column(SmallInteger)
     #    basePrice = Column(DECIMAL(19,4))
     #    published = Column(TINYINT)
-    marketGroupID = Column('market_group_id', BIGINT)
+    marketGroupID = Column('market_group_id', Integer,
+                           ForeignKey(
+                               'invmarketgroups.market_group_id',
+                               ondelete='CASCADE',
+                               onupdate='CASCADE'))
     #    iconID = Column(BIGINT)
     #    soundID = Column(BIGINT)
 
@@ -373,7 +382,7 @@ class InvTypeDogmaEffect(Base):
 class MarketGroup(Base):
     __tablename__ = 'invmarketgroups'
     marketGroupID = Column('market_group_id', Integer, primary_key=True, nullable=False)
-    parentGroupID = Column('parent_group_id', Integer, ForeignKey('invmarketgroups.market_group_id'))
+    parentGroupID = Column('parent_group_id', Integer, ForeignKey('invmarketgroups.market_group_id', ondelete='CASCADE', onupdate='CASCADE'))
     marketGroupName = Column('market_group_name', String(100))
     description = Column('description', String(3000))
     iconID = Column('icon_id', Integer)
