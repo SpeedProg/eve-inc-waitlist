@@ -45,7 +45,7 @@ def register_blueprints():
     from waitlist.blueprints.fleetview import bp as bp_fleetview
 
     from waitlist.blueprints.settings import accounts as settings_accounts, bans, fleet_motd, fleetoptions, inserts, mail, overview,\
-        staticdataimport, teamspeak, permissions
+        staticdataimport, teamspeak, permissions, ship_assignment
     from waitlist.blueprints import trivia, feedback, swagger_api
     from waitlist.blueprints.api import permission
     from waitlist.blueprints import xup
@@ -101,6 +101,7 @@ def register_blueprints():
     app.register_blueprint(permissions.bp, url_prefix='/settings/permissions')
     app.register_blueprint(permission.bp, url_prefix='/api/permission')
     app.register_blueprint(xup.bp, url_prefix='/xup')
+    app.register_blueprint(ship_assignment.bp, url_prefix='/settings/ship_assignment')
 
     # notification
     app.register_blueprint(notification.bp, url_prefix="/notification")

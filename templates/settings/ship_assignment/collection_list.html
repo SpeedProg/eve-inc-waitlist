@@ -1,0 +1,56 @@
+{% extends "settings/base.html" %}
+
+{% block title %}{{ _('Settings') }} - {{ _('Ship Assignment Selection') }}{% endblock %}
+
+{% block head %}
+{{ super() }}
+{% assets filters="babili", output="gen/ass_coll_list.%(version)s.js",
+"js/ship_assignment/collection_list.js" %}
+<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
+{% endblock %}
+
+{% block raw_content %}
+	<div class="row">
+		<form class="form" id="change_collection" action="{{url_for('ship_assignment.collection_edit')}}" method="GET">
+			<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+			<select name="collection_id">
+				{% for check_collection in checks %}
+					<option value="{{check_collection.checkCollectionID}}">{{check_collection.checkCollectionName}}</option>
+				{% endfor %}
+			</select>
+			<input type="submit" value="{{ _('Edit') }}">
+		</form>
+	</div>
+	<div class="row">
+		<form class="form" id="add_collection" action="{{ url_for('ship_assignment.collection_add') }}" method="POST">
+			<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+			<input type="text" name="name">
+			<select id="wl_group_id_select" name="waitlist_group_id">
+				{% for group in groups %}
+					<option value="{{ group.groupID }}">{{ group.displayName }}</option>
+				{% endfor %}
+			</select>
+			<!-- This gets elements unhidden/enabled based on the selection above -->
+			<select id="default_target_id" name="default_target_id">
+				{% for group in groups %}
+					{% for list in group.waitlists %}
+						<option data-group="{{ group.groupID }}" value="{{ list.id }}" hidden disabled>{{ list.displayTitle }}</option>
+					{% endfor %}
+				{% endfor %}
+			</select>
+			<input type="submit" value="{{ _('Add') }}">
+		</form>
+	</div>
+	<div class="row">
+		<form class="form" id="remove_collection" action="{{ url_for('ship_assignment.collection_remove') }}" method="POST">
+			<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+			<select name="collection_id">
+				{% for coll in checks %}
+				<option value="{{ coll.checkCollectionID }}">{{ coll.checkCollectionName }}</option>
+				{% endfor %}
+			</select>
+			<input type="submit" value={{ _('Remove') }}>
+		</form>
+	</div>
+{% endblock %}
