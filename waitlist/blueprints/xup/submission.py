@@ -10,7 +10,7 @@ from waitlist.data.names import WaitlistNames
 from waitlist.data.sse import EntryAddedSSE, send_server_sent_event,\
     FitAddedSSE
 from waitlist.storage.database import WaitlistGroup, WaitlistEntry, Shipfit,\
-    InvType, FitModule, MarketGroup, HistoryEntry
+    InvType, FitModule, MarketGroup, HistoryEntry, TeamspeakDatum
 from waitlist.storage.modules import resist_ships, logi_ships, sniper_ships,\
     sniper_weapons, dps_weapons, weapongroups, dps_ships, t3c_ships
 from waitlist.utility.history_utils import create_history_object
@@ -22,6 +22,8 @@ from . import bp
 from flask_babel import gettext, ngettext
 from typing import Dict, List, Tuple
 from waitlist.utility.constants import location_flags, groups
+from waitlist.utility.settings import sget_active_ts_id
+from waitlist.utility.config import disable_teamspeak
 import operator
 
 logger = logging.getLogger(__name__)
@@ -351,7 +353,12 @@ def index():
         .order_by(WaitlistGroup.ordering).first()
     # noinspection PyPep8
     activegroups = db.session.query(WaitlistGroup).filter(WaitlistGroup.enabled == True).all()
-    return render_template("xup.html", newbro=new_bro, group=defaultgroup, groups=activegroups)
+    ts_settings = None
+    ts_id = sget_active_ts_id()
+    if not disable_teamspeak and ts_id is not None:
+        ts_settings = db.session.query(TeamspeakDatum).get(ts_id)
+    return render_template("xup.html", newbro=new_bro, group=defaultgroup,
+                           groups=activegroups, ts=ts_settings)
 
 
 @bp.route("/<int:fit_id>", methods=['GET'])
@@ -364,8 +371,14 @@ def update(fit_id: int):
         .order_by(WaitlistGroup.ordering).first()
     # noinspection PyPep8
     activegroups = db.session.query(WaitlistGroup).filter(WaitlistGroup.enabled == True).all()
+    ts_settings = None
+    ts_id = sget_active_ts_id()
+    if ts_id is not None:
+        ts_settings = db.session.query(TeamspeakDatum).get(ts_id)
+
     return render_template("xup.html", newbro=new_bro, group=defaultgroup,
-                           groups=activegroups, update=True, oldFitID=fit_id)
+                           groups=activegroups, update=True, oldFitID=fit_id,
+                           ts=ts_settings)
 
 
 @bp.route("/update", methods=['POST'])

@@ -13,7 +13,8 @@ from flask_principal import identity_changed, Identity, AnonymousIdentity
 from flask_login import login_required, current_user, login_user, logout_user
 
 from waitlist.utility import config
-from waitlist.utility.config import stattool_enabled, stattool_uri, stattool_sri
+from waitlist.utility.config import stattool_enabled, stattool_uri,\
+    stattool_sri, disable_teamspeak
 
 from waitlist.base import app, db
 from waitlist.storage.database import WaitlistGroup, TeamspeakDatum, CalendarEvent, WaitlistEntry, Account, Trivia
@@ -73,7 +74,7 @@ def index():
     activegroups = db.session.query(WaitlistGroup).filter(WaitlistGroup.enabled == True).all()
     active_ts_setting_id = sget_active_ts_id()
     active_ts_setting = None
-    if active_ts_setting_id is not None:
+    if not disable_teamspeak and active_ts_setting_id is not None:
         active_ts_setting = db.session.query(TeamspeakDatum).get(active_ts_setting_id)
 
     events = db.session.query(CalendarEvent).filter(CalendarEvent.eventTime > datetime.utcnow()).order_by(
