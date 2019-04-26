@@ -168,9 +168,11 @@
 					</div>
 				</div>
 			</li>
+			{% if ts %}
 			<li class="nav-item mr-2 wlb">
 				<button type="button" class="nav-link btn btn-info btn-sm" data-action="test-poke">{{_('Test TS')}} <i class="fa-bell-o"></i></button>
 			</li>
+			{% endif %}
 			<li class="nav-item wlb">
 				<button type="button" class="nav-link btn btn-danger btn-sm" data-action="removeSelfFromWaitlists"><i class="fa-user-times"></i> {{_('Leave Waitlists')}}</button>
 			<li>
