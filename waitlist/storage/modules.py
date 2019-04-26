@@ -39,6 +39,6 @@ none_logi_ships.update(dps_ships)
 none_logi_ships.update(resist_ships)
 none_logi_ships.update(t3c_ships)
 
-weapongroups = {'dps': {"Pulse Lasers": None, "Blasters": None, "Missile Launchers": None, "Autocannons": None, 'Entropic Disintegrators': None},
-                'sniper': {"Beam Lasers": None, "Railguns": None, "Artillery Cannons": None}
+weapongroups = {'dps': {"Pulse Lasers": 558, "Blasters": 556, "Missile Launchers": 140, "Autocannons": 559, 'Entropic Disintegrators': 2432},
+                'sniper': {"Beam Lasers": 557, "Railguns": 555, "Artillery Cannons": 560}
                 }

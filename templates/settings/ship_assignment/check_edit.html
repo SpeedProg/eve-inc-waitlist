@@ -1,0 +1,68 @@
+{% extends "settings/base.html" %}
+
+{% block title %}{{ _('Settings') }} - {{ _('Ship Check Edit') }}{% endblock %}
+
+{% block head %}
+{{ super() }}
+{% assets filters="babili", output="gen/ass_coll_list.%(version)s.js",
+ "js/ship_assignment/check_edit.js" %}
+<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
+{% endblock %}
+
+{% block raw_content %}
+<div class="row mb-3">
+	<form class="form" autocomplete="off" action="{{ url_for('ship_assignment.check_change', check_id=check.checkID) }}" method="POST">
+		<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+		<div class="form-group">
+			<label for="check_add_name">{{ _('Check Name') }}</label>
+      <input class="form-control" type="text" id="check_add_name" name="check_name" value="{{ check.checkName }}" required>
+		</div>
+		<div class="form-group">
+			<label for="check_type">{{ _('Check Type') }}</label>
+			<select class="custom-select" id="check_type" name="check_type" required>
+				{% for i in check_type_map %}
+				<option value="{{ i }}"{%if check.checkType == i %} selected{% endif %}>{{ check_type_map[i] }}</option>
+				{% endfor %}
+			</select>
+		</div>
+		<div class="form-group">
+			<label for="check_target">{{ _('Check Target') }}</label>
+			<select class="custom-select" id="check_target" name="check_target" required>
+				{% for wl in check.collection.waitlistGroup.waitlists %}
+				<option value="{{ wl.id }}"{% if wl.id == check.checkTargetID %} selected{% endif %}>{{ wl.displayTitle }}</option>
+				{% endfor %}
+			</select>
+		</div>
+		<div class="form-group">
+			<label for="check_add_order">{{ _('Check Order') }}</label>
+			<input class="form-control" type="number" placeholder="lower is applied first" id="check_add_order" name="order" value="{{ check.order }}" required>
+		</div>
+		<div class="form-group">
+			<label for="check_add_modifier">{{ _('Check Modifier') }}</label>
+      <input class="form-control" type="text" id="check_add_modifier" name="modifier" value="{{check.modifier}}">
+		</div>
+		<div class="form-group">
+			<label for="check_add_ids">{{ _('IDs comma seperated') }}</label>
+			<input class="form-control" type="text" id="check_add_ids" placeholder="1,2,3,4,5" name="ids" value="{% for type in check.ids %}{{ get_pk(type)[0] }}{% if not loop.last %},{% endif %}{% endfor %}" required>
+		</div>
+		<div class="form-group">
+			<label for="check_add_rest_type_ids">{{ _('Restrict by Type') }}</label>
+			<input class="form-control" type="text" id="check_add_rest_type_ids" placeholder="1,2,3" name="rest_typeids" value="{% for type in check.check_rest_types %}{{ get_pk(type)[0] }}{% if not loop.last %},{% endif %}{% endfor %}">
+		</div>
+		<div class="form-group">
+			<label for="check_add_rest_invgroup_ids">{{ _('Restrict by Inventory Group') }}</label>
+			<input class="form-control" type="text" id="check_add_rest_invgroup_ids" placeholder="1,2,3" name="rest_invgroupids" value="{% for type in check.check_rest_groups %}{{ get_pk(type)[0] }}{% if not loop.last %},{% endif %}{% endfor %}">
+		</div>
+		<div class="form-group">
+			<label for="check_add_rest_mgroup_ids">{{ _('Restrict by Market Group') }}</label>
+			<input class="form-control" type="text" id="check_add_rest_mgroup_ids" placeholder="1,2,3" name="rest_mgroupids" value="{% for type in check.check_rest_market_groups %}{{ get_pk(type)[0] }}{% if not loop.last %},{% endif %}{% endfor %}">
+		</div>
+		<div class="form-group">
+			<label for="check_edit_tag">{{ _('Tag') }}</label>
+			<input class="form-control" type="text" id="check_edit_tag" name="tag" value="{{check.checkTag}}">
+		</div>
+		<button class="btn btn-primary" type="submit">{{ _('Change Check') }}</button>
+	</form>
+</div>
+{% endblock %}

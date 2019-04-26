@@ -1,0 +1,128 @@
+{% extends "settings/base.html" %}
+
+{% block title %}{{ _('Settings') }} - {{ _('Ship Classification Selection') }}{% endblock %}
+
+{% block head %}
+{{ super() }}
+{% assets filters="babili", output="gen/ass_coll_list.%(version)s.js",
+"js/ship_assignment/collection.js", "js/ship_assignment/collection_edit.js" %}
+<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
+{% endblock %}
+
+{% block raw_content %}
+<div class="row mb-3">
+	<form class="form" autocomplete="off" action="{{ url_for('ship_assignment.collection_change', coll_id=coll.checkCollectionID) }}" method="POST">
+		<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+		<div class="form-group">
+			<label for="coll_edit_name">{{ _('Collection Name') }}</label>
+			<input class="form-control" type="text" id="coll_edit_name" name="coll_name" value="{{ coll.checkCollectionName }}">
+		</div>
+		<div class="form-group mr-1">
+			<label for="wl_group_id_select">Group</label>
+			<select class="custom-select" id="wl_group_id_select" name="group_id">
+				{% for group in groups %}
+				<option value="{{ group.groupID }}"{% if group.groupID == coll.waitlistGroupID %}selected{% endif %}>{{ group.displayName }}</option>
+				{% endfor %}
+			</select>
+		</div>
+		<div class="form-group mr-1">
+			<label for="default_target_id">{{ _('Target if no rule matches') }}</label>
+			<!-- This gets elements unhidden/enabled based on the selection above -->
+			<select class="custom-select" id="default_target_id" name="target_id">
+				{% for group in groups %}
+					{% for list in group.waitlists if list.id != group.queueID %}
+					<option data-group="{{ group.groupID }}" value="{{ list.id }}"{% if list.id == coll.defaultTargetID %} selected{% endif %}{% if group.groupID != coll.waitlistGroupID %} hidden disabled{% endif %}>{{ list.displayTitle }}</option>
+					{% endfor %}
+				{% endfor %}
+			</select>
+		</div>
+		<div class="form-group mr-1">
+			<label for="coll_edit_tag">{{ _('Default Tag') }}</label>
+			<input class="form-control" type="text" id="coll_edit_tag" name="tag" value="{{ coll.defaultTag }}">
+		</div>
+		<button type="submit" class="btn btn-primary">{{ _('Change Collection Information') }}</button>
+	</form>
+</div>
+<div class="row mb-3">
+	<form class="form" autocomplete="off" action="{{ url_for('ship_assignment.check_add', coll_id=coll.checkCollectionID) }}" method="POST">
+		<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+		<input type="hidden" name="coll_id" value="{{ coll.checkCollectionID }}">
+		<div class="form-group">
+			<label for="check_add_name">{{ _('Check Name') }}</label>
+			<input class="form-control" type="text" id="check_add_name" name="check_name" required>
+		</div>
+		<div class="form-group">
+			<label for="check_type">{{ _('Check Type') }}</label>
+			<select class="custom-select" id="check_type" name="check_type" required>
+				<option value="" disabled selected>{{ _('Please Select') }}</option>
+				{% for i in check_type_map %}
+				<option value="{{ i }}">{{ check_type_map[i] }}</option>
+				{% endfor %}
+			</select>
+		</div>
+		<div class="form-group">
+			<label for="check_target">{{ _('Check Target') }}</label>
+			<select class="custom-select" id="check_target" name="check_target" required>
+				{% for wl in coll.waitlistGroup.waitlists if wl.id != coll.waitlistGroup.queueID %}
+				<option value="{{ wl.id }}">{{ wl.displayTitle }}</option>
+				{% endfor %}
+			</select>
+		</div>
+		<div class="form-group">
+			<label for="check_add_order">{{ _('Check Order') }}</label>
+			<input class="form-control" type="number" placeholder="lower is applied first" id="check_add_order" name="order" required>
+		</div>
+		<div class="form-group">
+			<label for="check_add_modifier">{{ _('Check Modifier') }}</label>
+			<input class="form-control" type="text" id="check_add_modifier" name="modifier" value="1.00">
+		</div>
+		<div class="form-group">
+			<label for="check_add_ids">{{ _('IDs comma seperated') }}</label>
+			<input class="form-control" type="text" id="check_add_ids" placeholder="1,2,3,4,5" name="ids" required>
+		</div>
+		<div class="form-group">
+			<label for="check_add_rest_type_ids">{{ _('Restrict by Type') }}</label>
+			<input class="form-control" type="text" id="check_add_rest_type_ids" placeholder="1,2,3" name="rest_typeids">
+		</div>
+		<div class="form-group">
+			<label for="check_add_rest_invgroup_ids">{{ _('Restrict by Inventory Group') }}</label>
+			<input class="form-control" type="text" id="check_add_rest_invgroup_ids" placeholder="1,2,3" name="rest_invgroupids">
+		</div>
+		<div class="form-group">
+			<label for="check_add_rest_mgroup_ids">{{ _('Restrict by Market Group') }}</label>
+			<input class="form-control" type="text" id="check_add_rest_mgroup_ids" placeholder="1,2,3" name="rest_mgroupids">
+		</div>
+		<div class="form-group">
+			<label for="check_add_tag">{{ _('Tag') }}</label>
+			<input class="form-control" type="text" id="check_add_tag" name="tag">
+		</div>
+		<button class="btn btn-primary" type="submit">{{ _('Add Check') }}</button>
+	</form>
+</div>
+<div class="row mb-3">
+	<table class="table table-responsive" id="checks_table">
+		<thead>
+			<th>{{ _('Name') }}</th><th>{{ _('Actions') }}</th><th>{{ _('Target') }}</th><th>{{ _('Type') }}</th><th>{{ _('Tag') }}</th><th>{{ _('Order') }}</th><th>{{ _('modifier') }}</th><th>{{ _('TypeIDs') }}</th><th>{{ _('R by Type') }}<th>{{ _('R by InvGroup') }}<th>{{ _('R by Market Group') }}
+		</thead>
+		<tbody>
+			{% for check in coll.checks %}
+			<tr>
+				<td>{{ check.checkName }}</td>
+				<td><a class="btn btn-primary" href="{{url_for('ship_assignment.check_edit', check_id=check.checkID)}}">{{ _('Edit') }}</a></td>
+				<td>{{ check.checkTargetID }}</td>
+				<td>{{ check_type_map[check.checkType] }}</td>
+				<td>{{ check.checkTag }}</td>
+				<td>{{ check.order }}</td>
+				<td>{{ check.modifier }}</th>
+				<td>{% for tp in check.ids %}{{ get_pk(tp)[0] }}{% if not loop.last %},{% endif %}{% endfor %}</td>
+				<td>{% for type in check.check_rest_types %}{{ get_pk(type)[0] }}{% if not loop.last %},{% endif %}{% endfor %}
+				<td>{% for type in check.check_rest_groups %}{{ get_pk(type)[0] }}{% if not loop.last %},{% endif %}{% endfor %}
+				<td>{% for type in check.check_rest_market_groups %}{{ get_pk(type)[0] }}{% if not loop.last %},{% endif %}{% endfor %}
+			</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+</div>
+
+{% endblock %}

@@ -5,13 +5,14 @@ from typing import List, Optional, Union, Dict, Any
 from esipy import EsiSecurity
 from esipy.exceptions import APIException
 from sqlalchemy import Column, Integer, String, SmallInteger, BIGINT, Boolean, DateTime, Index, \
-    sql, BigInteger, text, Float, Text
+    sql, BigInteger, text, Float, Text, Numeric
 from sqlalchemy import Enum
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.sql.schema import Table, ForeignKey, CheckConstraint, UniqueConstraint
 
 from waitlist.base import db
 from waitlist.utility import config
+from waitlist.utility.constants import check_types
 from waitlist.utility.utils import get_random_token
 from sqlalchemy.types import UnicodeText
 import json
@@ -288,6 +289,10 @@ class InvType(Base):
         'InvGroup',
         primaryjoin='foreign(InvType.groupID) == InvGroup.groupID')
 
+    market_group: 'MarketGroup' = relationship(
+        'MarketGroup'
+    )
+
     dogma_attributes = relationship(
         'InvTypeDogmaAttribute')
 
@@ -387,6 +392,8 @@ class MarketGroup(Base):
     description = Column('description', String(3000))
     iconID = Column('icon_id', Integer)
     hasTypes = Column('has_types', Boolean(name='has_types'))
+
+    parent = relationship("MarketGroup", remote_side=[marketGroupID])
 
 
 class Account(Base):
@@ -775,7 +782,6 @@ class Permission(Base):
     def __repr__(self):
         return f'<Permission id={self.id} name={self.name}'
 
-
 class Waitlist(Base):
     """
     Represents a waitlist
@@ -791,7 +797,7 @@ class Waitlist(Base):
     groupID = Column('group_id', Integer, ForeignKey("waitlist_groups.group_id"),)
     displayTitle = Column('display_title', String(100), nullable=False, default="")
     entries = relationship("WaitlistEntry", back_populates="waitlist", order_by="asc(WaitlistEntry.creation)")
-    group = relationship("WaitlistGroup", back_populates="waitlists")
+    group = relationship("WaitlistGroup", foreign_keys=[groupID],back_populates="waitlists")
 
     def __repr__(self):
         return "<Waitlist %r>" % self.name
@@ -824,8 +830,10 @@ class WaitlistGroup(Base):
     constellationID = Column('constellation_id', Integer, ForeignKey(Constellation.constellationID), nullable=True)
     ordering = Column('ordering', Integer, nullable=False, default=0)
     influence = Column('influence', Boolean(name='influence'), nullable=False, server_default='0', default=False)
+    queueID = Column('queueID', Integer, ForeignKey(Waitlist.id), nullable=False)
 
-    waitlists = relationship(Waitlist, back_populates="group")
+    waitlists = relationship(Waitlist, primaryjoin=groupID == Waitlist.groupID, remote_side=Waitlist.groupID, foreign_keys=Waitlist.groupID, back_populates="group")
+    queue = relationship(Waitlist, foreign_keys=[queueID], uselist=False)
 
     def has_wl_of_type(self, wl_type: str):
         for wl in self.waitlists:
@@ -846,11 +854,11 @@ class WaitlistGroup(Base):
 
     @property
     def xuplist(self):
-        return self.get_wl_for_type('xup')
+        return self.queue
 
     @xuplist.setter
     def xuplist(self, value: Waitlist):
-        self.set_wl_to_type(value, 'xup')
+        self.queue = value
 
     @property
     def logilist(self):
@@ -904,21 +912,28 @@ class Shipfit(Base):
                                                         onupdate='CASCADE'))
     modules = Column('modules', String(5000))
     comment = Column('comment', String(5000))
-    wl_type = Column('wl_type', String(10))
+    wl_type = Column('wl_type', String(20))
     created = Column('created', DateTime, default=datetime.utcnow)
+    targetWaitlistID = Column('target_waitlist',
+                             ForeignKey('waitlists.id',
+                                        ondelete='CASCADE',
+                                        onupdate='CASCADE')
+                             )
 
     ship = relationship("InvType")
     waitlist = relationship("WaitlistEntry", secondary="waitlist_entry_fits", uselist=False)
-
+    # this saves which waitlist we should go to after being approved
+    targetWaitlist = relationship('Waitlist', uselist=False)
     moduleslist = relationship("FitModule", back_populates="fit")
 
     def get_dna(self):
         return "{0}:{1}".format(self.ship_type, self.modules)
 
     def __repr__(self):
-        return "<Shipfit id={0} ship_type={1} modules={2} comment={3} waitlist={4}>".format(self.id, self.ship_type,
-                                                                                            self.modules, self.comment,
-                                                                                            self.waitlist.id)
+        return "<Shipfit id={0} ship_type={1} modules={2} comment={3} waitlist={4}>".\
+            format(self.id, self.ship_type,
+                   self.modules, self.comment,
+                   self.waitlist.id if self.waitlist is not None else -1)
 
 
 class WaitlistEntryFit(Base):
@@ -1328,3 +1343,139 @@ class TriviaSubmissionAnswer(Base):
 
     submission = relationship(TriviaSubmission, back_populates='answers')
     question = relationship(TriviaQuestion)
+
+
+class ShipCheckCollection(Base):
+    __tablename__: str = 'ship_check_collection'
+    checkCollectionID: Column = Column('collection_id', Integer, primary_key=True)
+    checkCollectionName: Column = Column('collection_name', String(50))
+    waitlistGroupID: Column = Column('waitlist_group_id', Integer,
+                                     ForeignKey(WaitlistGroup.groupID,
+                                                ondelete='CASCADE',
+                                                onupdate='CASCADE'),
+                                     unique=True)
+    defaultTargetID: Column = Column('default_target_id', Integer,
+                                     ForeignKey(Waitlist.id,
+                                                ondelete='CASCADE',
+                                                onupdate='CASCADE')
+                                     )
+    defaultTag: Column = Column('default_tag', String(20))
+
+    checks = relationship('ShipCheck', back_populates='collection', order_by='asc(ShipCheck.order)')
+    defaultTarget: Waitlist = relationship('Waitlist')
+    waitlistGroup: WaitlistGroup = relationship('WaitlistGroup')
+
+ship_check_invtypes = Table('ship_check_invtypes',
+                     Base.metadata,
+                     Column('check_id', Integer,
+                            ForeignKey('ship_check.check_id',
+                                       onupdate="CASCADE", ondelete="CASCADE")),
+                     Column('type_id', Integer,
+                            ForeignKey('invtypes.type_id',
+                                       onupdate="CASCADE", ondelete="CASCADE"))
+                     )
+
+
+ship_check_groups = Table(
+    'ship_check_groups',
+    Base.metadata,
+    Column('check_id', Integer,
+           ForeignKey('ship_check.check_id',
+                      onupdate='CASCADE', ondelete='CASCADE')),
+    Column('group_id', Integer,
+           ForeignKey('invgroup.group_id',
+                      onupdate='CASCADE', ondelete='CASCADE'))
+)
+
+
+ship_check_marketgroups = Table(
+    'ship_check_marketgroups',
+    Base.metadata,
+    Column('check_id', Integer,
+           ForeignKey('ship_check.check_id',
+                      onupdate='CASCADE', ondelete='CASCADE')),
+    Column('market_group_id', Integer,
+           ForeignKey('invmarketgroups.market_group_id',
+                      onupdate='CASCADE', ondelete='CASCADE'))
+)
+
+
+ship_check_rest_invtypes = Table('ship_check_rest_invtypes',
+                     Base.metadata,
+                     Column('check_id', Integer,
+                            ForeignKey('ship_check.check_id',
+                                       onupdate="CASCADE", ondelete="CASCADE")),
+                     Column('type_id', Integer,
+                            ForeignKey('invtypes.type_id',
+                                       onupdate="CASCADE", ondelete="CASCADE"))
+                     )
+
+
+ship_check_rest_groups = Table(
+    'ship_check_rest_groups',
+    Base.metadata,
+    Column('check_id', Integer,
+           ForeignKey('ship_check.check_id',
+                      onupdate='CASCADE', ondelete='CASCADE')),
+    Column('group_id', Integer,
+           ForeignKey('invgroup.group_id',
+                      onupdate='CASCADE', ondelete='CASCADE'))
+)
+
+
+ship_check_rest_marketgroups = Table(
+    'ship_check_rest_marketgroups',
+    Base.metadata,
+    Column('check_id', Integer,
+           ForeignKey('ship_check.check_id',
+                      onupdate='CASCADE', ondelete='CASCADE')),
+    Column('market_group_id', Integer,
+           ForeignKey('invmarketgroups.market_group_id',
+                      onupdate='CASCADE', ondelete='CASCADE'))
+)
+
+
+class ShipCheck(Base):
+    __tablename__: str = 'ship_check'
+    checkID: Column = Column('check_id', Integer, primary_key=True)
+    checkName: Column = Column('check_name', String(100))
+    collectionID: Column = Column(
+        'collection_id', Integer,
+        ForeignKey('ship_check_collection.collection_id',
+                   ondelete='CASCADE', onupdate='CASCADE'), nullable=True)
+    checkTargetID = Column('check_target_id', Integer, ForeignKey('waitlists.id', ondelete='CASCADE', onupdate='CASCADE'), nullable=False)
+    checkType: Column = Column('check_type', Integer)
+    order: Column = Column('order', Integer)
+    modifier: Column = Column('modifier', Numeric(precision=5, scale=2),
+                              nullable=True)
+    checkTag: Column = Column('tag', String(20))
+
+    collection = relationship('ShipCheckCollection', back_populates='checks')
+    check_types = relationship('InvType', secondary='ship_check_invtypes', lazy='dynamic')
+    check_groups = relationship('InvGroup', secondary='ship_check_groups', lazy='dynamic')
+    check_market_groups = relationship('MarketGroup', secondary='ship_check_marketgroups', lazy='dynamic')
+    checkTarget = relationship('Waitlist')
+
+    check_rest_types = relationship('InvType', secondary='ship_check_rest_invtypes')
+    check_rest_groups = relationship('InvGroup', secondary='ship_check_rest_groups')
+    check_rest_market_groups = relationship('MarketGroup', secondary='ship_check_rest_marketgroups')
+
+    @property
+    def ids(self):
+        if self.checkType in [check_types.MODULE_CHECK_TYPEID, check_types.SHIP_CHECK_TYPEID]:
+            return self.check_types
+        if self.checkType in [check_types.MODULE_CHECK_MARKETGROUP, check_types.SHIP_CHECK_MARKETGROUP]:
+            return self.check_market_groups
+        if self.checkType == check_types.SHIP_CHECK_INVGROUP:
+            return self.check_groups
+        return None
+
+    @ids.setter
+    def ids(self, value):
+        if self.checkType in [check_types.MODULE_CHECK_TYPEID, check_types.SHIP_CHECK_TYPEID]:
+            self.check_types = value
+        if self.checkType in [check_types.MODULE_CHECK_MARKETGROUP, check_types.SHIP_CHECK_MARKETGROUP]:
+            self.check_market_groups = value
+        if self.checkType == check_types.SHIP_CHECK_INVGROUP:
+            self.check_groups = value
+
