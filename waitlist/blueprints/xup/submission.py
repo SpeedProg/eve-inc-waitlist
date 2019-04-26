@@ -11,13 +11,10 @@ from waitlist.data.sse import EntryAddedSSE, send_server_sent_event,\
     FitAddedSSE
 from waitlist.storage.database import WaitlistGroup, WaitlistEntry, Shipfit,\
     InvType, FitModule, MarketGroup, HistoryEntry
-from waitlist.storage.modules import resist_ships, logi_ships, sniper_ships,\
-    sniper_weapons, dps_weapons, weapongroups, dps_ships, t3c_ships
+from waitlist.storage.modules import resist_ships, logi_ships
 from waitlist.utility.history_utils import create_history_object
 from waitlist.utility.fitting_utils import get_fit_format, parse_dna_fitting,\
-    parse_eft, is_logi_hull, is_allowed_hull, is_dps_by_group,\
-    is_sniper_by_group, get_weapon_type_by_typeid, get_waitlist_type_by_ship_typeid,\
-    get_waitlist_type_for_fit
+    parse_eft, get_waitlist_type_for_fit
 from waitlist.base import db
 from . import bp
 from flask_babel import gettext, ngettext
@@ -240,76 +237,17 @@ def submit():
 
     eve_id = current_user.get_eve_id()
 
-    # query to check if sth is a weapon module
-    '''
-    SELECT count(1) FROM invtypes
-    JOIN invmarketgroups AS weapongroup ON invtypes.marketGroupID = weapongroup.marketGroupID
-    JOIN invmarketgroups AS wcat ON weapongroup.parentGroupID = wcat.marketGroupID
-    JOIN invmarketgroups AS mcat ON wcat.parentGroupID = mcat.marketGroupID
-    WHERE invtypes.typeName = ? AND mcat.parentGroupID = 10;/*10 == Turrets & Bays*/
-    '''
-
     fits_ready = []
 
     # split his fits into types for the different waitlist_entries
     for fit in fits:
-        wl_type = get_waitlist_type_for_fit(fit, group_id)
-        fit.wl_type = wl_type
+        tag, waitlist_id = get_waitlist_type_for_fit(fit, group_id)
+        fit.wl_type = tag 
+        fit.targetWaitlistID = waitlist_id
         fits_ready.append(fit)
-        """
-        mod_list: List[Dict[int, Tuple(int, int)]]
-        try:
-            mod_list = parse_dna_fitting(fit.modules)
-        except ValueError:
-            abort(400, "Invalid module amounts")
-        # check that ship is an allowed ship
 
-        # it is a logi put on logi wl
-        if is_logi_hull(fit.ship_type):
-            fit.wl_type = WaitlistNames.logi
-            fits_ready.append(fit)
-            continue
-
-        is_allowed = is_allowed_hull(fit.ship_type)
-
-        if not is_allowed:  # not an allowed ship, push it on other list :P
-            fit.wl_type = WaitlistNames.other
-            fits_ready.append(fit)
-            continue
-
-        possible_weapon_types = dict()
-        # lets collect all weapons, no matter the amount
-        # then categorize them
-        # and choose the category with the most weapons
-        
-        high_slot_mod_map = mod_list[location_flags.HIGH_SLOT]
-        for mod in high_slot_mod_map:
-            weapon_type = get_weapon_type_by_typeid(mod)
-            if (weapon_type is not None):
-                if weapon_type not in possible_weapon_types:
-                    possible_weapon_types[weapon_type] = 0
-
-                possible_weapon_types[weapon_type] += high_slot_mod_map[mod][1]
-
-        weapon_type = max(possible_weapon_types.items(), key=operator.itemgetter(1), default=(None, None))[0]
-        if weapon_type is None:
-            weapon_type = get_waitlist_type_by_ship_typeid(fit.ship_type)
-
-        if weapon_type is None:
-            fit.wl_type = WaitlistNames.other
-            fits_ready.append(fit)
-            continue
-        else:
-            fit.wl_type = weapon_type
-            fits_ready.append(fit)
-            continue
-        """
-
-    """
-    #this stuff is needed somewhere else now
     # get the waitlist entries of this user
 
-    """
     queue = group.xuplist
     wl_entry = db.session.query(WaitlistEntry).filter(
         (WaitlistEntry.waitlist_id == queue.id) & (WaitlistEntry.user == eve_id)).first()
