@@ -76,6 +76,7 @@ if not config.has_section("security"):
     config.add_section("security")
 config.set_if_not_exists("security", "scramble_names", "False")
 config.set_if_not_exists("security", "require_auth_for_chars", "False")
+config.set_if_not_exists("security", "banned_by_default", "False")
 
 if not config.has_section("disable"):
     config.add_section("disable")
@@ -127,6 +128,7 @@ motd_vg = config.get("motd", "vg")
 
 scramble_names = config.get("security", "scramble_names") == "True"
 require_auth_for_chars = config.get("security", "require_auth_for_chars") == "True"
+banned_by_default = config.get("security", "banned_by_default") == "True"
 
 disable_teamspeak = config.get("disable", "teamspeak") == "True"
 
