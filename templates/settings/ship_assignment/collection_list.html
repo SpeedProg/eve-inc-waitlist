@@ -1,0 +1,74 @@
+{% extends "settings/base.html" %}
+
+{% block title %}{{ _('Settings') }} - {{ _('Ship Classification Selection') }}{% endblock %}
+
+{% block head %}
+{{ super() }}
+{% assets filters="babili", output="gen/ass_coll_list.%(version)s.js",
+"js/ship_assignment/collection.js", "js/ship_assignment/collection_list.js" %}
+<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
+{% endblock %}
+
+{% block raw_content %}
+	<div class="row mb-3">
+		<form class="form-inline" id="change_collection" action="{{url_for('ship_assignment.collection_edit')}}" method="GET" autocomplete="off">
+			<div class="form-group mr-1">
+				<label for="collection_id">{{ _('Collection Name') }}</label>
+				<select class="custom-select" name="collection_id">
+					{% for check_collection in checks %}
+						<option value="{{check_collection.checkCollectionID}}">{{check_collection.checkCollectionName}}</option>
+					{% endfor %}
+				</select>
+			</div>
+			<button class="form-control" type="submit">{{ _('Edit') }}</button>
+		</form>
+	</div>
+	<div class="row mb-3">
+		<form class="form-inline" id="add_collection" action="{{ url_for('ship_assignment.collection_add') }}" method="POST" autocomplete="off">
+			<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+			<div class="form-group mr-1">
+				<label for="coll_add_name">{{ _('Collection Name') }}</label>
+				<input class="form-control" type="text" id="coll_add_name" name="name">
+			</div>
+			<div class="form-group mr-1">
+				<label for="wl_group_id_select">{{ _('Group') }}</label>
+				<select class="custom-select" id="wl_group_id_select" name="group_id">
+					{% for group in groups %}
+						<option value="{{ group.groupID }}">{{ group.displayName }}</option>
+					{% endfor %}
+				</select>
+			</div>
+			<div class="form-group mr-1">
+				<label for="default_target_id">{{ _('Target if no rule matches') }}</label>
+				<!-- This gets elements unhidden/enabled based on the selection above -->
+				<select class="custom-select" id="default_target_id" name="target_id">
+					{% for group in groups %}
+						{% for list in group.waitlists if list.id !=  group.queueID %}
+							<option data-group="{{ group.groupID }}" value="{{ list.id }}" hidden disabled>{{ list.displayTitle }}</option>
+						{% endfor %}
+					{% endfor %}
+				</select>
+			</div>
+			<div class="form-group mr-1">
+				<label for="coll_edit_tag">{{ _('Default Tag') }}</label>
+				<input class="form-control" type="text" id="coll_edit_tag" name="tag" placeholder="other">
+			</div>
+			<button class="form-control" type="submit">{{ _('Add') }}</button>
+		</form>
+	</div>
+	<div class="row mb-3">
+		<form class="form-inline" id="remove_collection" action="{{ url_for('ship_assignment.collection_remove') }}" method="POST" autocomplete="off">
+			<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+			<div class="form-group mr-1">
+				<label for="coll_remove_id">Collection</label>
+				<select class="custom-select" id="coll_remove_id" name="collection_id">
+					{% for coll in checks %}
+					<option value="{{ coll.checkCollectionID }}">{{ coll.checkCollectionName }}</option>
+					{% endfor %}
+				</select>
+			</div>
+			<button class="form-control" type="submit">{{ _('Remove') }}</button>
+		</form>
+	</div>
+{% endblock %}
