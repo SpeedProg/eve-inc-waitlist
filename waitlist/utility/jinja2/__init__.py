@@ -1,5 +1,7 @@
 from datetime import datetime
 
+from sqlalchemy.inspection import inspect
+
 from flask import request
 from flask_login import current_user
 from typing import Callable, Dict, Any
@@ -11,7 +13,6 @@ from waitlist.utility.config import cdn_eveimg, cdn_eveimg_webp, cdn_eveimg_js, 
 from waitlist.utility.settings import sget_insert
 from waitlist.utility.i18n.locale import get_locale, get_langcode_from_locale
 from waitlist.utility.mainmenu import main_nav
-
 
 def eve_image(browser_webp: bool) -> Callable[[str, str], str]:
     if browser_webp and cdn_eveimg_webp:
@@ -44,3 +45,8 @@ def inject_data() -> Dict[str, Any]:
                 title=title, lang_code=get_langcode_from_locale(get_locale(app)),
                 main_nav=main_nav
                 )
+
+def get_pk(obj):
+    return inspect(obj).identity
+
+app.jinja_env.globals.update(get_pk=get_pk)
