@@ -1478,4 +1478,5 @@ class ShipCheck(Base):
             self.check_market_groups = value
         if self.checkType == check_types.SHIP_CHECK_INVGROUP:
             self.check_groups = value
-
+    def __repr__(self):
+        return f'<ShipCheck id={self.checkID} name={self.checkName} tag={self.checkTag} order={self.order} type={self.checkType} modifier={self.modifier}>'

@@ -91,7 +91,7 @@ def add_default_sorting(collection: ShipCheckCollection, logi_wl, dps_wl, sniper
         checkType = check_types.MODULE_CHECK_MARKETGROUP,
         order = 2,
         modifier = Decimal('1.00'),
-        checkTag = 'sniper'
+        checkTag = 'dps'
     )
     collection.checks.append(check)
 

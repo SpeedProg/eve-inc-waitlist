@@ -483,9 +483,9 @@ def update_stations(filename):
         elif isinstance(ev, MappingEndEvent):
             # write it
             db.session.merge(station)
-    
+
     db.session.commit()
-    
+
     f.close()
 
 
