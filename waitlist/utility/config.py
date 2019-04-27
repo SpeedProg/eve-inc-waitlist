@@ -60,6 +60,14 @@ config.set_if_not_exists("cdn", "cdn_https", "False")
 config.set_if_not_exists("cdn", "eve_img_server", "https://imageserver.eveonline.com/{0}.{1}")
 config.set_if_not_exists("cdn", "eve_img_server_webp", "False")
 
+if not config.has_section("proxy"):
+    config.add_section("proxy")
+config.set_if_not_exists("proxy", "enabled", "False")
+config.set_if_not_exists("proxy", "x_forward_for", "1")
+config.set_if_not_exists("proxy", "x_forward_proto", "1")
+config.set_if_not_exists("proxy", "x_forward_host", "1")
+config.set_if_not_exists("proxy", "x_forward_prefix", "1")
+
 if not config.has_section("cookies"):
     config.add_section("cookies")
 config.set_if_not_exists("cookies", "secure_cookies", "False")
@@ -147,6 +155,12 @@ using_proxy = config.get("app", "using_proxy") == "True"
 auto_build =  config.get("app", "auto_build") == "True"
 
 overview_show_count_for_approvals = config.get("overview", "show_count_for_approvals") == "True"
+
+proxy_enabled = config.get("proxy", "enabled") == "True"
+proxy_for = int(config.get("proxy", "x_forward_for"))
+proxy_proto = int(config.get("proxy", "x_forward_proto"))
+proxy_host = int(config.get("proxy", "x_forward_host"))
+proxy_prefix = int(config.get("proxy", "x_forward_prefix"))
 
 
 """
