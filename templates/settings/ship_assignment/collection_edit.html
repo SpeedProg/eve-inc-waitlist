@@ -4,7 +4,7 @@
 
 {% block head %}
 {{ super() }}
-{% assets filters="babili", output="gen/ass_coll_list.%(version)s.js",
+{% assets filters="babili", output="gen/ass_coll_edit.%(version)s.js",
 "js/ship_assignment/collection.js", "js/ship_assignment/collection_edit.js" %}
 <script type="text/javascript" src="{{ ASSET_URL }}"></script>
 {% endassets %}
@@ -16,7 +16,7 @@
 		<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 		<div class="form-group">
 			<label for="coll_edit_name">{{ _('Collection Name') }}</label>
-			<input class="form-control" type="text" id="coll_edit_name" name="coll_name" value="{{ coll.checkCollectionName }}">
+			<input class="form-control" type="text" id="coll_edit_name" name="coll_name" value="{{ coll.checkCollectionName }}" maxlength="50">
 		</div>
 		<div class="form-group mr-1">
 			<label for="wl_group_id_select">Group</label>
@@ -39,7 +39,7 @@
 		</div>
 		<div class="form-group mr-1">
 			<label for="coll_edit_tag">{{ _('Default Tag') }}</label>
-			<input class="form-control" type="text" id="coll_edit_tag" name="tag" value="{{ coll.defaultTag }}">
+			<input class="form-control" type="text" id="coll_edit_tag" name="tag" value="{{ coll.defaultTag }}" maxlength="20">
 		</div>
 		<button type="submit" class="btn btn-primary">{{ _('Change Collection Information') }}</button>
 	</form>
@@ -50,7 +50,7 @@
 		<input type="hidden" name="coll_id" value="{{ coll.checkCollectionID }}">
 		<div class="form-group">
 			<label for="check_add_name">{{ _('Check Name') }}</label>
-			<input class="form-control" type="text" id="check_add_name" name="check_name" required>
+			<input class="form-control" type="text" id="check_add_name" name="check_name" maxlength="100" required>
 		</div>
 		<div class="form-group">
 			<label for="check_type">{{ _('Check Type') }}</label>
@@ -95,9 +95,23 @@
 		</div>
 		<div class="form-group">
 			<label for="check_add_tag">{{ _('Tag') }}</label>
-			<input class="form-control" type="text" id="check_add_tag" name="tag">
+			<input class="form-control" type="text" id="check_add_tag" name="tag" maxlength="20" required>
 		</div>
 		<button class="btn btn-primary" type="submit">{{ _('Add Check') }}</button>
+	</form>
+</div>
+<div class="row mb-3">
+	<form class="form form-inline" action="{{ url_for('ship_assignment.check_delete') }}" method="POST">
+		<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+		<div class="form-group mr-1">
+			<label for="check_delete_id">{{ _('Check to Delete') }}</label>
+			<select class="custom-select" id="check_delete_id" name="check_id">
+				{% for check in coll.checks %}
+				<option value="{{ check.checkID }}">{{ check.checkName }}</option>
+				{% endfor %}
+			</select>
+		</div>
+		<button class="btn btn-danger" type="submit">{{ _('Delete Check') }}</button>
 	</form>
 </div>
 <div class="row mb-3">

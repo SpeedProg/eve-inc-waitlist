@@ -4,7 +4,7 @@
 
 {% block head %}
 {{ super() }}
-{% assets filters="babili", output="gen/ass_coll_list.%(version)s.js",
+{% assets filters="babili", output="gen/ass_chk_edit.%(version)s.js",
  "js/ship_assignment/check_edit.js" %}
 <script type="text/javascript" src="{{ ASSET_URL }}"></script>
 {% endassets %}
@@ -16,7 +16,7 @@
 		<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 		<div class="form-group">
 			<label for="check_add_name">{{ _('Check Name') }}</label>
-      <input class="form-control" type="text" id="check_add_name" name="check_name" value="{{ check.checkName }}" required>
+      <input class="form-control" type="text" id="check_add_name" name="check_name" value="{{ check.checkName }}" maxlength="100" required>
 		</div>
 		<div class="form-group">
 			<label for="check_type">{{ _('Check Type') }}</label>
@@ -60,7 +60,7 @@
 		</div>
 		<div class="form-group">
 			<label for="check_edit_tag">{{ _('Tag') }}</label>
-			<input class="form-control" type="text" id="check_edit_tag" name="tag" value="{{check.checkTag}}">
+			<input class="form-control" type="text" id="check_edit_tag" name="tag" value="{{check.checkTag}}" maxlength="20" required>
 		</div>
 		<button class="btn btn-primary" type="submit">{{ _('Change Check') }}</button>
 	</form>

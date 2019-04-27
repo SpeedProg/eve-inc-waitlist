@@ -10,7 +10,8 @@ from waitlist.data.names import WaitlistNames
 from waitlist.data.sse import EntryAddedSSE, send_server_sent_event,\
     FitAddedSSE
 from waitlist.storage.database import WaitlistGroup, WaitlistEntry, Shipfit,\
-    TeamspeakDatum, InvType, FitModule, MarketGroup, HistoryEntry
+    TeamspeakDatum, InvType, FitModule, MarketGroup, HistoryEntry, Waitlist,\
+    ShipCheckCollection
 from waitlist.storage.modules import resist_ships, logi_ships
 from waitlist.utility.history_utils import create_history_object
 from waitlist.utility.fitting_utils import get_fit_format, parse_dna_fitting,\

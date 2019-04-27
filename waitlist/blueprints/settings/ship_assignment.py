@@ -193,7 +193,7 @@ def check_change(check_id:int) -> Response:
     check.checkType = check_type
     check.checkName = name
     check.modifier = check_modifier
-    check.tag = tag
+    check.checkTag = tag
     # add new items
     # this needs to be done after changing the type
     # because otherwise we add to the wrong relationship
@@ -226,6 +226,17 @@ def check_change(check_id:int) -> Response:
 
     db.session.commit()
     return redirect(url_for('.collection_edit', collection_id=check.collection.checkCollectionID))
+
+
+@bp.route('/check/delete', methods=['POST'])
+@login_required
+@perm_manager.require('ship_assignment_edit')
+def check_delete():
+    check_id = int(request.form['check_id'])
+    check = db.session.query(ShipCheck).get(check_id)
+    db.session.delete(check)
+    db.session.commit()
+    return redirect(request.referrer)
 
 
 add_menu_entry('ship_assignment.ship_assignments', lazy_gettext('Ship Classification'), perm_manager.get_permission('ship_assignment_edit').can)
