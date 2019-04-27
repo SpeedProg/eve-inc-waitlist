@@ -89,6 +89,7 @@ config.set_if_not_exists("security", "banned_by_default", "False")
 if not config.has_section("disable"):
     config.add_section("disable")
 config.set_if_not_exists("disable", "teamspeak", "False")
+config.set_if_not_exists("disable", "scruffy_mode", "True")
 
 if not config.has_section("pageinfo"):
     config.add_section("pageinfo")
@@ -139,6 +140,7 @@ require_auth_for_chars = config.get("security", "require_auth_for_chars") == "Tr
 banned_by_default = config.get("security", "banned_by_default") == "True"
 
 disable_teamspeak = config.get("disable", "teamspeak") == "True"
+disable_scruffy_mode = config.get("disable", "scruffy_mode") == "True"
 
 influence_link = config.get("pageinfo", "influence_link")
 
