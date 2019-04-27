@@ -112,7 +112,13 @@ logger = logging.getLogger(__name__)
 def run_server():
     from waitlist.base import app
     from waitlist.utility import config
-    app.wsgi_app = ProxyFix(app.wsgi_app)
+    from werkzeug.middleware.proxy_fix import ProxyFix
+    from gevent.pywsgi import WSGIServer
+    if config.proxy_enabled:
+        app.wsgi_app = ProxyFix(app.wsgi_app, x_for=config.proxy_for,
+                                x_host=config.proxy_host,
+                                x_proto=config.proxy_proto,
+                                x_prefix=config.proxy_prefix)
     wsgi_logger = logging.getLogger("gevent.pywsgi.WSGIServer")
     server = WSGIServer((config.server_bind, config.server_port), app,
                         log=wsgi_logger, error_log=wsgi_logger)
