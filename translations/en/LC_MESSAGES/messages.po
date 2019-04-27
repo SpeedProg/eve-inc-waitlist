@@ -4,16 +4,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2019-04-15 12:35+0200\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2019-04-15 10:46+0000\n"
+"POT-Creation-Date: 2019-04-27 21:26+0200\n"
+"PO-Revision-Date: 2019-04-27 21:28+0200\n"
 "Last-Translator: Constantin Wenger <constantin.wenger@googlemail.com>\n"
 "Language-Team: English\n"
 "Language: en\n"
-"X-Generator: Zanata 4.6.2\n"
-"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 2.2.1\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: config/themes.example.json
 msgid "Standard"
@@ -29,23 +29,23 @@ msgstr "Dark Purple"
 
 #: templates/about.html:15
 msgid ""
-"<a href=\"https://github.com/speedprog/eve-inc-waitlist\" target="
-"\"_blank\">Eve-Inc-Waitlist</a> Created by <a href=\"char:91495852\">Bruce "
-"Warhead</a> and <a href=\"char:93356698\">Beryl Slanjava</a>"
+"<a href=\"https://github.com/speedprog/eve-inc-waitlist\" target=\"_blank"
+"\">Eve-Inc-Waitlist</a> Created by <a href=\"char:91495852\">Bruce Warhead</"
+"a> and <a href=\"char:93356698\">Beryl Slanjava</a>"
 msgstr ""
-"<a href=\"https://github.com/speedprog/eve-inc-waitlist\" target="
-"\"_blank\">Eve-Inc-Waitlist</a> Created by <a href=\"char:91495852\">Bruce "
-"Warhead</a> and <a href=\"char:93356698\">Beryl Slanjava</a>"
+"<a href=\"https://github.com/speedprog/eve-inc-waitlist\" target=\"_blank"
+"\">Eve-Inc-Waitlist</a> Created by <a href=\"char:91495852\">Bruce Warhead</"
+"a> and <a href=\"char:93356698\">Beryl Slanjava</a>"
 
 #: templates/about.html:17
 msgid ""
 "<a href=\"https://github.com/quiescens/eve-ui\" target=\"_blank\">Fitting "
-"Display (Eve-UI)</a> and Fitting Stats by <a href=\"char:"
-"725396116\">Quie'scens</a>"
+"Display (Eve-UI)</a> and Fitting Stats by <a href="
+"\"char:725396116\">Quie'scens</a>"
 msgstr ""
 "<a href=\"https://github.com/quiescens/eve-ui\" target=\"_blank\">Fitting "
-"Display (Eve-UI)</a> and Fitting Stats by <a href=\"char:"
-"725396116\">Quie'scens</a>"
+"Display (Eve-UI)</a> and Fitting Stats by <a href="
+"\"char:725396116\">Quie'scens</a>"
 
 #: templates/base.html:88
 msgid "ISK Donations are appreciated"
@@ -99,16 +99,16 @@ msgstr "How do Alarm Expressions work?"
 
 #: templates/help.html:40
 msgid ""
-"For expression evaluation <a href=\"https://github.com/silentmatt/expr-"
-"eval\" target=\"_blank\">expr-eval</a> is used.\n"
+"For expression evaluation <a href=\"https://github.com/silentmatt/expr-eval"
+"\" target=\"_blank\">expr-eval</a> is used.\n"
 " The variables, <code>open, xup, logi, dps, sniper, other</code> are "
 "provided, open being a boolean(true/false) while the others are numbers.\n"
 " You can have one expression per Waitlist Group, there is no need for more "
 "then one, because using (expression) or (expression) would be the same as "
 "using two expression for one group."
 msgstr ""
-"For expression evaluation <a href=\"https://github.com/silentmatt/expr-"
-"eval\" target=\"_blank\">expr-eval</a> is used.\n"
+"For expression evaluation <a href=\"https://github.com/silentmatt/expr-eval"
+"\" target=\"_blank\">expr-eval</a> is used.\n"
 " The variables, <code>open, xup, logi, dps, sniper, other</code> are "
 "provided, open being a boolean(true/false) while the others are numbers.\n"
 " You can have one expression per Waitlist Group, there is no need for more "
@@ -234,12 +234,12 @@ msgid ""
 "equal\n"
 " <code>&gt;</code> greater then, <code>&lt;</code> less then\n"
 " And to connect these expressions, the operators:\n"
-" <code>and</code> and <code>or</code>. Keep in mind the \"or\" is a \"true "
-"or\", not the way it often is used in language, it is not an \"either or\". "
-"On this \"or\" both can be true.\n"
+" <code>and</code> and <code>or</code>. Keep in mind the \"or\" is a \"true or"
+"\", not the way it often is used in language, it is not an \"either or\". On "
+"this \"or\" both can be true.\n"
 " There are other also useful operators, that can be used you can find them "
-"under <a href=\"https://github.com/silentmatt/expr-eval\" target="
-"\"_blank\">expr-eval</a>.\n"
+"under <a href=\"https://github.com/silentmatt/expr-eval\" target=\"_blank"
+"\">expr-eval</a>.\n"
 " But the ones introduced here, should be enough to write decent notification "
 "logic and should cover most use cases."
 msgstr ""
@@ -248,12 +248,12 @@ msgstr ""
 "equal\n"
 " <code>&gt;</code> greater then, <code>&lt;</code> less then\n"
 " And to connect these expressions, the operators:\n"
-" <code>and</code> and <code>or</code>. Keep in mind the \"or\" is a \"true "
-"or\", not the way it often is used in language, it is not an \"either or\". "
-"On this \"or\" both can be true.\n"
+" <code>and</code> and <code>or</code>. Keep in mind the \"or\" is a \"true or"
+"\", not the way it often is used in language, it is not an \"either or\". On "
+"this \"or\" both can be true.\n"
 " There are other also useful operators, that can be used you can find them "
-"under <a href=\"https://github.com/silentmatt/expr-eval\" target="
-"\"_blank\">expr-eval</a>.\n"
+"under <a href=\"https://github.com/silentmatt/expr-eval\" target=\"_blank"
+"\">expr-eval</a>.\n"
 " But the ones introduced here, should be enough to write decent notification "
 "logic and should cover most use cases."
 
@@ -288,31 +288,31 @@ msgstr "Vote your favorite Command Core Member HERE"
 msgid "Browser"
 msgstr "Browser"
 
-#: templates/index.html:172
+#: templates/index.html:173
 msgid "Test TS"
 msgstr "Test TS"
 
-#: templates/index.html:175
+#: templates/index.html:177
 msgid "Leave Waitlists"
 msgstr "Leave Waitlists"
 
-#: templates/index.html:192 templates/settings/fleet.html:111
+#: templates/index.html:194 templates/settings/fleet.html:111
 msgid "Fleet Manager"
 msgstr "Fleet Manager"
 
-#: templates/index.html:208 templates/settings/fleet.html:134
+#: templates/index.html:210 templates/settings/fleet.html:134
 msgid "Constellation"
 msgstr "Constellation"
 
-#: templates/index.html:213 templates/settings/fleet.html:146
+#: templates/index.html:215 templates/settings/fleet.html:146
 msgid "Dockup"
 msgstr "Dockup"
 
-#: templates/index.html:218
+#: templates/index.html:220
 msgid "HQ System"
 msgstr "HQ System"
 
-#: templates/index.html:230
+#: templates/index.html:232
 #, python-format
 msgid ""
 "This waitlist is currently closed however\n"
@@ -321,11 +321,11 @@ msgstr ""
 "This waitlist is currently closed however\n"
 " <a href=\"%(url)s\">another</a> is open!"
 
-#: templates/index.html:242 waitlist/blueprints/calendar/__init__.py:7
+#: templates/index.html:244 waitlist/blueprints/calendar/__init__.py:7
 msgid "Events"
 msgstr "Events"
 
-#: templates/index.html:258
+#: templates/index.html:260
 #, python-format
 msgid ""
 "<strong>Help us!</strong> We would like your <a href=\"%(url)s\">feedback</"
@@ -334,7 +334,7 @@ msgstr ""
 "<strong>Help us!</strong> We would like your <a href=\"%(url)s\">feedback</"
 "a>!"
 
-#: templates/index.html:278 templates/xup-form.html:64
+#: templates/index.html:280 templates/xup-form.html:66
 msgid "All Waitlists are closed!"
 msgstr "All Waitlists are closed!"
 
@@ -359,51 +359,51 @@ msgstr "I am new to %(title)s or Incursions"
 msgid "Fleet to x-up for"
 msgstr "Fleet to x-up for"
 
-#: templates/xup-form.html:33
+#: templates/xup-form.html:34
 msgid "Poke me on TS (exact charactername required, case sensitive)"
 msgstr "Poke me on TS (exact charactername required, case sensitive)"
 
-#: templates/xup-form.html:36
+#: templates/xup-form.html:38
 msgid "Fittings"
 msgstr "Fittings"
 
-#: templates/xup-form.html:40
+#: templates/xup-form.html:42
 msgid "Caldari Battleship Level"
 msgstr "Caldari Battleship Level"
 
-#: templates/xup-form.html:42
+#: templates/xup-form.html:44
 msgid "No Caldari BS"
 msgstr "No Caldari BS"
 
-#: templates/xup-form.html:43 templates/xup-form.html:58
+#: templates/xup-form.html:45 templates/xup-form.html:60
 msgid "1"
 msgstr "1"
 
-#: templates/xup-form.html:44 templates/xup-form.html:57
+#: templates/xup-form.html:46 templates/xup-form.html:59
 msgid "2"
 msgstr "2"
 
-#: templates/xup-form.html:45 templates/xup-form.html:56
+#: templates/xup-form.html:47 templates/xup-form.html:58
 msgid "3"
 msgstr "3"
 
-#: templates/xup-form.html:46 templates/xup-form.html:55
+#: templates/xup-form.html:48 templates/xup-form.html:57
 msgid "4"
 msgstr "4"
 
-#: templates/xup-form.html:47 templates/xup-form.html:54
+#: templates/xup-form.html:49 templates/xup-form.html:56
 msgid "5"
 msgstr "5"
 
-#: templates/xup-form.html:51
+#: templates/xup-form.html:53
 msgid "Logistic Cruiser Level"
 msgstr "Logistic Cruiser Level"
 
-#: templates/xup-form.html:53
+#: templates/xup-form.html:55
 msgid "No Logi"
 msgstr "No Logi"
 
-#: templates/xup-form.html:61
+#: templates/xup-form.html:63
 msgid "Enter On Waitlist"
 msgstr "Enter On Waitlist"
 
@@ -488,6 +488,9 @@ msgstr "Authenticate"
 #: templates/settings/base.html:3 templates/settings/ccvotes.html:3
 #: templates/settings/fleet.html:3 templates/settings/mail/index.html:3
 #: templates/settings/permissions/config.html:3 templates/settings/sde.html:3
+#: templates/settings/ship_assignment/check_edit.html:3
+#: templates/settings/ship_assignment/collection_edit.html:3
+#: templates/settings/ship_assignment/collection_list.html:3
 #: templates/settings/ts.html:3 templates/settings/whitelist.html:3
 #: waitlist/utility/mainmenu/config_loader.py:181
 msgid "Settings"
@@ -524,7 +527,9 @@ msgstr "Outstanding Events"
 
 #: templates/calendar/settings.html:54 templates/feedback/settings.html:18
 #: templates/settings/accounts.html:122 templates/settings/bans.html:49
-#: templates/settings/fleet.html:209 templates/settings/whitelist.html:49
+#: templates/settings/fleet.html:209
+#: templates/settings/ship_assignment/collection_edit.html:120
+#: templates/settings/whitelist.html:49
 #: templates/waitlist/tools/history_search.html:48
 msgid "Actions"
 msgstr "Actions"
@@ -731,11 +736,13 @@ msgstr "Expression Target"
 
 #: templates/notifications/alarm.html:42
 #: templates/settings/permissions/config.html:27
+#: templates/settings/ship_assignment/collection_list.html:57
 msgid "Add"
 msgstr "Add"
 
-#: templates/notifications/alarm.html:49 templates/waitlist/history.html:39
-#: templates/waitlist/history_cut.html:43
+#: templates/notifications/alarm.html:49
+#: templates/settings/ship_assignment/collection_edit.html:120
+#: templates/waitlist/history.html:39 templates/waitlist/history_cut.html:43
 #: templates/waitlist/tools/history_search.html:99
 msgid "Target"
 msgstr "Target"
@@ -892,7 +899,9 @@ msgstr "Reason"
 msgid "Ban"
 msgstr "Ban"
 
-#: templates/settings/bans.html:31 templates/settings/whitelist.html:31
+#: templates/settings/bans.html:31
+#: templates/settings/ship_assignment/collection_edit.html:120
+#: templates/settings/whitelist.html:31
 msgid "Name"
 msgstr "Name"
 
@@ -952,8 +961,9 @@ msgstr "Clear This Groups lists!"
 msgid "Display Name"
 msgstr "Display Name"
 
-#: templates/settings/fleet.html:50 templates/waitlist/ccvote.html:26
-#: templates/waitlist/ccvote.html:35
+#: templates/settings/fleet.html:50
+#: templates/settings/ship_assignment/collection_edit.html:58
+#: templates/waitlist/ccvote.html:26 templates/waitlist/ccvote.html:35
 msgid "Please Select"
 msgstr "Please Select"
 
@@ -1037,6 +1047,7 @@ msgstr "None"
 
 #: templates/settings/fleet.html:216
 #: templates/settings/permissions/config.html:39
+#: templates/settings/ship_assignment/collection_list.html:71
 msgid "Remove"
 msgstr "Remove"
 
@@ -1308,6 +1319,139 @@ msgstr "Role Display Name"
 msgid "Permission"
 msgstr "Permission"
 
+#: templates/settings/ship_assignment/check_edit.html:3
+msgid "Ship Check Edit"
+msgstr "Ship Check Edit"
+
+#: templates/settings/ship_assignment/check_edit.html:18
+#: templates/settings/ship_assignment/collection_edit.html:52
+msgid "Check Name"
+msgstr "Check Name"
+
+#: templates/settings/ship_assignment/check_edit.html:22
+#: templates/settings/ship_assignment/collection_edit.html:56
+msgid "Check Type"
+msgstr "Check Type"
+
+#: templates/settings/ship_assignment/check_edit.html:30
+#: templates/settings/ship_assignment/collection_edit.html:65
+msgid "Check Target"
+msgstr "Check Target"
+
+#: templates/settings/ship_assignment/check_edit.html:38
+#: templates/settings/ship_assignment/collection_edit.html:73
+msgid "Check Order"
+msgstr "Check Order"
+
+#: templates/settings/ship_assignment/check_edit.html:42
+#: templates/settings/ship_assignment/collection_edit.html:77
+msgid "Check Modifier"
+msgstr "Check Modifier"
+
+#: templates/settings/ship_assignment/check_edit.html:46
+#: templates/settings/ship_assignment/collection_edit.html:81
+msgid "IDs comma seperated"
+msgstr "IDs comma seperated"
+
+#: templates/settings/ship_assignment/check_edit.html:50
+#: templates/settings/ship_assignment/collection_edit.html:85
+msgid "Restrict by Type"
+msgstr "Restrict by Type"
+
+#: templates/settings/ship_assignment/check_edit.html:54
+#: templates/settings/ship_assignment/collection_edit.html:89
+msgid "Restrict by Inventory Group"
+msgstr "Restrict by Inventory Group"
+
+#: templates/settings/ship_assignment/check_edit.html:58
+#: templates/settings/ship_assignment/collection_edit.html:93
+msgid "Restrict by Market Group"
+msgstr "Restrict by Market Group"
+
+#: templates/settings/ship_assignment/check_edit.html:62
+#: templates/settings/ship_assignment/collection_edit.html:97
+#: templates/settings/ship_assignment/collection_edit.html:120
+msgid "Tag"
+msgstr "Tag"
+
+#: templates/settings/ship_assignment/check_edit.html:65
+msgid "Change Check"
+msgstr "Change Check"
+
+#: templates/settings/ship_assignment/collection_edit.html:3
+#: templates/settings/ship_assignment/collection_list.html:3
+msgid "Ship Classification Selection"
+msgstr "Ship Classification Selection"
+
+#: templates/settings/ship_assignment/collection_edit.html:18
+#: templates/settings/ship_assignment/collection_list.html:17
+#: templates/settings/ship_assignment/collection_list.html:31
+msgid "Collection Name"
+msgstr "Collection Name"
+
+#: templates/settings/ship_assignment/collection_edit.html:30
+#: templates/settings/ship_assignment/collection_list.html:43
+msgid "Target if no rule matches"
+msgstr "Target if no rule matches"
+
+#: templates/settings/ship_assignment/collection_edit.html:41
+#: templates/settings/ship_assignment/collection_list.html:54
+msgid "Default Tag"
+msgstr "Default Tag"
+
+#: templates/settings/ship_assignment/collection_edit.html:44
+msgid "Change Collection Information"
+msgstr "Change Collection Information"
+
+#: templates/settings/ship_assignment/collection_edit.html:100
+msgid "Add Check"
+msgstr "Add Check"
+
+#: templates/settings/ship_assignment/collection_edit.html:107
+msgid "Check to Delete"
+msgstr "Check to Delete"
+
+#: templates/settings/ship_assignment/collection_edit.html:114
+msgid "Delete Check"
+msgstr "Delete Check"
+
+#: templates/settings/ship_assignment/collection_edit.html:120
+msgid "Type"
+msgstr "Type"
+
+#: templates/settings/ship_assignment/collection_edit.html:120
+msgid "Order"
+msgstr "Order"
+
+#: templates/settings/ship_assignment/collection_edit.html:120
+msgid "modifier"
+msgstr "Value"
+
+#: templates/settings/ship_assignment/collection_edit.html:120
+msgid "TypeIDs"
+msgstr "TypeIDs"
+
+#: templates/settings/ship_assignment/collection_edit.html:120
+msgid "R by Type"
+msgstr "R by Type"
+
+#: templates/settings/ship_assignment/collection_edit.html:120
+msgid "R by InvGroup"
+msgstr "R by InvGroup"
+
+#: templates/settings/ship_assignment/collection_edit.html:120
+msgid "R by Market Group"
+msgstr "R by Market Group"
+
+#: templates/settings/ship_assignment/collection_edit.html:126
+#: templates/settings/ship_assignment/collection_list.html:24
+msgid "Edit"
+msgstr "Edit"
+
+#: templates/settings/ship_assignment/collection_list.html:35
+msgid "Group"
+msgstr "Group"
+
 #: templates/trivia/index.html:3
 #, python-format
 msgid "This trivia runs from %(fromtime)s to %(totime)s"
@@ -1459,7 +1603,7 @@ msgstr "To"
 msgid "Get Info"
 msgstr "Get Info"
 
-#: waitlist/blueprints/__init__.py:107
+#: waitlist/blueprints/__init__.py:108
 msgid "Tokens where removed, please use the EVE SSO"
 msgstr "Tokens where removed, please use the EVE SSO"
 
@@ -1738,6 +1882,10 @@ msgstr "Role with id=%(role_id)d was deleted"
 msgid "There was an unknown error deleting Role with id=%(role_id)d"
 msgstr "There was an unknown error deleting Role with id=%(role_id)d"
 
+#: waitlist/blueprints/settings/ship_assignment.py:242
+msgid "Ship Classification"
+msgstr "Ship Classification"
+
 #: waitlist/blueprints/settings/staticdataimport.py:38
 msgid "Type IDs were updated!"
 msgstr "Type IDs were updated!"
@@ -1758,7 +1906,7 @@ msgstr "Stations were updated!"
 msgid "Layouts were updated!"
 msgstr "Layouts were updated!"
 
-#: waitlist/blueprints/settings/teamspeak.py:99
+#: waitlist/blueprints/settings/teamspeak.py:105
 msgid "TS Settings"
 msgstr "TS Settings"
 
@@ -1770,21 +1918,22 @@ msgstr ""
 "Thank you for participating, winners will be announced after the trivia is "
 "finished"
 
-#: waitlist/blueprints/xup/submission.py:54
+#: waitlist/blueprints/xup/submission.py:55
 msgid "X-UP is disabled!!!"
 msgstr "X-UP is disabled!!!"
 
-#: waitlist/blueprints/xup/submission.py:80
-msgid "Valid entries are scruffy [dps|logi|sniper,..]"
-msgstr "Valid entries are scruffy [dps|logi|sniper,..]"
+#: waitlist/blueprints/xup/submission.py:82
+#, python-format
+msgid "Valid entries are scruffy %(types)s"
+msgstr "Valid entries are scruffy %(types)s"
 
-#: waitlist/blueprints/xup/submission.py:116
+#: waitlist/blueprints/xup/submission.py:129
 #, python-format
 msgid "You were added as %(ship_type)s"
 msgstr "You were added as %(ship_type)s"
 
-#: waitlist/blueprints/xup/submission.py:210
-#: waitlist/blueprints/xup/submission.py:336
+#: waitlist/blueprints/xup/submission.py:223
+#: waitlist/blueprints/xup/submission.py:295
 #, python-format
 msgid ""
 "You submitted one fit to be check by a fleet comp before getting on the "
@@ -1798,6 +1947,26 @@ msgstr[0] ""
 msgstr[1] ""
 "You submitted %(num)d fits to be check by a fleet comp before getting on the "
 "waitlist."
+
+#: waitlist/utility/constants/check_types.py:10
+msgid "Hull by TypeId"
+msgstr "Hull by TypeId"
+
+#: waitlist/utility/constants/check_types.py:11
+msgid "Hull by Inventory Group"
+msgstr "Hull by Inventory Group"
+
+#: waitlist/utility/constants/check_types.py:12
+msgid "Hull by Market Group"
+msgstr "Hull by Market Group"
+
+#: waitlist/utility/constants/check_types.py:13
+msgid "Module by TypeId"
+msgstr "Module by TypeId"
+
+#: waitlist/utility/constants/check_types.py:14
+msgid "Module by Market Group"
+msgstr "Module by Market Group"
 
 #: waitlist/utility/flask/__init__.py:76
 #, python-format
@@ -1854,4 +2023,3 @@ msgstr "Comp History"
 #: waitlist/utility/mainmenu/config_loader.py:185
 msgid "Not loggedin"
 msgstr "Not loggedin"
-
