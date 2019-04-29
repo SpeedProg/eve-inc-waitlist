@@ -2,7 +2,7 @@ import operator
 from decimal import Decimal
 from sqlalchemy import literal
 from waitlist.utility.constants import location_flags, effects, check_types
-from typing import List, Dict, Optional, Tuple, AbstractSet
+from typing import List, Dict, Optional, Tuple, AbstractSet, Union
 from waitlist.storage.database import InvType, Shipfit, FitModule,\
     MarketGroup, ShipCheckCollection, ShipCheck, Waitlist, InvGroup
 from waitlist.base import db
@@ -360,7 +360,7 @@ def get_waitlist_type_for_modules(checks: List[ShipCheck], fit: Shipfit) -> Opti
     # for modules we need to hit every module once or never
     # never only if there is no rule for it!
     # so after getting a rule hit on a module, remove the module
-    result_count_map: Dict[int, Tuple(Decimal, Set[str])] = dict()
+    result_count_map: Dict[int, List[Union[Decimal, Set[str]]]] = dict()
     for check in checks:
         # lets see if this check applies to this ship
         if not does_check_apply(check, fit.ship_type):
@@ -368,7 +368,7 @@ def get_waitlist_type_for_modules(checks: List[ShipCheck], fit: Shipfit) -> Opti
 
         logger.debug('Doing check %s with type %d and target %s and mods %r', check.checkName, check.checkType, check.checkTarget.waitlistType, mod_ids)
         if check.checkTargetID not in result_count_map:
-            result_count_map[check.checkTargetID] = (Decimal("0.00"), set())
+            result_count_map[check.checkTargetID] = [Decimal("0.00"), set()]
         modifier = Decimal("1.00") if check.modifier is None else check.modifier
         if check.checkType == check_types.MODULE_CHECK_TYPEID:
             remaining_mods = []
@@ -429,6 +429,8 @@ def get_waitlist_type_for_fit(fit: Shipfit, waitlist_group_id: int) -> Tuple[str
                 module_checks,
                 ship_type_checks
             ))
+            module_checks = []
+            ship_type_checks = []
 
         if check.checkType in [check_types.MODULE_CHECK_MARKETGROUP, check_types.MODULE_CHECK_TYPEID]:
             module_checks.append(check)
@@ -447,7 +449,7 @@ def get_waitlist_type_for_fit(fit: Shipfit, waitlist_group_id: int) -> Tuple[str
         if module_data is not None and module_data[1][0] >= Decimal("4.00"):
             ship_wl_id = module_data[0]
             if len(module_data[1][1]) > 0:
-                tag = module_data[1][1][0]
+                tag = module_data[1][1].pop()
             break
         ship_data = get_waitlist_type_for_ship_type(check_tuple[1], fit.ship_type)
         if ship_data is not None:

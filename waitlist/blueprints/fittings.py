@@ -42,7 +42,7 @@ perm_comp_view = perm_manager.get_permission('comphistory_view')
 perm_comp_unlimited = perm_manager.get_permission('comphistory_unlimited')
 
 
-def get_waitlist_entry_for_list(wl_id: int, creating_time: datetime, existing_entries: List[WaitlistEntry]) -> Tuple[bool, WaitlistEntry]:
+def get_waitlist_entry_for_list(wl_id: int, creating_time: datetime, existing_entries: List[WaitlistEntry], user) -> Tuple[bool, WaitlistEntry]:
     """Gets the corsponding waitlist entry or creates a new one
     The first entry of the tuple indicates if the entry was newly created
     """
@@ -51,9 +51,9 @@ def get_waitlist_entry_for_list(wl_id: int, creating_time: datetime, existing_en
             return False, entry
     entry = WaitlistEntry()
     entry.creation = creating_time  # for sorting entries
-    entry.user = entry.user  # associate a user with the entry
+    entry.user = user # associate a user with the entry
     entry.waitlist_id = wl_id
-    existing_entries.append(logi_entry)
+    existing_entries.append(entry)
     db.session.add(entry)
     return True, entry
 
@@ -112,7 +112,7 @@ def move_to_waitlists():
         event = FitRemovedSSE(entry.waitlist.group.groupID, entry.waitlist.id, entry.id, fit.id, entry.user)
         _sseEvents.append(event)
         entry.fittings.remove(fit)
-        is_new, new_entry = get_waitlist_entry_for_list(fit.targetWaitlistID, new_entry_timedate, waitlist_entries)
+        is_new, new_entry = get_waitlist_entry_for_list(fit.targetWaitlistID, new_entry_timedate, waitlist_entries, entry.user)
         new_entry.fittings.append(fit)
         # fits in a created entry will be sent out later a whole entry
         if is_new:
@@ -187,7 +187,7 @@ def api_move_fit_to_waitlist():
     if fit.waitlist is not None and wl_entry is not None and fit.waitlist.id == wl_entry.id:
         flask.abort(409, 'This fit was already moved')
 
-    is_entry_new, wl_entry = get_waitlist_entry_for_list(fit.targetWaitlistID, creation_time, [wl_entry] if wl_entry is not None else [])
+    is_entry_new, wl_entry = get_waitlist_entry_for_list(fit.targetWaitlistID, creation_time, [wl_entry] if wl_entry is not None else [], entry.user)
 
     # remove fit from old entry
     event = FitRemovedSSE(entry.waitlist.group.groupID, entry.waitlist_id, entry.id, fit.id, entry.user)

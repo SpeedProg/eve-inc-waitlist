@@ -10,7 +10,8 @@ from waitlist.data.names import WaitlistNames
 from waitlist.data.sse import EntryAddedSSE, send_server_sent_event,\
     FitAddedSSE
 from waitlist.storage.database import WaitlistGroup, WaitlistEntry, Shipfit,\
-    TeamspeakDatum, InvType, FitModule, MarketGroup, HistoryEntry
+    TeamspeakDatum, InvType, FitModule, MarketGroup, HistoryEntry, Waitlist,\
+    ShipCheckCollection
 from waitlist.storage.modules import resist_ships, logi_ships
 from waitlist.utility.history_utils import create_history_object
 from waitlist.utility.fitting_utils import get_fit_format, parse_dna_fitting,\
@@ -21,7 +22,7 @@ from flask_babel import gettext, ngettext
 from typing import Dict, List, Tuple
 from waitlist.utility.constants import location_flags, groups
 from waitlist.utility.settings import sget_active_ts_id
-from waitlist.utility.config import disable_teamspeak
+from waitlist.utility.config import disable_teamspeak, disable_scruffy_mode
 import operator
 
 logger = logging.getLogger(__name__)
@@ -60,24 +61,25 @@ def submit():
         current_user.poke_me = poke_me
         db.session.commit()
     # check if it is scruffy
-    if fittings.lower().startswith("scruffy"):
+    if not disable_scruffy_mode and fittings.lower().startswith("scruffy"):
         # scruffy mode scruffy
         fittings = fittings.lower()
         _, _, ship_type = fittings.rpartition(" ")
         ship_types = []
         # check for , to see if it is a multi value shiptype
+        allowed_types = [tpl[0].strip() for tpl in db.session.query(Waitlist.waitlistType).filter((~Waitlist.group.has(WaitlistGroup.queueID == Waitlist.id)) & (Waitlist.groupID == group_id))]
         if "," in ship_type:
             for stype in ship_type.split(","):
                 stype = stype.strip()
-                if stype == WaitlistNames.logi or stype == WaitlistNames.dps or stype == WaitlistNames.sniper:
+                if stype in allowed_types:
                     ship_types.append(stype)
         else:
-            if ship_type == WaitlistNames.logi or ship_type == WaitlistNames.dps or ship_type == WaitlistNames.sniper:
+            if ship_type in allowed_types:
                 ship_types.append(ship_type)
 
         # check if shiptype is valid
         if len(ship_types) <= 0:
-            flash(gettext("Valid entries are scruffy [dps|logi|sniper,..]"))
+            flash(gettext("Valid entries are scruffy %(types)s", types=','.join(allowed_types)), 'danger')
             return redirect(url_for('index'))
 
         queue = group.xuplist
@@ -93,10 +95,21 @@ def submit():
         h_entry = create_history_object(current_user.get_eve_id(), "xup")
 
         for stype in ship_types:
-            fit = Shipfit()
+            wl = db.session.query(Waitlist).filter(
+                (Waitlist.groupID == group_id) & (Waitlist.waitlistType == stype)
+            ).first()
+            target_wl_id = None
+            if wl is not None:
+                target_wl_id = wl.id
+            if target_wl_id is None:
+                target_wl_id = db.session.query(ShipCheckCollection).filter(
+                    (ShipCheckCollection.waitlistGroupID == group_id)
+                ).one().defaultTargetID
+            fit: Shipfit = Shipfit()
             fit.ship_type = 0  # #System >.>
             fit.wl_type = stype
             fit.modules = ':'
+            fit.targetWaitlistID = target_wl_id
             wl_entry.fittings.append(fit)
             if not _newEntryCreated:
                 _newFits.append(fit)
