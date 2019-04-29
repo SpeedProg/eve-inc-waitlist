@@ -1,4 +1,7 @@
 #Changelog
+* 1.7.2:
+  * Fixes:
+    * Allowed Corporations and Alliances to be whitelisted
 * 1.7.1:
   * Fixes:
     * Fixed broken migration files
