@@ -1,4 +1,7 @@
 #Changelog
+* 1.7.1:
+  * Fixes:
+    * Fixed broken migration files
 * 1.7.0:
   * Features:
     * Added UI and Database based sorting and tagging of fits
