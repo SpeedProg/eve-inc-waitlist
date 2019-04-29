@@ -4,6 +4,7 @@
     * Added UI and Database based sorting and tagging of fits
     * Added config option to have everyone banned by default, so only whitelisted characters have access
     * Added config option to disable scruffy mode disable->scruffy_mode
+    * Added config option to disable public api access without login disable->public_api
   * Improvements:
     * Some messages and pages related to Teamspeak are now hidden if TS is disabled or no configuration set
     * Implemented proper merging of base and user logger config because using pythons dictConfig really isn't very good
@@ -12,6 +13,10 @@
     * Updated minimum version of various python requirements
     * Made werkzeug a fix version requirement since it broke between 0.14 and 0.15 also updated to 0.15.2
     * Waitlists on frontpage now use part of the with instead of 1/4th (which made the 5th go into another row)
+    * Website titles now have the community_name config option at the end
+  * Fixes:
+    * Sending data with some from esi forwarded 204 response
+    * Wrong title on Help page
 * 1.6.5:
   * Improvements:
     * Added import of market groups
