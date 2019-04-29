@@ -13,7 +13,7 @@ from waitlist.utility.sde import update_invtypes
 
 # revision identifiers, used by Alembic.
 revision = 'dee8dcee93e4'
-down_revision = '5d4aee209354'
+down_revision = 'afa58b54a8fe'
 branch_labels = None
 depends_on = None
 
@@ -82,33 +82,7 @@ def upgrade():
     )
     op.add_column('fittings', sa.Column('target_waitlist', sa.Integer(), nullable=True))
     op.create_foreign_key(op.f('fk_fittings_target_waitlist_waitlists'), 'fittings', 'waitlists', ['target_waitlist'], ['id'], onupdate='CASCADE', ondelete='CASCADE')
-    # below here changes the ondelete, onupdate from Restrict to Cascade
-    op.drop_constraint('fk_invmarketgroups_parent_group_id_invmarketgroups', 'invmarketgroups', type_='foreignkey')
-    op.create_foreign_key(op.f('fk_invmarketgroups_parent_group_id_invmarketgroups'), 'invmarketgroups', 'invmarketgroups', ['parent_group_id'], ['market_group_id'], onupdate='CASCADE', ondelete='CASCADE')
-   
-    # adjust the type for the KF
-    op.alter_column('invtypes', 'market_group_id', type_=sa.Integer, existing_type=sa.BigInteger)
 
-    # now we actually need to make sure all of the ones we use FK to are up to date
-    # this updates market groups and inventory groups+categories
-    # only do this if there is any inventory data
-    market_count = db.session.query(sa.func.count(MarketGroup.marketGroupID)).scalar()
-    invgroup_count = db.session.query(sa.func.count(InvGroup.groupID)).scalar()
-    invcat_count = db.session.query(sa.func.count(InvCategory.categoryID)).scalar()
-    invtype_count = db.session.query(sa.func.count(InvType.typeID)).scalar()
-    print("Queried counts")
-    max_count = max(market_count, invgroup_count, invcat_count, invtype_count)
-    if max_count > 0:
-        print("We are updating all inventory data now, this can take a while")
-        update_invtypes()
-        print("Updating inventory data done")
-    else:
-        print("Empty database, no need to upgrade data")
-    db.session.remove()
-     # now we are ready to apply new FKs
-    op.create_foreign_key(op.f('fk_invtypes_market_group_id_invmarketgroups'), 'invtypes', 'invmarketgroups', ['market_group_id'], ['market_group_id'], onupdate='CASCADE', ondelete='CASCADE')
-
-    op.create_foreign_key(op.f('fk_invtypes_group_id_invgroup'), 'invtypes', 'invgroup', ['group_id'], ['group_id'], onupdate='CASCADE', ondelete='CASCADE')
     op.add_column('waitlist_groups', sa.Column('queueID', sa.Integer(), nullable=True))
     wl_groups = db.session.query(WaitlistGroup).all()
     for wl_group in wl_groups:
@@ -140,11 +114,6 @@ def downgrade():
                     existing_nullable=True)
     op.drop_constraint(op.f('fk_waitlist_groups_queueID_waitlists'), 'waitlist_groups', type_='foreignkey')
     op.drop_column('waitlist_groups', 'queueID')
-    op.drop_constraint(op.f('fk_invtypes_group_id_invgroup'), 'invtypes', type_='foreignkey')
-    op.drop_constraint(op.f('fk_invtypes_market_group_id_invmarketgroups'), 'invtypes', type_='foreignkey')
-    op.alter_column('invtypes', 'market_group_id', _type=sa.BigInteger, existing_type=sa.Integer)
-    op.drop_constraint(op.f('fk_invmarketgroups_parent_group_id_invmarketgroups'), 'invmarketgroups', type_='foreignkey')
-    op.create_foreign_key('fk_invmarketgroups_parent_group_id_invmarketgroups', 'invmarketgroups', 'invmarketgroups', ['parent_group_id'], ['market_group_id'])
     op.drop_constraint(op.f('fk_fittings_target_waitlist_waitlists'), 'fittings', type_='foreignkey')
     op.drop_column('fittings', 'target_waitlist')
     op.drop_table('ship_check_rest_marketgroups')
