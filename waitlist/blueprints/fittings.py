@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Tuple
 
 from flask import json
 from flask.blueprints import Blueprint
@@ -42,12 +42,27 @@ perm_comp_view = perm_manager.get_permission('comphistory_view')
 perm_comp_unlimited = perm_manager.get_permission('comphistory_unlimited')
 
 
+def get_waitlist_entry_for_list(wl_id: int, creating_time: datetime, existing_entries: List[WaitlistEntry], user) -> Tuple[bool, WaitlistEntry]:
+    """Gets the corsponding waitlist entry or creates a new one
+    The first entry of the tuple indicates if the entry was newly created
+    """
+    for entry in existing_entries:
+        if entry.waitlist_id == wl_id:
+            return False, entry
+    entry = WaitlistEntry()
+    entry.creation = creating_time  # for sorting entries
+    entry.user = user # associate a user with the entry
+    entry.waitlist_id = wl_id
+    existing_entries.append(entry)
+    db.session.add(entry)
+    return True, entry
+
 @bp_waitlist.route("/move_to_waitlist", methods=["POST"])
 @login_required
 @perm_fleet_manage.require(http_exception=401)
 def move_to_waitlists():
     """
-    Move a whole entry to a the corresponding waitlists
+    Move a whole entry to the corresponding waitlists
     """
 
     # variables for SSE spawning
@@ -75,23 +90,6 @@ def move_to_waitlists():
     waitlist_entries = db.session.query(WaitlistEntry) \
         .filter((WaitlistEntry.user == entry.user) & WaitlistEntry.waitlist_id.in_(waitlist_ids)).all()
 
-    logi_entry = None
-    sniper_entry = None
-    dps_entry = None
-    other_entry = None
-    if len(waitlist_entries) > 0:  # there are actually existing entries
-        # if there are existing wl entries assign them to appropriate variables
-        for wl in waitlist_entries:
-            if wl.waitlist.name == WaitlistNames.logi:
-                logi_entry = wl
-                continue
-            if wl.waitlist.name == WaitlistNames.dps:
-                dps_entry = wl
-                continue
-            if wl.waitlist.name == WaitlistNames.sniper:
-                sniper_entry = wl
-            elif wl.waitlist.name == WaitlistNames.other:
-                other_entry = wl
 
     # find out what timestamp a possibly new entry should have
     # rules are: if no wl entry, take timestamp of x-up
@@ -102,125 +100,28 @@ def move_to_waitlists():
         if entry_t.creation < new_entry_timedate:
             new_entry_timedate = entry_t.creation
 
-    # sort fittings by ship type
-    logi = []
-    dps = []
-    sniper = []
-    other = []
     h_entry = create_history_object(entry.user, HistoryEntry.EVENT_COMP_MV_XUP_ETR, current_user.id)
     for fit in entry.fittings:
         if fit.id not in fit_ids:
             continue
         h_entry.fittings.append(fit)
 
-    fits_to_remove = []
+    fit_list = [fit for fit in entry.fittings]
 
-    for fit in entry.fittings:
-        if fit.id not in fit_ids:
-            logger.info("Skipping %s because not in %s", fit, fit_ids)
-            continue
-        logger.info("Sorting fit %s by type into %s", str(fit), fit.wl_type)
-
-        if fit.wl_type == WaitlistNames.logi:
-            logi.append(fit)
-        elif fit.wl_type == WaitlistNames.dps:
-            dps.append(fit)
-        elif fit.wl_type == WaitlistNames.sniper:
-            sniper.append(fit)
-        elif fit.wl_type == WaitlistNames.other:
-            other.append(fit)
-        else:
-            logger.error("Failed to add %s do a waitlist.", fit)
-
-        fits_to_remove.append(fit)
-
-    for fit in fits_to_remove:
+    for fit in fit_list:
         event = FitRemovedSSE(entry.waitlist.group.groupID, entry.waitlist.id, entry.id, fit.id, entry.user)
         _sseEvents.append(event)
         entry.fittings.remove(fit)
-
-    # we have a logi fit but no logi wl entry, so create one
-    if len(logi) and logi_entry is None:
-        logi_entry = WaitlistEntry()
-        logi_entry.creation = new_entry_timedate  # for sorting entries
-        logi_entry.user = entry.user  # associate a user with the entry
-        group.logilist.entries.append(logi_entry)
-        _createdEntriesList.append(logi_entry)
-
-    # same for dps
-    if len(dps) and dps_entry is None:
-        dps_entry = WaitlistEntry()
-        dps_entry.creation = new_entry_timedate  # for sorting entries
-        dps_entry.user = entry.user  # associate a user with the entry
-        group.dpslist.entries.append(dps_entry)
-        _createdEntriesList.append(dps_entry)
-
-    # and sniper
-    if len(sniper) and sniper_entry is None:
-        sniper_entry = WaitlistEntry()
-        sniper_entry.creation = new_entry_timedate  # for sorting entries
-        sniper_entry.user = entry.user  # associate a user with the entry
-        group.sniperlist.entries.append(sniper_entry)
-        _createdEntriesList.append(sniper_entry)
-
-    # and other if other exists
-    if len(other) and other_entry is None and group.otherlist is not None:
-        other_entry = WaitlistEntry()
-        other_entry.creation = new_entry_timedate  # for sorting entries
-        other_entry.user = entry.user  # associate a user with the entry
-        group.otherlist.entries.append(other_entry)
-        _createdEntriesList.append(other_entry)
-
-    # iterate over sorted fits and add them to their entry
-    for logifit in logi:
-        logi_entry.fittings.append(logifit)
-
-    if logi_entry not in _createdEntriesList:
-        for fit in logi:
-            event = FitAddedSSE(group.groupID, logi_entry.waitlist_id, logi_entry.id, fit, False, logi_entry.user)
+        is_new, new_entry = get_waitlist_entry_for_list(fit.targetWaitlistID, new_entry_timedate, waitlist_entries, entry.user)
+        new_entry.fittings.append(fit)
+        # fits in a created entry will be sent out later a whole entry
+        if is_new:
+            _createdEntriesList.append(new_entry)
+        else:
+            event = FitAddedSSE(group.grouID, new_entry.waitlist_id, new_entry.id, fit, False, new_entry.user)
             _sseEvents.append(event)
 
-    for dpsfit in dps:
-        dps_entry.fittings.append(dpsfit)
 
-    if dps_entry not in _createdEntriesList:
-        for fit in dps:
-            event = FitAddedSSE(group.groupID, dps_entry.waitlist_id, dps_entry.id, fit, False, dps_entry.user)
-            _sseEvents.append(event)
-
-    for sniperfit in sniper:
-        sniper_entry.fittings.append(sniperfit)
-
-    if sniper_entry not in _createdEntriesList:
-        for fit in sniper:
-            event = FitAddedSSE(group.groupID, sniper_entry.waitlist_id, sniper_entry.id, fit, False, sniper_entry.user)
-            _sseEvents.append(event)
-
-    # if there is no other list sort other fits in dps
-    if group.otherlist is not None:
-        for otherfit in other:
-            other_entry.fittings.append(otherfit)
-
-        if other_entry not in _createdEntriesList:
-            for fit in other:
-                event = FitAddedSSE(group.groupID, other_entry.waitlist_id, other_entry.id,
-                                    fit, False, other_entry.user)
-                _sseEvents.append(event)
-    else:
-        # it fits should go to dps wl make sure it is there
-        if len(other) > 0 and dps_entry is None:
-            dps_entry = WaitlistEntry()
-            dps_entry.creation = new_entry_timedate  # for sorting entries
-            dps_entry.user = entry.user  # associate a user with the entry
-            group.dpslist.entries.append(dps_entry)
-            _createdEntriesList.append(dps_entry)
-        for otherfit in other:
-            dps_entry.fittings.append(otherfit)
-
-        if dps_entry not in _createdEntriesList:
-            for fit in other:
-                event = FitAddedSSE(group.groupID, dps_entry.waitlist_id, dps_entry.id, fit, False, dps_entry.user)
-                _sseEvents.append(event)
 
     # add history entry to db
     db.session.add(h_entry)
@@ -264,19 +165,7 @@ def api_move_fit_to_waitlist():
 
     logger.info("%s approved fit %s from %s", current_user.username, fit, entry.user_data.get_eve_name())
 
-    # get the entry for the wl we need
-    waitlist = None
-    if fit.wl_type == WaitlistNames.logi:
-        waitlist = group.logilist
-    elif fit.wl_type == WaitlistNames.dps:
-        waitlist = group.dpslist
-    elif fit.wl_type == WaitlistNames.sniper:
-        waitlist = group.sniperlist
-    elif fit.wl_type == WaitlistNames.other:
-        if group.otherlist is not None:
-            waitlist = group.otherlist
-        else:
-            waitlist = group.dpslist
+    waitlist = fit.targetWaitlist
 
     waitlist_ids: List[int] = []
     for wl in group.waitlists:
@@ -298,13 +187,7 @@ def api_move_fit_to_waitlist():
     if fit.waitlist is not None and wl_entry is not None and fit.waitlist.id == wl_entry.id:
         flask.abort(409, 'This fit was already moved')
 
-    new_entry = False
-    # if it doesn't exist create it
-    if wl_entry is None:
-        wl_entry = WaitlistEntry()
-        wl_entry.creation = creation_time
-        wl_entry.user = entry.user
-        new_entry = True
+    is_entry_new, wl_entry = get_waitlist_entry_for_list(fit.targetWaitlistID, creation_time, [wl_entry] if wl_entry is not None else [], entry.user)
 
     # remove fit from old entry
     event = FitRemovedSSE(entry.waitlist.group.groupID, entry.waitlist_id, entry.id, fit.id, entry.user)
@@ -313,7 +196,7 @@ def api_move_fit_to_waitlist():
 
     # add the fit to the entry
     wl_entry.fittings.append(fit)
-    if not new_entry:
+    if not is_entry_new:
         event = FitAddedSSE(wl_entry.waitlist.group.groupID, wl_entry.waitlist_id,
                             wl_entry.id, fit, False, wl_entry.user)
         send_server_sent_event(event)
@@ -322,7 +205,7 @@ def api_move_fit_to_waitlist():
     h_entry = create_history_object(entry.user, HistoryEntry.EVENT_COMP_MV_XUP_FIT, current_user.id, [fit])
     db.session.add(h_entry)
 
-    if new_entry:
+    if is_entry_new:
         waitlist.entries.append(wl_entry)
 
     db.session.commit()
@@ -332,7 +215,7 @@ def api_move_fit_to_waitlist():
         db.session.commit()
         send_server_sent_event(event)
 
-    if new_entry:
+    if is_entry_new:
         event = EntryAddedSSE(wl_entry, wl_entry.waitlist.group.groupID, wl_entry.waitlist_id, False)
         send_server_sent_event(event)
 

@@ -10,18 +10,19 @@ from waitlist.data.names import WaitlistNames
 from waitlist.data.sse import EntryAddedSSE, send_server_sent_event,\
     FitAddedSSE
 from waitlist.storage.database import WaitlistGroup, WaitlistEntry, Shipfit,\
-    InvType, FitModule, MarketGroup, HistoryEntry
-from waitlist.storage.modules import resist_ships, logi_ships, sniper_ships,\
-    sniper_weapons, dps_weapons, weapongroups, dps_ships, t3c_ships
+    TeamspeakDatum, InvType, FitModule, MarketGroup, HistoryEntry, Waitlist,\
+    ShipCheckCollection
+from waitlist.storage.modules import resist_ships, logi_ships
 from waitlist.utility.history_utils import create_history_object
 from waitlist.utility.fitting_utils import get_fit_format, parse_dna_fitting,\
-    parse_eft, is_logi_hull, is_allowed_hull, is_dps_by_group,\
-    is_sniper_by_group, get_weapon_type_by_typeid, get_waitlist_type_by_ship_typeid
+    parse_eft, get_waitlist_type_for_fit
 from waitlist.base import db
 from . import bp
 from flask_babel import gettext, ngettext
 from typing import Dict, List, Tuple
 from waitlist.utility.constants import location_flags, groups
+from waitlist.utility.settings import sget_active_ts_id
+from waitlist.utility.config import disable_teamspeak, disable_scruffy_mode
 import operator
 
 logger = logging.getLogger(__name__)
@@ -60,24 +61,25 @@ def submit():
         current_user.poke_me = poke_me
         db.session.commit()
     # check if it is scruffy
-    if fittings.lower().startswith("scruffy"):
+    if not disable_scruffy_mode and fittings.lower().startswith("scruffy"):
         # scruffy mode scruffy
         fittings = fittings.lower()
         _, _, ship_type = fittings.rpartition(" ")
         ship_types = []
         # check for , to see if it is a multi value shiptype
+        allowed_types = [tpl[0].strip() for tpl in db.session.query(Waitlist.waitlistType).filter((~Waitlist.group.has(WaitlistGroup.queueID == Waitlist.id)) & (Waitlist.groupID == group_id))]
         if "," in ship_type:
             for stype in ship_type.split(","):
                 stype = stype.strip()
-                if stype == WaitlistNames.logi or stype == WaitlistNames.dps or stype == WaitlistNames.sniper:
+                if stype in allowed_types:
                     ship_types.append(stype)
         else:
-            if ship_type == WaitlistNames.logi or ship_type == WaitlistNames.dps or ship_type == WaitlistNames.sniper:
+            if ship_type in allowed_types:
                 ship_types.append(ship_type)
 
         # check if shiptype is valid
         if len(ship_types) <= 0:
-            flash(gettext("Valid entries are scruffy [dps|logi|sniper,..]"))
+            flash(gettext("Valid entries are scruffy %(types)s", types=','.join(allowed_types)), 'danger')
             return redirect(url_for('index'))
 
         queue = group.xuplist
@@ -93,10 +95,21 @@ def submit():
         h_entry = create_history_object(current_user.get_eve_id(), "xup")
 
         for stype in ship_types:
-            fit = Shipfit()
+            wl = db.session.query(Waitlist).filter(
+                (Waitlist.groupID == group_id) & (Waitlist.waitlistType == stype)
+            ).first()
+            target_wl_id = None
+            if wl is not None:
+                target_wl_id = wl.id
+            if target_wl_id is None:
+                target_wl_id = db.session.query(ShipCheckCollection).filter(
+                    (ShipCheckCollection.waitlistGroupID == group_id)
+                ).one().defaultTargetID
+            fit: Shipfit = Shipfit()
             fit.ship_type = 0  # #System >.>
             fit.wl_type = stype
             fit.modules = ':'
+            fit.targetWaitlistID = target_wl_id
             wl_entry.fittings.append(fit)
             if not _newEntryCreated:
                 _newFits.append(fit)
@@ -239,71 +252,17 @@ def submit():
 
     eve_id = current_user.get_eve_id()
 
-    # query to check if sth is a weapon module
-    '''
-    SELECT count(1) FROM invtypes
-    JOIN invmarketgroups AS weapongroup ON invtypes.marketGroupID = weapongroup.marketGroupID
-    JOIN invmarketgroups AS wcat ON weapongroup.parentGroupID = wcat.marketGroupID
-    JOIN invmarketgroups AS mcat ON wcat.parentGroupID = mcat.marketGroupID
-    WHERE invtypes.typeName = ? AND mcat.parentGroupID = 10;/*10 == Turrets & Bays*/
-    '''
-
     fits_ready = []
 
     # split his fits into types for the different waitlist_entries
     for fit in fits:
-        mod_list: List[Dict[int, Tuple(int, int)]]
-        try:
-            mod_list = parse_dna_fitting(fit.modules)
-        except ValueError:
-            abort(400, "Invalid module amounts")
-        # check that ship is an allowed ship
+        tag, waitlist_id = get_waitlist_type_for_fit(fit, group_id)
+        fit.wl_type = tag 
+        fit.targetWaitlistID = waitlist_id
+        fits_ready.append(fit)
 
-        # it is a logi put on logi wl
-        if is_logi_hull(fit.ship_type):
-            fit.wl_type = WaitlistNames.logi
-            fits_ready.append(fit)
-            continue
-
-        is_allowed = is_allowed_hull(fit.ship_type)
-
-        if not is_allowed:  # not an allowed ship, push it on other list :P
-            fit.wl_type = WaitlistNames.other
-            fits_ready.append(fit)
-            continue
-
-        possible_weapon_types = dict()
-        # lets collect all weapons, no matter the amount
-        # then categorize them
-        # and choose the category with the most weapons
-        
-        high_slot_mod_map = mod_list[location_flags.HIGH_SLOT]
-        for mod in high_slot_mod_map:
-            weapon_type = get_weapon_type_by_typeid(mod)
-            if (weapon_type is not None):
-                if weapon_type not in possible_weapon_types:
-                    possible_weapon_types[weapon_type] = 0
-
-                possible_weapon_types[weapon_type] += high_slot_mod_map[mod][1]
-
-        weapon_type = max(possible_weapon_types.items(), key=operator.itemgetter(1), default=(None, None))[0]
-        if weapon_type is None:
-            weapon_type = get_waitlist_type_by_ship_typeid(fit.ship_type)
-
-        if weapon_type is None:
-            fit.wl_type = WaitlistNames.other
-            fits_ready.append(fit)
-            continue
-        else:
-            fit.wl_type = weapon_type
-            fits_ready.append(fit)
-            continue
-
-    """
-    #this stuff is needed somewhere else now
     # get the waitlist entries of this user
 
-    """
     queue = group.xuplist
     wl_entry = db.session.query(WaitlistEntry).filter(
         (WaitlistEntry.waitlist_id == queue.id) & (WaitlistEntry.user == eve_id)).first()
@@ -351,7 +310,12 @@ def index():
         .order_by(WaitlistGroup.ordering).first()
     # noinspection PyPep8
     activegroups = db.session.query(WaitlistGroup).filter(WaitlistGroup.enabled == True).all()
-    return render_template("xup.html", newbro=new_bro, group=defaultgroup, groups=activegroups)
+    ts_settings = None
+    ts_id = sget_active_ts_id()
+    if not disable_teamspeak and ts_id is not None:
+        ts_settings = db.session.query(TeamspeakDatum).get(ts_id)
+    return render_template("xup.html", newbro=new_bro, group=defaultgroup,
+                           groups=activegroups, ts=ts_settings)
 
 
 @bp.route("/<int:fit_id>", methods=['GET'])
@@ -364,8 +328,14 @@ def update(fit_id: int):
         .order_by(WaitlistGroup.ordering).first()
     # noinspection PyPep8
     activegroups = db.session.query(WaitlistGroup).filter(WaitlistGroup.enabled == True).all()
+    ts_settings = None
+    ts_id = sget_active_ts_id()
+    if ts_id is not None:
+        ts_settings = db.session.query(TeamspeakDatum).get(ts_id)
+
     return render_template("xup.html", newbro=new_bro, group=defaultgroup,
-                           groups=activegroups, update=True, oldFitID=fit_id)
+                           groups=activegroups, update=True, oldFitID=fit_id,
+                           ts=ts_settings)
 
 
 @bp.route("/update", methods=['POST'])

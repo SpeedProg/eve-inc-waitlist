@@ -3,6 +3,7 @@ from typing import Optional, Tuple
 from esipy import EsiClient
 
 from waitlist.utility import outgate
+from waitlist.utility.config import banned_by_default
 from waitlist.utility.sde import add_type_by_id_to_database
 from waitlist.storage.database import Constellation, SolarSystem, Station,\
     InvType, Account, Character, Ban, Whitelist
@@ -163,24 +164,32 @@ def is_char_banned(char: Character) -> Tuple[bool, str]:
             return True, "Character"
 
         corp_id, alli_id = outgate.character.get_affiliations(char.get_eve_id())
-        # if he is on whitelist let him pass
-        
-        corp_banned = is_charid_banned(corp_id)
-        alli_banned = is_charid_banned(alli_id)
 
-        if is_charid_whitelisted(corp_id):
+        if banned_by_default:
+            if is_charid_whitelisted(corp_id):
                 return False, ""
-        
-        if corp_banned:
-            return True, "Corporation"
-        
-        if is_charid_whitelisted(alli_id):
+            if is_charid_banned(corp_id):
+                return True, "Corporation"
+            if is_charid_whitelisted(alli_id):
                 return False, ""
-        
-        if alli_banned:
-            return True, "Alliance"
-        
-        return False, ""
+            return True, "Everyone Banned by default"
+        else:
+            corp_banned = is_charid_banned(corp_id)
+            alli_banned = is_charid_banned(alli_id)
+
+            if is_charid_whitelisted(corp_id):
+                    return False, ""
+
+            if corp_banned:
+                return True, "Corporation"
+
+            if is_charid_whitelisted(alli_id):
+                    return False, ""
+
+            if alli_banned:
+                return True, "Alliance"
+
+            return False, ""
     except ApiException as e:
         logger.info("Failed to check if %d was banned, because of Api error, code=%d msg=%s",
                     char.get_eve_id(), e.code, e.msg)

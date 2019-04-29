@@ -28,10 +28,12 @@
 	</select>
 </fieldset>
 {% endif %}
+{% if ts %}
 <label>
   <input type="checkbox" name="pokeMe" value="on"{% if current_user.poke_me %} checked{% endif %}>
   {{ _('Poke me on TS (exact charactername required, case sensitive)') }}
 </label>
+{% endif %}
 <fieldset class="form-group">
 <label for="fittings">{{ _('Fittings') }}</label>
 <textarea class="form-control" id="fittings" name="fits" rows="10" cols="50" placeholder="Post your fittings here" required></textarea>
