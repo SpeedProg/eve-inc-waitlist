@@ -7,14 +7,22 @@ from waitlist.storage.database import WaitlistGroup, Waitlist
 from flask import jsonify
 from waitlist.utility.json import make_json_groups, make_json_group, make_json_waitlists_base_data,\
  make_json_waitlist_base_data
+from waitlist.utility.config import disable_public_api
 import flask
-from flask_login import current_user
+from flask_login import current_user, login_required
 from flask.globals import request
 from flask_limiter.util import get_ipaddr
 from urllib.parse import urlencode
 
 bp = Blueprint('api_waitlists', __name__)
 logger = logging.getLogger(__name__)
+
+
+def api_login_required(f):
+    """If we require login apply the check"""
+    if disable_public_api:
+      return login_required(f)
+    return f
 
 
 def get_ratekey_func_with_arguments(arglist):
@@ -35,7 +43,8 @@ class WaitlistGroupsAPI(MethodView):
     decorators = [
         limiter.limit("1/minute", key_func=get_ratekey_func_with_arguments(['group_id']),
                       exempt_when=lambda: current_user.is_authenticated),
-        limiter.limit("5/minute", exempt_when=lambda: current_user.is_authenticated)
+        limiter.limit("5/minute", exempt_when=lambda: current_user.is_authenticated),
+        api_login_required
     ]
 
     @classmethod
@@ -54,7 +63,8 @@ class WaitlistBaseDataAPI(MethodView):
     decorators = [
         limiter.limit("1/minute", key_func=get_ratekey_func_with_arguments(['waitlist_id']),
                       exempt_when=lambda: current_user.is_authenticated),
-        limiter.limit("5/minute", exempt_when=lambda: current_user.is_authenticated)
+        limiter.limit("5/minute", exempt_when=lambda: current_user.is_authenticated),
+        api_login_required
     ]
 
     @classmethod

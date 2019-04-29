@@ -100,7 +100,7 @@ waitlist.listdom = (function(){
 		case "other":
 			return "OTHER";
 		default:
-			return "UNKNOWN";
+			return jsonFit.wl_type;
 		}
 	}
 	
