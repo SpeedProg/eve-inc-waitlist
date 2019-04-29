@@ -1,13 +1,15 @@
-from waitlist.utility.constants import location_flags, effects
-from typing import List, Dict, Optional
-from waitlist.storage.database import InvType, Shipfit, FitModule, MarketGroup
+import operator
+from decimal import Decimal
+from sqlalchemy import literal
+from waitlist.utility.constants import location_flags, effects, check_types
+from typing import List, Dict, Optional, Tuple, AbstractSet, Union
+from waitlist.storage.database import InvType, Shipfit, FitModule,\
+    MarketGroup, ShipCheckCollection, ShipCheck, Waitlist, InvGroup
 from waitlist.base import db
 from waitlist.data.names import WaitlistNames
 import logging
 import re
 from waitlist.utility.eve_id_utils import get_item_id
-from waitlist.storage.modules import logi_ships, logi_groups, none_logi_ships,\
-    dps_groups, sniper_groups, sniper_weapons, dps_weapons, weapongroups
 
 logger = logging.getLogger(__name__)
 
@@ -278,83 +280,187 @@ def get_fit_format(line):
         return "dna"
 
 
-def is_logi_hull(type_id: int):
-    if type_id in logi_ships:
-        return True
-    inv_type: InvType = db.session.query(InvType).get(type_id)
-    if inv_type.groupID in logi_groups and type_id not in none_logi_ships:
-        return True
-    return False
-
-
-def is_allowed_hull(type_id: int):
-    if type_id in none_logi_ships or type_id in logi_ships:
-        return True
-    inv_type: InvType = db.session.query(InvType).get(type_id)
-    if inv_type.groupID in logi_groups or (
-        inv_type.groupID in dps_groups) or (
-            inv_type.groupID in sniper_groups):
-        return True
-    return False
-
-
-def is_dps_by_group(type_id: int):
-    inv_type: InvType = db.session.query(InvType).get(type_id)
-    if inv_type.groupID in dps_groups:
-        return True
-    return False
-
-
-def is_sniper_by_group(type_id: int):
-    inv_type: InvType = db.session.query(InvType).get(type_id)
-    if inv_type.groupID in sniper_groups:
-        return True
-    return False
-
-def get_weapon_type_by_typeid(type_id: int):
-    """Get the weapon_type for the given type_id
-    Returns: WaitlistNames.dps, WaitlistNames.sniper, WaitlistNames.logi or None
+def get_waitlist_type_for_ship_type(checks: List[ShipCheck], ship_type_id: int) -> Optional[Tuple[str, int]]:
+    """ Get a tag, waitlist id tuple or None if no check applies
     """
-    inv_type: InvType = db.session.query(InvType).get(type_id)
-    if inv_type is None:
-        logger.debug('TypeId = %d does not exist', type_id)
-        return None
+    logger.debug('Got ship_type %d', ship_type_id)
 
-    if inv_type.group.groupName == 'Precursor Weapon':
-        return WaitlistNames.dps
-    if type_id in sniper_weapons:
-        return WaitlistNames.sniper
+    ship_type: InvType = db.session.query(InvType).get(ship_type_id)
+    # collect market groups
+    market_group_ids = []
+    m_group: MarketGroup = ship_type.market_group
+    while m_group is not None:
+        market_group_ids.append(m_group.marketGroupID)
+        m_group = m_group.parent
+    logger.debug('Found marketgroups: %r', market_group_ids)
 
-    if type_id in dps_weapons:
-        return WaitlistNames.dps
-
-    if inv_type.group.groupName in ['Remote Shield Booster',
-                                    'Remote Armor Repairer']:
-        return WaitlistNames.logi
-
-    # try to decide by market group
-    market_group = db.session.query(MarketGroup).get(
-        inv_type.marketGroupID)
-    if market_group is not None:
-        parent_group = db.session.query(MarketGroup).get(
-            market_group.parentGroupID)
-        if parent_group is not None:
-            # we have a parent market group
-            if parent_group.marketGroupName in weapongroups['dps']:
-                return WaitlistNames.dps
-            if parent_group.marketGroupName in weapongroups['sniper']:
-                return WaitlistNames.sniper
-    
+    for check in checks:
+        logger.debug('Doing Check %s of type  %d', check.checkName, check.checkType)
+        if check.checkType == check_types.SHIP_CHECK_TYPEID:
+            if db.session.query(check.check_types.filter(InvType.typeID == ship_type.typeID).exists()).scalar():
+                return check.checkTag, check.checkTargetID
+        elif check.checkType == check_types.SHIP_CHECK_INVGROUP:
+            if db.session.query(check.check_groups.filter(InvGroup.groupID == ship_type.groupID).exists()).scalar():
+                return check.checkTag, check.checkTargetID
+        elif check.checkType == check_types.SHIP_CHECK_MARKETGROUP:
+            if db.session.query(check.check_market_groups.filter(MarketGroup.marketGroupID.in_(market_group_ids)).exists()).scalar():
+                return check.checkTag, check.checkTargetID
+    logger.debug('No match found for ship_type')
     return None
 
-def get_waitlist_type_by_ship_typeid(type_id: int):
-    """Get the waitlist type by ship type id
-       returns WaitlistNames.dps, WaitlistNames.sniper or None
+def get_market_groups(inv_type: InvType) -> List[int]:
+    group_ids: List[int] = []
+    m_group: MarketGroup = inv_type.market_group
+    while m_group is not None:
+        group_ids.append(m_group.marketGroupID)
+        m_group = m_group.parent
+    return group_ids
+
+
+def does_check_apply(check: ShipCheck, ship_type_id: int) -> bool:
+    invtype: InvType = db.session.query(InvType).get(ship_type_id)
+    has_restriction = False
+    if len(check.check_rest_types) > 0:
+        has_restriction = True
+        for itype in check.check_rest_types:
+            if itype.typeID == ship_type_id:
+                return True
+    if len(check.check_rest_groups) > 0:
+        has_restriction = True
+        for igroup in checks.check_rest_groups:
+            if igroup.groupID == invtype.groupID:
+                return True
+    market_groups = get_market_groups(invtype)
+    if len(check.check_rest_market_groups) > 0:
+        has_restriction = True
+        for mgroup in checks.check_rest_market_groups:
+            if mgroup.marketGroupID in market_groups:
+                return True
+
+    return not has_restriction
+
+def get_waitlist_type_for_modules(checks: List[ShipCheck], fit: Shipfit) -> Optional[Tuple[int, Tuple[Decimal, AbstractSet[str]]]]:
+    """Get a tuple of module type id, amount, set of tags for the module with the highest value
+    Or None if no check applied
     """
-    # ships with no valid weapons put on other wl
-    if is_dps_by_group(type_id):
-        return WaitlistNames.dps
-    elif is_sniper_by_group(type_id):
-        return WaitlistNames.sniper
-    return None
+    logger.debug('Doing modules check with checks %r', checks)
+    mod_list: List[Dict[int, Tuple(int, int)]] = parse_dna_fitting(fit.modules)
+    high_slot_modules = mod_list[location_flags.HIGH_SLOT]
+    logger.debug('Module list %r', mod_list)
+    mod_ids = [mod_id for mod_id in high_slot_modules]
+    logger.debug('Moudle ids: %r', mod_ids)
+    # prepare marketgroup list for every module, we need it later on
+    market_groups = dict()
+    for mod_id in mod_ids:
+        if mod_id not in market_groups:
+            invtype: InvType = db.session.query(InvType).get(mod_id)
+            market_groups[mod_id] = get_market_groups(invtype)
+
+    logger.debug('Market groups: %r', market_groups)
+    # for modules we need to hit every module once or never
+    # never only if there is no rule for it!
+    # so after getting a rule hit on a module, remove the module
+    result_count_map: Dict[int, List[Union[Decimal, Set[str]]]] = dict()
+    for check in checks:
+        # lets see if this check applies to this ship
+        if not does_check_apply(check, fit.ship_type):
+            continue
+
+        logger.debug('Doing check %s with type %d and target %s and mods %r', check.checkName, check.checkType, check.checkTarget.waitlistType, mod_ids)
+        if check.checkTargetID not in result_count_map:
+            result_count_map[check.checkTargetID] = [Decimal("0.00"), set()]
+        modifier = Decimal("1.00") if check.modifier is None else check.modifier
+        if check.checkType == check_types.MODULE_CHECK_TYPEID:
+            remaining_mods = []
+            type_ids = {type_obj.typeID for type_obj in check.check_types}
+            logger.debug('Matching TypeIDs: %r', type_ids)
+            for mod_id in mod_ids:
+                if mod_id in type_ids:
+                    logger.debug('Match found for %d', mod_id)
+                    result_count_map[check.checkTargetID][0] += Decimal(high_slot_modules[mod_id][1]) * modifier
+                    result_count_map[check.checkTargetID][1].add(check.checkTag)
+                else:
+                    remaining_mods.append(mod_id)
+            mod_ids = remaining_mods
+        elif check.checkType == check_types.MODULE_CHECK_MARKETGROUP:
+            remaining_mods = []
+            group_ids = {group_obj.marketGroupID for group_obj in check.check_market_groups}
+            logger.debug('Market Groups for check: %r', group_ids)
+            for mod_id in mod_ids:
+                mgs_for_mod = set(market_groups[mod_id])
+                logger.debug('MarketGroups for Mod %d are %r', mod_id, mgs_for_mod)
+                if len(mgs_for_mod.intersection(group_ids)) > 0:
+                    result_count_map[check.checkTargetID][0] += Decimal(high_slot_modules[mod_id][1]) * modifier
+                    result_count_map[check.checkTargetID][1].add(check.checkTag)
+                else:
+                    remaining_mods.append(mod_id)
+            mod_ids = remaining_mods
+    logger.debug('Result Map: %r', result_count_map)
+    return max(result_count_map.items(), key=lambda tpl: tpl[1][0], default=None)
+
+def get_waitlist_type_for_fit(fit: Shipfit, waitlist_group_id: int) -> Tuple[str, int]:
+    """Get a tag, waitlist_id tuple for this fit
+    """
+    # modlist[SLOT_INDEX][TYPE_ID][TYPE_ID][AMOUNT]
+    logger.debug('Check fit %r against rules for group %d', fit, waitlist_group_id)
+    check_collection: ShipCheckCollection = db.session.query(ShipCheckCollection).filter(
+        ShipCheckCollection.waitlistGroupID == waitlist_group_id
+    ).one()
+
+    """
+    This should work by:
+      * Checks with same priority for modules are done in 1 go
+      * For Ship Type and Module checks with same priority the module check is done before the shiptype
+    """
+    # we build a list of checks to execute
+    # List[Tuple[module_checks, ship_checks]]
+    checks_list: List[Tuple[List[ShipCheck], List[ShipCheck]]] = []
+    current_order = None
+    module_checks = None
+    ship_type_checks = None
+    for check in check_collection.checks:
+        if current_order is None:
+            current_order = check.order
+            module_checks = []
+            ship_type_checks = []
+        elif current_order < check.order:
+            current_order = check.order
+            checks_list.append((
+                module_checks,
+                ship_type_checks
+            ))
+            module_checks = []
+            ship_type_checks = []
+
+        if check.checkType in [check_types.MODULE_CHECK_MARKETGROUP, check_types.MODULE_CHECK_TYPEID]:
+            module_checks.append(check)
+        elif check.checkType in [check_types.SHIP_CHECK_INVGROUP, check_types.SHIP_CHECK_TYPEID, check_types.SHIP_CHECK_MARKETGROUP]:
+            ship_type_checks.append(check)
+
+    # add the lowest priorty checks those do not get added by the for loop
+    checks_list.append((module_checks, ship_type_checks))
+
+    logger.debug("Check Structure: %r", checks_list)
+
+    ship_wl_id = None
+    tag = None
+    for check_tuple in checks_list:
+        module_data: Optional[Tuple[int, Tuple[Decimal, AbstractSet[str]]]] = get_waitlist_type_for_modules(check_tuple[0], fit)
+        if module_data is not None and module_data[1][0] >= Decimal("4.00"):
+            ship_wl_id = module_data[0]
+            if len(module_data[1][1]) > 0:
+                tag = module_data[1][1].pop()
+            break
+        ship_data = get_waitlist_type_for_ship_type(check_tuple[1], fit.ship_type)
+        if ship_data is not None:
+            tag = ship_data[0]
+            ship_wl_id = ship_data[1]
+            break
+
+    if ship_wl_id is None:
+        ship_wl_id = check_collection.defaultTarget.id
+    if tag is None:
+        tag = check_collection.defaultTag
+
+    return tag, ship_wl_id
 

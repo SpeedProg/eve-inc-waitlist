@@ -464,7 +464,7 @@ def update_stations(filename):
     next_scalar_type = "key"
     station = None
     att_key = None
-    for ev in yaml.parse(f):
+    for ev in yaml.parse(f, Loader=yaml.SafeLoader):
         if isinstance(ev, MappingStartEvent):
             # 1 mapping per station
             station = Station()  # create new station
@@ -483,9 +483,9 @@ def update_stations(filename):
         elif isinstance(ev, MappingEndEvent):
             # write it
             db.session.merge(station)
-    
+
     db.session.commit()
-    
+
     f.close()
 
 

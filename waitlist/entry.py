@@ -3,21 +3,43 @@ import logging.config
 import os
 import json
 
-# setup logging
-logger_config = os.path.join('.', 'config', 'logger.base.json')
-if os.path.isfile(logger_config):
-    with open(logger_config, 'r') as fp:
-        cfg = json.load(fp)
-        logging.config.dictConfig(cfg)
 
-logger_config = os.path.join('.', 'config', 'logger.user.json')
-if os.path.isfile(logger_config):
-    with open(logger_config, 'r') as fp:
-        cfg = json.load(fp)
-        logging.config.dictConfig(cfg)
+def merge_dicts(destination, source):
+    for key, value in source.items():
+        if isinstance(value, dict):
+            # if there is no dict there we need to create one
+            subdict = destination.setdefault(key, {})
+            if not isinstance(subdict, dict):
+                print('Error merging configs on', key)
+            else:
+                merge_dicts(subdict, value)
+        else:
+            destination[key] = value
 
-from werkzeug.contrib.fixers import ProxyFix
-from gevent.pywsgi import WSGIServer
+    return destination
+
+
+def setup_logging():
+    # setup logging
+    base_cfg = None
+    user_cfg = None
+    logger_config = os.path.join('.', 'config', 'logger.base.json')
+    if os.path.isfile(logger_config):
+        with open(logger_config, 'r') as fp:
+            base_cfg = json.load(fp)
+
+    logger_config = os.path.join('.', 'config', 'logger.user.json')
+    if os.path.isfile(logger_config):
+        with open(logger_config, 'r') as fp:
+            user_cfg = json.load(fp)
+    # if we have both we need to merge them
+    if base_cfg is not None and user_cfg is not None:
+        merge_dicts(base_cfg, user_cfg)
+    # if there is only user config we can ignore it
+    elif user_cfg is not None:
+        base_cfg = user_cfg
+
+    logging.config.dictConfig(base_cfg)
 
 def register_blueprints():
     from waitlist.blueprints.fittings import bp_waitlist
@@ -45,7 +67,7 @@ def register_blueprints():
     from waitlist.blueprints.fleetview import bp as bp_fleetview
 
     from waitlist.blueprints.settings import accounts as settings_accounts, bans, fleet_motd, fleetoptions, inserts, mail, overview,\
-        staticdataimport, teamspeak, permissions
+        staticdataimport, teamspeak, permissions, ship_assignment
     from waitlist.blueprints import trivia, feedback, swagger_api
     from waitlist.blueprints.api import permission
     from waitlist.blueprints import xup
@@ -101,6 +123,7 @@ def register_blueprints():
     app.register_blueprint(permissions.bp, url_prefix='/settings/permissions')
     app.register_blueprint(permission.bp, url_prefix='/api/permission')
     app.register_blueprint(xup.bp, url_prefix='/xup')
+    app.register_blueprint(ship_assignment.bp, url_prefix='/settings/ship_assignment')
 
     # notification
     app.register_blueprint(notification.bp, url_prefix="/notification")
@@ -111,13 +134,20 @@ logger = logging.getLogger(__name__)
 def run_server():
     from waitlist.base import app
     from waitlist.utility import config
-    app.wsgi_app = ProxyFix(app.wsgi_app)
+    from werkzeug.middleware.proxy_fix import ProxyFix
+    from gevent.pywsgi import WSGIServer
+    if config.proxy_enabled:
+        app.wsgi_app = ProxyFix(app.wsgi_app, x_for=config.proxy_for,
+                                x_host=config.proxy_host,
+                                x_proto=config.proxy_proto,
+                                x_prefix=config.proxy_prefix)
     wsgi_logger = logging.getLogger("gevent.pywsgi.WSGIServer")
     server = WSGIServer((config.server_bind, config.server_port), app,
                         log=wsgi_logger, error_log=wsgi_logger)
     server.serve_forever()
 
 def main():
+    setup_logging()
     import argparse
     parser = argparse.ArgumentParser(description='Waitlist management')
     parser.add_argument('-c', '--create-config', action='store_true',
