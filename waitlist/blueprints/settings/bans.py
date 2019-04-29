@@ -266,15 +266,14 @@ def whitelist_by_name(whitelist_info, reason=""):
         wl_admin = current_user.get_eve_name()
 
     logger.info("Whitelisting %s for %s by %s as %s.", wl_name, wl_reason, wl_admin, current_user.username)
-    wl_char = get_character_by_name(wl_name)
+    eve_id = outgate.character.get_char_corp_all_id_by_name(wl_name)
     admin_char = get_character_by_name(wl_admin)
-    if wl_char is None:
+    if eve_id is None:
         logger.error("Did not find whitelist target %s", wl_name)
         flash(gettext("Could not find Character %(wl_name)s for whitelisting",
                       wl_name=wl_name), "danger")
         return
 
-    eve_id = wl_char.get_eve_id()
     admin_id = admin_char.get_eve_id()
 
     if eve_id is None or admin_id is None:
@@ -287,7 +286,7 @@ def whitelist_by_name(whitelist_info, reason=""):
     if db.session.query(Whitelist).filter(Whitelist.characterID == eve_id).count() == 0:
         # ban him
         new_whitelist = Whitelist()
-        new_whitelist.character = wl_char
+        new_whitelist.characterID = eve_id
         new_whitelist.reason = wl_reason
         new_whitelist.admin = admin_char
         db.session.add(new_whitelist)
