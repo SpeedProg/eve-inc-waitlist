@@ -85,18 +85,27 @@ def get_character_info_by_name(name: str, *args) -> Optional[APICacheCharacterIn
         return info
 
 
-def get_char_or_corp_or_alliance_id_by_name(name: str, *args) -> Optional[int]:
+def get_char_or_corp_or_alliance_id_by_name(name: str, *args) -> Tuple[Optional[int], Optional[str]]:
     """
+    Tuple of id and "character", "corporation", "alliance"
+    or None, None
     :throws ApiException if something goes wrong on the api
     """
     search_ep = SearchEndpoint()
     search_results: SearchResponse = check_esi_response(
         search_ep.public_search(name, ['character', 'corporation', 'alliance']),
         get_char_or_corp_or_alliance_id_by_name, args)
-    ids = search_results.ids(['character', 'corporation', 'alliance'])
-    if len(ids) < 1:
-        return None
-    return ids[0]
+
+    ids = search_results.ids(['character'])
+    if len(ids) > 0:
+        return ids[0],  'character'
+    ids = search_results.ids(['corporation'])
+    if len(ids) > 0:
+        return ids[0], 'corporation'
+    ids = search_results.ids(['alliance'])
+    if len(ids) > 0:
+        return ids[0], 'alliance'
+    return None, None
 
 
 def get_char_affiliations(char_id: int, *_) -> Optional[Tuple[int, int]]:
