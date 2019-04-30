@@ -53,13 +53,13 @@
 	{% for ban in wl %}
 	<tr id="ban-{{ban.id}}">
 		<td id="ban-{{ban.id}}-id">{{ ban.characterID }}</td>
-		<td id="ban-{{ban.id}}-name">{{ ban.character.eve_name }}</td>
+		<td id="ban-{{ban.id}}-name">{{ ban.name }}</td>
 		<td id="ban-{{ban.id}}-reason">{{ ban.reason }}</td>
 		<td id="ban-{{ban.id}}-by">{{ ban.admin.eve_name }}</td>
 		<td>
 		<form name="unbanform" action="{{url_for('bans.whitelist_unlist')}}" method="post">
 		<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
-		<input name="target" value="{{ban.character.eve_name}}" hidden>
+		<input name="target" value="{{ban.characterID}}" hidden>
 		<button type="submit" class="btn btn-sm btn-warning">{{ _('Unwhitelist') }}</button>
 		</form>
 		</td>

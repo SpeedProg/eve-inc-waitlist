@@ -1,4 +1,5 @@
 import logging
+import enum
 from datetime import datetime, timedelta
 from typing import List, Optional, Union, Dict, Any
 
@@ -23,6 +24,13 @@ from waitlist.utility.constants import categories, groups
 logger = logging.getLogger(__name__)
 
 Base = db.Model
+
+
+class CharacterTypes(enum.Enum):
+    character = 1
+    corporation = 2
+    alliance = 3
+
 
 roles = Table('account_roles',
               Base.metadata,
@@ -144,6 +152,7 @@ class SSOToken(Base):
             if ('content-type' in e.response_header
                and 'application/json' in e.response_header['content-type']):
                 resp_data = json.loads(e.response)
+
                 if (
                     (
                         'message' in resp_data and
@@ -1013,18 +1022,21 @@ class APICacheAllianceInfo(Base):
 class Ban(Base):
     __tablename__ = "ban"
     id = Column('id', Integer, primary_key=True)
-    name = Column('name', String(100), index=True)
     reason = Column('reason', Text)
+    targetType = Column('target_type', Enum(CharacterTypes))
     admin = Column('admin', Integer, ForeignKey("characters.id"))
     admin_obj = relationship("Character", foreign_keys="Ban.admin")
+    name = Column('name', String(255))
 
 
 class Whitelist(Base):
     __tablename__ = "whitelist"
-    characterID = Column('character_id', Integer, ForeignKey(Character.id), primary_key=True)
+    characterID = Column('character_id', Integer, primary_key=True)
     reason = Column('reason', Text)
     adminID = Column('admin_id', Integer, ForeignKey(Character.id))
-    character = relationship(Character, foreign_keys=[characterID])
+    targetType = Column('target_type', Enum(CharacterTypes))
+    name = Column('name', String(255))
+
     admin = relationship(Character, foreign_keys=[adminID])
 
 
