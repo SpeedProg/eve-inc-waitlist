@@ -6,7 +6,7 @@ from waitlist.utility import outgate
 from waitlist.utility.config import banned_by_default
 from waitlist.utility.sde import add_type_by_id_to_database
 from waitlist.storage.database import Constellation, SolarSystem, Station,\
-    InvType, Account, Character, Ban, Whitelist
+    InvType, Account, Character, Ban, Whitelist, CharacterTypes
 from waitlist.base import db
 import logging
 
@@ -14,7 +14,8 @@ from waitlist.utility.swagger import get_api
 from waitlist.utility.swagger.eve import get_esi_client
 from waitlist.utility.swagger.eve.search import SearchEndpoint, SearchResponse
 from threading import Lock
-from waitlist.utility.outgate.exceptions import ApiException
+from waitlist.utility.outgate.exceptions import ApiException, ESIException
+from waitlist.utility.outgate import character, corporation, alliance
 
 logger = logging.getLogger(__name__)
 
@@ -153,6 +154,33 @@ def get_character_by_name(eve_name: str) -> Optional[Character]:
         return get_character_by_id_and_name(eve_info.id, eve_name)
     except ApiException:
         return None
+
+def get_character_type_by_id(char_id: int) -> Tuple[CharacterTypes,int]:
+    """
+    :returns the character type and how many potential ESI error where created
+    """
+    try:
+        char_info: APICacheCharacterInfo = character.get_info(char_id)
+        return CharacterTypes.character, 0
+    except ESIException:
+        pass  # no such char
+    try:
+        corp_info: APICacheCorporationInfo = corporation.get_info(char_id)
+        return CharacterTypes.corporation, 1
+    except ESIException:
+        pass  # no such corp
+    all_info: APICacheAllianceInfo = alliance.get_info(char_id)
+    return CharacterTypes.alliance, 2
+
+
+def get_char_corp_all_name_by_id_and_type(char_id: int, char_type: CharacterTypes) -> str:
+    if char_type == CharacterTypes.character:
+        return character.get_info(char_id).characterName
+    if char_type == CharacterTypes.corporation:
+        return corporation.get_info(char_id).name
+    if char_type == CharacterTypes.alliance:
+        return alliance.get_info(char_id).allianceName
+    raise ValueError('Unknown Character type supplied')
 
 
 def is_char_banned(char: Character) -> Tuple[bool, str]:
