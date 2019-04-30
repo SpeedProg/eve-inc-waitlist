@@ -30,7 +30,7 @@ def get_alliance_info(alliance_id: int, *args) -> APICacheAllianceInfo:
         set_from_alliance_info(all_cache, all_info, alliance_id)
         db.session.add(all_cache)
         db.session.commit()
-    elif all_cache.characterName is None:
+    elif all_cache.allianceName is None:
         all_ep = AllianceEndpoint()
         all_info: AllianceInfo = check_esi_response(all_ep.get_alliance_info(alliance_id), get_alliance_info, args)
         set_from_alliance_info(all_cache, all_info, alliance_id)
