@@ -1,4 +1,8 @@
 #Changelog
+* 1.7.3:
+  * Fixes:
+    * Fixed adding Corporation and Alliance to whitelist
+    * Fixed some problems with adding bans
 * 1.7.2:
   * Fixes:
     * Allowed Corporations and Alliances to be whitelisted
