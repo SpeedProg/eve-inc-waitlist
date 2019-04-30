@@ -59,7 +59,7 @@
 		<td>
 		<form name="unbanform" action="{{url_for('bans.bans_unban_single')}}" method="post">
 		<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
-		<input name="target" value="{{ban.name}}" hidden>
+		<input name="target" value="{{ban.id}}" hidden>
 		<button type="submit" class="btn btn-sm btn-warning">{{ _('Unban') }}</button>
 		</form>
 		</td>
