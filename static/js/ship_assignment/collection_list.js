@@ -13,7 +13,7 @@ waitlist.ship_assignment.collection_list = (function () {
 
 	function init() {
 	  doInitialSubwaitlistPopulation("#wl_group_id_select", "#default_target_id");
-	  addSubwaitlistPopulation("#wl_group_id_select", "#default_target_id");
+	  addSubwaitlistPopulationHandler("#wl_group_id_select", "#default_target_id");
 	}
 
 	$(document).ready(init);
