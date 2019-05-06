@@ -118,7 +118,7 @@ def move_to_waitlists():
         if is_new:
             _createdEntriesList.append(new_entry)
         else:
-            event = FitAddedSSE(group.grouID, new_entry.waitlist_id, new_entry.id, fit, False, new_entry.user)
+            event = FitAddedSSE(group.groupID, new_entry.waitlist_id, new_entry.id, fit, False, new_entry.user)
             _sseEvents.append(event)
 
 
@@ -236,7 +236,7 @@ def debug():
 @bp_waitlist.route("/history/")
 @login_required
 @perm_comp_view.require(http_exception=401)
-def history_default():  
+def history_default():
     return render_template("waitlist/history.html",
         stattool_enabled=stattool_enabled, stattool_uri=stattool_uri, stattool_sri=stattool_sri)
 
