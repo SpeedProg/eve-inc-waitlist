@@ -67,6 +67,7 @@ class PermissionManager(object):
 
         # load admin perm first
         self.__permissions[StaticPermissions.ADMIN] = AddPermission()
+        self.__definitions[StaticPermissions.ADMIN] = True
         admin_perm: DBPermission = db.session.query(DBPermission).filter(
             DBPermission.name == StaticPermissions.ADMIN).first()
         if admin_perm is None:
@@ -96,11 +97,15 @@ class PermissionManager(object):
             perm = AddPermission()
             for role in permission.roles_needed:
                 perm.add_role(role.name)
-
+            self.__define_permission(permission.name)
             self.__add_permission(permission.name, perm)
 
     def __add_permission(self, name: str, perm: AddPermission) -> None:
         self.__permissions[name] = self.__permissions[StaticPermissions.ADMIN].union(perm)
+
+    def __define_permission(self, name: str) -> None:
+        if name not in self.__definitions:
+            self.__definitions[name] = True
 
     def get_permission(self, name: str) -> AddPermission:
         if name in self.__definitions:
@@ -158,12 +163,14 @@ class PermissionManager(object):
 
     def define_permission(self, name: str) -> None:
         if name not in self.__definitions:
-            self.__definitions[name] = True
-            # if it is not in datebase add it
-            if db.session.query(DBPermission).filter(DBPermission.name == name).first() is None:
-                perm = DBPermission(name=name)
-                db.session.add(perm)
-                db.session.commit()
+            perm = DBPermission(name=name)
+            db.session.add(perm)
+            db.session.commit()
+            addPerm = AddPermission()
+            for role in perm.roles_needed:
+                addPerm.add_role(role.name)
+            self.__define_permission(perm.name)
+            self.__add_permission(perm.name, addPerm)
 
     def get_definitions(self) -> Dict[str, bool]:
         return self.__definitions
