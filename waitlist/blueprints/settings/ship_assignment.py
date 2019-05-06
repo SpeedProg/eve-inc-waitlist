@@ -72,6 +72,11 @@ def collection_add():
     def_target_id = int(request.form['target_id'])
     tag = request.form['tag']
 
+    if (db.session.query(
+            ShipCheckCollection).filter(
+                ShipCheckCollection.waitlistGroupID == wl_group_id).count() > 0):
+        flask.abort(409, description='This WaitlistGroup already has a collection')
+
     collection = ShipCheckCollection(
         checkCollectionName=name,
         waitlistGroupID=wl_group_id,
