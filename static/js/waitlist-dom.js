@@ -704,7 +704,7 @@ waitlist.listdom = (function(){
 	 *            station={stationID=INT, stationName=STR},
 	 *            fcs=[{id=INT,name=STR,newbro=BOOL}...],
 	 *            managers=[{id=INT,name=STR,newbro=BOOL}...],
-	 *            fleets=[{grouID=INT, comp={id=INT,name=STR,newbro=BOOL}}...] }
+	 *            fleets=[{groupID=INT, comp={id=INT,name=STR,newbro=BOOL}}...] }
 	 */
 	
 	function setStatusDom(groupStatus) {
