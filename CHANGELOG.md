@@ -1,4 +1,6 @@
 #Changelog
+* 1.7.4:
+  * Fixed a typo that could prevent fits being approved
 * 1.7.3:
   * Fixes:
     * Fixed adding Corporation and Alliance to whitelist
