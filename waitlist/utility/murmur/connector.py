@@ -30,7 +30,7 @@ def register_user(name: str, password: str) -> int:
         return 0
 
 
-role_mappings = [('full_commander', {'fc', 'lm'}),
+role_mappings = [('fullcommander', {'fc', 'lm'}),
                 ('trainee', {'tbadge', 'resident'}),
                 ('officer', {'officer'}),
                 ('leadership', {'leadership'}),
@@ -41,7 +41,8 @@ role_mappings = [('full_commander', {'fc', 'lm'}),
                 ('ct_fc', {'Certified FC Trainer'}),
                 ('ct_lm', {'Certified LM Trainer'}),
                 ('t_ct_fc', {'Training Certified FC Trainer'}),
-                ('t_ct_lm', {'Training Certified LM Trainer'})
+                ('t_ct_lm', {'Training Certified LM Trainer'}),
+                ('ct', {'Certified FC Trainer', 'Certified LM Trainer', 'Training Certified FC Trainer', 'Training Certified LM Trainer'})
                 ]
 def get_murmur_groups_from_roles(roles: Set[str]) ->  Set[str]:
     out_groups: List[str] = []
