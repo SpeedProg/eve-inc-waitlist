@@ -315,12 +315,15 @@ def account_edit():
     return redirect(url_for('.accounts'), code=303)
 
 
+PW_LETTERS = string.ascii_letters+string.digits+"!-_#+*%[](){}?<>"
+
+
 @bp.route('/self_register_mumble', methods=['POST'])
 @login_required
 @perm_manager.require('settings_access')
 def account_self_register_mumble():
     eve_name = current_user.get_eve_name()
-    pw = ''.join(choice(string.ascii_lowercase) for i in range(15))
+    pw = ''.join(choice(PW_LETTERS) for i in range(15))
     register_user(eve_name, pw)
     flask.flash(f'Your password for Mumble (needed once) is {pw}', 'success')
     return redirect(url_for('.account_self'))
