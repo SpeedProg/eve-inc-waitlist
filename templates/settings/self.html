@@ -79,4 +79,12 @@
 	<button id="acc-edit-submit" type="submit"
 		class="btn btn-primary">{{ _('Apply') }}</button>
 </form>
+<form class="form" action="{{url_for('accounts.account_self_register_mumble')}}" method="POST">
+	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+	<button type="submit" class="btn btn-primary">{{ _('Register on Mumble') }}</button>
+</form>
+<form class="form" action="{{url_for('accounts.account_self_grant_rights_mumble')}}" method="POST">
+	<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+	<button type="submit" class="btn btn-primary">{{ _('Grant rights on Mumble') }}</button>
+</form>
 {% endblock %}

@@ -1,5 +1,7 @@
 import logging
 from datetime import timedelta, datetime
+import string
+from random import choice
 
 import flask
 from flask import Blueprint, session
@@ -28,6 +30,7 @@ from waitlist.utility.login import invalidate_all_sessions_for_given_user
 from waitlist.utility.manager.owner_hash_check_manager import OwnerHashCheckManager
 from waitlist.utility.settings import sget_resident_mail, sget_tbadge_mail, sget_other_mail, sget_other_topic, \
     sget_tbadge_topic, sget_resident_topic
+from waitlist.utility.murmur.connector import register_user, setup_user_rights
 from waitlist.utility.utils import get_random_token
 from typing import Callable, Any
 import gevent
@@ -310,6 +313,25 @@ def account_edit():
 
     db.session.commit()
     return redirect(url_for('.accounts'), code=303)
+
+
+@bp.route('/self_register_mumble', methods=['POST'])
+@login_required
+@perm_manager.require('settings_access')
+def account_self_register_mumble():
+    eve_name = current_user.get_eve_name()
+    pw = ''.join(choice(string.ascii_lowercase) for i in range(15))
+    register_user(eve_name, pw)
+    flask.flash(f'Your password for Mumble (needed once) is {pw}', 'success')
+    return redirect(url_for('.account_self'))
+
+
+@bp.route('/self_grant_rights_mumble', methods=['POST'])
+@login_required
+@perm_manager.require('settings_access')
+def account_self_grant_rights_mumble():
+    setup_user_rights(current_user.id)
+    return redirect(url_for('.account_self'))
 
 
 @bp.route("/self_edit", methods=["POST"])
