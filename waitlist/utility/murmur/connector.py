@@ -24,7 +24,7 @@ def register_user(name: str, password: str) -> int:
                 break
         if target_db_user is not None:  # lets give him a new pw
             target_db_user.password = password
-            murmurrpc_pb2.DatabaseUserUpdate(target_db_user)
+            client.DatabaseUserUpdate(target_db_user)
             return 1
 
         user = murmurrpc_pb2.DatabaseUser(server=server, name=name, password=password)
