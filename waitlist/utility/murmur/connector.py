@@ -73,18 +73,18 @@ def setup_user_rights(account_id: int) -> None:
         murmur_user = None
         user_list = client.DatabaseUserQuery(murmurrpc_pb2.DatabaseUser.Query(server=server, filter=acc.get_eve_name()))
         for u in user_list.users:
-            if u.name == acc.current_char_obj.eve_name:
+            if u.name == acc.get_eve_name():
                 murmur_user = u
                 break
 
         if murmur_user is None:
-            logger.error('Registration failed no user with name %s found', acc.current_char_obj.eve_name)
+            logger.error('Registration failed no user with name %s found', acc.get_eve_name())
             return
 
         channel_list = client.ChannelQuery(murmurrpc_pb2.Channel.Query(server=server))
         target_channel = None
         for c in channel_list.channels:
-            if c.name == 'Root':
+            if c.id == 0:
                 target_channel = c
                 break
 
@@ -95,6 +95,7 @@ def setup_user_rights(account_id: int) -> None:
         acl_list = client.ACLGet(target_channel)
         acl_list.server.id=server.id
         acl_list.channel.id = target_channel.id
+
 
         for group in acl_list.groups:
             if group.name in murmur_grps:
@@ -107,6 +108,14 @@ def setup_user_rights(account_id: int) -> None:
                 if not is_already_in:
                     n_user = group.users_add.add()
                     n_user.CopyFrom(murmur_user)
+            else:  # he should not have this group so we need to remove him if he does
+                for i in range(len(group.users_add)):
+                    if group.users_add[i].name == murmur_user.name:
+                        del group.users_add[i]
+                        break;
+
+
+
 
         client.ACLSet(acl_list)
 
