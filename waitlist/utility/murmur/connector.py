@@ -22,9 +22,11 @@ def register_user(name: str, password: str) -> int:
             if u.name == name:
                 target_db_user = u
                 break
-        if target_db_user is not None:
-            logger.error('User with name %s already registered on murmur', name)
+        if target_db_user is not None:  # lets give him a new pw
+            target_db_user.password = password
+            murmurrpc_pb2.DatabaseUserUpdate(target_db_user)
             return 1
+
         user = murmurrpc_pb2.DatabaseUser(server=server, name=name, password=password)
         client.DatabaseUserRegister(user)
         return 0
