@@ -27,10 +27,10 @@
 	</select>
 </fieldset>
 {% endif %}
-{% if ts %}
+{% if coms %}
 <label>
   <input type="checkbox" name="pokeMe" value="on"{% if current_user.poke_me %} checked{% endif %}>
-  {{ _('Poke me on TS (exact charactername required, case sensitive)') }}
+  {{ _('Message me on coms (exact charactername required, case sensitive)') }}
 </label>
 {% endif %}
 <fieldset class="form-group">

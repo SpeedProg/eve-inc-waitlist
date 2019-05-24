@@ -91,6 +91,8 @@ if not config.has_section("disable"):
 config.set_if_not_exists("disable", "teamspeak", "False")
 config.set_if_not_exists("disable", "scruffy_mode", "True")
 config.set_if_not_exists("disable", "public_api", "False")
+config.set_if_not_exists("disable", "murmur", "True")
+config.set_if_not_exists("disable", "ipboard", "True")
 
 if not config.has_section("pageinfo"):
     config.add_section("pageinfo")
@@ -143,6 +145,8 @@ banned_by_default = config.get("security", "banned_by_default") == "True"
 disable_teamspeak = config.get("disable", "teamspeak") == "True"
 disable_scruffy_mode = config.get("disable", "scruffy_mode") == "True"
 disable_public_api = config.get("disable", "public_api") == "True"
+disable_murmur = config.get("disable", "murmur") == "True"
+disable_ipboard = config.get("disable", "ipboard") == "True"
 
 influence_link = config.get("pageinfo", "influence_link")
 

@@ -67,7 +67,7 @@ def register_blueprints():
     from waitlist.blueprints.fleetview import bp as bp_fleetview
 
     from waitlist.blueprints.settings import accounts as settings_accounts, bans, fleet_motd, fleetoptions, inserts, mail, overview,\
-        staticdataimport, teamspeak, permissions, ship_assignment
+        staticdataimport, teamspeak, permissions, ship_assignment, murmur
     from waitlist.blueprints import trivia, feedback, swagger_api
     from waitlist.blueprints.api import permission
     from waitlist.blueprints import xup
@@ -120,6 +120,7 @@ def register_blueprints():
     app.register_blueprint(overview.bp, url_prefix='/settings')
     app.register_blueprint(staticdataimport.bp, url_prefix='/settings/sde')
     app.register_blueprint(teamspeak.bp, url_prefix='/settings/teamspeak')
+    app.register_blueprint(murmur.bp, url_prefix='/settings/murmur')
     app.register_blueprint(permissions.bp, url_prefix='/settings/permissions')
     app.register_blueprint(permission.bp, url_prefix='/api/permission')
     app.register_blueprint(xup.bp, url_prefix='/xup')
@@ -127,6 +128,22 @@ def register_blueprints():
 
     # notification
     app.register_blueprint(notification.bp, url_prefix="/notification")
+
+def setup_coms():
+    from waitlist.utility.coms import get_connector, set_connector
+    from waitlist.utility import config
+    from waitlist.ts3.connection import TS3Connector
+    from waitlist.utility.murmur.connector import MurmurConnector
+    from waitlist.utility.settings import sget_active_coms_id, sget_active_coms_type
+    com_connector = get_connector()
+    com_type = sget_active_coms_type()
+    if com_type is None:
+        return
+    if com_type == 'ts3':
+        set_connector(TS3Connector())
+    if com_type == 'murmur':
+        set_connector(MurmurConnector())
+
 
 logger = logging.getLogger(__name__)
 
@@ -174,6 +191,9 @@ def main():
         f: CrestFleet = db.session.query(CrestFleet).first()
         send_added_first_fleet(main, f.fleetID)
     db.session.remove()
+
+    setup_coms()
+
     run_server()
 
 if __name__ == '__main__':

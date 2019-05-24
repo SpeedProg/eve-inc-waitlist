@@ -10,7 +10,7 @@ from waitlist.storage.database import WaitlistGroup, CrestFleet, WaitlistEntry, 
 from datetime import datetime, timedelta
 from waitlist.utility.history_utils import create_history_object
 from flask.helpers import url_for
-from waitlist.utility.settings import sget_active_ts_id, sget_motd_hq,\
+from waitlist.utility.settings import sget_motd_hq,\
     sget_motd_vg
 from waitlist.data.sse import send_server_sent_event, InviteMissedSSE,\
     EntryRemovedSSE
@@ -20,6 +20,7 @@ import flask
 from waitlist.utility.swagger.eve import get_esi_client_for_account, ESIResponse
 from waitlist.utility.swagger.eve.fleet import EveFleetMembers
 from waitlist.utility.swagger.eve.fleet.models import FleetMember
+from waitlist.utility.coms import get_connector
 
 logger = logging.getLogger(__name__)
 
@@ -187,13 +188,10 @@ def setup(token: SSOToken, fleet_id: int, fleet_type: str, waitlistGroup: Waitli
         wait_for_change = True
 
     ts_string = ""
-    ts_id = sget_active_ts_id()
-    if ts_id is not None:
-        teamspeak = db.session.query(TeamspeakDatum).get(ts_id)
-        ts_string = teamspeak.displayHost
-        if teamspeak.displayPort != 9987:
-            ts_string = ts_string + ":" + str(teamspeak.displayPort)
-    
+    com_connector = get_connector()
+    if com_connector is not None:
+        ts_string = com_connector.get_basic_connect_info()
+
     if len(old_motd) < 50:
         
         new_motd = ""

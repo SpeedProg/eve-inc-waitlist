@@ -29,23 +29,23 @@ msgstr "Dark Purple"
 
 #: templates/about.html:15
 msgid ""
-"<a href=\"https://github.com/speedprog/eve-inc-waitlist\" target=\"_blank"
-"\">Eve-Inc-Waitlist</a> Created by <a href=\"char:91495852\">Bruce Warhead</"
-"a> and <a href=\"char:93356698\">Beryl Slanjava</a>"
+"<a href=\"https://github.com/speedprog/eve-inc-waitlist\" target="
+"\"_blank\">Eve-Inc-Waitlist</a> Created by <a href=\"char:91495852\">Bruce "
+"Warhead</a> and <a href=\"char:93356698\">Beryl Slanjava</a>"
 msgstr ""
-"<a href=\"https://github.com/speedprog/eve-inc-waitlist\" target=\"_blank"
-"\">Eve-Inc-Waitlist</a> Created by <a href=\"char:91495852\">Bruce Warhead</"
-"a> and <a href=\"char:93356698\">Beryl Slanjava</a>"
+"<a href=\"https://github.com/speedprog/eve-inc-waitlist\" target="
+"\"_blank\">Eve-Inc-Waitlist</a> Created by <a href=\"char:91495852\">Bruce "
+"Warhead</a> and <a href=\"char:93356698\">Beryl Slanjava</a>"
 
 #: templates/about.html:17
 msgid ""
 "<a href=\"https://github.com/quiescens/eve-ui\" target=\"_blank\">Fitting "
-"Display (Eve-UI)</a> and Fitting Stats by <a href="
-"\"char:725396116\">Quie'scens</a>"
+"Display (Eve-UI)</a> and Fitting Stats by <a href=\"char:"
+"725396116\">Quie'scens</a>"
 msgstr ""
 "<a href=\"https://github.com/quiescens/eve-ui\" target=\"_blank\">Fitting "
-"Display (Eve-UI)</a> and Fitting Stats by <a href="
-"\"char:725396116\">Quie'scens</a>"
+"Display (Eve-UI)</a> and Fitting Stats by <a href=\"char:"
+"725396116\">Quie'scens</a>"
 
 #: templates/base.html:87
 msgid "ISK Donations are appreciated"
@@ -99,16 +99,16 @@ msgstr "How do Alarm Expressions work?"
 
 #: templates/help.html:40
 msgid ""
-"For expression evaluation <a href=\"https://github.com/silentmatt/expr-eval"
-"\" target=\"_blank\">expr-eval</a> is used.\n"
+"For expression evaluation <a href=\"https://github.com/silentmatt/expr-"
+"eval\" target=\"_blank\">expr-eval</a> is used.\n"
 " The variables, <code>open, xup, logi, dps, sniper, other</code> are "
 "provided, open being a boolean(true/false) while the others are numbers.\n"
 " You can have one expression per Waitlist Group, there is no need for more "
 "then one, because using (expression) or (expression) would be the same as "
 "using two expression for one group."
 msgstr ""
-"For expression evaluation <a href=\"https://github.com/silentmatt/expr-eval"
-"\" target=\"_blank\">expr-eval</a> is used.\n"
+"For expression evaluation <a href=\"https://github.com/silentmatt/expr-"
+"eval\" target=\"_blank\">expr-eval</a> is used.\n"
 " The variables, <code>open, xup, logi, dps, sniper, other</code> are "
 "provided, open being a boolean(true/false) while the others are numbers.\n"
 " You can have one expression per Waitlist Group, there is no need for more "
@@ -234,12 +234,12 @@ msgid ""
 "equal\n"
 " <code>&gt;</code> greater then, <code>&lt;</code> less then\n"
 " And to connect these expressions, the operators:\n"
-" <code>and</code> and <code>or</code>. Keep in mind the \"or\" is a \"true or"
-"\", not the way it often is used in language, it is not an \"either or\". On "
-"this \"or\" both can be true.\n"
+" <code>and</code> and <code>or</code>. Keep in mind the \"or\" is a \"true "
+"or\", not the way it often is used in language, it is not an \"either or\". "
+"On this \"or\" both can be true.\n"
 " There are other also useful operators, that can be used you can find them "
-"under <a href=\"https://github.com/silentmatt/expr-eval\" target=\"_blank"
-"\">expr-eval</a>.\n"
+"under <a href=\"https://github.com/silentmatt/expr-eval\" target="
+"\"_blank\">expr-eval</a>.\n"
 " But the ones introduced here, should be enough to write decent notification "
 "logic and should cover most use cases."
 msgstr ""
@@ -248,12 +248,12 @@ msgstr ""
 "equal\n"
 " <code>&gt;</code> greater then, <code>&lt;</code> less then\n"
 " And to connect these expressions, the operators:\n"
-" <code>and</code> and <code>or</code>. Keep in mind the \"or\" is a \"true or"
-"\", not the way it often is used in language, it is not an \"either or\". On "
-"this \"or\" both can be true.\n"
+" <code>and</code> and <code>or</code>. Keep in mind the \"or\" is a \"true "
+"or\", not the way it often is used in language, it is not an \"either or\". "
+"On this \"or\" both can be true.\n"
 " There are other also useful operators, that can be used you can find them "
-"under <a href=\"https://github.com/silentmatt/expr-eval\" target=\"_blank"
-"\">expr-eval</a>.\n"
+"under <a href=\"https://github.com/silentmatt/expr-eval\" target="
+"\"_blank\">expr-eval</a>.\n"
 " But the ones introduced here, should be enough to write decent notification "
 "logic and should cover most use cases."
 
@@ -272,47 +272,39 @@ msgstr ""
 "You are not associated with any fleet, you can change this in <a\n"
 " href=\"%(url)s\">Fleet Settings</a>"
 
-#: templates/index.html:112
-msgid ""
-"Please join Teamspeak, your character name must match <b>exactly</b>\n"
-" (case sensitive)<br>TS3 Server:"
-msgstr ""
-"Please join Teamspeak, your character name must match <b>exactly</b>\n"
-" (case sensitive)<br>TS3 Server:"
-
-#: templates/index.html:120
+#: templates/index.html:138
 msgid "Vote your favorite Command Core Member HERE"
 msgstr "Vote your favorite Command Core Member HERE"
 
-#: templates/index.html:146
+#: templates/index.html:164
 msgid "Browser"
 msgstr "Browser"
 
-#: templates/index.html:153
-msgid "Test TS"
-msgstr "Test TS"
+#: templates/index.html:171
+msgid "Test Notify"
+msgstr "Test Notify"
 
-#: templates/index.html:157
+#: templates/index.html:175
 msgid "Leave Waitlists"
 msgstr "Leave Waitlists"
 
-#: templates/index.html:174 templates/settings/fleet.html:111
+#: templates/index.html:192 templates/settings/fleet.html:111
 msgid "Fleet Manager"
 msgstr "Fleet Manager"
 
-#: templates/index.html:190 templates/settings/fleet.html:134
+#: templates/index.html:208 templates/settings/fleet.html:134
 msgid "Constellation"
 msgstr "Constellation"
 
-#: templates/index.html:195 templates/settings/fleet.html:146
+#: templates/index.html:213 templates/settings/fleet.html:146
 msgid "Dockup"
 msgstr "Dockup"
 
-#: templates/index.html:200
+#: templates/index.html:218
 msgid "HQ System"
 msgstr "HQ System"
 
-#: templates/index.html:212
+#: templates/index.html:230
 #, python-format
 msgid ""
 "This waitlist is currently closed however\n"
@@ -321,11 +313,11 @@ msgstr ""
 "This waitlist is currently closed however\n"
 " <a href=\"%(url)s\">another</a> is open!"
 
-#: templates/index.html:224 waitlist/blueprints/calendar/__init__.py:7
+#: templates/index.html:242 waitlist/blueprints/calendar/__init__.py:7
 msgid "Events"
 msgstr "Events"
 
-#: templates/index.html:240
+#: templates/index.html:258
 #, python-format
 msgid ""
 "<strong>Help us!</strong> We would like your <a href=\"%(url)s\">feedback</"
@@ -334,7 +326,7 @@ msgstr ""
 "<strong>Help us!</strong> We would like your <a href=\"%(url)s\">feedback</"
 "a>!"
 
-#: templates/index.html:260 templates/xup-form.html:66
+#: templates/index.html:278 templates/xup-form.html:66
 msgid "All Waitlists are closed!"
 msgstr "All Waitlists are closed!"
 
@@ -360,8 +352,9 @@ msgid "Fleet to x-up for"
 msgstr "Fleet to x-up for"
 
 #: templates/xup-form.html:34
-msgid "Poke me on TS (exact charactername required, case sensitive)"
-msgstr "Poke me on TS (exact charactername required, case sensitive)"
+msgid "Message me on coms (exact charactername required, case sensitive)"
+msgstr ""
+"Notify on coms (name must match character name exactly, cas sensitive)"
 
 #: templates/xup-form.html:38
 msgid "Fittings"
@@ -487,6 +480,7 @@ msgstr "Authenticate"
 #: templates/settings/accounts.html:3 templates/settings/bans.html:3
 #: templates/settings/base.html:3 templates/settings/ccvotes.html:3
 #: templates/settings/fleet.html:3 templates/settings/mail/index.html:3
+#: templates/settings/murmur.html:3
 #: templates/settings/permissions/config.html:3 templates/settings/sde.html:3
 #: templates/settings/ship_assignment/check_edit.html:3
 #: templates/settings/ship_assignment/collection_edit.html:3
@@ -749,7 +743,7 @@ msgstr "Enabled"
 
 #: templates/settings/accounts.html:3
 #: templates/waitlist/tools/history_search.html:40
-#: waitlist/blueprints/settings/accounts.py:445
+#: waitlist/blueprints/settings/accounts.py:482
 msgid "Accounts"
 msgstr "Accounts"
 
@@ -945,7 +939,8 @@ msgstr "Hide Names"
 msgid "Clear This Groups lists!"
 msgstr "Clear This Groups lists!"
 
-#: templates/settings/fleet.html:40 templates/settings/ts.html:49
+#: templates/settings/fleet.html:40 templates/settings/murmur.html:50
+#: templates/settings/ts.html:50
 msgid "Display Name"
 msgstr "Display Name"
 
@@ -1081,6 +1076,42 @@ msgstr "Header Insert"
 msgid "Save"
 msgstr "Save"
 
+#: templates/settings/murmur.html:26
+msgid "Change Server"
+msgstr "Change Server"
+
+#: templates/settings/murmur.html:44 templates/settings/ts.html:44
+msgid "Remove TS"
+msgstr "Remove TS"
+
+#: templates/settings/murmur.html:54 templates/settings/ts.html:54
+msgid "Internal Host"
+msgstr "Internal Host"
+
+#: templates/settings/murmur.html:58 templates/settings/ts.html:58
+msgid "Internal Port"
+msgstr "Internal Port"
+
+#: templates/settings/murmur.html:62 templates/settings/ts.html:62
+msgid "Display Host"
+msgstr "Display Host"
+
+#: templates/settings/murmur.html:66 templates/settings/ts.html:66
+msgid "Display Port"
+msgstr "Display Port"
+
+#: templates/settings/murmur.html:70 templates/settings/ts.html:78
+msgid "Server ID"
+msgstr "Server ID"
+
+#: templates/settings/murmur.html:74 templates/settings/ts.html:90
+msgid "Safety ChannelID"
+msgstr "Safety ChannelID"
+
+#: templates/settings/murmur.html:77
+msgid "Add Murmur"
+msgstr "Add Murmur"
+
 #: templates/settings/sde.html:3
 #: waitlist/blueprints/settings/staticdataimport.py:99
 msgid "Static Data Import"
@@ -1120,59 +1151,39 @@ msgstr ""
 msgid "Apply"
 msgstr "Apply"
 
+#: templates/settings/self.html:85
+msgid "Register on Mumble"
+msgstr "Register on Mumble"
+
+#: templates/settings/self.html:89
+msgid "Grant rights on Mumble"
+msgstr "Grant rights on Mumble"
+
 #: templates/settings/ts.html:3
 msgid "Teamspeak"
 msgstr "Teamspeak"
 
-#: templates/settings/ts.html:25
+#: templates/settings/ts.html:26
 msgid "Change TS"
 msgstr "Change TS"
 
-#: templates/settings/ts.html:43
-msgid "Remove TS"
-msgstr "Remove TS"
-
-#: templates/settings/ts.html:53
-msgid "Internal Host"
-msgstr "Internal Host"
-
-#: templates/settings/ts.html:57
-msgid "Internal Port"
-msgstr "Internal Port"
-
-#: templates/settings/ts.html:61
-msgid "Display Host"
-msgstr "Display Host"
-
-#: templates/settings/ts.html:65
-msgid "Display Port"
-msgstr "Display Port"
-
-#: templates/settings/ts.html:69
+#: templates/settings/ts.html:70
 msgid "Query Name"
 msgstr "Query Name"
 
-#: templates/settings/ts.html:73
+#: templates/settings/ts.html:74
 msgid "Query Password"
 msgstr "Query Password"
 
-#: templates/settings/ts.html:77
-msgid "Server ID"
-msgstr "Server ID"
-
-#: templates/settings/ts.html:81
+#: templates/settings/ts.html:82
 msgid "Channel ID"
 msgstr "Channel ID"
 
-#: templates/settings/ts.html:85
+#: templates/settings/ts.html:86
 msgid "Client Name"
 msgstr "Client Name"
 
-#: templates/settings/ts.html:89
-msgid "Safety ChannelID"
-msgstr "Safety ChannelID"
-
-#: templates/settings/ts.html:92
+#: templates/settings/ts.html:93
 msgid "Add TS"
 msgstr "Add TS"
 
@@ -1339,7 +1350,7 @@ msgstr "Check Modifier"
 #: templates/settings/ship_assignment/check_edit.html:46
 #: templates/settings/ship_assignment/collection_edit.html:81
 msgid "IDs comma seperated"
-msgstr "IDs comma seperated"
+msgstr "IDs, comma seperated"
 
 #: templates/settings/ship_assignment/check_edit.html:50
 #: templates/settings/ship_assignment/collection_edit.html:85
@@ -1413,7 +1424,7 @@ msgstr "Order"
 
 #: templates/settings/ship_assignment/collection_edit.html:120
 msgid "modifier"
-msgstr "Value"
+msgstr "modifier"
 
 #: templates/settings/ship_assignment/collection_edit.html:120
 msgid "TypeIDs"
@@ -1591,7 +1602,7 @@ msgstr "To"
 msgid "Get Info"
 msgstr "Get Info"
 
-#: waitlist/blueprints/__init__.py:96
+#: waitlist/blueprints/__init__.py:106
 msgid "Tokens where removed, please use the EVE SSO"
 msgstr "Tokens where removed, please use the EVE SSO"
 
@@ -1638,14 +1649,18 @@ msgstr "Given waitlist ID=%(waitlist_id)d is not valid."
 msgid "You are not currently Boss of a Fleet"
 msgstr "You are not currently Boss of a Fleet"
 
-#: waitlist/blueprints/settings/accounts.py:68
+#: waitlist/blueprints/api/fleet.py:118
+msgid "Unknown Squad Type"
+msgstr "Unknown Squad Type"
+
+#: waitlist/blueprints/settings/accounts.py:71
 #, python-format
 msgid "A Character named %(char_name)s does not exist!"
 msgstr "A Character named %(char_name)s does not exist!"
 
-#: waitlist/blueprints/settings/accounts.py:106
-#: waitlist/blueprints/settings/accounts.py:308
-#: waitlist/blueprints/settings/accounts.py:402
+#: waitlist/blueprints/settings/accounts.py:109
+#: waitlist/blueprints/settings/accounts.py:311
+#: waitlist/blueprints/settings/accounts.py:438
 #: waitlist/blueprints/settings/bans.py:107
 #: waitlist/blueprints/settings/bans.py:167
 #: waitlist/blueprints/settings/bans.py:191
@@ -1657,21 +1672,21 @@ msgstr "A Character named %(char_name)s does not exist!"
 msgid "Could not execute action, ApiException %(ex)s"
 msgstr "Could not execute action, ApiException %(ex)s"
 
-#: waitlist/blueprints/settings/accounts.py:291
-#: waitlist/blueprints/settings/accounts.py:335
+#: waitlist/blueprints/settings/accounts.py:294
+#: waitlist/blueprints/settings/accounts.py:371
 #, python-format
 msgid "Character with name %(char_name)s could not be found!"
 msgstr "Character with name %(char_name)s could not be found!"
 
-#: waitlist/blueprints/settings/accounts.py:380
+#: waitlist/blueprints/settings/accounts.py:416
 msgid "Failed to get info for this character because of sso error"
 msgstr "Failed to get info for this character because of sso error"
 
-#: waitlist/blueprints/settings/accounts.py:446
+#: waitlist/blueprints/settings/accounts.py:483
 msgid "Own Settings"
 msgstr "Own Settings"
 
-#: waitlist/blueprints/settings/accounts.py:508
+#: waitlist/blueprints/settings/accounts.py:545
 #, python-format
 msgid ""
 "There was an error contacting the API for character info character id = "
@@ -1680,7 +1695,7 @@ msgstr ""
 "There was an error contacting the API for character info character id = "
 "%(char_id)d."
 
-#: waitlist/blueprints/settings/accounts.py:536
+#: waitlist/blueprints/settings/accounts.py:573
 #, python-format
 msgid "Alt %(char_name)s was added"
 msgstr "Alt %(char_name)s was added"
@@ -1854,6 +1869,10 @@ msgstr "Other mail set!"
 msgid "IG Mail Settings"
 msgstr "IG Mail Settings"
 
+#: waitlist/blueprints/settings/murmur.py:116
+msgid "Murmur Settings"
+msgstr "Murmur Settings"
+
 #: waitlist/blueprints/settings/permissions.py:54
 #, python-format
 msgid "Role with id=%(role_id)d was not found, failed to delete"
@@ -1893,7 +1912,7 @@ msgstr "Stations were updated!"
 msgid "Layouts were updated!"
 msgstr "Layouts were updated!"
 
-#: waitlist/blueprints/settings/teamspeak.py:105
+#: waitlist/blueprints/settings/teamspeak.py:135
 msgid "TS Settings"
 msgstr "TS Settings"
 
@@ -1934,6 +1953,11 @@ msgstr[0] ""
 msgstr[1] ""
 "You submitted %(num)d fits to be check by a fleet comp before getting on the "
 "waitlist."
+
+#: waitlist/ts3/connection.py:177
+#, python-format
+msgid "TeamSpeak3 Your username should match exactly: %(host)s:%(port)d"
+msgstr "TeamSpeak3: Your username should match exactly: %(host)s:%(port)d"
 
 #: waitlist/utility/constants/check_types.py:10
 msgid "Hull by TypeId"
@@ -2025,3 +2049,8 @@ msgstr "Not loggedin"
 
 #~ msgid "Unknown Squad Type"
 #~ msgstr "Unknown Squad Type"
+
+#: waitlist/utility/murmur/connector.py:226
+#, python-format
+msgid "Mumble Your username should match exactly: %(host)s:%(port)d"
+msgstr "Mumble: Your username should match exactly: %(host)s:%(port)d"

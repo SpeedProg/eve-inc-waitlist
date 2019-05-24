@@ -1,49 +1,49 @@
 {% extends "settings/base.html" %}
 
-{% block title %}{{ _('Settings') }} - {{ _('Teamspeak') }}{% endblock %}
+{% block title %}{{ _('Settings') }} - {{ 'Murmur' }}{% endblock %}
 
 {% block head %}
 {{ super() }}
 {% endblock %}
 
 {% block content %}
-	{% if perm_manager.get_permission('teamspeak_change').can() %}
-		<form action="{{url_for('teamspeak.teamspeak_change')}}" method="POST" class="form-inline mb-3">
+	{% if perm_manager.get_permission('murmur_change').can() %}
+		<form action="{{url_for('murmur.murmur_change')}}" method="POST" class="form-inline mb-3">
 			<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 			<input type="hidden" name="action" value="set">
-			<select autocomplete="off" class="custom-select mr-1" name="teamspeakID">
+			<select autocomplete="off" class="custom-select mr-1" name="murmurID">
 				{% if active is none %}
-					<option value="" selected>No Teamspeak</option>
-				{% for ts in all %}
-					<option value="{{ts.teamspeakID}}">{{ts.displayName}}</option>
+					<option value="">No Murmur</option>
+				{% for murmur in all %}
+					<option value="{{murmur.murmurID}}">{{murmur.displayName}}</option>
 				{% endfor %}
 				{% else %}
-				{% for ts in all %}
-					<option value="{{ts.teamspeakID}}"{% if ts.teamspeakID == active.teamspeakID %} selected{% endif %}>{{ts.displayName}}</option>
+				{% for murmur in all %}
+					<option value="{{murmur.murmurID}}"{% if murmur.murmurID == active.murmurID%} selected{% endif %}>{{murmur.displayName}}</option>
 				{% endfor %}
 				{% endif %}
 			</select>
-			<button class="btn btn-primary" type="submit">{{ _('Change TS') }}</button>
+			<button class="btn btn-primary" type="submit">{{ _('Change Server') }}</button>
 		</form>
 	{% endif %}
-	{% if perm_manager.get_permission('teamspeak_edit').can() %}
-			<form action="{{url_for('teamspeak.teamspeak_change')}}" method="POST" class="form-inline mb-3">
+	{% if perm_manager.get_permission('murmur_edit').can() %}
+			<form action="{{url_for('murmur.murmur_change')}}" method="POST" class="form-inline mb-3">
 			<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 			<input type="hidden" name="action" value="remove">
-			<select autocomplete="off" class="custom-select mr-1" name="teamspeakID">
+			<select autocomplete="off" class="custom-select mr-1" name="murmurID">
 				{% if active is none %}
-				{% for ts in all %}
-					<option value="{{ts.teamspeakID}}">{{ts.displayName}}</option>
+				{% for murmur in all %}
+					<option value="{{murmur.murmurID}}">{{murmur.displayName}}</option>
 				{% endfor %}
 				{% else %}
-				{% for ts in all %}
-					<option value="{{ts.teamspeakID}}"{% if ts.teamspeakID == active.teamspeakID%} selected{% endif %}>{{ts.displayName}}</option>
+				{% for murmur in all %}
+					<option value="{{murmur.murmurID}}"{% if murmur.murmurID == active.murmurID%} selected{% endif %}>{{murmur.displayName}}</option>
 				{% endfor %}
 				{% endif %}
 			</select>
 			<button class="btn btn-primary" type="submit">{{ _('Remove TS') }}</button>
 		</form>
-		<form action="{{url_for('teamspeak.teamspeak_change')}}" method="POST">
+		<form action="{{url_for('murmur.murmur_change')}}" method="POST">
 			<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
 			<input type="hidden" name="action" value="add">
 			<div class="form-group">
@@ -67,30 +67,14 @@
 				<input type="number" class="form-control" id="displayPort" name="displayPort" value="{{active.displayPort}}">
 			</div>
 			<div class="form-group">
-				<label for="queryName">{{ _('Query Name') }}</label>
-				<input type="text" class="form-control" id="queryName" name="queryName" value="{{active.queryName}}">
-			</div>
-			<div class="form-group">
-				<label for="queryPassword">{{ _('Query Password') }}</label>
-				<input type="text" class="form-control" id="queryPassword" name="queryPassword">
-			</div>
-			<div class="form-group">
 				<label for="serverID">{{ _('Server ID') }}</label>
 				<input type="number" class="form-control" id="serverID" name="serverID" value="{{active.serverID}}">
-			</div>
-			<div class="form-group">
-				<label for="channelID">{{ _('Channel ID') }}</label>
-				<input type="number" class="form-control" id="channelID" name="channelID" value="{{active.channelID}}">
-			</div>
-			<div class="form-group">
-				<label for="clientName">{{ _('Client Name') }}</label>
-				<input type="text" class="form-control" id="clientName" name="clientName" value="{{active.clientName}}">
 			</div>
 			<div class="form-group">
 				<label for="safetyChannelID">{{ _('Safety ChannelID') }}</label>
 				<input type="number" class="form-control" id="safetyChannelID" name="safetyChannelID" value="{{active.safetyChannelID}}">
 			</div>
-			<button class="btn btn-primary" type="submit">{{ _('Add TS') }}</button>
+			<button class="btn btn-primary" type="submit">{{ _('Add Murmur') }}</button>
 		</form>
 	{% endif %}
 {% endblock %}

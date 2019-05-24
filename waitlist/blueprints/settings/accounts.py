@@ -29,8 +29,8 @@ from waitlist.utility.eve_id_utils import get_character_by_id
 from waitlist.utility.login import invalidate_all_sessions_for_given_user
 from waitlist.utility.manager.owner_hash_check_manager import OwnerHashCheckManager
 from waitlist.utility.settings import sget_resident_mail, sget_tbadge_mail, sget_other_mail, sget_other_topic, \
-    sget_tbadge_topic, sget_resident_topic
-from waitlist.utility.murmur.connector import register_user, setup_user_rights
+    sget_tbadge_topic, sget_resident_topic, sget_active_coms_type
+from waitlist.utility.coms import get_connector
 from waitlist.utility.utils import get_random_token
 from typing import Callable, Any
 import gevent
@@ -318,22 +318,33 @@ def account_edit():
 PW_LETTERS = string.ascii_letters+string.digits+"!-_#+*%[](){}?<>"
 
 
-@bp.route('/self_register_mumble', methods=['POST'])
+@bp.route('/self_register_coms', methods=['POST'])
 @login_required
 @perm_manager.require('settings_access')
 def account_self_register_mumble():
     eve_name = current_user.get_eve_name()
     pw = ''.join(choice(PW_LETTERS) for i in range(15))
-    register_user(eve_name, pw)
-    flask.flash(f'Your password for Mumble (needed once) is {pw}', 'success')
+    com_connector = get_connector()
+    if com_connector is not None:
+        com_connector.register_user(eve_name, pw, current_user.id)
+        flask.flash(f'Your password for Coms is {pw}', 'success')
+    else:
+        flask.flash(f'No coms setup', 'danger')
+
     return redirect(url_for('.account_self'))
 
 
-@bp.route('/self_grant_rights_mumble', methods=['POST'])
+@bp.route('/self_grant_rights_coms', methods=['POST'])
 @login_required
 @perm_manager.require('settings_access')
 def account_self_grant_rights_mumble():
-    setup_user_rights(current_user.id)
+    com_connector = get_connector()
+    if com_connector is not None:
+        com_connector.update_user_rights(current_user.id)
+        flask.flash('Rights where updated', 'success')
+    else:
+        flask.flash('No coms setup', 'danger')
+
     return redirect(url_for('.account_self'))
 
 
@@ -436,7 +447,8 @@ def account_self_edit():
 @perm_manager.require('settings_access')
 def account_self():
     acc = db.session.query(Account).filter(Account.id == current_user.id).first()
-    return render_template("settings/self.html", account=acc)
+    coms_type = sget_active_coms_type()
+    return render_template("settings/self.html", account=acc, coms_type=coms_type)
 
 
 @bp.route("/api/account/disabled", methods=['POST'])
