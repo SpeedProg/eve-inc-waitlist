@@ -18,7 +18,7 @@ def handle_dc(func, **kwargs):
     if config.disable_teamspeak:
         return
 
-    def func_wrapper(self, *argsw, **kwargsw):
+    def func_wrapper(*argsw, **kwargsw):
         if config.disable_teamspeak:
             return None
         if argsw[0].conn is not None:
