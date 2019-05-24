@@ -13,37 +13,40 @@ from ..utility.coms import ComConnector
 
 logger = logging.getLogger(__name__)
 
-
-def handle_dc(func, **kwargs):
-    if config.disable_teamspeak:
-        return
-
-    def func_wrapper(*argsw, **kwargsw):
-        if config.disable_teamspeak:
-            return None
-        if argsw[0].conn is not None:
-            try:
-                func(*argsw, **kwargsw)
-            except TS3QueryError as error:
-                logger.error("TS3 Query Error: %s", str(error))
-            except Exception:
-                    ncon = make_connection()
-                    if ncon is None:
-                        sleep(2)
-                        ncon = make_connection()
-                        if ncon is not None:
-                            conn = ncon
-                    else:
-                        argsw[0].conn = ncon
-                    func(*argsw, **kwargs)
-        else:
-            argsw[0].conn = make_connection()
-
-
 class TS3Connector(ComConnector):
+    class Decorators(object):
+        @staticmethod
+        def handle_dc(func, **kwargs):
+            if config.disable_teamspeak:
+                return
+
+            def func_wrapper(*argsw, **kwargsw):
+                  if config.disable_teamspeak:
+                      return None
+                  if argsw[0].conn is not None:
+                      try:
+                          func(*argsw, **kwargsw)
+                      except TS3QueryError as error:
+                          logger.error("TS3 Query Error: %s", str(error))
+                      except Exception:
+                              ncon = TS3Connector.make_connection()
+                              if ncon is None:
+                                  sleep(2)
+                                  ncon = TS3Connector.make_connection()
+                                  if ncon is not None:
+                                      conn = ncon
+                              else:
+                                  argsw[0].conn = ncon
+                              func(*argsw, **kwargs)
+                  else:
+                      argsw[0].conn = TS3Connector.make_connection()
+
+            return func_wrapper
+
+
     def __init__(self):
         super().__init__()
-        self.conn = TS3Connector.__make_connection()
+        self.conn = TS3Connector.make_connection()
 
     @staticmethod
     def __get_datum() -> Optional[TeamspeakDatum]:
@@ -55,7 +58,7 @@ class TS3Connector(ComConnector):
         return db.session.query(TeamspeakDatum).get(teamspeak_id)
 
     @staticmethod
-    def __make_connection() -> TS3ServerConnection:
+    def make_connection():
         if config.disable_teamspeak:
             return None
 
@@ -92,9 +95,9 @@ class TS3Connector(ComConnector):
             return
         if self.conn is not None:
             self.conn.close()
-        self.conn = TS3Connector.__make_connection()
+        self.conn = TS3Connector.make_connection()
 
-    @handle_dc
+    @Decorators.handle_dc
     def send_notification(self, name: str, msg: str) -> None:
         if config.disable_teamspeak:
             return
@@ -120,7 +123,7 @@ class TS3Connector(ComConnector):
                     self.conn.exec_('clientpoke', msg=msg, clid=resp['clid'])
 
 
-    @handle_dc
+    @Decorators.handle_dc
     def move_to_safety(self, names: List[str]) -> None:
         if config.disable_teamspeak:
             return
