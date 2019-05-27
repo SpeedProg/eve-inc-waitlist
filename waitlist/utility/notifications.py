@@ -34,7 +34,12 @@ def send_notification(player_id: int, waitlist_id: int, message: str = "You are 
     character = db.session.query(Character).filter(Character.id == player_id).first()
     com_connector = get_connector()
     if com_connector is not None and character.poke_me:  # only poke if he didn't disable it
-        com_connector.send_notification(character.eve_name, message)
+        msg = None
+        try:
+            msg = message.format(waitlist.name)
+        except:
+            msg = message
+        com_connector.send_notification(character.eve_name, msg)
 
     h_entry = create_history_object(character.get_eve_id(), HistoryEntry.EVENT_COMP_NOTI_PL, current_user.id)
     h_entry.exref = waitlist.group.groupID
