@@ -326,8 +326,8 @@ def account_self_register_mumble():
     pw = ''.join(choice(PW_LETTERS) for i in range(15))
     com_connector = get_connector()
     if com_connector is not None:
-        com_connector.register_user(eve_name, pw, current_user.id)
-        flask.flash(f'Your password for Coms is {pw}', 'success')
+        username = com_connector.register_user(eve_name, pw, current_user.id)
+        flask.flash(f'Username: {username} Password: {pw} for {com_connector.get_basic_connect_info()}', 'success')
     else:
         flask.flash(f'No coms setup', 'danger')
 
@@ -340,10 +340,10 @@ def account_self_register_mumble():
 def account_self_grant_rights_mumble():
     com_connector = get_connector()
     if com_connector is not None:
-        com_connector.update_user_rights(current_user.id)
-        flask.flash('Rights where updated', 'success')
+        name = com_connector.update_user_rights(current_user.id, current_user.get_eve_name())
+        flask.flash(f'Rights where updated. Your username is: {name}', 'success')
     else:
-        flask.flash('No coms setup', 'danger')
+        flask.flash('No coms setup by admin', 'danger')
 
     return redirect(url_for('.account_self'))
 
@@ -392,10 +392,10 @@ def account_self_edit():
                                                 'publicData')
                     else:
                         acc.characters.append(character)
+                        db.session.commit()
                         send_alt_link_added(account_self_edit, current_user.id,
                                             acc.id, character.id)
 
-                db.session.flush()
                 if acc.current_char != char_id:
                     # we have a link and it is not the current char
                     if config.require_auth_for_chars:
@@ -458,7 +458,6 @@ def account_disabled():
     accid: int = int(request.form['id'])
     acc: Account = db.session.query(Account).filter(Account.id == accid).first()
     status: Union(str, bool) = request.form['disabled']
-    send_account_status_change(account_disabled, acc.id, current_user.id, status)
     logger.info("%s sets account %s to %s", current_user.username, acc.username, status)
     if status == 'false':
         status = False
@@ -467,6 +466,7 @@ def account_disabled():
 
     acc.disabled = status
     db.session.commit()
+    send_account_status_change(account_disabled, acc.id, current_user.id, status)
     return "OK"
 
 

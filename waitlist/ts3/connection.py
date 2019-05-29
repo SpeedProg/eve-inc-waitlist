@@ -159,11 +159,11 @@ class TS3Connector(ComConnector):
                 return
             self.conn.exec_('clientmove', clid=client['clid'], cid=ts_datum.safetyChannelID)
 
-    def register_user(self, name: str, password: str, acc_id: int) -> None:
-        pass
+    def register_user(self, name: str, password: str, acc_id: int) -> str:
+        return name
 
-    def update_user_rights(self, wl_account_id: int, name: str) -> None:
-        pass
+    def update_user_rights(self, wl_account_id: int, name: str) -> str:
+        return name
 
     def data_updated(self) -> None:
         self.change_connection()

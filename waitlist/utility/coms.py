@@ -16,16 +16,18 @@ class ComConnector(ABC):
         raise NotImplemented('move_to_safety not implemented')
 
     @abstractmethod
-    def register_user(self, name: str, password:str, acc_id: int) -> None:
+    def register_user(self, name: str, password:str, acc_id: int) -> str:
         """ Register a user with the given username and assign the password
             If the user already exists, the password is reset.
             If the account already has a different user connected, he is removed first
+            returns the absolute username he got after applying eventual pre/postfixes
         """
         raise NotImplemented('register_user not implemented')
 
     @abstractmethod
-    def update_user_rights(self, wl_account_id: int, name: str) -> None:
-        """ Update user rights
+    def update_user_rights(self, wl_account_id: int, name: str) -> str:
+        """ Update user rights, this also includes deregistering if account is disabled
+            return the name of the user
         """
         raise NotImplemented('update_user_rights not implemented')
 
