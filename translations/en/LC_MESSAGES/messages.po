@@ -352,9 +352,9 @@ msgid "Fleet to x-up for"
 msgstr "Fleet to x-up for"
 
 #: templates/xup-form.html:34
-msgid "Message me on coms (exact charactername required, case sensitive)"
+msgid "Message me on coms (exact charactername required, case-sensitive)"
 msgstr ""
-"Notify on coms (name must match character name exactly, cas sensitive)"
+"Notify on coms (name must match character name exactly, case-sensitive)"
 
 #: templates/xup-form.html:38
 msgid "Fittings"
@@ -656,9 +656,25 @@ msgstr "Next"
 msgid "Select Squads"
 msgstr "Select Squads"
 
-#: templates/fleet/setup/select.html:19
-msgid "Choose a fleet..."
-msgstr "Choose a fleet..."
+#: templates/fleet/setup/select.html:14
+msgid "Waitlist Group"
+msgstr "Waitlist Group"
+
+#: templates/fleet/setup/select.html:22
+msgid "Logi Squad"
+msgstr "Logi Squad"
+
+#: templates/fleet/setup/select.html:32
+msgid "Sniper Squad"
+msgstr "Sniper Squad"
+
+#: templates/fleet/setup/select.html:42
+msgid "DPS Squad"
+msgstr "DPS Squad"
+
+#: templates/fleet/setup/select.html:52
+msgid "Overflow Squad"
+msgstr "Overflow Squad"
 
 #: templates/fleet/takeover/change-group-form.html:3
 msgid "Takeover"

@@ -745,7 +745,7 @@ msgstr "Aktiviert"
 
 #: templates/settings/accounts.html:3
 #: templates/waitlist/tools/history_search.html:40
-#: waitlist/blueprints/settings/accounts.py:482
+#: waitlist/blueprints/settings/accounts.py:491
 msgid "Accounts"
 msgstr "Konten"
 
