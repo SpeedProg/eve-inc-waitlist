@@ -337,12 +337,12 @@ class MurmurConnector(ComConnector):
         if datum is None:
             return 'Not Available'
 
-        return lazy_gettext('Mumble Your username should match exactly: %(host)s:%(port)d', host=datum.displayHost, port=datum.displayPort)
+        return lazy_gettext('Mumble Your username should match exactly: Address: %(host)s Port: %(port)d', host=datum.displayHost, port=datum.displayPort)
 
     def get_basic_connect_info(self) -> str:
         datum: MurmurDatum = MurmurConnector.__get_active_murmur_datum()
         if datum is None:
             return 'Not Available'
 
-        return f'Murmur {datum.displayHost}:{datum.displayPort}'
+        return f'Mumble Address:{datum.displayHost} Port:{datum.displayPort}'
 
