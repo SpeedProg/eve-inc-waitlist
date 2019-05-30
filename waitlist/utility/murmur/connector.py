@@ -111,7 +111,6 @@ class MurmurConnector(ComConnector):
         badge_str = ''
         if len(badge_list) > 0:
             badge_str = '['+(']['.join([t.code for t in badge_list]))+']'
-        print('Username:', badge_str + username)
         return badge_str + username
 
     @staticmethod
@@ -122,16 +121,24 @@ class MurmurConnector(ComConnector):
     def register_user(self, name: str, password: str, acc_id: int) -> str :
         acc: Account = db.session.query(Account).get(acc_id)
         final_name = MurmurConnector.__get_final_username(name, acc)
+
         with grpc.insecure_channel('localhost:50051') as ch:
             client = murmurrpc_pb2_grpc.V1Stub(ch)
             server = murmurrpc_pb2.Server(id=1)
             murmur_user: MurmurUser = db.session.query(MurmurUser).filter(MurmurUser.accountID == acc_id).first()
+            if murmur_user.murmurUserID == 0:
+                logger.error('Trying to override SuperUser ID=0')
+                db.session.delete(murmur_user)
+                db.session.commit()
+                murmur_user = None
+
             if murmur_user is not None:
                 # lets get the user data and compare
                 dbuser = murmurrpc_pb2.DatabaseUser(server=server, id=murmur_user.murmurUserID)
                 try:
                     dbuser = client.DatabaseUserGet(dbuser)
                     dbuser.id = murmur_user.murmurUserID
+                    dbuser.server.id = server.id
                     if dbuser.name != final_name:
                         # not our user, so remove his stuff
                         client.DatabaseUserDeregister(dbuser)
@@ -163,8 +170,11 @@ class MurmurConnector(ComConnector):
 
                 # deregister all the found users, since we are not bound to them
                 for user in target_db_user_list:
-                    user = murmurrpc_pb2.DatabaseUser(server=server, id=user.id)
-                    client.DatabaseUserDeregister(user)
+                    if user.id == 0:  # protect the SuperUser
+                        logger.error('Trying to deregister SuperUser')
+                        continue
+                    user2 = murmurrpc_pb2.DatabaseUser(server=server, id=user.id)
+                    client.DatabaseUserDeregister(user2)
 
             # register the new user
             user = murmurrpc_pb2.DatabaseUser(server=server, name=final_name, password=password)
@@ -186,17 +196,16 @@ class MurmurConnector(ComConnector):
         return set(out_groups)
 
 
-    def update_user_rights(self, account_id: int, name: str) -> None:
+    def update_user_rights(self, account_id: int, name: str) -> str:
         server = murmurrpc_pb2.Server(id=1)
         acc: Account = db.session.query(Account).get(account_id)
         db_murmur_user: MurmurUser = db.session.query(MurmurUser).filter(MurmurUser.accountID == account_id).first()
         if db_murmur_user is None:
             return 'Not registered'
+        if db_murmur_user.murmurUserID == 0:  # protect the SuperUser
+            return 'Not a valid connected user'
 
         final_name = MurmurConnector.__get_final_username(name, acc)
-
-        if name == '':
-          return
         user_roles: Set[str] = set()
         for role in acc.roles:
             user_roles.add(role.name)
@@ -209,27 +218,30 @@ class MurmurConnector(ComConnector):
             # lets get the murmur user so we know who to add to groups
             murmur_user = None
             try:
-                murmur_user = client.DatabaseUserGet(murmurrpc_pb2.DatabaseUser(id=db_murmur_user.murmurUserID))
+                murmur_user = client.DatabaseUserGet(murmurrpc_pb2.DatabaseUser(server=server, id=db_murmur_user.murmurUserID))
             except grpc.RpcError as err:
                 if err.details() == 'invalid user':
                     logger.info('Registration failed no user with id %d found', db_murmur_user.murmurUserID)
                     db.session.delete(db_murmur_user)
                     db.session.commit()
+                    return 'No user registered'
                 else:
                     logger.error('Unknown error when trying to get user as in database %s', err.details())
                 return 'Unknown'
-
+            
             if acc.disabled:
                 # if the acc is disabled he should not be registered anymore!
                 # and also be deleted from the waitlist database
                 client.DatabaseUserDeregister(murmurrpc_pb2.DatabaseUser(server=server, id=db_murmur_user.murmurUserID))
                 db.session.delete(db_murmur_user)
                 db.session.commit()
+                logger.info('Account %s[%s] removed from murmur because it is disabled', acc.id, acc.username)
                 return 'Account disabled'
 
             # lets see if we need to update the name, because it might have changed with changed rights
             if murmur_user.name != final_name:
-                client.DatabaseUserUpdate(murmurrpc_pb2.DatabaseUser(server=server, id=murmur_user.id, name=final_name))
+                logger.info('Updating murmur username from %s to %s', murmur_user.name, final_name)
+                client.DatabaseUserUpdate(murmurrpc_pb2.DatabaseUser(server=server, id=db_murmur_user.murmurUserID, name=final_name))
                 murmur_user.name = final_name
 
             channel_list = client.ChannelQuery(murmurrpc_pb2.Channel.Query(server=server))

@@ -21,7 +21,7 @@ from waitlist.blueprints.settings import add_menu_entry
 from waitlist.permissions import perm_manager
 from waitlist.permissions.manager import StaticPermissions, StaticRoles
 from waitlist.signal.signals import send_account_created, send_roles_changed, send_account_status_change,\
-    send_alt_link_added, send_account_name_change
+    send_alt_link_added, send_account_name_change, send_default_char_changed
 from waitlist.sso import authorize, who_am_i
 from waitlist.storage.database import Account, Character, Role, linked_chars, APICacheCharacterInfo, SSOToken
 from waitlist.utility import outgate, config
@@ -196,6 +196,7 @@ def clean_alt_list() -> None:
      - or the owner_hash changed (this should expire the token!)
     if there is no token for the character at all, the character is kept
     """
+    return
     if not should_clean_alts():
         return
     if not alt_clean_lock.acquire(False):
@@ -235,6 +236,7 @@ def account_edit():
     if acc.username != acc_name:
         old_name: str = acc.username
         acc.username = acc_name
+        db.session.commit()
         send_account_name_change(account_edit, current_user.id, acc.id,
                                  old_name, acc_name, note)
 
@@ -270,6 +272,7 @@ def account_edit():
             for role in new_db_roles:
                 acc.roles.append(role)
         if len(roles_new) > 0 or len(roles_to_remove) > 0:
+            db.session.commit()
             send_roles_changed(account_edit, acc.id, current_user.id, [x for x in roles_new],
                                [x.name for x in roles_to_remove], note)
     else:
@@ -284,7 +287,7 @@ def account_edit():
         if len(roles_to_remove) > 0:
             for role in roles_to_remove:
                 acc.roles.remove(role)
-            db.session.flush()
+            db.session.commit()
             send_roles_changed(account_edit, acc.id, current_user.id, [], [x.name for x in roles_to_remove], note)
 
     if char_name is not None:
@@ -303,15 +306,19 @@ def account_edit():
                     .filter((linked_chars.c.id == acc_id) & (linked_chars.c.char_id == char_id)).first()
                 if link is None:
                     acc.characters.append(character)
+                    db.session.commit()
                     send_alt_link_added(account_edit, current_user.id, acc.id, character.id)
 
-                db.session.flush()
-                acc.current_char = char_id
+                if acc.current_char != char_id:
+                    old_id = acc.current_char
+                    acc.current_char = char_id
+                    db.session.commit()
+                    send_default_char_changed(account_edit, current_user.id,
+                                              acc.id, old_id, char_id, None)
         except ApiException as e:
             flash(gettext("Could not execute action, ApiException %(ex)s", ex=e),
                   'danger')
 
-    db.session.commit()
     return redirect(url_for('.accounts'), code=303)
 
 
@@ -432,13 +439,15 @@ def account_self_edit():
                             session['link_charid'] = character.id
                             logger.debug("Character owner_owner hash did not match")
                             return get_sso_redirect("alt_verification", 'publicData')
-
-                    acc.current_char = char_id
+                    if acc.current_char != char_id:
+                        old_id = acc.current_char
+                        acc.current_char = char_id
+                        db.session.commit()
+                        send_default_char_changed(account_self_edit, current_user.id, acc.id, old_id, char_id, None)
         except ApiException as e:
             flash(gettext("Could not execute action, ApiException %(ex)s", ex=e),
                   'danger')
 
-    db.session.commit()
     return redirect(url_for('.account_self'), code=303)
 
 
@@ -463,10 +472,10 @@ def account_disabled():
         status = False
     else:
         status = True
-
-    acc.disabled = status
-    db.session.commit()
-    send_account_status_change(account_disabled, acc.id, current_user.id, status)
+    if acc.disabled != status:
+        acc.disabled = status
+        db.session.commit()
+        send_account_status_change(account_disabled, acc.id, current_user.id, status)
     return "OK"
 
 
@@ -520,7 +529,9 @@ def alt_verification_handler(code: str) -> None:
         for character in current_user.characters:
             if character.id == char_id:  # we are already linked to the char
                 # if it is not set as active char set it
+                old_id = char_id
                 if current_user.current_char != char_id:
+                    old_id = current_user.current_char
                     current_user.current_char = char_id
 
                 # we need to check and maybe update owner hash
@@ -535,6 +546,8 @@ def alt_verification_handler(code: str) -> None:
                     invalidate_all_sessions_for_given_user(character)
 
                 db.session.commit()
+                if old_id != char_id:
+                    send_default_char_changed(alt_verification_handler, current_user.id, current_user.id, old_id, char_id, None)
                 return redirect(url_for('accounts.account_self'), code=303)
 
         # we need to add the char
@@ -566,10 +579,14 @@ def alt_verification_handler(code: str) -> None:
         current_user.characters.append(character)
         db.session.flush()
         send_alt_link_added(alt_verification_handler, current_user.id, current_user.id, character.id)
+        old_id = char_id
         if current_user.current_char != char_id:
+            old_id = current_user.current_char
             current_user.current_char = char_id
 
         db.session.commit()
+        if old_id != char_id:
+            send_default_char_changed(alt_verification_handler, current_user.id, current_user.id, old_id, char_id, None)
         flash(gettext('Alt %(char_name)s was added', char_name=character.eve_name), 'info')
         return redirect(url_for('accounts.account_self'), code=303)
     else:

@@ -17,6 +17,7 @@ SIG_FLEET_REMOVED = 'fleet-removed'
 SIG_FLEET_ADDED_FIRST = 'fleet-added-first'
 SIG_FLEET_REMOVED_LAST = 'fleet-removed-last'
 
+SIG_DEFAULT_CHAR_CHANGE = 'acc-default-char-change'
 
 waitlist_bps = Namespace()
 
@@ -46,6 +47,10 @@ alt_link_added_sig = waitlist_bps.\
 
 account_name_change_sig = waitlist_bps.signal(
     'Called when the name of an account gets changed')
+
+default_char_change_sig = waitlist_bps.signal(
+    'Called when the default char of an account changes'
+)
 
 
 def send_roles_changed(sender, to_id, by_id, added_roles, removed_roles, note):
@@ -93,7 +98,6 @@ def send_account_name_change(sender: Any, by_id: int, account_id: int,
                                  old_name=old_name, new_name=new_name,
                                  note=note)
 
-
 fleet_signals = Namespace()
 
 fleet_added_first_sig = fleet_signals.\
@@ -117,3 +121,9 @@ def send_removed_fleet(sender: Any, fleet_id: int, creation_time: datetime):
 def send_removed_last_fleet(sender: Any, fleet_id: int):
     fleet_removed_last_sig.send(sender, fleet_id=fleet_id)
 
+def send_default_char_changed(sender: Any, by_id: int, account_id: int,
+                              old_char_id: Optional[int], new_char_id: Optional[int],
+                              note: Optional[str]) -> None:
+    default_char_change_sig.send(sender, by_id=by_id, account_id=account_id,
+                                 old_char_id=old_char_id, new_char_id=new_char_id,
+                                 note=note)

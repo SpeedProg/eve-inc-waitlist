@@ -181,6 +181,9 @@ def main():
     # connect account signal handler
     from waitlist.signal import handler
     handler.account.connect()
+
+    handler.murmur.connect()
+
     handler.timetracking.connect()
     # we need to send the signal for first fleet
     # if there is one on startup
