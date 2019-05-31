@@ -270,7 +270,7 @@ class MurmurConnector(ComConnector):
                     for u in group.users_add:
                         if u.id == murmur_user.id:
                             is_already_in = True
-                            logger.debug('User %s alread found in %s', murmur_user.name. group.name)
+                            logger.debug('User %s alread found in %s', murmur_user.name, group.name)
                             break
 
                     if not is_already_in:
