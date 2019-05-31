@@ -228,7 +228,7 @@ class MurmurConnector(ComConnector):
                 else:
                     logger.error('Unknown error when trying to get user as in database %s', err.details())
                 return 'Unknown'
-            
+
             if acc.disabled:
                 # if the acc is disabled he should not be registered anymore!
                 # and also be deleted from the waitlist database
@@ -263,7 +263,7 @@ class MurmurConnector(ComConnector):
                 if group.name in murmur_grps:
                     is_already_in = False
                     for u in group.users_add:
-                        if u.name == murmur_user.name:
+                        if u.id == murmur_user.id:
                             is_already_in = True
                             break
 
@@ -272,7 +272,7 @@ class MurmurConnector(ComConnector):
                         n_user.CopyFrom(murmur_user)
                 else:  # he should not have this group so we need to remove him if he does
                     for i in range(len(group.users_add)):
-                        if group.users_add[i].name == murmur_user.name:
+                        if group.users_add[i].id == murmur_user.id:
                             del group.users_add[i]
                             break;
 
