@@ -74,6 +74,9 @@ def repeated_verify(security: EsiSecurity, count: int=0,
             security.signal_token_updated.send(
                 token_identifier=security.token_identifier,
                 **resp)
+        if e.status_code == 420:
+            raise e
+
         if count >= max_count:
             logger.exception('Failed to verify because of repeated errors',
                              exc_info=True)
