@@ -228,7 +228,7 @@ class MurmurConnector(ComConnector):
                 else:
                     logger.error('Unknown error when trying to get user as in database %s', err.details())
                 return 'Unknown'
-
+            murmur_user.id = db_murmur_user.murmurUserID
             if acc.disabled:
                 # if the acc is disabled he should not be registered anymore!
                 # and also be deleted from the waitlist database
