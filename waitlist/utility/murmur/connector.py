@@ -126,7 +126,7 @@ class MurmurConnector(ComConnector):
             client = murmurrpc_pb2_grpc.V1Stub(ch)
             server = murmurrpc_pb2.Server(id=1)
             murmur_user: MurmurUser = db.session.query(MurmurUser).filter(MurmurUser.accountID == acc_id).first()
-            if murmur_user.murmurUserID == 0:
+            if murmur_user is not None and  murmur_user.murmurUserID == 0:
                 logger.error('Trying to override SuperUser ID=0')
                 db.session.delete(murmur_user)
                 db.session.commit()
