@@ -197,7 +197,7 @@ class MurmurConnector(ComConnector):
 
 
     def update_user_rights(self, account_id: int, name: str) -> str:
-        logger.info('update_user_rights for acc_id: %d name: %s', account_id, name)
+        logger.debug('update_user_rights for acc_id: %d name: %s', account_id, name)
         server = murmurrpc_pb2.Server(id=1)
         acc: Account = db.session.query(Account).get(account_id)
         db_murmur_user: MurmurUser = db.session.query(MurmurUser).filter(MurmurUser.accountID == account_id).first()
@@ -212,7 +212,7 @@ class MurmurConnector(ComConnector):
             user_roles.add(role.name)
 
         murmur_grps = MurmurConnector.__get_murmur_groups_from_roles(user_roles)
-        logger.info('Murmur groups to assign: %r', murmur_grps)
+        logger.debug('Murmur groups to assign: %r', murmur_grps)
 
         with grpc.insecure_channel('localhost:50051') as ch:
             client = murmurrpc_pb2_grpc.V1Stub(ch)
@@ -223,14 +223,14 @@ class MurmurConnector(ComConnector):
                 murmur_user = client.DatabaseUserGet(murmurrpc_pb2.DatabaseUser(server=server, id=db_murmur_user.murmurUserID))
             except grpc.RpcError as err:
                 if err.details() == 'invalid user':
-                    logger.info('Registration failed no user with id %d found', db_murmur_user.murmurUserID)
+                    logger.debug('Registration failed no user with id %d found', db_murmur_user.murmurUserID)
                     db.session.delete(db_murmur_user)
                     db.session.commit()
                     return 'No user registered'
                 else:
                     logger.error('Unknown error when trying to get user as in database %s', err.details())
                 return 'Unknown'
-            logger.info('We got murmur_user with id=%d name=%s', murmur_user.id, murmur_user.name)
+            logger.debug('We got murmur_user with id=%d name=%s', murmur_user.id, murmur_user.name)
             murmur_user.id = db_murmur_user.murmurUserID
             if acc.disabled:
                 # if the acc is disabled he should not be registered anymore!
@@ -257,35 +257,35 @@ class MurmurConnector(ComConnector):
             if target_channel is None:
                 logger.error('Failed to find channel for adding rights')
                 return final_name
-            logger.info('We found target channel id=%d', target_channel.id)
+            logger.debug('We found target channel id=%d', target_channel.id)
             acl_list = client.ACLGet(target_channel)
             acl_list.server.id=server.id
             acl_list.channel.id = target_channel.id
 
             for group in acl_list.groups:
-                logger.info('Checking group: %s', group.name)
+                logger.debug('Checking group: %s', group.name)
                 if group.name in murmur_grps:
-                    logger.info('Group %s is one that is needed', group.name)
+                    logger.debug('Group %s is one that is needed', group.name)
                     is_already_in = False
                     for u in group.users_add:
                         if u.id == murmur_user.id:
                             is_already_in = True
-                            logger.info('User %s alread found in %s', murmur_user.name. group.name)
+                            logger.debug('User %s alread found in %s', murmur_user.name. group.name)
                             break
 
                     if not is_already_in:
                         n_user = group.users_add.add()
                         n_user.CopyFrom(murmur_user)
-                        logger.info('Added %s to group %s', murmur_user.name, group.name)
+                        logger.debug('Added %s to group %s', murmur_user.name, group.name)
                 else:  # he should not have this group so we need to remove him if he does
                     for i in range(len(group.users_add)):
                         if group.users_add[i].id == murmur_user.id:
                             del group.users_add[i]
-                            logger.info('Deleted %s from %s', murmur_user.name, group.name)
+                            logger.debug('Deleted %s from %s', murmur_user.name, group.name)
                             break;
 
             client.ACLSet(acl_list)
-            logger.info('Sent updated ACL list for %s', murmur_user.name)
+            logger.debug('Sent updated ACL list for %s', murmur_user.name)
         return final_name
 
     def send_notification(self, username: str, msg: str) -> None:
