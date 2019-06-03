@@ -119,6 +119,7 @@ class MurmurConnector(ComConnector):
         return MurmurConnector.__get_username_with_badged(username, badges)
 
     def register_user(self, name: str, password: str, acc_id: int) -> str :
+        logger.debug('Registering %s for acc %d with password: %s', name, acc_id, password)
         acc: Account = db.session.query(Account).get(acc_id)
         final_name = MurmurConnector.__get_final_username(name, acc)
 
@@ -141,22 +142,26 @@ class MurmurConnector(ComConnector):
                     dbuser.server.id = server.id
                     if dbuser.name != final_name:
                         # not our user, so remove his stuff
+                        logger.debug('found a different user named %s connected but we want %s, deleting', dbuser.name, final_name) 
                         client.DatabaseUserDeregister(dbuser)
                         db.session.delete(murmur_user)
                         db.session.commit()
                     else:
                         # our user lets just change his pw
+                        logger.debug('Found connected user with right name, updating password to %s', password)
                         dbuser.password = password
                         client.DatabaseUserUpdate(dbuser)
                         return final_name
                 except grpc.RpcError as err:
                     if err.details() == "invalid user":
+                        logger.debug('Invalid connected user, deleteing')
                         db.session.delete(murmur_user)
                         db.session.commit()
                     else:  # raise it further because it is unexpected
                         raise err
 
             else:  # we got no connected user yet
+                logger.debug('No connected user')
                 # lets find everything that ends with the basename
                 ul = client.DatabaseUserQuery(murmurrpc_pb2.DatabaseUser.Query(server=server, filter='%'+name))
                 target_db_user_list = []
@@ -173,10 +178,12 @@ class MurmurConnector(ComConnector):
                     if user.id == 0:  # protect the SuperUser
                         logger.error('Trying to deregister SuperUser')
                         continue
+                    logger.debug('Deregistering user %d with name %s', user.id, user.name)
                     user2 = murmurrpc_pb2.DatabaseUser(server=server, id=user.id)
                     client.DatabaseUserDeregister(user2)
 
             # register the new user
+            logger.debug('Registering new user')
             user = murmurrpc_pb2.DatabaseUser(server=server, name=final_name, password=password)
             user = client.DatabaseUserRegister(user)
             murmur_user: MurmurUser = MurmurUser(accountID=acc_id, murmurUserID=user.id)
