@@ -211,13 +211,13 @@ def add_type_by_id_to_database(type_id: int):
             db.session.add(dogma_attr)
 
 
-            if resp.dogma_effects is not None:
-                for effect in resp.dogma_effects:
-                    effect_data = InvTypeDogmaEffect(
-                        typeID=resp.type_id,
-                        effectID=effect['effect_id'],
-                        isDefault=effect['is_default'])
-                    db.session.add(effect_data)
+    if resp.dogma_effects is not None:
+        for effect in resp.dogma_effects:
+            effect_data = InvTypeDogmaEffect(
+                typeID=resp.type_id,
+                effectID=effect['effect_id'],
+                isDefault=effect['is_default'])
+            db.session.add(effect_data)
 
 
 def update_categories_and_groups():
