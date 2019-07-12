@@ -46,18 +46,12 @@ def get_item_id(name: str) -> int:
             return -1
 
         # add the type to db
-        market_group_id = None
-
-        try:
-            market_group_id = item_data.market_group_id
-        except (KeyError, AttributeError):
-            pass  # it should stay None
         current_type: InvType = db.session.query(InvType).get(item_data.type_id)
         # Was it only renamed?
         if current_type is not None:
             item = InvType(typeID=item_data.type_id, groupID=item_data.group_id,
                            typeName=item_data.name, description=item_data.description,
-                          marketGroupID=market_group_id)
+                          marketGroupID=getattr(item_data, 'market_group_id', None))
 
             db.session.merge(item)
             db.session.commit()
