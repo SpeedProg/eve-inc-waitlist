@@ -60,12 +60,12 @@ def get_item_id(name: str) -> int:
                           marketGroupID=market_group_id)
 
             db.session.merge(item)
+            db.session.commit()
+            logger.info(f'Updated {item}')
         else:
-            add_type_by_id_to_database(item_data.type_id)
-
-        db.session.commit()
-        logger.info(f'Added new {item}')
-        return item.typeID
+            item = add_type_by_id_to_database(item_data.type_id)
+            db.session.commit()
+            logger.info(f'Added new {item}')
 
     return item.typeID
 
