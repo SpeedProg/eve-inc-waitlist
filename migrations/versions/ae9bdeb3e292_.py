@@ -5,6 +5,7 @@ Revises: f363cde2b713
 Create Date: 2019-07-12 17:05:44.201439
 
 """
+from datetime import datetime
 from alembic import op
 import sqlalchemy as sa
 from sqlalchemy.sql.expression import func
@@ -36,6 +37,7 @@ def downgrade():
         'ssotoken',
         sa.MetaData(),
         sa.Column('access_token', sa.Text()),
+        sa.Column('access_token_expires', sa.DateTime(), default=datetime.utcnow),
         sa.Column('refresh_token', sa.Text()),
     )
 
@@ -51,7 +53,7 @@ def downgrade():
     connection.execute(
         t_tokens.update()\
             .where(func.length(t_tokens.c.access_token) > 128)\
-            .values(access_token=None)\
+            .values(access_token=None, access_token_expires=datetime.utcnow())\
     )
     op.alter_column('ssotoken', 'access_token',
                existing_type=sa.Text(),
