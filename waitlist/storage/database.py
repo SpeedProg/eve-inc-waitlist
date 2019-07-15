@@ -80,8 +80,8 @@ class SSOToken(Base):
     # the last account that used this char, if null means no account=>standalone char
     accountID = Column('account_id', Integer, ForeignKey('accounts.id', onupdate="CASCADE", ondelete="CASCADE"),
                        nullable=True, index=True)
-    refresh_token = Column('refresh_token', String(128), default=None)
-    access_token = Column('access_token', String(128), default=None)
+    refresh_token = Column('refresh_token', Text, default=None)
+    access_token = Column('access_token', Text, default=None)
     access_token_expires = Column('access_token_expires', DateTime, default=datetime.utcnow)
 
     scopes: List[EveApiScope] = relationship(EveApiScope, cascade="save-update, merge, delete, delete-orphan")
