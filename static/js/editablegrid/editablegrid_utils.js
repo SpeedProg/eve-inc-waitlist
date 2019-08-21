@@ -853,7 +853,7 @@ class StringFilter extends Filter {
 		
 			// a word ending with "!" means that a column must match this word exactly
 			if (!word.endsWith("!")) {
-				if (colindex >= 0) match = (grid.getValueAt(r, colindex) + ' ' + grid.getDisplayValueAt(index, colindex)).trim().toLowerCase().indexOf(word) >= 0;
+				if (colindex >= 0) match = (grid.getValueAt(index, colindex) + ' ' + grid.getDisplayValueAt(index, colindex)).trim().toLowerCase().indexOf(word) >= 0;
 				else if (attributeName !== null) match = (''+grid.getRowAttribute(index, attributeName)).trim().toLowerCase().indexOf(word) >= 0;
 				else match = rowContent.toLowerCase().indexOf(word) >= 0;
 			}
