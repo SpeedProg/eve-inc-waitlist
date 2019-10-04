@@ -15,6 +15,7 @@ logger = logging.getLogger(__name__)
 
 def set_from_character_info(self: APICacheCharacterInfo, info: CharacterInfo, char_id: int) -> None:
     self.id = char_id
+    self.allianceID = info.get_alliance_id()
     self.characterName = info.get_name()
     self.corporationID = info.get_corp_id()
     self.characterBirthday = info.get_birthday()
