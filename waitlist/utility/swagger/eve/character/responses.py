@@ -17,6 +17,9 @@ class CharacterInfo(ESIResponse):
     def get_birthday(self) -> datetime:
         return self.data['birthday'].v
 
+    def get_alliance_id(self) -> Optional[int]:
+        return self.data.get('alliance_id')
+
     def get_corp_id(self) -> int:
         return self.data['corporation_id']
 
