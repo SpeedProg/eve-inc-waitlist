@@ -2,13 +2,12 @@ import logging
 from datetime import datetime
 from typing import Optional, Tuple
 
-from waitlist.storage.database import APICacheCharacterInfo, APICacheCorporationInfo, SSOToken
+from waitlist.storage.database import APICacheCharacterInfo, SSOToken
 from waitlist.utility.outgate.exceptions import check_esi_response, ESIException,\
     ApiException
 from waitlist.utility.swagger.eve.character import CharacterEndpoint, CharacterInfo
 from waitlist.utility.swagger.eve.search import SearchEndpoint, SearchResponse
 from waitlist.base import db
-from waitlist.utility.outgate import corporation
 
 logger = logging.getLogger(__name__)
 
@@ -107,18 +106,6 @@ def get_char_or_corp_or_alliance_id_by_name(name: str, *args) -> Tuple[Optional[
     if len(ids) > 0:
         return ids[0], 'alliance'
     return None, None
-
-
-def get_char_affiliations(char_id: int, *_) -> Optional[Tuple[int, int]]:
-    """
-    Get the id of a characters corporation and alliance
-    :param char_id: characters id
-    :return a Tuple[CorpID, AllianceID], alliance could ne None
-    :throws ApiException if there was a problem with the api
-    """
-    char_info: APICacheCharacterInfo = get_character_info(char_id)
-    corp_info: APICacheCorporationInfo = corporation.get_info(char_info.corporationID)
-    return corp_info.id, corp_info.allianceID
 
 
 def get_character_fleet_id(token: SSOToken, char_id: int) -> Optional[int]:

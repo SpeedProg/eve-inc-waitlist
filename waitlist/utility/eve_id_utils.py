@@ -185,32 +185,24 @@ def is_char_banned(char: Character) -> Tuple[bool, str]:
         if char.banned:
             return True, "Character"
 
-        corp_id, alli_id = outgate.character.get_affiliations(char.get_eve_id())
+        char_info = outgate.character.get_info(char.get_eve_id())
 
-        if banned_by_default:
-            if is_charid_whitelisted(corp_id):
+        if is_charid_whitelisted(char_info.corporationID):
+            return False, ""
+
+        if is_charid_banned(char_info.corporationID):
+            return True, "Corporation"
+
+        if char_info.allianceID is not None:
+            if is_charid_whitelisted(char_info.allianceID):
                 return False, ""
-            if is_charid_banned(corp_id):
-                return True, "Corporation"
-            if is_charid_whitelisted(alli_id):
-                return False, ""
-            return True, "Everyone Banned by default"
-        else:
-            corp_banned = is_charid_banned(corp_id)
-            alli_banned = is_charid_banned(alli_id)
 
-            if is_charid_whitelisted(corp_id):
-                    return False, ""
-
-            if corp_banned:
-                return True, "Corporation"
-
-            if is_charid_whitelisted(alli_id):
-                    return False, ""
-
-            if alli_banned:
+            if is_charid_banned(char_info.allianceID):
                 return True, "Alliance"
 
+        if banned_by_default:
+            return True, "Everyone Banned by default"
+        else:
             return False, ""
     except ApiException as e:
         logger.info("Failed to check if %d was banned, because of Api error, code=%d msg=%s",
