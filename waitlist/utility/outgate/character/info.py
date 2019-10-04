@@ -12,44 +12,37 @@ from waitlist.base import db
 logger = logging.getLogger(__name__)
 
 
-def set_from_character_info(self: APICacheCharacterInfo, info: CharacterInfo, char_id: int) -> None:
-    self.id = char_id
-    self.allianceID = info.get_alliance_id()
-    self.characterName = info.get_name()
-    self.corporationID = info.get_corp_id()
-    self.characterBirthday = info.get_birthday()
-    self.raceID = info.get_race_id()
-    self.expire = info.expires()
+def __run_update_check(self: APICacheCharacterInfo, char_id: int, *args):
+    """
+    :throws ApiException if an error with the api occured
+    """
+    if self.expire is None or self.expire < datetime.now():
+        char_ep = CharacterEndpoint()
+        info: CharacterInfo = check_esi_response(char_ep.get_character_info(char_id), __run_update_check, args)
+        self.id = char_id
+        self.allianceID = info.get_alliance_id()
+        self.characterName = info.get_name()
+        self.corporationID = info.get_corp_id()
+        self.characterBirthday = info.get_birthday()
+        self.raceID = info.get_race_id()
+        self.expire = info.expires()
+        db.session.commit()
 
 
 def get_character_info(char_id: int, *args) -> APICacheCharacterInfo:
     """
-    :throws ApiException if an error with the api occured
+    Get Info for a character by id
+    :param char_id: character id to get the info for
+    :return: APICacheCharacterInfo of the character
+    :throws ApiException if a problem with the api occured
     """
-    char_cache: APICacheCharacterInfo = db.session.query(APICacheCharacterInfo) \
-        .filter(APICacheCharacterInfo.id == char_id).first()
+    char_cache = db.session.query(APICacheCharacterInfo).get(char_id)
 
     if char_cache is None:
         char_cache = APICacheCharacterInfo()
-        char_ep = CharacterEndpoint()
-        char_info: CharacterInfo = check_esi_response(char_ep.get_character_info(char_id), get_character_info, args)
-        char_cache.id = char_id
-        set_from_character_info(char_cache, char_info, char_id)
         db.session.add(char_cache)
-        db.session.commit()
-    elif char_cache.characterName is None:
-        char_ep = CharacterEndpoint()
-        char_info: CharacterInfo = check_esi_response(char_ep.get_character_info(char_id), get_character_info, args)
-        set_from_character_info(char_cache, char_info, char_id)
-        db.session.commit()
-    else:
-        now = datetime.now()
-        if char_cache.expire is None or char_cache.expire < now:
-            # expired, update it
-            char_ep = CharacterEndpoint()
-            char_info: CharacterInfo = check_esi_response(char_ep.get_character_info(char_id), get_character_info, args)
-            set_from_character_info(char_cache, char_info, char_id)
-            db.session.commit()
+
+    __run_update_check(char_cache, char_id)
 
     return char_cache
 
@@ -61,28 +54,23 @@ def get_character_info_by_name(name: str, *args) -> Optional[APICacheCharacterIn
     :return: APICacheCharacterInfo of the character or None if no character with this name can be found
     :throws ApiException if a problem with the api occured
     """
-    character = db.session.query(APICacheCharacterInfo).filter(APICacheCharacterInfo.characterName == name).first()
-    if character is None:
-        search_ep = SearchEndpoint()
-        search_info: SearchResponse = check_esi_response(search_ep.public_search(name, ['character']),
-                                                         get_character_info_by_name, args)
-        if search_info.character_ids() is None or\
-           len(search_info.character_ids()) < 1:
-            return None
-        return get_character_info(search_info.character_ids()[0])
-    else:
-        # this does expire checks and such for us
-        info: APICacheCharacterInfo = get_character_info(character.id)
+    char_cache = db.session.query(APICacheCharacterInfo)\
+        .filter(APICacheCharacterInfo.characterName == name).first()
+
+    if char_cache is not None:
+        __run_update_check(char_cache, char_cache.id)
+
         # lets make sure with updated info the names still match
-        if info.characterName.lower() != name.lower():
-            # if they don't, try to find a char for it
-            search_ep = SearchEndpoint()
-            search_info: SearchResponse = check_esi_response(search_ep.public_search(name, ['character']),
-                                                             get_character_info_by_name, args)
+        if char_cache.characterName.lower() == name.lower():
+            return char_cache
 
-            return get_character_info(search_info.character_ids()[0])
-
-        return info
+    search_ep = SearchEndpoint()
+    search_info: SearchResponse = check_esi_response(search_ep.public_search(name, ['character']),
+                                                        get_character_info_by_name, args)
+    if search_info.character_ids() is None or\
+        len(search_info.character_ids()) < 1:
+        return None
+    return get_character_info(search_info.character_ids()[0])
 
 
 def get_char_or_corp_or_alliance_id_by_name(name: str, *args) -> Tuple[Optional[int], Optional[str]]:
