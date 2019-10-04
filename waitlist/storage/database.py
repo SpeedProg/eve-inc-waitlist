@@ -975,11 +975,12 @@ class WaitlistEntry(Base):
 class APICacheCharacterInfo(Base):
     __tablename__ = "apicache_characterinfo"
     id = Column('id', Integer, primary_key=True)
-    characterName = Column('character_name', String(100))
-    corporationID = Column('corporation_id', Integer, index=True)
+    allianceID = Column('alliance_id', Integer)
+    characterName = Column('character_name', String(100), index=True, nullable=False)
+    corporationID = Column('corporation_id', Integer, nullable=False)
     characterBirthday = Column('character_birthday', DateTime, nullable=False)
-    raceID = Column('race_id', Integer)
-    expire = Column('expire', DateTime)
+    raceID = Column('race_id', Integer, nullable=False)
+    expire = Column('expire', DateTime, nullable=False)
 
 
 class APICacheCorporationInfo(Base):
