@@ -8,14 +8,18 @@ Optionalcharids = Optional[Sequence[int]]
 
 def make_json_wl_entry(entry, exclude_fits: bool = False, include_fits_from: Optionalcharids = None,
                        scramble_names: bool = False, include_names_from: Optionalcharids = None):
-    return {
+    response = {
         'id': entry.id,
         'character': make_json_character(entry.user_data, scramble_names=scramble_names,
                                          include_names_from=include_names_from),
-        'fittings': make_json_fittings(entry.fittings, exclude_fits, include_fits_from, entry.user),
         'time': entry.creation,
         'missedInvites': entry.inviteCount
     }
+
+    if not (exclude_fits and ((include_fits_from is None or entry.user is None) or entry.user not in include_fits_from)):
+        response['fittings'] = list(map(make_json_fitting, entry.fittings))
+
+    return response
 
 
 def make_json_wl(dbwl: Waitlist, exclude_fits: bool = False, include_fits_from: Optionalcharids = None,
@@ -49,19 +53,6 @@ def make_json_fitting(dbfitting: Shipfit):
         #            'dna': dbfitting.get_dna(),
         'wl_type': dbfitting.wl_type
     }
-
-
-def make_json_fittings(dbfittings, exclude_fits: bool = False, include_fits_from: Optionalcharids = None,
-                       char_id: Optional[int] = None):
-    fittings = []
-    if exclude_fits and (include_fits_from is None or char_id is None):
-        return fittings
-
-    for fit in dbfittings:
-        if not exclude_fits or (char_id in include_fits_from):
-            fittings.append(make_json_fitting(fit))
-
-    return fittings
 
 
 def make_entries(dbentries, exclude_fits: bool = False, include_fits_from: Optionalcharids = None,
