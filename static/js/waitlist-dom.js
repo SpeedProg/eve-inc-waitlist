@@ -178,7 +178,7 @@ waitlist.listdom = (function(){
 			}
 		}
 		var buttonHTML = "";
-		const dropdownButton = `<button type="button" data-toggle="collapse" data-target="#fittings-${entry.id}-col" class="btn btn-primary"><span class="fitdd">${$.i18n('wl-fits')}</span></button>`;
+		const dropdownButton = `<button type="button" data-toggle="collapse" data-target="#fittings-${entry.id}" class="btn btn-primary"><span class="fitdd">${$.i18n('wl-fits')}</span></button>`;
 		if (settings.can_manage) { // fleet comp
 			var button1, button4, convoButton = "";
 			const notificationButton = `<button type="button" class="btn btn-success" data-action="sendNotification" data-characterid="${entry.character.id}" data-wlId="${wlid}"><i class="fa fa-bell-o"></i></button>`;
@@ -217,19 +217,19 @@ waitlist.listdom = (function(){
 	 * @returns {HTMLElement} DOM of an entry
 	 */
 	function createEntryDOM(wlId, entry, groupID, isQueue) {
-		let entryDOM = $(`<li class="list-group-item" data-username="${entry.character.name}" id="entry-${wlId}-${entry.id}"></li>`);
-		let headerDOM = createHeaderDOM(wlId, entry, groupID, isQueue);
-		entryDOM.append(headerDOM);
-		let collapsLayer = $($.parseHTML(`<div id="fittings-${entry.id}-col" class="collapse"></div>`));
-		let fittlistDOM = $(`<ul aria-expanded="true" class="list-group list-group-flush" id="fittings-${entry.id}"></ul>`);
-		collapsLayer.append(fittlistDOM);
-		headerDOM.append(collapsLayer);
-		for (let fit of entry.fittings) {
-			fittlistDOM.append(createFitDOM(fit, wlId, entry.id, isQueue, entry.character.name, entry.character.id));
+		const headerDOM = createHeaderDOM(wlId, entry, groupID, isQueue);
+		if (entry.fittings) {
+			const fitListDOM = $(`<ul class="list-group list-group-flush collapse" id="fittings-${entry.id}"></ul>`);
+			fitListDOM.append(
+				entry.fittings.map(fit => createFitDOM(fit, wlId, entry.id, isQueue, entry.character.name, entry.character.id))
+			);
+			headerDOM.append(fitListDOM);
 		}
+		const entryDOM = $(`<li class="list-group-item" data-username="${entry.character.name}" id="entry-${wlId}-${entry.id}"></li>`);
+		entryDOM.append(headerDOM);
 		return entryDOM;
 	}
-	
+
 	function getTagFromDomFit(fit) {
 		return fit.attr('data-type');
 	}
