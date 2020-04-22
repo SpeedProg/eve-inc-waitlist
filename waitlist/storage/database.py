@@ -8,6 +8,7 @@ from esipy.exceptions import APIException
 from sqlalchemy import Column, Integer, String, SmallInteger, BIGINT, Boolean, DateTime, Index, \
     sql, BigInteger, text, Float, Text, Numeric
 from sqlalchemy import Enum
+from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.sql.schema import Table, ForeignKey, CheckConstraint, UniqueConstraint
 
@@ -80,8 +81,8 @@ class SSOToken(Base):
     # the last account that used this char, if null means no account=>standalone char
     accountID = Column('account_id', Integer, ForeignKey('accounts.id', onupdate="CASCADE", ondelete="CASCADE"),
                        nullable=True, index=True)
-    refresh_token = Column('refresh_token', String(128), default=None)
-    access_token = Column('access_token', String(128), default=None)
+    refresh_token = Column('refresh_token', Text, default=None)
+    access_token = Column('access_token', Text, default=None)
     access_token_expires = Column('access_token_expires', DateTime, default=datetime.utcnow)
 
     scopes: List[EveApiScope] = relationship(EveApiScope, cascade="save-update, merge, delete, delete-orphan")
@@ -616,6 +617,8 @@ class CrestFleet(Base):
     otherSquadID = Column('other_squad_id', BigInteger)
     groupID = Column('group_id', Integer, ForeignKey('waitlist_groups.group_id'), nullable=False)
     compID = Column('comp_id', Integer, ForeignKey("accounts.id"), nullable=True)
+    registrationTime = Column('registration_time', DateTime, nullable=False,
+                              server_default=func.now())
 
     group = relationship("WaitlistGroup", uselist=False, back_populates="fleets")
     comp = relationship("Account", uselist=False, back_populates="fleet")
@@ -975,11 +978,12 @@ class WaitlistEntry(Base):
 class APICacheCharacterInfo(Base):
     __tablename__ = "apicache_characterinfo"
     id = Column('id', Integer, primary_key=True)
-    characterName = Column('character_name', String(100))
-    corporationID = Column('corporation_id', Integer, index=True)
+    allianceID = Column('alliance_id', Integer)
+    characterName = Column('character_name', String(100), index=True, nullable=False)
+    corporationID = Column('corporation_id', Integer, nullable=False)
     characterBirthday = Column('character_birthday', DateTime, nullable=False)
-    raceID = Column('race_id', Integer)
-    expire = Column('expire', DateTime)
+    raceID = Column('race_id', Integer, nullable=False)
+    expire = Column('expire', DateTime, nullable=False)
 
 
 class APICacheCorporationInfo(Base):
@@ -1492,3 +1496,38 @@ class ShipCheck(Base):
             self.check_groups = value
     def __repr__(self):
         return f'<ShipCheck id={self.checkID} name={self.checkName} tag={self.checkTag} order={self.order} type={self.checkType} modifier={self.modifier}>'
+
+
+class FleetTimeLastTracked(Base):
+    __tablename__: str = 'fleet_time_last_tracked'
+    characterID: Column = Column('character_id', Integer,
+                                 ForeignKey('characters.id',
+                                            onupdate='CASCADE',
+                                            ondelete='CASCADE'),
+                                 primary_key=True)
+    lastTimeTracked: Column = Column('last_time_tracked', DateTime, nullable=False)
+
+
+class FleetTime(Base):
+    __tablename__: str = 'fleet_time'
+    characterID: Column = Column('character_id', Integer,
+                                 ForeignKey(Character.id,
+                                            onupdate='CASCADE',
+                                            ondelete='CASCADE'),
+                                 primary_key=True)
+    # this duration should be in sconds, max is about 68 years
+    duration: Column = Column('duration', Integer, nullable=False, server_default='0')
+
+
+class FleetTimeByHull(Base):
+    __tablename__: str = 'fleet_time_by_hull'
+    characterID: Column = Column('character_id', Integer,
+                                 ForeignKey(Character.id,
+                                            onupdate='CASCADE',
+                                            ondelete='CASCADE'),
+                                 primary_key=True)
+    hullType: Column = Column('hull_type', Integer,
+                              ForeignKey(InvType.typeID,
+                                         onupdate='CASCADE'),
+                              primary_key=True)
+    duration: Column = Column('duration', Integer, nullable=False, server_default='0')

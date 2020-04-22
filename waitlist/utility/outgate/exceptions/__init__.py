@@ -1,8 +1,7 @@
-import logging
+import logging, json
 from typing import Callable, Any, Optional, Sequence, Dict
 
 from waitlist.utility.swagger.eve import ESIResponse
-from flask import jsonify
 
 logger = logging.getLogger(__name__)
 
@@ -19,10 +18,10 @@ class ApiException(Exception):
         return {
             'msg': self.msg,
             'code': self.code,
-            }
+        }
 
     def __str__(self):
-        return jsonify(self.to_dict());
+        return json.dumps(self.to_dict());
 
     def __repr__(self):
         return f'<GernericApiException code={self.code} msg={self.msg}>'

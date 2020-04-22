@@ -164,6 +164,16 @@ def main():
     # connect account signal handler
     from waitlist.signal import handler
     handler.account.connect()
+    handler.timetracking.connect()
+    # we need to send the signal for first fleet
+    # if there is one on startup
+    from waitlist.base import db
+    from waitlist.storage.database import CrestFleet
+    from waitlist.signal import send_added_first_fleet
+    if db.session.query(CrestFleet).count() > 0:
+        f: CrestFleet = db.session.query(CrestFleet).first()
+        send_added_first_fleet(main, f.fleetID)
+    db.session.remove()
     run_server()
 
 if __name__ == '__main__':

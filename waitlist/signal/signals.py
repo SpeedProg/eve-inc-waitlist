@@ -1,5 +1,7 @@
-from blinker.base import Namespace
 from typing import Any, Optional
+from datetime import datetime
+from blinker.base import Namespace
+
 SIG_ROLES_EDITED = 'roles-edited'
 SIG_ROLES_ADDED = 'roles-added'
 SIG_ROLES_REMOVED = 'roles-removed'
@@ -10,6 +12,10 @@ SIG_ALT_LINK_REMOVED = 'alt-link-removed'
 SIG_ALT_LINK_ADDED = 'alt-link-added'
 
 SIG_ACCOUNT_NAME_CHANGE = 'acc-namec-change'
+
+SIG_FLEET_REMOVED = 'fleet-removed'
+SIG_FLEET_ADDED_FIRST = 'fleet-added-first'
+SIG_FLEET_REMOVED_LAST = 'fleet-removed-last'
 
 
 waitlist_bps = Namespace()
@@ -86,4 +92,28 @@ def send_account_name_change(sender: Any, by_id: int, account_id: int,
     account_name_change_sig.send(sender, by_id=by_id, account_id=account_id,
                                  old_name=old_name, new_name=new_name,
                                  note=note)
+
+
+fleet_signals = Namespace()
+
+fleet_added_first_sig = fleet_signals.\
+    signal(SIG_FLEET_ADDED_FIRST,
+           'Called when the first fleet is created')
+fleet_removed_sig = fleet_signals.\
+    signal(SIG_FLEET_REMOVED,
+           'Called when a fleet is removed')
+fleet_removed_last_sig = fleet_signals.\
+    signal(SIG_FLEET_REMOVED_LAST,
+           'Called when the last fleet is removed')
+
+
+def send_added_first_fleet(sender: Any, fleet_id: int):
+    fleet_added_first_sig.send(sender, fleet_id=fleet_id)
+
+def send_removed_fleet(sender: Any, fleet_id: int, creation_time: datetime):
+    fleet_removed_sig.send(sender, fleet_id=fleet_id,
+                           creation_time=creation_time)
+
+def send_removed_last_fleet(sender: Any, fleet_id: int):
+    fleet_removed_last_sig.send(sender, fleet_id=fleet_id)
 
