@@ -181,7 +181,7 @@ def add_invcategory_by_id_to_database(invcategory_id: int):
     )
     db.session.add(cat)
 
-def add_type_by_id_to_database(type_id: int):
+def add_type_by_id_to_database(type_id: int) -> InvType:
     """Add a new type by id to database
        only call this if you are sure the type does not exist
        This does not call commit!
@@ -211,14 +211,15 @@ def add_type_by_id_to_database(type_id: int):
             db.session.add(dogma_attr)
 
 
-            if resp.dogma_effects is not None:
-                for effect in resp.dogma_effects:
-                    effect_data = InvTypeDogmaEffect(
-                        typeID=resp.type_id,
-                        effectID=effect['effect_id'],
-                        isDefault=effect['is_default'])
-                    db.session.add(effect_data)
+    if resp.dogma_effects is not None:
+        for effect in resp.dogma_effects:
+            effect_data = InvTypeDogmaEffect(
+                typeID=resp.type_id,
+                effectID=effect['effect_id'],
+                isDefault=effect['is_default'])
+            db.session.add(effect_data)
 
+    return type_db
 
 def update_categories_and_groups():
     """This updates Inventory Categories and Groups

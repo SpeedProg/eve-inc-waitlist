@@ -46,26 +46,20 @@ def get_item_id(name: str) -> int:
             return -1
 
         # add the type to db
-        market_group_id = None
-
-        try:
-            market_group_id = item_data.market_group_id
-        except (KeyError, AttributeError):
-            pass  # it should stay None
         current_type: InvType = db.session.query(InvType).get(item_data.type_id)
         # Was it only renamed?
         if current_type is not None:
             item = InvType(typeID=item_data.type_id, groupID=item_data.group_id,
                            typeName=item_data.name, description=item_data.description,
-                          marketGroupID=market_group_id)
+                          marketGroupID=getattr(item_data, 'market_group_id', None))
 
             db.session.merge(item)
+            db.session.commit()
+            logger.info(f'Updated {item}')
         else:
-            add_type_by_id_to_database(item_data.type_id)
-
-        db.session.commit()
-        logger.info(f'Added new {item}')
-        return item.typeID
+            item = add_type_by_id_to_database(item_data.type_id)
+            db.session.commit()
+            logger.info(f'Added new {item}')
 
     return item.typeID
 
@@ -191,32 +185,24 @@ def is_char_banned(char: Character) -> Tuple[bool, str]:
         if char.banned:
             return True, "Character"
 
-        corp_id, alli_id = outgate.character.get_affiliations(char.get_eve_id())
+        char_info = outgate.character.get_info(char.get_eve_id())
 
-        if banned_by_default:
-            if is_charid_whitelisted(corp_id):
+        if is_charid_whitelisted(char_info.corporationID):
+            return False, ""
+
+        if is_charid_banned(char_info.corporationID):
+            return True, "Corporation"
+
+        if char_info.allianceID is not None:
+            if is_charid_whitelisted(char_info.allianceID):
                 return False, ""
-            if is_charid_banned(corp_id):
-                return True, "Corporation"
-            if is_charid_whitelisted(alli_id):
-                return False, ""
-            return True, "Everyone Banned by default"
-        else:
-            corp_banned = is_charid_banned(corp_id)
-            alli_banned = is_charid_banned(alli_id)
 
-            if is_charid_whitelisted(corp_id):
-                    return False, ""
-
-            if corp_banned:
-                return True, "Corporation"
-
-            if is_charid_whitelisted(alli_id):
-                    return False, ""
-
-            if alli_banned:
+            if is_charid_banned(char_info.allianceID):
                 return True, "Alliance"
 
+        if banned_by_default:
+            return True, "Everyone Banned by default"
+        else:
             return False, ""
     except ApiException as e:
         logger.info("Failed to check if %d was banned, because of Api error, code=%d msg=%s",
