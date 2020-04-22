@@ -26,6 +26,7 @@ from waitlist.utility.swagger.eve.fleet import EveFleetEndpoint
 from waitlist.utility.swagger.eve.fleet.models import FleetMember
 from waitlist.utility.swagger.eve import ESIResponse
 from waitlist.utility.swagger.eve.fleet.responses import EveFleet
+from waitlist.signal import send_added_first_fleet
 from flask_babel import gettext
 
 bp = Blueprint('fleet', __name__)
@@ -142,6 +143,11 @@ def setup_step_select() -> Optional[Response]:
     dps = [int(x) for x in dps_s.split(';')]
     overflow = [int(x) for x in overflow_s.split(';')]
 
+    # this only tracks if it is the first fleet so we
+    # can send the signal
+
+    is_first_fleet = False
+
     fleet = db.session.query(CrestFleet).get(fleet_id)
     if fleet is None:
         fleet = CrestFleet()
@@ -159,6 +165,8 @@ def setup_step_select() -> Optional[Response]:
         oldfleet = db.session.query(CrestFleet).filter((CrestFleet.compID == current_user.id)).first()
         if oldfleet is not None:
             oldfleet.compID = None
+        if db.session.query(CrestFleet).count() <= 0:
+            is_first_fleet = True
         db.session.add(fleet)
     else:
         fleet.logiWingID = logi[0]
@@ -177,6 +185,10 @@ def setup_step_select() -> Optional[Response]:
             fleet.compID = current_user.id
 
     db.session.commit()
+
+    if is_first_fleet:
+        send_added_first_fleet(setup_step_select, fleet.fleetID)
+
     with open("set_history.log", "a+") as f:
         f.write('{} - {} is taking a fleet on CREST\n'.format(datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S"),
                                                               fleet.comp.username))
