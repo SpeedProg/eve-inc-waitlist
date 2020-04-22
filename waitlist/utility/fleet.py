@@ -32,6 +32,9 @@ class FleetMemberInfo:
     def get_fleet_members(self, fleet_id: int, account: Account) -> Optional[Dict[int, FleetMember]]:
         return self._get_data(fleet_id, account)
 
+    def get_expires(self, fleet_id: int) -> datetime:
+        return self._cached_until[fleet_id]
+
     def get_fleet_ids(self) -> KeysView:
         self._clean_old_fleets()
         return self._lastmembers.keys()
@@ -70,6 +73,10 @@ class FleetMemberInfo:
         for fleet_id in remove_ids:
             del self._lastmembers[fleet_id]
             del self._cached_until[fleet_id]
+
+        for fleet_id in db.session.query(CrestFleet.fleetID):
+            if fleet_id[0] not in self._lastmembers:
+                self._lastmembers[fleet_id[0]] = None
 
     @classmethod
     def _to_members_map(cls, response: EveFleetMembers) -> Dict[int, FleetMember]:

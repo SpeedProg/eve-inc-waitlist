@@ -20,6 +20,7 @@ from flask.helpers import make_response
 from waitlist.ts3.connection import move_to_safety_channel
 from waitlist.utility.settings import sget_active_ts_id
 from flask_babel import gettext
+from ...signal import send_removed_fleet, send_removed_last_fleet
 
 bp = Blueprint('api_fleet', __name__)
 logger = logging.getLogger(__name__)
@@ -34,8 +35,13 @@ perm_fleet_manage = perm_manager.get_permission('fleet_management')
 @perm_fleet_manage.require(http_exception=401)
 def remove_fleet(fleet_id: int):
     logger.info("%s deletes crest fleet %i", current_user.username, fleet_id)
+    fleet: CrestFleet = db.session.query(CrestFleet).get(fleet_id)
+    reg_time: datetime = fleet.registrationTime
     db.session.query(CrestFleet).filter(CrestFleet.fleetID == fleet_id).delete()
     db.session.commit()
+    send_removed_fleet(remove_fleet, fleet_id, reg_time)
+    if db.session.query(CrestFleet).count() <= 0:
+        send_removed_last_fleet(remove_fleet, fleet_id)
     return flask.jsonify(status_code=200, message="Fleet Deleted")
 
 
