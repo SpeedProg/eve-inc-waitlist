@@ -1,4 +1,8 @@
 #Changelog
+* 1.7.5:
+  * Prevent long SSO token from being truncated
+  * Various improvements to importing data von ESI
+  * Fixed complex filters in table search
 * 1.7.4:
   * Fixed a typo that could prevent fits being approved
 * 1.7.3:
