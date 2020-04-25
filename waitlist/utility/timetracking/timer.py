@@ -1,9 +1,9 @@
 from typing import KeysView, Dict
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 import logging
 from threading import Timer, Lock
 from ..fleet import member_info
-from ...storage.database import CrestFleet, FleetTime, Character, FleetTimeLastTracked, FleetTimeByHull
+from ...storage.database import CrestFleet, FleetTime, Character, FleetTimeLastTracked, FleetTimeByHull, FleetTimeByDayHull
 from ...base import db
 from ..swagger.eve.fleet.models import FleetMember
 
@@ -40,7 +40,7 @@ class TimeTrackerCache:
             self.last_time_tracked[track_info.characterID] = track_info.lastTimeTracked
 
     def update_last_time_tracked(self, member: FleetMember, time: datetime) -> None:
-        if member.character_id() in self.last_time_tracked:
+        if member.character_id() in self.last_time_tracked or db.session.query(FleetTimeLastTracked).filter_by(characterID=member.character_id()).count() > 0:
             db.session.update(FleetTimeLastTracked)\
                 .where(FleetTimeLastTracked.characterID == member.character_id())\
                 .values(lastTimeTracked=time)
@@ -49,6 +49,7 @@ class TimeTrackerCache:
                 characterID=member.character_id(),
                 lastTimeTracked=time)
             db.session.add(ftlt)
+            db.session.commit()
         self.last_time_tracked[member.character_id()] = time
 
 
@@ -200,34 +201,68 @@ class FleetTimeTracker:
         if join_datetime.tzinfo is not None:
             join_datetime = join_datetime.replace(tzinfo=None) - join_datetime.utcoffset()
 
-        duration_in_fleet: timedelta = until - max(join_datetime, cache.get_last_time_tracked(member))
-        if logger.isEnabledFor(logging.DEBUG):
-            character: Character = db.session.query(Character).get(member.character_id())
+        interval_start = max(join_datetime, cache.get_last_time_tracked(member))
+        interval_end = until
 
-            logger.debug('Registering %s seconds for member with name=%s character_id=%s hull=%s',
-                         duration_in_fleet.total_seconds(),
+        if interval_start.date() == interval_end.date():
+            self.register_time(member.character_id(), interval_end.date(),
+                               member.ship_type_id(), interval_end-interval_start)
+        else:
+            # seems we are starting on a different day then ending it
+            # lets count the time until midnight first
+            duration_to_daychange = datetime.combine(interval_start, datetime.max.time()) - interval_start
+            full_duration = interval_end - interval_start
+            self.register_time(member.character_id(), interval_start.date(),
+                               member.ship_type_id(),
+                               duration_to_daychange)
+            self.register_time(member.charcter_id(), interval_end.date(),
+                               member.ship_type_id(),
+                               full_duration-duration_to_daychange)
+
+        cache.update_last_time_tracked(member, until)
+
+    def register_time(self, character_id: int, day: date, hull_type: int, duration: timedelta) -> None:
+
+        if logger.isEnabledFor(logging.DEBUG):
+            character: Character = db.session.query(Character).get(character_id)
+
+            logger.debug('Registering %s seconds for member with name=%s character_id=%s hull=%s day=%s',
+                         duration.total_seconds(),
                          character.get_eve_name(),
-                         member.character_id(),
-                         member.ship_type_id())
-        if db.session.query(FleetTime).filter_by(characterID=member.character_id()).count() <= 0:
+                         character_id,
+                         hull_type,
+                         day)
+        if db.session.query(FleetTime).filter_by(characterID=character_id).count() <= 0:
             # we need to create entries
-            ft = FleetTime(characterID=member.character_id(),
-                           duration=duration_in_fleet.total_seconds())
+            ft = FleetTime(characterID=character_id,
+                           duration=duration.total_seconds())
             db.session.add(ft)
         else:
             db.session.query(FleetTime).\
-                filter_by(characterID=member.character_id()).\
-                update({'duration': FleetTime.duration + duration_in_fleet.total_seconds()})
+                filter_by(characterID=character_id).\
+                update({'duration': FleetTime.duration + duration.total_seconds()})
 
-        if db.session.query(FleetTimeByHull).filter_by(characterID=member.character_id(), hullType=member.ship_type_id()).count() <= 0:
+        if db.session.query(FleetTimeByHull).filter_by(characterID=character_id, hullType=hull_type).count() <= 0:
             ftbh = FleetTimeByHull(
-                characterID=member.character_id(),
-                hullType=member.ship_type_id(),
-                duration=duration_in_fleet.total_seconds()
+                characterID=character_id,
+                hullType=hull_type,
+                duration=duration.total_seconds()
             )
             db.session.add(ftbh)
         else:
             db.session.query(FleetTimeByHull)\
-                .filter_by(characterID=member.character_id(), hullType=member.ship_type_id())\
-                .update({'duration': FleetTimeByHull.duration + duration_in_fleet.total_seconds()})
-        cache.update_last_time_tracked(member, until)
+                .filter_by(characterID=character_id, hullType=hull_type)\
+                .update({'duration': FleetTimeByHull.duration + duration.total_seconds()})
+
+        if db.session.query(FleetTimeByDayHull)\
+                .filter_by(characterID=character_id, hullType=hull_type, day=day).count() <= 0:
+            ftbdh = FleetTimeByDayHull(
+                characterID=character_id,
+                hullType=hull_type,
+                day=day,
+                duration=duration.total_seconds())
+            db.session.add(ftbdh)
+        else:
+            db.session.query(FleetTimeByDayHull)\
+                .filter_by(characterID=character_id, hullType=hull_type, day=day)\
+                .update({'duration': FleetTimeByDayHull.duration + duration.total_seconds})
