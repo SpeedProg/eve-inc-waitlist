@@ -14,7 +14,7 @@ from waitlist.utility.eve_id_utils import get_item_id
 logger = logging.getLogger(__name__)
 
 
-def parse_eft(lines: List[str]) -> Shipfit:
+def parse_eft(lines: List[str]) -> Optional[Shipfit]:
     slot_list: List[Dict[int, List[int]]] = [dict(), dict(), dict(),
                                              dict(), dict(), dict(),
                                              dict(), dict()]
@@ -84,6 +84,9 @@ def parse_eft(lines: List[str]) -> Shipfit:
         logger.debug("%s is_cargo = %s", line, is_cargo)
 
         if sections[section_idx] == location_flags.CARGO_SLOT:
+            if not ' x' in line:
+                logger.debug('No " x" in line "%s", we are probably parsing a pyfa fit', lines)
+                return None
             mod_info = line.rsplit(" x", 2)
             mod_name = mod_info[0]
             mod_amount = int(mod_info[1])
@@ -91,6 +94,10 @@ def parse_eft(lines: List[str]) -> Shipfit:
                                        location_flags.FIGHTERS_SLOT]:
             # because of how pyfa and ingame format are different
             # we might endup here while really being in cargo...
+            if not ' x' in line:
+                logger.debug('No " x" in line "%s", we are probably parsing a pyfa fit', lines)
+                return None
+
             mod_info = line.rsplit(" x", 2)
             mod_name = mod_info[0]
             mod_amount = int(mod_info[1])
