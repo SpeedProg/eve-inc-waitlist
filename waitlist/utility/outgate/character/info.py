@@ -12,20 +12,24 @@ from waitlist.base import db
 logger = logging.getLogger(__name__)
 
 
+def __populate_from_api(self: APICacheCharacterInfo, char_id: int) -> None:
+    char_ep = CharacterEndpoint()
+    info: CharacterInfo = check_esi_response(char_ep.get_character_info(char_id), __run_update_check, args)
+    self.id = char_id
+    self.allianceID = info.get_alliance_id()
+    self.characterName = info.get_name()
+    self.corporationID = info.get_corp_id()
+    self.characterBirthday = info.get_birthday()
+    self.raceID = info.get_race_id()
+    self.expire = info.expires()
+
+
 def __run_update_check(self: APICacheCharacterInfo, char_id: int, *args):
     """
     :throws ApiException if an error with the api occured
     """
     if self.expire is None or self.expire < datetime.now():
-        char_ep = CharacterEndpoint()
-        info: CharacterInfo = check_esi_response(char_ep.get_character_info(char_id), __run_update_check, args)
-        self.id = char_id
-        self.allianceID = info.get_alliance_id()
-        self.characterName = info.get_name()
-        self.corporationID = info.get_corp_id()
-        self.characterBirthday = info.get_birthday()
-        self.raceID = info.get_race_id()
-        self.expire = info.expires()
+        __populate_from_api(self, char_id)
         db.session.commit()
 
 
@@ -40,9 +44,11 @@ def get_character_info(char_id: int, *args) -> APICacheCharacterInfo:
 
     if char_cache is None:
         char_cache = APICacheCharacterInfo()
+        __populate_from_api(char_cache)
         db.session.add(char_cache)
-
-    __run_update_check(char_cache, char_id)
+        db.session.commit()
+    else:
+        __run_update_check(char_cache, char_id)
 
     return char_cache
 

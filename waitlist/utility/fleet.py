@@ -58,6 +58,9 @@ class FleetMemberInfo:
                 remove_ids.append(fleet_id)
                 continue
 
+            if fleet_id not in self._cached_until:
+                continue
+
             if tnow - self._cached_until[fleet_id] < timedelta(minutes=5):
                 continue
 
@@ -72,7 +75,8 @@ class FleetMemberInfo:
 
         for fleet_id in remove_ids:
             del self._lastmembers[fleet_id]
-            del self._cached_until[fleet_id]
+            if fleet_id in self._cached_until:
+                del self._cached_until[fleet_id]
 
         for fleet_id in db.session.query(CrestFleet.fleetID):
             if fleet_id[0] not in self._lastmembers:
