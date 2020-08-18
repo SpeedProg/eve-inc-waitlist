@@ -165,7 +165,7 @@ class FleetTimeTracker:
                 else:
                     logger.info('Not setting up new timer, because Tracker is stopped')
 
-        except Exception as e:
+        except Exception:
             logger.exception('Failed')
 
     def fleet_removed(self, fleet_id: int,
@@ -181,6 +181,7 @@ class FleetTimeTracker:
         del self.cache[fleet_id]
 
     def start_tracking(self) -> None:
+        '''Start the tracking if it isn't already started'''
         with self.state_lock:
             logger.info('Starting time tracking')
             if not self.stopped:
@@ -194,6 +195,7 @@ class FleetTimeTracker:
             self.timer.start()
 
     def stop_tracking(self) -> None:
+        '''Stop the tracking if it is running'''
         with self.state_lock:
             logger.info('Stopping time tracking')
             if self.stopped:
@@ -206,6 +208,7 @@ class FleetTimeTracker:
                 logger.info('Timer was not set, can not cancel')
 
     def register_fleet_time(self, fleet_id: int, fleet_cache: TimeTrackerCache) -> None:
+        '''Register the fleet time for every member in the fleet cache'''
         for member_id in fleet_cache.members:
             self.register_member_time(fleet_id, fleet_cache.members[member_id],
                                       fleet_cache.expires, fleet_cache)
@@ -235,7 +238,7 @@ class FleetTimeTracker:
                                    full_duration-duration_to_daychange)
 
             cache.update_last_time_tracked(member, until)
-        except Exception as e:
+        except Exception:
             logger.exception("Failed to register fleet time for %s", member.character_id(), exc_info=True)
 
     def register_time(self, character_id: int, day: date, hull_type: int, duration: timedelta) -> None:
@@ -272,7 +275,7 @@ class FleetTimeTracker:
             .filter_by(characterID=character_id, hullType=hull_type, day=day)\
             .update({'duration': FleetTimeByDayHull.duration + duration.total_seconds()})
 
-        if rowcount != 1:
+        if rowcount == 0:
             ftbdh = FleetTimeByDayHull(
                 characterID=character_id,
                 hullType=hull_type,
