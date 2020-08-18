@@ -6,7 +6,7 @@ from typing import List, Optional, Union, Dict, Any
 from esipy import EsiSecurity
 from esipy.exceptions import APIException
 from sqlalchemy import Column, Integer, String, SmallInteger, BIGINT, Boolean, DateTime, Index, \
-    sql, BigInteger, text, Float, Text, Numeric
+    sql, BigInteger, text, Float, Text, Numeric, Date
 from sqlalchemy import Enum
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship, backref
@@ -1530,4 +1530,20 @@ class FleetTimeByHull(Base):
                               ForeignKey(InvType.typeID,
                                          onupdate='CASCADE'),
                               primary_key=True)
+    duration: Column = Column('duration', Integer, nullable=False, server_default='0')
+
+
+# this might need an index over characterID, day and maybe hullType, day and even characterID + day
+class FleetTimeByDayHull(Base):
+    __tablename__: str = 'fleet_time_by_day_hull'
+    characterID: Column = Column('character_id', Integer,
+                                 ForeignKey(Character.id,
+                                            onupdate='CASCADE',
+                                            ondelete='CASCADE'),
+                                 primary_key=True)
+    hullType: Column = Column('hull_type', Integer,
+                              ForeignKey(InvType.typeID,
+                                         onupdate='CASCADE'),
+                              primary_key=True)
+    day: Column = Column('day', Date, primary_key=True)
     duration: Column = Column('duration', Integer, nullable=False, server_default='0')
