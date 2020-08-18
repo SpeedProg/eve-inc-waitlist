@@ -12,7 +12,7 @@ from waitlist.base import db
 logger = logging.getLogger(__name__)
 
 
-def __populate_from_api(self: APICacheCharacterInfo, char_id: int) -> None:
+def __populate_from_api(self: APICacheCharacterInfo, char_id: int, *args) -> None:
     char_ep = CharacterEndpoint()
     info: CharacterInfo = check_esi_response(char_ep.get_character_info(char_id), __run_update_check, args)
     self.id = char_id
@@ -29,7 +29,7 @@ def __run_update_check(self: APICacheCharacterInfo, char_id: int, *args):
     :throws ApiException if an error with the api occured
     """
     if self.expire is None or self.expire < datetime.now():
-        __populate_from_api(self, char_id)
+        __populate_from_api(self, char_id, args)
         db.session.commit()
 
 
