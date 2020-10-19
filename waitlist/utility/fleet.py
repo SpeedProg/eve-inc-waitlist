@@ -17,7 +17,7 @@ from waitlist.data.sse import send_server_sent_event, InviteMissedSSE,\
 from waitlist.utility.swagger import esi_scopes
 from waitlist.utility.swagger.eve.fleet import EveFleetEndpoint
 import flask
-from waitlist.utility.swagger.eve import get_esi_client_for_account, ESIResponse
+from waitlist.utility.swagger.eve import get_esi_client_for_account
 from waitlist.utility.swagger.eve.fleet import EveFleetMembers
 from waitlist.utility.swagger.eve.fleet.models import FleetMember
 
@@ -30,7 +30,7 @@ class FleetMemberInfo:
         self._lastmembers: Dict[int, Dict[int, FleetMember]] = {}
 
     def get_fleet_members(self, fleet_id: int, account: Account) -> Optional[Dict[int, FleetMember]]:
-        return self._get_data(fleet_id, account)
+        return self._get_data(fleet_id, account).copy()
 
     def get_expires(self, fleet_id: int) -> datetime:
         return self._cached_until[fleet_id]
@@ -122,7 +122,7 @@ class FleetMemberInfo:
 
     def get_cache_data(self, fleet_id) -> Optional[Dict[int, FleetMember]]:
         if fleet_id in self._lastmembers:
-            return self._lastmembers[fleet_id]
+            return self._lastmembers[fleet_id].copy()
         return None
 
     def _is_expired(self, fleet_id, utcnow) -> bool:
