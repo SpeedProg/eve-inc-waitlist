@@ -1,9 +1,9 @@
-from typing import KeysView, Dict
+from typing import Dict
 from datetime import datetime, timedelta, date
 import logging
 from threading import Timer, Lock
 from ..fleet import member_info
-from ...storage.database import CrestFleet, FleetTime, Character, FleetTimeLastTracked, FleetTimeByHull, FleetTimeByDayHull
+from ...storage.database import CrestFleet, FleetTime, FleetTimeLastTracked, FleetTimeByHull, FleetTimeByDayHull
 from ...base import db
 from ..swagger.eve.fleet.models import FleetMember
 from ..eve_id_utils import get_character_by_id
@@ -88,7 +88,7 @@ class FleetTimeTracker:
                 if fleet_id in fleet_ids:
                     # these ones we need to check for missing members, because they left the fleet
                     # we also need to check all none missing members if their fleet join time maybe changed because if it did, it means they left and rejoined between the last check and now
-                    fleet: CrestFleet = db.session.query(CrestFleet).get(fleet_id)
+                    fleet: CrestFleet = db.session.query(CrestFleet).get((fleet_id,))
                     fleet_new_data: Dict[int, FleetMember] = member_info.get_fleet_members(fleet_id, fleet.comp)
                     fleet_expires = member_info.get_expires(fleet_id)
                     tt_data: TimeTrackerCache = self.cache[fleet_id]
@@ -147,7 +147,7 @@ class FleetTimeTracker:
             for fleet_id in fleet_ids:
                 if fleet_id not in self.cache:
                     logger.info('Adding new fleet with fleet_id=%s to cache', fleet_id)
-                    fleet: CrestFleet = db.session.query(CrestFleet).get(fleet_id)
+                    fleet: CrestFleet = db.session.query(CrestFleet).get((fleet_id,))
                     member_data = member_info.get_fleet_members(fleet_id, fleet.comp)
                     if member_data is not None:
                         logger.info('Fleet with fleet_id=%s does not have data', fleet_id)
