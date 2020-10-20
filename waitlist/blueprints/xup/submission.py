@@ -82,7 +82,7 @@ def submit():
             flash(gettext("Valid entries are scruffy %(types)s", types=','.join(allowed_types)), 'danger')
             return redirect(url_for('index'))
 
-        queue = group.xuplist
+        queue = group.queue
         wl_entry = db.session.query(WaitlistEntry).filter(
             (WaitlistEntry.waitlist_id == queue.id) & (WaitlistEntry.user == eve_id)).first()
         if wl_entry is None:
@@ -257,13 +257,13 @@ def submit():
     # split his fits into types for the different waitlist_entries
     for fit in fits:
         tag, waitlist_id = get_waitlist_type_for_fit(fit, group_id)
-        fit.wl_type = tag 
+        fit.wl_type = tag
         fit.targetWaitlistID = waitlist_id
         fits_ready.append(fit)
 
     # get the waitlist entries of this user
 
-    queue = group.xuplist
+    queue = group.queue
     wl_entry = db.session.query(WaitlistEntry).filter(
         (WaitlistEntry.waitlist_id == queue.id) & (WaitlistEntry.user == eve_id)).first()
     if wl_entry is None:
