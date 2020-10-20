@@ -54,7 +54,7 @@ def api_wls_remove_player():
 
     # don't remove from queue
     waitlist_entries = db.session.query(WaitlistEntry).filter(
-        (WaitlistEntry.user == player_id) & (WaitlistEntry.waitlist_id != group.xuplist.id)
+        (WaitlistEntry.user == player_id) & (WaitlistEntry.waitlist_id != group.queueID)
     ).all()
 
     fittings = []
@@ -63,7 +63,7 @@ def api_wls_remove_player():
 
     waitlist_entries = db.session.query(WaitlistEntry).filter(
         (WaitlistEntry.user == player_id) &
-        (WaitlistEntry.waitlist_id != group.xuplist.id)
+        (WaitlistEntry.waitlist_id != group.queueID)
         ).all()
 
     for entry in waitlist_entries:
@@ -72,7 +72,7 @@ def api_wls_remove_player():
 
     db.session.query(WaitlistEntry).filter(
         (WaitlistEntry.user == player_id) &
-        (WaitlistEntry.waitlist_id != group.xuplist.id)
+        (WaitlistEntry.waitlist_id != group.queueID)
     ).delete()
 
     h_entry = create_history_object(player_id, HistoryEntry.EVENT_COMP_RM_PL, current_user.id, fittings)
