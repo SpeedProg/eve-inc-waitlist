@@ -377,7 +377,7 @@ def check_invite_and_remove_timer(char_id: int, group_id: int, fleet_id: int):
         character = db.session.query(Character).filter(Character.id == char_id).first()
         waitlist_entries = db.session.query(WaitlistEntry)\
             .filter((WaitlistEntry.user == char_id) &
-                    (WaitlistEntry.waitlist_id != group.xuplist.id)
+                    (WaitlistEntry.waitlist_id != group.queueID)
                     ).all()
 
         if member is not None and char_id in member:  # he is in the fleet
@@ -393,7 +393,7 @@ def check_invite_and_remove_timer(char_id: int, group_id: int, fleet_id: int):
 
             db.session.query(WaitlistEntry).filter(
                 (WaitlistEntry.user == char_id) &
-                (WaitlistEntry.waitlist_id != group.xuplist.id)
+                (WaitlistEntry.waitlist_id != group.queueID)
             ).delete()
 
             h_entry = create_history_object(char_id, HistoryEntry.EVENT_AUTO_RM_PL, None, fittings)
