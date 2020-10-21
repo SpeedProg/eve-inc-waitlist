@@ -140,7 +140,7 @@ def submit():
     logilvl = int(logilvl)
     caldari_bs_lvl = int(caldari_bs_lvl)
     newbro = request.form.get('newbro', "off")
-    newbro = (newbro is not "off")
+    newbro = (newbro != "off")
     current_user.is_new = newbro
 
     current_user.cbs_level = caldari_bs_lvl

@@ -10,7 +10,8 @@ from sqlalchemy import Column, Integer, String, SmallInteger, BIGINT, Boolean, D
 from sqlalchemy import Enum
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship, backref
-from sqlalchemy.sql.schema import Table, ForeignKey, CheckConstraint, UniqueConstraint
+from sqlalchemy.sql.schema import Table, ForeignKey, CheckConstraint, UniqueConstraint,\
+    ForeignKeyConstraint
 
 from waitlist.base import db
 from waitlist.utility import config
@@ -798,12 +799,12 @@ class Waitlist(Base):
     id = Column('id', Integer, primary_key=True)
     name = Column('name', String(50))
     waitlistType = Column('waitlist_type', String(20))
-    groupID = Column('group_id', Integer, ForeignKey("waitlist_groups.group_id"),)
+    groupID = Column('group_id', Integer, ForeignKey("waitlist_groups.group_id"))
     displayTitle = Column('display_title', String(100), nullable=False, default="")
     ordering = Column('ordering', Integer, nullable=False, default=0)
 
     entries = relationship("WaitlistEntry", back_populates="waitlist", order_by="asc(WaitlistEntry.creation)")
-    group = relationship("WaitlistGroup", foreign_keys=[groupID],back_populates="waitlists")
+    group = relationship("WaitlistGroup", foreign_keys=[groupID], back_populates="waitlists")
 
     def __repr__(self):
         return "<Waitlist %r>" % self.name
@@ -837,7 +838,7 @@ class WaitlistGroup(Base):
 
     __tablename__ = "waitlist_groups"
 
-    groupID = Column('group_id', Integer, primary_key=True)
+    groupID = Column('group_id', Integer, autoincrement='ignore_fk', primary_key=True)
     groupName = Column('group_name', String(50), unique=True, nullable=False)
     displayName = Column('display_name', String(50), unique=True, nullable=False)
     enabled = Column('enabled', Boolean(name='enabled'), nullable=False, default=False)
@@ -847,12 +848,10 @@ class WaitlistGroup(Base):
     constellationID = Column('constellation_id', Integer, ForeignKey(Constellation.constellationID), nullable=True)
     ordering = Column('ordering', Integer, nullable=False, default=0)
     influence = Column('influence', Boolean(name='influence'), nullable=False, server_default='0', default=False)
-    queueID = Column('queueID', Integer, ForeignKey(Waitlist.id), nullable=False)
-    fallbackID = Column('fallackID', Integer, ForeignKey(Waitlist.id), nullable=False)
+    queueID = Column('queueID', Integer, ForeignKey('waitlists.id', onupdate='CASCADE', ondelete='CASCADE'));
 
     waitlists = relationship(Waitlist, order_by='asc(Waitlist.ordering)', primaryjoin=(groupID == Waitlist.groupID), remote_side=Waitlist.groupID, foreign_keys=Waitlist.groupID, back_populates="group")
-    queue = relationship(Waitlist, foreign_keys=[queueID], uselist=False)
-    fallback = relationship(Waitlist, foreign_keys=[fallbackID], uselist=False)
+    queue = relationship(Waitlist, primaryjoin=(queueID==Waitlist.id), foreign_keys=queueID, uselist=False, post_update=True)
     dockup = relationship("Station", uselist=False)
     system = relationship("SolarSystem", uselist=False)
     constellation = relationship("Constellation", uselist=False)
