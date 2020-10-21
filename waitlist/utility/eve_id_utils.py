@@ -64,6 +64,16 @@ def get_item_id(name: str) -> int:
     return item.typeID
 
 
+def get_item_by_id(itemid: int) -> InvType:
+    """Tries to get item from database and if not loads it from API"""
+    item: InvType = db.session.query(InvType).get((itemid,))
+    if item is not None:
+        return item
+    item = add_type_by_id_to_database(itemid)
+    db.session.commit()
+    return item
+
+
 def get_item_data_from_api(name: str) -> Optional[any]:
     """Tries to get api data of an item with this name from Search API"""
     search_endpoint = SearchEndpoint()
@@ -154,16 +164,16 @@ def get_character_type_by_id(char_id: int) -> Tuple[CharacterTypes,int]:
     :returns the character type and how many potential ESI error where created
     """
     try:
-        char_info: APICacheCharacterInfo = character.get_info(char_id)
+        character.get_info(char_id)
         return CharacterTypes.character, 0
     except ESIException:
         pass  # no such char
     try:
-        corp_info: APICacheCorporationInfo = corporation.get_info(char_id)
+        corporation.get_info(char_id)
         return CharacterTypes.corporation, 1
     except ESIException:
         pass  # no such corp
-    all_info: APICacheAllianceInfo = alliance.get_info(char_id)
+    alliance.get_info(char_id)
     return CharacterTypes.alliance, 2
 
 

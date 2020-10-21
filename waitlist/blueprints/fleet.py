@@ -156,6 +156,8 @@ def setup_step_select() -> Optional[Response]:
     db.session.query(SquadMapping).filter(SquadMapping.fleetID == fleet_id).delete(synchronize_session='evaluate')
     waitlistMappings = []
     for waitlist in waitlistGroup.waitlists:
+        if waitlist.id == waitlistGroup.queueID:
+            continue
         try:
             mapping_string: str = request.form.get(f'wl-{waitlist.id}')
             if mapping_string is None:
