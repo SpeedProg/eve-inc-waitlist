@@ -15,10 +15,12 @@
 <fieldset class="form-group">
 	<label for="wl-logi">{{ waitlist.displayTitle }}</label>
 	<select autocomplete="off" class="custom-select" id="wl-{{waitlist.id}}" name="wl-{{waitlist.id}}" required>
+		{% if waitlist.id not in assignments %}
 		<option value="" disabled selected hidden>{{ _('Choose a fleet...') }}</option>
+		{% endif %}
 	{% for wing in wings %}
 		{% for squad in wing.squads() %}
-			<option name="wl-{{waitlist.id}}" value="{{wing.id()}};{{squad.id()}}"{% if waitlist.id in assign and assign[waitlist.id].id() == squad.id() %} selected{%endif%}>{{wing.name()}} - {{squad.name()}}</option>
+			<option name="wl-{{waitlist.id}}" value="{{wing.id()}};{{squad.id()}}"{% if waitlist.id in assignments and assignments[waitlist.id].id() == squad.id() %} selected{%endif%}>{{wing.name()}} - {{squad.name()}}</option>
 		{% endfor %}
 	{% endfor %}
 	</select>
