@@ -17,7 +17,7 @@ Flask-SeaSurf>=0.2.2
 Flask-SQLAlchemy>=2.3.2
 Flask-CDN>=1.5.3
 flask-limiter>=1.0.1
-ts3==1.0.6
+ts3>=2.0.0b3
 Flask-Script>=2.0.6
 Flask-Babel>=0.12.2
 csscompressor>=0.9.5
