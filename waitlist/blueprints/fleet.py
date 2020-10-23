@@ -1,7 +1,7 @@
 import json
 import logging
 from datetime import datetime
-from typing import Dict, Optional, Any, Union
+from typing import Dict, Optional, Any, Union, List
 
 import flask
 from flask import Response
@@ -17,16 +17,17 @@ from waitlist.blueprints.fc_sso import get_sso_redirect, add_sso_handler
 from waitlist.permissions import perm_manager
 from waitlist.sso import add_token
 from waitlist.storage.database import CrestFleet, WaitlistGroup, SSOToken,\
-    SquadMapping
+    SquadMapping, Waitlist
 from waitlist.utility import fleet as fleet_utils
 from waitlist.utility.fleet import member_info
 from waitlist.utility.json.fleetdata import FleetMemberEncoder
 from waitlist.utility.outgate.character.info import get_character_fleet_id
 from waitlist.utility.swagger import esi_scopes
 from waitlist.utility.swagger.eve.fleet import EveFleetEndpoint
-from waitlist.utility.swagger.eve.fleet.models import FleetMember
+from waitlist.utility.swagger.eve.fleet.models import FleetMember, EveFleetWing,\
+    EveFleetSquad
 from waitlist.utility.swagger.eve import ESIResponse
-from waitlist.utility.swagger.eve.fleet.responses import EveFleet
+from waitlist.utility.swagger.eve.fleet.responses import EveFleet, EveFleetWings
 from waitlist.signal import send_added_first_fleet
 from flask_babel import gettext
 
@@ -97,21 +98,36 @@ def setup_step_url():
         skip_setup = False
 
     if not skip_setup:
-        fleet_utils.setup(token, fleet_id, fleet_type)
+        fleet_utils.setup(token, fleet_id, fleet_type, db.session.query(WaitlistGroup).get((group_id,)))
 
     return get_select_form(token, fleet_id, group_id)
 
 
 def get_select_form(token: SSOToken, fleet_id: int, group_id: int) -> Any:
     fleet_api = EveFleetEndpoint(token, fleet_id)
-    wings = fleet_api.get_wings()
+    wings: EveFleetWings = fleet_api.get_wings()
     if wings.is_error():
         logger.error(f"Could not get wings for fleet_id[{fleet_id}], maybe some ones tokens are wrong. {wings.error()}")
         flask.abort(wings.code(), wings.error())
 
     group = db.session.query(WaitlistGroup).get((group_id,))
+
+    assignments = {}
+    wing: EveFleetWing
+    for wing in wings.wings():
+        if wing.name().lower() != 'on grid':
+            continue
+        squads: List[EveFleetSquad] = wing.squads()
+        # try to find a squad for each list
+        waitlist: Waitlist
+        for  waitlist in filter(lambda w: waitlist.id != group.queueID, group.waitlists):
+            squad: EveFleetSquad
+            for squad in squads:
+                if squad.name() == waitlist.displayTitle:
+                    assignments[waitlist.id] = squad.id()
+
     return render_template("fleet/setup/select.html", wings=wings.wings(), fleet_id=fleet_id,
-                           group=group)
+                           group=group, assignments=assignments)
 
 
 def setup_step_select() -> Optional[Response]:

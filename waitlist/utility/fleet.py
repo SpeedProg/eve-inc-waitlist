@@ -6,7 +6,7 @@ import logging
 from threading import Timer
 from waitlist.base import db
 from waitlist.storage.database import WaitlistGroup, CrestFleet, WaitlistEntry, \
-    HistoryEntry, Character, TeamspeakDatum, Account, SSOToken
+    HistoryEntry, Character, TeamspeakDatum, Account, SSOToken, Waitlist
 from datetime import datetime, timedelta
 from waitlist.utility.history_utils import create_history_object
 from flask.helpers import url_for
@@ -143,8 +143,8 @@ class FleetMemberInfo:
 member_info = FleetMemberInfo()
 
 
-def setup(token: SSOToken, fleet_id: int, fleet_type: str)\
-        -> Optional[Tuple[Optional[int], Optional[int], Optional[int], Optional[int]]]:
+def setup(token: SSOToken, fleet_id: int, fleet_type: str, waitlistGroup: WaitlistGroup)\
+        -> None:
     fleet_api = EveFleetEndpoint(token, fleet_id)
     fleet_settings = fleet_api.get_fleet_settings()
     if fleet_settings.is_error():
@@ -194,37 +194,41 @@ def setup(token: SSOToken, fleet_id: int, fleet_type: str)\
 
     if wait_for_change:
         sleep(6)
-    
+
     wait_for_change = False
 
-    wing1 = wing2 = None
+    wing_ongrid = wing_offgrid = None
     for wing in fleet_api.get_wings().wings():
         if wing.name() == "Wing 1" or wing.name().lower() == "on grid":
-            wing1 = wing
+            wing_ongrid = wing
         elif wing.name() == "Wing 2" or wing.name().lower() == "off grid":
-            wing2 = wing
-    
-    if wing1 is None or wing2 is None:
-        return None
-    
-    if wing1.name().lower() != "on grid":
-        wait_for_change = True
-        fleet_api.set_wing_name(wing1.id(), 'ON GRID')
+            wing_offgrid = wing
 
-    num_needed_squads = 4 if fleet_type == "hq" else 2
-    num_squads = len(wing1.squads())
+    if wing_ongrid is None or wing_offgrid is None:
+        return None
+
+    # Set up wing names
+    if wing_ongrid.name().lower() != "on grid":
+        wait_for_change = True
+        fleet_api.set_wing_name(wing_ongrid.id(), 'ON GRID')
+    if wing_offgrid.name().lower() != "off grid":
+        fleet_api.set_wing_name(wing_offgrid.id(), 'OFF GRID')
+
+    # make sure there is enough squads, otherwise create them
+    # the -1 is needed because of the queue list
+    num_needed_squads: int = len(waitlistGroup.waitlists)-1
+    num_squads = len(wing_ongrid.squads())
     if num_squads < num_needed_squads:
         for _ in range(num_needed_squads-num_squads):
             wait_for_change = True
-            fleet_api.create_squad(wing1.id())
+            fleet_api.create_squad(wing_ongrid.id())
 
-    if wing2.name().lower() != "óff grid":
-        fleet_api.set_wing_name(wing2.id(), 'OFF GRID')
 
-    num_squads = len(wing2.squads())
+    # create 1 squad for the offgrid win, if there is none
+    num_squads = len(wing_offgrid.squads())
     if num_squads < 1:
         wait_for_change = True
-        fleet_api.create_squad(wing2.id())
+        fleet_api.create_squad(wing_offgrid.id())
 
     if wait_for_change:
         sleep(6)
@@ -232,45 +236,24 @@ def setup(token: SSOToken, fleet_id: int, fleet_type: str)\
     wings = fleet_api.get_wings()
     for wing in wings.wings():
         if wing.name().lower() == "on grid":
-            wing1 = wing
+            wing_ongrid = wing
         elif wing.name().lower() == "off grid":
-            wing2 = wing
-    
-    if wing1 is None or wing2 is None:
+            wing_offgrid = wing
+
+    if wing_ongrid is None or wing_offgrid is None:
         return None
-    
-    logi_squad = sniper_squad = dps_squad = more_dps_squad = None
 
-    for squad in wing1.squads():
-        if squad.name() == "Squad 1" or squad.name().lower() == "logi":
-            logi_squad = squad
-        elif squad.name() == "Squad 2" or squad.name().lower() == "sniper":
-            sniper_squad = squad
-        elif squad.name() == "Squad 3" or squad.name().lower() == "dps":
-            dps_squad = squad
-        elif squad.name() == "Squad 4" or squad.name().lower() == "more dps" or squad.name().lower() == "other":
-            more_dps_squad = squad
-    
-    if fleet_type == "hq":
-        if logi_squad is not None and logi_squad.name() == "Squad 1":
-            fleet_api.set_squad_name(logi_squad.id(), 'LOGI')
-        if sniper_squad is not None and sniper_squad.name() == "Squad 2":
-            fleet_api.set_squad_name(sniper_squad.id(), 'SNIPER')
-        if dps_squad is not None and dps_squad.name() == "Squad 3":
-            fleet_api.set_squad_name(dps_squad.id(), 'DPS')
-        if more_dps_squad is not None and more_dps_squad.name() == "Squad 4":
-            fleet_api.set_squad_name(more_dps_squad.id(), 'MORE DPS')
-    elif fleet_type == "vg":
-        if logi_squad is not None and logi_squad.name() == "Squad 1":
-            fleet_api.set_squad_name(logi_squad.id(), 'LOGI')
-        if sniper_squad is not None and sniper_squad.name() == "Squad 2":
-            fleet_api.set_squad_name(sniper_squad.id(), 'DPS')
+    waitlist: Waitlist
+    for idx, waitlist in enumerate(filter(lambda w: w.id != waitlistGroup.queueID, waitlistGroup.waitlists), 1):
+        for squad in wing_ongrid.squads():
+            if squad.name() == ('Squad '+str(idx)):
+                fleet_api.set_squad_name(squad.id(), waitlist.displayTitle)
 
-    if wing2 is not None and len(wing2.squads()) > 0 and wing2.squads()[0].name().lower() != "off grid":
-        fleet_api.set_squad_name(wing2.squads()[0].id(), 'OFF GRID')
+    if wing_offgrid is not None and len(wing_offgrid.squads()) > 0 and wing_offgrid.squads()[0].name().lower() != "off grid":
+        fleet_api.set_squad_name(wing_offgrid.squads()[0].id(), 'OFF GRID')
     
     sleep(5)
-    return logi_squad, sniper_squad, dps_squad, more_dps_squad
+    return None
 
 
 def invite(user_id: int, squad_id_list: Sequence[Tuple[int, int]]):
