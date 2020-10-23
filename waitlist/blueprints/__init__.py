@@ -56,19 +56,7 @@ def index():
 
     new_bro = current_user.is_new
 
-    wlists = []
-    logi_wl = group.logilist
-    dps_wl = group.dpslist
-    sniper_wl = group.sniperlist
-    queue = group.xuplist
-    other_wl = group.otherlist
-
-    wlists.append(queue)
-    wlists.append(logi_wl)
-    wlists.append(dps_wl)
-    wlists.append(sniper_wl)
-    if other_wl is not None:
-        wlists.append(other_wl)
+    wlists = [l for l in group.waitlists]
 
     # noinspection PyPep8
     activegroups = db.session.query(WaitlistGroup).filter(WaitlistGroup.enabled == True).all()

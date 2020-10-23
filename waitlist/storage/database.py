@@ -10,7 +10,8 @@ from sqlalchemy import Column, Integer, String, SmallInteger, BIGINT, Boolean, D
 from sqlalchemy import Enum
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship, backref
-from sqlalchemy.sql.schema import Table, ForeignKey, CheckConstraint, UniqueConstraint
+from sqlalchemy.sql.schema import Table, ForeignKey, CheckConstraint, UniqueConstraint,\
+    ForeignKeyConstraint
 
 from waitlist.base import db
 from waitlist.utility import config
@@ -607,14 +608,6 @@ class CrestFleet(Base):
     __tablename__ = 'crest_fleets'
 
     fleetID = Column('fleet_id', BigInteger, primary_key=True)
-    logiWingID = Column('logi_wing_id', BigInteger)
-    logiSquadID = Column('logi_squad_id', BigInteger)
-    sniperWingID = Column('sniper_wing_id', BigInteger)
-    sniperSquadID = Column('sniper_squad_id', BigInteger)
-    dpsWingID = Column('dps_wing_id', BigInteger)
-    dpsSquadID = Column('dps_squad_id', BigInteger)
-    otherWingID = Column('other_wing_id', BigInteger)
-    otherSquadID = Column('other_squad_id', BigInteger)
     groupID = Column('group_id', Integer, ForeignKey('waitlist_groups.group_id'), nullable=False)
     compID = Column('comp_id', Integer, ForeignKey("accounts.id"), nullable=True)
     registrationTime = Column('registration_time', DateTime, nullable=False,
@@ -806,35 +799,48 @@ class Waitlist(Base):
     id = Column('id', Integer, primary_key=True)
     name = Column('name', String(50))
     waitlistType = Column('waitlist_type', String(20))
-    groupID = Column('group_id', Integer, ForeignKey("waitlist_groups.group_id"),)
+    groupID = Column('group_id', Integer, ForeignKey("waitlist_groups.group_id"))
     displayTitle = Column('display_title', String(100), nullable=False, default="")
+    ordering = Column('ordering', Integer, nullable=False, default=0)
+
     entries = relationship("WaitlistEntry", back_populates="waitlist", order_by="asc(WaitlistEntry.creation)")
-    group = relationship("WaitlistGroup", foreign_keys=[groupID],back_populates="waitlists")
+    group = relationship("WaitlistGroup", foreign_keys=[groupID], back_populates="waitlists")
 
     def __repr__(self):
         return "<Waitlist %r>" % self.name
 
+class SquadMapping(Base):
+    """
+    Maps a fleet and waitlist to a squad
+    into which people should get invited into
+    """
+    __tablename__ = 'fleet_wing_mapping'
+    fleetID = Column('fleet_id', BigInteger,
+                     ForeignKey(CrestFleet.fleetID,
+                                ondelete='CASCADE',
+                                onupdate='CASCADE'),
+                      primary_key=True)
+    waitlistID = Column("waitlist_id", Integer,
+                        ForeignKey(Waitlist.id,
+                                   ondelete='CASCADE',
+                                   onupdate='CASCADE'),
+                        primary_key=True)
+    wingID = Column('wing_id', BigInteger)
+    squadID = Column('squad_id', BigInteger)
 
 class WaitlistGroup(Base):
     """
     Represents a waitlist Group,
-    A waitlist group always contains 1 x-up list
-    and 3 approved lists for dps, 1 for sniper and 1 for logi
-    and can contain an other one for out of line ships
+    A waitlist group always contains 1 queue 
+    and at least 1 fallback list,
+    other then this it can contain an abitrary number of other lists
     """
 
     __tablename__ = "waitlist_groups"
 
-    groupID = Column('group_id', Integer, primary_key=True)
+    groupID = Column('group_id', Integer, autoincrement='ignore_fk', primary_key=True)
     groupName = Column('group_name', String(50), unique=True, nullable=False)
     displayName = Column('display_name', String(50), unique=True, nullable=False)
-    """
-    xupwlID = Column('xupwl_id', Integer, ForeignKey(Waitlist.id), nullable=False)
-    logiwlID = Column('logiwl_id', Integer, ForeignKey(Waitlist.id), nullable=False)
-    dpswlID = Column('dpswl_id', Integer, ForeignKey(Waitlist.id), nullable=False)
-    sniperwlID = Column('sniperwl_id', Integer, ForeignKey(Waitlist.id), nullable=False)
-    otherwlID = Column('otherwl_id', Integer, ForeignKey(Waitlist.id), nullable=True)
-    """
     enabled = Column('enabled', Boolean(name='enabled'), nullable=False, default=False)
     status = Column('status', String(1000), default="Down")
     dockupID = Column('dockup_id', Integer, ForeignKey(Station.stationID), nullable=True)
@@ -842,10 +848,17 @@ class WaitlistGroup(Base):
     constellationID = Column('constellation_id', Integer, ForeignKey(Constellation.constellationID), nullable=True)
     ordering = Column('ordering', Integer, nullable=False, default=0)
     influence = Column('influence', Boolean(name='influence'), nullable=False, server_default='0', default=False)
-    queueID = Column('queueID', Integer, ForeignKey(Waitlist.id), nullable=False)
+    queueID = Column('queueID', Integer, ForeignKey('waitlists.id', onupdate='CASCADE', ondelete='CASCADE'));
 
-    waitlists = relationship(Waitlist, primaryjoin=groupID == Waitlist.groupID, remote_side=Waitlist.groupID, foreign_keys=Waitlist.groupID, back_populates="group")
-    queue = relationship(Waitlist, foreign_keys=[queueID], uselist=False)
+    waitlists = relationship(Waitlist, order_by='asc(Waitlist.ordering)', primaryjoin=(groupID == Waitlist.groupID), remote_side=Waitlist.groupID, foreign_keys=Waitlist.groupID, back_populates="group")
+    queue = relationship(Waitlist, primaryjoin=(queueID==Waitlist.id), foreign_keys=queueID, uselist=False, post_update=True)
+    dockup = relationship("Station", uselist=False)
+    system = relationship("SolarSystem", uselist=False)
+    constellation = relationship("Constellation", uselist=False)
+    fleets = relationship("CrestFleet", back_populates="group")
+    backseats = relationship("Account", secondary="backseats")
+    fcs = relationship("Account", secondary="fcs")
+    manager = relationship("Account", secondary="fleetmanager")
 
     def has_wl_of_type(self, wl_type: str):
         for wl in self.waitlists:
@@ -863,54 +876,6 @@ class WaitlistGroup(Base):
             return
         wl.waitlistType = wl_type
         self.waitlists.append(wl)
-
-    @property
-    def xuplist(self):
-        return self.queue
-
-    @xuplist.setter
-    def xuplist(self, value: Waitlist):
-        self.queue = value
-
-    @property
-    def logilist(self):
-        return self.get_wl_for_type('logi')
-
-    @logilist.setter
-    def logilist(self, value: Waitlist):
-        self.set_wl_to_type(value, 'logi')
-
-    @property
-    def dpslist(self):
-        return self.get_wl_for_type('dps')
-
-    @dpslist.setter
-    def dpslist(self, value: Waitlist):
-        self.set_wl_to_type(value, 'dps')
-
-    @property
-    def sniperlist(self):
-        return self.get_wl_for_type('sniper')
-
-    @sniperlist.setter
-    def sniperlist(self, value: Waitlist):
-        self.set_wl_to_type(value, 'sniper')
-
-    @property
-    def otherlist(self):
-        return self.get_wl_for_type('other')
-
-    @otherlist.setter
-    def otherlist(self, value: Waitlist):
-        self.set_wl_to_type(value, 'other')
-
-    dockup = relationship("Station", uselist=False)
-    system = relationship("SolarSystem", uselist=False)
-    constellation = relationship("Constellation", uselist=False)
-    fleets = relationship("CrestFleet", back_populates="group")
-    backseats = relationship("Account", secondary="backseats")
-    fcs = relationship("Account", secondary="fcs")
-    manager = relationship("Account", secondary="fleetmanager")
 
 
 class Shipfit(Base):

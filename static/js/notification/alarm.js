@@ -48,8 +48,6 @@ waitlist.alarm = (function () {
 		getWaitlistData(initiateWaitlistsData);
 	}
 
-
-
 	function initiateWaitlistsData(data) {
 		for(let waitlist of data) {
 			cached_data.waitlists.set(waitlist.id, waitlist);
@@ -78,35 +76,6 @@ waitlist.alarm = (function () {
 		return count;
 	}
 
-	function getNumbersForGroupByType(groupId, typeName) {
-		let fieldName = typeName+"wlID";
-		let waitlistId = cached_data.groups.get(groupId)[fieldName];
-		if (waitlistId === null) { // this group does not have this waitlist type
-			return 0;
-		}
-		return getNumberForWaitlistById(waitlistId)
-	}
-
-	function getDPSCount(groupId) {
-		return getNumbersForGroupByType(groupId, "dps");
-	}
-
-	function getSniperCount(groupId) {
-		return getNumbersForGroupByType(groupId, "sniper")
-	}
-
-	function  getLogiCount(groupId) {
-		return getNumbersForGroupByType(groupId, "logi");
-	}
-
-	function getOtherCount(groupId) {
-		return getNumbersForGroupByType(groupId, "other");
-	}
-	
-	function getXupCount(groupId) {
-		return getNumbersForGroupByType(groupId, "xup");
-	}
-
 	function updateCache() {
 		getGroupsData(initiateFromGroupsData);
 	}
@@ -115,20 +84,46 @@ waitlist.alarm = (function () {
 		// update table
 		// wl-stats-body
 		let tableBody = $('#wl-stats-body');
+		let tableHeader = $('#wl-stats-body');
+		let tableHeaderGroupNode = $('#wl-stats-group').copy();
+
+		let listnameSet = Set();
+		for(let group of cache.groups.values()) {
+			for(let list of group.lists) {
+				listnameSet.add(list.name);
+			}
+		}
+		// we want to keep the order
+		let listnameList = Array.from(listnameSet);
+
+		let thNodes = [tableHeaderGroupNode];
+		for(let listname of listnameList) {
+			// we create them this way to prevent any html injections using names
+			let thNode = document.createElement("th");
+			thNode.textContent = listname;
+			thNodes.append(thNode[0]);
+		}
+
+		tableHeader.empty();
+		for(let node of thNodes) {
+			tableHeader.append(node);
+		}
+
 		tableBody.empty();
 		for (let group of cache.groups.values()) {
 			//  we need to inser ${group.groupName} with a set function to prevent HTML injection
 			// all the others should return numbers only!
-			let rowNode = $.parseHTML(`<tr><th scope="row"></th>
-<td>${group.enabled}</td>
-<td>${getXupCount(group.groupID)}</td>
-<td>${getLogiCount(group.groupID)}</td>
-<td>${getDPSCount(group.groupID)}</td>
-<td>${getSniperCount(group.groupID)}</td>
-<td>${getOtherCount(group.groupID)}</td>
-</tr>`);
-			//  set this way to prevent inserting any injections
-			rowNode[0].firstElementChild.textContent = group.groupDisplayName;
+			let rowNode = $(document.createElement("tr"));
+			let rowThNode = $.parseHTML('<th scope="row"></th>');
+			// set the text content to prevent injection
+			rowThNode[0].textContent = group.groupDisplayName;
+			rowNode.append($.parseHTML("<td>${group.enabled}</td>"));
+			for(let listname of listnameList) {
+				const sublist = group.lists.find(l => l.name == listname);
+				const sublistcount = getNumberForWaitlistById(sublist.id);
+				const tdNode = typeof sublistcount !== "undefined" ? document.createElement("td") : $.parseHTML(`<td>${sublistcount}</td>`);
+				rowNode.append(tdNode)
+			}
 			tableBody.append(rowNode);
 		}
 
@@ -144,14 +139,13 @@ waitlist.alarm = (function () {
 				continue;
 			}
 			let expr = parser.parse(exprStr);
-			let result = expr.evaluate({
-				'xup': getXupCount(group.groupID),
-				'logi': getLogiCount(group.groupID),
-				'dps': getDPSCount(group.groupID),
-				'sniper': getSniperCount(group.groupID),
-				'other': getOtherCount(group.groupID),
-				'open': group.enabled
-			});
+
+			const valueMap = new Map();
+			for(let list of group.lists) {
+				valueMap.set(list.name, getNumberForWaitlistById(list.id));
+			}
+			valueMap.set('open', group.enabled);
+			let result = expr.evaluate(valueMap);
 			if (result) {
 				triggerAlarm(group);
 			}
@@ -173,8 +167,7 @@ waitlist.alarm = (function () {
 		}
 	}
 
-	function addAlarmExpression(event) {
-		let button = event.source;
+	function addAlarmExpression(_event) {
 		let exprTargetSelect = document.getElementById('expr-target-select');
 		// nothing selected
 		if (exprTargetSelect.selectedIndex < 0) {
@@ -229,7 +222,7 @@ waitlist.alarm = (function () {
 		return expressionMap;
 	}
 
-	function triggerAlarm(group) {
+	function triggerAlarm(_group) {
 		document.getElementById('alarm').play();
 	}
 

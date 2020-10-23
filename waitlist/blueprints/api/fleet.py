@@ -7,7 +7,7 @@ from flask.globals import request
 from waitlist.permissions import perm_manager
 from waitlist.storage.database import CrestFleet, Waitlist, \
     Character, WaitlistEntry, HistoryEntry, HistoryExtInvite, \
-    TeamspeakDatum
+    TeamspeakDatum, SquadMapping
 from waitlist.utility.notifications import send_notification
 from waitlist.utility.history_utils import create_history_object
 from waitlist.utility.fleet import spawn_invite_check, invite, member_info
@@ -66,10 +66,10 @@ def fleet_actions_invite(name: str):
 
     logger.info("%s invites %s by name to fleet %d", current_user.username,
                 name, fleet.fleetID)
-    status = invite(character.id, [(fleet.dpsWingID, fleet.dpsSquadID),
-                                   (fleet.otherWingID, fleet.otherSquadID),
-                                   (fleet.sniperWingID, fleet.sniperSquadID),
-                                   (fleet.logiWingID, fleet.logiSquadID)])
+    squadMappings = db.session.query(SquadMapping).filter(SquadMapping.fleetID == fleet.fleetID).all()
+    invite_order = list(map(lambda m: (m.wingID, m.squadID), squadMappings))
+
+    status = invite(character.id, invite_order)
     h_entry = create_history_object(character.get_eve_id(),
                                     HistoryEntry.EVENT_COMP_INV_BY_NAME,
                                     current_user.id)
@@ -110,19 +110,11 @@ def invite_to_fleet():
         return resp
     fleet = current_user.fleet
 
-    # generate a list in which order squads should be preferred in case the main squad is full
-    if squad_type == "logi":
-        squad_id_list = [(fleet.logiWingID, fleet.logiSquadID), (fleet.otherWingID, fleet.otherSquadID),
-                         (fleet.sniperWingID, fleet.sniperSquadID), (fleet.dpsWingID, fleet.dpsSquadID)]
-    elif squad_type == "dps":
-        squad_id_list = [(fleet.dpsWingID, fleet.dpsSquadID), (fleet.otherWingID, fleet.otherSquadID),
-                         (fleet.sniperWingID, fleet.sniperSquadID), (fleet.logiWingID, fleet.logiSquadID)]
-    elif squad_type == "sniper":
-        squad_id_list = [(fleet.sniperWingID, fleet.sniperSquadID), (fleet.otherWingID, fleet.otherSquadID),
-                         (fleet.dpsWingID, fleet.dpsSquadID), (fleet.logiWingID, fleet.logiSquadID)]
-    else:
-        return Response(flask.jsonify({'message': gettext('Unknown Squad Type')}), 415)
-
+    # get the wing/squad from mapping
+    mapping: SquadMapping = db.session.query(SquadMapping).get((fleet.fleetID, waitlist.id))
+    if mapping is None:
+        flask.abort(409, 'No mapping for {fleet.fleetID}:{waitlist.id}')
+    squad_id_list=[(mapping.wingID, mapping.squadID)]
     # invite over crest and get back the status
     status = invite(character_id, squad_id_list)
 
