@@ -6,6 +6,7 @@ from waitlist.storage.database import Waitlist, ShipCheckCollection, ShipCheck,\
 from waitlist.base import db
 from waitlist.storage import modules
 from waitlist.utility.constants import check_types
+from waitlist.utility.eve_id_utils import get_item_by_id
 
 
 
@@ -24,9 +25,10 @@ def add_default_sorting(collection: ShipCheckCollection, logi_wl, dps_wl, sniper
     collection.checks.append(check)
 
     for k, v in modules.logi_ships.items():
-        inv_type: InvType = db.session.query(InvType).get(k)
+        inv_type: InvType = get_item_by_id(k)
         if inv_type is None:
             print('ERROR NONE', inv_type)
+            continue
 
         check.ids.append(inv_type)
 
@@ -43,9 +45,10 @@ def add_default_sorting(collection: ShipCheckCollection, logi_wl, dps_wl, sniper
     collection.checks.append(check)
 
     for k, v in modules.dps_weapons.items():
-        inv_type = db.session.query(InvType).get(k)
+        inv_type = get_item_by_id(k)
         if inv_type is None:
             print('ERROR NONE', inv_type)
+            continue
 
         check.ids.append(inv_type)
 
@@ -61,9 +64,10 @@ def add_default_sorting(collection: ShipCheckCollection, logi_wl, dps_wl, sniper
     collection.checks.append(check)
 
     for k, v in modules.sniper_weapons.items():
-        inv_type = db.session.query(InvType).get(k)
+        inv_type = get_item_by_id(k)
         if inv_type is None:
             print('ERROR NONE', inv_type)
+            continue
 
         check.ids.append(inv_type)
 
@@ -82,6 +86,7 @@ def add_default_sorting(collection: ShipCheckCollection, logi_wl, dps_wl, sniper
         grp = db.session.query(MarketGroup).get(v)
         if grp is None:
             print('ERROR NONE sniper weapon grps', v)
+            continue
         check.ids.append(grp)
 
     # check dps by market group
@@ -101,6 +106,7 @@ def add_default_sorting(collection: ShipCheckCollection, logi_wl, dps_wl, sniper
         grp = db.session.query(MarketGroup).get(v)
         if grp is None:
             print('ERROR NONE dps weapongroups', v)
+            continue
         check.ids.append(grp)
 
     # special rule for entropic disintigrators because it needs a higher modifier
@@ -127,9 +133,10 @@ def add_default_sorting(collection: ShipCheckCollection, logi_wl, dps_wl, sniper
     collection.checks.append(check)
 
     for k, v in modules.dps_ships.items():
-        inv_type = db.session.query(InvType).get(k)
+        inv_type = get_item_by_id(k)
         if inv_type is None:
             print('ERROR NONE', inv_type)
+            continue
         check.ids.append(inv_type)
 
     # sniper ships by typeid
@@ -144,9 +151,10 @@ def add_default_sorting(collection: ShipCheckCollection, logi_wl, dps_wl, sniper
     collection.checks.append(check)
 
     for k, v in modules.sniper_ships.items():
-        inv_type = db.session.query(InvType).get(k)
+        inv_type = get_item_by_id(k)
         if inv_type is None:
             print('ERROR NONE', inv_type)
+            continue
         check.ids.append(inv_type)
 
     # dps ships by market group id
@@ -161,9 +169,10 @@ def add_default_sorting(collection: ShipCheckCollection, logi_wl, dps_wl, sniper
     collection.checks.append(check)
 
     for k, v in modules.dps_groups.items():
-        grp = db.session.query(InvGroup).get(k)
+        grp = get_item_by_id(k)
         if grp is None:
             print('ERROR NONE dps groups', k)
+            continue
         check.ids.append(grp)
 
     # logiships by marketgroup
@@ -178,9 +187,10 @@ def add_default_sorting(collection: ShipCheckCollection, logi_wl, dps_wl, sniper
     collection.checks.append(check)
 
     for k, v in modules.logi_groups.items():
-        grp = db.session.query(InvGroup).get(k)
+        grp = get_item_by_id(k)
         if grp is None:
             print('ERROR NONE logi invgroups', k)
+            continue
         check.ids.append(grp)
 
 
