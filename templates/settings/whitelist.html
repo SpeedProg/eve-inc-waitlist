@@ -26,7 +26,7 @@
 	{% if perm_manager.get_permission('bans_edit').can() and not perm_manager.get_permission('bans_edit_multiple').can() %}
 	<form class="form-inline" name="banform" action="{{url_for('bans.whitelist_change_single')}}" method="post">
 		<input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
-		<input type="hidden" name="change" value="ban">
+		<input type="hidden" name="change" value="whitelist">
 		<div class="form-group">
 			<label for="eve_name">{{ _('Name') }}</label>
 			<input type="text" class="form-control" name="target" id="eve_name">
