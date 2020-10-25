@@ -13,28 +13,28 @@ For library licenses see licenses folder
 
 
 # Installation
-1. install python >=3.6
-2. install all the requirements by doing pip install -r requirements.txt
-3. install your database connection library (e.g. mysqlclient>=1.3.10)
-4. run `python main.py --create-config` to create a default config file, this can also be used on version upgrades to add default values for new configuration options without starting up the waitlist.
-5. Create an empty database-scheme in your chosen database server, make sure to use a unicode character set (uf8mb4), utf8mb4 is recommended and not normal utf8 https://mariadb.com/kb/en/library/unicode/ (basically utf8 isn't complete utf8, but utf8mb4 is), the collate to choose depends on which language your users are most likely going to use, it *should* work with all of them, if you don't know what to take, just leave your database default.
-6. Create a new ESI Application on https://developers.eveonline.com/applications . More information [here](#sso-information)
-7. open `config\config.cfg` in your favorite text editor and adjust the settings
-8. run `python manager.py db upgrade` which creates the database schema
-9. execute `python create_admin.py` to create the initial admin account.
+* install python >=3.6
+* install all the requirements by doing pip install -r requirements.txt
+* install your database connection library (e.g. mysqlclient>=1.3.10)
+* run `python main.py --create-config` to create a default config file, this can also be used on version upgrades to add default values for new configuration options without starting up the waitlist.
+* Create an empty database-scheme in your chosen database server, make sure to use a unicode character set (uf8mb4), utf8mb4 is recommended and not normal utf8 https://mariadb.com/kb/en/library/unicode/ (basically utf8 isn't complete utf8, but utf8mb4 is), the collate to choose depends on which language your users are most likely going to use, it *should* work with all of them, if you don't know what to take, just leave your database default.
+* Create a new ESI Application on https://developers.eveonline.com/applications . More information [here](#sso-information)
+* open `config/config.cfg` in your favorite text editor and adjust the settings
+* go to `static/js/config/` and create a `stattool_config.js` you can use the example provided
+* run `python manager.py db upgrade` which creates the database schema
+* execute `python create_admin.py` to create the initial admin account.
 Enter the character name of your main character as account name, then enter the same name as character to associate.
 When asked for more characters just press enter without entering anything.
 Further admin accounts can be created over the account management on the website
-10. Use the command `pybabel compile -d translations` to compile the translation files.
-11. Got to `static\js\config\` and create a `stattool_config.js` (an example file is in there with the options)
-12. Start the waitlist with `python main.py` and visit it to login with the character that was setup as admin in the previous step.
-13. Now configure groups and permissions :)
-14. Import needed static data! You can find the interface for it under `Setting`->`Static Data Import`.
+* Use the command `pybabel compile -d translations` to compile the translation files.
+* Start the waitlist with `python main.py` and visit it to login with the character that was setup as admin in the previous step.
+* Now configure groups and permissions :)
+* Import needed static data! You can find the interface for it under `Setting`->`Static Data Import`.
 The Eve Static Date Export can be found at [Eve Resources](https://developers.eveonline.com/resource/resources) which you currently only need for the staStations.yaml anymore this will hopefully be removed in the future too.
 Mandatory are: staStations.yaml and upating typeIds, systems and constellations!
 The typeIds, systems and constellations are updated via esi and can take quite a while.
 Updating systems and constellations can fail quietly, so check the error log afterwards.
-15. If you write any improvements committing code back to this project is very much appreciated!
+* If you write any improvements committing code back to this project is very much appreciated!
 
 # SSO Information
 You need to create an application on the [CCP 3rd Party Developer Page](https://developers.eveonline.com/applications).
