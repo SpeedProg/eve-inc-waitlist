@@ -42,8 +42,8 @@ class FleetMemberInfo:
     def is_member_in_fleet(self, character_id: int) -> bool:
         for fleet_id in self.get_fleet_ids():
             db_fleet: CrestFleet = db.session.query(CrestFleet).get(fleet_id)
-            members: Dict[int, FleetMember] = self.get_fleet_members(fleet_id, db_fleet.comp)
-            if character_id in members:
+            members: Optional[Dict[int, FleetMember]] = self.get_fleet_members(fleet_id, db_fleet.comp)
+            if members is not None and character_id in members:
                 return True
 
         return False
