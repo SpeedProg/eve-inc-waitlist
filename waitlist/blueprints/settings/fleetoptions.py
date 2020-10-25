@@ -155,16 +155,17 @@ def fleet_status_set(gid: int) -> Response:
 
     elif action == "check-in":
         # check if in a fleet
-        if member_info.is_member_in_fleet(current_user.get_eve_id()):
-            postfix = "was found in fleet"
-        else:
-            postfix = "was not found in fleet"
+        with member_info:
+            if member_info.is_member_in_fleet(current_user.get_eve_id()):
+                postfix = "was found in fleet"
+            else:
+                postfix = "was not found in fleet"
 
-        with open("set_history.log", "a+") as f:
-            f.write(f'{datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")}'
-                    f' - {current_user.username} checked in for activity, {postfix}\n')
-        flash(gettext("Your activity report has been submitted %(user_name)s",
-                      user_name=current_user.username), "success")
+            with open("set_history.log", "a+") as f:
+                f.write(f'{datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")}'
+                        f' - {current_user.username} checked in for activity, {postfix}\n')
+            flash(gettext("Your activity report has been submitted %(user_name)s",
+                          user_name=current_user.username), "success")
 
     elif action == "change_display_name":
         # if we have no permissions to set a custom name, we are done

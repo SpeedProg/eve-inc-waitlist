@@ -209,13 +209,15 @@ def change_setup(fleet_id: int):
 @login_required
 @perm_dev.require(http_exception=401)
 def print_fleet(fleetid: int) -> Response:
-    cached_members = member_info.get_cache_data(fleetid)
-    if cached_members is None:
-        crest_fleet = db.session.query(CrestFleet).get(fleetid)
-        members: Dict[int, FleetMember] = member_info.get_fleet_members(fleetid, crest_fleet.comp)
-        if members is None:
-            return make_response("No cached or new info")
-        cached_members = members
+    with member_info:
+        cached_members = member_info.get_cache_data(fleetid)
+        if cached_members is None:
+            crest_fleet = db.session.query(CrestFleet).get(fleetid)
+            members: Dict[int, FleetMember] = member_info.get_fleet_members(fleetid, crest_fleet.comp)
+            if members is None:
+                return make_response("No cached or new info")
+            cached_members = members
+
     return current_app.response_class(
         json.dumps(cached_members, indent=None if request.is_xhr else 2, cls=FleetMemberEncoder),
         mimetype='application/json')

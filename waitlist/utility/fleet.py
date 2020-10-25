@@ -3,7 +3,7 @@ from typing import Dict, Sequence, Tuple, Optional, List, KeysView
 from flask_login import current_user
 from time import sleep
 import logging
-from threading import Timer
+from threading import Timer, Lock
 from waitlist.base import db
 from waitlist.storage.database import WaitlistGroup, CrestFleet, WaitlistEntry, \
     HistoryEntry, Character, TeamspeakDatum, Account, SSOToken, Waitlist
@@ -17,7 +17,7 @@ from waitlist.data.sse import send_server_sent_event, InviteMissedSSE,\
 from waitlist.utility.swagger import esi_scopes
 from waitlist.utility.swagger.eve.fleet import EveFleetEndpoint
 import flask
-from waitlist.utility.swagger.eve import get_esi_client_for_account
+from waitlist.utility.swagger.eve import get_esi_client_for_account, ESIResponse
 from waitlist.utility.swagger.eve.fleet import EveFleetMembers
 from waitlist.utility.swagger.eve.fleet.models import FleetMember
 
@@ -28,6 +28,20 @@ class FleetMemberInfo:
     def __init__(self):
         self._cached_until: Dict[int, datetime] = {}
         self._lastmembers: Dict[int, Dict[int, FleetMember]] = {}
+        self.__lock: Lock = Lock()
+
+    def acquire(self):
+        self.__lock.acquire()
+
+    def release(self):
+        self.__lock.release()
+
+    def __enter__(self):
+        self.acquire()
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.release()
 
     def get_fleet_members(self, fleet_id: int, account: Account) -> Optional[Dict[int, FleetMember]]:
         return self._get_data(fleet_id, account).copy()
@@ -40,7 +54,7 @@ class FleetMemberInfo:
         return self._lastmembers.keys()
 
     def is_member_in_fleet(self, character_id: int) -> bool:
-        for fleet_id in self.get_fleet_ids():
+        for fleet_id in self._lastmembers.keys():
             db_fleet: CrestFleet = db.session.query(CrestFleet).get(fleet_id)
             members: Optional[Dict[int, FleetMember]] = self.get_fleet_members(fleet_id, db_fleet.comp)
             if members is not None and character_id in members:
@@ -357,7 +371,8 @@ def check_invite_and_remove_timer(char_id: int, group_id: int, fleet_id: int):
                 logger.error("On Invitecheck FleetComp is None")
             db.session.remove()
             return
-        member = member_info.get_fleet_members(fleet_id, crest_fleet.comp)
+        with member_info:
+            member = member_info.get_fleet_members(fleet_id, crest_fleet.comp)
         character = db.session.query(Character).filter(Character.id == char_id).first()
         waitlist_entries = db.session.query(WaitlistEntry)\
             .filter((WaitlistEntry.user == char_id) &

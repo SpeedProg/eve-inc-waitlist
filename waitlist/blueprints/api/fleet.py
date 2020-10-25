@@ -190,7 +190,9 @@ def move_fleetmembers_to_safety():
         flask.abort(500, "No TeamSpeak Safety Channel set!")
 
     # get the safety fleet channel id
-    member = member_info.get_fleet_members(fleet_id, crest_fleet.comp)
+    with member_info:
+        member = member_info.get_fleet_members(fleet_id, crest_fleet.comp)
+
     for charID in member:
         char_id: int = member[charID].character_id()
         char = db.session.query(Character).get(char_id)
