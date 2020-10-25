@@ -108,14 +108,12 @@ class FleetTimeTracker:
                     # or members that have newer join time (they rejoined)
                     # or members that have have a different hull (they switched ship)
                     for member_id in tt_data.members.keys():
-                        logger.debug('Checking memeber with character_id=%s', member_id)
                         if member_id in fleet_new_data:
-                            logger.debug('Member is still in fleet')
                             # now check his join time, if it changed he rejoined
                             # and we need to add his time from before
                             # so that time does not disappear
                             if tt_data.rejoined_fleet(fleet_new_data[member_id]):
-                                logger.debug('Member rejoined fleet since last check')
+                                logger.debug('Member character_id=%s rejoined fleet since last check', member_id)
                                 self.register_member_time(
                                     fleet_id,
                                     tt_data.members[member_id],
@@ -123,14 +121,16 @@ class FleetTimeTracker:
                                     tt_data)
                             # we must only track if he did not rejoin
                             elif tt_data.changed_ship_type(fleet_new_data[member_id]):
-                                logger.debug('Member %s changed hull', tt_data.members[member_id].character_id())
+                                logger.debug('Member character_id=%s changed hull', member_id)
                                 self.register_member_time(
                                     fleet_id,
                                     tt_data.members[member_id],
                                     tt_data.expires,
                                     tt_data)
+                            else:
+                                logger.debug('Member character_id=%s is still in fleet', member_id)
                         else:  # he left fleet
-                            logger.debug('Member left fleet')
+                            logger.debug('Member character_id=%s left fleet', member_id)
                             self.register_member_time(fleet_id,
                                                       tt_data.members[member_id],
                                                       tt_data.expires,
@@ -138,6 +138,10 @@ class FleetTimeTracker:
                     # we don't need to care about new members,
                     # because we handle all members when they leave,
                     # because only then we know the duration they stayed for
+                    if logger.isEnabledFor(logging.DEBUG):
+                        for member_id in fleet_new_data.keys():
+                            if member_id not in tt_data.members:
+                                logger.debug('Memeber character_id=%s joined fleet', member_id)
 
                     # now we can replace the data
                     self.cache[fleet_id].members = fleet_new_data.copy()
