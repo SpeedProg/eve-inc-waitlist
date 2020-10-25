@@ -81,6 +81,7 @@ class FleetMemberInfo:
         for fleet_id in db.session.query(CrestFleet.fleetID):
             if fleet_id[0] not in self._lastmembers:
                 self._lastmembers[fleet_id[0]] = None
+                self._cached_until[fleet_id[0]] = datetime.utcnow() - timedelta(1)
 
     @classmethod
     def _to_members_map(cls, response: EveFleetMembers) -> Dict[int, FleetMember]:
