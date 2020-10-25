@@ -303,32 +303,41 @@ def submit():
 @bp.route('/', methods=['GET'])
 @login_required
 def index():
-    new_bro = current_user.is_new
+    ctx = {}
 
-    # noinspection PyPep8
-    activegroups = db.session.query(WaitlistGroup).filter(WaitlistGroup.enabled == True) \
-        .order_by(WaitlistGroup.ordering).all()
+    ctx['groups'] = db.session.query(WaitlistGroup) \
+        .filter(WaitlistGroup.enabled == True) \
+        .order_by(WaitlistGroup.ordering) \
+        .all()
 
-    ts_settings = None if disable_teamspeak else sget_active_ts_id()
+    if len(ctx['groups']) > 0:
+        ctx['newbro'] = current_user.is_new
 
-    return render_template("xup.html", newbro=new_bro,
-                           groups=activegroups, ts=ts_settings)
+        ctx['ts'] = None if disable_teamspeak else sget_active_ts_id()
+
+    return render_template("xup.html", **ctx)
 
 
 @bp.route("/<int:fit_id>", methods=['GET'])
 @login_required
 def update(fit_id: int):
-    new_bro: bool = current_user.is_new
+    ctx = {}
 
-    # noinspection PyPep8
-    activegroups = db.session.query(WaitlistGroup).filter(WaitlistGroup.enabled == True) \
-        .order_by(WaitlistGroup.ordering).all()
+    ctx['groups'] = db.session.query(WaitlistGroup) \
+        .filter(WaitlistGroup.enabled == True) \
+        .order_by(WaitlistGroup.ordering) \
+        .all()
 
-    ts_settings = None if disable_teamspeak else sget_active_ts_id()
+    if len(ctx['groups']) > 0:
+        ctx['newbro'] = current_user.is_new
 
-    return render_template("xup.html", newbro=new_bro,
-                           groups=activegroups, update=True, oldFitID=fit_id,
-                           ts=ts_settings)
+        ctx['ts'] = None if disable_teamspeak else sget_active_ts_id()
+
+        ctx['update'] = True
+
+        ctx['oldFitID'] = fit_id
+
+    return render_template("xup.html", **ctx)
 
 
 @bp.route("/update", methods=['POST'])
