@@ -21,12 +21,14 @@ For library licenses see licenses folder
 * Create a new ESI Application on https://developers.eveonline.com/applications . More information [here](#sso-information)
 * open `config/config.cfg` in your favorite text editor and adjust the settings
 * go to `static/js/config/` and create a `stattool_config.js` you can use the example provided
+* if you want the browser to play a sound on notification you need to set a sound file by copying it to `static/gong-sound.mp3`.
 * run `python manager.py db upgrade` which creates the database schema
 * execute `python create_admin.py` to create the initial admin account.
 Enter the character name of your main character as account name, then enter the same name as character to associate.
 When asked for more characters just press enter without entering anything.
 Further admin accounts can be created over the account management on the website
-* Use the command `pybabel compile -d translations` to compile the translation files.
+* Now you need to create the binary `.mo` files for gettext translations. You can use any tool to do this.
+If you have a prefered tool do `pip install Babel` to install Babel and then use the command `pybabel compile -d translations` to compile the translation files.
 * Start the waitlist with `python main.py` and visit it to login with the character that was setup as admin in the previous step.
 * Now configure groups and permissions :)
 * Import needed static data! You can find the interface for it under `Setting`->`Static Data Import`.
@@ -94,3 +96,60 @@ Translations where added, this means there is a new setup and upgrade step!
 run `python manager.py db upgrade` and make sure new options added to `config.cfg` are present in your config file.
 Some version add new dependencys so you should run `pip install -r requirements.txt` too.
 Run `pybabel compile -d translations` to compile translations!
+
+## Running behind an nginx proxy
+if you want to run behind a proxy the config below should be a good startingpoint.
+```
+server {
+    listen       80;
+    listen       443 ssl http2;
+    server_name  your.example.com;
+
+    proxy_set_header X-Forwarded-Server $host;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_set_header X-Forwarded-SSL on;
+
+  root /home/waitlist;
+  location / {
+    client_max_body_size 10m;
+    proxy_read_timeout 180s;
+    proxy_send_timeout 180s;
+    proxy_pass http://127.0.0.1:81;
+    proxy_redirect off;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Host $host;
+    proxy_set_header X-Forwarded-Server $host;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_set_header X-Forwarded-SSL on;
+  }
+
+  location /subscribe/ {
+    proxy_read_timeout 18000s;
+    proxy_send_timeout 18000s;
+    proxy_pass http://127.0.0.1:81;
+    proxy_redirect off;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Host $host;
+    proxy_set_header X-Forwarded-Server $host;
+    proxy_buffering off;
+  }
+
+  location /api/sse/ {
+    proxy_read_timeout 18000s;
+    proxy_send_timeout 18000s;
+    proxy_pass http://127.0.0.1:81;
+    proxy_redirect off;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Host $host;
+    proxy_set_header X-Forwarded-Server $host;
+    proxy_buffering off;
+  }
+
+}
+```
