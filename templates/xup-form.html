@@ -17,12 +17,12 @@
 {% else %}
 <fieldset class="form-group">
 	<label for="group">{{ _('Fleet to x-up for') }}</label>
-	<select autocomplete="off" class="form-control" id="group" name="groupID">
-		<option value="{{group.groupID}}">{{group.displayName}}</option>
-		{% for grp in groups %}
-		{% if grp.groupID != group.groupID %}
-		<option value="{{grp.groupID}}">{{grp.displayName}}</option>
+	<select required autocomplete="off" class="form-control" id="group" name="groupID">
+		{% if groups|length > 1 %}
+		<option value="" disabled selected hidden>{{ _('Choose a fleet...') }}</option>
 		{% endif %}
+		{% for grp in groups %}
+		<option value="{{grp.groupID}}">{{grp.displayName}}</option>
 		{% endfor %}
 	</select>
 </fieldset>

@@ -306,15 +306,13 @@ def index():
     new_bro = current_user.is_new
 
     # noinspection PyPep8
-    defaultgroup = db.session.query(WaitlistGroup).filter(WaitlistGroup.enabled == True) \
-        .order_by(WaitlistGroup.ordering).first()
-    # noinspection PyPep8
-    activegroups = db.session.query(WaitlistGroup).filter(WaitlistGroup.enabled == True).all()
+    activegroups = db.session.query(WaitlistGroup).filter(WaitlistGroup.enabled == True) \
+        .order_by(WaitlistGroup.ordering).all()
     ts_settings = None
     ts_id = sget_active_ts_id()
     if not disable_teamspeak and ts_id is not None:
         ts_settings = db.session.query(TeamspeakDatum).get(ts_id)
-    return render_template("xup.html", newbro=new_bro, group=defaultgroup,
+    return render_template("xup.html", newbro=new_bro,
                            groups=activegroups, ts=ts_settings)
 
 
@@ -324,16 +322,14 @@ def update(fit_id: int):
     new_bro: bool = current_user.is_new
 
     # noinspection PyPep8
-    defaultgroup = db.session.query(WaitlistGroup).filter(WaitlistGroup.enabled == True) \
-        .order_by(WaitlistGroup.ordering).first()
-    # noinspection PyPep8
-    activegroups = db.session.query(WaitlistGroup).filter(WaitlistGroup.enabled == True).all()
+    activegroups = db.session.query(WaitlistGroup).filter(WaitlistGroup.enabled == True) \
+        .order_by(WaitlistGroup.ordering).all()
     ts_settings = None
     ts_id = sget_active_ts_id()
     if ts_id is not None:
         ts_settings = db.session.query(TeamspeakDatum).get(ts_id)
 
-    return render_template("xup.html", newbro=new_bro, group=defaultgroup,
+    return render_template("xup.html", newbro=new_bro,
                            groups=activegroups, update=True, oldFitID=fit_id,
                            ts=ts_settings)
 
