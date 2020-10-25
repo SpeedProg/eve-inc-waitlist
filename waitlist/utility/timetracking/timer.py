@@ -185,7 +185,6 @@ class FleetTimeTracker:
         with self.state_lock:
             logger.info('Starting time tracking')
             if not self.stopped:
-                self.state_lock.release()
                 logger.info('Time tracking was already running')
                 return
             self.stopped = False
