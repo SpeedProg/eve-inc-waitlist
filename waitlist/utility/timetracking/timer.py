@@ -155,6 +155,10 @@ class FleetTimeTracker:
                         self.cache[fleet_id] = TimeTrackerCache(member_data, expires_data, fleet)
 
             db.session.commit()
+
+        except Exception as e:
+            logger.exception('Failed')
+        finally:
             db.session.remove()
 
             with self.state_lock:
@@ -164,9 +168,6 @@ class FleetTimeTracker:
                     self.timer.start()
                 else:
                     logger.info('Not setting up new timer, because Tracker is stopped')
-
-        except Exception:
-            logger.exception('Failed')
 
     def fleet_removed(self, fleet_id: int,
                       registration_time: datetime) -> None:
