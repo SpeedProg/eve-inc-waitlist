@@ -8,7 +8,7 @@ cached_api: App = None
 
 
 def header_to_datetime(header) -> datetime:
-    return datetime.fromtimestamp(mktime_tz(parsedate_tz(header)))
+    return datetime.utcfromtimestamp(mktime_tz(parsedate_tz(header)))
 
 
 def get_api() -> App:
