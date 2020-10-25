@@ -1,12 +1,13 @@
-from typing import Dict
+from typing import Dict, KeysView
 from datetime import datetime, timedelta, date
 import logging
 from threading import Timer, Lock
 from ..fleet import member_info
-from ...storage.database import CrestFleet, FleetTime, FleetTimeLastTracked, FleetTimeByHull, FleetTimeByDayHull
+from ...storage.database import CrestFleet, FleetTimeLastTracked, FleetTimeByDayHull
 from ...base import db
 from ..swagger.eve.fleet.models import FleetMember
 from ..eve_id_utils import get_character_by_id
+from build.lib.waitlist.storage.database import Character
 
 
 logger = logging.getLogger(__name__)
@@ -251,25 +252,6 @@ class FleetTimeTracker:
                          character_id,
                          hull_type,
                          day)
-        rowcount = db.session.query(FleetTime)\
-            .filter_by(characterID=character_id)\
-            .update({'duration': FleetTime.duration + duration.total_seconds()})
-        if rowcount == 0:
-            # we need to create entries
-            ft = FleetTime(characterID=character_id,
-                           duration=duration.total_seconds())
-            db.session.add(ft)
-
-        rowcount = db.session.query(FleetTimeByHull)\
-            .filter_by(characterID=character_id, hullType=hull_type)\
-            .update({'duration': FleetTimeByHull.duration + duration.total_seconds()})
-        if rowcount == 0:
-            ftbh = FleetTimeByHull(
-                characterID=character_id,
-                hullType=hull_type,
-                duration=duration.total_seconds()
-            )
-            db.session.add(ftbh)
 
         rowcount = db.session.query(FleetTimeByDayHull)\
             .filter_by(characterID=character_id, hullType=hull_type, day=day)\

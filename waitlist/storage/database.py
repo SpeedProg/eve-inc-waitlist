@@ -1473,31 +1473,6 @@ class FleetTimeLastTracked(Base):
     lastTimeTracked: Column = Column('last_time_tracked', DateTime, nullable=False)
 
 
-class FleetTime(Base):
-    __tablename__: str = 'fleet_time'
-    characterID: Column = Column('character_id', Integer,
-                                 ForeignKey(Character.id,
-                                            onupdate='CASCADE',
-                                            ondelete='CASCADE'),
-                                 primary_key=True)
-    # this duration should be in sconds, max is about 68 years
-    duration: Column = Column('duration', Integer, nullable=False, server_default='0')
-
-
-class FleetTimeByHull(Base):
-    __tablename__: str = 'fleet_time_by_hull'
-    characterID: Column = Column('character_id', Integer,
-                                 ForeignKey(Character.id,
-                                            onupdate='CASCADE',
-                                            ondelete='CASCADE'),
-                                 primary_key=True)
-    hullType: Column = Column('hull_type', Integer,
-                              ForeignKey(InvType.typeID,
-                                         onupdate='CASCADE'),
-                              primary_key=True)
-    duration: Column = Column('duration', Integer, nullable=False, server_default='0')
-
-
 # this might need an index over characterID, day and maybe hullType, day and even characterID + day
 class FleetTimeByDayHull(Base):
     __tablename__: str = 'fleet_time_by_day_hull'
@@ -1511,4 +1486,5 @@ class FleetTimeByDayHull(Base):
                                          onupdate='CASCADE'),
                               primary_key=True)
     day: Column = Column('day', Date, primary_key=True)
+    # this duration is in secodns
     duration: Column = Column('duration', Integer, nullable=False, server_default='0')
