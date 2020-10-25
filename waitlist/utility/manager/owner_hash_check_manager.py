@@ -98,19 +98,23 @@ class OwnerHashCheckManager(object):
             return False
 
         # the token still works
-        auth_info = who_am_i(token)
-        owner_hash = auth_info['CharacterOwnerHash']
-        # possible token update happened
-        db.session.commit()
+        try:
+            auth_info = who_am_i(token)
+            owner_hash = auth_info['CharacterOwnerHash']
+            # possible token update happened
+            db.session.commit()
 
-        if owner_hash != user.owner_hash:
-            logger.info("%s's new owner_hash %s did not match owner_hash in database %s",
-                        user, owner_hash,  user.owner_hash)
+            if owner_hash != user.owner_hash:
+                logger.info("%s's new owner_hash %s did not match owner_hash in database %s",
+                            user, owner_hash,  user.owner_hash)
+                return False
+
+            # owner hash still matches
+            self.set_last_successful_owner_hash_check(char_id)
+            logger.debug("%s owner_hash did match, let the request continue", user)
+        except APIException:
+            logger.exception('Failed getting AuthInfo from API')
             return False
-
-        # owner hash still matches
-        self.set_last_successful_owner_hash_check(char_id)
-        logger.debug("%s owner_hash did match, let the request continue", user)
         return True
 
     @staticmethod
