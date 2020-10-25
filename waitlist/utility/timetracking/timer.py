@@ -89,7 +89,7 @@ class FleetTimeTracker:
                     # these ones we need to check for missing members, because they left the fleet
                     # we also need to check all none missing members if their fleet join time maybe changed because if it did, it means they left and rejoined between the last check and now
                     fleet: CrestFleet = db.session.query(CrestFleet).get(fleet_id)
-                    fleet_new_data: Dict[int, FleetMember] = member_info.get_fleet_members(fleet_id, fleet.comp)
+                    fleet_new_data: Dict[int, FleetMember] = None if fleet.comp is None else member_info.get_fleet_members(fleet_id, fleet.comp)
                     fleet_expires = member_info.get_expires(fleet_id)
                     tt_data: TimeTrackerCache = self.cache[fleet_id]
                     # if we get stale data, because e.g. we have no valid api key
@@ -148,6 +148,9 @@ class FleetTimeTracker:
                 if fleet_id not in self.cache:
                     logger.info('Adding new fleet with fleet_id=%s to cache', fleet_id)
                     fleet: CrestFleet = db.session.query(CrestFleet).get(fleet_id)
+                    if fleet.comp is None:
+                        logger.info('Skipping fleet with id=%s because we do not have a fleet comp')
+                        continue
                     member_data = member_info.get_fleet_members(fleet_id, fleet.comp)
                     if member_data is not None:
                         logger.info('Fleet with fleet_id=%s does not have data', fleet_id)
