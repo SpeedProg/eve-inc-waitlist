@@ -1,6 +1,7 @@
 from typing import Optional
 
 import gevent
+from threading import Lock
 from flask.json import dumps
 from queue import Queue
 import logging
@@ -10,6 +11,7 @@ from waitlist.utility.json import make_json_constellation,\
 from waitlist.utility import config
 logger = logging.getLogger(__name__)
 subscriptions = []
+subscriptions_lock = Lock()
 
 
 class Subscription(object):
@@ -69,14 +71,16 @@ class Subscription(object):
 def add_subscription(subscription: Subscription):
     if not isinstance(subscription, Subscription):
         raise TypeError("Not a Subscription Object")
-    subscriptions.append(subscription)
+    with subscriptions_lock:
+        subscriptions.append(subscription)
     logger.info('Adding subscription for %s', subscription.get_user_id())
 
 
 def remove_subscription(subscription):
     if not isinstance(subscription, Subscription):
         raise TypeError("Not a Subscription Object")
-    subscriptions.remove(subscription)
+    with subscriptions_lock:
+        subscriptions.remove(subscription)
     logger.info('Removing subscription for %s', subscription.get_user_id())
 
 
@@ -118,9 +122,10 @@ def send_server_sent_event(sse):
         raise TypeError("Not a ServerSentEvent Object")
     
     def notify():
-        for sub in subscriptions:
-            if sub.accepts_event(sse):
-                sub.put(sse)
+        with subscriptions_lock:
+            for sub in subscriptions:
+                if sub.accepts_event(sse):
+                    sub.put(sse)
 
     gevent.spawn(notify)
 
