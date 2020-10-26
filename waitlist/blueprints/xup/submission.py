@@ -82,7 +82,7 @@ def submit():
             flash(gettext("Valid entries are scruffy %(types)s", types=','.join(allowed_types)), 'danger')
             return redirect(url_for('index'))
 
-        queue = group.xuplist
+        queue = group.queue
         wl_entry = db.session.query(WaitlistEntry).filter(
             (WaitlistEntry.waitlist_id == queue.id) & (WaitlistEntry.user == eve_id)).first()
         if wl_entry is None:
@@ -140,7 +140,7 @@ def submit():
     logilvl = int(logilvl)
     caldari_bs_lvl = int(caldari_bs_lvl)
     newbro = request.form.get('newbro', "off")
-    newbro = (newbro is not "off")
+    newbro = (newbro != "off")
     current_user.is_new = newbro
 
     current_user.cbs_level = caldari_bs_lvl
@@ -257,13 +257,13 @@ def submit():
     # split his fits into types for the different waitlist_entries
     for fit in fits:
         tag, waitlist_id = get_waitlist_type_for_fit(fit, group_id)
-        fit.wl_type = tag 
+        fit.wl_type = tag
         fit.targetWaitlistID = waitlist_id
         fits_ready.append(fit)
 
     # get the waitlist entries of this user
 
-    queue = group.xuplist
+    queue = group.queue
     wl_entry = db.session.query(WaitlistEntry).filter(
         (WaitlistEntry.waitlist_id == queue.id) & (WaitlistEntry.user == eve_id)).first()
     if wl_entry is None:
@@ -303,39 +303,41 @@ def submit():
 @bp.route('/', methods=['GET'])
 @login_required
 def index():
-    new_bro = current_user.is_new
+    ctx = {}
 
-    # noinspection PyPep8
-    defaultgroup = db.session.query(WaitlistGroup).filter(WaitlistGroup.enabled == True) \
-        .order_by(WaitlistGroup.ordering).first()
-    # noinspection PyPep8
-    activegroups = db.session.query(WaitlistGroup).filter(WaitlistGroup.enabled == True).all()
-    ts_settings = None
-    ts_id = sget_active_ts_id()
-    if not disable_teamspeak and ts_id is not None:
-        ts_settings = db.session.query(TeamspeakDatum).get(ts_id)
-    return render_template("xup.html", newbro=new_bro, group=defaultgroup,
-                           groups=activegroups, ts=ts_settings)
+    ctx['groups'] = db.session.query(WaitlistGroup) \
+        .filter(WaitlistGroup.enabled == True) \
+        .order_by(WaitlistGroup.ordering) \
+        .all()
+
+    if len(ctx['groups']) > 0:
+        ctx['newbro'] = current_user.is_new
+
+        ctx['ts'] = None if disable_teamspeak else sget_active_ts_id()
+
+    return render_template("xup.html", **ctx)
 
 
 @bp.route("/<int:fit_id>", methods=['GET'])
 @login_required
 def update(fit_id: int):
-    new_bro: bool = current_user.is_new
+    ctx = {}
 
-    # noinspection PyPep8
-    defaultgroup = db.session.query(WaitlistGroup).filter(WaitlistGroup.enabled == True) \
-        .order_by(WaitlistGroup.ordering).first()
-    # noinspection PyPep8
-    activegroups = db.session.query(WaitlistGroup).filter(WaitlistGroup.enabled == True).all()
-    ts_settings = None
-    ts_id = sget_active_ts_id()
-    if ts_id is not None:
-        ts_settings = db.session.query(TeamspeakDatum).get(ts_id)
+    ctx['groups'] = db.session.query(WaitlistGroup) \
+        .filter(WaitlistGroup.enabled == True) \
+        .order_by(WaitlistGroup.ordering) \
+        .all()
 
-    return render_template("xup.html", newbro=new_bro, group=defaultgroup,
-                           groups=activegroups, update=True, oldFitID=fit_id,
-                           ts=ts_settings)
+    if len(ctx['groups']) > 0:
+        ctx['newbro'] = current_user.is_new
+
+        ctx['ts'] = None if disable_teamspeak else sget_active_ts_id()
+
+        ctx['update'] = True
+
+        ctx['oldFitID'] = fit_id
+
+    return render_template("xup.html", **ctx)
 
 
 @bp.route("/update", methods=['POST'])

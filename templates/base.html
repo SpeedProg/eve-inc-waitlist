@@ -64,16 +64,15 @@
 	{%  block alert_base %}
 	<div id="alert-area-base">
 	{% with messages = get_flashed_messages(with_categories=true) %}
-  		{% if messages %}
-  		{% for category, message in messages %}
-  		<div class="alert alert-{{category}} alert-dismissible" role="alert">
-  			<button type="button" class="close" data-dismiss="alert" aria-label="Close">
-    			<span aria-hidden="true">&times;</span>
-  			</button>
-  			<p class="text-center">{{message}}</p>
-  		</div>
-  		{% endfor %}
-  		{% endif %}
+	{% for category, message in messages %}
+	{% if category == "error" %} {% set category = "danger" %}{% endif %}
+		<div class="alert alert-{{category}} alert-dismissible" role="alert">
+			<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+				<span aria-hidden="true">&times;</span>
+			</button>
+			<p class="text-center">{{message}}</p>
+		</div>
+	{% endfor %}
 	{% endwith %}
 	</div>
 	{% endblock alert_base %}

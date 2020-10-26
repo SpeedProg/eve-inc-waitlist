@@ -378,7 +378,7 @@ def account_self_edit():
                             auth_info = who_am_i(auth_token)
                         except APIException:
                             flash(gettext('Failed to get info for this character because of sso error'))
-                            redirect(url_for('.account_self'), code=303)
+                            return redirect(url_for('.account_self'), code=303)
 
                         # if we don't have this the token was invalid
                         if 'CharacterOwnerHash' not in auth_info:
