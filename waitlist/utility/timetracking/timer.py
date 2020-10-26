@@ -90,8 +90,8 @@ class FleetTimeTracker:
                     if fleet_id in fleet_ids:
                         # these ones we need to check for missing members, because they left the fleet
                         # we also need to check all none missing members if their fleet join time maybe changed because if it did, it means they left and rejoined between the last check and now
-                        fleet: CrestFleet = db.session.query(CrestFleet).get((fleet_id,))
-                        fleet_new_data: Dict[int, FleetMember] = member_info.get_fleet_members(fleet_id, fleet.comp)
+                        fleet: CrestFleet = db.session.query(CrestFleet).get(fleet_id)
+                        fleet_new_data: Dict[int, FleetMember] = None if fleet.comp is None else member_info.get_fleet_members(fleet_id, fleet.comp)
                         fleet_expires = member_info.get_expires(fleet_id)
                         tt_data: TimeTrackerCache = self.cache[fleet_id]
                         # if we get stale data, because e.g. we have no valid api key
@@ -110,14 +110,12 @@ class FleetTimeTracker:
                         # or members that have newer join time (they rejoined)
                         # or members that have have a different hull (they switched ship)
                         for member_id in tt_data.members.keys():
-                            logger.debug('Checking memeber with character_id=%s', member_id)
                             if member_id in fleet_new_data:
-                                logger.debug('Member is still in fleet')
                                 # now check his join time, if it changed he rejoined
                                 # and we need to add his time from before
                                 # so that time does not disappear
                                 if tt_data.rejoined_fleet(fleet_new_data[member_id]):
-                                    logger.debug('Member rejoined fleet since last check')
+                                    logger.debug('Member character_id=%s rejoined fleet since last check', member_id)
                                     self.register_member_time(
                                         fleet_id,
                                         tt_data.members[member_id],
@@ -125,14 +123,16 @@ class FleetTimeTracker:
                                         tt_data)
                                 # we must only track if he did not rejoin
                                 elif tt_data.changed_ship_type(fleet_new_data[member_id]):
-                                    logger.debug('Member %s changed hull', tt_data.members[member_id].character_id())
+                                    logger.debug('Member character_id=%s changed hull', member_id)
                                     self.register_member_time(
                                         fleet_id,
                                         tt_data.members[member_id],
                                         tt_data.expires,
                                         tt_data)
+                                else:
+                                    logger.debug('Member character_id=%s is still in fleet', member_id)
                             else:  # he left fleet
-                                logger.debug('Member left fleet')
+                                logger.debug('Member character_id=%s left fleet', member_id)
                                 self.register_member_time(fleet_id,
                                                           tt_data.members[member_id],
                                                           tt_data.expires,
@@ -140,6 +140,10 @@ class FleetTimeTracker:
                         # we don't need to care about new members,
                         # because we handle all members when they leave,
                         # because only then we know the duration they stayed for
+                        if logger.isEnabledFor(logging.DEBUG):
+                            for member_id in fleet_new_data.keys():
+                                if member_id not in tt_data.members:
+                                    logger.debug('Memeber character_id=%s joined fleet', member_id)
 
                         # now we can replace the data
                         self.cache[fleet_id].members = fleet_new_data.copy()
@@ -149,7 +153,10 @@ class FleetTimeTracker:
                 for fleet_id in fleet_ids:
                     if fleet_id not in self.cache:
                         logger.info('Adding new fleet with fleet_id=%s to cache', fleet_id)
-                        fleet: CrestFleet = db.session.query(CrestFleet).get((fleet_id,))
+                        fleet: CrestFleet = db.session.query(CrestFleet).get(fleet_id)
+                        if fleet.comp is None:
+                            logger.info('Skipping fleet with id=%s because we do not have a fleet comp')
+                            continue
                         member_data = member_info.get_fleet_members(fleet_id, fleet.comp)
                         if member_data is not None:
                             logger.info('Fleet with fleet_id=%s does not have data', fleet_id)
@@ -157,6 +164,10 @@ class FleetTimeTracker:
                             self.cache[fleet_id] = TimeTrackerCache(member_data, expires_data, fleet)
 
             db.session.commit()
+
+        except Exception as e:
+            logger.exception('Failed')
+        finally:
             db.session.remove()
 
             with self.state_lock:
@@ -166,9 +177,6 @@ class FleetTimeTracker:
                     self.timer.start()
                 else:
                     logger.info('Not setting up new timer, because Tracker is stopped')
-
-        except Exception:
-            logger.exception('Failed')
 
     def fleet_removed(self, fleet_id: int,
                       registration_time: datetime) -> None:
@@ -187,7 +195,6 @@ class FleetTimeTracker:
         with self.state_lock:
             logger.info('Starting time tracking')
             if not self.stopped:
-                self.state_lock.release()
                 logger.info('Time tracking was already running')
                 return
             self.stopped = False
