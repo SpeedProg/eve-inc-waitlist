@@ -11,6 +11,7 @@ from sqlalchemy import Enum
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.sql.schema import Table, ForeignKey, CheckConstraint, UniqueConstraint
+from sqlalchemy.ext.hybrid import hybrid_property
 
 from waitlist.base import db
 from waitlist.utility import config
@@ -652,6 +653,18 @@ class Character(Base):
         "Account",
         secondary=linked_chars,
         back_populates="characters")
+
+    time_data = relationship('FleetTimeByDayHull', lazy='dynamic') 
+
+    @hybrid_property
+    def duration_in_fleet(self):
+        return sum(e.duration for e in self.time_data)
+
+    @duration_in_fleet.expression
+    def duration_in_fleet(cls):
+        return select([func.sum(FleetTimeByDayHull.duration)]).\
+            where(FleetTimeByDayHull.characterID==cls.id).\
+            label('duration_in_fleet')
 
     def get_a_sso_token_with_scopes(self, scopes: List[str]) -> Optional[SSOToken]:
         """
