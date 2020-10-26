@@ -136,7 +136,7 @@ class FleetMemberInfo:
         return self._lastmembers[fleet_id]
 
     def get_cache_data(self, fleet_id) -> Optional[Dict[int, FleetMember]]:
-        if fleet_id in self._lastmembers:
+        if fleet_id in self._lastmembers and self._lastmembers[fleet_id] is not None:
             return self._lastmembers[fleet_id].copy()
         return None
 

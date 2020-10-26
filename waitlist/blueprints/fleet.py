@@ -120,7 +120,7 @@ def get_select_form(token: SSOToken, fleet_id: int, group_id: int) -> Any:
         squads: List[EveFleetSquad] = wing.squads()
         # try to find a squad for each list
         waitlist: Waitlist
-        for  waitlist in filter(lambda w: waitlist.id != group.queueID, group.waitlists):
+        for  waitlist in filter(lambda w: w.id != group.queueID, group.waitlists):
             squad: EveFleetSquad
             for squad in squads:
                 if squad.name() == waitlist.displayTitle:
