@@ -51,6 +51,10 @@ app.config['SQLALCHEMY_DATABASE_URI'] = config.connection_uri
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_POOL_RECYCLE'] = config.sqlalchemy_pool_recycle
 
+# seasurf config
+app.config['CSRF_COOKIE_SECURE'] = config.secure_cookies
+app.config['CSRF_COOKIE_HTTPONLY'] = True
+
 # flask cdn config
 app.config['CDN_DOMAIN'] = config.cdn_domain
 app.config['CDN_HTTPS'] = config.cdn_https

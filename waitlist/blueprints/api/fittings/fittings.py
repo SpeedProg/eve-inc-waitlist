@@ -80,10 +80,9 @@ def waitlist():
         return None
     jsonwls = []
     group = db.session.query(WaitlistGroup).get(group_id)
-    waitlists = [group.xuplist, group.logilist, group.dpslist, group.sniperlist]
-    if group.otherlist is not None:
-        waitlists.append(group.otherlist)
-    
+
+    waitlists = [l for l in group.waitlists]
+
     # is the requester allowed to see fits?
     exclude_fits = not perm_fits_view.can()
     include_fits_from = [current_user.get_eve_id()]

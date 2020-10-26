@@ -7,6 +7,7 @@ from flask_login import login_required
 from waitlist.base import db
 from waitlist.storage.database import Account, Role
 from flask.templating import render_template
+from sqlalchemy.orm import subqueryload
 
 bp = Blueprint('accounts_cc', __name__)
 logger = logging.getLogger(__name__)
@@ -20,9 +21,18 @@ perm_manager.define_permission('commandcore')
 def accounts():
     clean_alt_list()
 
-    # noinspection PyPep8
-    accs = db.session.query(Account).\
-        filter(Account.disabled == False).\
-        order_by(Account.username).all()
-    roles = db.session.query(Role).all()
-    return render_template("waitlist/tools/commandcore_list.html", accounts=accs, roles=roles)
+    ctx = {}
+
+    ctx['roles'] = db.session.query(Role).order_by(Role.name).all()
+
+    ctx['accounts'] = db.session.query(Account) \
+        .filter(Account.disabled == False) \
+        .order_by(Account.username) \
+        .options(
+            subqueryload(Account.roles),
+            subqueryload(Account.characters),
+            subqueryload(Account.ssoTokens),
+        ) \
+        .all()
+
+    return render_template("waitlist/tools/commandcore_list.html", **ctx)

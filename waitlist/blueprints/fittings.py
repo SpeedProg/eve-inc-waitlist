@@ -14,7 +14,7 @@ from flask.helpers import url_for
 from flask.templating import render_template
 from datetime import datetime, timedelta
 from waitlist.base import db
-from waitlist.data.sse import subscriptions, EntryAddedSSE, \
+from waitlist.data.sse import subscriptions, subscriptions_lock, EntryAddedSSE, \
     send_server_sent_event, FitAddedSSE, FitRemovedSSE, EntryRemovedSSE
 import flask
 from sqlalchemy.sql.expression import desc
@@ -226,11 +226,12 @@ def api_move_fit_to_waitlist():
 @login_required
 @perm_dev.require(http_exception=401)
 def debug():
-    output = f"Currently {len(subscriptions)} subscriptions."
-    for sub in subscriptions:
-        output += json.dumps(sub.options)
-    output += json.dumps(fit_api.access_duration_track)
-    return output
+    with subscriptions_lock:
+        output = f"Currently {len(subscriptions)} subscriptions."
+        for sub in subscriptions:
+            output += json.dumps(sub.options)
+        output += json.dumps(fit_api.access_duration_track)
+        return output
 
 
 @bp_waitlist.route("/history/")

@@ -44,7 +44,7 @@ def get_character_info(char_id: int, *args) -> APICacheCharacterInfo:
 
     if char_cache is None:
         char_cache = APICacheCharacterInfo()
-        __populate_from_api(char_cache)
+        __populate_from_api(char_cache, char_id)
         db.session.add(char_cache)
         db.session.commit()
     else:
