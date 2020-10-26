@@ -1,7 +1,6 @@
 import json
 from os import path
 import shutil
-from webassets.bundle import Bundle
 from webassets.utils import hash_func
 from waitlist.utility.webassets.loader.jinja2 import Jinja2Loader
 from waitlist.utility.webassets.filter.jinja2 import CacheableJinja2Filter
@@ -80,11 +79,15 @@ class ThemeBundle():
     def __init__(self, assets: Environment):
         themes_config_filename = './config/themes.json'
         if not path.isfile(themes_config_filename):
-          shutil.copyfile('./config/themes.example.json', themes_config_filename)
+            if path.exists('./config/themes.example.json') and path.isfile('./config/themes.example.json'):
+                shutil.copyfile('./config/themes.example.json', themes_config_filename)
 
-        with open(themes_config_filename, 'r') as fp:
-            self.config = json.load(fp)
-        assets.app.jinja_env.globals.update(themes=self.config)
+        if path.exists(themes_config_filename):
+            with open(themes_config_filename, 'r') as fp:
+                self.config = json.load(fp)
+            assets.app.jinja_env.globals.update(themes=self.config)
+        else:
+            self.config = {}
 
         self.assets = assets
         self.hash = hash_func(self.config)

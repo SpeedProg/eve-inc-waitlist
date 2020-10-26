@@ -8,39 +8,51 @@ Optionalcharids = Optional[Sequence[int]]
 
 def make_json_wl_entry(entry, exclude_fits: bool = False, include_fits_from: Optionalcharids = None,
                        scramble_names: bool = False, include_names_from: Optionalcharids = None):
+
+    include_sensitive_data = not (exclude_fits and ((include_fits_from is None or entry.user is None) or entry.user not in include_fits_from))
+
     response = {
         'id': entry.id,
         'character': make_json_character(entry.user_data, scramble_names=scramble_names,
-                                         include_names_from=include_names_from),
+                                         include_names_from=include_names_from, include_sensitive_data=include_sensitive_data),
         'time': entry.creation,
         'missedInvites': entry.inviteCount
     }
 
-    if not (exclude_fits and ((include_fits_from is None or entry.user is None) or entry.user not in include_fits_from)):
+    if include_sensitive_data:
         response['fittings'] = list(map(make_json_fitting, entry.fittings))
 
     return response
 
 
 def make_json_wl(dbwl: Waitlist, exclude_fits: bool = False, include_fits_from: Optionalcharids = None,
-                 scramble_names: bool = False, include_names_from: Optionalcharids = None):
-    return {
+                 scramble_names: bool = False, include_names_from: Optionalcharids = None, include_entries = True):
+    wlobject = {
         'id': dbwl.id,
-        'name': dbwl.name,
-        'entries': make_entries(dbwl.entries, exclude_fits, include_fits_from, scramble_names=scramble_names,
-                                include_names_from=include_names_from)
+        'name': dbwl.name
     }
+    if include_entries:
+        wlobject['entries'] = make_entries(dbwl.entries, exclude_fits, include_fits_from,
+                                           scramble_names=scramble_names,
+                                           include_names_from=include_names_from)
+    return wlobject
 
 
 def make_json_character(dbcharacter: Character, scramble_names: bool = False,
-                        include_names_from: Optionalcharids = None):
-    return {
+                        include_names_from: Optionalcharids = None, include_sensitive_data: bool = False):
+    char = {
         'id': dbcharacter.get_eve_id() if not scramble_names or (
             include_names_from is not None and dbcharacter.get_eve_id() in include_names_from) else None,
         'name': dbcharacter.get_eve_name() if not scramble_names or (
-            include_names_from is not None and dbcharacter.get_eve_id() in include_names_from) else 'Name Hidden',
-        'newbro': dbcharacter.is_new
+            include_names_from is not None and dbcharacter.get_eve_id() in include_names_from) else 'Name Hidden'
     }
+
+    if include_sensitive_data:
+        char['newbro'] = dbcharacter.is_new
+        char['time_in_fleet'] = dbcharacter.duration_in_fleet
+
+    return char
+
 
 
 def make_json_fitting(dbfitting: Shipfit):
@@ -81,11 +93,8 @@ def make_json_group(group: WaitlistGroup):
         'station': make_json_station(group.dockup),
         'solarSystem': make_json_solar_system(group.system),
         'constellation': make_json_constellation(group.constellation),
-        'logiwlID': None if group.logilist is None else group.logilist.id,
-        'dpswlID': None if group.dpslist is None else group.dpslist.id,
-        'sniperwlID': None if group.sniperlist is None else group.sniperlist.id,
-        'otherwlID': None if group.otherlist is None else group.otherlist.id,
-        'xupwlID': None if group.xuplist is None else group.xuplist.id
+        'lists': [make_json_wl(wl, include_entries=False) for wl in group.waitlists]
+
     }
 
 

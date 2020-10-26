@@ -126,9 +126,9 @@ def bans_change_single():
             reason = request.form['reason']  # reason for ban
             ban_id, ban_type = outgate.character.get_char_corp_all_id_by_name(target)
             admin_char = get_character_by_name(ban_admin)
-            logger.info("Banning %s for %s as %s.", ban_name, reason, current_user.username)
+            logger.info("Banning %s for %s as %s.", target, reason, current_user.username)
             if ban_id is None:
-                logger.error("Did not find ban target %s", ban_name)
+                logger.error("Did not find ban target %s", target)
                 flash(gettext("Could not find Character %(name)s", name=target),
                       "danger")
                 return

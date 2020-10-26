@@ -1,12 +1,13 @@
-from typing import KeysView, Dict
+from typing import Dict, KeysView
 from datetime import datetime, timedelta, date
 import logging
 from threading import Timer, Lock
 from ..fleet import member_info
-from ...storage.database import CrestFleet, FleetTime, Character, FleetTimeLastTracked, FleetTimeByHull, FleetTimeByDayHull
+from ...storage.database import CrestFleet, FleetTimeLastTracked, FleetTimeByDayHull
 from ...base import db
 from ..swagger.eve.fleet.models import FleetMember
 from ..eve_id_utils import get_character_by_id
+from build.lib.waitlist.storage.database import Character
 
 
 logger = logging.getLogger(__name__)
@@ -73,93 +74,94 @@ class FleetTimeTracker:
                 logger.info('Not running because tracker is stopped')
                 return
             logger.info('check_fleets executing')
-            fleet_ids: KeysView = member_info.get_fleet_ids()
-            # lets check if any fleets are gone that we still have data of
-            for fleet_id in list(self.cache.keys()):
-                logger.debug('Checking fleet_id=%s if it still exists', fleet_id)
-                if fleet_id not in fleet_ids:
-                    logger.info('Fleet with id=%s is not in cache anymore, removing', fleet_id)
-                    # the fleet disappeared register remaining mebers time
-                    self.register_fleet_time(fleet_id, self.cache[fleet_id])
-                    del self.cache[fleet_id]
-
-            for fleet_id in self.cache.keys():
-                logger.debug('Checking members in fleet with id=%s', fleet_id)
-                if fleet_id in fleet_ids:
-                    # these ones we need to check for missing members, because they left the fleet
-                    # we also need to check all none missing members if their fleet join time maybe changed because if it did, it means they left and rejoined between the last check and now
-                    fleet: CrestFleet = db.session.query(CrestFleet).get(fleet_id)
-                    fleet_new_data: Dict[int, FleetMember] = None if fleet.comp is None else member_info.get_fleet_members(fleet_id, fleet.comp)
-                    fleet_expires = member_info.get_expires(fleet_id)
-                    tt_data: TimeTrackerCache = self.cache[fleet_id]
-                    # if we get stale data, because e.g. we have no valid api key
-                    # just skip this fleet
-                    if fleet_new_data is None:
-                        logger.info('Fleet with id=%s is not in cache anymore also its key still exists in database, removing', fleet_id)
+            with member_info:
+                fleet_ids: KeysView = member_info.get_fleet_ids()
+                # lets check if any fleets are gone that we still have data of
+                for fleet_id in list(self.cache.keys()):
+                    logger.debug('Checking fleet_id=%s if it still exists', fleet_id)
+                    if fleet_id not in fleet_ids:
+                        logger.info('Fleet with id=%s is not in cache anymore, removing', fleet_id)
                         # the fleet disappeared register remaining mebers time
                         self.register_fleet_time(fleet_id, self.cache[fleet_id])
                         del self.cache[fleet_id]
-                        continue
 
-                    if fleet_expires == tt_data.expires:
-                        logger.debug('Skipping fleet with id=%s because cache data is stale', fleet_id)
-                        continue
-                    # find members not in new data (they left the fleet)
-                    # or members that have newer join time (they rejoined)
-                    # or members that have have a different hull (they switched ship)
-                    for member_id in tt_data.members.keys():
-                        if member_id in fleet_new_data:
-                            # now check his join time, if it changed he rejoined
-                            # and we need to add his time from before
-                            # so that time does not disappear
-                            if tt_data.rejoined_fleet(fleet_new_data[member_id]):
-                                logger.debug('Member character_id=%s rejoined fleet since last check', member_id)
-                                self.register_member_time(
-                                    fleet_id,
-                                    tt_data.members[member_id],
-                                    tt_data.expires,
-                                    tt_data)
-                            # we must only track if he did not rejoin
-                            elif tt_data.changed_ship_type(fleet_new_data[member_id]):
-                                logger.debug('Member character_id=%s changed hull', member_id)
-                                self.register_member_time(
-                                    fleet_id,
-                                    tt_data.members[member_id],
-                                    tt_data.expires,
-                                    tt_data)
-                            else:
-                                logger.debug('Member character_id=%s is still in fleet', member_id)
-                        else:  # he left fleet
-                            logger.debug('Member character_id=%s left fleet', member_id)
-                            self.register_member_time(fleet_id,
-                                                      tt_data.members[member_id],
-                                                      tt_data.expires,
-                                                      tt_data)
-                    # we don't need to care about new members,
-                    # because we handle all members when they leave,
-                    # because only then we know the duration they stayed for
-                    if logger.isEnabledFor(logging.DEBUG):
-                        for member_id in fleet_new_data.keys():
-                            if member_id not in tt_data.members:
-                                logger.debug('Memeber character_id=%s joined fleet', member_id)
+                for fleet_id in self.cache.keys():
+                    logger.debug('Checking members in fleet with id=%s', fleet_id)
+                    if fleet_id in fleet_ids:
+                        # these ones we need to check for missing members, because they left the fleet
+                        # we also need to check all none missing members if their fleet join time maybe changed because if it did, it means they left and rejoined between the last check and now
+                        fleet: CrestFleet = db.session.query(CrestFleet).get(fleet_id)
+                        fleet_new_data: Dict[int, FleetMember] = None if fleet.comp is None else member_info.get_fleet_members(fleet_id, fleet.comp)
+                        fleet_expires = member_info.get_expires(fleet_id)
+                        tt_data: TimeTrackerCache = self.cache[fleet_id]
+                        # if we get stale data, because e.g. we have no valid api key
+                        # just skip this fleet
+                        if fleet_new_data is None:
+                            logger.info('Fleet with id=%s is not in cache anymore also its key still exists in database, removing', fleet_id)
+                            # the fleet disappeared register remaining mebers time
+                            self.register_fleet_time(fleet_id, self.cache[fleet_id])
+                            del self.cache[fleet_id]
+                            continue
 
-                    # now we can replace the data
-                    self.cache[fleet_id].members = fleet_new_data.copy()
-                    self.cache[fleet_id].expires = fleet_expires
+                        if fleet_expires == tt_data.expires:
+                            logger.debug('Skipping fleet with id=%s because cache data is stale', fleet_id)
+                            continue
+                        # find members not in new data (they left the fleet)
+                        # or members that have newer join time (they rejoined)
+                        # or members that have have a different hull (they switched ship)
+                        for member_id in tt_data.members.keys():
+                            if member_id in fleet_new_data:
+                                # now check his join time, if it changed he rejoined
+                                # and we need to add his time from before
+                                # so that time does not disappear
+                                if tt_data.rejoined_fleet(fleet_new_data[member_id]):
+                                    logger.debug('Member character_id=%s rejoined fleet since last check', member_id)
+                                    self.register_member_time(
+                                        fleet_id,
+                                        tt_data.members[member_id],
+                                        tt_data.expires,
+                                        tt_data)
+                                # we must only track if he did not rejoin
+                                elif tt_data.changed_ship_type(fleet_new_data[member_id]):
+                                    logger.debug('Member character_id=%s changed hull', member_id)
+                                    self.register_member_time(
+                                        fleet_id,
+                                        tt_data.members[member_id],
+                                        tt_data.expires,
+                                        tt_data)
+                                else:
+                                    logger.debug('Member character_id=%s is still in fleet', member_id)
+                            else:  # he left fleet
+                                logger.debug('Member character_id=%s left fleet', member_id)
+                                self.register_member_time(fleet_id,
+                                                          tt_data.members[member_id],
+                                                          tt_data.expires,
+                                                          tt_data)
+                        # we don't need to care about new members,
+                        # because we handle all members when they leave,
+                        # because only then we know the duration they stayed for
+                        if logger.isEnabledFor(logging.DEBUG):
+                            for member_id in fleet_new_data.keys():
+                                if member_id not in tt_data.members:
+                                    logger.debug('Memeber character_id=%s joined fleet', member_id)
 
-            # add new fleets to cache
-            for fleet_id in fleet_ids:
-                if fleet_id not in self.cache:
-                    logger.info('Adding new fleet with fleet_id=%s to cache', fleet_id)
-                    fleet: CrestFleet = db.session.query(CrestFleet).get(fleet_id)
-                    if fleet.comp is None:
-                        logger.info('Skipping fleet with id=%s because we do not have a fleet comp')
-                        continue
-                    member_data = member_info.get_fleet_members(fleet_id, fleet.comp)
-                    if member_data is not None:
-                        logger.info('Fleet with fleet_id=%s does not have data', fleet_id)
-                        expires_data = member_info.get_expires(fleet_id)
-                        self.cache[fleet_id] = TimeTrackerCache(member_data, expires_data, fleet)
+                        # now we can replace the data
+                        self.cache[fleet_id].members = fleet_new_data.copy()
+                        self.cache[fleet_id].expires = fleet_expires
+
+                # add new fleets to cache
+                for fleet_id in fleet_ids:
+                    if fleet_id not in self.cache:
+                        logger.info('Adding new fleet with fleet_id=%s to cache', fleet_id)
+                        fleet: CrestFleet = db.session.query(CrestFleet).get(fleet_id)
+                        if fleet.comp is None:
+                            logger.info('Skipping fleet with id=%s because we do not have a fleet comp')
+                            continue
+                        member_data = member_info.get_fleet_members(fleet_id, fleet.comp)
+                        if member_data is not None:
+                            logger.info('Fleet with fleet_id=%s does not have data', fleet_id)
+                            expires_data = member_info.get_expires(fleet_id)
+                            self.cache[fleet_id] = TimeTrackerCache(member_data, expires_data, fleet)
 
             db.session.commit()
 
@@ -258,25 +260,6 @@ class FleetTimeTracker:
                          character_id,
                          hull_type,
                          day)
-        rowcount = db.session.query(FleetTime)\
-            .filter_by(characterID=character_id)\
-            .update({'duration': FleetTime.duration + duration.total_seconds()})
-        if rowcount == 0:
-            # we need to create entries
-            ft = FleetTime(characterID=character_id,
-                           duration=duration.total_seconds())
-            db.session.add(ft)
-
-        rowcount = db.session.query(FleetTimeByHull)\
-            .filter_by(characterID=character_id, hullType=hull_type)\
-            .update({'duration': FleetTimeByHull.duration + duration.total_seconds()})
-        if rowcount == 0:
-            ftbh = FleetTimeByHull(
-                characterID=character_id,
-                hullType=hull_type,
-                duration=duration.total_seconds()
-            )
-            db.session.add(ftbh)
 
         rowcount = db.session.query(FleetTimeByDayHull)\
             .filter_by(characterID=character_id, hullType=hull_type, day=day)\
