@@ -1489,6 +1489,9 @@ class FleetTimeLastTracked(Base):
 # this might need an index over characterID, day and maybe hullType, day and even characterID + day
 class FleetTimeByDayHull(Base):
     __tablename__: str = 'fleet_time_by_day_hull'
+    __table_args__ = (
+        Index('idx_fleet_time_by_day_hull_charid', 'character_id'),
+    )
     characterID: Column = Column('character_id', Integer,
                                  ForeignKey(Character.id,
                                             onupdate='CASCADE',
