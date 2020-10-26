@@ -199,12 +199,24 @@ waitlist.listdom = (function(){
 			}
 		}
 
-		
+
 		header.append(charRow);
 		if (buttonHTML !== "") {
+			var container = $('<div class="d-flex flex-wrap"></div>')
+
 			var buttonRow = $('<div class="btn-group btn-group-mini" role="group">'+buttonHTML+'</div>');
-			header.append(buttonRow);
+			container.append(buttonRow)
+
+			if ('time_in_fleet' in entry.character) {
+				const hours = Math.floor(entry.character.time_in_fleet / 3600);
+				const badge_class = (hours === 0) ? 'badge-info' : 'badge-secondary';
+				const time_in_fleet = $('<span class="badge badge-pill '+badge_class+' ml-auto mr-1 mb-1" data-toggle="tooltip" data-placement="top" data-original-title="'+$.i18n('wl-time-in-fleet')+'">'+hours+' h</span>');
+				container.append(time_in_fleet);
+			}
+
+			header.append(container);
 		}
+
 		return header;
 	}
 	

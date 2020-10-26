@@ -8,15 +8,18 @@ Optionalcharids = Optional[Sequence[int]]
 
 def make_json_wl_entry(entry, exclude_fits: bool = False, include_fits_from: Optionalcharids = None,
                        scramble_names: bool = False, include_names_from: Optionalcharids = None):
+
+    include_sensitive_data = not (exclude_fits and ((include_fits_from is None or entry.user is None) or entry.user not in include_fits_from))
+
     response = {
         'id': entry.id,
         'character': make_json_character(entry.user_data, scramble_names=scramble_names,
-                                         include_names_from=include_names_from),
+                                         include_names_from=include_names_from, include_sensitive_data=include_sensitive_data),
         'time': entry.creation,
         'missedInvites': entry.inviteCount
     }
 
-    if not (exclude_fits and ((include_fits_from is None or entry.user is None) or entry.user not in include_fits_from)):
+    if include_sensitive_data:
         response['fittings'] = list(map(make_json_fitting, entry.fittings))
 
     return response
@@ -36,14 +39,20 @@ def make_json_wl(dbwl: Waitlist, exclude_fits: bool = False, include_fits_from: 
 
 
 def make_json_character(dbcharacter: Character, scramble_names: bool = False,
-                        include_names_from: Optionalcharids = None):
-    return {
+                        include_names_from: Optionalcharids = None, include_sensitive_data: bool = False):
+    char = {
         'id': dbcharacter.get_eve_id() if not scramble_names or (
             include_names_from is not None and dbcharacter.get_eve_id() in include_names_from) else None,
         'name': dbcharacter.get_eve_name() if not scramble_names or (
-            include_names_from is not None and dbcharacter.get_eve_id() in include_names_from) else 'Name Hidden',
-        'newbro': dbcharacter.is_new
+            include_names_from is not None and dbcharacter.get_eve_id() in include_names_from) else 'Name Hidden'
     }
+
+    if include_sensitive_data:
+        char['newbro'] = dbcharacter.is_new
+        char['time_in_fleet'] = dbcharacter.duration_in_fleet
+
+    return char
+
 
 
 def make_json_fitting(dbfitting: Shipfit):

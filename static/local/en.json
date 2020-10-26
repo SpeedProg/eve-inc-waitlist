@@ -82,5 +82,6 @@
 	"wl-welcome-mail-button-text": "Mail",
 	"wl-account-status-active": "Active",
 	"wl-account-status-deactivated": "Deactivated",
-	"wl-browser-warning-sse": "We had to disable <strong>features</strong> please consider upgrading your<a href=\"https://caniuse.com/#feat=eventsource\"> browser</a>."
+	"wl-browser-warning-sse": "We had to disable <strong>features</strong> please consider upgrading your<a href=\"https://caniuse.com/#feat=eventsource\"> browser</a>.",
+	"wl-time-in-fleet": "Time in fleet"
 }
