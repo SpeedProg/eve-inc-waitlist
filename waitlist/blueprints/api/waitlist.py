@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 def api_login_required(f):
     """If we require login apply the check"""
     if disable_public_api:
-      return login_required(f)
+        return login_required(f)
     return f
 
 

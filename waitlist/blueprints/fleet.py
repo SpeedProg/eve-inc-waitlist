@@ -1,7 +1,7 @@
 import json
 import logging
 from datetime import datetime
-from typing import Dict, Optional, Any, Union
+from typing import Dict, Optional, Any, Union, List
 
 import flask
 from flask import Response
@@ -16,16 +16,18 @@ from waitlist.base import db
 from waitlist.blueprints.fc_sso import get_sso_redirect, add_sso_handler
 from waitlist.permissions import perm_manager
 from waitlist.sso import add_token
-from waitlist.storage.database import CrestFleet, WaitlistGroup, SSOToken
+from waitlist.storage.database import CrestFleet, WaitlistGroup, SSOToken,\
+    SquadMapping, Waitlist
 from waitlist.utility import fleet as fleet_utils
 from waitlist.utility.fleet import member_info
 from waitlist.utility.json.fleetdata import FleetMemberEncoder
 from waitlist.utility.outgate.character.info import get_character_fleet_id
 from waitlist.utility.swagger import esi_scopes
 from waitlist.utility.swagger.eve.fleet import EveFleetEndpoint
-from waitlist.utility.swagger.eve.fleet.models import FleetMember
+from waitlist.utility.swagger.eve.fleet.models import FleetMember, EveFleetWing,\
+    EveFleetSquad
 from waitlist.utility.swagger.eve import ESIResponse
-from waitlist.utility.swagger.eve.fleet.responses import EveFleet
+from waitlist.utility.swagger.eve.fleet.responses import EveFleet, EveFleetWings
 from waitlist.signal import send_added_first_fleet
 from flask_babel import gettext
 
@@ -83,6 +85,12 @@ def setup_step_url():
         flask.flash(gettext("fleet-id=%(fleet_id)d was not valid.",
                             fleet_id=request.form.get('fleet-id')), "danger")
         return redirect(url_for('fleetoptions.fleet'))
+    try:
+        group_id: int = int(request.form.get('group'))
+    except ValueError:
+        flask.flash(gettext("group_id=%(group_id)d was not valid.",
+                            group_id=request.form.get('group')), "danger")
+        return redirect(url_for('fleetoptions.fleet'))
     fleet_type = request.form.get('fleet-type')
     if skip_setup == "no-setup":
         skip_setup = True
@@ -90,41 +98,39 @@ def setup_step_url():
         skip_setup = False
 
     if not skip_setup:
-        fleet_utils.setup(token, fleet_id, fleet_type)
+        fleet_utils.setup(token, fleet_id, fleet_type, db.session.query(WaitlistGroup).get((group_id,)))
 
-    return get_select_form(token, fleet_id)
+    return get_select_form(token, fleet_id, group_id)
 
 
-def get_select_form(token: SSOToken, fleet_id: int) -> Any:
+def get_select_form(token: SSOToken, fleet_id: int, group_id: int) -> Any:
     fleet_api = EveFleetEndpoint(token, fleet_id)
-    wings = fleet_api.get_wings()
+    wings: EveFleetWings = fleet_api.get_wings()
     if wings.is_error():
         logger.error(f"Could not get wings for fleet_id[{fleet_id}], maybe some ones tokens are wrong. {wings.error()}")
         flask.abort(wings.code(), wings.error())
 
-    groups = db.session.query(WaitlistGroup).all()
-    auto_assign = {}
+    group = db.session.query(WaitlistGroup).get((group_id,))
 
+    assignments = {}
+    wing: EveFleetWing
     for wing in wings.wings():
-        for squad in wing.squads():
-            lname = squad.name().lower()
-            if "logi" in lname:
-                auto_assign['logi'] = squad
-            elif "sniper" in lname:
-                auto_assign['sniper'] = squad
-            elif "dps" in lname and "more" not in lname:
-                auto_assign['dps'] = squad
-            elif ("dps" in lname and "more" in lname) or "other" in lname:
-                auto_assign['overflow'] = squad
+        if wing.name().lower() != 'on grid':
+            continue
+        squads: List[EveFleetSquad] = wing.squads()
+        # try to find a squad for each list
+        waitlist: Waitlist
+        for  waitlist in filter(lambda w: waitlist.id != group.queueID, group.waitlists):
+            squad: EveFleetSquad
+            for squad in squads:
+                if squad.name() == waitlist.displayTitle:
+                    assignments[waitlist.id] = squad.id()
+
     return render_template("fleet/setup/select.html", wings=wings.wings(), fleet_id=fleet_id,
-                           groups=groups, assign=auto_assign)
+                           group=group, assignments=assignments)
 
 
 def setup_step_select() -> Optional[Response]:
-    logi_s = request.form.get('wl-logi')
-    sniper_s = request.form.get('wl-sniper')
-    dps_s = request.form.get('wl-dps')
-    overflow_s = request.form.get('wl-overflow')
     try:
         fleet_id = int(request.form.get('fleet-id'))
     except ValueError:
@@ -137,12 +143,6 @@ def setup_step_select() -> Optional[Response]:
         flask.abort(400, "No valid fleet-group-id given!")
         return None
 
-    # create [wingID, squadID] lists
-    logi = [int(x) for x in logi_s.split(';')]
-    sniper = [int(x) for x in sniper_s.split(';')]
-    dps = [int(x) for x in dps_s.split(';')]
-    overflow = [int(x) for x in overflow_s.split(';')]
-
     # this only tracks if it is the first fleet so we
     # can send the signal
 
@@ -152,14 +152,6 @@ def setup_step_select() -> Optional[Response]:
     if fleet is None:
         fleet = CrestFleet()
         fleet.fleetID = fleet_id
-        fleet.logiWingID = logi[0]
-        fleet.logiSquadID = logi[1]
-        fleet.sniperWingID = sniper[0]
-        fleet.sniperSquadID = sniper[1]
-        fleet.dpsWingID = dps[0]
-        fleet.dpsSquadID = dps[1]
-        fleet.otherWingID = overflow[0]
-        fleet.otherSquadID = overflow[1]
         fleet.groupID = group_id
         fleet.compID = current_user.id
         oldfleet = db.session.query(CrestFleet).filter((CrestFleet.compID == current_user.id)).first()
@@ -169,14 +161,6 @@ def setup_step_select() -> Optional[Response]:
             is_first_fleet = True
         db.session.add(fleet)
     else:
-        fleet.logiWingID = logi[0]
-        fleet.logiSquadID = logi[1]
-        fleet.sniperWingID = sniper[0]
-        fleet.sniperSquadID = sniper[1]
-        fleet.dpsWingID = dps[0]
-        fleet.dpsSquadID = dps[1]
-        fleet.otherWingID = overflow[0]
-        fleet.otherSquadID = overflow[1]
         fleet.groupID = group_id
         if fleet.compID != current_user.id:
             oldfleet = db.session.query(CrestFleet).filter((CrestFleet.compID == current_user.id)).first()
@@ -184,6 +168,24 @@ def setup_step_select() -> Optional[Response]:
                 oldfleet.compID = None
             fleet.compID = current_user.id
 
+    waitlistGroup: WaitlistGroup = db.session.query(WaitlistGroup).get((group_id,))
+    db.session.query(SquadMapping).filter(SquadMapping.fleetID == fleet_id).delete(synchronize_session='evaluate')
+    waitlistMappings = []
+    for waitlist in waitlistGroup.waitlists:
+        if waitlist.id == waitlistGroup.queueID:
+            continue
+        try:
+            mapping_string: str = request.form.get(f'wl-{waitlist.id}')
+            if mapping_string is None:
+                flask.abort(400, f"Waitlist mapping invalid! Nothing set for {waitlist.name}")
+            wing_and_squad_id = list(map(int, mapping_string.split(';')))
+            waitlistMappings.append(
+            SquadMapping(fleetID=fleet_id, waitlistID=waitlist.id,
+                         wingID=wing_and_squad_id[0],
+                         squadID=wing_and_squad_id[1]))
+        except ValueError:
+            flask.abort(400, "Waitlist mapping invalid!")
+    db.session.add_all(waitlistMappings)
     db.session.commit()
 
     if is_first_fleet:
@@ -207,13 +209,15 @@ def change_setup(fleet_id: int):
 @login_required
 @perm_dev.require(http_exception=401)
 def print_fleet(fleetid: int) -> Response:
-    cached_members = member_info.get_cache_data(fleetid)
-    if cached_members is None:
-        crest_fleet = db.session.query(CrestFleet).get(fleetid)
-        members: Dict[int, FleetMember] = member_info.get_fleet_members(fleetid, crest_fleet.comp)
-        if members is None:
-            return make_response("No cached or new info")
-        cached_members = members
+    with member_info:
+        cached_members = member_info.get_cache_data(fleetid)
+        if cached_members is None:
+            crest_fleet = db.session.query(CrestFleet).get(fleetid)
+            members: Dict[int, FleetMember] = member_info.get_fleet_members(fleetid, crest_fleet.comp)
+            if members is None:
+                return make_response("No cached or new info")
+            cached_members = members
+
     return current_app.response_class(
         json.dumps(cached_members, indent=None if request.is_xhr else 2, cls=FleetMemberEncoder),
         mimetype='application/json')
@@ -247,7 +251,8 @@ def take_over_fleet():
     if fleet is None:
         # we don't have a setup fleet
         # this is the fleetsetup page
-        return render_template("fleet/setup/fleet_url.html", fleetID=fleet_id)
+        groups = db.session.query(WaitlistGroup).all()
+        return render_template("fleet/setup/fleet_url.html", fleetID=fleet_id, groups=groups)
     else:
         # if we got a fleet
         # lets remove the current use from a fleet he might be assigned too

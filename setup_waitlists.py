@@ -38,16 +38,12 @@ def create_waitlist_group(group_name, display_name):
     group = WaitlistGroup()
     group.groupName = group_name
     group.displayName = display_name
-    group.xuplist = xuplist
-    group.logilist = logilist
-    group.dpslist = dpslist
-    group.sniperlist = sniperlist
-    group.otherlist = None
+    group.queue = xuplist
     group.enabled = False
     db.session.add(group)
     db.session.flush()
     db.session.refresh(group)
-    
+
     xuplist.group = group
     logilist.group = group
     dpslist.group = group
