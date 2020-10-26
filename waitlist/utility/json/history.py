@@ -20,5 +20,5 @@ def make_history_entry_json(entry):
         'exref': entry.exref,
         'fittings': [make_json_fitting(fit) for fit in entry.fittings],
         'source': None if entry.source is None else make_json_account(entry.source),
-        'target': make_json_character(entry.target)
+        'target': make_json_character(entry.target, include_sensitive_data=True)
     }
