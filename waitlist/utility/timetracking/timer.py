@@ -3,11 +3,10 @@ from datetime import datetime, timedelta, date
 import logging
 from threading import Timer, Lock
 from ..fleet import member_info
-from ...storage.database import CrestFleet, FleetTimeLastTracked, FleetTimeByDayHull
+from ...storage.database import CrestFleet, FleetTimeLastTracked, FleetTimeByDayHull, Character
 from ...base import db
 from ..swagger.eve.fleet.models import FleetMember
 from ..eve_id_utils import get_character_by_id
-from build.lib.waitlist.storage.database import Character
 
 
 logger = logging.getLogger(__name__)

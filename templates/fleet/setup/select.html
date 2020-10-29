@@ -20,7 +20,7 @@
 		{% endif %}
 	{% for wing in wings %}
 		{% for squad in wing.squads() %}
-			<option name="wl-{{waitlist.id}}" value="{{wing.id()}};{{squad.id()}}"{% if waitlist.id in assignments and assignments[waitlist.id].id() == squad.id() %} selected{%endif%}>{{wing.name()}} - {{squad.name()}}</option>
+			<option name="wl-{{waitlist.id}}" value="{{wing.id()}};{{squad.id()}}"{% if waitlist.id in assignments and assignments[waitlist.id] == squad.id() %} selected{%endif%}>{{wing.name()}} - {{squad.name()}}</option>
 		{% endfor %}
 	{% endfor %}
 	</select>

@@ -4,15 +4,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2019-04-27 21:26+0200\n"
-"PO-Revision-Date: 2019-04-27 21:28+0200\n"
+"POT-Creation-Date: 2020-10-26 03:06+0100\n"
+"PO-Revision-Date: 2020-10-26 03:10+0100\n"
 "Last-Translator: Constantin Wenger <constantin.wenger@googlemail.com>\n"
 "Language-Team: German\n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 2.2.1\n"
+"X-Generator: Poedit 2.2.4\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: config/themes.example.json
@@ -47,7 +47,7 @@ msgstr ""
 "\">Ausrüstungsanzeige (Eve-UI)</a> und Ausrüstungsstatistiken by <a href="
 "\"char:725396116\">Quie'scens</a>"
 
-#: templates/base.html:88
+#: templates/base.html:87
 msgid "ISK Donations are appreciated"
 msgstr "ISK Spenden werden geschätzt"
 
@@ -183,7 +183,7 @@ msgstr ""
 "betrachten, sehen wir unsere Platzhaltervariablen <code>xup</code> and "
 "<code>logi</code>.\n"
 "Diese werden, bei jeder Auffrischung und daraus folgenden Auflösung des "
-"Ausdrucks,  mit Werten aus der Tabelle ersetzt "
+"Ausdrucks,  mit Werten aus der Tabelle ersetzt."
 
 #: templates/help.html:65
 msgid ""
@@ -268,7 +268,7 @@ msgstr ""
 msgid "Overview"
 msgstr "Übersicht"
 
-#: templates/index.html:124
+#: templates/index.html:104
 #, python-format
 msgid ""
 "You are not associated with any fleet, you can change this in <a\n"
@@ -277,7 +277,7 @@ msgstr ""
 "Sie sind nicht mit einer Flotte verknüpft, sie können dies in <a\n"
 " href=\"%(url)s\">Flotten Einstellungen</a> ändern"
 
-#: templates/index.html:132
+#: templates/index.html:112
 msgid ""
 "Please join Teamspeak, your character name must match <b>exactly</b>\n"
 " (case sensitive)<br>TS3 Server:"
@@ -285,52 +285,52 @@ msgstr ""
 "Bitte trete Teamspeak bei, dein Charaktername muss <b>genau</b> wie im Game "
 "geschrieben sein. (Groß-/Kleinschreibung beachten)<br>TS3 Server:"
 
-#: templates/index.html:140
+#: templates/index.html:120
 msgid "Vote your favorite Command Core Member HERE"
-msgstr "Gebe HIER diene Stimme für das beliebteste Kommandomitglied ab."
+msgstr "Gebe HIER diene Stimme für das beliebteste Kommandomitglied ab"
 
-#: templates/index.html:166
+#: templates/index.html:146
 msgid "Browser"
 msgstr "Browser"
 
-#: templates/index.html:173
+#: templates/index.html:153
 msgid "Test TS"
 msgstr "Teste TS"
 
-#: templates/index.html:177
+#: templates/index.html:157
 msgid "Leave Waitlists"
 msgstr "Warteliste verlassen"
 
-#: templates/index.html:194 templates/settings/fleet.html:111
+#: templates/index.html:174 templates/settings/fleet.html:111
 msgid "Fleet Manager"
 msgstr "Flotten Verwalter"
 
-#: templates/index.html:210 templates/settings/fleet.html:134
+#: templates/index.html:190 templates/settings/fleet.html:134
 msgid "Constellation"
 msgstr "Konstellation"
 
-#: templates/index.html:215 templates/settings/fleet.html:146
+#: templates/index.html:195 templates/settings/fleet.html:146
 msgid "Dockup"
 msgstr "Basis"
 
-#: templates/index.html:220
+#: templates/index.html:200
 msgid "HQ System"
 msgstr "HQ System"
 
-#: templates/index.html:232
+#: templates/index.html:212
 #, python-format
 msgid ""
 "This waitlist is currently closed however\n"
 " <a href=\"%(url)s\">another</a> is open!"
 msgstr ""
 "Diese Warteliste ist momentan geschlossen, es ist jedoch <a href=\"%(url)s"
-"\">eine andere Wartelist</a> offen."
+"\">eine andere Wartelist</a> offen!"
 
-#: templates/index.html:244 waitlist/blueprints/calendar/__init__.py:7
+#: templates/index.html:224 waitlist/blueprints/calendar/__init__.py:7
 msgid "Events"
 msgstr "Veranstaltungen"
 
-#: templates/index.html:260
+#: templates/index.html:240
 #, python-format
 msgid ""
 "<strong>Help us!</strong> We would like your <a href=\"%(url)s\">feedback</"
@@ -339,7 +339,7 @@ msgstr ""
 "<strong>Hilf uns!</strong> Wir hätten gerne <a href=\"%(url)s\">Rückmedlung</"
 "a> von dir!"
 
-#: templates/index.html:280 templates/xup-form.html:66
+#: templates/index.html:260
 msgid "All Waitlists are closed!"
 msgstr "Alle Wartelisten sind geschlossen!"
 
@@ -355,62 +355,66 @@ msgstr "Sie wurden abgemeldet!"
 msgid "FC, WHAT DO?"
 msgstr "FC, WAS MUSS ICH MACHEN?"
 
-#: templates/xup-form.html:14
+#: templates/xup-form.html:13
 #, python-format
 msgid "I am new to %(title)s or Incursions"
 msgstr "Ich bin neu bei %(title)s oder Sansha-Überfällen"
 
-#: templates/xup-form.html:20
+#: templates/xup-form.html:19
 msgid "Fleet to x-up for"
 msgstr "Flotte für die man sich einschreibt"
 
-#: templates/xup-form.html:34
+#: templates/fleet/setup/select.html:19 templates/xup-form.html:22
+msgid "Choose a fleet..."
+msgstr "Wähle eine Flotte..."
+
+#: templates/xup-form.html:33
 msgid "Poke me on TS (exact charactername required, case sensitive)"
 msgstr ""
 "Auf TS anstupsen (exakter Name wie im Spiel benötigt, Groß-/Kleinschreibung "
 "beachten)"
 
-#: templates/xup-form.html:38
+#: templates/xup-form.html:37
 msgid "Fittings"
 msgstr "Ausrüstungen"
 
-#: templates/xup-form.html:42
+#: templates/xup-form.html:41
 msgid "Caldari Battleship Level"
 msgstr "Caldari Kampfschiff Level"
 
-#: templates/xup-form.html:44
+#: templates/xup-form.html:43
 msgid "No Caldari BS"
 msgstr "Kein Caldari Kampfschiff"
 
-#: templates/xup-form.html:45 templates/xup-form.html:60
+#: templates/xup-form.html:44 templates/xup-form.html:59
 msgid "1"
 msgstr "1"
 
-#: templates/xup-form.html:46 templates/xup-form.html:59
+#: templates/xup-form.html:45 templates/xup-form.html:58
 msgid "2"
 msgstr "2"
 
-#: templates/xup-form.html:47 templates/xup-form.html:58
+#: templates/xup-form.html:46 templates/xup-form.html:57
 msgid "3"
 msgstr "3"
 
-#: templates/xup-form.html:48 templates/xup-form.html:57
+#: templates/xup-form.html:47 templates/xup-form.html:56
 msgid "4"
 msgstr "4"
 
-#: templates/xup-form.html:49 templates/xup-form.html:56
+#: templates/xup-form.html:48 templates/xup-form.html:55
 msgid "5"
 msgstr "5"
 
-#: templates/xup-form.html:53
+#: templates/xup-form.html:52
 msgid "Logistic Cruiser Level"
 msgstr "Logistikkreuzer Stufe"
 
-#: templates/xup-form.html:55
+#: templates/xup-form.html:54
 msgid "No Logi"
 msgstr "Kein Support"
 
-#: templates/xup-form.html:63
+#: templates/xup-form.html:62
 msgid "Enter On Waitlist"
 msgstr "Einschreiben"
 
@@ -640,22 +644,26 @@ msgid "Fleet Input"
 msgstr "Flotten Eingabe"
 
 #: templates/fleet/setup/fleet_url.html:13
+msgid "Waitlist Group:"
+msgstr "Wartelisten Gruppe:"
+
+#: templates/fleet/setup/fleet_url.html:19
 msgid "Fleet Type:"
 msgstr "Flotten Art:"
 
-#: templates/fleet/setup/fleet_url.html:15
+#: templates/fleet/setup/fleet_url.html:21
 msgid "HQ/Assault"
 msgstr "HQ/Angriff"
 
-#: templates/fleet/setup/fleet_url.html:16
+#: templates/fleet/setup/fleet_url.html:22
 msgid "VG"
 msgstr "VH"
 
-#: templates/fleet/setup/fleet_url.html:20
+#: templates/fleet/setup/fleet_url.html:26
 msgid "Skip Auto Fleet Setup"
 msgstr "Automatische Flotten Einrichtung überspringen"
 
-#: templates/fleet/setup/fleet_url.html:22 templates/fleet/setup/select.html:61
+#: templates/fleet/setup/fleet_url.html:28 templates/fleet/setup/select.html:29
 #: templates/settings/accounts.html:105
 #: templates/waitlist/tools/commandcore_list.html:58
 msgid "Next"
@@ -664,26 +672,6 @@ msgstr "Nächstes"
 #: templates/fleet/setup/select.html:3
 msgid "Select Squads"
 msgstr "Gruppe Auswählen"
-
-#: templates/fleet/setup/select.html:14
-msgid "Waitlist Group"
-msgstr "Wartelisten Gruppe"
-
-#: templates/fleet/setup/select.html:22
-msgid "Logi Squad"
-msgstr "Support Gruppe"
-
-#: templates/fleet/setup/select.html:32
-msgid "Sniper Squad"
-msgstr "Scharfschütze Gruppe"
-
-#: templates/fleet/setup/select.html:42
-msgid "DPS Squad"
-msgstr "Schadens Gruppe"
-
-#: templates/fleet/setup/select.html:52
-msgid "Overflow Squad"
-msgstr "Überlauf Gruppe"
 
 #: templates/fleet/takeover/change-group-form.html:3
 msgid "Takeover"
@@ -884,7 +872,7 @@ msgid "Change"
 msgstr "Ändern"
 
 #: templates/settings/bans.html:3 templates/settings/whitelist.html:3
-#: waitlist/blueprints/settings/bans.py:349
+#: waitlist/blueprints/settings/bans.py:322
 msgid "Bans"
 msgstr "Sperren"
 
@@ -952,7 +940,7 @@ msgid "Unique Voters for LM"
 msgstr "Eindeutige Stimmen für LM"
 
 #: templates/settings/fleet.html:3
-#: waitlist/blueprints/settings/fleetoptions.py:384
+#: waitlist/blueprints/settings/fleetoptions.py:385
 msgid "Fleet Settings"
 msgstr "Flotten Einstellungen"
 
@@ -1198,7 +1186,7 @@ msgid "Add TS"
 msgstr "TS Hinzufügen"
 
 #: templates/settings/whitelist.html:23 templates/settings/whitelist.html:38
-#: waitlist/blueprints/settings/bans.py:350
+#: waitlist/blueprints/settings/bans.py:323
 msgid "Whitelist"
 msgstr "Sperrungsausnahmen"
 
@@ -1250,7 +1238,7 @@ msgid ""
 "users name, $recv$ with the receivers name"
 msgstr ""
 "Im Nachrichteninhalt wird $link$ mit einem Authentifizierungs-Link ersetzt, "
-"$sig$ Benutzername des Abschickenden, $recv$ mit dem Namen des Empfängers."
+"$sig$ Benutzername des Abschickenden, $recv$ mit dem Namen des Empfängers"
 
 #: templates/settings/mail/index.html:24
 msgid ""
@@ -1492,7 +1480,7 @@ msgstr ""
 "dem Serverneustart steht dir eine weitere zur Verfügung)<br>Wähle deinen "
 "beliebtesten FC und LM hier. (Wenn jemand FC und LM ist kannst du ihn bei "
 "beidem wählen)<br>Der FC und LM mit den meisten Stimmen wird einen Preis "
-"gewinnen!"
+"gewinnen."
 
 #: templates/waitlist/ccvote.html:19
 msgid ""
@@ -1614,7 +1602,7 @@ msgstr "Bis"
 msgid "Get Info"
 msgstr "Lade Info"
 
-#: waitlist/blueprints/__init__.py:108
+#: waitlist/blueprints/__init__.py:96
 msgid "Tokens where removed, please use the EVE SSO"
 msgstr "Zugangsschlüssel wurden entfernt, bitte benutzen den EVE SSO Login"
 
@@ -1626,44 +1614,45 @@ msgstr ""
 
 #: waitlist/blueprints/feedback.py:61
 msgid "Thank You for your feedback!"
-msgstr "Danke für deine Rückmeldung"
+msgstr "Danke für deine Rückmeldung!"
 
-#: waitlist/blueprints/fleet.py:83
+#: waitlist/blueprints/fleet.py:86
 #, python-format
 msgid "fleet-id=%(fleet_id)d was not valid."
 msgstr "fleet-id=%(fleet_id)d war ungültig."
 
-#: waitlist/blueprints/fleet.py:223
+#: waitlist/blueprints/fleet.py:92
+#, python-format
+msgid "group_id=%(group_id)d was not valid."
+msgstr "group_id=%(group_id)d war ungültig."
+
+#: waitlist/blueprints/fleet.py:239
 msgid "You are not in a fleet, or didn't not provide rights to read them."
 msgstr ""
 "Du befindest dich nicht in einer Flotte, oder hast die Rechte sie zu lesen "
 "nicht zur Verfügung gestellt."
 
-#: waitlist/blueprints/fleet.py:230
+#: waitlist/blueprints/fleet.py:246
 msgid "You are not the boss of the fleet you are in."
 msgstr "Du bist nicht der Befehlsgeber der Flotte in der du dich befindest."
 
-#: waitlist/blueprints/api/fleet.py:52
+#: waitlist/blueprints/api/fleet.py:58
 msgid "You are not associated with a fleet!"
 msgstr "Sie sind nicht mit einer Flotte verknüpft!"
 
-#: waitlist/blueprints/api/fleet.py:59
+#: waitlist/blueprints/api/fleet.py:65
 msgid "The character you tried to invite could not be found!"
 msgstr ""
 "Der Charakter den sie ein einladen wollten konnte nicht gefunden werden!"
 
-#: waitlist/blueprints/api/fleet.py:92
+#: waitlist/blueprints/api/fleet.py:98
 #, python-format
 msgid "Given waitlist ID=%(waitlist_id)d is not valid."
-msgstr "Die Wartelisten ID=%(waitlist_id)d existiert nicht!"
+msgstr "Die Wartelisten ID=%(waitlist_id)d existiert nicht."
 
-#: waitlist/blueprints/api/fleet.py:102
+#: waitlist/blueprints/api/fleet.py:108
 msgid "You are not currently Boss of a Fleet"
 msgstr "Du bist nicht der Befehlsgeber einer Flotte"
-
-#: waitlist/blueprints/api/fleet.py:118
-msgid "Unknown Squad Type"
-msgstr "Unbekannter Gruppen-Typ"
 
 #: waitlist/blueprints/settings/accounts.py:68
 #, python-format
@@ -1673,12 +1662,12 @@ msgstr "Es gibt keine Charakter mit dem Namen %(char_name)s!"
 #: waitlist/blueprints/settings/accounts.py:106
 #: waitlist/blueprints/settings/accounts.py:308
 #: waitlist/blueprints/settings/accounts.py:402
-#: waitlist/blueprints/settings/bans.py:116
-#: waitlist/blueprints/settings/bans.py:177
-#: waitlist/blueprints/settings/bans.py:201
-#: waitlist/blueprints/settings/bans.py:246
-#: waitlist/blueprints/settings/bans.py:328
-#: waitlist/blueprints/settings/bans.py:343
+#: waitlist/blueprints/settings/bans.py:107
+#: waitlist/blueprints/settings/bans.py:167
+#: waitlist/blueprints/settings/bans.py:191
+#: waitlist/blueprints/settings/bans.py:223
+#: waitlist/blueprints/settings/bans.py:300
+#: waitlist/blueprints/settings/bans.py:316
 #: waitlist/blueprints/settings/staticdataimport.py:40
 #, python-format
 msgid "Could not execute action, ApiException %(ex)s"
@@ -1715,34 +1704,32 @@ msgstr ""
 msgid "Alt %(char_name)s was added"
 msgstr "Alternativer Charakter %(char_name)s wurde hinzugefügt"
 
-#: waitlist/blueprints/settings/bans.py:81
+#: waitlist/blueprints/settings/bans.py:82
 #, python-format
 msgid "Could not find Character %(ban_name)s"
 msgstr "Konnte Charakter %(ban_name)s nicht finden"
 
-#: waitlist/blueprints/settings/bans.py:89
-#: waitlist/blueprints/settings/bans.py:151
-#: waitlist/blueprints/settings/bans.py:282
+#: waitlist/blueprints/settings/bans.py:91
+#: waitlist/blueprints/settings/bans.py:140
+#: waitlist/blueprints/settings/bans.py:258
 #, python-format
 msgid "Failed to correctly parse %(target)s"
 msgstr ""
 "Es trat ein Fehler während der grammatikalischen analysieren von %(target)s "
 "auf"
 
-#: waitlist/blueprints/settings/bans.py:109
-#: waitlist/blueprints/settings/bans.py:170
-#: waitlist/blueprints/settings/bans.py:193
-#: waitlist/blueprints/settings/bans.py:302
-#, python-format
-msgid "Character/Corp/Alliance %(target)s does not exist!"
-msgstr "Charakter/Corporation/Alliance %(target)s existiert nicht!"
-
-#: waitlist/blueprints/settings/bans.py:142
+#: waitlist/blueprints/settings/bans.py:132
 #, python-format
 msgid "Could not find Character %(name)s"
 msgstr "Charakter %(name)s konnte nicht gefunden werden"
 
-#: waitlist/blueprints/settings/bans.py:273
+#: waitlist/blueprints/settings/bans.py:160
+#: waitlist/blueprints/settings/bans.py:183
+#, python-format
+msgid "Character/Corp/Alliance %(target)s does not exist!"
+msgstr "Charakter/Corporation/Alliance %(target)s existiert nicht!"
+
+#: waitlist/blueprints/settings/bans.py:250
 #, python-format
 msgid "Could not find Character %(wl_name)s for whitelisting"
 msgstr "Konnte Charakter %(wl_name)s für Ausnahme nicht finden"
@@ -1766,7 +1753,7 @@ msgstr "Zustand wurde auf %(text)s gesetzt, Einschreibung ist %(xup_text)s"
 msgid "You do not have the rights to change the status to %(text)s"
 msgstr ""
 "Du hast nicht die erforderlichen Berechtigungen um den Status zu %(text)s zu "
-"ändern."
+"ändern"
 
 #: waitlist/blueprints/settings/fleetoptions.py:93
 #, python-format
@@ -1788,12 +1775,12 @@ msgstr "Du hast dich als Verwalter hinzugefügt %(eve_name)s"
 msgid "You added your self as Backseat %(eve_name)s"
 msgstr "Du hast dich selbst als Backseat hinzugefügt %(eve_name)s"
 
-#: waitlist/blueprints/settings/fleetoptions.py:166
+#: waitlist/blueprints/settings/fleetoptions.py:167
 #, python-format
 msgid "Your activity report has been submitted %(user_name)s"
 msgstr "Dein Aktivitätsbericht wurde eingereicht %(user_name)s"
 
-#: waitlist/blueprints/settings/fleetoptions.py:172
+#: waitlist/blueprints/settings/fleetoptions.py:173
 #, python-format
 msgid ""
 "%(username)s has no permissions to set a custom display name for a waitlist!"
@@ -1801,11 +1788,11 @@ msgstr ""
 "%(username)s hat keine Berechtigung einen Maßgeschneiderten Anzeigenamen für "
 "eine Warteliste zu setzen!"
 
-#: waitlist/blueprints/settings/fleetoptions.py:182
+#: waitlist/blueprints/settings/fleetoptions.py:183
 msgid "No valid new display name given (given was None)"
 msgstr "Kein erlaubter neuer Anzeigenahme gegeben (gegeben wurde None)"
 
-#: waitlist/blueprints/settings/fleetoptions.py:189
+#: waitlist/blueprints/settings/fleetoptions.py:190
 msgid ""
 "You gave no unrestricted display name and do not have the power to set "
 "arbitrary names!"
@@ -1813,67 +1800,67 @@ msgstr ""
 "Du hast keine unbeschränkten Anzeigennamen gegeben und hast keine "
 "Berechtigung beliebige Namen zu verwenden!"
 
-#: waitlist/blueprints/settings/fleetoptions.py:198
+#: waitlist/blueprints/settings/fleetoptions.py:199
 msgid "There can be no duplicate names for waitlists."
 msgstr "Jede Warteliste muss einen anderen Namen haben."
 
-#: waitlist/blueprints/settings/fleetoptions.py:224
+#: waitlist/blueprints/settings/fleetoptions.py:225
 #, python-format
 msgid "%(name)s constellation does not exist! "
-msgstr "%(name)s Konstellation existiert nicht!"
+msgstr "%(name)s Konstellation existiert nicht! "
 
-#: waitlist/blueprints/settings/fleetoptions.py:247
-#: waitlist/blueprints/settings/fleetoptions.py:268
+#: waitlist/blueprints/settings/fleetoptions.py:248
+#: waitlist/blueprints/settings/fleetoptions.py:269
 msgid "No Constellation Layout Data found!"
 msgstr "Keine Konstellationsaufbaudaten gefunden!"
 
-#: waitlist/blueprints/settings/fleetoptions.py:251
+#: waitlist/blueprints/settings/fleetoptions.py:252
 #, python-format
 msgid "All Constellations were set to %(name)s!"
 msgstr "All Konstellationen wurden auf %(name)s gesetzt!"
 
-#: waitlist/blueprints/settings/fleetoptions.py:272
+#: waitlist/blueprints/settings/fleetoptions.py:273
 #, python-format
 msgid "%(group_name)s Constellation was set to %(name)s"
 msgstr "%(group_name)s Konstellation wurde auf %(name)s gesetzt"
 
-#: waitlist/blueprints/settings/fleetoptions.py:278
+#: waitlist/blueprints/settings/fleetoptions.py:279
 #, python-format
 msgid "Invalid system name %(name)s"
 msgstr "Ungültiger Systemname %(name)s"
 
-#: waitlist/blueprints/settings/fleetoptions.py:287
+#: waitlist/blueprints/settings/fleetoptions.py:288
 #, python-format
 msgid "All Systems were set to %(name)s"
 msgstr "Alle Systeme wurden auf %(name)s gesetzt"
 
-#: waitlist/blueprints/settings/fleetoptions.py:291
+#: waitlist/blueprints/settings/fleetoptions.py:292
 #, python-format
 msgid "%(group_name)s System was set to %(name)s"
 msgstr "%(group_name)s System wurde auf %(name)s gesetzt"
 
-#: waitlist/blueprints/settings/fleetoptions.py:296
+#: waitlist/blueprints/settings/fleetoptions.py:297
 #, python-format
 msgid "Invalid station name: %(name)s"
 msgstr "Ungültiger Stationsname: %(name)s"
 
-#: waitlist/blueprints/settings/fleetoptions.py:305
+#: waitlist/blueprints/settings/fleetoptions.py:306
 #, python-format
 msgid "All Docks were set to %(name)s"
 msgstr "Alle Basen wurde auf %(name)s gesetzt"
 
-#: waitlist/blueprints/settings/fleetoptions.py:309
+#: waitlist/blueprints/settings/fleetoptions.py:310
 #, python-format
 msgid "%(group_name)s Dock was set to %(name)s"
 msgstr "%(group_name)s Basis wurde auf %(name)s gesetzt"
 
-#: waitlist/blueprints/settings/fleetoptions.py:369
+#: waitlist/blueprints/settings/fleetoptions.py:370
 msgid "Waitlists were cleared!"
 msgstr "All Wartelisten wurden geleert!"
 
 #: waitlist/blueprints/settings/inserts.py:36
 msgid "Header Insert Saved"
-msgstr "Kopfeinschub wurde gespeichert!"
+msgstr "Kopfeinschub wurde gespeichert"
 
 #: waitlist/blueprints/settings/mail.py:53
 msgid "T-Badge mail set!"
@@ -1944,11 +1931,11 @@ msgid ""
 "finished"
 msgstr ""
 "Danke für deine Teilnahme, die Gewinner werden bekannt gegeben nachdem das "
-"Quiz beendet wurde."
+"Quiz beendet wurde"
 
 #: waitlist/blueprints/xup/submission.py:55
 msgid "X-UP is disabled!!!"
-msgstr "Einschreibung ist Deaktiviert"
+msgstr "Einschreibung ist Deaktiviert!"
 
 #: waitlist/blueprints/xup/submission.py:82
 #, python-format
@@ -2052,3 +2039,18 @@ msgstr "Verwaltungsverlauf"
 #: waitlist/utility/mainmenu/config_loader.py:185
 msgid "Not loggedin"
 msgstr "Abgemeldet"
+
+#~ msgid "Logi Squad"
+#~ msgstr "Support Gruppe"
+
+#~ msgid "Sniper Squad"
+#~ msgstr "Scharfschütze Gruppe"
+
+#~ msgid "DPS Squad"
+#~ msgstr "Schadens Gruppe"
+
+#~ msgid "Overflow Squad"
+#~ msgstr "Überlauf Gruppe"
+
+#~ msgid "Unknown Squad Type"
+#~ msgstr "Unbekannter Gruppen-Typ"

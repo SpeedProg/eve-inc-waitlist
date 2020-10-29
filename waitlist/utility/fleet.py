@@ -44,7 +44,8 @@ class FleetMemberInfo:
         self.release()
 
     def get_fleet_members(self, fleet_id: int, account: Account) -> Optional[Dict[int, FleetMember]]:
-        return self._get_data(fleet_id, account).copy()
+        fleetData = self._get_data(fleet_id, account)
+        return fleetData.copy() if fleetData is not None else None
 
     def get_expires(self, fleet_id: int) -> datetime:
         return self._cached_until[fleet_id]
@@ -129,14 +130,17 @@ class FleetMemberInfo:
                     logger.error("Failed to get Fleetmembers from API code[%d] msg[%s]", data.code(), data.error())
                     return self.get_cache_data(fleet_id)
             except Exception as ex:
-                logger.error("%s Getting Fleet Members caused: %s", account.username, ex, exc_info=True)
+                if len(ex.args) >= 1 and '504 Gateway Time-out' in ex.args[0]:
+                    logger.debug("%s Getting Fleet Members caused exception, returning cached data", account.username, ex, exc_info=True)
+                else:
+                    logger.info("%s Getting Fleet Members caused exception, returning cached data", account.username, ex, exc_info=True)
                 return self.get_cache_data(fleet_id)
         else:
             logger.debug("Cache hit for %d and account %s", fleet_id, account.username)
         return self._lastmembers[fleet_id]
 
     def get_cache_data(self, fleet_id) -> Optional[Dict[int, FleetMember]]:
-        if fleet_id in self._lastmembers:
+        if fleet_id in self._lastmembers and self._lastmembers[fleet_id] is not None:
             return self._lastmembers[fleet_id].copy()
         return None
 

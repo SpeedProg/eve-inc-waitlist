@@ -1,4 +1,18 @@
 #Changelog
+* 1.8.0:
+  * Fixes:
+    * Various fixes to translations
+    * Various exceptions fixed
+    * Some rare cases of SSE failing were fixed
+    * Navbar now always loads home page
+    * Installation instructions were updated and improved
+  * Features:
+    * In Database an unlimited number of waitlists can now be part of a waitlist group, there needs to be 1 queue through at least. Sorting into other waitlists on approval happens using the ship checks, they also can be used to add a tag. Everything was adjusted to properly handle these setups, including the custom notifications.
+    * Squadnames on fleet setup are now created using the waitlist display names, and in the squad assignment they are then autoselected.
+    * Fleet time tracking functionallity was added to the waitlist. The time some character spent in fleet is displayed on the entries in waitlist
+  * Improvements:
+    * TeamSpeak connection now uses ssh instead of telnet
+    * Various resource usage improvements
 * 1.7.5:
   * Prevent long SSO token from being truncated
   * Various improvements to importing data von ESI
