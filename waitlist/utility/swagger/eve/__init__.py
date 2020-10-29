@@ -55,14 +55,32 @@ class ESIResponse(object):
     def is_monolith_error(self):
         if self.is_error():
             if self.__status_code == 520:
-                if 'error_label' in self.__error:
+                if 'error_label' in self.__error or ', details: {' in self.__error:
                     return True
                 else:
                     logger.error(f"Unknown Monolith error format: {self.__error}")
+                    return True
         return False
 
     def get_monolith_error(self):
-        return ast.literal_eval(self.__error)
+        '''
+        Old pre grpc format is a python dicts dumped using __str__
+        '''
+        if 'error_label' in self.__error:
+            return ast.literal_eval(self.__error)
+        '''
+        New format seems to be like this: FleetCandidateOffline, details: {"invitee": [2, 35425463456]}
+        '''
+        if ', details: {' in self.__error:
+            monolith_error = {}
+            monolith_error['error_label'] = self.__error.split(',', 1)[0]
+            monolith_error['error_dict'] = ast.literal_eval(self.__error[self._error.index(', details: {')+12:])
+            return monolith_error
+        '''
+        If none of these work, return this fallback
+        '''
+        logger.error("Unknown monolith error message: %s", self.__error)
+        return {'error_label': f'Unknown error format: {self.__error}', 'error_dict': {}}
 
     def error(self) -> Optional[str]:
         return self.__error
