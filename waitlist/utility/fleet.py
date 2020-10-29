@@ -44,7 +44,8 @@ class FleetMemberInfo:
         self.release()
 
     def get_fleet_members(self, fleet_id: int, account: Account) -> Optional[Dict[int, FleetMember]]:
-        return self._get_data(fleet_id, account).copy()
+        fleetData = self._get_data(fleet_id, account)
+        return fleetData.copy() if fleetData is not None else None
 
     def get_expires(self, fleet_id: int) -> datetime:
         return self._cached_until[fleet_id]
