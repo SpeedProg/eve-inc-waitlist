@@ -655,7 +655,7 @@ class Character(Base):
 
     @duration_in_fleet.expression
     def duration_in_fleet(cls):
-        return select([func.sum(FleetTimeByDayHull.duration)]).\
+        return func.select([func.sum(FleetTimeByDayHull.duration)]).\
             where(FleetTimeByDayHull.characterID==cls.id).\
             label('duration_in_fleet')
 

@@ -78,8 +78,12 @@ class MurmurConnector(ComConnector):
         return db.session.query(MurmurDatum).get(active_id)
 
     @staticmethod
-    def __get_channel(info: MurmurDatum) -> Any:
+    def __get_channel_from_datum(info: MurmurDatum) -> Any:
         return grpc.insecure_channel(info.grpcHost+':'+str(info.grpcPort))
+
+    @staticmethod
+    def __get_channel() -> Any:
+        return MurmurConnector.__get_channel_from_datum(MurmurConnector.__get_active_murmur_datum())
 
     @staticmethod
     def __get_badges_for_account(acc: Account) -> Set[str]:
@@ -123,7 +127,7 @@ class MurmurConnector(ComConnector):
         acc: Account = db.session.query(Account).get(acc_id)
         final_name = MurmurConnector.__get_final_username(name, acc)
 
-        with grpc.insecure_channel('localhost:50051') as ch:
+        with MurmurConnector.__get_channel() as ch:
             client = murmurrpc_pb2_grpc.V1Stub(ch)
             server = murmurrpc_pb2.Server(id=1)
             murmur_user: MurmurUser = db.session.query(MurmurUser).filter(MurmurUser.accountID == acc_id).first()
@@ -221,7 +225,7 @@ class MurmurConnector(ComConnector):
         murmur_grps = MurmurConnector.__get_murmur_groups_from_roles(user_roles)
         logger.debug('Murmur groups to assign: %r', murmur_grps)
 
-        with grpc.insecure_channel('localhost:50051') as ch:
+        with MurmurConnector.__get_channel() as ch:
             client = murmurrpc_pb2_grpc.V1Stub(ch)
 
             # lets get the murmur user so we know who to add to groups
@@ -300,7 +304,7 @@ class MurmurConnector(ComConnector):
         if murmur_datum is None:
             return
 
-        with MurmurConnector.__get_channel(murmur_datum) as ch:
+        with MurmurConnector.__get_channel_from_datum(murmur_datum) as ch:
             client = murmurrpc_pb2_grpc.V1Stub(ch)
             server = murmurrpc_pb2.Server(id=murmur_datum.serverID)
             user_query = client.UserQuery(murmurrpc_pb2.User.Query(server=server))
@@ -327,11 +331,11 @@ class MurmurConnector(ComConnector):
         if murmur_datum is None:
             return
 
-        with MurmurConnector.__get_channel(murmur_datum) as ch:
+        with MurmurConnector.__get_channel_from_datum(murmur_datum) as ch:
             client = murmurrpc_pb2_grpc.V1Stub(ch)
             server = murmurrpc_pb2.Server(id=murmur_datum.serverID)
             t_channel = murmurrpc_pb2.Channel(server=server, id=murmur_datum.safetyChannelID)
-            user_query = client.UserQuery(murmurrpc_pb2.User.Quer(server=server))
+            user_query = client.UserQuery(murmurrpc_pb2.User.Query(server=server))
             for u in user_query.users:
                 if u.name in usernames:
                     usr = murmurrpc_pb2.User()
