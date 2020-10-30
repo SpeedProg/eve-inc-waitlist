@@ -1,5 +1,7 @@
 import logging
 from datetime import timedelta, datetime
+import string
+from random import choice
 
 import flask
 from flask import Blueprint, session
@@ -19,7 +21,7 @@ from waitlist.blueprints.settings import add_menu_entry
 from waitlist.permissions import perm_manager
 from waitlist.permissions.manager import StaticPermissions, StaticRoles
 from waitlist.signal.signals import send_account_created, send_roles_changed, send_account_status_change,\
-    send_alt_link_added, send_account_name_change
+    send_alt_link_added, send_account_name_change, send_default_char_changed
 from waitlist.sso import authorize, who_am_i
 from waitlist.storage.database import Account, Character, Role, linked_chars, APICacheCharacterInfo, SSOToken
 from waitlist.utility import outgate, config
@@ -27,7 +29,8 @@ from waitlist.utility.eve_id_utils import get_character_by_id
 from waitlist.utility.login import invalidate_all_sessions_for_given_user
 from waitlist.utility.manager.owner_hash_check_manager import OwnerHashCheckManager
 from waitlist.utility.settings import sget_resident_mail, sget_tbadge_mail, sget_other_mail, sget_other_topic, \
-    sget_tbadge_topic, sget_resident_topic
+    sget_tbadge_topic, sget_resident_topic, sget_active_coms_type
+from waitlist.utility.coms import get_connector
 from waitlist.utility.utils import get_random_token
 from typing import Callable, Any
 import gevent
@@ -193,6 +196,7 @@ def clean_alt_list() -> None:
      - or the owner_hash changed (this should expire the token!)
     if there is no token for the character at all, the character is kept
     """
+    return
     if not should_clean_alts():
         return
     if not alt_clean_lock.acquire(False):
@@ -232,6 +236,7 @@ def account_edit():
     if acc.username != acc_name:
         old_name: str = acc.username
         acc.username = acc_name
+        db.session.commit()
         send_account_name_change(account_edit, current_user.id, acc.id,
                                  old_name, acc_name, note)
 
@@ -267,6 +272,7 @@ def account_edit():
             for role in new_db_roles:
                 acc.roles.append(role)
         if len(roles_new) > 0 or len(roles_to_remove) > 0:
+            db.session.commit()
             send_roles_changed(account_edit, acc.id, current_user.id, [x for x in roles_new],
                                [x.name for x in roles_to_remove], note)
     else:
@@ -281,7 +287,7 @@ def account_edit():
         if len(roles_to_remove) > 0:
             for role in roles_to_remove:
                 acc.roles.remove(role)
-            db.session.flush()
+            db.session.commit()
             send_roles_changed(account_edit, acc.id, current_user.id, [], [x.name for x in roles_to_remove], note)
 
     if char_name is not None:
@@ -300,16 +306,53 @@ def account_edit():
                     .filter((linked_chars.c.id == acc_id) & (linked_chars.c.char_id == char_id)).first()
                 if link is None:
                     acc.characters.append(character)
+                    db.session.commit()
                     send_alt_link_added(account_edit, current_user.id, acc.id, character.id)
 
-                db.session.flush()
-                acc.current_char = char_id
+                if acc.current_char != char_id:
+                    old_id = acc.current_char
+                    acc.current_char = char_id
+                    db.session.commit()
+                    send_default_char_changed(account_edit, current_user.id,
+                                              acc.id, old_id, char_id, None)
         except ApiException as e:
             flash(gettext("Could not execute action, ApiException %(ex)s", ex=e),
                   'danger')
 
-    db.session.commit()
     return redirect(url_for('.accounts'), code=303)
+
+
+PW_LETTERS = string.ascii_letters+string.digits+"!-_#+*%[](){}?<>"
+
+
+@bp.route('/self_register_coms', methods=['POST'])
+@login_required
+@perm_manager.require('settings_access')
+def account_self_register_mumble():
+    eve_name = current_user.get_eve_name()
+    pw = ''.join(choice(PW_LETTERS) for i in range(15))
+    com_connector = get_connector()
+    if com_connector is not None:
+        username = com_connector.register_user(eve_name, pw, current_user.id)
+        flask.flash(f'Username: {username} Password: {pw} for {com_connector.get_basic_connect_info()}', 'success')
+    else:
+        flask.flash(f'No coms setup', 'danger')
+
+    return redirect(url_for('.account_self'))
+
+
+@bp.route('/self_grant_rights_coms', methods=['POST'])
+@login_required
+@perm_manager.require('settings_access')
+def account_self_grant_rights_mumble():
+    com_connector = get_connector()
+    if com_connector is not None:
+        name = com_connector.update_user_rights(current_user.id, current_user.get_eve_name())
+        flask.flash(f'Rights where updated. Your username is: {name}', 'success')
+    else:
+        flask.flash('No coms setup by admin', 'danger')
+
+    return redirect(url_for('.account_self'))
 
 
 @bp.route("/self_edit", methods=["POST"])
@@ -356,10 +399,10 @@ def account_self_edit():
                                                 'publicData')
                     else:
                         acc.characters.append(character)
+                        db.session.commit()
                         send_alt_link_added(account_self_edit, current_user.id,
                                             acc.id, character.id)
 
-                db.session.flush()
                 if acc.current_char != char_id:
                     # we have a link and it is not the current char
                     if config.require_auth_for_chars:
@@ -396,13 +439,15 @@ def account_self_edit():
                             session['link_charid'] = character.id
                             logger.debug("Character owner_owner hash did not match")
                             return get_sso_redirect("alt_verification", 'publicData')
-
-                    acc.current_char = char_id
+                    if acc.current_char != char_id:
+                        old_id = acc.current_char
+                        acc.current_char = char_id
+                        db.session.commit()
+                        send_default_char_changed(account_self_edit, current_user.id, acc.id, old_id, char_id, None)
         except ApiException as e:
             flash(gettext("Could not execute action, ApiException %(ex)s", ex=e),
                   'danger')
 
-    db.session.commit()
     return redirect(url_for('.account_self'), code=303)
 
 
@@ -411,7 +456,8 @@ def account_self_edit():
 @perm_manager.require('settings_access')
 def account_self():
     acc = db.session.query(Account).filter(Account.id == current_user.id).first()
-    return render_template("settings/self.html", account=acc)
+    coms_type = sget_active_coms_type()
+    return render_template("settings/self.html", account=acc, coms_type=coms_type)
 
 
 @bp.route("/api/account/disabled", methods=['POST'])
@@ -421,15 +467,15 @@ def account_disabled():
     accid: int = int(request.form['id'])
     acc: Account = db.session.query(Account).filter(Account.id == accid).first()
     status: Union(str, bool) = request.form['disabled']
-    send_account_status_change(account_disabled, acc.id, current_user.id, status)
     logger.info("%s sets account %s to %s", current_user.username, acc.username, status)
     if status == 'false':
         status = False
     else:
         status = True
-
-    acc.disabled = status
-    db.session.commit()
+    if acc.disabled != status:
+        acc.disabled = status
+        db.session.commit()
+        send_account_status_change(account_disabled, acc.id, current_user.id, status)
     return "OK"
 
 
@@ -483,7 +529,9 @@ def alt_verification_handler(code: str) -> None:
         for character in current_user.characters:
             if character.id == char_id:  # we are already linked to the char
                 # if it is not set as active char set it
+                old_id = char_id
                 if current_user.current_char != char_id:
+                    old_id = current_user.current_char
                     current_user.current_char = char_id
 
                 # we need to check and maybe update owner hash
@@ -498,6 +546,8 @@ def alt_verification_handler(code: str) -> None:
                     invalidate_all_sessions_for_given_user(character)
 
                 db.session.commit()
+                if old_id != char_id:
+                    send_default_char_changed(alt_verification_handler, current_user.id, current_user.id, old_id, char_id, None)
                 return redirect(url_for('accounts.account_self'), code=303)
 
         # we need to add the char
@@ -529,10 +579,14 @@ def alt_verification_handler(code: str) -> None:
         current_user.characters.append(character)
         db.session.flush()
         send_alt_link_added(alt_verification_handler, current_user.id, current_user.id, character.id)
+        old_id = char_id
         if current_user.current_char != char_id:
+            old_id = current_user.current_char
             current_user.current_char = char_id
 
         db.session.commit()
+        if old_id != char_id:
+            send_default_char_changed(alt_verification_handler, current_user.id, current_user.id, old_id, char_id, None)
         flash(gettext('Alt %(char_name)s was added', char_name=character.eve_name), 'info')
         return redirect(url_for('accounts.account_self'), code=303)
     else:

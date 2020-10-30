@@ -18,10 +18,10 @@ from waitlist.utility.config import stattool_enabled, stattool_uri,\
 
 from waitlist.base import app, db
 from waitlist.storage.database import WaitlistGroup, TeamspeakDatum, CalendarEvent, WaitlistEntry, Account, Trivia
-from waitlist.utility.settings import sget_active_ts_id
 
 from flask_babel import _, lazy_gettext
 from flask.helpers import flash
+from waitlist.utility.coms import get_connector
 
 logger = logging.getLogger(__name__)
 
@@ -60,10 +60,6 @@ def index():
 
     # noinspection PyPep8
     activegroups = db.session.query(WaitlistGroup).filter(WaitlistGroup.enabled == True).all()
-    active_ts_setting_id = sget_active_ts_id()
-    active_ts_setting = None
-    if not disable_teamspeak and active_ts_setting_id is not None:
-        active_ts_setting = db.session.query(TeamspeakDatum).get(active_ts_setting_id)
 
     events = db.session.query(CalendarEvent).filter(CalendarEvent.eventTime > datetime.utcnow()).order_by(
         CalendarEvent.eventTime.asc()).limit(10).all()
@@ -73,8 +69,10 @@ def index():
     if trivias is None:
         trivias = []
 
+    com_connector = get_connector()
+    coms = None if com_connector is None else com_connector.get_connect_display_info()
     return render_template("index.html", lists=wlists, user=current_user, is_index=True, is_on_wl=is_on_wl(),
-                           newbro=new_bro, group=group, groups=activegroups, ts=active_ts_setting, events=events,
+                           newbro=new_bro, group=group, groups=activegroups, coms=coms, events=events,
                            trivias=trivias, ccvote_on=cc_vote_on,
                            stattool_enabled=stattool_enabled, stattool_uri=stattool_uri, stattool_sri=stattool_sri)
 

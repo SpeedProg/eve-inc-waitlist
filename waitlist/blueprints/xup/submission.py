@@ -17,11 +17,11 @@ from waitlist.utility.history_utils import create_history_object
 from waitlist.utility.fitting_utils import get_fit_format, parse_dna_fitting,\
     parse_eft, get_waitlist_type_for_fit
 from waitlist.base import db
+from waitlist.utility.coms import get_connector, ComConnector
 from . import bp
 from flask_babel import gettext, ngettext
 from typing import Dict, List, Tuple
 from waitlist.utility.constants import location_flags, groups
-from waitlist.utility.settings import sget_active_ts_id
 from waitlist.utility.config import disable_teamspeak, disable_scruffy_mode
 import operator
 
@@ -313,7 +313,11 @@ def index():
     if len(ctx['groups']) > 0:
         ctx['newbro'] = current_user.is_new
 
-        ctx['ts'] = None if disable_teamspeak else sget_active_ts_id()
+        com_connector: ComConnector = get_connector()
+        coms = None
+        if com_connector is not None:
+            coms = com_connector.get_basic_connect_info()
+        ctx['coms'] = coms
 
     return render_template("xup.html", **ctx)
 
@@ -331,7 +335,11 @@ def update(fit_id: int):
     if len(ctx['groups']) > 0:
         ctx['newbro'] = current_user.is_new
 
-        ctx['ts'] = None if disable_teamspeak else sget_active_ts_id()
+        com_connector: ComConnector = get_connector()
+        coms = None
+        if com_connector is not None:
+            coms = com_connector.get_basic_connect_info()
+        ctx['coms'] = coms
 
         ctx['update'] = True
 

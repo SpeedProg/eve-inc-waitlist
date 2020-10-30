@@ -12,9 +12,12 @@ from waitlist.base import db
 from waitlist.blueprints.settings import add_menu_entry
 from waitlist.permissions import perm_manager
 from waitlist.storage.database import TeamspeakDatum
-from waitlist.ts3.connection import change_connection
-from waitlist.utility.settings import sget_active_ts_id, sset_active_ts_id
+from waitlist.utility.settings import sget_active_coms_id,\
+    sget_active_coms_type, sset_active_coms_id, sset_active_coms_type
 from waitlist.utility.config import disable_teamspeak
+from waitlist.utility.coms import get_connector, set_connector
+from waitlist.ts3.connection import TS3Connector
+
 from flask_babel import gettext, lazy_gettext
 
 
@@ -36,10 +39,12 @@ perm_edit_server = perm_manager.get_permission('teamspeak_edit')
 @login_required
 @perm_view_server.require()
 def teamspeak():
-    active_ts_setting_id = sget_active_ts_id()
+    active_coms_type = sget_active_coms_type()
+    active_coms_id = sget_active_coms_id()
+
     active_ts_setting = None
-    if active_ts_setting_id is not None:
-        active_ts_setting = db.session.query(TeamspeakDatum).get(active_ts_setting_id)
+    if active_coms_type == 'ts3' and active_coms_id is not None:
+        active_ts_setting = db.session.query(TeamspeakDatum).get(active_coms_id)
 
     all_ts_settings = db.session.query(TeamspeakDatum).all()
 
@@ -79,23 +84,48 @@ def teamspeak_change():
         db.session.add(ts)
         db.session.commit()
         # set as active ts if there was none before
-        if sget_active_ts_id() is None:
-            sset_active_ts_id(ts.teamspeakID)
-            change_connection()
+        if sget_active_coms_id() is None:
+            sset_active_coms_id(ts.teamspeakID)
+            sset_active_coms_type('ts3')
+            com_connector = get_connector()
+            if com_connector is not None:
+                com_connector.close()
+                com_connector = TS3Connector()
+                set_connector(com_connector)
     elif action == "remove" and perm_edit_server.can():
         teamspeak_id = int(request.form['teamspeakID'])
         db.session.query(TeamspeakDatum).filter(TeamspeakDatum.teamspeakID == teamspeak_id).delete()
-        active_id = sget_active_ts_id()
-        if active_id is not None and active_id == teamspeak_id:
-            sset_active_ts_id(None)
-            change_connection()
+        if sget_active_coms_type() == 'ts3':
+            active_id = sget_active_coms_id()
+            if active_id is not None and active_id == teamspeak_id:
+                sset_active_coms_id(None)
+                sset_active_coms_type(None)
+                com_connector = get_connector()
+                if com_connector is not None:
+                    com_connector.close()
+                    com_connector = None
+                    set_connector(None)
+
         db.session.commit()
     elif action == "set":
         teamspeak_id = int(request.form['teamspeakID'])
-        active_id = sget_active_ts_id()
-        sset_active_ts_id(teamspeak_id)
-        if active_id is None:
-            change_connection()
+        active_id = sget_active_coms_id()
+        active_type = sget_active_coms_type()
+        sset_active_coms_id(teamspeak_id)
+        com_connector = get_connector()
+        if active_type != 'ts3':
+            sset_active_coms_type('ts3')
+            if com_connector is not None:
+                com_connector.close()
+                com_connector = TS3Connector()
+                set_connector(com_connector)
+        else:
+            if com_connector is None:
+                com_connector = TS3Connector()
+                set_connector(com_connector)
+            else:
+                com_connector.data_updated()
+
     else:
         flask.abort(400)
 

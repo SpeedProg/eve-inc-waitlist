@@ -31,17 +31,6 @@ def remove_setting(setting_name):
     db.session.commit()
 
 
-def sget_active_ts_id():
-    return get_int("active_ts")
-
-
-def sset_active_ts_id(ts_id):
-    if ts_id is None:
-        remove_setting("active_ts")
-    else:
-        save("active_ts", str(ts_id))
-
-
 def sget_resident_mail():
     return get("mail_resident")
 
@@ -112,3 +101,26 @@ def sget_insert(name):
 
 def sset_insert(name, text):
     return save('insert_'+name, text)
+
+
+def sget_active_coms_id() -> str:
+    return get('active_coms_id')
+
+
+def sset_active_coms_id(coms_id) -> None:
+    if coms_id is None:
+        remove_setting('active_coms_id')
+    else:
+        save('active_coms_id', str(coms_id))
+
+
+def sget_active_coms_type():
+    return get('active_coms_type')
+
+
+def sset_active_coms_type(coms_type: str) -> None:
+    if coms_type is None:
+        remove_setting('active_coms_type')
+    else:
+        save('active_coms_type', coms_type)
+

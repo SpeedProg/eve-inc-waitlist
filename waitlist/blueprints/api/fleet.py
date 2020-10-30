@@ -17,10 +17,10 @@ from datetime import datetime
 from flask.wrappers import Response
 from waitlist.utility.eve_id_utils import get_character_by_name
 from flask.helpers import make_response
-from waitlist.ts3.connection import move_to_safety_channel
-from waitlist.utility.settings import sget_active_ts_id
 from flask_babel import gettext
 from ...signal import send_removed_fleet, send_removed_last_fleet
+
+from waitlist.utility.coms import get_connector
 
 bp = Blueprint('api_fleet', __name__)
 logger = logging.getLogger(__name__)
@@ -181,23 +181,19 @@ def move_fleetmembers_to_safety():
     if not crest_fleet.comp.get_eve_id() == current_user.get_eve_id():
         flask.abort(403, "You are not the Fleet Comp of this fleet!")
 
-    teamspeak_id = sget_active_ts_id()
-    if teamspeak_id is None:
-        flask.abort(500, "No TeamSpeak Server set!")
-
-    teamspeak: TeamspeakDatum = db.session.query(TeamspeakDatum).get(teamspeak_id)
-    if teamspeak.safetyChannelID is None:
-        flask.abort(500, "No TeamSpeak Safety Channel set!")
-
     # get the safety fleet channel id
     with member_info:
         member = member_info.get_fleet_members(fleet_id, crest_fleet.comp)
-
+    char_names = []
     for charID in member:
         char_id: int = member[charID].character_id()
         char = db.session.query(Character).get(char_id)
         if char is None:
             continue
-        safety_channel_id: int = teamspeak.safetyChannelID
-        move_to_safety_channel(char.eve_name, safety_channel_id)
+        char_names.append(char.eve_name)
+
+    com_connector = get_connector()
+    if com_connector is not None:
+        com_connector.move_to_safety(char_names)
+
     return make_response("OK", 200)

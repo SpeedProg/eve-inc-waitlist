@@ -106,12 +106,10 @@
 		</p>
 	</div>
 	{% endif %}
-	{% if ts and is_on_wl %}
+	{% if coms and is_on_wl %}
 	<div class="alert alert-info" role="alert">
 		<p class="text-center">
-			{{ _('Please join Teamspeak, your character name must match <b>exactly</b>
- (case sensitive)<br>TS3 Server:') }} {{ts.displayHost}}{% if
- ts.displayPort != 9987 %}:{{ts.displayPort}}{% endif %}
+			{{ coms }}
 		</p>
 	</div>
 	{% endif %}
@@ -148,9 +146,9 @@
 					</div>
 				</div>
 			</li>
-			{% if ts %}
+			{% if coms %}
 			<li class="nav-item mr-2 wlb">
-				<button type="button" class="nav-link btn btn-info btn-sm" data-action="test-poke">{{_('Test TS')}} <i class="fa-bell-o"></i></button>
+				<button type="button" class="nav-link btn btn-info btn-sm" data-action="test-poke">{{_('Test Notify')}} <i class="fa-bell-o"></i></button>
 			</li>
 			{% endif %}
 			<li class="nav-item wlb">
