@@ -30,24 +30,25 @@ class TS3Connector(ComConnector):
                     except TS3QueryError as error:
                         logger.error("TS3 Query Error: %s", str(error))
                     except Exception:
-                        ncon = TS3Connector.__make_connection()
-                    if ncon is None:
-                        sleep(2)
-                        ncon = TS3Connector.__make_connection()
-                        if ncon is not None:
-                            argsw[0].conn = ncon
+                        ncon = TS3Connector._make_connection()
+                        if ncon is None:
+                            sleep(2)
+                            ncon = TS3Connector._make_connection()
+                            if ncon is not None:
+                                argsw[0].conn = ncon
                         else:
                             argsw[0].conn = ncon
-                            func(*argsw, **kwargs)
-                    else:
-                        argsw[0].conn = TS3Connector.__make_connection()
+                        func(*argsw, **kwargs)
+                else:
+                    argsw[0].conn = TS3Connector._make_connection()
+                    func(*argsw, **kwargs)
 
             return func_wrapper
 
     def __init__(self):
         super().__init__()
         self.access_lock = Lock()
-        self.conn = TS3Connector.__make_connection()
+        self.conn = TS3Connector._make_connection()
         self.timer_lock = Lock()
         self.timer = Timer(300, self.__do_keep_alive)
         self.timer.start()
@@ -74,7 +75,7 @@ class TS3Connector(ComConnector):
         return db.session.query(TeamspeakDatum).get(teamspeak_id)
 
     @staticmethod
-    def __make_connection():
+    def _make_connection():
         if config.disable_teamspeak:
             return None
 
@@ -115,7 +116,7 @@ class TS3Connector(ComConnector):
                 return
             if self.conn is not None:
                 self.conn.close()
-            self.conn = TS3Connector.make_connection()
+            self.conn = TS3Connector._make_connection()
         with self.timer_lock:
             self.timer = Timer(300, self.__do_keep_alive)
             self.timer.start()
@@ -130,22 +131,18 @@ class TS3Connector(ComConnector):
                 response = self.conn.exec_('clientfind', pattern=name)
             except TS3QueryError as er:
                 logger.info("TS3 ClientFind failed on %s with %s", name, str(er))
-                response = []
-            found = False
+                return
+
             for resp in response:
                 if resp['client_nickname'] == name:
                     self.conn.exec_('clientpoke', clid=resp['clid'], msg=msg)
-                    found = True
-            # deaf people put a * in front
-            if not found:
-                try:
-                    response = self.conn.clientfind(pattern="*"+name)
-                except TS3QueryError as er:
-                    logger.info("TS3 ClientFind failed on %s with %s", "*"+name, str(er))
-                    return
+                    break
+            else:
+                # deaf people put a * in front
                 for resp in response:
                     if resp['client_nickname'] == "*"+name:
                         self.conn.exec_('clientpoke', msg=msg, clid=resp['clid'])
+                        break
 
 
     @Decorators.handle_dc
@@ -164,26 +161,18 @@ class TS3Connector(ComConnector):
                     response = self.conn.exec_('clientfind', pattern=name)
                 except TS3QueryError as er:
                     logger.info("TS3 ClientFind failed on %s with %s", name, str(er))
-                    response = []
-                client = None
+                    continue
+
                 for resp in response:
                     if resp['client_nickname'] == name:
-                        client = resp
+                        self.conn.exec_('clientmove', clid=client['clid'], cid=ts_datum.safetyChannelID)
                         break
-
-                if client is None:
-                    try:
-                        response = self.conn.exec_('clientfind', pattern="*"+name)
-                    except TS3QueryError as er:
-                        logger.info("TS3 ClientFind failed on %s with %s", "*"+name, str(er))
-                        return
+                else:
                     for resp in response:
                         if resp['client_nickname'] == "*"+name:
-                            client = resp
+                            self.conn.exec_('clientmove', clid=client['clid'], cid=ts_datum.safetyChannelID)
                             break
-                if client is None:  # we didn't find a user
-                    return
-                self.conn.exec_('clientmove', clid=client['clid'], cid=ts_datum.safetyChannelID)
+
 
     def register_user(self, name: str, password: str, acc_id: int) -> str:
         return name

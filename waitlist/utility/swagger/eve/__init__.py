@@ -74,7 +74,7 @@ class ESIResponse(object):
         if ', details: {' in self.__error:
             monolith_error = {}
             monolith_error['error_label'] = self.__error.split(',', 1)[0]
-            monolith_error['error_dict'] = ast.literal_eval(self.__error[self._error.index(', details: {')+12:])
+            monolith_error['error_dict'] = ast.literal_eval(self.__error[self.__error.index(', details: {')+12:])
             return monolith_error
         '''
         If none of these work, return this fallback

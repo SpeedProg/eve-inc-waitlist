@@ -74,7 +74,8 @@ def repeated_verify(security: EsiSecurity, count: int=0,
             security.signal_token_updated.send(
                 token_identifier=security.token_identifier,
                 **resp)
-        if e.status_code == 420:
+        if (e.status_code == 420 or
+             'SSO response does not contain a character ID' in e.response.decode('utf-8')):
             raise e
 
         if count >= max_count:
