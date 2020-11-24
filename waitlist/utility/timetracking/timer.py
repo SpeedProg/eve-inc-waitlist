@@ -84,7 +84,7 @@ class FleetTimeTracker:
                         self.register_fleet_time(fleet_id, self.cache[fleet_id])
                         del self.cache[fleet_id]
 
-                for fleet_id in self.cache.keys():
+                for fleet_id in list(self.cache.keys()):
                     logger.debug('Checking members in fleet with id=%s', fleet_id)
                     if fleet_id in fleet_ids:
                         # these ones we need to check for missing members, because they left the fleet
@@ -96,7 +96,7 @@ class FleetTimeTracker:
                         # if we get stale data, because e.g. we have no valid api key
                         # just skip this fleet
                         if fleet_new_data is None:
-                            logger.info('Fleet with id=%s is not in cache anymore also its key still exists in database, removing', fleet_id)
+                            logger.info('Fleet with id=%s is not in global fleet cache anymore although its key still exists in our cache, removing', fleet_id)
                             # the fleet disappeared register remaining mebers time
                             self.register_fleet_time(fleet_id, self.cache[fleet_id])
                             del self.cache[fleet_id]
