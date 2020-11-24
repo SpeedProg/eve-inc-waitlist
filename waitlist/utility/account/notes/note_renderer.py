@@ -1,4 +1,4 @@
-from waitlist.storage.database import AccountNote
+from waitlist.storage.database import AccountNote, Character
 from waitlist.utility.constants import account_notes
 from waitlist.utility.eve_id_utils import get_character_by_id
 import json
@@ -67,6 +67,12 @@ def render_note_text(note: AccountNote) -> str:
     elif note.type == account_notes.TYPE_ACCOUNT_NAME_CHANGED:
         return (f'Changed name from "{note.jsonPayload["old_name"]}" '
                 f'to "{note.jsonPayload["new_name"]}"')
+    elif note.type == account_notes.TYPE_ACCOUNT_CHARACTER_LINK_ADDED:
+        character: Character = get_character_by_id(note.jsonPayload['character_id'])
+        return (f'{note.by.username} added Character {character.get_eve_name()} to Account {note.account.username}')
+    elif note.type == account_notes.TYPE_ACCOUNT_CHARACTER_LINK_REMOVED:
+        character: Character = get_character_by_id(note.jsonPayload['character_id'])
+        return (f'{note.by.username} removed Character {character.get_eve_name()} from Account {note.account.username}')
     else:
         logger.error('Unhandler AccountNote type: %s', note.type)
         return f'Unhandled AccountNote type: {note.type}'
