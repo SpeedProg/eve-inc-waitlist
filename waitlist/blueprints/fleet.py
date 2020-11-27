@@ -197,12 +197,12 @@ def setup_step_select() -> Optional[Response]:
     return redirect(url_for('index'))
 
 
-@bp.route("/setup/change_squads/<fleet_id>", methods=["GET"])
+@bp.route("/setup/change_squads/<group_id>/<fleet_id>", methods=["GET"])
 @login_required
 @fleets_manage.require()
-def change_setup(fleet_id: int):
+def change_setup(group_id: int, fleet_id: int):
     token: SSOToken = current_user.get_a_sso_token_with_scopes(esi_scopes.fleetcomp_scopes)
-    return get_select_form(token, fleet_id)
+    return get_select_form(token, fleet_id, group_id)
 
 
 @bp.route("/pffleet/<int:fleetid>")
