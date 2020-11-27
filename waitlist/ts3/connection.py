@@ -60,7 +60,7 @@ class TS3Connector(ComConnector):
                     try:
                         self.conn.send_keepalive()
                     except Exception as ex:
-                        logger.debug('Sending keepalive to ts3 connection failed error: %s', ex)
+                        logger.debug('Sending keepalive to ts3 connection failed', exc_info=ex)
             if self.timer is not None:
                 self.timer = Timer(300, self.__do_keep_alive)
                 self.timer.start()
