@@ -193,9 +193,10 @@ def main():
     if db.session.query(CrestFleet).count() > 0:
         f: CrestFleet = db.session.query(CrestFleet).first()
         send_added_first_fleet(main, f.fleetID)
-    db.session.remove()
 
     setup_coms()
+
+    db.session.remove()
 
     run_server()
 
