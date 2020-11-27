@@ -215,7 +215,7 @@
 				<td>
 					<button class="btn btn-danger btn-sm" data-type="remove-fleet" data-id="{{fleet.fleetID}}">{{ _('Remove') }}</button>
 					<a href="{{url_for('fleet.change_type', fleet_id=fleet.fleetID)}}" class="btn btn-sm btn-warning">{{ _('Change Fleet Type') }}</a>
-					<a href="{{url_for('fleet.change_setup', fleet_id=fleet.fleetID)}}" class="btn btn-sm btn-danger">{{ _('Change Squads') }}</a>
+					<a href="{{url_for('fleet.change_setup', group_id=group.groupID, fleet_id=fleet.fleetID)}}" class="btn btn-sm btn-danger">{{ _('Change Squads') }}</a>
 					<button data-action="moveToSafety" data-fleetId="{{fleet.fleetID}}" class="btn btn-sm btn-danger">{{ _('Safety') }}</button>
 				</td>
 			</tr>
