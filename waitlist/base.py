@@ -1,5 +1,4 @@
 from datetime import datetime
-from json import JSONEncoder
 
 from flasgger import Swagger, LazyString, LazyJSONEncoder
 from flask import Flask

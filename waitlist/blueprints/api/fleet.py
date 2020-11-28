@@ -6,15 +6,13 @@ from flask.globals import request
 
 from waitlist.permissions import perm_manager
 from waitlist.storage.database import CrestFleet, Waitlist, \
-    Character, WaitlistEntry, HistoryEntry, HistoryExtInvite, \
-    TeamspeakDatum, SquadMapping
+    Character, WaitlistEntry, HistoryEntry, HistoryExtInvite, SquadMapping
 from waitlist.utility.notifications import send_notification
 from waitlist.utility.history_utils import create_history_object
 from waitlist.utility.fleet import spawn_invite_check, invite, member_info
 from flask.json import jsonify
 from waitlist.base import db
 from datetime import datetime
-from flask.wrappers import Response
 from waitlist.utility.eve_id_utils import get_character_by_name
 from flask.helpers import make_response
 from flask_babel import gettext

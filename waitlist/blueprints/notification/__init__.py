@@ -1,2 +1,4 @@
+__all__ = ['bp', 'alarm']
+
 from .blueprint import bp
-from .alarm import *
+from . import alarm

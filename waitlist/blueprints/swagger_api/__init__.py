@@ -20,8 +20,8 @@ def error_handler_forbidden(ex: Exception) -> Response:
     resp.status_code = 403
     return resp
 
-
-app.register_blueprint(characters.bp_v1, url_prefix='/swa/v1/characters')
-app.register_blueprint(accounts.bp_v1, url_prefix='/swa/v1/accounts')
-app.register_blueprint(statistics.bp_v1, url_prefix='/swa/v1/statistics')
-app.register_blueprint(i18n.bp_v1, url_prefix='/swa/v1/i18n')
+def register_blueprints():
+    app.register_blueprint(characters.bp_v1, url_prefix='/swa/v1/characters')
+    app.register_blueprint(accounts.bp_v1, url_prefix='/swa/v1/accounts')
+    app.register_blueprint(statistics.bp_v1, url_prefix='/swa/v1/statistics')
+    app.register_blueprint(i18n.bp_v1, url_prefix='/swa/v1/i18n')

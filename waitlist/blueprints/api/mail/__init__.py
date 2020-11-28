@@ -17,9 +17,10 @@ from waitlist.storage.database import Account, AccountNote, SSOToken
 from sqlalchemy import or_
 from waitlist.base import db
 from waitlist.utility.constants import account_notes
-from waitlist.signal.handler import account
-bp = Blueprint('api_mail', __name__)
+
 logger = logging.getLogger(__name__)
+
+bp = Blueprint('api_mail', __name__)
 
 perm_manager.define_permission('send_mail')
 

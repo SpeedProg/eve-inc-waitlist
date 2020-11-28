@@ -1,2 +1,5 @@
+__all__ =['bp', 'submission']
+
 from .blueprint import bp
-from .submission import *
+from . import submission
+

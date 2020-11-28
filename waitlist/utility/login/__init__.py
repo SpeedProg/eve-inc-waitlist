@@ -4,19 +4,18 @@ from typing import Union
 import flask
 import logging
 
-from flask import current_app, session, Response
+from flask import current_app, Response
 from flask import redirect
 from flask import url_for
 from flask_login import login_user, current_user
 from flask_principal import identity_changed, Identity
 
 from waitlist.base import db
-from waitlist.blueprints.fc_sso import get_sso_redirect, add_sso_handler
+from waitlist.blueprints.fc_sso import add_sso_handler
 from waitlist.sso import authorize, who_am_i, revoke
 from waitlist.storage.database import Account, Character, SSOToken
 from waitlist.utility import config
 from waitlist.utility.eve_id_utils import get_character_by_id_and_name, is_char_banned
-from waitlist.utility.manager import OwnerHashCheckManager
 from waitlist.signal.signals import send_alt_link_removed
 from flask_babel import gettext
 from esipy.exceptions import APIException

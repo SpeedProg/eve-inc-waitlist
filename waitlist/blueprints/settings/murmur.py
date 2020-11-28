@@ -17,7 +17,7 @@ from waitlist.utility.settings import sget_active_coms_id,\
 from waitlist.utility.config import disable_murmur
 from waitlist.utility.murmur.connector import MurmurConnector
 from waitlist.utility.coms import get_connector, set_connector
-from flask_babel import gettext, lazy_gettext
+from flask_babel import lazy_gettext
 
 
 bp = Blueprint('murmur', __name__)

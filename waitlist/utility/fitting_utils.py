@@ -1,12 +1,9 @@
-import operator
 from decimal import Decimal
-from sqlalchemy import literal
 from waitlist.utility.constants import location_flags, effects, check_types
-from typing import List, Dict, Optional, Tuple, AbstractSet, Union
+from typing import List, Dict, Optional, Tuple, AbstractSet, Union, Set
 from waitlist.storage.database import InvType, Shipfit, FitModule,\
-    MarketGroup, ShipCheckCollection, ShipCheck, Waitlist, InvGroup
+    MarketGroup, ShipCheckCollection, ShipCheck, InvGroup
 from waitlist.base import db
-from waitlist.data.names import WaitlistNames
 import logging
 import re
 from waitlist.utility.eve_id_utils import get_item_id
@@ -334,13 +331,13 @@ def does_check_apply(check: ShipCheck, ship_type_id: int) -> bool:
                 return True
     if len(check.check_rest_groups) > 0:
         has_restriction = True
-        for igroup in checks.check_rest_groups:
+        for igroup in check.check_rest_groups:
             if igroup.groupID == invtype.groupID:
                 return True
     market_groups = get_market_groups(invtype)
     if len(check.check_rest_market_groups) > 0:
         has_restriction = True
-        for mgroup in checks.check_rest_market_groups:
+        for mgroup in check.check_rest_market_groups:
             if mgroup.marketGroupID in market_groups:
                 return True
 

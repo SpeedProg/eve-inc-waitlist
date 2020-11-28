@@ -3,8 +3,7 @@ from datetime import datetime
 from typing import Optional, Tuple
 
 from waitlist.storage.database import APICacheCharacterInfo, SSOToken
-from waitlist.utility.outgate.exceptions import check_esi_response, ESIException,\
-    ApiException
+from waitlist.utility.outgate.exceptions import check_esi_response
 from waitlist.utility.swagger.eve.character import CharacterEndpoint, CharacterInfo
 from waitlist.utility.swagger.eve.search import SearchEndpoint, SearchResponse
 from waitlist.base import db
@@ -44,11 +43,11 @@ def get_character_info(char_id: int, *args) -> APICacheCharacterInfo:
 
     if char_cache is None:
         char_cache = APICacheCharacterInfo()
-        __populate_from_api(char_cache, char_id)
+        __populate_from_api(char_cache, char_id, args)
         db.session.add(char_cache)
         db.session.commit()
     else:
-        __run_update_check(char_cache, char_id)
+        __run_update_check(char_cache, char_id, args)
 
     return char_cache
 
@@ -76,7 +75,7 @@ def get_character_info_by_name(name: str, *args) -> Optional[APICacheCharacterIn
     if search_info.character_ids() is None or\
         len(search_info.character_ids()) < 1:
         return None
-    return get_character_info(search_info.character_ids()[0])
+    return get_character_info(search_info.character_ids()[0], args)
 
 
 def get_char_or_corp_or_alliance_id_by_name(name: str, *args) -> Tuple[Optional[int], Optional[str]]:

@@ -1,4 +1,3 @@
-import gevent_patch_helper
 import logging.config
 import os
 import json
@@ -72,19 +71,20 @@ def register_blueprints():
     from waitlist.blueprints.api import permission
     from waitlist.blueprints import xup
     from waitlist.blueprints import notification
+    from waitlist import flask_hooks
 
-    # load the jinja2 hooks
-    import waitlist.utility.jinja2
 
-    # load flask hooks
-    import waitlist.utility.flask
-
-    # load base app routes
-    import waitlist.blueprints
+    from waitlist.blueprints import about, login, index
 
     from waitlist.base import app
+    flask_hooks.register_hooks(app)
+    swagger_api.register_blueprints()
 
     app.register_blueprint(bp_waitlist)
+    app.register_blueprint(index)
+    app.register_blueprint(about.bp)
+    app.register_blueprint(help.bp)
+    app.register_blueprint(login.bp)
     app.register_blueprint(feedback.feedback, url_prefix="/feedback")
     app.register_blueprint(fc_sso_bp, url_prefix="/fc_sso")
     app.register_blueprint(fleet_bp, url_prefix="/fleet")
@@ -130,12 +130,10 @@ def register_blueprints():
     app.register_blueprint(notification.bp, url_prefix="/notification")
 
 def setup_coms():
-    from waitlist.utility.coms import get_connector, set_connector
-    from waitlist.utility import config
+    from waitlist.utility.coms import set_connector
     from waitlist.ts3.connection import TS3Connector
     from waitlist.utility.murmur.connector import MurmurConnector
-    from waitlist.utility.settings import sget_active_coms_id, sget_active_coms_type
-    com_connector = get_connector()
+    from waitlist.utility.settings import sget_active_coms_type
     com_type = sget_active_coms_type()
     if com_type is None:
         return
@@ -174,6 +172,7 @@ def main():
 
     arg_ns: argparse.Namespace = parser.parse_args()
     if arg_ns.create_config:
+        # we need to import this to create the config template
         import waitlist.utility.config
         return
 
@@ -201,4 +200,4 @@ def main():
     run_server()
 
 if __name__ == '__main__':
-  main()
+    main()

@@ -18,7 +18,7 @@ from waitlist.utility.config import disable_teamspeak
 from waitlist.utility.coms import get_connector, set_connector
 from waitlist.ts3.connection import TS3Connector
 
-from flask_babel import gettext, lazy_gettext
+from flask_babel import lazy_gettext
 
 
 bp = Blueprint('teamspeak', __name__)

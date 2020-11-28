@@ -6,6 +6,7 @@ from waitlist.utility.swagger.eve.universe.responses import ResolveIdsResponse,\
     TypesResponse, TypeResponse
 from typing import List
 from esipy.exceptions import APIException
+from pyswagger.core import App
 
 
 class UniverseEndpoint(object):

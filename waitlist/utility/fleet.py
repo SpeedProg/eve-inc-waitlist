@@ -6,7 +6,7 @@ import logging
 from threading import Timer, Lock
 from waitlist.base import db
 from waitlist.storage.database import WaitlistGroup, CrestFleet, WaitlistEntry, \
-    HistoryEntry, Character, TeamspeakDatum, Account, SSOToken, Waitlist
+    HistoryEntry, Character, Account, SSOToken, Waitlist
 from datetime import datetime, timedelta
 from waitlist.utility.history_utils import create_history_object
 from flask.helpers import url_for

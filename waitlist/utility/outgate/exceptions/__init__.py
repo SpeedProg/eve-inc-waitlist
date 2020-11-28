@@ -53,11 +53,11 @@ class ESIException(ApiException):
 def check_esi_response(resp: Optional[ESIResponse], call: Callable, params: Sequence[Any]) -> ESIResponse:
     if resp is None:
         # this should never happen
-        logger.error('Got no response in {} with {}', call.__name__, params)
+        logger.error('Got no response in %s with %r', call.__name__, params)
         raise ESIException(resp, call)
     elif resp.is_error():
         # esi returned no data
-        logger.info('Got ESIResponse {}', resp)
+        logger.info('Got ESIResponse %r', resp)
         raise ESIException(resp, call)
     else:
         return resp

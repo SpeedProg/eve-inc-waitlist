@@ -8,7 +8,6 @@ from flask.globals import request
 
 from waitlist.permissions import perm_manager
 from waitlist.storage.database import WaitlistEntry, Shipfit, Waitlist, HistoryEntry, WaitlistGroup
-from waitlist.data.names import WaitlistNames
 from werkzeug.utils import redirect
 from flask.helpers import url_for
 from flask.templating import render_template

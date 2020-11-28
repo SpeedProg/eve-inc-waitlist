@@ -10,7 +10,6 @@ from flask import render_template
 from flask import url_for
 from flask.globals import request
 from flask_login import login_required, current_user
-from sqlalchemy import or_
 
 from waitlist.base import db
 from waitlist.permissions import perm_manager

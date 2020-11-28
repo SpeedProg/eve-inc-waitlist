@@ -14,6 +14,7 @@ from waitlist.permissions.manager import StaticPermissions
 from waitlist.signal.signals import send_role_created, send_role_removed
 from flask_babel import gettext, lazy_gettext
 from flask.helpers import flash
+from waitlist.storage.database import Role
 
 bp = Blueprint('settings_permissions', __name__)
 logger = logging.getLogger(__name__)

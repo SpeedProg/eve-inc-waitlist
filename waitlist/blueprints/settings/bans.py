@@ -6,13 +6,12 @@ from flask import render_template
 from flask import request
 from flask import url_for
 from flask_login import current_user, login_required
-from sqlalchemy import asc
 
 from waitlist.utility import outgate
 from waitlist.base import db
 from waitlist.blueprints.settings import add_menu_entry
 from waitlist.permissions import perm_manager
-from waitlist.storage.database import Ban, Whitelist, Character, CharacterTypes
+from waitlist.storage.database import Ban, Whitelist, CharacterTypes
 from waitlist.utility.eve_id_utils import get_character_by_name, get_char_corp_all_name_by_id_and_type
 from waitlist.utility.utils import get_info_from_ban
 from flask_babel import lazy_gettext, gettext
@@ -143,7 +142,7 @@ def bans_change_single():
                 return
             ban_name = get_char_corp_all_name_by_id_and_type(ban_id, CharacterTypes[ban_type])
             # check if ban already there
-            if db.session.query(Ban).filter(Ban.id == eve_id).count() == 0:
+            if db.session.query(Ban).filter(Ban.id == ban_id).count() == 0:
                 # ban him
                 new_ban = Ban()
                 new_ban.id = ban_id
@@ -156,7 +155,7 @@ def bans_change_single():
         elif action == "unban":
             ban_id = int(target)
             logger.info("%s is unbanning %s", current_user.username, target)
-            if eve_id is None:
+            if ban_id is None:
                 flash(gettext("Character/Corp/Alliance %(target)s does not exist!", target=target), 'danger')
             else:
                 # check that there is a ban

@@ -5,13 +5,12 @@ from typing import List, Optional, Union, Dict, Any
 
 from esipy import EsiSecurity
 from esipy.exceptions import APIException
-from sqlalchemy import Column, Integer, String, SmallInteger, BIGINT, Boolean, DateTime, Index, \
+from sqlalchemy import Column, Integer, String, SmallInteger, Boolean, DateTime, Index, \
     sql, BigInteger, text, Float, Text, Numeric, Date
 from sqlalchemy import Enum
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship, backref
-from sqlalchemy.sql.schema import Table, ForeignKey, CheckConstraint, UniqueConstraint,\
-    ForeignKeyConstraint
+from sqlalchemy.sql.schema import Table, ForeignKey, CheckConstraint, UniqueConstraint
 from sqlalchemy.ext.hybrid import hybrid_property
 
 from waitlist.base import db

@@ -87,7 +87,7 @@ class TS3Connector(ComConnector):
             ts3conn.exec_("use", sid=teamspeak.serverID)
             try:
                 ts3conn.exec_('clientupdate', client_nickname=teamspeak.clientName)
-            except TS3QueryError as ex:
+            except TS3QueryError:
                 # this means we already have the right name
                 # newer versions of ts server name without ip
                 pass
@@ -165,12 +165,12 @@ class TS3Connector(ComConnector):
 
                 for resp in response:
                     if resp['client_nickname'] == name:
-                        self.conn.exec_('clientmove', clid=client['clid'], cid=ts_datum.safetyChannelID)
+                        self.conn.exec_('clientmove', clid=resp['clid'], cid=ts_datum.safetyChannelID)
                         break
                 else:
                     for resp in response:
                         if resp['client_nickname'] == "*"+name:
-                            self.conn.exec_('clientmove', clid=client['clid'], cid=ts_datum.safetyChannelID)
+                            self.conn.exec_('clientmove', clid=resp['clid'], cid=ts_datum.safetyChannelID)
                             break
 
 

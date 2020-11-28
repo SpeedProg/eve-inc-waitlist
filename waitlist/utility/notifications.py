@@ -6,7 +6,6 @@ from waitlist.data.sse import GongSSE, send_server_sent_event
 from waitlist.utility.history_utils import create_history_object
 from flask_login import current_user
 from waitlist.utility.coms import get_connector
-from waitlist.utility import config
 logger = logging.getLogger(__name__)
 
 

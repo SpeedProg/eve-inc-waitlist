@@ -1,11 +1,11 @@
 import logging
-from typing import Any
+from typing import Any, Dict
 from decimal import Decimal
 import flask
 from flask import Blueprint, Response, render_template, request,\
     url_for, redirect
-from flask_babel import gettext, lazy_gettext
-from flask_login import login_required, current_user
+from flask_babel import lazy_gettext
+from flask_login import login_required
 from waitlist.base import db
 from waitlist.permissions import perm_manager
 from waitlist.storage.database import ShipCheckCollection, WaitlistGroup, ShipCheck,\
@@ -108,13 +108,12 @@ def get_id_type(check_type: int) -> Any:
 @login_required
 @perm_manager.require('ship_assignment_edit')
 def check_add(coll_id: int) -> Response:
-    collection: ShipCheckCollection = db.session.query(ShipCheckCollection).get(coll_id)
     name: str = request.form['check_name']
     check_id: int = int(request.form['check_type'], 10)
     target: int  = int(request.form['check_target'], 10)
     order: int = int(request.form['order'], 10)
     modifier: Decimal = Decimal(request.form['modifier'])
-    check_ids = [int(check_id.strip()) for check_id in request.form['ids'].split(',')]
+    check_ids = [int(cid.strip()) for cid in request.form['ids'].split(',')]
     tag = request.form['tag']
 
     check: ShipCheck = ShipCheck(

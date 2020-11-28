@@ -6,12 +6,10 @@ from flask_login import current_user, login_required
 import re
 
 from waitlist.blueprints.api.fittings.self import self_remove_fit
-from waitlist.data.names import WaitlistNames
 from waitlist.data.sse import EntryAddedSSE, send_server_sent_event,\
     FitAddedSSE
 from waitlist.storage.database import WaitlistGroup, WaitlistEntry, Shipfit,\
-    TeamspeakDatum, InvType, FitModule, MarketGroup, HistoryEntry, Waitlist,\
-    ShipCheckCollection
+    InvType, FitModule, HistoryEntry, Waitlist, ShipCheckCollection
 from waitlist.storage.modules import resist_ships, logi_ships
 from waitlist.utility.history_utils import create_history_object
 from waitlist.utility.fitting_utils import get_fit_format, parse_dna_fitting,\
@@ -20,10 +18,7 @@ from waitlist.base import db
 from waitlist.utility.coms import get_connector, ComConnector
 from . import bp
 from flask_babel import gettext, ngettext
-from typing import Dict, List, Tuple
-from waitlist.utility.constants import location_flags, groups
-from waitlist.utility.config import disable_teamspeak, disable_scruffy_mode
-import operator
+from waitlist.utility.config import disable_scruffy_mode
 
 logger = logging.getLogger(__name__)
 

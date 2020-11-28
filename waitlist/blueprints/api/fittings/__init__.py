@@ -1,8 +1,4 @@
+__all__ = ['bp', 'fittings', 'comp', 'self']
+
 from .blueprint import bp
-from .fittings import *
-from .comp import *
-from .self import *
-
-
-
-
+from . import fittings, comp, self

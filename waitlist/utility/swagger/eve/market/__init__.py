@@ -1,9 +1,11 @@
 from esipy.client import EsiClient
 from typing import List
-from esipy.exceptions import APIException
 from ...eve import get_esi_client
 from ....swagger import get_api
 from .responses import MarketGroupsResponse, MarketGroupResponse
+from pyswagger.core import App
+
+
 class MarketEndpoint(object):
     def __init__(self, client: EsiClient = None) -> None:
         if client is None:

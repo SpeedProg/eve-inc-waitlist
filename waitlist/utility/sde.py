@@ -1,7 +1,7 @@
 import logging
 from bz2 import BZ2File
-from concurrent.futures import ThreadPoolExecutor, as_completed
-from typing import Union, Optional, Tuple, List
+from concurrent.futures import ThreadPoolExecutor, as_completed, Future
+from typing import Union, Optional, Tuple, List, Set, Dict, Any
 from collections import deque
 from sqlalchemy.sql import exists
 import flask
@@ -21,6 +21,10 @@ from waitlist.utility.swagger.eve.universe import UniverseEndpoint
 from waitlist.utility.swagger.eve.market import MarketEndpoint, MarketGroupResponse
 from waitlist.utility.utils import chunks
 import time
+from waitlist.utility.swagger.eve.market.responses import MarketGroupsResponse
+from waitlist.utility.swagger.eve.universe.responses import GroupResponse,\
+    CategoriesResponse, CategoryResponse, TypesResponse
+from pyswagger.core import App
 
 logger = logging.getLogger(__name__)
 
@@ -119,12 +123,13 @@ def add_marketgroup_by_id_to_database(market_group_id: int):
     # this will hold the groups and their parents
     # starting with the lowest child
     # so they need to be added in reverse order to database
+    # this is later done with the help of a deque
     groups_to_add: List[MarketGroupResponse] = []
-    cur.append(resp)
+    groups_to_add.append(resp)
     # we have the path to root if it has no parent or parent is already in database
     while current.parent_id is not None and not db.session.query(exists().where(MarketGroup.marketGroupID == current.parent_id)):
-        reps = ep.get_group(current.parent_id)
-        parents_to_add.append(current)
+        resp = ep.get_group(current.parent_id)
+        groups_to_add.append(current)
         current = resp
 
     bulk_data = deque(maxlen=len(groups_to_add))
@@ -529,7 +534,7 @@ def add_constellation_info(const_id: int, esi_client: EsiClient) -> Optional[Tup
         db.session.merge(const)
         db.session.commit()
         return None
-    except Exception as e:
+    except Exception:
         return const_id, esi_client
 
 
@@ -571,7 +576,7 @@ def add_system_info(system_id: int, esi_client: EsiClient) -> Optional[Tuple[int
         db.session.merge(system)
         db.session.commit()
         return None
-    except Exception as e:
+    except Exception:
         return system_id, esi_client
 
 

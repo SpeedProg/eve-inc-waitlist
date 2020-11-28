@@ -1,4 +1,3 @@
-from jinja2.ext import Extension
 from jinja2 import nodes, exceptions
 from webassets import Bundle
 from webassets.loaders import GlobLoader, LoaderError
@@ -32,27 +31,26 @@ class Jinja2Loader(GlobLoader):
         return bundles
 
     def _parse(self, filename, contents):
-        for i, env in enumerate(self.jinja2_envs):
+        for _, env in enumerate(self.jinja2_envs):
             try:
                 t = env.parse(contents.decode(self.charset))
-            except exceptions.TemplateSyntaxError as e:
-                #print ('jinja parser (env %d) failed: %s'% (i, e))
+            except exceptions.TemplateSyntaxError:
                 pass
             else:
                 result = []
                 def _recurse_node(node_to_search):
                     for node in node_to_search.iter_child_nodes():
                         if isinstance(node, nodes.Call):
-                            if isinstance(node.node, nodes.ExtensionAttribute)\
-                               and node.node.identifier == AssetsExtension.identifier:
-                                filter, output, dbg, depends, files = node.args
+                            if (isinstance(node.node, nodes.ExtensionAttribute)
+                               and node.node.identifier == AssetsExtension.identifier):
+                                cfilter, output, _, depends, files = node.args
                                 if output.as_const() is not None:
                                     bundle = Bundle(
                                         *AssetsExtension.resolve_contents(files.as_const(), self.asset_env),
                                         **{
                                             'output': output.as_const(),
                                             'depends': depends.as_const(),
-                                            'filters': filter.as_const()})
+                                            'filters': cfilter.as_const()})
                                     result.append(bundle)
                         else:
                             _recurse_node(node)

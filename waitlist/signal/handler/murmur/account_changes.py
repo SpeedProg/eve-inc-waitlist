@@ -1,5 +1,5 @@
 from typing import Optional, Any
-from ...signals import default_char_change_sig, roles_changed_sig, account_status_change_sig
+from ...signals import roles_changed_sig, account_status_change_sig
 from waitlist.utility.murmur.connector import MurmurConnector
 from waitlist.utility.eve_id_utils import get_character_by_id
 from waitlist.storage.database import Character, Account
@@ -34,6 +34,7 @@ def on_account_status_change_update_murmur(sender: Any, account_id: int,
 def connect() -> None:
     """Connect signal handlers
     """
+    # TODO: this needs change to usernames are updated even if it is no the active coms
     #default_char_change_sig.connect(on_default_char_change_update_murmur)
     roles_changed_sig.connect(on_roles_changed_update_murmur)
     account_status_change_sig.connect(on_account_status_change_update_murmur)

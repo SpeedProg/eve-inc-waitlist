@@ -5,8 +5,6 @@ from flask_principal import RoleNeed, Permission, IdentityContext
 
 from waitlist.base import db
 from waitlist.storage.database import Permission as DBPermission, Role
-from abc import abstractstaticmethod
-from sqlalchemy.orm.exc import NoResultFound
 
 logger = logging.getLogger(__name__)
 
@@ -143,10 +141,10 @@ class PermissionManager(object):
 
     @staticmethod
     def get_role(role_id: int) -> Optional[Role]:
-      """Get a role by id
-         returns: the role or None
-      """
-      return db.session.query(Role).get(role_id)
+        """Get a role by id
+           returns: the role or None
+        """
+        return db.session.query(Role).get(role_id)
 
     def get_permissions(self) -> Dict[str, AddPermission]:
         return self.__permissions

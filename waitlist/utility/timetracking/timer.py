@@ -164,7 +164,7 @@ class FleetTimeTracker:
 
             db.session.commit()
 
-        except Exception as e:
+        except Exception:
             logger.exception('Failed')
         finally:
             db.session.remove()

@@ -5,7 +5,7 @@ import grpc
 from flask_babel import lazy_gettext
 
 from waitlist.base import db
-from waitlist.storage.database import Account, MurmurUser, Role
+from waitlist.storage.database import Account, MurmurUser
 from waitlist.utility.settings import sget_active_coms_type, sget_active_coms_id
 from waitlist.storage.database import MurmurDatum
 

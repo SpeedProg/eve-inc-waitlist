@@ -1,5 +1,4 @@
 from esipy.exceptions import APIException
-from flask import jsonify, Response
 from flask.blueprints import Blueprint
 import logging
 from flask.globals import request

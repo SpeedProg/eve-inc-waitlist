@@ -11,7 +11,6 @@ from flask.wrappers import Response
 
 from waitlist.permissions import perm_manager
 from waitlist.base import db
-from time import sleep
 
 bp = Blueprint('api_sse', __name__)
 logger = logging.getLogger(__name__)

@@ -1,7 +1,6 @@
 from waitlist.utility.swagger.eve import ESIResponse, get_expire_time,\
     get_error_msg_from_response
-import datetime
-from typing import Optional, Any, ClassVar, List, Dict
+from typing import Any, ClassVar, List, Dict
 from waitlist.utility.swagger.eve.universe.models import NameItem
 
 

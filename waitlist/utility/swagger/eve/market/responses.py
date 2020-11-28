@@ -1,7 +1,5 @@
-import datetime
-from typing import Optional, Any, ClassVar, List, Dict
-from .. import ESIResponse, get_expire_time,\
-    get_error_msg_from_response
+from typing import Any, ClassVar, List
+from .. import ESIResponse, get_expire_time, get_error_msg_from_response
 
 
 class MarketGroupsResponse(ESIResponse):

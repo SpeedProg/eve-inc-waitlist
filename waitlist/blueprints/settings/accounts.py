@@ -23,7 +23,7 @@ from waitlist.permissions.manager import StaticPermissions, StaticRoles
 from waitlist.signal.signals import send_account_created, send_roles_changed, send_account_status_change,\
     send_alt_link_added, send_account_name_change, send_default_char_changed
 from waitlist.sso import authorize, who_am_i
-from waitlist.storage.database import Account, Character, Role, linked_chars, APICacheCharacterInfo, SSOToken
+from waitlist.storage.database import Account, Character, Role, linked_chars, SSOToken
 from waitlist.utility import outgate, config
 from waitlist.utility.eve_id_utils import get_character_by_id
 from waitlist.utility.login import invalidate_all_sessions_for_given_user
@@ -32,7 +32,6 @@ from waitlist.utility.settings import sget_resident_mail, sget_tbadge_mail, sget
     sget_tbadge_topic, sget_resident_topic, sget_active_coms_type
 from waitlist.utility.coms import get_connector
 from waitlist.utility.utils import get_random_token
-from typing import Callable, Any
 import gevent
 import time
 from gevent.threading import Lock
@@ -40,6 +39,7 @@ from flask_babel import gettext, lazy_gettext
 from waitlist.utility.outgate.exceptions import ApiException
 from sqlalchemy.exc import InvalidRequestError
 from esipy.exceptions import APIException
+from typing import List, Optional, Union
 
 bp = Blueprint('accounts', __name__)
 logger = logging.getLogger(__name__)
@@ -139,6 +139,7 @@ def async_clean_alt_list() -> None:
      - or the owner_hash changed (this should expire the token!)
     if there is no token for the character at all, the character is kept
     """
+    global last_alt_clean
     if not should_clean_alts():
         return
     if not alt_clean_lock.acquire(False):
@@ -330,7 +331,7 @@ PW_LETTERS = string.ascii_letters+string.digits+"!-_#+*%[](){}?<>"
 @perm_manager.require('settings_access')
 def account_self_register_mumble():
     eve_name = current_user.get_eve_name()
-    pw = ''.join(choice(PW_LETTERS) for i in range(15))
+    pw = ''.join(choice(PW_LETTERS) for _ in range(15))
     com_connector = get_connector()
     if com_connector is not None:
         username = com_connector.register_user(eve_name, pw, current_user.id)

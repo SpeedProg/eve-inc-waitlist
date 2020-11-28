@@ -14,7 +14,6 @@ from waitlist.base import db
 from waitlist.storage.database import SSOToken, EveApiScope
 from waitlist.utility import config
 from esipy.exceptions import APIException
-from time import sleep
 
 logger = logging.getLogger(__name__)
 
