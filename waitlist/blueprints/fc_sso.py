@@ -5,7 +5,7 @@ from flask_login import login_required
 
 from werkzeug.utils import redirect
 from flask.globals import request, session, _app_ctx_stack
-from flask_seasurf import randrange
+from random import randrange
 import hashlib
 
 from waitlist.permissions import perm_manager
